@@ -2252,7 +2252,7 @@ char __cdecl UI_Project_FeederItemColor(
           Vec4Set(color, 0.15000001, 0.61000001, 0.0, 0.80000001);
           break;
         case 6:
-          color[3] = FLOAT_0_60000002;
+          color[3] = 0.6f;
           break;
         case 7:
           Vec4Set(color, 0.81, 0.15000001, 0.039999999, 0.80000001);
@@ -2434,10 +2434,10 @@ char __cdecl UI_FeederItemColor_Contracts(
   contractIndex = LiveContracts_GetContractIndexFromListIndex(controllerIndex, index);
   LiveContracts_GetActiveContractIndex(controllerIndex, contractIndex);
   isRowHighlighted = listPtr->cursorPos[contextIndex] == index && Window_HasFocus(contextIndex, &item->window);
-  *color = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
-  color[3] = FLOAT_1_0;
+  *color = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
+  color[3] = 1.0f;
   if ( column == -1 )
     goto LABEL_9;
   if ( !column && !isRowHighlighted )
@@ -2504,10 +2504,10 @@ char __cdecl UI_FeederItemColor_ItemList(
     __debugbreak();
   }
   isRowHighlighted = listPtr->cursorPos[contextIndex] == index && Window_HasFocus(contextIndex, &item->window);
-  *color = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
-  color[3] = FLOAT_1_0;
+  *color = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
+  color[3] = 1.0f;
   if ( column )
   {
     if ( column == 1 || column == 3 )
@@ -2523,10 +2523,10 @@ char __cdecl UI_FeederItemColor_ItemList(
       {
         if ( isRowHighlighted )
         {
-          *color = *(float *)&FLOAT_0_0;
-          color[1] = *(float *)&FLOAT_0_0;
-          color[2] = *(float *)&FLOAT_0_0;
-          color[3] = FLOAT_1_0;
+          *color = 0.0f;
+          color[1] = 0.0f;
+          color[2] = 0.0f;
+          color[3] = 1.0f;
         }
       }
       else if ( cost <= LiveStats_GetCurrency(controllerIndex) )
@@ -2745,10 +2745,10 @@ bool __cdecl UI_FeederItemColor_InGamePlayers(
     case 0:
       if ( isRowHighlighted )
       {
-        *color = FLOAT_1_0;
-        color[1] = FLOAT_1_0;
-        color[2] = FLOAT_1_0;
-        color[3] = FLOAT_1_0;
+        *color = 1.0f;
+        color[1] = 1.0f;
+        color[2] = 1.0f;
+        color[3] = 1.0f;
       }
       else if ( feederType == 105 )
       {
@@ -2770,10 +2770,10 @@ bool __cdecl UI_FeederItemColor_InGamePlayers(
     case 2:
       if ( isRowHighlighted )
       {
-        *color = FLOAT_1_0;
-        color[1] = FLOAT_1_0;
-        color[2] = FLOAT_1_0;
-        color[3] = FLOAT_1_0;
+        *color = 1.0f;
+        color[1] = 1.0f;
+        color[2] = 1.0f;
+        color[3] = 1.0f;
       }
       else
       {
@@ -2837,16 +2837,16 @@ char __cdecl UI_FeederItemColor_GlobalMilestones(
     __debugbreak();
   }
   isRowHighlighted = listPtr->cursorPos[contextIndex] == index && Window_HasFocus(contextIndex, &item->window);
-  *color = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
-  color[3] = FLOAT_1_0;
+  *color = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
+  color[3] = 1.0f;
   if ( (!column || column == 2) && isRowHighlighted )
   {
-    *color = *(float *)&FLOAT_0_0;
-    color[1] = *(float *)&FLOAT_0_0;
-    color[2] = *(float *)&FLOAT_0_0;
-    color[3] = FLOAT_1_0;
+    *color = 0.0f;
+    color[1] = 0.0f;
+    color[2] = 0.0f;
+    color[3] = 1.0f;
   }
   return 1;
 }
@@ -2873,20 +2873,20 @@ char __cdecl UI_FeederItemColor_PerksMilestones(
   isRowHighlighted = listPtr->cursorPos[contextIndex] == index && Window_HasFocus(contextIndex, &item->window);
   itemIndex = BG_UnlockablesGetItemIndexInSlot(index);
   isItemPurchased = BG_UnlockablesIsItemPurchased(controllerIndex, itemIndex);
-  *color = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
-  color[3] = FLOAT_1_0;
+  *color = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
+  color[3] = 1.0f;
   if ( !column )
   {
     if ( isItemPurchased )
     {
       if ( isRowHighlighted )
       {
-        *color = *(float *)&FLOAT_0_0;
-        color[1] = *(float *)&FLOAT_0_0;
-        color[2] = *(float *)&FLOAT_0_0;
-        color[3] = FLOAT_1_0;
+        *color = 0.0f;
+        color[1] = 0.0f;
+        color[2] = 0.0f;
+        color[3] = 1.0f;
       }
     }
     else
@@ -2925,20 +2925,20 @@ char __cdecl UI_FeederItemColor_StatsMilestones(
   if ( !LiveStats_GetChallengeInfo(&challenge, index, milestoneType) )
     return 0;
   isItemPurchased = (challenge->flags & 1) == 0;
-  *color = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
-  color[3] = FLOAT_1_0;
+  *color = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
+  color[3] = 1.0f;
   if ( !column || column == 2 )
   {
     if ( isItemPurchased && (challenge->flags & 4) == 0 )
     {
       if ( isRowHighlighted )
       {
-        *color = *(float *)&FLOAT_0_0;
-        color[1] = *(float *)&FLOAT_0_0;
-        color[2] = *(float *)&FLOAT_0_0;
-        color[3] = FLOAT_1_0;
+        *color = 0.0f;
+        color[1] = 0.0f;
+        color[2] = 0.0f;
+        color[3] = 1.0f;
       }
     }
     else
@@ -3028,7 +3028,7 @@ bool __cdecl UI_FeederItemColor_AARScoreboard(
             color[2] = color[2] * darkRowMultiplier;
           }
           if ( color[3] > 1.0 )
-            color[3] = FLOAT_1_0;
+            color[3] = 1.0f;
           result = 1;
         }
       }
@@ -3040,10 +3040,10 @@ bool __cdecl UI_FeederItemColor_AARScoreboard(
       }
       else
       {
-        *color = *(float *)&FLOAT_0_0;
-        color[1] = *(float *)&FLOAT_0_0;
-        color[2] = *(float *)&FLOAT_0_0;
-        color[3] = FLOAT_0_1;
+        *color = 0.0f;
+        color[1] = 0.0f;
+        color[2] = 0.0f;
+        color[3] = 0.1f;
         result = 1;
       }
       break;
@@ -3119,10 +3119,10 @@ char __cdecl UI_FeederItemColor_KillstreakNumKills(
   }
   if ( listPtr->cursorPos[contextIndex] == index && Window_HasFocus(contextIndex, &item->window) )
   {
-    *color = *(float *)&FLOAT_0_0;
-    color[1] = *(float *)&FLOAT_0_0;
-    color[2] = *(float *)&FLOAT_0_0;
-    color[3] = FLOAT_1_0;
+    *color = 0.0f;
+    color[1] = 0.0f;
+    color[2] = 0.0f;
+    color[3] = 1.0f;
   }
   if ( killNum == Dvar_GetInt("custom_killstreak_1_kills") && Dvar_GetInt("custom_killstreak_1")
     || killNum == Dvar_GetInt("custom_killstreak_2_kills") && Dvar_GetInt("custom_killstreak_2")

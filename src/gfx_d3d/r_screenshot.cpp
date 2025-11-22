@@ -872,7 +872,7 @@ char __cdecl R_GetBackBufferDataHDR(int x, int y, int width, int height, int byt
         *dstPixel = (float)(rr * rr) * 16.0;
         dstPixel[1] = (float)(gg * gg) * 16.0;
         dstPixel[2] = (float)(bb * bb) * 16.0;
-        dstPixel[3] = FLOAT_1_0;
+        dstPixel[3] = 1.0f;
         dstPixel += 4;
       }
       srcPixel += lockedRect.Pitch;
@@ -1215,17 +1215,17 @@ void __cdecl R_CreateReflectionRawDataFromCubemapShot(DiskGfxReflectionProbe *pr
   R_CubemapShotFlipVertical(cubeShotGlob.pixelsHDR[5], size);
   R_GetAverageSecondaryLightingAtPoint(probeRawData->origin, &outColor);
   if ( outColor <= 0.0 )
-    v6 = *(float *)&FLOAT_0_0;
+    v6 = 0.0f;
   else
     v6 = 1.0 / outColor;
   outColor = v6;
   if ( v17 <= 0.0 )
-    v5 = *(float *)&FLOAT_0_0;
+    v5 = 0.0f;
   else
     v5 = 1.0 / v17;
   v17 = v5;
   if ( v18 <= 0.0 )
-    v4 = *(float *)&FLOAT_0_0;
+    v4 = 0.0f;
   else
     v4 = 1.0 / v18;
   v18 = v4;
@@ -1536,9 +1536,9 @@ void __cdecl R_CubemapLightingForDir(
   float sourceDir[3]; // [esp+84h] [ebp-10h] BYREF
   float facing; // [esp+90h] [ebp-4h]
 
-  color = *(float *)&FLOAT_0_0;
-  color_4 = *(float *)&FLOAT_0_0;
-  color_8 = *(float *)&FLOAT_0_0;
+  color = 0.0f;
+  color_4 = 0.0f;
+  color_8 = 0.0f;
   sampleCount = 0;
   for ( faceIndex = 0; faceIndex < 6; ++faceIndex )
   {
@@ -1572,17 +1572,17 @@ void __cdecl R_CubemapLightingForDir(
   if ( (float)(colora - 1.0) < 0.0 )
     v14 = colora;
   else
-    v14 = FLOAT_1_0;
+    v14 = 1.0f;
   pixel[2] = (int)((float)(255.0 * v14) + 9.313225746154785e-10);
   if ( (float)(color_4a - 1.0) < 0.0 )
     v10 = color_4a;
   else
-    v10 = FLOAT_1_0;
+    v10 = 1.0f;
   pixel[1] = (int)((float)(255.0 * v10) + 9.313225746154785e-10);
   if ( (float)(color_8a - 1.0) < 0.0 )
     v9 = color_8a;
   else
-    v9 = FLOAT_1_0;
+    v9 = 1.0f;
   *pixel = (int)((float)(255.0 * v9) + 9.313225746154785e-10);
   pixel[3] = -1;
 }

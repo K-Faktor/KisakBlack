@@ -367,9 +367,9 @@ char __cdecl Ragdoll_ReadAxis(int arg, float *dest)
   else
   {
     Com_Printf(14, "Ragdoll: Missing axis arg %d\n", arg);
-    *dest = *(float *)&FLOAT_0_0;
-    dest[1] = *(float *)&FLOAT_0_0;
-    dest[2] = *(float *)&FLOAT_0_0;
+    *dest = 0.0f;
+    dest[1] = 0.0f;
+    dest[2] = 0.0f;
     return 0;
   }
 }

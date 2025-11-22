@@ -22,7 +22,7 @@ double __cdecl SND_LosOcclusionTrace(bool fancy, int *cache, const float *listen
   float side_listen_ray_step; // [esp+F0h] [ebp-4h]
 
   memset(&result, 0, 16);
-  occlusion_factor = FLOAT_1_0;
+  occlusion_factor = 1.0f;
   memset(valid, 0, sizeof(valid));
   memset(hits, 0, sizeof(hits));
   listen_rays = 2;
@@ -39,9 +39,9 @@ double __cdecl SND_LosOcclusionTrace(bool fancy, int *cache, const float *listen
   //PIXBeginNamedEvent(-1, "Occlusion Trace");
   if ( CG_SightTracePoint(cache, listener, playback, 49, &result) )
   {
-    up[0] = *(float *)&FLOAT_0_0;
-    up[1] = *(float *)&FLOAT_0_0;
-    up[2] = FLOAT_1_0;
+    up[0] = 0.0f;
+    up[1] = 0.0f;
+    up[2] = 1.0f;
     to[0] = *listener - *playback;
     to[1] = listener[1] - playback[1];
     to[2] = listener[2] - playback[2];
@@ -49,7 +49,7 @@ double __cdecl SND_LosOcclusionTrace(bool fancy, int *cache, const float *listen
     {
       side[0] = to[1];
       LODWORD(side[1]) = LODWORD(to[0]) ^ _mask__NegFloat_;
-      side[2] = *(float *)&FLOAT_0_0;
+      side[2] = 0.0f;
       Snd_LosOcclusionMultiTrace(
         cache,
         listener,
@@ -94,12 +94,12 @@ double __cdecl SND_LosOcclusionTrace(bool fancy, int *cache, const float *listen
           if ( (float)(0.2 - v8) < 0.0 )
             v6 = (double)hits[i] / (double)valid[i];
           else
-            v6 = FLOAT_0_2;
+            v6 = 0.2f;
           v7 = v6;
         }
         else
         {
-          v7 = FLOAT_1_0;
+          v7 = 1.0f;
         }
         if ( (float)(v7 - occlusion_factor) < 0.0 )
           v5 = v7;
@@ -256,16 +256,16 @@ void  SND_TraceProximity(
   for ( reflect = 0; reflect < 4; ++reflect )
   {
     MAX_DISTANCE = (float)((float)((float)reflect * 1.5707964) + v29) - 1.5707964;
-    MAX_DISTANCE_SCALE = *(float *)&FLOAT_0_0;
-    c = *(unsigned int *)&FLOAT_0_0;
-    *(float *)&result.hitPartition = FLOAT_1000_0;
+    MAX_DISTANCE_SCALE = 0.0f;
+    c = 0;
+    *(float *)&result.hitPartition = 1000.0f;
     *(float *)&result.staticModel = 1000.0 / 16.0;
     for ( *(unsigned int *)&result.walkable = 0; *(unsigned int *)&result.walkable < 0x10u; ++*(unsigned int *)&result.walkable )
     {
-      v18[0] = *(unsigned int *)&FLOAT_0_0;
-      v18[1] = *(unsigned int *)&FLOAT_0_0;
-      cache = *(unsigned int *)&FLOAT_0_0;
-      result.normal.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
+      v18[0] = 0;
+      v18[1] = 0;
+      cache = 0;
+      result.normal.vec.u[0] = 0;
       t = 0;
       *((_QWORD *)&end + 1) = *(unsigned int *)&result.walkable;
       *((float *)&end + 1) = (double)*(unsigned int *)&result.walkable / 16.0 * 1.5707964 + MAX_DISTANCE;
@@ -458,7 +458,7 @@ void __cdecl SND_UpdateProximity()
   else
   {
     for ( j = 0; j < 4; ++j )
-      g_snd.proximityLateModifier[j] = FLOAT_1_0;
+      g_snd.proximityLateModifier[j] = 1.0f;
   }
 }
 
@@ -531,7 +531,7 @@ void __cdecl SND_LosOcclusionUpdate()
         *playback = voice->position[0];
         playback[1] = position[1];
         playback[2] = position[2];
-        g_snd.occlusionTraces[i].occlusion = *(float *)&FLOAT_0_0;
+        g_snd.occlusionTraces[i].occlusion = 0.0f;
         ++updated;
       }
       else

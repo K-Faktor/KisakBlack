@@ -74,43 +74,43 @@ void  IK_GenerateIKXformMatrices(float *a1@<ebp>, IKState *ikState, bool isLocal
         v19 = *v35;
         v20 = v35[4];
         v21 = v35[8];
-        preModelInverseMat[0][0] = *(float *)&FLOAT_0_0;
+        preModelInverseMat[0][0] = 0.0f;
         preModelInverseMat[0][1] = v35[1];
         preModelInverseMat[0][2] = v35[5];
         preModelInverseMat[0][3] = v35[9];
-        preModelInverseMat[1][0] = *(float *)&FLOAT_0_0;
+        preModelInverseMat[1][0] = 0.0f;
         preModelInverseMat[1][1] = v35[2];
         preModelInverseMat[1][2] = v35[6];
         preModelInverseMat[1][3] = v35[10];
-        preModelInverseMat[2][0] = *(float *)&FLOAT_0_0;
+        preModelInverseMat[2][0] = 0.0f;
         *(float *)i = (float)((float)(*v34 * v19) + (float)(v34[1] * preModelInverseMat[0][1]))
                     + (float)(v34[2] * preModelInverseMat[1][1]);
         *(float *)(i + 4) = (float)((float)(*v34 * v20) + (float)(v34[1] * preModelInverseMat[0][2]))
                           + (float)(v34[2] * preModelInverseMat[1][2]);
         *(float *)(i + 8) = (float)((float)(*v34 * v21) + (float)(v34[1] * preModelInverseMat[0][3]))
                           + (float)(v34[2] * preModelInverseMat[1][3]);
-        *(unsigned int *)(i + 12) = *(unsigned int *)&FLOAT_0_0;
+        *(unsigned int *)(i + 12) = 0;
         *(float *)(i + 16) = (float)((float)(v34[4] * v19) + (float)(v34[5] * preModelInverseMat[0][1]))
                            + (float)(v34[6] * preModelInverseMat[1][1]);
         *(float *)(i + 20) = (float)((float)(v34[4] * v20) + (float)(v34[5] * preModelInverseMat[0][2]))
                            + (float)(v34[6] * preModelInverseMat[1][2]);
         *(float *)(i + 24) = (float)((float)(v34[4] * v21) + (float)(v34[5] * preModelInverseMat[0][3]))
                            + (float)(v34[6] * preModelInverseMat[1][3]);
-        *(unsigned int *)(i + 28) = *(unsigned int *)&FLOAT_0_0;
+        *(unsigned int *)(i + 28) = 0;
         *(float *)(i + 32) = (float)((float)(v34[8] * v19) + (float)(v34[9] * preModelInverseMat[0][1]))
                            + (float)(v34[10] * preModelInverseMat[1][1]);
         *(float *)(i + 36) = (float)((float)(v34[8] * v20) + (float)(v34[9] * preModelInverseMat[0][2]))
                            + (float)(v34[10] * preModelInverseMat[1][2]);
         *(float *)(i + 40) = (float)((float)(v34[8] * v21) + (float)(v34[9] * preModelInverseMat[0][3]))
                            + (float)(v34[10] * preModelInverseMat[1][3]);
-        *(unsigned int *)(i + 44) = *(unsigned int *)&FLOAT_0_0;
+        *(unsigned int *)(i + 44) = 0;
         v18 = i + 48;
         v17 = v35 + 12;
         v16 = v34 + 12;
         *(float *)(i + 48) = v34[12] - v35[12];
         *(float *)(v18 + 4) = v16[1] - v17[1];
         *(float *)(v18 + 8) = v16[2] - v17[2];
-        *(float *)(i + 60) = FLOAT_1_0;
+        *(float *)(i + 60) = 1.0f;
       }
       else
       {
@@ -124,15 +124,15 @@ void  IK_GenerateIKXformMatrices(float *a1@<ebp>, IKState *ikState, bool isLocal
         v24[0] = *(float *)&v33[64];
         v24[1] = *(float *)&v33[80];
         v24[2] = *(float *)&v33[96];
-        v24[3] = *(float *)&FLOAT_0_0;
+        v24[3] = 0.0f;
         v25 = *(float *)&v33[68];
         v26 = *(float *)&v33[84];
         v27 = *(float *)&v33[100];
-        v28 = *(unsigned int *)&FLOAT_0_0;
+        v28 = 0;
         v29 = *(float *)&v33[72];
         v30 = *(float *)&v33[88];
         v31 = *(float *)&v33[104];
-        v32 = *(unsigned int *)&FLOAT_0_0;
+        v32 = 0;
         *(float *)i = (float)((float)(*(float *)v33 * *(float *)&v33[64])
                             + (float)(*(float *)&v33[4] * *(float *)&v33[68]))
                     + (float)(*(float *)&v33[8] * *(float *)&v33[72]);
@@ -140,28 +140,28 @@ void  IK_GenerateIKXformMatrices(float *a1@<ebp>, IKState *ikState, bool isLocal
                           + (float)(*(float *)&v33[8] * v30);
         *(float *)(i + 8) = (float)((float)(*(float *)v33 * v24[2]) + (float)(*(float *)&v33[4] * v27))
                           + (float)(*(float *)&v33[8] * v31);
-        *(unsigned int *)(i + 12) = *(unsigned int *)&FLOAT_0_0;
+        *(unsigned int *)(i + 12) = 0;
         *(float *)(i + 16) = (float)((float)(*(float *)&v33[16] * v24[0]) + (float)(*(float *)&v33[20] * v25))
                            + (float)(*(float *)&v33[24] * v29);
         *(float *)(i + 20) = (float)((float)(*(float *)&v33[16] * v24[1]) + (float)(*(float *)&v33[20] * v26))
                            + (float)(*(float *)&v33[24] * v30);
         *(float *)(i + 24) = (float)((float)(*(float *)&v33[16] * v24[2]) + (float)(*(float *)&v33[20] * v27))
                            + (float)(*(float *)&v33[24] * v31);
-        *(unsigned int *)(i + 28) = *(unsigned int *)&FLOAT_0_0;
+        *(unsigned int *)(i + 28) = 0;
         *(float *)(i + 32) = (float)((float)(*(float *)&v33[32] * v24[0]) + (float)(*(float *)&v33[36] * v25))
                            + (float)(*(float *)&v33[40] * v29);
         *(float *)(i + 36) = (float)((float)(*(float *)&v33[32] * v24[1]) + (float)(*(float *)&v33[36] * v26))
                            + (float)(*(float *)&v33[40] * v30);
         *(float *)(i + 40) = (float)((float)(*(float *)&v33[32] * v24[2]) + (float)(*(float *)&v33[36] * v27))
                            + (float)(*(float *)&v33[40] * v31);
-        *(unsigned int *)(i + 44) = *(unsigned int *)&FLOAT_0_0;
+        *(unsigned int *)(i + 44) = 0;
         LODWORD(v23[4]) = &v33[112];
         LODWORD(v23[3]) = &v33[48];
         v23[0] = *(float *)&v33[48] - *(float *)&v33[112];
         v23[1] = *(float *)&v33[52] - *(float *)&v33[116];
         v23[2] = *(float *)&v33[56] - *(float *)&v33[120];
         ikMatrixTransformVector34(v23, (const float (*)[4])v24, (float *)(i + 48));
-        *(float *)(i + 60) = FLOAT_1_0;
+        *(float *)(i + 60) = 1.0f;
       }
       if ( *(float *)&pPostModelMat < 1.0 )
       {

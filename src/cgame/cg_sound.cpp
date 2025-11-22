@@ -354,9 +354,9 @@ void __cdecl CG_GetSoundEntityOrientation(
   }
   else if ( velocity_out )
   {
-    *velocity_out = *(float *)&FLOAT_0_0;
-    velocity_out[1] = *(float *)&FLOAT_0_0;
-    velocity_out[2] = *(float *)&FLOAT_0_0;
+    *velocity_out = 0.0f;
+    velocity_out[1] = 0.0f;
+    velocity_out[2] = 0.0f;
   }
   if ( velocity_out
     && ((*(unsigned int *)velocity_out & 0x7F800000) == 0x7F800000
@@ -500,10 +500,10 @@ void __cdecl CG_SndFireReset()
     {
       fire = &g_snd_fires[localClientNum][f];
       fire->active = 0;
-      fire->location[0] = *(float *)&FLOAT_0_0;
-      fire->location[1] = *(float *)&FLOAT_0_0;
-      fire->location[2] = *(float *)&FLOAT_0_0;
-      fire->level = *(float *)&FLOAT_0_0;
+      fire->location[0] = 0.0f;
+      fire->location[1] = 0.0f;
+      fire->location[2] = 0.0f;
+      fire->level = 0.0f;
       fire->id = -1;
     }
   }
@@ -659,19 +659,19 @@ char __cdecl CG_SoundWhizbyPath(const float *p1, const float *p2, const float *p
   if ( (float)(t0 - 1.0) < 0.0 )
     v10 = (float)(COERCE_FLOAT(LODWORD(b) ^ _mask__NegFloat_) + da) / (float)(2.0 * a);
   else
-    v10 = FLOAT_1_0;
+    v10 = 1.0f;
   if ( (float)(0.0 - t0) < 0.0 )
     fraction = v10;
   else
-    fraction = *(float *)&FLOAT_0_0;
+    fraction = 0.0f;
   if ( (float)(t1 - 1.0) < 0.0 )
     v9 = (float)(COERCE_FLOAT(LODWORD(b) ^ _mask__NegFloat_) - da) / (float)(2.0 * a);
   else
-    v9 = FLOAT_1_0;
+    v9 = 1.0f;
   if ( (float)(0.0 - t1) < 0.0 )
     v7 = v9;
   else
-    v7 = *(float *)&FLOAT_0_0;
+    v7 = 0.0f;
   if ( fraction == v7 )
     return 0;
   if ( v7 <= fraction )

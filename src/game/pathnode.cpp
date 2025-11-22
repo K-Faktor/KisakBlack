@@ -148,9 +148,9 @@ const pathnode_parent_t *__cdecl get_pathnode_parent(const pathnode_t *node)
 
   if ( first_time_called )
   {
-    node_parent_world.origin_loc[0] = *(float *)&FLOAT_0_0;
-    node_parent_world.origin_loc[1] = *(float *)&FLOAT_0_0;
-    node_parent_world.origin_loc[2] = *(float *)&FLOAT_0_0;
+    node_parent_world.origin_loc[0] = 0.0f;
+    node_parent_world.origin_loc[1] = 0.0f;
+    node_parent_world.origin_loc[2] = 0.0f;
     node_parent_world.entnum = 1022;
     node_parent_world.m_node = 0;
     node_parent_world.m_next = 0;
@@ -231,7 +231,7 @@ void  node_droptofloor(cStaticModel_s *a1@<ebp>, pathnode_t *node)
   trace.staticModel = a1;
   trace.hitPartition = retaddr;
   memset(&context.locational, 0, 12);
-  trace.normal.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
+  trace.normal.vec.u[0] = 0;
   col_context_t::col_context_t((col_context_t *)&vOrigin[1]);
   LODWORD(vOrigin[0]) = node->constant.vOrigin;
   vEnd[0] = node->constant.vOrigin[0];
@@ -1393,16 +1393,16 @@ void __cdecl Path_DrawDebugNoLinks(const pathnode_t *node, const float (*color)[
   vStart[0] = (float)(8.0 * 0.86602539) + vOrg;
   vStart[1] = (float)(8.0 * 0.5) + vOrg_4;
   vStart[2] = (float)(8.0 * 0.0) + vOrg_8;
-  vEnd[0] = (float)(COERCE_FLOAT(LODWORD(FLOAT_8_0) ^ _mask__NegFloat_) * 0.86602539) + vOrg;
-  vEnd[1] = (float)(COERCE_FLOAT(LODWORD(FLOAT_8_0) ^ _mask__NegFloat_) * 0.5) + vOrg_4;
-  vEnd[2] = (float)(COERCE_FLOAT(LODWORD(FLOAT_8_0) ^ _mask__NegFloat_) * 0.0) + vOrg_8;
+  vEnd[0] = (float)(COERCE_FLOAT(LODWORD(8.0f) ^ _mask__NegFloat_) * 0.86602539) + vOrg;
+  vEnd[1] = (float)(COERCE_FLOAT(LODWORD(8.0f) ^ _mask__NegFloat_) * 0.5) + vOrg_4;
+  vEnd[2] = (float)(COERCE_FLOAT(LODWORD(8.0f) ^ _mask__NegFloat_) * 0.0) + vOrg_8;
   CG_DebugLine(vStart, vEnd, (const float *)color, 0, duration);
   vStart[0] = (float)(8.0 * -0.5) + vOrg;
   vStart[1] = (float)(8.0 * 0.86602539) + vOrg_4;
   vStart[2] = (float)(8.0 * 0.0) + vOrg_8;
-  vEnd[0] = (float)(COERCE_FLOAT(LODWORD(FLOAT_8_0) ^ _mask__NegFloat_) * -0.5) + vOrg;
-  vEnd[1] = (float)(COERCE_FLOAT(LODWORD(FLOAT_8_0) ^ _mask__NegFloat_) * 0.86602539) + vOrg_4;
-  vEnd[2] = (float)(COERCE_FLOAT(LODWORD(FLOAT_8_0) ^ _mask__NegFloat_) * 0.0) + vOrg_8;
+  vEnd[0] = (float)(COERCE_FLOAT(LODWORD(8.0f) ^ _mask__NegFloat_) * -0.5) + vOrg;
+  vEnd[1] = (float)(COERCE_FLOAT(LODWORD(8.0f) ^ _mask__NegFloat_) * 0.86602539) + vOrg_4;
+  vEnd[2] = (float)(COERCE_FLOAT(LODWORD(8.0f) ^ _mask__NegFloat_) * 0.0) + vOrg_8;
   CG_DebugLine(vStart, vEnd, (const float *)color, 0, duration);
 }
 
@@ -1423,7 +1423,7 @@ void __cdecl Path_DrawDebugNode(const float *cameraPos, const pathnode_t *node)
   float org[3]; // [esp+17Ch] [ebp-10h] BYREF
   float scale; // [esp+188h] [ebp-4h]
 
-  boxsizeMin[2] = *(float *)&FLOAT_0_0;
+  boxsizeMin[2] = 0.0f;
   if ( !cameraPos
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\pathnode.cpp", 2736, 0, "%s", "cameraPos") )
   {
@@ -1529,7 +1529,7 @@ double __cdecl Path_GetDebugStringScale(const float *cameraPos, const float *ori
   }
   if ( !origin && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\pathnode.cpp", 2660, 0, "%s", "origin") )
     __debugbreak();
-  scale = FLOAT_1_0;
+  scale = 1.0f;
   player = G_Find(0, 356, scr_const.player);
   if ( player )
   {
@@ -1541,7 +1541,7 @@ double __cdecl Path_GetDebugStringScale(const float *cameraPos, const float *ori
     scale = v2 / 3600.0 * scale;
   }
   if ( (float)(scale - 0.5) < 0.0 )
-    return FLOAT_0_5;
+    return 0.5f;
   else
     return scale;
 }
@@ -1655,7 +1655,7 @@ void __cdecl Path_DrawDebugFindPath(const float *vOrigin)
           }
           else
           {
-            width = FLOAT_5000_0;
+            width = 5000.0f;
           }
           delta[0] = vStartPos[0] - vGoalPos[0];
           delta[1] = *(float *)&dword_A07A074 - *(float *)&dword_A07A064;
@@ -1846,7 +1846,7 @@ void __cdecl Path_DrawDebugLink(const pathnode_t *node, int i, bool bShowAll)
   pathnode_t *otherNode; // [esp+88h] [ebp-8h]
   float fArrowSize; // [esp+8Ch] [ebp-4h]
 
-  fArrowSize = FLOAT_8_0;
+  fArrowSize = 8.0f;
   otherNode = &gameWorldCurrent->path.nodes[node->constant.Links[i].nodeNum];
   if ( node->constant.type != NODE_NEGOTIATION_BEGIN
     || otherNode->constant.type != NODE_NEGOTIATION_END

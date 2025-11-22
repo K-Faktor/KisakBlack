@@ -8,12 +8,12 @@ void __cdecl CG_DrawWaterTrail(int localClientNum, const float *pos, float water
   float axis[3][3]; // [esp+14h] [ebp-24h] BYREF
 
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
-  axis[0][0] = *(float *)&FLOAT_0_0;
-  *(_QWORD *)&axis[0][1] = __PAIR64__(LODWORD(FLOAT_1_0), *(unsigned int *)&FLOAT_0_0);
-  *(_QWORD *)&axis[1][0] = __PAIR64__(LODWORD(FLOAT_N1_0), *(unsigned int *)&FLOAT_0_0);
-  axis[1][2] = *(float *)&FLOAT_0_0;
-  *(_QWORD *)&axis[2][0] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_1_0));
-  axis[2][2] = *(float *)&FLOAT_0_0;
+  axis[0][0] = 0.0f;
+  *(_QWORD *)&axis[0][1] = __PAIR64__(LODWORD(1.0f), 0);
+  *(_QWORD *)&axis[1][0] = __PAIR64__(LODWORD(-1.0f), 0);
+  axis[1][2] = 0.0f;
+  *(_QWORD *)&axis[2][0] = __PAIR64__(0, LODWORD(1.0f));
+  axis[2][2] = 0.0f;
   fxPos[0] = *pos;
   fxPos[1] = pos[1];
   fxPos[2] = waterHeight;
@@ -191,7 +191,7 @@ void __cdecl CG_DrawWaterTrail(int localClientNum)
     }
     else
     {
-      cent->pose.player.waterHeight = FLOAT_N1000000_0;
+      cent->pose.player.waterHeight = -1000000.0;
     }
   }
 }
@@ -256,12 +256,12 @@ void __cdecl CG_PlayTestFx(int localClientNum)
 
   testEffect = &s_testEffect[localClientNum];
   fxDef = FX_Register(testEffect->name);
-  axis[0][0] = *(float *)&FLOAT_0_0;
-  *(_QWORD *)&axis[0][1] = __PAIR64__(LODWORD(FLOAT_1_0), *(unsigned int *)&FLOAT_0_0);
-  *(_QWORD *)&axis[1][0] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_1_0));
-  axis[1][2] = *(float *)&FLOAT_0_0;
-  *(_QWORD *)&axis[2][0] = __PAIR64__(LODWORD(FLOAT_1_0), *(unsigned int *)&FLOAT_0_0);
-  axis[2][2] = *(float *)&FLOAT_0_0;
+  axis[0][0] = 0.0f;
+  *(_QWORD *)&axis[0][1] = __PAIR64__(LODWORD(1.0f), 0);
+  *(_QWORD *)&axis[1][0] = __PAIR64__(0, LODWORD(1.0f));
+  axis[1][2] = 0.0f;
+  *(_QWORD *)&axis[2][0] = __PAIR64__(LODWORD(1.0f), 0);
+  axis[2][2] = 0.0f;
   time = CG_GetLocalClientGlobals(localClientNum)->time;
   FX_PlayOrientedEffect(localClientNum, fxDef, time, testEffect->pos, axis);
   testEffect->time = time;
@@ -1186,9 +1186,9 @@ double __cdecl LookAtAxisAndDistance(const float *origin, const float *lookAt, f
   v6 = (*axis)[0];
   LODWORD((*axis)[3]) = LODWORD((*axis)[1]) ^ _mask__NegFloat_;
   (*axis)[4] = v6;
-  (*axis)[5] = *(float *)&FLOAT_0_0;
+  (*axis)[5] = 0.0f;
   if ( (*axis)[3] == 0.0 && (*axis)[4] == 0.0 )
-    (*axis)[3] = FLOAT_1_0;
+    (*axis)[3] = 1.0f;
   Vec3Normalize(&(*axis)[3]);
   Vec3Cross((const float *)axis, &(*axis)[3], &(*axis)[6]);
   if ( !Vec3IsNormalized(&(*axis)[6]) )
@@ -1274,9 +1274,9 @@ void __cdecl CG_UpdateDestructibleKillCam(int localClientNum)
   v5 = cgameGlob->refdef.viewaxis[0][0];
   LODWORD(cgameGlob->refdef.viewaxis[1][0]) = LODWORD(cgameGlob->refdef.viewaxis[0][1]) ^ _mask__NegFloat_;
   v4[1] = v5;
-  v4[2] = *(float *)&FLOAT_0_0;
+  v4[2] = 0.0f;
   if ( cgameGlob->refdef.viewaxis[1][0] == 0.0 && cgameGlob->refdef.viewaxis[1][1] == 0.0 )
-    cgameGlob->refdef.viewaxis[1][0] = FLOAT_1_0;
+    cgameGlob->refdef.viewaxis[1][0] = 1.0f;
   Vec3Normalize(cgameGlob->refdef.viewaxis[1]);
   Vec3Cross(cgameGlob->refdef.viewaxis[0], cgameGlob->refdef.viewaxis[1], cgameGlob->refdef.viewaxis[2]);
   if ( !Vec3IsNormalized(cgameGlob->refdef.viewaxis[2]) )
@@ -1388,9 +1388,9 @@ void __cdecl CG_UpdateArtilleryKillCam(int localClientNum)
   Vec3Normalize(delta);
   LODWORD(left[0]) = LODWORD(delta[1]) ^ _mask__NegFloat_;
   left[1] = delta[0];
-  left[2] = *(float *)&FLOAT_0_0;
+  left[2] = 0.0f;
   if ( COERCE_FLOAT(LODWORD(delta[1]) ^ _mask__NegFloat_) == 0.0 && left[1] == 0.0 )
-    left[0] = FLOAT_1_0;
+    left[0] = 1.0f;
   Vec3Normalize(left);
   Vec3Cross(delta, left, up);
   if ( !Vec3IsNormalized(up) )
@@ -1587,9 +1587,9 @@ void __cdecl CG_UpdateArtilleryKillCam(int localClientNum)
   v7 = cgameGlob->refdef.viewaxis[0][0];
   LODWORD(cgameGlob->refdef.viewaxis[1][0]) = LODWORD(cgameGlob->refdef.viewaxis[0][1]) ^ _mask__NegFloat_;
   v6[1] = v7;
-  v6[2] = *(float *)&FLOAT_0_0;
+  v6[2] = 0.0f;
   if ( cgameGlob->refdef.viewaxis[1][0] == 0.0 && cgameGlob->refdef.viewaxis[1][1] == 0.0 )
-    cgameGlob->refdef.viewaxis[1][0] = FLOAT_1_0;
+    cgameGlob->refdef.viewaxis[1][0] = 1.0f;
   Vec3Normalize(cgameGlob->refdef.viewaxis[1]);
   Vec3Cross(cgameGlob->refdef.viewaxis[0], cgameGlob->refdef.viewaxis[1], cgameGlob->refdef.viewaxis[2]);
   if ( !Vec3IsNormalized(cgameGlob->refdef.viewaxis[2]) )
@@ -1712,9 +1712,9 @@ void __cdecl CG_UpdateDogKillCam(int localClientNum)
   v5 = cgameGlob->refdef.viewaxis[0][0];
   LODWORD(cgameGlob->refdef.viewaxis[1][0]) = LODWORD(cgameGlob->refdef.viewaxis[0][1]) ^ _mask__NegFloat_;
   v4[1] = v5;
-  v4[2] = *(float *)&FLOAT_0_0;
+  v4[2] = 0.0f;
   if ( cgameGlob->refdef.viewaxis[1][0] == 0.0 && cgameGlob->refdef.viewaxis[1][1] == 0.0 )
-    cgameGlob->refdef.viewaxis[1][0] = FLOAT_1_0;
+    cgameGlob->refdef.viewaxis[1][0] = 1.0f;
   Vec3Normalize(cgameGlob->refdef.viewaxis[1]);
   Vec3Cross(cgameGlob->refdef.viewaxis[0], cgameGlob->refdef.viewaxis[1], cgameGlob->refdef.viewaxis[2]);
   if ( !Vec3IsNormalized(cgameGlob->refdef.viewaxis[2]) )
@@ -1946,10 +1946,10 @@ void __cdecl CG_CalcViewValues(int localClientNum)
   int savedregs; // [esp+90h] [ebp+0h] BYREF
 
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
-  cgameGlob->refdef.zNear = *(float *)&FLOAT_0_0;
+  cgameGlob->refdef.zNear = 0.0f;
   cgameGlob->refdef.time = cgameGlob->time;
   cgameGlob->refdef.localClientNum = localClientNum;
-  cgameGlob->refdef.sunVisibility = FLOAT_1_0;
+  cgameGlob->refdef.sunVisibility = 1.0f;
   cgameGlob->refdef.noLodCullOut = 0;
   uiBlurRadius = CL_GetMenuBlurRadius(localClientNum);
   cgameGlob->refdef.blurRadius = fsqrt(
@@ -2009,7 +2009,7 @@ void __cdecl CG_CalcViewValues(int localClientNum)
         if ( cgameGlob->time - ps->jumpTime >= 500 )
           v14 = ps->velocity[2];
         else
-          v14 = *(float *)&FLOAT_0_0;
+          v14 = 0.0f;
       }
       else
       {
@@ -2125,7 +2125,7 @@ void __cdecl CG_CalcViewValues(int localClientNum)
       if ( (float)((float)(cg_adsZScaleMax->current.value - (float)(ps->fWeaponPosFrac * ps->fWeaponPosFrac)) - 1.0) < 0.0 )
         v1 = cg_adsZScaleMax->current.value - (float)(ps->fWeaponPosFrac * ps->fWeaponPosFrac);
       else
-        v1 = FLOAT_1_0;
+        v1 = 1.0f;
       R_SetADSZScale(localClientNum, v1);
       if ( cg_thirdPerson->current.integer && cg_thirdPersonMode->current.integer == 2 )
       {
@@ -2236,7 +2236,7 @@ void  CG_OffsetChaseCamView(clientActive_t *a1@<ebp>, int localClientNum, Camera
     v7 = (float)(view[1] * view[1]) + (float)(view[2] * view[2]);
     up[2] = fsqrt(v7);
     if ( (float)(up[2] - 1.0) < 0.0 )
-      up[1] = FLOAT_1_0;
+      up[1] = 1.0f;
     else
       up[1] = up[2];
     up[2] = up[1];
@@ -2247,7 +2247,7 @@ void  CG_OffsetChaseCamView(clientActive_t *a1@<ebp>, int localClientNum, Camera
     AngleVectors(&viewAngles[1], &focusPoint[1], (float *)&v4 + 1, right);
     LODWORD(v4) = cg_thirdPersonRange->current.integer;
     if ( camMode == CAM_VEHICLE && LocalClientGlobals->renderingThirdPerson == TP_FOR_MODEL )
-      *(float *)&v4 = FLOAT_512_0;
+      *(float *)&v4 = 512.0f;
     focusDist = (float)(COERCE_FLOAT(LODWORD(v4) ^ _mask__NegFloat_) * focusPoint[1]) + focusDist;
     v10 = (float)(COERCE_FLOAT(LODWORD(v4) ^ _mask__NegFloat_) * focusPoint[2]) + v10;
     v11 = (float)(COERCE_FLOAT(LODWORD(v4) ^ _mask__NegFloat_) * v15) + v11;
@@ -2359,8 +2359,8 @@ void  CG_OffsetThirdPersonView(DObj *a1@<ebp>, int localClientNum)
     forward[2] = *(float *)(LODWORD(tagMtx[3][2]) + 373720);
     if ( cg_thirdPerson->current.integer == 2 )
     {
-      forward[0] = *(float *)&FLOAT_0_0;
-      focusAngles[1] = *(float *)&FLOAT_0_0;
+      forward[0] = 0.0f;
+      focusAngles[1] = 0.0f;
     }
     if ( *(int *)(LODWORD(tagMtx[3][2]) + 263328) >= 9 )
     {
@@ -2368,7 +2368,7 @@ void  CG_OffsetThirdPersonView(DObj *a1@<ebp>, int localClientNum)
       focusAngles[2] = (float)*(int *)(LODWORD(tagMtx[3][2]) + 263780);
     }
     if ( forward[0] > 45.0 )
-      forward[0] = FLOAT_45_0;
+      forward[0] = 45.0f;
     AngleVectors(forward, &focusPoint[1], 0, 0);
     LODWORD(focusPoint[0]) = LODWORD(tagMtx[3][2]) + 274140;
     view[1] = (float)(512.0 * focusPoint[1]) + *(float *)(LODWORD(tagMtx[3][2]) + 274140);
@@ -2399,7 +2399,7 @@ void  CG_OffsetThirdPersonView(DObj *a1@<ebp>, int localClientNum)
     *((float *)&v5 + 1) = (float)(view[1] * view[1]) + (float)(view[2] * view[2]);
     LODWORD(v5) = fsqrt(*((float *)&v5 + 1));
     if ( *(float *)&v5 < 1.0 )
-      *(float *)&v5 = FLOAT_1_0;
+      *(float *)&v5 = 1.0f;
     *((float *)&v4 + 1) = v10;
     v3 = v10;
     __libm_sse2_atan2(v4, v5);
@@ -2438,11 +2438,11 @@ void __cdecl CG_SmoothCameraZ(cg_s *cgameGlob)
       if ( timeSinceStart >= 0 )
         lerp = (float)((float)timeSinceStart * 1.0) / (float)smoothingDuration;
       else
-        lerp = *(float *)&FLOAT_0_0;
+        lerp = 0.0f;
     }
     else
     {
-      lerp = FLOAT_1_0;
+      lerp = 1.0f;
     }
     cgameGlob->refdef.vieworg[2] = cgameGlob->refdef.vieworg[2]
                                  - (float)((float)(1.0 - lerp) * cgameGlob->stepViewChange);
@@ -2544,70 +2544,70 @@ void __cdecl CG_CalcCubemapViewValues(cg_s *cgameGlob)
   switch ( cgameGlob->cubemapShot )
   {
     case CUBEMAPSHOT_RIGHT:
-      cgameGlob->refdef.viewaxis[0][0] = FLOAT_1_0;
-      cgameGlob->refdef.viewaxis[0][1] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[0][2] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[1][0] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[1][1] = FLOAT_1_0;
-      cgameGlob->refdef.viewaxis[1][2] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[2][0] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[2][1] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[2][2] = FLOAT_1_0;
+      cgameGlob->refdef.viewaxis[0][0] = 1.0f;
+      cgameGlob->refdef.viewaxis[0][1] = 0.0f;
+      cgameGlob->refdef.viewaxis[0][2] = 0.0f;
+      cgameGlob->refdef.viewaxis[1][0] = 0.0f;
+      cgameGlob->refdef.viewaxis[1][1] = 1.0f;
+      cgameGlob->refdef.viewaxis[1][2] = 0.0f;
+      cgameGlob->refdef.viewaxis[2][0] = 0.0f;
+      cgameGlob->refdef.viewaxis[2][1] = 0.0f;
+      cgameGlob->refdef.viewaxis[2][2] = 1.0f;
       break;
     case CUBEMAPSHOT_LEFT:
-      cgameGlob->refdef.viewaxis[0][0] = FLOAT_N1_0;
-      cgameGlob->refdef.viewaxis[0][1] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[0][2] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[1][0] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[1][1] = FLOAT_N1_0;
-      cgameGlob->refdef.viewaxis[1][2] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[2][0] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[2][1] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[2][2] = FLOAT_1_0;
+      cgameGlob->refdef.viewaxis[0][0] = -1.0f;
+      cgameGlob->refdef.viewaxis[0][1] = 0.0f;
+      cgameGlob->refdef.viewaxis[0][2] = 0.0f;
+      cgameGlob->refdef.viewaxis[1][0] = 0.0f;
+      cgameGlob->refdef.viewaxis[1][1] = -1.0f;
+      cgameGlob->refdef.viewaxis[1][2] = 0.0f;
+      cgameGlob->refdef.viewaxis[2][0] = 0.0f;
+      cgameGlob->refdef.viewaxis[2][1] = 0.0f;
+      cgameGlob->refdef.viewaxis[2][2] = 1.0f;
       break;
     case CUBEMAPSHOT_BACK:
-      cgameGlob->refdef.viewaxis[0][0] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[0][1] = FLOAT_1_0;
-      cgameGlob->refdef.viewaxis[0][2] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[1][0] = FLOAT_N1_0;
-      cgameGlob->refdef.viewaxis[1][1] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[1][2] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[2][0] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[2][1] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[2][2] = FLOAT_1_0;
+      cgameGlob->refdef.viewaxis[0][0] = 0.0f;
+      cgameGlob->refdef.viewaxis[0][1] = 1.0f;
+      cgameGlob->refdef.viewaxis[0][2] = 0.0f;
+      cgameGlob->refdef.viewaxis[1][0] = -1.0f;
+      cgameGlob->refdef.viewaxis[1][1] = 0.0f;
+      cgameGlob->refdef.viewaxis[1][2] = 0.0f;
+      cgameGlob->refdef.viewaxis[2][0] = 0.0f;
+      cgameGlob->refdef.viewaxis[2][1] = 0.0f;
+      cgameGlob->refdef.viewaxis[2][2] = 1.0f;
       break;
     case CUBEMAPSHOT_FRONT:
-      cgameGlob->refdef.viewaxis[0][0] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[0][1] = FLOAT_N1_0;
-      cgameGlob->refdef.viewaxis[0][2] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[1][0] = FLOAT_1_0;
-      cgameGlob->refdef.viewaxis[1][1] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[1][2] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[2][0] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[2][1] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[2][2] = FLOAT_1_0;
+      cgameGlob->refdef.viewaxis[0][0] = 0.0f;
+      cgameGlob->refdef.viewaxis[0][1] = -1.0f;
+      cgameGlob->refdef.viewaxis[0][2] = 0.0f;
+      cgameGlob->refdef.viewaxis[1][0] = 1.0f;
+      cgameGlob->refdef.viewaxis[1][1] = 0.0f;
+      cgameGlob->refdef.viewaxis[1][2] = 0.0f;
+      cgameGlob->refdef.viewaxis[2][0] = 0.0f;
+      cgameGlob->refdef.viewaxis[2][1] = 0.0f;
+      cgameGlob->refdef.viewaxis[2][2] = 1.0f;
       break;
     case CUBEMAPSHOT_UP:
-      cgameGlob->refdef.viewaxis[0][0] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[0][1] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[0][2] = FLOAT_1_0;
-      cgameGlob->refdef.viewaxis[1][0] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[1][1] = FLOAT_1_0;
-      cgameGlob->refdef.viewaxis[1][2] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[2][0] = FLOAT_N1_0;
-      cgameGlob->refdef.viewaxis[2][1] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[2][2] = *(float *)&FLOAT_0_0;
+      cgameGlob->refdef.viewaxis[0][0] = 0.0f;
+      cgameGlob->refdef.viewaxis[0][1] = 0.0f;
+      cgameGlob->refdef.viewaxis[0][2] = 1.0f;
+      cgameGlob->refdef.viewaxis[1][0] = 0.0f;
+      cgameGlob->refdef.viewaxis[1][1] = 1.0f;
+      cgameGlob->refdef.viewaxis[1][2] = 0.0f;
+      cgameGlob->refdef.viewaxis[2][0] = -1.0f;
+      cgameGlob->refdef.viewaxis[2][1] = 0.0f;
+      cgameGlob->refdef.viewaxis[2][2] = 0.0f;
       break;
     case CUBEMAPSHOT_DOWN:
-      cgameGlob->refdef.viewaxis[0][0] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[0][1] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[0][2] = FLOAT_N1_0;
-      cgameGlob->refdef.viewaxis[1][0] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[1][1] = FLOAT_1_0;
-      cgameGlob->refdef.viewaxis[1][2] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[2][0] = FLOAT_1_0;
-      cgameGlob->refdef.viewaxis[2][1] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.viewaxis[2][2] = *(float *)&FLOAT_0_0;
+      cgameGlob->refdef.viewaxis[0][0] = 0.0f;
+      cgameGlob->refdef.viewaxis[0][1] = 0.0f;
+      cgameGlob->refdef.viewaxis[0][2] = -1.0f;
+      cgameGlob->refdef.viewaxis[1][0] = 0.0f;
+      cgameGlob->refdef.viewaxis[1][1] = 1.0f;
+      cgameGlob->refdef.viewaxis[1][2] = 0.0f;
+      cgameGlob->refdef.viewaxis[2][0] = 1.0f;
+      cgameGlob->refdef.viewaxis[2][1] = 0.0f;
+      cgameGlob->refdef.viewaxis[2][2] = 0.0f;
       break;
     default:
       return;
@@ -2976,7 +2976,7 @@ void __cdecl CG_UpdateExplosiveKillCam(int localClientNum, KillCamEntityType kil
     __debugbreak();
   }
   if ( delta[2] > 0.0 )
-    delta[2] = *(float *)&FLOAT_0_0;
+    delta[2] = 0.0f;
   Vec3Normalize(delta);
   if ( !Vec3IsNormalized(delta) )
   {
@@ -2993,9 +2993,9 @@ void __cdecl CG_UpdateExplosiveKillCam(int localClientNum, KillCamEntityType kil
   }
   LODWORD(left[0]) = LODWORD(delta[1]) ^ _mask__NegFloat_;
   left[1] = delta[0];
-  left[2] = *(float *)&FLOAT_0_0;
+  left[2] = 0.0f;
   if ( COERCE_FLOAT(LODWORD(delta[1]) ^ _mask__NegFloat_) == 0.0 && left[1] == 0.0 )
-    left[0] = FLOAT_1_0;
+    left[0] = 1.0f;
   Vec3Normalize(left);
   Vec3Cross(delta, left, up);
   if ( !Vec3IsNormalized(up) )
@@ -3081,11 +3081,11 @@ void __cdecl CG_UpdateExplosiveKillCam(int localClientNum, KillCamEntityType kil
       if ( cgameGlob->frametime <= 0 )
       {
         killCamStoppedVel = cgameGlob->killCamStoppedVel;
-        cgameGlob->killCamStoppedVel[0] = *(float *)&FLOAT_0_0;
-        killCamStoppedVel[1] = *(float *)&FLOAT_0_0;
-        killCamStoppedVel[2] = *(float *)&FLOAT_0_0;
+        cgameGlob->killCamStoppedVel[0] = 0.0f;
+        killCamStoppedVel[1] = 0.0f;
+        killCamStoppedVel[2] = 0.0f;
         memset(dir, 0, sizeof(dir));
-        speed = *(float *)&FLOAT_0_0;
+        speed = 0.0f;
       }
       else
       {
@@ -3148,7 +3148,7 @@ void __cdecl CG_UpdateExplosiveKillCam(int localClientNum, KillCamEntityType kil
       }
       else
       {
-        cgameGlob->killCamStoppedDecelTime = *(float *)&FLOAT_0_0;
+        cgameGlob->killCamStoppedDecelTime = 0.0f;
       }
     }
   }
@@ -3220,9 +3220,9 @@ double __cdecl LookAtBothPoints(const float *point1, const float *point2, const 
   v7 = (*lookaxis)[0];
   LODWORD((*lookaxis)[3]) = LODWORD((*lookaxis)[1]) ^ _mask__NegFloat_;
   (*lookaxis)[4] = v7;
-  (*lookaxis)[5] = *(float *)&FLOAT_0_0;
+  (*lookaxis)[5] = 0.0f;
   if ( (*lookaxis)[3] == 0.0 && (*lookaxis)[4] == 0.0 )
-    (*lookaxis)[3] = FLOAT_1_0;
+    (*lookaxis)[3] = 1.0f;
   Vec3Normalize(&(*lookaxis)[3]);
   Vec3Cross((const float *)lookaxis, &(*lookaxis)[3], &(*lookaxis)[6]);
   if ( !Vec3IsNormalized(&(*lookaxis)[6]) )
@@ -3371,7 +3371,7 @@ void __cdecl RewindTrace(trace_t *trace, const float *start, const float *end, f
                                       + (float)(diff_8 * diff_8)))
                       + trace->fraction;
       if ( trace->fraction < 0.0 )
-        trace->fraction = *(float *)&FLOAT_0_0;
+        trace->fraction = 0.0f;
     }
   }
 }
@@ -3519,7 +3519,7 @@ void __cdecl GetCeilingHeight(cg_s *cgameGlob)
   memset(&result, 0, 16);
   if ( ++cgameGlob->heightToCeilingTS >= 50 )
   {
-    TEST_HEIGHT = FLOAT_1024_0;
+    TEST_HEIGHT = 1024.0f;
     endPos[0] = cgameGlob->predictedPlayerState.origin[0];
     endPos[1] = cgameGlob->predictedPlayerState.origin[1];
     endPos[2] = cgameGlob->predictedPlayerState.origin[2];
@@ -3533,7 +3533,7 @@ void __cdecl GetCeilingHeight(cg_s *cgameGlob)
     }
     else
     {
-      cgameGlob->heightToCeiling = FLOAT_3_4028235e38;
+      cgameGlob->heightToCeiling = FLT_MAX;
     }
   }
 }
@@ -3974,12 +3974,12 @@ LABEL_22:
   {
     if ( Key_IsCatcherActive(localClientNum, 8) )
       Key_RemoveCatcher(localClientNum, -9);
-    cgameGlob->selectedLocation[0] = FLOAT_0_5;
-    cgameGlob->selectedLocation[1] = FLOAT_0_5;
+    cgameGlob->selectedLocation[0] = 0.5f;
+    cgameGlob->selectedLocation[1] = 0.5f;
     for ( j = 0; j < 3; ++j )
     {
-      cgameGlob->selectedLocations[j][0] = FLOAT_N1_0;
-      cgameGlob->selectedLocations[j][1] = FLOAT_N1_0;
+      cgameGlob->selectedLocations[j][0] = -1.0f;
+      cgameGlob->selectedLocations[j][1] = -1.0f;
     }
     cgameGlob->lastTimeSelected = 0;
   }
@@ -3990,15 +3990,15 @@ LABEL_22:
   }
   else
   {
-    xy[0] = FLOAT_0_5;
-    xy[1] = FLOAT_0_5;
+    xy[0] = 0.5f;
+    xy[1] = 0.5f;
     Key_AddCatcher(localClientNum, 8);
-    cgameGlob->selectedLocation[0] = FLOAT_0_5;
+    cgameGlob->selectedLocation[0] = 0.5f;
     cgameGlob->selectedLocation[1] = xy[1];
     for ( i = 0; i < 3; ++i )
     {
-      cgameGlob->selectedLocations[i][0] = FLOAT_N1_0;
-      cgameGlob->selectedLocations[i][1] = FLOAT_N1_0;
+      cgameGlob->selectedLocations[i][0] = -1.0f;
+      cgameGlob->selectedLocations[i][1] = -1.0f;
     }
     cgameGlob->lastTimeSelected = 0;
   }
@@ -4008,13 +4008,13 @@ LABEL_22:
     || Demo_IsMovieCamera() )
   {
     kickAVel = cgameGlob->kickAVel;
-    cgameGlob->kickAVel[0] = *(float *)&FLOAT_0_0;
-    kickAVel[1] = *(float *)&FLOAT_0_0;
-    kickAVel[2] = *(float *)&FLOAT_0_0;
+    cgameGlob->kickAVel[0] = 0.0f;
+    kickAVel[1] = 0.0f;
+    kickAVel[2] = 0.0f;
     kickAngles = cgameGlob->kickAngles;
-    cgameGlob->kickAngles[0] = *(float *)&FLOAT_0_0;
-    kickAngles[1] = *(float *)&FLOAT_0_0;
-    kickAngles[2] = *(float *)&FLOAT_0_0;
+    cgameGlob->kickAngles[0] = 0.0f;
+    kickAngles[1] = 0.0f;
+    kickAngles[2] = 0.0f;
   }
   else
   {
@@ -4269,7 +4269,7 @@ void __cdecl CG_KickAngles(cg_s *cgameGlob)
       {
         if ( cgameGlob->kickAngles[i] != 0.0 )
         {
-          v2 = cgameGlob->kickAngles[i] <= 0.0 ? FLOAT_1_0 : FLOAT_N1_0;
+          v2 = cgameGlob->kickAngles[i] <= 0.0 ? 1.0f : -1.0f;
           if ( v2 != 0.0 )
           {
             if ( weapIndex )
@@ -4320,24 +4320,24 @@ void __cdecl CG_KickAngles(cg_s *cgameGlob)
           kickChange = kickChange * 0.059999999;
         if ( (float)((float)(cgameGlob->kickAngles[i] + kickChange) * cgameGlob->kickAngles[i]) < 0.0 )
         {
-          cgameGlob->kickAngles[i] = *(float *)&FLOAT_0_0;
-          cgameGlob->kickAVel[i] = *(float *)&FLOAT_0_0;
+          cgameGlob->kickAngles[i] = 0.0f;
+          cgameGlob->kickAVel[i] = 0.0f;
         }
         else
         {
           cgameGlob->kickAngles[i] = cgameGlob->kickAngles[i] + kickChange;
           if ( cgameGlob->kickAngles[i] == 0.0 )
           {
-            cgameGlob->kickAVel[i] = *(float *)&FLOAT_0_0;
+            cgameGlob->kickAVel[i] = 0.0f;
           }
           else if ( COERCE_FLOAT(LODWORD(cgameGlob->kickAngles[i]) & _mask__AbsFloat_) > 10.0 )
           {
             if ( cgameGlob->kickAngles[i] <= 0.0 )
-              v1 = FLOAT_N10_0;
+              v1 = -10.0f;
             else
-              v1 = FLOAT_10_0;
+              v1 = 10.0f;
             cgameGlob->kickAngles[i] = v1;
-            cgameGlob->kickAVel[i] = *(float *)&FLOAT_0_0;
+            cgameGlob->kickAVel[i] = 0.0f;
           }
         }
       }
@@ -4416,7 +4416,7 @@ void __cdecl CG_CacheKillCamLookAtEntityOrigin(int localClientNum)
   float vPos[3]; // [esp+20h] [ebp-10h] BYREF
   centity_s *centTarget; // [esp+2Ch] [ebp-4h]
 
-  heightOffset = FLOAT_50_0;
+  heightOffset = 50.0f;
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
   if ( !cgameGlob
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame_mp\\cg_view_mp.cpp", 2551, 0, "%s", "cgameGlob") )
@@ -4655,12 +4655,12 @@ void __cdecl CG_UpdateSceneDepthOfField(int localClientNum)
   ps = &cgameGlob->snap->ps;
   if ( Demo_IsMovieCamera() || Demo_IsThirdPersonCamera() )
   {
-    cgameGlob->refdef.dof.nearStart = *(float *)&FLOAT_0_0;
-    cgameGlob->refdef.dof.nearEnd = *(float *)&FLOAT_0_0;
-    cgameGlob->refdef.dof.farStart = FLOAT_5000_0;
-    cgameGlob->refdef.dof.farEnd = FLOAT_5000_0;
-    cgameGlob->refdef.dof.nearBlur = FLOAT_6_0;
-    cgameGlob->refdef.dof.farBlur = *(float *)&FLOAT_0_0;
+    cgameGlob->refdef.dof.nearStart = 0.0f;
+    cgameGlob->refdef.dof.nearEnd = 0.0f;
+    cgameGlob->refdef.dof.farStart = 5000.0f;
+    cgameGlob->refdef.dof.farEnd = 5000.0f;
+    cgameGlob->refdef.dof.nearBlur = 6.0f;
+    cgameGlob->refdef.dof.farBlur = 0.0f;
     if ( cgameGlob->refdef.dof.nearBlur < 4.0
       && !Assert_MyHandler(
             "C:\\projects_pc\\cod\\codsrc\\src\\cgame_mp\\cg_view_mp.cpp",
@@ -4733,17 +4733,17 @@ void __cdecl CG_UpdateAdsDof(int localClientNum, GfxDepthOfField *dof)
   ps = &cgameGlob->predictedPlayerState;
   if ( ShouldDoDefaultAdsDof(localClientNum) )
   {
-    dof->nearStart = *(float *)&FLOAT_0_0;
-    dof->nearEnd = *(float *)&FLOAT_0_0;
-    dof->farStart = FLOAT_5000_0;
-    dof->farEnd = FLOAT_5000_0;
-    dof->nearBlur = FLOAT_6_0;
-    dof->farBlur = *(float *)&FLOAT_0_0;
+    dof->nearStart = 0.0f;
+    dof->nearEnd = 0.0f;
+    dof->farStart = 5000.0f;
+    dof->farEnd = 5000.0f;
+    dof->nearBlur = 6.0f;
+    dof->farBlur = 0.0f;
   }
   else
   {
-    nearEnd = FLOAT_10000_0;
-    farStart = FLOAT_N1_0;
+    nearEnd = 10000.0f;
+    farStart = -1.0f;
     targetCount = AimAssist_GetScreenTargetCount(localClientNum);
     for ( targetIndex = 0; targetIndex < targetCount; ++targetIndex )
     {
@@ -4760,26 +4760,26 @@ void __cdecl CG_UpdateAdsDof(int localClientNum, GfxDepthOfField *dof)
       if ( nearEnd >= 50.0 )
       {
         if ( nearEnd > 512.0 )
-          nearEnd = FLOAT_512_0;
+          nearEnd = 512.0f;
       }
       else
       {
-        nearEnd = FLOAT_50_0;
+        nearEnd = 50.0f;
       }
       if ( farStart <= 2500.0 )
       {
         if ( farStart < 1000.0 )
-          farStart = FLOAT_1000_0;
+          farStart = 1000.0f;
       }
       else
       {
-        farStart = FLOAT_2500_0;
+        farStart = 2500.0f;
       }
     }
     else
     {
-      nearEnd = FLOAT_256_0;
-      farStart = FLOAT_2500_0;
+      nearEnd = 256.0f;
+      farStart = 2500.0f;
     }
     traceEnd[0] = (float)(8192.0 * cgameGlob->refdef.viewaxis[0][0]) + cgameGlob->refdef.vieworg[0];
     traceEnd[1] = (float)(8192.0 * cgameGlob->refdef.viewaxis[0][1]) + cgameGlob->refdef.vieworg[1];
@@ -4799,12 +4799,12 @@ void __cdecl CG_UpdateAdsDof(int localClientNum, GfxDepthOfField *dof)
     if ( nearEnd > traceDist )
       nearEnd = traceDist - 30.0;
     if ( nearEnd < 1.0 )
-      nearEnd = FLOAT_1_0;
+      nearEnd = 1.0f;
     if ( traceDist > farStart )
       farStart = traceDist;
     farEnd = farStart * 4.0;
-    nearBlur = FLOAT_6_0;
-    farBlur = *(float *)&FLOAT_0_0;
+    nearBlur = 6.0f;
+    farBlur = 0.0f;
     dt = (float)cgameGlob->frametime * 0.001;
     if ( ps->fWeaponPosFrac != 1.0 && (ps->pm_type < 9 || (ps->eFlags2 & 0x10000000) != 0) )
     {
@@ -4842,7 +4842,7 @@ double __cdecl CG_UpdateAdsDofValue(float currentValue, float targetValue, float
       if ( changeVala <= maxChangea )
       {
         if ( changeVala < 1.0 )
-          changeVala = FLOAT_1_0;
+          changeVala = 1.0f;
       }
       else
       {
@@ -4860,7 +4860,7 @@ double __cdecl CG_UpdateAdsDofValue(float currentValue, float targetValue, float
     if ( changeVal <= maxChangea )
     {
       if ( changeVal < 1.0 )
-        changeVal = FLOAT_1_0;
+        changeVal = 1.0f;
     }
     else
     {
@@ -4907,18 +4907,18 @@ void __cdecl CG_UpdatePoisonFX(cg_s *cgameGlob)
     || (cgameGlob->predictedPlayerState.eFlags2 & 0x10000000) != 0
     || cgameGlob->inKillCam && cgameGlob->killCamEntityType )
   {
-    fx->curAmountTarget = *(float *)&FLOAT_0_0;
+    fx->curAmountTarget = 0.0f;
   }
   else
   {
-    fx->curAmountTarget = FLOAT_1_0;
+    fx->curAmountTarget = 1.0f;
   }
   if ( cgameGlob->cameraMode == 1 )
-    fx->curAmountTarget = *(float *)&FLOAT_0_0;
+    fx->curAmountTarget = 0.0f;
   if ( Demo_IsThirdPersonCamera() || Demo_IsMovieCamera() )
   {
-    fx->curAmountTarget = *(float *)&FLOAT_0_0;
-    cgameGlob->refdef.poisonFx.curAmount = *(float *)&FLOAT_0_0;
+    fx->curAmountTarget = 0.0f;
+    cgameGlob->refdef.poisonFx.curAmount = 0.0f;
   }
   if ( cgameGlob->refdef.poisonFx.curAmount != fx->curAmountTarget )
   {
@@ -4978,9 +4978,9 @@ void __cdecl CG_UpdateWaterSheetingFX(cg_s *cgameGlob)
       cgameGlob->refdef.waterSheetingFx.enabled = 1;
       cgameGlob->refdef.waterSheetingFx.duration = 0;
       cgameGlob->refdef.waterSheetingFx.blurRadius = r_waterSheetingFX_radius->current.value;
-      cgameGlob->refdef.waterSheetingFx.distortionMagnitude = FLOAT_0_0099999998;
-      cgameGlob->refdef.waterSheetingFx.distortionScale[0] = *(float *)&FLOAT_0_0;
-      cgameGlob->refdef.waterSheetingFx.distortionScale[1] = *(float *)&FLOAT_0_0;
+      cgameGlob->refdef.waterSheetingFx.distortionMagnitude = 0.01f;
+      cgameGlob->refdef.waterSheetingFx.distortionScale[0] = 0.0f;
+      cgameGlob->refdef.waterSheetingFx.distortionScale[1] = 0.0f;
       cgameGlob->refdef.waterSheetingFx.startMSec = cgameGlob->time;
     }
     else
@@ -5288,7 +5288,7 @@ void __cdecl CG_CalcViewValues_ExtraCam(int localClientNum)
   cg_s *cgameGlob; // [esp+24h] [ebp-8h]
 
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
-  cgameGlob->refdef.sunVisibility = FLOAT_1_0;
+  cgameGlob->refdef.sunVisibility = 1.0f;
   camMode = CG_UpdateExtraCamMode(localClientNum);
   CG_CalcFov_ExtraCam(localClientNum);
   CG_VisionSetApplyToRefdef(localClientNum, 1);
@@ -5438,10 +5438,10 @@ void __cdecl CG_ResetFullscreenFX(int localClientNum)
   {
     cgameGlob->healthOverlayPulseTime = 0;
     cgameGlob->healthOverlayHurt = 0;
-    cgameGlob->healthOverlayToAlpha = *(float *)&FLOAT_0_0;
+    cgameGlob->healthOverlayToAlpha = 0.0f;
     cgameGlob->healthOverlayPulsePhase = 0;
-    cgameGlob->refdef.poisonFx.curAmount = *(float *)&FLOAT_0_0;
-    cgameGlob->refdef.poisonFx.curAmountTarget = *(float *)&FLOAT_0_0;
+    cgameGlob->refdef.poisonFx.curAmount = 0.0f;
+    cgameGlob->refdef.poisonFx.curAmountTarget = 0.0f;
     if ( cgameGlob->visionNameNaked[0] )
       CG_VisionSetStartLerp_To(
         cgameGlob->localClientNum,

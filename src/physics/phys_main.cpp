@@ -336,18 +336,18 @@ void __cdecl Phys_Init()
     phys_sys::set_v_tol(8);
     set_bp_standard_query();
     set_debug_callback();
-    pst.m_friction_coef = FLOAT_0_40000001;
-    pst.m_bounce_coef = FLOAT_0_1;
+    pst.m_friction_coef = 0.4f;
+    pst.m_bounce_coef = 0.1f;
     pst.m_solver_priority = 0;
     pst.m_no_overflow_error = 1;
     surface_type_info_database_set(31, 31, &pst);
-    v3.m_friction_coef = FLOAT_0_5;
-    v3.m_bounce_coef = FLOAT_0_1;
+    v3.m_friction_coef = 0.5f;
+    v3.m_bounce_coef = 0.1f;
     v3.m_solver_priority = 0;
     v3.m_no_overflow_error = 1;
     surface_type_info_database_set(31, 32, &v3);
-    v2.m_friction_coef = FLOAT_0_5;
-    v2.m_bounce_coef = FLOAT_0_1;
+    v2.m_friction_coef = 0.5f;
+    v2.m_bounce_coef = 0.1f;
     v2.m_solver_priority = 0;
     v2.m_no_overflow_error = 1;
     surface_type_info_database_set(32, 32, &v2);
@@ -721,33 +721,33 @@ PhysObjUserData * Phys_CreateUserBody@<eax>(
   pos.y = a1;
   pos.z = retaddr;
   Phys_Vec3ToNitrousVec(position, (phys_vec3 *)v36);
-  dictator.w.y = FLOAT_1_0;
-  dictator.w.z = *(float *)&FLOAT_0_0;
-  dictator.w.w = *(float *)&FLOAT_0_0;
-  *(float *)v34 = FLOAT_1_0;
-  v34[1] = *(unsigned int *)&FLOAT_0_0;
-  v34[2] = *(unsigned int *)&FLOAT_0_0;
-  centerOfMass[10] = *(float *)&FLOAT_0_0;
-  centerOfMass[11] = FLOAT_1_0;
-  centerOfMass[12] = *(float *)&FLOAT_0_0;
+  dictator.w.y = 1.0f;
+  dictator.w.z = 0.0f;
+  dictator.w.w = 0.0f;
+  *(float *)v34 = 1.0f;
+  v34[1] = 0;
+  v34[2] = 0;
+  centerOfMass[10] = 0.0f;
+  centerOfMass[11] = 1.0f;
+  centerOfMass[12] = 0.0f;
   LODWORD(centerOfMass[9]) = &dictator.x.y;
-  dictator.x.y = *(float *)&FLOAT_0_0;
-  dictator.x.z = FLOAT_1_0;
-  dictator.x.w = *(float *)&FLOAT_0_0;
-  centerOfMass[2] = *(float *)&FLOAT_0_0;
-  centerOfMass[3] = *(float *)&FLOAT_0_0;
-  centerOfMass[4] = FLOAT_1_0;
+  dictator.x.y = 0.0f;
+  dictator.x.z = 1.0f;
+  dictator.x.w = 0.0f;
+  centerOfMass[2] = 0.0f;
+  centerOfMass[3] = 0.0f;
+  centerOfMass[4] = 1.0f;
   LODWORD(centerOfMass[1]) = &dictator.y.y;
-  dictator.y.y = *(float *)&FLOAT_0_0;
-  dictator.y.z = *(float *)&FLOAT_0_0;
-  dictator.y.w = FLOAT_1_0;
+  dictator.y.y = 0.0f;
+  dictator.y.z = 0.0f;
+  dictator.y.w = 1.0f;
   LODWORD(centerOfMass[0]) = &dictator.z.y;
   LODWORD(dictator.z.y) = v36[0];
   LODWORD(dictator.z.z) = v36[1];
   LODWORD(dictator.z.w) = v36[2];
-  v30 = *(unsigned int *)&FLOAT_0_0;
+  v30 = 0;
   i.m_ptr = *(phys_free_list<PhysObjUserData>::T_internal_base **)&FLOAT_0_0;
-  v32 = *(unsigned int *)&FLOAT_0_0;
+  v32 = 0;
   Sys_EnterCriticalSection(CRITSECT_PHYSICS);
   userData = (PhysObjUserData *)physGlob.objects.m_dummy_head.m_next_T_internal;
   for ( bodyId = (int)physGlob.objects.m_dummy_head.m_next_T_internal; ; bodyId = *(unsigned int *)(bodyId + 4) )
@@ -783,17 +783,17 @@ PhysObjUserData * Phys_CreateUserBody@<eax>(
       switch ( geomType )
       {
         case PHYS_GEOM_CYLINDER:
-          hheight = *(float *)&FLOAT_0_0;
+          hheight = 0.0f;
           radius = FLOAT_35_0;
-          *(_QWORD *)&orientation[2][1] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_15_0));
+          *(_QWORD *)&orientation[2][1] = __PAIR64__(0, LODWORD(15.0f));
           orientation[2][0] = FLOAT_35_0;
-          v19[0] = *(float *)&FLOAT_0_0;
-          v19[1] = *(float *)&FLOAT_0_0;
-          v19[2] = FLOAT_1_0;
-          *(_QWORD *)&orientation[0][0] = __PAIR64__(LODWORD(FLOAT_N1_0), *(unsigned int *)&FLOAT_0_0);
-          orientation[0][2] = *(float *)&FLOAT_0_0;
-          *(_QWORD *)&orientation[1][0] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_1_0));
-          orientation[1][2] = *(float *)&FLOAT_0_0;
+          v19[0] = 0.0f;
+          v19[1] = 0.0f;
+          v19[2] = 1.0f;
+          *(_QWORD *)&orientation[0][0] = __PAIR64__(LODWORD(-1.0f), 0);
+          orientation[0][2] = 0.0f;
+          *(_QWORD *)&orientation[1][0] = __PAIR64__(0, LODWORD(1.0f));
+          orientation[1][2] = 0.0f;
           cylinder_gjk_geom = create_cylinder_gjk_geom(
                                 COERCE_FLOAT((phys_vec3 *)&pos.y),
                                 (float (*)[3])v19,
@@ -804,20 +804,20 @@ PhysObjUserData * Phys_CreateUserBody@<eax>(
                                 &g_empty_collision_visitor);
           break;
         case PHYS_GEOM_CYLINDER_LARGE:
-          v17[0] = *(float *)&FLOAT_0_0;
-          v17[1] = *(float *)&FLOAT_0_0;
-          v17[2] = FLOAT_20_0;
+          v17[0] = 0.0f;
+          v17[1] = 0.0f;
+          v17[2] = 20.0f;
           mn[15] = FLOAT_35_0;
-          mn[14] = FLOAT_20_0;
-          mn[5] = *(float *)&FLOAT_0_0;
-          mn[6] = *(float *)&FLOAT_0_0;
-          mn[7] = FLOAT_1_0;
-          mn[8] = *(float *)&FLOAT_0_0;
-          mn[9] = FLOAT_N1_0;
-          mn[10] = *(float *)&FLOAT_0_0;
-          mn[11] = FLOAT_1_0;
-          mn[12] = *(float *)&FLOAT_0_0;
-          mn[13] = *(float *)&FLOAT_0_0;
+          mn[14] = 20.0f;
+          mn[5] = 0.0f;
+          mn[6] = 0.0f;
+          mn[7] = 1.0f;
+          mn[8] = 0.0f;
+          mn[9] = -1.0f;
+          mn[10] = 0.0f;
+          mn[11] = 1.0f;
+          mn[12] = 0.0f;
+          mn[13] = 0.0f;
           cylinder_gjk_geom = create_cylinder_gjk_geom(
                                 COERCE_FLOAT((phys_vec3 *)&pos.y),
                                 (float (*)[3])&mn[5],
@@ -828,11 +828,11 @@ PhysObjUserData * Phys_CreateUserBody@<eax>(
                                 &g_empty_collision_visitor);
           break;
         case PHYS_GEOM_CAPSULE:
-          mn[2] = *(float *)&FLOAT_0_0;
-          mn[3] = *(float *)&FLOAT_0_0;
-          mn[4] = FLOAT_45_0;
-          mn[1] = FLOAT_15_0;
-          mn[0] = FLOAT_5_0;
+          mn[2] = 0.0f;
+          mn[3] = 0.0f;
+          mn[4] = 45.0f;
+          mn[1] = 15.0f;
+          mn[0] = 5.0f;
           cylinder_gjk_geom = create_capsule_gjk_geom(
                                 COERCE_FLOAT((phys_vec3 *)&pos.y),
                                 &mn[2],
@@ -843,12 +843,12 @@ PhysObjUserData * Phys_CreateUserBody@<eax>(
                                 &g_empty_collision_visitor);
           break;
         case PHYS_GEOM_POINT:
-          mx[0] = FLOAT_N1_0;
-          mx[1] = FLOAT_N1_0;
-          mx[2] = FLOAT_N1_0;
-          v14[0] = FLOAT_1_0;
-          v14[1] = FLOAT_1_0;
-          v14[2] = FLOAT_1_0;
+          mx[0] = -1.0f;
+          mx[1] = -1.0f;
+          mx[2] = -1.0f;
+          v14[0] = 1.0f;
+          v14[1] = 1.0f;
+          v14[2] = 1.0f;
           cylinder_gjk_geom = create_aabb_gjk_geom(
                                 COERCE_FLOAT((phys_vec3 *)&pos.y),
                                 mx,
@@ -857,12 +857,12 @@ PhysObjUserData * Phys_CreateUserBody@<eax>(
                                 &g_empty_collision_visitor);
           break;
         default:
-          v13[0] = FLOAT_N15_0;
-          v13[1] = FLOAT_N15_0;
-          v13[2] = *(float *)&FLOAT_0_0;
-          v12[0] = FLOAT_15_0;
-          v12[1] = FLOAT_15_0;
-          v12[2] = FLOAT_60_0;
+          v13[0] = -15.0f;
+          v13[1] = -15.0f;
+          v13[2] = 0.0f;
+          v12[0] = 15.0f;
+          v12[1] = 15.0f;
+          v12[2] = 60.0f;
           cylinder_gjk_geom = create_aabb_gjk_geom(
                                 COERCE_FLOAT((phys_vec3 *)&pos.y),
                                 v13,
@@ -1168,15 +1168,15 @@ PhysObjUserData * Phys_CreateBodyFromState@<eax>(
     v102 = Phys_CreateUserData(worldIndex);
     if ( v102 )
     {
-      *(float *)v98 = FLOAT_3_0;
-      *(float *)&v98[1] = FLOAT_3_0;
-      volume = FLOAT_3_0;
+      *(float *)v98 = 3.0f;
+      *(float *)&v98[1] = 3.0f;
+      volume = 3.0f;
       nuge::calc_box_inertia((const phys_vec3 *)v98, (phys_vec3 *)&minStableContactCount, &v97);
       v93 = state->mass / v97;
       *(float *)&minStableContactCount = *(float *)&minStableContactCount * v93;
       maxAVel = maxAVel * v93;
       v96 = v96 * v93;
-      v92 = FLOAT_16_0;
+      v92 = 16.0f;
       v91 = 3;
       if ( worldIndex == 2 )
         v91 = 1;
@@ -2108,7 +2108,7 @@ void __cdecl Phys_ObjAddCustomForce(
         modHitDir[2] = scale * hitDir[2];
         break;
       case 17:
-        scale = FLOAT_1_0;
+        scale = 1.0f;
         Phys_ObjGetCenterOfMass(physObjId, modHitPos);
         modHitDir[0] = *hitDir;
         modHitDir[1] = hitDir[1];
@@ -2441,7 +2441,7 @@ void __cdecl Phys_FindAndRenderBulletMesh(const float *start, const float *end)
   memset(&resultsDyn, 0, 16);
   TraceExtents::TraceExtents(&clip.extents);
   memset((unsigned __int8 *)&resultsDyn, 0, sizeof(resultsDyn));
-  resultsDyn.fraction = FLOAT_1_0;
+  resultsDyn.fraction = 1.0f;
   *(_QWORD *)clip.extents.start.vec.v = *(_QWORD *)start;
   clip.extents.start.vec.v[2] = start[2];
   *(_QWORD *)clip.extents.end.vec.v = *(_QWORD *)end;
@@ -2724,7 +2724,7 @@ void __userpurge phys_convex_hull::compute_convex_hull(
     __debugbreak();
   }
   phys_convex_hull::init_convex_hull(v35);
-  v34 = *(float *)&FLOAT_0_0;
+  v34 = 0.0f;
   while ( 1 )
   {
     best_tri = (phys_convex_hull::ch_triangle *)v35->m_convex_hull_vert_list.m_alloc_count;
@@ -2738,7 +2738,7 @@ void __userpurge phys_convex_hull::compute_convex_hull(
       break;
     v30 = 0;
     tri_i.m_ptr = 0;
-    v28 = *(float *)&FLOAT_0_0;
+    v28 = 0.0f;
     m_slot_array = v35->m_intermediate_triangle_list.m_slot_array;
     v26 = (phys_vec3 **)m_slot_array;
     while ( 1 )
@@ -2941,7 +2941,7 @@ phys_vec3 **__thiscall phys_convex_hull::support_intermediate_verts(phys_convex_
   float best_dotp; // [esp+28h] [ebp-4h]
 
   best_vert = 0;
-  best_dotp = FLOAT_N1000000_0;
+  best_dotp = -1000000.0;
   for ( vert_i = this->m_intermediate_vertex_list.m_slot_array;
         &this->m_intermediate_vertex_list.m_slot_array[this->m_intermediate_vertex_list.m_alloc_count] != vert_i;
         ++vert_i )
@@ -3219,7 +3219,7 @@ double __thiscall phys_convex_hull::calc_expansion_volume(phys_convex_hull *this
   float volume; // [esp+BCh] [ebp-4h]
   int savedregs; // [esp+C0h] [ebp+0h] BYREF
 
-  volume = *(float *)&FLOAT_0_0;
+  volume = 0.0f;
   tri_i = this->m_intermediate_triangle_list.m_slot_array;
   tri_i_end.m_ptr = &tri_i[this->m_intermediate_triangle_list.m_alloc_count];
   while ( tri_i_end.m_ptr != tri_i )
@@ -3729,26 +3729,26 @@ void  Phys_FindAndRenderEntityBrushes(int a1@<ebp>, const float *pos, int conten
   v49[0] = *pos + query_radius;
   v49[1] = pos[1] + query_radius;
   v49[2] = pos[2] + query_radius;
-  v48[0] = *(float *)&FLOAT_0_0;
-  v48[1] = FLOAT_1_0;
-  v48[2] = FLOAT_1_0;
-  v48[3] = FLOAT_0_25;
-  *(float *)v47 = FLOAT_1_0;
-  v47[1] = *(unsigned int *)&FLOAT_0_0;
-  v47[2] = *(unsigned int *)&FLOAT_0_0;
-  *(float *)&v47[3] = FLOAT_0_25;
-  v46[0] = *(float *)&FLOAT_0_0;
-  v46[1] = FLOAT_1_0;
-  v46[2] = *(float *)&FLOAT_0_0;
-  v46[3] = FLOAT_0_25;
-  *(float *)v45 = FLOAT_1_0;
-  *(float *)&v45[1] = FLOAT_1_0;
-  v45[2] = *(unsigned int *)&FLOAT_0_0;
-  *(float *)&v45[3] = FLOAT_0_25;
-  *(float *)v44 = FLOAT_1_0;
-  *(float *)&v44[1] = FLOAT_1_0;
-  *(float *)&v44[2] = FLOAT_1_0;
-  *(float *)&v44[3] = FLOAT_0_25;
+  v48[0] = 0.0f;
+  v48[1] = 1.0f;
+  v48[2] = 1.0f;
+  v48[3] = 0.25f;
+  *(float *)v47 = 1.0f;
+  v47[1] = 0;
+  v47[2] = 0;
+  *(float *)&v47[3] = 0.25f;
+  v46[0] = 0.0f;
+  v46[1] = 1.0f;
+  v46[2] = 0.0f;
+  v46[3] = 0.25f;
+  *(float *)v45 = 1.0f;
+  *(float *)&v45[1] = 1.0f;
+  v45[2] = 0;
+  *(float *)&v45[3] = 0.25f;
+  *(float *)v44 = 1.0f;
+  *(float *)&v44[1] = 1.0f;
+  *(float *)&v44[2] = 1.0f;
+  *(float *)&v44[3] = 0.25f;
   v42 = CM_AreaEntities(v50, v49, v43, 200, contentmask);
   for ( i = 0; i < v42; ++i )
   {
@@ -3979,10 +3979,10 @@ void __cdecl Phys_RenderWorldCollMesh(const float *pos, bool bRenderStaticCollis
       colgeomDebugVisitor.lightPos[2] = pos[2];
       mask = Phys_GetMaskFromDVar();
       s_expand_h = g_debugRenderCollisionDistance->current.value;
-      s_expand_v = FLOAT_5000_0;
+      s_expand_v = 5000.0f;
       expand_vec[0] = s_expand_h;
       expand_vec[1] = s_expand_h;
-      expand_vec[2] = FLOAT_5000_0;
+      expand_vec[2] = 5000.0f;
       colgeom_debug_renderer_t::reset(&colgeomDebugVisitor);
       colgeom_debug_renderer_t::update(&colgeomDebugVisitor, pos, pos, mask, expand_vec);
       DebugPatchesAndBrushesEpilog();
@@ -4141,12 +4141,12 @@ void __cdecl debug_loop()
           colgeom_visitor_t::colgeom_visitor_t(&visitor);
           visitor.__vftable = (colgeom_visitor_inlined_t<200>_vtbl *)&colgeom_visitor_inlined_t<200>::`vftable';
           colgeom_visitor_inlined_t<500>::reset(&visitor);
-          mins[0] = FLOAT_N50_0;
-          mins[1] = FLOAT_N50_0;
-          mins[2] = FLOAT_N50_0;
-          maxs[0] = FLOAT_50_0;
-          maxs[1] = FLOAT_50_0;
-          maxs[2] = FLOAT_50_0;
+          mins[0] = -50.0f;
+          mins[1] = -50.0f;
+          mins[2] = -50.0f;
+          maxs[0] = 50.0f;
+          maxs[1] = 50.0f;
+          maxs[2] = 50.0f;
           maxs[3] = NAN;
           colgeom_visitor_inlined_t<200>::update(&visitor, start, start, mins, maxs, -1);
           render_prims(visitor.prims, visitor.nprims);
@@ -4162,11 +4162,11 @@ void __cdecl debug_loop()
                 hitPos[0] = start[0];
                 hitPos[1] = start[1];
                 hitPos[2] = start[2];
-                hitDir[0] = FLOAT_1_0;
-                hitDir[1] = *(float *)&FLOAT_0_0;
-                hitDir[2] = *(float *)&FLOAT_0_0;
+                hitDir[0] = 1.0f;
+                hitDir[1] = 0.0f;
+                hitDir[2] = 0.0f;
                 memset(quat, 0, 12);
-                quat[3] = FLOAT_1_0;
+                quat[3] = 1.0f;
                 origin[0] = (float)(sc1 * cgameGlob->refdef.viewaxis[0][0]) + start[0];
                 origin[1] = (float)(sc1 * cgameGlob->refdef.viewaxis[0][1]) + start[1];
                 origin[2] = (float)(sc1 * cgameGlob->refdef.viewaxis[0][2]) + start[2];
@@ -4384,9 +4384,9 @@ void __cdecl Phys_BodyGrabSnapshotNitrous(PhysObjUserData *userData, float delta
   phys_full_multiply_mat((int)&savedregs, &userData->cg2w, rb2w, &userData->cg2rb);
   if ( (body->m_flags & 0x20) == 0 )
   {
-    drag_scale = FLOAT_1_0;
+    drag_scale = 1.0f;
     if ( (userData->m_flags & 1) == 0 )
-      drag_scale = FLOAT_2_0;
+      drag_scale = 2.0f;
     body->m_t_drag_coef = phys_dragLinear->current.value * drag_scale;
     body->m_a_drag_coef = phys_dragAngular->current.value * drag_scale;
     userData->m_time_since_last_event = userData->m_time_since_last_event + deltaT;
@@ -4434,7 +4434,7 @@ void  UpdateRigidBody(float a1@<ebp>, float delta_t)
     gravityChange = 0;
   }
   if ( delta_t >= 0.1 )
-    t = FLOAT_0_1;
+    t = 0.1f;
   else
     t = delta_t;
   Phys_AddCacheImpulses((int)&gravity_dir.y);
@@ -4688,7 +4688,7 @@ void __cdecl Phys_ObjGetInterpolatedState(int id, float *outPos, float *outQuat)
   float oldQuat[4]; // [esp+84h] [ebp-10h] BYREF
   int savedregs; // [esp+94h] [ebp+0h] BYREF
 
-  frac = FLOAT_1_0;
+  frac = 1.0f;
   if ( phys_msecStep->current.integer <= 0 )
   {
     Phys_ObjGetPosition((int)&savedregs, id, outPos, newMat);
@@ -4724,18 +4724,18 @@ void  Phys_SetUserBody(int a1@<ebp>, int id, float *position)
   UserData = (float *)Phys_GetUserData(id);
   pos.w = *UserData;
   Phys_Vec3ToNitrousVec(position, (phys_vec3 *)&v5);
-  dictator.w.y = FLOAT_1_0;
-  dictator.w.z = *(float *)&FLOAT_0_0;
-  dictator.w.w = *(float *)&FLOAT_0_0;
-  *(float *)v3 = FLOAT_1_0;
-  v3[1] = *(unsigned int *)&FLOAT_0_0;
-  v3[2] = *(unsigned int *)&FLOAT_0_0;
-  dictator.x.y = *(float *)&FLOAT_0_0;
-  dictator.x.z = FLOAT_1_0;
-  dictator.x.w = *(float *)&FLOAT_0_0;
-  dictator.y.y = *(float *)&FLOAT_0_0;
-  dictator.y.z = *(float *)&FLOAT_0_0;
-  dictator.y.w = FLOAT_1_0;
+  dictator.w.y = 1.0f;
+  dictator.w.z = 0.0f;
+  dictator.w.w = 0.0f;
+  *(float *)v3 = 1.0f;
+  v3[1] = 0;
+  v3[2] = 0;
+  dictator.x.y = 0.0f;
+  dictator.x.z = 1.0f;
+  dictator.x.w = 0.0f;
+  dictator.y.y = 0.0f;
+  dictator.y.z = 0.0f;
+  dictator.y.w = 1.0f;
   dictator.z.y = v5;
   dictator.z.z = v6;
   dictator.z.w = v7;
@@ -4879,9 +4879,9 @@ rigid_body_constraint_ragdoll * Phys_CreateHinge@<eax>(
     ref_abs.y = v31;
     ref_abs.z = axis_abs.w;
     ref_abs.w = axis_abs.z;
-    v26 = FLOAT_1_0;
-    v27 = *(unsigned int *)&FLOAT_0_0;
-    v28 = *(unsigned int *)&FLOAT_0_0;
+    v26 = 1.0f;
+    v27 = 0;
+    v28 = 0;
     v24 = phys_full_inv_multiply((int)&joint, &v25, &body->m_mat, (const phys_vec3 *)v32);
     v23[0] = LODWORD(v24->x);
     v23[1] = LODWORD(v24->y);
@@ -4898,18 +4898,18 @@ rigid_body_constraint_ragdoll * Phys_CreateHinge@<eax>(
     v14[0] = LODWORD(v15->x);
     v14[1] = LODWORD(v15->y);
     v14[2] = LODWORD(v15->z);
-    b1_ref_loc.y = FLOAT_1_0;
-    b1_ref_loc.z = *(float *)&FLOAT_0_0;
-    b1_ref_loc.w = *(float *)&FLOAT_0_0;
-    *(float *)v12 = FLOAT_1_0;
-    v12[1] = *(unsigned int *)&FLOAT_0_0;
-    v12[2] = *(unsigned int *)&FLOAT_0_0;
-    b2_ref_loc.y = FLOAT_1_0;
-    b2_ref_loc.z = *(float *)&FLOAT_0_0;
-    b2_ref_loc.w = *(float *)&FLOAT_0_0;
-    *(float *)v10 = FLOAT_1_0;
-    v10[1] = *(unsigned int *)&FLOAT_0_0;
-    v10[2] = *(unsigned int *)&FLOAT_0_0;
+    b1_ref_loc.y = 1.0f;
+    b1_ref_loc.z = 0.0f;
+    b1_ref_loc.w = 0.0f;
+    *(float *)v12 = 1.0f;
+    v12[1] = 0;
+    v12[2] = 0;
+    b2_ref_loc.y = 1.0f;
+    b2_ref_loc.z = 0.0f;
+    b2_ref_loc.w = 0.0f;
+    *(float *)v10 = 1.0f;
+    v10[1] = 0;
+    v10[2] = 0;
     rigid_body_constraint_ragdoll::set(rbc_ragdoll, (const phys_vec3 *)v23, (const phys_vec3 *)v20);
     rigid_body_constraint_ragdoll::set_hinge(
       rbc_ragdoll,
@@ -5228,16 +5228,16 @@ void __cdecl Phys_CalcPreset(PhysPreset *physPreset, float *dims, int surfaceTyp
   size = (float)(*dims + dims[1]) + dims[2];
   floats = Com_SurfaceFloats(surfaceType);
   if ( physPreset->bounce == 0.0 )
-    physPreset->bounce = FLOAT_0_25;
+    physPreset->bounce = 0.25f;
   if ( physPreset->friction == 0.0 )
-    physPreset->friction = FLOAT_1_0;
-  physPreset->bulletForceScale = FLOAT_1_0;
-  physPreset->explosiveForceScale = FLOAT_1_0;
+    physPreset->friction = 1.0f;
+  physPreset->bulletForceScale = 1.0f;
+  physPreset->explosiveForceScale = 1.0f;
   physPreset->canFloat = floats;
   if ( surfaceType == 8 )
-    physPreset->gravityScale = FLOAT_0_30000001;
+    physPreset->gravityScale = 0.3f;
   else
-    physPreset->gravityScale = FLOAT_1_0;
+    physPreset->gravityScale = 1.0f;
   if ( physPreset->mass == 0.0 )
   {
     physPreset->mass = size * density;
@@ -5245,23 +5245,23 @@ void __cdecl Phys_CalcPreset(PhysPreset *physPreset, float *dims, int surfaceTyp
     if ( (float)(mass - 1000.0) < 0.0 )
       v5 = physPreset->mass;
     else
-      v5 = FLOAT_1000_0;
+      v5 = 1000.0f;
     if ( (float)(1.0 - mass) < 0.0 )
       v3 = v5;
     else
-      v3 = FLOAT_1_0;
+      v3 = 1.0f;
     physPreset->mass = v3;
   }
   physPreset->mass = physPreset->mass * 0.001;
-  physPreset->buoyancyBoxMin[0] = *(float *)&FLOAT_0_0;
-  physPreset->buoyancyBoxMin[1] = *(float *)&FLOAT_0_0;
-  physPreset->buoyancyBoxMin[2] = *(float *)&FLOAT_0_0;
-  physPreset->buoyancyBoxMax[0] = *(float *)&FLOAT_0_0;
-  physPreset->buoyancyBoxMax[1] = *(float *)&FLOAT_0_0;
-  physPreset->buoyancyBoxMax[2] = *(float *)&FLOAT_0_0;
-  physPreset->centerOfMassOffset[0] = *(float *)&FLOAT_0_0;
-  physPreset->centerOfMassOffset[1] = *(float *)&FLOAT_0_0;
-  physPreset->centerOfMassOffset[2] = *(float *)&FLOAT_0_0;
+  physPreset->buoyancyBoxMin[0] = 0.0f;
+  physPreset->buoyancyBoxMin[1] = 0.0f;
+  physPreset->buoyancyBoxMin[2] = 0.0f;
+  physPreset->buoyancyBoxMax[0] = 0.0f;
+  physPreset->buoyancyBoxMax[1] = 0.0f;
+  physPreset->buoyancyBoxMax[2] = 0.0f;
+  physPreset->centerOfMassOffset[0] = 0.0f;
+  physPreset->centerOfMassOffset[1] = 0.0f;
+  physPreset->centerOfMassOffset[2] = 0.0f;
   physPreset->flags |= 2u;
 }
 

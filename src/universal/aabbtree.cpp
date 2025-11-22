@@ -313,7 +313,7 @@ bool __cdecl PickAabbSplitPlane(
     while ( nextDist < 3.4028235e38 )
     {
       dist = nextDist;
-      nextDist = FLOAT_3_4028235e38;
+      nextDist = FLT_MAX;
       sideSplitCount += prevMinCount;
       sideBackCount -= prevMinCount;
       prevMinCount = 0;

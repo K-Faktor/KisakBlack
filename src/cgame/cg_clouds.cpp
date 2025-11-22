@@ -12,7 +12,7 @@ void __cdecl CG_UpdateClouds(int msec)
   float time; // [esp+40h] [ebp-4h]
 
   BG_GetGlobalWind(windDir);
-  windDir[2] = *(float *)&FLOAT_0_0;
+  windDir[2] = 0.0f;
   Vec3Normalize(windDir);
   time = (float)msec / 1000.0;
   worldSize = cg_cloudWorldMax[0] - cg_cloudWorldMin[0];

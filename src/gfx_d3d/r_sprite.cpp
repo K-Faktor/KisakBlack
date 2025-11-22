@@ -86,7 +86,7 @@ void __cdecl R_BuildQuadStampCodeMeshVerts(
     verts->xyz[0] = *origin + leftUp[0];
     verts->xyz[1] = origin[1] + leftUp[1];
     verts->xyz[2] = origin[2] + leftUp[2];
-    verts->binormalSign = FLOAT_1_0;
+    verts->binormalSign = 1.0f;
     verts->normal = v30;
     verts->color = nativeColor;
     if ( (int)((2 * s0) ^ 0x80000000) >> 14 < 0x3FFF )
@@ -111,7 +111,7 @@ void __cdecl R_BuildQuadStampCodeMeshVerts(
     verts[1].xyz[0] = *origin - leftDown[0];
     v26->xyz[1] = origin[1] - leftDown[1];
     v26->xyz[2] = origin[2] - leftDown[2];
-    verts[1].binormalSign = FLOAT_1_0;
+    verts[1].binormalSign = 1.0f;
     verts[1].normal = v30;
     verts[1].color = nativeColor;
     if ( (int)((2 * s1) ^ 0x80000000) >> 14 < 0x3FFF )
@@ -136,7 +136,7 @@ void __cdecl R_BuildQuadStampCodeMeshVerts(
     verts[2].xyz[0] = *origin - leftUp[0];
     v23->xyz[1] = origin[1] - leftUp[1];
     v23->xyz[2] = origin[2] - leftUp[2];
-    verts[2].binormalSign = FLOAT_1_0;
+    verts[2].binormalSign = 1.0f;
     verts[2].normal = v30;
     verts[2].color = nativeColor;
     if ( (int)((2 * s1) ^ 0x80000000) >> 14 < 0x3FFF )
@@ -161,7 +161,7 @@ void __cdecl R_BuildQuadStampCodeMeshVerts(
     verts[3].xyz[0] = *origin + leftDown[0];
     v20->xyz[1] = origin[1] + leftDown[1];
     v20->xyz[2] = origin[2] + leftDown[2];
-    verts[3].binormalSign = FLOAT_1_0;
+    verts[3].binormalSign = 1.0f;
     verts[3].normal = v30;
     verts[3].color = nativeColor;
     if ( (int)((2 * s0) ^ 0x80000000) >> 14 < 0x3FFF )
@@ -362,10 +362,10 @@ void __cdecl R_GenerateQuadStampCodeMeshVertsArray(
     numFramesMax = numFrames - 1.0;
     *(_QWORD *)viewLeft.v = *(_QWORD *)&(*viewAxis)[3];
     viewLeft.u[2] = LODWORD((*viewAxis)[5]);
-    viewLeft.u[3] = *(unsigned int *)&FLOAT_0_0;
+    viewLeft.u[3] = 0;
     *(_QWORD *)viewUp.v = *(_QWORD *)&(*viewAxis)[6];
     viewUp.u[2] = LODWORD((*viewAxis)[8]);
-    viewUp.u[3] = *(unsigned int *)&FLOAT_0_0;
+    viewUp.u[3] = 0;
     i = 0;
     while ( i < numQuads )
     {

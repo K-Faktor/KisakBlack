@@ -12,19 +12,19 @@ void __cdecl ikMatrixSet44(float (*out)[4], const float *origin, const float (*a
   (*out)[0] = (*axis)[0] * scale;
   (*out)[1] = (float)(*axis)[1] * scale;
   (*out)[2] = (float)(*axis)[2] * scale;
-  (*out)[3] = *(float *)&FLOAT_0_0;
+  (*out)[3] = 0.0f;
   (*out)[4] = (float)(*axis)[3] * scale;
   (*out)[5] = (float)(*axis)[4] * scale;
   (*out)[6] = (float)(*axis)[5] * scale;
-  (*out)[7] = *(float *)&FLOAT_0_0;
+  (*out)[7] = 0.0f;
   (*out)[8] = (float)(*axis)[6] * scale;
   (*out)[9] = (float)(*axis)[7] * scale;
   (*out)[10] = (float)(*axis)[8] * scale;
-  (*out)[11] = *(float *)&FLOAT_0_0;
+  (*out)[11] = 0.0f;
   (*out)[12] = *origin;
   (*out)[13] = origin[1];
   (*out)[14] = origin[2];
-  (*out)[15] = FLOAT_1_0;
+  (*out)[15] = 1.0f;
 }
 
 void __cdecl ikMatrixTransformVector34(const float *in1, const float (*in2)[4], float *out)
@@ -77,19 +77,19 @@ void __cdecl ikQuatTransToMatrix44(float *quat, const float *trans, float (*out)
   (*out)[0] = 1.0 - (float)(yy + zz);
   (*out)[1] = xy + zw;
   (*out)[2] = xz - yw;
-  (*out)[3] = *(float *)&FLOAT_0_0;
+  (*out)[3] = 0.0f;
   (*out)[4] = xy - zw;
   (*out)[5] = 1.0 - (float)(xx + zz);
   (*out)[6] = yz + xw;
-  (*out)[7] = *(float *)&FLOAT_0_0;
+  (*out)[7] = 0.0f;
   (*out)[8] = xz + yw;
   (*out)[9] = yz - xw;
   (*out)[10] = 1.0 - (float)(xx + yy);
-  (*out)[11] = *(float *)&FLOAT_0_0;
+  (*out)[11] = 0.0f;
   (*out)[12] = *trans;
   (*out)[13] = trans[1];
   (*out)[14] = trans[2];
-  (*out)[15] = FLOAT_1_0;
+  (*out)[15] = 1.0f;
 }
 
 void __cdecl ikMatrix44ToQuatTrans(float (*mat)[4], float *quat, float *trans)
@@ -196,10 +196,10 @@ void __cdecl ikMat44Set(float (*mat)[4], const float *v1, const float *v2, const
   (*mat)[12] = *pos;
   (*mat)[13] = pos[1];
   (*mat)[14] = pos[2];
-  (*mat)[3] = *(float *)&FLOAT_0_0;
-  (*mat)[7] = *(float *)&FLOAT_0_0;
-  (*mat)[11] = *(float *)&FLOAT_0_0;
-  (*mat)[15] = FLOAT_1_0;
+  (*mat)[3] = 0.0f;
+  (*mat)[7] = 0.0f;
+  (*mat)[11] = 0.0f;
+  (*mat)[15] = 1.0f;
 }
 
 // local variable allocation has failed, the output may be wrong!
@@ -754,11 +754,11 @@ void __cdecl ikSolve2D(
     if ( v14 <= 1.0 )
       v13 = v14;
     else
-      v13 = FLOAT_1_0;
+      v13 = 1.0f;
   }
   else
   {
-    v13 = FLOAT_N1_0;
+    v13 = -1.0f;
   }
   *CosUpper = v13;
   v12 = *CosLower;
@@ -772,11 +772,11 @@ void __cdecl ikSolve2D(
     if ( v12 <= 1.0 )
       v11 = v12;
     else
-      v11 = FLOAT_1_0;
+      v11 = 1.0f;
   }
   else
   {
-    v11 = FLOAT_N1_0;
+    v11 = -1.0f;
   }
   *CosLower = v11;
   *SinUpper = fsqrt(1.0 - (float)(*CosUpper * *CosUpper));
@@ -843,9 +843,9 @@ void  ikMap2DTo3D(
   Vec3Cross(ModelTargetDir, ModelMidJointDir, Up);
   if ( Vec3Normalize(Up) < 0.0099999998 )
   {
-    Up[0] = *(float *)&FLOAT_0_0;
-    Up[1] = *(float *)&FLOAT_0_0;
-    Up[2] = FLOAT_1_0;
+    Up[0] = 0.0f;
+    Up[1] = 0.0f;
+    Up[2] = 1.0f;
   }
   Vec3Cross(Up, ModelTargetDir, (float *)&UpperRot_52[68]);
   ikMat44Set((float (*)[4])UpperRot_52, ModelTargetDir, (const float *)&UpperRot_52[68], Up, ModelBaseJoint);
@@ -1589,8 +1589,8 @@ void  ikSolveArmJoint(
       &modelTargetDir[1],
       &modelTargetDir[2],
       &sinUpper);
-    modelMidJointDir[1] = *(float *)&FLOAT_0_0;
-    modelMidJointDir[0] = FLOAT_1_0;
+    modelMidJointDir[1] = 0.0f;
+    modelMidJointDir[0] = 1.0f;
     Vec3Cross((const float *)&v73[32], &modelMidJointDir[2], &basePos[1]);
     LODWORD(basePos[0]) = &v73[48];
     v8 = *(_QWORD *)&v73[48];
@@ -1964,7 +1964,7 @@ void  ikRotateBone(float *a1@<ebp>, IKState *ikState, IKBoneNames boneName, floa
       *(float *)(LODWORD(axis[2][1]) + 8) = (float)((float)(*(float *)&workMat2[52] * *(float *)&workMat2[188])
                                                   + (float)(*(float *)&workMat2[56] * *(float *)&workMat2[204]))
                                           + (float)(*(float *)&workMat2[60] * *(float *)&workMat2[220]);
-      *(unsigned int *)(LODWORD(axis[2][1]) + 12) = *(unsigned int *)&FLOAT_0_0;
+      *(unsigned int *)(LODWORD(axis[2][1]) + 12) = 0;
       *(float *)(LODWORD(axis[2][1]) + 16) = (float)((float)(*(float *)&workMat2[68] * *(float *)&workMat2[180])
                                                    + (float)(*(float *)&workMat2[72] * *(float *)&workMat2[196]))
                                            + (float)(*(float *)&workMat2[76] * *(float *)&workMat2[212]);
@@ -1974,7 +1974,7 @@ void  ikRotateBone(float *a1@<ebp>, IKState *ikState, IKBoneNames boneName, floa
       *(float *)(LODWORD(axis[2][1]) + 24) = (float)((float)(*(float *)&workMat2[68] * *(float *)&workMat2[188])
                                                    + (float)(*(float *)&workMat2[72] * *(float *)&workMat2[204]))
                                            + (float)(*(float *)&workMat2[76] * *(float *)&workMat2[220]);
-      *(unsigned int *)(LODWORD(axis[2][1]) + 28) = *(unsigned int *)&FLOAT_0_0;
+      *(unsigned int *)(LODWORD(axis[2][1]) + 28) = 0;
       *(float *)(LODWORD(axis[2][1]) + 32) = (float)((float)(*(float *)&workMat2[84] * *(float *)&workMat2[180])
                                                    + (float)(*(float *)&workMat2[88] * *(float *)&workMat2[196]))
                                            + (float)(*(float *)&workMat2[92] * *(float *)&workMat2[212]);
@@ -1984,7 +1984,7 @@ void  ikRotateBone(float *a1@<ebp>, IKState *ikState, IKBoneNames boneName, floa
       *(float *)(LODWORD(axis[2][1]) + 40) = (float)((float)(*(float *)&workMat2[84] * *(float *)&workMat2[188])
                                                    + (float)(*(float *)&workMat2[88] * *(float *)&workMat2[204]))
                                            + (float)(*(float *)&workMat2[92] * *(float *)&workMat2[220]);
-      *(unsigned int *)(LODWORD(axis[2][1]) + 44) = *(unsigned int *)&FLOAT_0_0;
+      *(unsigned int *)(LODWORD(axis[2][1]) + 44) = 0;
     }
     else
     {
@@ -2019,7 +2019,7 @@ void  ikRotateBone(float *a1@<ebp>, IKState *ikState, IKBoneNames boneName, floa
         *(float *)(LODWORD(axis[2][1]) + 8) = (float)((float)(*(float *)&workMat2[52] * *(float *)&workMat2[188])
                                                     + (float)(*(float *)&workMat2[56] * *(float *)&workMat2[204]))
                                             + (float)(*(float *)&workMat2[60] * *(float *)&workMat2[220]);
-        *(unsigned int *)(LODWORD(axis[2][1]) + 12) = *(unsigned int *)&FLOAT_0_0;
+        *(unsigned int *)(LODWORD(axis[2][1]) + 12) = 0;
         *(float *)(LODWORD(axis[2][1]) + 16) = (float)((float)(*(float *)&workMat2[68] * *(float *)&workMat2[180])
                                                      + (float)(*(float *)&workMat2[72] * *(float *)&workMat2[196]))
                                              + (float)(*(float *)&workMat2[76] * *(float *)&workMat2[212]);
@@ -2029,7 +2029,7 @@ void  ikRotateBone(float *a1@<ebp>, IKState *ikState, IKBoneNames boneName, floa
         *(float *)(LODWORD(axis[2][1]) + 24) = (float)((float)(*(float *)&workMat2[68] * *(float *)&workMat2[188])
                                                      + (float)(*(float *)&workMat2[72] * *(float *)&workMat2[204]))
                                              + (float)(*(float *)&workMat2[76] * *(float *)&workMat2[220]);
-        *(unsigned int *)(LODWORD(axis[2][1]) + 28) = *(unsigned int *)&FLOAT_0_0;
+        *(unsigned int *)(LODWORD(axis[2][1]) + 28) = 0;
         *(float *)(LODWORD(axis[2][1]) + 32) = (float)((float)(*(float *)&workMat2[84] * *(float *)&workMat2[180])
                                                      + (float)(*(float *)&workMat2[88] * *(float *)&workMat2[196]))
                                              + (float)(*(float *)&workMat2[92] * *(float *)&workMat2[212]);
@@ -2039,7 +2039,7 @@ void  ikRotateBone(float *a1@<ebp>, IKState *ikState, IKBoneNames boneName, floa
         *(float *)(LODWORD(axis[2][1]) + 40) = (float)((float)(*(float *)&workMat2[84] * *(float *)&workMat2[188])
                                                      + (float)(*(float *)&workMat2[88] * *(float *)&workMat2[204]))
                                              + (float)(*(float *)&workMat2[92] * *(float *)&workMat2[220]);
-        *(unsigned int *)(LODWORD(axis[2][1]) + 44) = *(unsigned int *)&FLOAT_0_0;
+        *(unsigned int *)(LODWORD(axis[2][1]) + 44) = 0;
       }
       else
       {
@@ -2053,7 +2053,7 @@ void  ikRotateBone(float *a1@<ebp>, IKState *ikState, IKBoneNames boneName, floa
         v33 = (float)((float)(*(float *)&workMat2[52] * *(float *)&workMat2[188])
                     + (float)(*(float *)&workMat2[56] * *(float *)&workMat2[204]))
             + (float)(*(float *)&workMat2[60] * *(float *)&workMat2[220]);
-        *(unsigned int *)workMat2 = *(unsigned int *)&FLOAT_0_0;
+        *(unsigned int *)workMat2 = 0;
         *(float *)&workMat2[4] = (float)((float)(*(float *)&workMat2[68] * *(float *)&workMat2[180])
                                        + (float)(*(float *)&workMat2[72] * *(float *)&workMat2[196]))
                                + (float)(*(float *)&workMat2[76] * *(float *)&workMat2[212]);
@@ -2063,7 +2063,7 @@ void  ikRotateBone(float *a1@<ebp>, IKState *ikState, IKBoneNames boneName, floa
         *(float *)&workMat2[12] = (float)((float)(*(float *)&workMat2[68] * *(float *)&workMat2[188])
                                         + (float)(*(float *)&workMat2[72] * *(float *)&workMat2[204]))
                                 + (float)(*(float *)&workMat2[76] * *(float *)&workMat2[220]);
-        *(unsigned int *)&workMat2[16] = *(unsigned int *)&FLOAT_0_0;
+        *(unsigned int *)&workMat2[16] = 0;
         *(float *)&workMat2[20] = (float)((float)(*(float *)&workMat2[84] * *(float *)&workMat2[180])
                                         + (float)(*(float *)&workMat2[88] * *(float *)&workMat2[196]))
                                 + (float)(*(float *)&workMat2[92] * *(float *)&workMat2[212]);
@@ -2073,7 +2073,7 @@ void  ikRotateBone(float *a1@<ebp>, IKState *ikState, IKBoneNames boneName, floa
         *(float *)&workMat2[28] = (float)((float)(*(float *)&workMat2[84] * *(float *)&workMat2[188])
                                         + (float)(*(float *)&workMat2[88] * *(float *)&workMat2[204]))
                                 + (float)(*(float *)&workMat2[92] * *(float *)&workMat2[220]);
-        *(unsigned int *)&workMat2[32] = *(unsigned int *)&FLOAT_0_0;
+        *(unsigned int *)&workMat2[32] = 0;
         v30 = &workMat2[36];
         v29 = &workMat2[100];
         *(float *)&workMat2[36] = *(float *)&workMat2[100];
@@ -2088,21 +2088,21 @@ void  ikRotateBone(float *a1@<ebp>, IKState *ikState, IKBoneNames boneName, floa
         v20[0] = *(float *)&workMat2[116];
         v20[1] = *(float *)&workMat2[132];
         v20[2] = *(float *)&workMat2[148];
-        v20[3] = *(float *)&FLOAT_0_0;
+        v20[3] = 0.0f;
         v21 = *(float *)&workMat2[120];
         v22 = *(float *)&workMat2[136];
         v23 = *(float *)&workMat2[152];
-        v24 = *(unsigned int *)&FLOAT_0_0;
+        v24 = 0;
         v25 = *(float *)&workMat2[124];
         v26 = *(float *)&workMat2[140];
         v27 = *(float *)&workMat2[156];
-        v28 = *(unsigned int *)&FLOAT_0_0;
+        v28 = 0;
         *(float *)LODWORD(axis[2][1]) = (float)((float)(v31 * *(float *)&workMat2[116])
                                               + (float)(v32 * *(float *)&workMat2[120]))
                                       + (float)(v33 * *(float *)&workMat2[124]);
         *(float *)(LODWORD(axis[2][1]) + 4) = (float)((float)(v31 * v20[1]) + (float)(v32 * v22)) + (float)(v33 * v26);
         *(float *)(LODWORD(axis[2][1]) + 8) = (float)((float)(v31 * v20[2]) + (float)(v32 * v23)) + (float)(v33 * v27);
-        *(unsigned int *)(LODWORD(axis[2][1]) + 12) = *(unsigned int *)&FLOAT_0_0;
+        *(unsigned int *)(LODWORD(axis[2][1]) + 12) = 0;
         *(float *)(LODWORD(axis[2][1]) + 16) = (float)((float)(*(float *)&workMat2[4] * v20[0])
                                                      + (float)(*(float *)&workMat2[8] * v21))
                                              + (float)(*(float *)&workMat2[12] * v25);
@@ -2112,7 +2112,7 @@ void  ikRotateBone(float *a1@<ebp>, IKState *ikState, IKBoneNames boneName, floa
         *(float *)(LODWORD(axis[2][1]) + 24) = (float)((float)(*(float *)&workMat2[4] * v20[2])
                                                      + (float)(*(float *)&workMat2[8] * v23))
                                              + (float)(*(float *)&workMat2[12] * v27);
-        *(unsigned int *)(LODWORD(axis[2][1]) + 28) = *(unsigned int *)&FLOAT_0_0;
+        *(unsigned int *)(LODWORD(axis[2][1]) + 28) = 0;
         *(float *)(LODWORD(axis[2][1]) + 32) = (float)((float)(*(float *)&workMat2[20] * v20[0])
                                                      + (float)(*(float *)&workMat2[24] * v21))
                                              + (float)(*(float *)&workMat2[28] * v25);
@@ -2122,14 +2122,14 @@ void  ikRotateBone(float *a1@<ebp>, IKState *ikState, IKBoneNames boneName, floa
         *(float *)(LODWORD(axis[2][1]) + 40) = (float)((float)(*(float *)&workMat2[20] * v20[2])
                                                      + (float)(*(float *)&workMat2[24] * v23))
                                              + (float)(*(float *)&workMat2[28] * v27);
-        *(unsigned int *)(LODWORD(axis[2][1]) + 44) = *(unsigned int *)&FLOAT_0_0;
+        *(unsigned int *)(LODWORD(axis[2][1]) + 44) = 0;
         LODWORD(v19[4]) = &workMat2[164];
         LODWORD(v19[3]) = &workMat2[36];
         v19[0] = *(float *)&workMat2[36] - *(float *)&workMat2[164];
         v19[1] = *(float *)&workMat2[40] - *(float *)&workMat2[168];
         v19[2] = *(float *)&workMat2[44] - *(float *)&workMat2[172];
         ikMatrixTransformVector34(v19, (const float (*)[4])v20, (float *)(LODWORD(axis[2][1]) + 48));
-        *(float *)(LODWORD(axis[2][1]) + 60) = FLOAT_1_0;
+        *(float *)(LODWORD(axis[2][1]) + 60) = 1.0f;
       }
     }
     ikState->bHasActiveLayers = 1;

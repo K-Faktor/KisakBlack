@@ -236,28 +236,28 @@ void __cdecl HELI_CancelAIMove(gentity_s *ent)
   }
   veh = ent->scr_vehicle;
   info = BG_GetVehicleInfo(veh->infoIdx);
-  yawAngles[0] = *(float *)&FLOAT_0_0;
+  yawAngles[0] = 0.0f;
   yawAngles[1] = veh->phys.angles[1];
-  yawAngles[2] = *(float *)&FLOAT_0_0;
+  yawAngles[2] = 0.0f;
   AngleVectors(yawAngles, bodyMat[0], bodyMat[1], bodyMat[2]);
   memset(bodyMat[3], 0, sizeof(float[3]));
   if ( info->maxBodyPitch <= 0.0 )
-    maxBodyPitch = FLOAT_1_0;
+    maxBodyPitch = 1.0f;
   else
     maxBodyPitch = info->maxBodyPitch;
   if ( info->maxBodyRoll <= 0.0 )
-    maxBodyRoll = FLOAT_1_0;
+    maxBodyRoll = 1.0f;
   else
     maxBodyRoll = info->maxBodyRoll;
   maxRoll = maxBodyRoll;
   v3 = veh->phys.angles[2] / maxBodyRoll;
   tilt[0] = veh->phys.angles[0] / maxBodyPitch;
   tilt[1] = v3;
-  tilt[2] = *(float *)&FLOAT_0_0;
+  tilt[2] = 0.0f;
   MatrixTransformVector(tilt, bodyMat, veh->phys.worldTilt);
-  veh->phys.worldTiltVel[0] = *(float *)&FLOAT_0_0;
-  veh->phys.worldTiltVel[1] = *(float *)&FLOAT_0_0;
-  veh->phys.worldTiltVel[2] = *(float *)&FLOAT_0_0;
+  veh->phys.worldTiltVel[0] = 0.0f;
+  veh->phys.worldTiltVel[1] = 0.0f;
+  veh->phys.worldTiltVel[2] = 0.0f;
 }
 
 void __cdecl VEH_CheckForPredictedCrash(gentity_s *ent)
@@ -361,14 +361,14 @@ char __cdecl VEH_HandleHeliLockHeight(gentity_s *ent)
   if ( !CM_GetHeliHeight(testPoint, 200.0, &veh->phys.heliLockHeight) )
     CM_GetHeliHeight(testPoint, 3000.0, &veh->phys.heliLockHeight);
   deltaHeight = testPoint[2] - veh->phys.heliLockHeight;
-  moveStrength = FLOAT_1_0;
+  moveStrength = 1.0f;
   LODWORD(absDeltaHeight) = LODWORD(deltaHeight) & _mask__AbsFloat_;
   if ( inputFallOffRange > COERCE_FLOAT(LODWORD(deltaHeight) & _mask__AbsFloat_) )
   {
     if ( stopInputRange <= absDeltaHeight )
       moveStrength = absDeltaHeight / inputFallOffRange;
     else
-      moveStrength = *(float *)&FLOAT_0_0;
+      moveStrength = 0.0f;
   }
   if ( (moveStrength < 0.0 || moveStrength > 1.0)
     && !Assert_MyHandler(
@@ -385,13 +385,13 @@ char __cdecl VEH_HandleHeliLockHeight(gentity_s *ent)
   if ( deltaHeight >= 0.0 )
   {
     if ( veh->phys.vel[2] > 4.0 )
-      moveStrength = FLOAT_1_0;
+      moveStrength = 1.0f;
     return (int)(float)(-127.0 * moveStrength);
   }
   else
   {
     if ( veh->phys.vel[2] < -4.0 )
-      moveStrength = FLOAT_1_0;
+      moveStrength = 1.0f;
     return (int)(float)(127.0 * moveStrength);
   }
 }
@@ -469,7 +469,7 @@ void __cdecl VEH_UpdateClientChopper(gentity_s *ent)
   player = VEH_GetSeatOccupantEntity(ent, 0);
   if ( player && player->client && !player->client->ps.vehiclePos )
   {
-    player->client->linkAnglesFrac = *(float *)&FLOAT_0_0;
+    player->client->linkAnglesFrac = 0.0f;
     usercmd = &player->client->sess.cmd;
     if ( (player->client->ps.pm_flags & 0xC00) == 0 )
     {
@@ -523,11 +523,11 @@ void __cdecl VEH_UpdateClientChopper(gentity_s *ent)
           if ( (float)(v25 - 1.0) < 0.0 )
             v26 = (float)(diff / info->turretViewLimits.horizSpanLeft) * scale;
           else
-            v26 = FLOAT_1_0;
+            v26 = 1.0f;
           if ( (float)(-1.0 - v25) < 0.0 )
             v11 = v26;
           else
-            v11 = FLOAT_N1_0;
+            v11 = -1.0f;
           fraction = v11;
           fraction = GraphFloat_GetValue(info->steerGraph, COERCE_FLOAT(LODWORD(v11) & _mask__AbsFloat_));
           if ( diff < 0.0 )
@@ -541,7 +541,7 @@ void __cdecl VEH_UpdateClientChopper(gentity_s *ent)
           else
             LODWORD(v10) = LODWORD(viewDiffInfleunce) ^ _mask__NegFloat_;
           viewDiffMove = v10;
-          controllerMove = *(float *)&FLOAT_0_0;
+          controllerMove = 0.0f;
           if ( (player->client->ps.pm_flags & 0xC00) == 0 )
             controllerMove = (float)((float)usercmd->yawmove / 128.0) * controllerInfleunce;
           move[3] = (int)(float)(viewDiffMove + controllerMove);
@@ -553,16 +553,16 @@ void __cdecl VEH_UpdateClientChopper(gentity_s *ent)
           if ( (float)(v22 - 180.0) < 0.0 )
             v23 = (float)(diff * scale) - velRatio;
           else
-            v23 = FLOAT_180_0;
+            v23 = 180.0f;
           if ( (float)(-180.0 - v22) < 0.0 )
             v9 = v23;
           else
-            v9 = FLOAT_N180_0;
+            v9 = -180.0f;
           diff = v9;
           if ( (float)(v9 - 127.0) < 0.0 )
             v21 = diff;
           else
-            v21 = FLOAT_127_0;
+            v21 = 127.0f;
           if ( (float)(-127.0 - diff) < 0.0 )
             v8 = v21;
           else
@@ -600,7 +600,7 @@ void __cdecl VEH_UpdateClientChopper(gentity_s *ent)
       if ( (float)(0.0 - heliHeightLockOffset) < 0.0 )
         v7 = v20;
       else
-        v7 = *(float *)&FLOAT_0_0;
+        v7 = 0.0f;
       veh->heliHeightLockOffset = v7;
       move[2] = VEH_HandleHeliLockHeight(ent);
     }
@@ -612,7 +612,7 @@ void __cdecl VEH_UpdateClientChopper(gentity_s *ent)
       if ( (float)(len - 127.0) < 0.0 )
         v18 = len;
       else
-        v18 = FLOAT_127_0;
+        v18 = 127.0f;
       if ( (float)(-127.0 - len) < 0.0 )
         v6 = v18;
       else
@@ -646,9 +646,9 @@ void __cdecl VEH_UpdateClientChopper(gentity_s *ent)
   {
     __debugbreak();
   }
-  yawAngles[0] = *(float *)&FLOAT_0_0;
+  yawAngles[0] = 0.0f;
   yawAngles[1] = phys->angles[1];
-  yawAngles[2] = *(float *)&FLOAT_0_0;
+  yawAngles[2] = 0.0f;
   AngleVectors(yawAngles, axis[0], axis[1], axis[2]);
   memset(axis[3], 0, sizeof(float[3]));
   MatrixTransformVector(bodyAccel, axis, worldAccel);
@@ -816,7 +816,7 @@ void __cdecl HELI_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float 
   for ( axis = 0; axis < 3; ++axis )
   {
     if ( maxSpeed[axis] == 0.0 )
-      track[axis] = FLOAT_1_0;
+      track[axis] = 1.0f;
     else
       track[axis] = maxAccel[axis] / maxSpeed[axis];
   }
@@ -835,10 +835,10 @@ void __cdecl HELI_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float 
   integer = vehHelicopterDecelerationSide->current.integer;
   decel[0] = vehHelicopterDecelerationFwd->current.value;
   LODWORD(decel[1]) = integer;
-  newAccel[0] = *(float *)&FLOAT_0_0;
-  newAccel[1] = *(float *)&FLOAT_0_0;
-  newDecel[0] = *(float *)&FLOAT_0_0;
-  newDecel[1] = *(float *)&FLOAT_0_0;
+  newAccel[0] = 0.0f;
+  newAccel[1] = 0.0f;
+  newDecel[0] = 0.0f;
+  newDecel[1] = 0.0f;
   for ( axis = 0; axis < 2; ++axis )
   {
     nextState = DiffTrack(0.0, velOrthogonal[axis], decel[axis] * track[axis], 0.050000001);
@@ -963,9 +963,9 @@ void __cdecl HELI_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float 
       maxAccel[axis] = info->accel;
     }
   }
-  yawAngles[0] = *(float *)&FLOAT_0_0;
+  yawAngles[0] = 0.0f;
   yawAngles[1] = phys->angles[1];
-  yawAngles[2] = *(float *)&FLOAT_0_0;
+  yawAngles[2] = 0.0f;
   AngleVectors(yawAngles, bodyMat[0], bodyMat[1], bodyMat[2]);
   memset(bodyMat[3], 0, sizeof(float[3]));
   targetTilt[0] = (float)(phys->bodyVel[0] / maxSpeed[0]) * info->tiltFromVelocity[0];
@@ -976,18 +976,18 @@ void __cdecl HELI_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float 
   if ( (float)(targetTilt[0] - 1.0) < 0.0 )
     v15 = targetTilt[0];
   else
-    v15 = FLOAT_1_0;
+    v15 = 1.0f;
   if ( (float)(-1.0 - targetTilt[0]) < 0.0 )
     v6 = v15;
   else
-    v6 = FLOAT_N1_0;
+    v6 = -1.0f;
   targetTilt[0] = v6;
   viewAnglesTargetPitch = AngleNormalize180(*viewangles - info->viewPitchOffset)
                         * vehHelicopterTiltFromViewangles->current.value
                         / 90.0;
-  deltaFracToApply = FLOAT_0_64999998;
+  deltaFracToApply = 0.65f;
   if ( player_topDownCamMode->current.integer > 0 )
-    deltaFracToApply = FLOAT_0_30000001;
+    deltaFracToApply = 0.3f;
   targetTilt[0] = (float)((float)(viewAnglesTargetPitch - targetTilt[0]) * deltaFracToApply) + targetTilt[0];
   targetTilt[1] = (float)(phys->bodyVel[1] / maxSpeed[1]) * info->tiltFromVelocity[1];
   targetTilt[1] = (float)((float)(tgtVel[1] / maxSpeed[1]) * vehHelicopterTiltFromControllerAxes->current.value)
@@ -1004,7 +1004,7 @@ void __cdecl HELI_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float 
     velScale = phys->bodyVel[0] / maxSpeed[0];
     if ( vehHelicopterTiltFromFwdAndYaw_VelAtMaxTilt->current.value <= velScale )
     {
-      velScalea = FLOAT_1_0;
+      velScalea = 1.0f;
     }
     else
     {
@@ -1037,13 +1037,13 @@ void __cdecl HELI_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float 
   if ( (float)(targetTilt[1] - 1.0) < 0.0 )
     v14 = targetTilt[1];
   else
-    v14 = FLOAT_1_0;
+    v14 = 1.0f;
   if ( (float)(-1.0 - targetTilt[1]) < 0.0 )
     v5 = v14;
   else
-    v5 = FLOAT_N1_0;
+    v5 = -1.0f;
   targetTilt[1] = v5;
-  targetTilt[2] = *(float *)&FLOAT_0_0;
+  targetTilt[2] = 0.0f;
   MatrixTransformVector(targetTilt, bodyMat, worldTargetTilt);
   deltaTilt[0] = worldTargetTilt[0] - phys->worldTilt[0];
   deltaTilt[1] = worldTargetTilt[1] - phys->worldTilt[1];
@@ -1147,7 +1147,7 @@ void __cdecl HELI_CmdScale(char *move, float *outFracs)
       outFracs[1] = (float)((float)max / total) * outFracs[1];
     }
     if ( vehHelicopterStrafeDeadzone->current.value > COERCE_FLOAT((unsigned int)outFracs[1] & _mask__AbsFloat_) )
-      outFracs[1] = *(float *)&FLOAT_0_0;
+      outFracs[1] = 0.0f;
     if ( vehHelicopterScaleMovement->current.enabled )
     {
       LODWORD(absAxis) = *(unsigned int *)outFracs & _mask__AbsFloat_;
@@ -1179,11 +1179,11 @@ void __cdecl HELI_CmdScale(char *move, float *outFracs)
     }
   }
   if ( vehHelicopterRightStickDeadzone->current.value > COERCE_FLOAT((unsigned int)outFracs[2] & _mask__AbsFloat_) )
-    outFracs[2] = *(float *)&FLOAT_0_0;
+    outFracs[2] = 0.0f;
   if ( !vehHelicopterAlwaysFaceCamera->current.enabled
     && vehHelicopterRightStickDeadzone->current.value > COERCE_FLOAT((unsigned int)outFracs[3] & _mask__AbsFloat_) )
   {
-    outFracs[3] = *(float *)&FLOAT_0_0;
+    outFracs[3] = 0.0f;
   }
 }
 
@@ -1370,7 +1370,7 @@ double __cdecl Vehicle_GetFakeLift(float *planeForward, float *planeUp)
 
   dotOffUp = (float)((float)(*planeUp * 0.0) + (float)(planeUp[1] * 0.0)) + (float)(planeUp[2] * 1.0);
   if ( dotOffUp < 0.0 )
-    dotOffUp = *(float *)&FLOAT_0_0;
+    dotOffUp = 0.0f;
   return -vehPlaneFakeLiftForce->current.value * (1.0 - dotOffUp);
 }
 
@@ -1420,7 +1420,7 @@ void __cdecl Vehicle_AddRotate(vehicle_physic_t *phys, float fRoll, float fPitch
   for ( i = 0; i < 3; ++i )
   {
     for ( j = 0; j < 3; ++j )
-      axisOut[i][j] = *(float *)&FLOAT_0_0;
+      axisOut[i][j] = 0.0f;
   }
   AnglesToAxis(phys->angles, axisIn);
   v4 = (float)(fRoll * 0.017453292);
@@ -1527,10 +1527,10 @@ void __cdecl VEH_UpdateClientPlane(gentity_s *ent)
   veh = ent->scr_vehicle;
   phys = &veh->phys;
   info = BG_GetVehicleInfo(veh->infoIdx);
-  rollStick = *(float *)&FLOAT_0_0;
-  pitchStick = *(float *)&FLOAT_0_0;
-  yawStick = *(float *)&FLOAT_0_0;
-  speedStick = *(float *)&FLOAT_0_0;
+  rollStick = 0.0f;
+  pitchStick = 0.0f;
+  yawStick = 0.0f;
+  speedStick = 0.0f;
   if ( EntHandle::isDefined(&ent->r.ownerNum) )
   {
     player = EntHandle::ent(&ent->r.ownerNum);
@@ -1539,7 +1539,7 @@ void __cdecl VEH_UpdateClientPlane(gentity_s *ent)
     {
       __debugbreak();
     }
-    player->client->linkAnglesFrac = *(float *)&FLOAT_0_0;
+    player->client->linkAnglesFrac = 0.0f;
     usercmd = &player->client->sess.cmd;
     if ( (player->client->ps.pm_flags & 0xC00) == 0 )
     {
@@ -1547,7 +1547,7 @@ void __cdecl VEH_UpdateClientPlane(gentity_s *ent)
       move[1] = usercmd->rightmove;
       if ( bitarray<51>::testBit(&usercmd->button_bits, 0xBu) )
       {
-        player->client->linkAnglesFrac = FLOAT_1_0;
+        player->client->linkAnglesFrac = 1.0f;
         LODWORD(player->client->linkAnglesMinClamp[1]) = LODWORD(info->turretViewLimits.horizSpanRight)
                                                        ^ _mask__NegFloat_;
         player->client->linkAnglesMaxClamp[1] = info->turretViewLimits.horizSpanLeft;
@@ -1581,7 +1581,7 @@ void __cdecl VEH_UpdateClientPlane(gentity_s *ent)
           if ( bitarray<51>::testBit(&usercmd->button_bits, 0xFu) )
             rollStick = rollStick - 1.0;
           if ( bitarray<51>::testBit(&usercmd->button_bits, 0xEu) )
-            rollStick = FLOAT_1_0;
+            rollStick = 1.0f;
           yawStick = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)usercmd->rightmove) ^ _mask__NegFloat_) / 128.0;
           pitchStick = (float)usercmd->forwardmove / 128.0;
           speedStick = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)usercmd->pitchmove) ^ _mask__NegFloat_) / 128.0;
@@ -1598,13 +1598,13 @@ void __cdecl VEH_UpdateClientPlane(gentity_s *ent)
     actualRoll = DiffTrack(desiredRoll, phys->rotVel[2], vehPlaneRollAccel->current.value, 0.050000001);
     actualYaw = DiffTrack(desiredYaw, phys->rotVel[1], info->rotRate, 0.050000001);
     actualYaw = actualYaw - (float)(actualRoll * vehPlaneYawFromRollScale->current.value);
-    up[0] = *(float *)&FLOAT_0_0;
-    up[1] = *(float *)&FLOAT_0_0;
-    up[2] = FLOAT_1_0;
+    up[0] = 0.0f;
+    up[1] = 0.0f;
+    up[2] = 1.0f;
     dotOffUp = (float)((float)(target_axis[2][0] * 0.0) + (float)(target_axis[2][1] * 0.0))
              + (float)(target_axis[2][2] * 1.0);
     if ( dotOffUp < 0.0 )
-      dotOffUp = *(float *)&FLOAT_0_0;
+      dotOffUp = 0.0f;
     actualPitch = DiffTrack(desiredPitch, phys->rotVel[0], vehPlanePitchAccel->current.value, 0.050000001);
     actualPitcha = Vehicle_GetFakeLift(target_axis[0], target_axis[2]) + actualPitch;
     Vehicle_AddRotate(phys, actualRoll, actualPitcha, actualYaw);
@@ -1624,9 +1624,9 @@ void __cdecl VEH_UpdateClientPlane(gentity_s *ent)
     end[0] = (float)(0.050000001 * phys->vel[0]) + phys->origin[0];
     end[1] = (float)(0.050000001 * phys->vel[1]) + phys->origin[1];
     end[2] = (float)(0.050000001 * phys->vel[2]) + phys->origin[2];
-    gravityVec[0] = *(float *)&FLOAT_0_0;
-    gravityVec[1] = *(float *)&FLOAT_0_0;
-    gravityVec[2] = FLOAT_N1_0;
+    gravityVec[0] = 0.0f;
+    gravityVec[1] = 0.0f;
+    gravityVec[2] = -1.0f;
     gravityVec[0] = 0.0 * vehPlaneGravityForce->current.value;
     gravityVec[1] = 0.0 * vehPlaneGravityForce->current.value;
     gravityVec[2] = -1.0 * vehPlaneGravityForce->current.value;

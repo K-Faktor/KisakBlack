@@ -155,10 +155,10 @@ void __cdecl R_XModelDebugBoxes(const DObj *obj, int *partBits)
       __debugbreak();
     }
     DObjGetBoneInfo(obj, boneInfoArray);
-    color[0] = FLOAT_1_0;
-    color[1] = FLOAT_1_0;
-    color[2] = FLOAT_1_0;
-    color[3] = *(float *)&FLOAT_0_0;
+    color[0] = 1.0f;
+    color[1] = 1.0f;
+    color[2] = 1.0f;
+    color[3] = 0.0f;
     animPartBit = 0x80000000;
     boneIndex = 0;
     while ( boneIndex < boneCount )
@@ -207,12 +207,12 @@ void __cdecl R_XModelDebugAxes(const DObj *obj, int *partBits)
   boneMatrix = DObjGetRotTransArray(obj);
   if ( boneMatrix )
   {
-    *(_QWORD *)&translation[0][0] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_6_0));
-    translation[0][2] = *(float *)&FLOAT_0_0;
-    *(_QWORD *)&translation[1][0] = __PAIR64__(LODWORD(FLOAT_6_0), *(unsigned int *)&FLOAT_0_0);
-    translation[1][2] = *(float *)&FLOAT_0_0;
-    translation[2][0] = *(float *)&FLOAT_0_0;
-    *(_QWORD *)&translation[2][1] = __PAIR64__(LODWORD(FLOAT_6_0), *(unsigned int *)&FLOAT_0_0);
+    *(_QWORD *)&translation[0][0] = __PAIR64__(0, LODWORD(6.0f));
+    translation[0][2] = 0.0f;
+    *(_QWORD *)&translation[1][0] = __PAIR64__(LODWORD(6.0f), 0);
+    translation[1][2] = 0.0f;
+    translation[2][0] = 0.0f;
+    *(_QWORD *)&translation[2][1] = __PAIR64__(LODWORD(6.0f), 0);
     boneCount = DObjNumBones(obj);
     animPartBit = 0x80000000;
     for ( boneIndex = 0; boneIndex < boneCount; ++boneIndex )
@@ -222,7 +222,7 @@ void __cdecl R_XModelDebugAxes(const DObj *obj, int *partBits)
         for ( axis = 0; axis < 3; ++axis )
         {
           memset(color, 0, sizeof(color));
-          color[axis] = FLOAT_1_0;
+          color[axis] = 1.0f;
           MatrixTransformVectorQuatTrans(vec3_origin, &boneMatrix[boneIndex], start);
           MatrixTransformVectorQuatTrans(translation[axis], &boneMatrix[boneIndex], end);
           R_AddDebugLine(&frontEndDataOut->debugGlobals, start, end, color, 0);
@@ -461,10 +461,10 @@ void __cdecl XSurfaceRenderString(const float *pos, char *string)
 {
   float color[4]; // [esp+8h] [ebp-10h] BYREF
 
-  color[0] = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
-  color[3] = FLOAT_1_0;
+  color[0] = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
+  color[3] = 1.0f;
   R_AddDebugString(&frontEndDataOut->debugGlobals, pos, color, 0.5, string);
 }
 

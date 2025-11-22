@@ -411,9 +411,9 @@ void __cdecl CG_ClearGenericFilter(cg_s *gameglob)
       gameglob->genericFilterPassSampler0[iFilter][iPass] = 0;
       gameglob->genericFilterPassSampler1[iFilter][iPass] = 0;
       gameglob->genericFilterPassQuads[iFilter][iPass] = 0;
-      gameglob->genericFilterPassFlareOcclusion[iFilter][iPass] = *(float *)&FLOAT_0_0;
+      gameglob->genericFilterPassFlareOcclusion[iFilter][iPass] = 0.0f;
       for ( iParam = 0; iParam < 16; ++iParam )
-        gameglob->genericFilterPassParam[iFilter][iPass][iParam] = *(float *)&FLOAT_0_0;
+        gameglob->genericFilterPassParam[iFilter][iPass][iParam] = 0.0f;
     }
   }
   for ( iOverlay = 0; iOverlay < 3; ++iOverlay )
@@ -422,10 +422,10 @@ void __cdecl CG_ClearGenericFilter(cg_s *gameglob)
     gameglob->genericOverlayEnabled[iOverlay] = 0;
     gameglob->genericOverlaySortIndex[iOverlay] = 0;
     for ( i = 0; i < 16; ++i )
-      gameglob->genericOverlayParam[iOverlay][i] = *(float *)&FLOAT_0_0;
+      gameglob->genericOverlayParam[iOverlay][i] = 0.0f;
   }
   for ( iADSParam = 0; iADSParam < 8; ++iADSParam )
-    gameglob->genericOverlayParamADS[iADSParam] = *(float *)&FLOAT_0_0;
+    gameglob->genericOverlayParamADS[iADSParam] = 0.0f;
   gameglob->genericOverlayEnableADS = 0;
 }
 

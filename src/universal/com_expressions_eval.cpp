@@ -525,7 +525,7 @@ void __cdecl GetDvarFloatValue(int localClientNum, itemDef_s *item, OperandStack
   }
   else
   {
-    result.internals.intVal = *(unsigned int *)&FLOAT_0_0;
+    result.internals.intVal = 0;
   }
   if ( uiscript_debug && uiscript_debug->current.integer )
   {
@@ -678,7 +678,7 @@ void __cdecl GetLocalVarFloatValue(int localClientNum, itemDef_s *item, OperandS
   else
   {
     result.dataType = VAL_FLOAT;
-    result.internals.intVal = *(unsigned int *)&FLOAT_0_0;
+    result.internals.intVal = 0;
     AddOperandToStack(dataStack, &result);
   }
 }
@@ -3150,11 +3150,11 @@ void __cdecl GetHudFade(int localClientNum, itemDef_s *item, OperandStack *dataS
               Expression_Error(
                 " Argument to HudFade() must be \"dpad\", \"compass\", \"scoreboard\", or \"weapon\".\n",
                 NameForValueType);
-              result.internals.intVal = *(unsigned int *)&FLOAT_0_0;
+              result.internals.intVal = 0;
             }
             else
             {
-              result.internals.floatVal = FLOAT_1_0;
+              result.internals.floatVal = 1.0f;
             }
           }
           else
@@ -3177,13 +3177,13 @@ void __cdecl GetHudFade(int localClientNum, itemDef_s *item, OperandStack *dataS
     {
       v3 = GetNameForValueType(source.dataType);
       Expression_Error(" Must use a string as HudFade() parameter, not a %s\n", v3);
-      result.internals.intVal = *(unsigned int *)&FLOAT_0_0;
+      result.internals.intVal = 0;
       AddOperandToStack(dataStack, &result);
     }
   }
   else
   {
-    result.internals.intVal = *(unsigned int *)&FLOAT_0_0;
+    result.internals.intVal = 0;
     AddOperandToStack(dataStack, &result);
   }
 }
@@ -6823,7 +6823,7 @@ void __cdecl GetUIRect(int localClientNum, itemDef_s *item, OperandStack *dataSt
   field = &toastPopupTitle;
   GetOperandList(dataStack, &list);
   result.dataType = VAL_FLOAT;
-  result.internals.intVal = *(unsigned int *)&FLOAT_0_0;
+  result.internals.intVal = 0;
   if ( list.operandCount >= 1 )
   {
     if ( list.operandCount == 1 )
@@ -7177,7 +7177,7 @@ void __cdecl GetToastPopupWidth(int localClientNum, itemDef_s *item, OperandStac
   uiInfo_s *uiInfo; // [esp+20h] [ebp-8h]
   float scale; // [esp+24h] [ebp-4h]
 
-  scale = FLOAT_0_315;
+  scale = 0.315f;
   scrPlace = &scrPlaceView[localClientNum];
   font = UI_GetFontHandle(scrPlace, 0, 0.315);
   uiInfo = UI_GetInfo(localClientNum);
@@ -7345,13 +7345,13 @@ void __cdecl GetCombatRecordInfoBarWidth(int localClientNum, itemDef_s *item, Op
     currentWeaponStatView = Dvar_GetInt("ui_combatCurrViewNum");
     forFriend = Dvar_GetBool("ui_showFriendsCombatRecord");
     currIndex = 0;
-    width = *(float *)&FLOAT_0_0;
+    width = 0.0f;
     topIndexWithDefinedKDR = 0;
     topIndexWithDefinedKDRforOtherPlayer = 0;
     if ( Dvar_GetBool("ui_combatStatsMilestonesVis") && (currentWeaponStatView == 7 || currentWeaponStatView == 9)
       || infoBarForOtherPlayer && !Dvar_GetBool("ui_combatComparisonModeOn") )
     {
-      result.internals.intVal = *(unsigned int *)&FLOAT_0_0;
+      result.internals.intVal = 0;
       AddOperandToStack(dataStack, &result);
     }
     else
@@ -7377,7 +7377,7 @@ void __cdecl GetCombatRecordInfoBarWidth(int localClientNum, itemDef_s *item, Op
         topSortKeyForComparedPlayer = LiveCombatRecord_GetSortedItemData(currIndex, !forFriend, PARAM1);
         if ( topSortKey == 0.0 )
         {
-          width = *(float *)&FLOAT_0_0;
+          width = 0.0f;
         }
         else if ( Dvar_GetBool("ui_combatComparisonModeOn") )
         {
@@ -7433,7 +7433,7 @@ void __cdecl GetCombatRecordInfoBarWidth(int localClientNum, itemDef_s *item, Op
         }
         else
         {
-          width = *(float *)&FLOAT_0_0;
+          width = 0.0f;
         }
       }
       else if ( Dvar_GetBool("ui_combatComparisonModeOn") )
@@ -7444,7 +7444,7 @@ void __cdecl GetCombatRecordInfoBarWidth(int localClientNum, itemDef_s *item, Op
           v6 = topSortKey;
         if ( v6 == 0.0 )
         {
-          width = *(float *)&FLOAT_0_0;
+          width = 0.0f;
         }
         else
         {
@@ -7457,7 +7457,7 @@ void __cdecl GetCombatRecordInfoBarWidth(int localClientNum, itemDef_s *item, Op
       }
       else if ( topSortKey == 0.0 )
       {
-        width = *(float *)&FLOAT_0_0;
+        width = 0.0f;
       }
       else
       {
@@ -7799,19 +7799,19 @@ void __cdecl GetCombatRecordHistogramHeight(int localClientNum, itemDef_s *item,
 
   GetOperandList(dataStack, &list);
   result.dataType = VAL_FLOAT;
-  result.internals.intVal = *(unsigned int *)&FLOAT_0_0;
+  result.internals.intVal = 0;
   if ( list.operandCount == 2 )
   {
     itemIndex = GetSourceInt(list.operands).intVal;
     gameTypeIndex = GetSourceInt(&list.operands[1]).intVal;
-    minScore = *(float *)&FLOAT_0_0;
-    maxScore = *(float *)&FLOAT_0_0;
-    currScore = *(float *)&FLOAT_0_0;
+    minScore = 0.0f;
+    maxScore = 0.0f;
+    currScore = 0.0f;
     currIndex = 0;
     forFriend = Dvar_GetBool("ui_showFriendsCombatRecord");
     isValid = 0;
     numRecentValues = 0;
-    fullHeight = FLOAT_1_0;
+    fullHeight = 1.0f;
     if ( gameTypeIndex == -1 )
     {
       numRecentValues = (int)LiveCombatRecord_GetSortedItemData(10, forFriend, ITEM_INDEX);
@@ -7841,11 +7841,11 @@ void __cdecl GetCombatRecordHistogramHeight(int localClientNum, itemDef_s *item,
       {
         if ( maxScore == 0.0 )
         {
-          result.internals.floatVal = FLOAT_0_050000001;
+          result.internals.floatVal = 0.05f;
         }
         else if ( currScore == 0.0 )
         {
-          result.internals.floatVal = FLOAT_0_050000001;
+          result.internals.floatVal = 0.05f;
         }
         else
         {
@@ -7854,7 +7854,7 @@ void __cdecl GetCombatRecordHistogramHeight(int localClientNum, itemDef_s *item,
       }
       else if ( currScore == minScore || maxScore == minScore )
       {
-        result.internals.floatVal = FLOAT_0_050000001;
+        result.internals.floatVal = 0.05f;
       }
       else if ( currScore == maxScore )
       {
@@ -8449,7 +8449,7 @@ void __cdecl GetPersonalBestValue(int localClientNum, itemDef_s *item, OperandSt
       if ( (float)(v9 - 100.0) < 0.0 )
         v7 = v9;
       else
-        v7 = FLOAT_100_0;
+        v7 = 100.0f;
       result.internals.intVal = (int)va("%.2f %%", v7);
     }
   }
@@ -8755,7 +8755,7 @@ char __cdecl GetCurrentIndex(
   itemDef_s *actualItem; // [esp+64h] [ebp-8h]
   const char *feederName; // [esp+68h] [ebp-4h]
 
-  currIndex = *(float *)&FLOAT_0_0;
+  currIndex = 0.0f;
   GetOperandList(dataStack, &list);
   if ( list.operandCount >= 2 )
   {
@@ -8836,7 +8836,7 @@ char __cdecl GetCurrentIndexOfHighlightedFeeder(
   itemDef_s *actualItem; // [esp+8h] [ebp-8h]
   int contextIndex; // [esp+Ch] [ebp-4h]
 
-  currIndex = *(float *)&FLOAT_0_0;
+  currIndex = 0.0f;
   if ( !name )
     name = "stats_milestones_list";
   contextIndex = Com_LocalClient_GetUIContextIndex(localClientNum);
@@ -9452,7 +9452,7 @@ void __cdecl GetWeaponName(int localClientNum, itemDef_s *item, OperandStack *da
   result.internals.intVal = (int)&toastPopupTitle;
   itemName = 0;
   milestoneType = 0;
-  currIndex = *(float *)&FLOAT_0_0;
+  currIndex = 0.0f;
   GetOperandList(dataStack, &list);
   if ( list.operandCount == 2 )
   {
@@ -9489,7 +9489,7 @@ void __cdecl GetChallengeAttachmentName(int localClientNum, itemDef_s *item, Ope
   result.dataType = VAL_STRING;
   result.internals.intVal = (int)&toastPopupTitle;
   itemName = 0;
-  currIndex = *(float *)&FLOAT_0_0;
+  currIndex = 0.0f;
   actualItem = Menu_GetMatchingItemByNumber(item->parent, 0, "stats_milestones_attachments");
   if ( UI_FeederData(localClientNum, actualItem, "selection", (char **)&stringResult, &currIndex)
     && LiveStats_GetChallengeInfo(&challenge, (int)currIndex, 5) )
@@ -10199,7 +10199,7 @@ void __cdecl GetFeederData(int localClientNum, itemDef_s *item, OperandStack *da
     }
     if ( actualItem )
     {
-      floatResult = *(float *)&FLOAT_0_0;
+      floatResult = 0.0f;
       if ( UI_FeederData(localClientNum, actualItem, field, (char **)&stringResult, &floatResult) )
       {
         if ( stringResult )
@@ -11122,7 +11122,7 @@ void __cdecl MinValue(int localClientNum, itemDef_s *item, OperandStack *dataSta
   {
     Expression_Error("UI Expression Error: Expected at least 1 parameter to min()\n");
     operandResult.dataType = VAL_FLOAT;
-    operandResult.internals.intVal = *(unsigned int *)&FLOAT_0_0;
+    operandResult.internals.intVal = 0;
     AddOperandToStack(dataStack, &operandResult);
   }
 }
@@ -11153,7 +11153,7 @@ void __cdecl MaxValue(int localClientNum, itemDef_s *item, OperandStack *dataSta
   {
     Expression_Error("UI Expression Error: Expected at least 1 parameter to max()\n");
     operandResult.dataType = VAL_FLOAT;
-    operandResult.internals.intVal = *(unsigned int *)&FLOAT_0_0;
+    operandResult.internals.intVal = 0;
     AddOperandToStack(dataStack, &operandResult);
   }
 }
@@ -11654,7 +11654,7 @@ void __cdecl RPN_OP_DIVIDE(int localClientNum, itemDef_s *item, OperandStack *da
   }
   operandResult.dataType = VAL_FLOAT;
   if ( data2.internals.floatVal == 0.0 )
-    floatVal = FLOAT_1_0;
+    floatVal = 1.0f;
   else
     floatVal = data2.internals.floatVal;
   operandResult.internals.floatVal = data1.internals.floatVal / floatVal;
@@ -12250,7 +12250,7 @@ void __cdecl GetLeaderboardValue(int localClientNum, itemDef_s *item, OperandSta
   Operand operandResult; // [esp+4h] [ebp-8h] BYREF
 
   operandResult.dataType = VAL_FLOAT;
-  operandResult.internals.intVal = *(unsigned int *)&FLOAT_0_0;
+  operandResult.internals.intVal = 0;
   AddOperandToStack(dataStack, &operandResult);
 }
 

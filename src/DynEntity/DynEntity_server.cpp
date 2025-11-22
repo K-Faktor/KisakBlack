@@ -75,12 +75,12 @@ void __cdecl DynEntSv_LinkModel(unsigned __int16 dynEntId)
   XModelGetBounds(model, modelBoundsVec3[0], modelBoundsVec3[1]);
   *(_QWORD *)modelBoundsFloat4[0].v = *(_QWORD *)&modelBoundsVec3[0][0];
   *(_QWORD *)&modelBoundsFloat4[0].unitVec[2].packed = __PAIR64__(
-                                                         *(unsigned int *)&FLOAT_0_0,
+                                                         0,
                                                          LODWORD(modelBoundsVec3[0][2]));
   modelBoundsFloat4[1].v[0] = modelBoundsVec3[1][0];
   modelBoundsFloat4[1].v[1] = modelBoundsVec3[1][1];
   modelBoundsFloat4[1].v[2] = modelBoundsVec3[1][2];
-  modelBoundsFloat4[1].u[3] = *(unsigned int *)&FLOAT_0_0;
+  modelBoundsFloat4[1].u[3] = 0;
   UnitQuatToAxis(dynEntDef->pose.quat, modelAxis);
   v10 = dynEntDef->pose.origin[0];
   v11 = dynEntDef->pose.origin[1];
@@ -329,12 +329,12 @@ void __cdecl DynEntSv_PointTrace(const pointtrace_t *clip, trace_t *results)
   if ( results->fraction > 0.0 )
   {
     if ( results->fraction > 1.0 )
-      results->fraction = FLOAT_1_0;
+      results->fraction = 1.0f;
     start[0] = *(_QWORD *)clip->extents.start.vec.v;
     LODWORD(start[1]) = clip->extents.start.vec.u[2];
     end[0] = *(_QWORD *)clip->extents.end.vec.v;
     LODWORD(end[1]) = clip->extents.end.vec.u[2];
-    HIDWORD(start[1]) = *(unsigned int *)&FLOAT_0_0;
+    HIDWORD(start[1]) = 0;
     HIDWORD(end[1]) = LODWORD(results->fraction);
     DynEntSv_PointTrace_r(DYNENT_DRAW_BRUSH, clip, 1u, (float *)start, (float *)end, results);
     if ( results->fraction != 0.0 )
@@ -551,7 +551,7 @@ void __cdecl DynEntSv_ClipMoveTrace(const moveclip_t *clip, trace_t *results)
     LODWORD(start[1]) = clip->extents.start.vec.u[2];
     end[0] = *(_QWORD *)clip->extents.end.vec.v;
     LODWORD(end[1]) = clip->extents.end.vec.u[2];
-    HIDWORD(start[1]) = *(unsigned int *)&FLOAT_0_0;
+    HIDWORD(start[1]) = 0;
     HIDWORD(end[1]) = LODWORD(results->fraction);
     DynEntSv_ClipMoveTrace_r(clip, 1u, (float *)start, (float *)end, results);
   }
@@ -637,7 +637,7 @@ void __cdecl DynEntSv_ClipMoveTrace_r(
         __debugbreak();
       }
       DynEnt_GetEntityDef(listIndex - 1, DYNENT_DRAW_BRUSH);
-      results->fraction = FLOAT_1_0;
+      results->fraction = 1.0f;
       if ( results->fraction == 0.0 )
         return;
     }
@@ -661,8 +661,8 @@ void __cdecl DynEntSv_ClipMoveTrace_r(
         diff = t2 - t1;
         if ( (float)(t2 - t1) == 0.0 )
         {
-          frac = FLOAT_1_0;
-          frac2 = *(float *)&FLOAT_0_0;
+          frac = 1.0f;
+          frac2 = 0.0f;
           side = 0;
         }
         else
@@ -686,7 +686,7 @@ void __cdecl DynEntSv_ClipMoveTrace_r(
         {
           __debugbreak();
         }
-        v6 = (float)(1.0 - frac) < 0.0 ? FLOAT_1_0 : frac;
+        v6 = (float)(1.0 - frac) < 0.0 ? 1.0f : frac;
         mid[0] = (float)((float)(*p2 - p[0]) * v6) + p[0];
         mid[1] = (float)((float)(p2[1] - p[1]) * v6) + p[1];
         mid[2] = (float)((float)(p2[2] - p[2]) * v6) + p[2];
@@ -705,7 +705,7 @@ void __cdecl DynEntSv_ClipMoveTrace_r(
           __debugbreak();
         }
         if ( (float)(frac2 - 0.0) < 0.0 )
-          v5 = *(float *)&FLOAT_0_0;
+          v5 = 0.0f;
         else
           v5 = frac2;
         p[0] = (float)((float)(*p2 - p[0]) * v5) + p[0];

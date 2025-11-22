@@ -19,12 +19,12 @@ void __cdecl CG_DrawFlashDamage(const cg_s *cgameGlob)
                                                   * cgameGlob->v_dmg_pitch) / 500.0)
                       & _mask__AbsFloat_;
     if ( redFlash > 5.0 )
-      redFlash = FLOAT_5_0;
-    col[0] = FLOAT_0_2;
-    col[1] = *(float *)&FLOAT_0_0;
-    col[2] = *(float *)&FLOAT_0_0;
+      redFlash = 5.0f;
+    col[0] = 0.2f;
+    col[1] = 0.0f;
+    col[2] = 0.0f;
     col[3] = (float)(redFlash / 5.0) * 0.69999999;
-    sidebuffer = FLOAT_10_0;
+    sidebuffer = 10.0f;
     CL_GetScreenDimensions(&displayWidth, &displayHeight, &displayAspect);
     UI_FillRectPhysical(
       COERCE_FLOAT(LODWORD(sidebuffer) ^ _mask__NegFloat_),
@@ -112,7 +112,7 @@ void __cdecl CG_DrawDamageDirectionIndicators(int localClientNum)
         if ( (float)((float)(2.0 - (float)((float)((float)t * 2.0) / (float)maxTime)) - 1.0) < 0.0 )
           v1 = 2.0 - (float)((float)((float)t * 2.0) / (float)maxTime);
         else
-          v1 = FLOAT_1_0;
+          v1 = 1.0f;
         color[3] = v1;
         CG_DrawRotatedQuadPic(scrPlace, centerX, centerY, xy, angle, color, cgMedia.damageMaterial);
       }
@@ -155,7 +155,7 @@ double __cdecl CG_AddHudGrenade_PositionCheck(cg_s *cgameGlob, const centity_s *
   {
     if ( IsHardcoreMode(cgameGlob->localClientNum) )
     {
-      maxOffset = *(float *)&FLOAT_0_0;
+      maxOffset = 0.0f;
     }
     else if ( weapDef->iIndicatorRadius )
     {
@@ -163,7 +163,7 @@ double __cdecl CG_AddHudGrenade_PositionCheck(cg_s *cgameGlob, const centity_s *
     }
     else if ( cg_hudGrenadeIconMaxRangeFrag->current.value == 0.0 )
     {
-      maxOffset = *(float *)&FLOAT_0_0;
+      maxOffset = 0.0f;
     }
     else
     {
@@ -212,11 +212,11 @@ double __cdecl CG_AddHudGrenade_PositionCheck(cg_s *cgameGlob, const centity_s *
   if ( (float)((float)(grenadeOffsetSquared / maxOffsetSquared) - 1.0) < 0.0 )
     v8 = grenadeOffsetSquared / maxOffsetSquared;
   else
-    v8 = FLOAT_1_0;
+    v8 = 1.0f;
   if ( (float)(0.001 - (float)(grenadeOffsetSquared / maxOffsetSquared)) < 0.0 )
     return v8;
   else
-    return FLOAT_0_001;
+    return 0.001f;
 }
 
 void __cdecl CG_GrenadeIndicator_GetPlayerPosition(const cg_s *cgameGlob, float *playerOrigin)
@@ -303,7 +303,7 @@ void __cdecl CG_AddHudGrenade(cg_s *cgameGlob, const centity_s *grenadeEnt)
                   || weapDef->projExplosion == WEAPPROJEXP_HEAVY
                   || weapDef->projExplosion == WEAPPROJEXP_FIRE
                    ? bg_maxGrenadeIndicatorSpeed->current.value * bg_maxGrenadeIndicatorSpeed->current.value
-                   : FLOAT_1_0;
+                   : 1.0f;
         if ( (grenadeEnt->nextState.clientLinkInfo.parentEnt
            || (float)((float)((float)(state->lerp.pos.trDelta[0] * state->lerp.pos.trDelta[0])
                             + (float)(state->lerp.pos.trDelta[1] * state->lerp.pos.trDelta[1]))
@@ -341,16 +341,16 @@ LABEL_48:
                 v4 = (float)(cgameGlob->time - grenadeEnt->nextState.lerp.u.actor.index.actorNum)
                    / (float)grenadeEnt->nextState.lerp.u.actor.team;
               else
-                v4 = FLOAT_1_0;
+                v4 = 1.0f;
               if ( (float)(0.0 - v3) < 0.0 )
                 v2 = v4;
               else
-                v2 = *(float *)&FLOAT_0_0;
+                v2 = 0.0f;
               g_hudGrenades[g_hudGrenadeCount].predicted_time_ratio = v2;
             }
             else
             {
-              g_hudGrenades[g_hudGrenadeCount].predicted_time_ratio = FLOAT_1_0;
+              g_hudGrenades[g_hudGrenadeCount].predicted_time_ratio = 1.0f;
             }
             ++g_hudGrenadeCount;
             return;
@@ -433,11 +433,11 @@ void __cdecl CG_DrawGrenadeIndicators(int localClientNum)
         if ( (float)(predicted_dmg_ratio - 1.0) < 0.0 )
           v5 = g_hudGrenades[entityIndex].predicted_dmg_ratio;
         else
-          v5 = FLOAT_1_0;
+          v5 = 1.0f;
         if ( (float)(0.1 - predicted_dmg_ratio) < 0.0 )
           *((float *)&v2 + 1) = v5;
         else
-          *((float *)&v2 + 1) = FLOAT_0_1;
+          *((float *)&v2 + 1) = 0.1f;
         color[3] = *((float *)&v2 + 1);
       }
       else
@@ -457,11 +457,11 @@ void __cdecl CG_DrawGrenadeIndicators(int localClientNum)
       if ( (float)(color[3] - 1.0) < 0.0 )
         v3 = color[3];
       else
-        v3 = FLOAT_1_0;
+        v3 = 1.0f;
       if ( (float)(0.0 - color[3]) < 0.0 )
         *(float *)&v2 = v3;
       else
-        LODWORD(v2) = *(unsigned int *)&FLOAT_0_0;
+        LODWORD(v2) = 0;
       color[3] = *(float *)&v2;
       CG_DrawWarningPointer(localClientNum, centerX, centerY, grenadeOffset, color, 0.0);
       CG_DrawWarningIcon(

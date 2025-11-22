@@ -1333,9 +1333,9 @@ void __cdecl gjk_query(const gjk_query_input *input, gjk_query_output *output)
     {
       Phys_NitrousVecToVec3(&output->m_query_aabb_min, mins);
       Phys_NitrousVecToVec3(&output->m_query_aabb_max, maxs);
-      expand_vec[0] = FLOAT_70_0;
-      expand_vec[1] = FLOAT_70_0;
-      expand_vec[2] = FLOAT_20_0;
+      expand_vec[0] = 70.0f;
+      expand_vec[1] = 70.0f;
+      expand_vec[2] = 20.0f;
       input->m_proximity_data->update(input->m_proximity_data, mins, maxs, input->m_proximity_mask, expand_vec);
       if ( (input->m_contents & input->m_proximity_mask) != input->m_contents
         && !Assert_MyHandler(
@@ -1693,7 +1693,7 @@ void  gjk_query_cached(float a1@<ebp>, const gjk_query_input *input, gjk_query_o
           __debugbreak();
         }
         i->m_query_visitor_count = output->m_query_visitor_count;
-        mn.z = *(float *)&FLOAT_0_0;
+        mn.z = 0.0f;
         operator-((phys_vec3 *)&mx.y, &i->m_aabb_min, &input->m_cg_aabb_max);
         operator-((phys_vec3 *)v3, &i->m_aabb_max, &input->m_cg_aabb_min);
         if ( gjk_trace_aabb(
@@ -1933,8 +1933,8 @@ char __cdecl gjk_trace_aabb(
   float min_t; // [esp+3Ch] [ebp-8h] BYREF
   float max_t; // [esp+40h] [ebp-4h] BYREF
 
-  min_t = *(float *)&FLOAT_0_0;
-  max_t = FLOAT_1_0;
+  min_t = 0.0f;
+  max_t = 1.0f;
   for ( i = 0; i < 3; ++i )
   {
     if ( i < 0
@@ -2038,7 +2038,7 @@ bool __cdecl gjk_trace_plane_1d(float d1, float d2, float *min_t, float *max_t, 
     return 1;
   }
   if ( d1 >= 0.125 )
-    v6 = FLOAT_0_125;
+    v6 = 0.1f25;
   else
     v6 = d1;
   if ( d2 < v6 )
@@ -2163,8 +2163,8 @@ void  setup_gjk_capsule(
   gjk_capsule->m_list_center[1].x = v5;
   gjk_capsule->m_list_center[1].y = v6;
   gjk_capsule->m_list_center[1].z = v7;
-  gjk_capsule->m_list_radius[0] = *(float *)&FLOAT_0_0;
-  gjk_capsule->m_list_radius[1] = *(float *)&FLOAT_0_0;
+  gjk_capsule->m_list_radius[0] = 0.0f;
+  gjk_capsule->m_list_radius[1] = 0.0f;
   gjk_capsule->m_geom_radius = (float)(0.5 * v11) + radius_adjust;
   if ( gjk_capsule->m_geom_radius <= 0.0
     && !Assert_MyHandler(
@@ -2211,8 +2211,8 @@ void  setup_gjk_cylinder(
   gjk_cylinder->m_geom_radius = radius_adjust;
   phys_mat44::operator=(&gjk_cylinder->xform, &PHYS_IDENTITY_MATRIX_42);
   v5 = (float)(pv_maxs.w + v8) * 0.5;
-  gjk_cylinder->xform.w.x = *(float *)&FLOAT_0_0;
-  gjk_cylinder->xform.w.y = *(float *)&FLOAT_0_0;
+  gjk_cylinder->xform.w.x = 0.0f;
+  gjk_cylinder->xform.w.y = 0.0f;
   gjk_cylinder->xform.w.z = v5;
 }
 
@@ -2255,7 +2255,7 @@ bool __userpurge gjk_aabb_t::is_walkable@<al>(
   furthest_dist = retaddr;
   v29 = this;
   v28 = FLOAT_N100000_0;
-  v27 = *(float *)&FLOAT_0_0;
+  v27 = 0.0f;
   p_m_dims = &this->m_dims;
   p_m_center_local = &this->m_center_local;
   aabb_min.w = this->m_center_local.x - this->m_dims.x;
@@ -2409,7 +2409,7 @@ bool  is_walkable@<al>(
   i = a1;
   furthest_walk_normal = retaddr;
   v30 = FLOAT_N100000_0;
-  v29 = *(float *)&FLOAT_0_0;
+  v29 = 0.0f;
   for ( j = 0; j < 3; ++j )
   {
     LODWORD(v27) = *((unsigned int *)&hit_point_loc->x + j) ^ _mask__NegFloat_;
@@ -2631,14 +2631,14 @@ void  project(
   while ( v50 != gp )
   {
     v49 = gp;
-    gp->m_lambda = *(float *)&FLOAT_0_0;
+    gp->m_lambda = 0.0f;
     ++gp;
   }
   break_val = SLODWORD(point->x);
   cur_set = SLODWORD(point->y);
   cur_dist_sq = point->z;
   cur_result.x = point->w;
-  iter = *(int *)&FLOAT_0_0;
+  iter = 0;
   v43 = 0.0;
   support_gp = (geom_plane *)-1;
   for ( support_gp_dist = 0; ; ++support_gp_dist )
@@ -2679,7 +2679,7 @@ void  project(
       support_gp = (geom_plane *)1;
       break;
     }
-    v39[9] = FLOAT_N1_0;
+    v39[9] = -1.0f;
     if ( LODWORD(v43) > 0xE
       && !Assert_MyHandler(
             "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_gjk_collision_detection.cpp",
@@ -2726,7 +2726,7 @@ void  project(
     LODWORD(rs[1]) = max_index;
     mat[3][v29 + 1] = v39[10]
                     - (float)((float)((float)(point->x * *v39) + (float)(point->y * v39[1])) + (float)(point->z * v39[2]));
-    *(&list_gp[4 * v29 + 1] + v29) = (geom_plane *)LODWORD(FLOAT_1_0);
+    *(&list_gp[4 * v29 + 1] + v29) = (geom_plane *)LODWORD(1.0f);
     v24[v29] = v39;
     for ( i = 0; i < SLODWORD(rs[1]); ++i )
     {
@@ -2899,7 +2899,7 @@ void __cdecl get_material_from_brush(const cbrush_t *brush, int *sflags)
   if ( *sflags == s_caulk_sflags )
   {
     *sflags = 0x7FFFFFFF;
-    best_dot = FLOAT_N10_0;
+    best_dot = -10.0f;
     for ( ia = 0; ia < brush->numsides; ++ia )
     {
       if ( brush->sides[ia].sflags != s_caulk_sflags )
@@ -3170,12 +3170,12 @@ const Glass *__thiscall gjk_entity_info_t::get_glass(gjk_entity_info_t *this)
 
 void __cdecl fill_results_no_hit(trace_t *results)
 {
-  results->fraction = FLOAT_1_0;
+  results->fraction = 1.0f;
   results->allsolid = 0;
   results->startsolid = 0;
-  results->normal.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  results->normal.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  results->normal.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
+  results->normal.vec.u[0] = 0;
+  results->normal.vec.u[1] = 0;
+  results->normal.vec.u[2] = 0;
   results->walkable = 0;
   if ( !results
     && !Assert_MyHandler("c:\\projects_pc\\cod\\codsrc\\src\\physics\\../qcommon/cm_public.h", 175, 0, "%s", "trace") )

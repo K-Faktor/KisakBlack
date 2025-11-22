@@ -16,8 +16,8 @@ PackedUnitVec __cdecl Vec3PackUnitVec(const float *unitVec)
 
   Vec3NormalizeTo(unitVec, normalized);
   out.packed = 0;
-  bestDirError = FLOAT_3_4028235e38;
-  bestLenError = FLOAT_3_4028235e38;
+  bestDirError = FLT_MAX;
+  bestLenError = FLT_MAX;
   testEncoding[3] = 0;
   do
   {
@@ -92,7 +92,7 @@ int __cdecl Vec4PackQuat(const float *in)
   value[2] = in[2];
   value[3] = in[3];
   Vec4Normalize(value);
-  maxValue = FLOAT_N1_0;
+  maxValue = -1.0f;
   maxIndex = 0;
   for ( i = 0; i < 4; ++i )
   {
@@ -112,9 +112,9 @@ int __cdecl Vec4PackQuat(const float *in)
     __debugbreak();
   }
   if ( rotatedValue_12 < 0.0 )
-    v2 = FLOAT_N1_0;
+    v2 = -1.0f;
   else
-    v2 = FLOAT_1_0;
+    v2 = 1.0f;
   x = FloatPack9S((float)(1.0 / rotatedValue_12) * rotatedValue);
   y = FloatPack10S((float)(1.0 / rotatedValue_12) * rotatedValue_4);
   return ((v2 < 0.0) << 31)
@@ -177,13 +177,13 @@ void __cdecl Vec2UnpackTexCoords(PackedTexCoords in, float *out)
     v3 = (HIWORD(in.packed) << 16) & 0x80000000
        | (((((HIWORD(in.packed) << 14) & 0xFFFC000) - (~(HIWORD(in.packed) << 14) & 0x10000000)) ^ 0x80000000) >> 1);
   else
-    v3 = *(unsigned int *)&FLOAT_0_0;
+    v3 = 0;
   *(unsigned int *)out = v3;
   if ( LOWORD(in.packed) )
     v2 = (LOWORD(in.packed) << 16) & 0x80000000
        | (((((LOWORD(in.packed) << 14) & 0xFFFC000) - (~(LOWORD(in.packed) << 14) & 0x10000000)) ^ 0x80000000) >> 1);
   else
-    v2 = *(unsigned int *)&FLOAT_0_0;
+    v2 = 0;
   *((unsigned int *)out + 1) = v2;
 }
 

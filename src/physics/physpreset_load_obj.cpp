@@ -50,7 +50,7 @@ PhysPreset *__cdecl PhysPresetLoadFile(const char *name, void *(__cdecl *Alloc)(
           if ( Info_Validate(buffer) )
           {
             memset(dst, 0, 0x4Cu);
-            *(float *)&dst[36] = FLOAT_1_0;
+            *(float *)&dst[36] = 1.0f;
             physAlloc = Alloc;
             if ( ParseConfigStringToStruct(dst, physPresetFields, 19, buffer, 0, 0, PhysPreset_Strcpy) )
             {
@@ -72,21 +72,21 @@ PhysPreset *__cdecl PhysPresetLoadFile(const char *name, void *(__cdecl *Alloc)(
               if ( (float)(1.0 - *(float *)dst) < 0.0 )
                 v5 = v10;
               else
-                v5 = FLOAT_1_0;
+                v5 = 1.0f;
               *(float *)dst = v5;
               if ( (float)(*(float *)&dst[36] - 10.0) < 0.0 )
                 v9 = *(float *)&dst[36];
               else
-                v9 = FLOAT_10_0;
+                v9 = 10.0f;
               if ( (float)(0.0099999998 - *(float *)&dst[36]) < 0.0 )
                 v4 = v9;
               else
-                v4 = FLOAT_0_0099999998;
+                v4 = 0.01f;
               *(float *)&dst[36] = v4;
               v14[2] = *(float *)dst * 0.001;
               v14[3] = *(float *)&dst[4];
               if ( *(unsigned int *)&dst[12] )
-                v3 = FLOAT_1_0e10;
+                v3 = 1.0fe10;
               else
                 v3 = *(float *)&dst[8];
               v14[4] = v3;

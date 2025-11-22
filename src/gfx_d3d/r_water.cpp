@@ -117,8 +117,8 @@ void __cdecl WaterFrequenciesAtTime(complex_s *H, const water_t *water, float t)
     }
     else
     {
-      H[vecKIndex].real = *(float *)&FLOAT_0_0;
-      H[vecKIndex].imag = *(float *)&FLOAT_0_0;
+      H[vecKIndex].real = 0.0f;
+      H[vecKIndex].imag = 0.0f;
     }
     ++vecKIndex;
     ++wTerm;
@@ -266,19 +266,19 @@ void __cdecl WaterPixelsFromAmplitudes(GfxColor *pixels, complex_s *H, const wat
     if ( (float)((float)(height * dz) - 1.0) < 0.0 )
       v6 = height * dz;
     else
-      v6 = FLOAT_1_0;
+      v6 = 1.0f;
     if ( (float)((float)(height_4 * dz) - 1.0) < 0.0 )
       v5 = height_4 * dz;
     else
-      v5 = FLOAT_1_0;
+      v5 = 1.0f;
     if ( (float)((float)(height_8 * dz) - 1.0) < 0.0 )
       v4 = height_8 * dz;
     else
-      v4 = FLOAT_1_0;
+      v4 = 1.0f;
     if ( (float)((float)(height_12 * dz) - 1.0) < 0.0 )
       v3 = height_12 * dz;
     else
-      v3 = FLOAT_1_0;
+      v3 = 1.0f;
     color.array[3] = (int)(float)(255.99899 * v3);
     color.array[0] = (int)(float)(255.99899 * v6);
     color.array[1] = (int)(float)(255.99899 * v5);

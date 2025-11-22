@@ -84,29 +84,29 @@ void __cdecl DevGui_DrawBevelBox(int x, int y, int w, int h, float shade, const 
   if ( (float)(unpackedColor[0] - 1.0) < 0.0 )
     v29 = unpackedColor[0];
   else
-    v29 = FLOAT_1_0;
+    v29 = 1.0f;
   if ( (float)(0.0 - unpackedColor[0]) < 0.0 )
     v17 = v29;
   else
-    v17 = *(float *)&FLOAT_0_0;
+    v17 = 0.0f;
   unpackedColor[0] = v17;
   if ( (float)(unpackedColor[1] - 1.0) < 0.0 )
     v28 = unpackedColor[1];
   else
-    v28 = FLOAT_1_0;
+    v28 = 1.0f;
   if ( (float)(0.0 - unpackedColor[1]) < 0.0 )
     v16 = v28;
   else
-    v16 = *(float *)&FLOAT_0_0;
+    v16 = 0.0f;
   unpackedColor[1] = v16;
   if ( (float)(unpackedColor[2] - 1.0) < 0.0 )
     v27 = unpackedColor[2];
   else
-    v27 = FLOAT_1_0;
+    v27 = 1.0f;
   if ( (float)(0.0 - unpackedColor[2]) < 0.0 )
     v15 = v27;
   else
-    v15 = *(float *)&FLOAT_0_0;
+    v15 = 0.0f;
   unpackedColor[2] = v15;
   *(_QWORD *)&vtxs[0][0] = __PAIR64__(y, x);
   vtxs[1][0] = x + 4;
@@ -122,29 +122,29 @@ void __cdecl DevGui_DrawBevelBox(int x, int y, int w, int h, float shade, const 
   if ( (float)(unpackedColor[0] - 1.0) < 0.0 )
     v26 = unpackedColor[0];
   else
-    v26 = FLOAT_1_0;
+    v26 = 1.0f;
   if ( (float)(0.0 - unpackedColor[0]) < 0.0 )
     v14 = v26;
   else
-    v14 = *(float *)&FLOAT_0_0;
+    v14 = 0.0f;
   unpackedColor[0] = v14;
   if ( (float)(unpackedColor[1] - 1.0) < 0.0 )
     v25 = unpackedColor[1];
   else
-    v25 = FLOAT_1_0;
+    v25 = 1.0f;
   if ( (float)(0.0 - unpackedColor[1]) < 0.0 )
     v13 = v25;
   else
-    v13 = *(float *)&FLOAT_0_0;
+    v13 = 0.0f;
   unpackedColor[1] = v13;
   if ( (float)(unpackedColor[2] - 1.0) < 0.0 )
     v24 = unpackedColor[2];
   else
-    v24 = FLOAT_1_0;
+    v24 = 1.0f;
   if ( (float)(0.0 - unpackedColor[2]) < 0.0 )
     v12 = v24;
   else
-    v12 = *(float *)&FLOAT_0_0;
+    v12 = 0.0f;
   unpackedColor[2] = v12;
   *(_QWORD *)&vtxs[0][0] = __PAIR64__(y, x);
   vtxs[1][0] = w + x;
@@ -160,29 +160,29 @@ void __cdecl DevGui_DrawBevelBox(int x, int y, int w, int h, float shade, const 
   if ( (float)(unpackedColor[0] - 1.0) < 0.0 )
     v23 = unpackedColor[0];
   else
-    v23 = FLOAT_1_0;
+    v23 = 1.0f;
   if ( (float)(0.0 - unpackedColor[0]) < 0.0 )
     v11 = v23;
   else
-    v11 = *(float *)&FLOAT_0_0;
+    v11 = 0.0f;
   unpackedColor[0] = v11;
   if ( (float)(unpackedColor[1] - 1.0) < 0.0 )
     v22 = unpackedColor[1];
   else
-    v22 = FLOAT_1_0;
+    v22 = 1.0f;
   if ( (float)(0.0 - unpackedColor[1]) < 0.0 )
     v10 = v22;
   else
-    v10 = *(float *)&FLOAT_0_0;
+    v10 = 0.0f;
   unpackedColor[1] = v10;
   if ( (float)(unpackedColor[2] - 1.0) < 0.0 )
     v21 = unpackedColor[2];
   else
-    v21 = FLOAT_1_0;
+    v21 = 1.0f;
   if ( (float)(0.0 - unpackedColor[2]) < 0.0 )
     v9 = v21;
   else
-    v9 = *(float *)&FLOAT_0_0;
+    v9 = 0.0f;
   unpackedColor[2] = v9;
   vtxs[0][0] = x;
   vtxs[0][1] = h + y;
@@ -199,29 +199,29 @@ void __cdecl DevGui_DrawBevelBox(int x, int y, int w, int h, float shade, const 
   if ( (float)(unpackedColor[0] - 1.0) < 0.0 )
     v20 = unpackedColor[0];
   else
-    v20 = FLOAT_1_0;
+    v20 = 1.0f;
   if ( (float)(0.0 - unpackedColor[0]) < 0.0 )
     v8 = v20;
   else
-    v8 = *(float *)&FLOAT_0_0;
+    v8 = 0.0f;
   unpackedColor[0] = v8;
   if ( (float)(unpackedColor[1] - 1.0) < 0.0 )
     v19 = unpackedColor[1];
   else
-    v19 = FLOAT_1_0;
+    v19 = 1.0f;
   if ( (float)(0.0 - unpackedColor[1]) < 0.0 )
     v7 = v19;
   else
-    v7 = *(float *)&FLOAT_0_0;
+    v7 = 0.0f;
   unpackedColor[1] = v7;
   if ( (float)(unpackedColor[2] - 1.0) < 0.0 )
     v18 = unpackedColor[2];
   else
-    v18 = FLOAT_1_0;
+    v18 = 1.0f;
   if ( (float)(0.0 - unpackedColor[2]) < 0.0 )
     v6 = v18;
   else
-    v6 = *(float *)&FLOAT_0_0;
+    v6 = 0.0f;
   unpackedColor[2] = v6;
   vtxs[0][0] = w + x;
   vtxs[0][1] = y;
@@ -311,7 +311,7 @@ void  DevGui_DrawLine(float a1@<ebp>, float *start, float *end, int width, const
   v18 = v8;
   len = *end - *start;
   pos[0] = end[1] - start[1];
-  pos[1] = *(float *)&FLOAT_0_0;
+  pos[1] = 0.0f;
   angle = (float)((float)(v17 - v23) / 2.0) + v23;
   v13 = (float)((float)(v8 - v24) / 2.0) + v24;
   unpackedColor[3] = Vec2Length(&len);

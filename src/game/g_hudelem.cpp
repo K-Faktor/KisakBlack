@@ -53,9 +53,9 @@ void __cdecl HudElem_SetDefaults(game_hudelem_s *hud)
     __debugbreak();
   }
   hud->elem.type = 1;
-  hud->elem.x = *(float *)&FLOAT_0_0;
-  hud->elem.y = *(float *)&FLOAT_0_0;
-  hud->elem.z = *(float *)&FLOAT_0_0;
+  hud->elem.x = 0.0f;
+  hud->elem.y = 0.0f;
+  hud->elem.z = 0.0f;
   hud->elem.targetEntNum = 1023;
   hud->elem.font = 0;
   hud->elem.alignOrg = 0;
@@ -66,7 +66,7 @@ void __cdecl HudElem_SetDefaults(game_hudelem_s *hud)
   hud->elem.fadeStartTime = 0;
   hud->elem.fadeTime = 0;
   hud->elem.label = 0;
-  hud->elem.sort = *(float *)&FLOAT_0_0;
+  hud->elem.sort = 0.0f;
   hud->elem.flags = 0;
   hud->elem.fxBirthTime = 0;
   hud->elem.fxLetterTime = 0;
@@ -75,7 +75,7 @@ void __cdecl HudElem_SetDefaults(game_hudelem_s *hud)
   hud->elem.soundID = 0;
   hud->elem.moveStartTime = 0;
   hud->elem.moveTime = 0;
-  hud->elem.fontScale = FLOAT_1_0;
+  hud->elem.fontScale = 1.0f;
   hud->archived = 1;
   hud->elem.ui3dWindow = -1;
   HudElem_ClearTypeSettings(hud);
@@ -86,8 +86,8 @@ void __cdecl HudElem_ClearTypeSettings(game_hudelem_s *hud)
   hud->elem.width = 0;
   hud->elem.height = 0;
   hud->elem.materialIndex = 0;
-  hud->elem.fromX = *(float *)&FLOAT_0_0;
-  hud->elem.fromY = *(float *)&FLOAT_0_0;
+  hud->elem.fromX = 0.0f;
+  hud->elem.fromY = 0.0f;
   hud->elem.fromAlignOrg = 0;
   hud->elem.fromAlignScreen = 0;
   hud->elem.fromWidth = 0;
@@ -96,7 +96,7 @@ void __cdecl HudElem_ClearTypeSettings(game_hudelem_s *hud)
   hud->elem.scaleTime = 0;
   hud->elem.time = 0;
   hud->elem.duration = 0;
-  hud->elem.value = *(float *)&FLOAT_0_0;
+  hud->elem.value = 0.0f;
   hud->elem.text = 0;
 }
 
@@ -997,29 +997,29 @@ void __cdecl HudElem_SetColor(game_hudelem_s *hud, int offset)
   if ( (float)(color[0] - 1.0) < 0.0 )
     v7 = color[0];
   else
-    v7 = FLOAT_1_0;
+    v7 = 1.0f;
   if ( (float)(0.0 - v7) < 0.0 )
     v4 = v7;
   else
-    v4 = *(float *)&FLOAT_0_0;
+    v4 = 0.0f;
   hud->elem.color.r = (int)((float)(255.0 * v4) + 9.313225746154785e-10);
   if ( (float)(color[1] - 1.0) < 0.0 )
     v6 = color[1];
   else
-    v6 = FLOAT_1_0;
+    v6 = 1.0f;
   if ( (float)(0.0 - v6) < 0.0 )
     v3 = v6;
   else
-    v3 = *(float *)&FLOAT_0_0;
+    v3 = 0.0f;
   hud->elem.color.g = (int)((float)(255.0 * v3) + 9.313225746154785e-10);
   if ( (float)(color[2] - 1.0) < 0.0 )
     v5 = color[2];
   else
-    v5 = FLOAT_1_0;
+    v5 = 1.0f;
   if ( (float)(0.0 - v5) < 0.0 )
     v2 = v5;
   else
-    v2 = *(float *)&FLOAT_0_0;
+    v2 = 0.0f;
   hud->elem.color.b = (int)((float)(255.0 * v2) + 9.313225746154785e-10);
 }
 
@@ -1063,11 +1063,11 @@ void __cdecl HudElem_SetAlpha(game_hudelem_s *hud, int offset)
   if ( (float)(alpha - 1.0) < 0.0 )
     v3 = alpha;
   else
-    v3 = FLOAT_1_0;
+    v3 = 1.0f;
   if ( (float)(0.0 - v3) < 0.0 )
     v2 = v3;
   else
-    v2 = *(float *)&FLOAT_0_0;
+    v2 = 0.0f;
   hud->elem.color.a = (int)((float)(255.0 * v2) + 9.313225746154785e-10);
 }
 
@@ -1110,29 +1110,29 @@ void __cdecl HudElem_SetGlowColor(game_hudelem_s *hud, int offset)
   if ( (float)(glowColor[0] - 1.0) < 0.0 )
     v7 = glowColor[0];
   else
-    v7 = FLOAT_1_0;
+    v7 = 1.0f;
   if ( (float)(0.0 - v7) < 0.0 )
     v4 = v7;
   else
-    v4 = *(float *)&FLOAT_0_0;
+    v4 = 0.0f;
   hud->elem.glowColor.r = (int)((float)(255.0 * v4) + 9.313225746154785e-10);
   if ( (float)(glowColor[1] - 1.0) < 0.0 )
     v6 = glowColor[1];
   else
-    v6 = FLOAT_1_0;
+    v6 = 1.0f;
   if ( (float)(0.0 - v6) < 0.0 )
     v3 = v6;
   else
-    v3 = *(float *)&FLOAT_0_0;
+    v3 = 0.0f;
   hud->elem.glowColor.g = (int)((float)(255.0 * v3) + 9.313225746154785e-10);
   if ( (float)(glowColor[2] - 1.0) < 0.0 )
     v5 = glowColor[2];
   else
-    v5 = FLOAT_1_0;
+    v5 = 1.0f;
   if ( (float)(0.0 - v5) < 0.0 )
     v2 = v5;
   else
-    v2 = *(float *)&FLOAT_0_0;
+    v2 = 0.0f;
   hud->elem.glowColor.b = (int)((float)(255.0 * v2) + 9.313225746154785e-10);
 }
 
@@ -1176,11 +1176,11 @@ void __cdecl HudElem_SetGlowAlpha(game_hudelem_s *hud, int offset)
   if ( (float)(glowAlpha - 1.0) < 0.0 )
     v3 = glowAlpha;
   else
-    v3 = FLOAT_1_0;
+    v3 = 1.0f;
   if ( (float)(0.0 - v3) < 0.0 )
     v2 = v3;
   else
-    v2 = *(float *)&FLOAT_0_0;
+    v2 = 0.0f;
   hud->elem.glowColor.a = (int)((float)(255.0 * v2) + 9.313225746154785e-10);
 }
 
@@ -2133,7 +2133,7 @@ void __cdecl HECmd_SetGameTypeString(scr_entref_t entref)
       SV_SetConfigstring(20, gametype);
       HudElem_ClearTypeSettings(hud);
       hud->elem.type = 5;
-      hud->elem.value = FLOAT_20_0;
+      hud->elem.value = 20.0f;
     }
     else
     {

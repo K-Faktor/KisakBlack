@@ -240,9 +240,9 @@ void __cdecl CG_DrawOffHandHighlight(
             }
             else
             {
-              drawColor[0] = FLOAT_0_88999999;
-              drawColor[1] = FLOAT_0_18000001;
-              drawColor[2] = FLOAT_0_0099999998;
+              drawColor[0] = 0.89f;
+              drawColor[1] = 0.1f8000001;
+              drawColor[2] = 0.01f;
             }
             OffHandFlash(cgameGlob, drawColor, flashColor);
             UI_DrawHandlePic(
@@ -387,9 +387,9 @@ void __cdecl CG_DrawOffHandAmmo(
         }
         else
         {
-          drawColor[0] = FLOAT_0_88999999;
-          drawColor[1] = FLOAT_0_18000001;
-          drawColor[2] = FLOAT_0_0099999998;
+          drawColor[0] = 0.89f;
+          drawColor[1] = 0.1f8000001;
+          drawColor[2] = 0.01f;
         }
         UI_DrawText(
           &scrPlaceView[localClientNum],
@@ -609,7 +609,7 @@ double __cdecl _Pow_int<float>(float _X, int _Y)
     _N = -_Y;
   else
     _N = _Y;
-  _Z = FLOAT_1_0;
+  _Z = 1.0f;
   while ( 1 )
   {
     if ( (_N & 1) != 0 )

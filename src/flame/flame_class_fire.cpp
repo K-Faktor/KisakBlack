@@ -45,8 +45,8 @@ void __cdecl Flame_Class_Fire_Age(bool is_server, int time)
       {
         if ( ((*((unsigned int *)&trav->gen + 23) >> 4) & 0xFFFFFFFu) < flame_freeze_id )
         {
-          trav->gen.phys.velocity[0] = *(float *)&FLOAT_0_0;
-          trav->gen.phys.velocity[1] = *(float *)&FLOAT_0_0;
+          trav->gen.phys.velocity[0] = 0.0f;
+          trav->gen.phys.velocity[1] = 0.0f;
         }
         Flame_Phys_Update_Item_Fire(&trav->gen, time);
       }
@@ -73,9 +73,9 @@ flameFire_t *__cdecl Flame_Class_Fire_Spawn(bool is_server, flameChunk_s *fromCh
   float upVec[3]; // [esp+74h] [ebp-Ch] BYREF
 
   flameRend = 0;
-  upVec[0] = *(float *)&FLOAT_0_0;
-  upVec[1] = *(float *)&FLOAT_0_0;
-  upVec[2] = FLOAT_1_0;
+  upVec[0] = 0.0f;
+  upVec[1] = 0.0f;
+  upVec[2] = 1.0f;
   if ( !fromChunk
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\flame\\flame_class_fire.cpp", 250, 0, "%s", "fromChunk") )
   {
@@ -120,7 +120,7 @@ flameFire_t *__cdecl Flame_Class_Fire_Spawn(bool is_server, flameChunk_s *fromCh
                               - fire->gen.size.current)
                       / (float)((float)(1.0 - lifeFrac) * flameVars->flameVar_fireLife);
   if ( fire->gen.size.rate > 70.0 )
-    fire->gen.size.rate = FLOAT_70_0;
+    fire->gen.size.rate = 70.0f;
   if ( (LODWORD(fire->gen.size.rate) & 0x7F800000) == 0x7F800000
     && !Assert_MyHandler(
           "C:\\projects_pc\\cod\\codsrc\\src\\flame\\flame_class_fire.cpp",
@@ -141,7 +141,7 @@ flameFire_t *__cdecl Flame_Class_Fire_Spawn(bool is_server, flameChunk_s *fromCh
   fire->gen.phys.velocity[2] = speed * fromChunk->gen.phys.velocity[2];
   fwdVec[0] = fire->gen.phys.velocity[0];
   fwdVec[1] = fire->gen.phys.velocity[1];
-  fwdVec[2] = *(float *)&FLOAT_0_0;
+  fwdVec[2] = 0.0f;
   speed = Vec3Normalize(fwdVec);
   Vec3Cross(fwdVec, upVec, sideVec);
   v7 = Flame_CRandom(0) * speed * flameVars->flameVar_fireVelocityAddSideways;
@@ -192,12 +192,12 @@ void __cdecl Flame_Class_Fire_Render_Item(int localClientNum, flameFire_t *fire)
   }
   if ( flame_debug_render->current.integer > 0 )
   {
-    points[0][0] = FLOAT_N1_0;
-    points[0][1] = FLOAT_N1_0;
-    *(_QWORD *)&points[1][0] = __PAIR64__(LODWORD(FLOAT_N1_0), LODWORD(FLOAT_1_0));
-    points[2][0] = FLOAT_1_0;
-    points[2][1] = FLOAT_1_0;
-    *(_QWORD *)&points[3][0] = __PAIR64__(LODWORD(FLOAT_1_0), LODWORD(FLOAT_N1_0));
+    points[0][0] = -1.0f;
+    points[0][1] = -1.0f;
+    *(_QWORD *)&points[1][0] = __PAIR64__(LODWORD(-1.0f), LODWORD(1.0f));
+    points[2][0] = 1.0f;
+    points[2][1] = 1.0f;
+    *(_QWORD *)&points[3][0] = __PAIR64__(LODWORD(1.0f), LODWORD(-1.0f));
     AxisToAngles(clientGlobals->refdef.viewaxis, angles);
     angles[2] = fire->gen.phys.rotation;
     AngleVectors(angles, fwd, right, down);

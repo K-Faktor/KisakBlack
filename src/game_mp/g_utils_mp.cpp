@@ -926,9 +926,9 @@ void __cdecl G_EntUnlink(gentity_s *ent)
       client = ent->client;
       viewAngles[0] = client->ps.viewangles[0];
       viewAngles[1] = client->ps.viewangles[1];
-      viewAngles[2] = *(float *)&FLOAT_0_0;
+      viewAngles[2] = 0.0f;
       SetClientViewAngle(ent, viewAngles);
-      ent->r.currentAngles[0] = *(float *)&FLOAT_0_0;
+      ent->r.currentAngles[0] = 0.0f;
     }
     prev = 0;
     next = parent->tagChildren;
@@ -1249,7 +1249,7 @@ void __cdecl G_SetPlayerFixedLink(gentity_s *ent)
         LODWORD(client->prevLinkedInvQuat[2]) = LODWORD(worldQuat[2]) ^ _mask__NegFloat_;
         client->prevLinkedInvQuat[3] = worldQuat[3];
         memset(identQuat, 0, 12);
-        identQuat[3] = FLOAT_1_0;
+        identQuat[3] = 1.0f;
         QuatLerp(identQuat, linkChangeQuat, client->linkAnglesFrac, linkChangeQuat);
       }
       else
@@ -1260,7 +1260,7 @@ void __cdecl G_SetPlayerFixedLink(gentity_s *ent)
         LODWORD(client->prevLinkedInvQuat[2]) = LODWORD(worldQuat[2]) ^ _mask__NegFloat_;
         client->prevLinkedInvQuat[3] = worldQuat[3];
         memset(linkChangeQuat, 0, 12);
-        linkChangeQuat[3] = FLOAT_1_0;
+        linkChangeQuat[3] = 1.0f;
       }
       AnglesToAxis(client->ps.viewangles, viewMat);
       AxisToQuat(viewMat, viewQuat);
@@ -1290,8 +1290,8 @@ void __cdecl G_SetPlayerFixedLink(gentity_s *ent)
     if ( ent->client->link_rotationMovesEyePos )
     {
       viewHeightCurrent = ps->viewHeightCurrent;
-      localViewOff[0] = *(float *)&FLOAT_0_0;
-      localViewOff[1] = *(float *)&FLOAT_0_0;
+      localViewOff[0] = 0.0f;
+      localViewOff[1] = 0.0f;
       localViewOff[2] = viewHeightCurrent;
       MatrixTransformVector43(localViewOff, worldAxis, worldViewOff);
       worldViewOff[2] = worldViewOff[2] - ps->viewHeightCurrent;
@@ -1319,15 +1319,15 @@ void __cdecl G_GeneralLink(gentity_s *ent)
   G_SetOrigin(ent, ent->r.currentOrigin);
   G_SetAngle(ent, ent->r.currentAngles);
   ent->s.lerp.pos.trType = 1;
-  ent->s.lerp.pos.trDelta[0] = *(float *)&FLOAT_0_0;
-  ent->s.lerp.pos.trDelta[1] = *(float *)&FLOAT_0_0;
-  ent->s.lerp.pos.trDelta[2] = *(float *)&FLOAT_0_0;
+  ent->s.lerp.pos.trDelta[0] = 0.0f;
+  ent->s.lerp.pos.trDelta[1] = 0.0f;
+  ent->s.lerp.pos.trDelta[2] = 0.0f;
   ent->s.lerp.pos.trTime = 0;
   ent->s.lerp.pos.trDuration = 0;
   ent->s.lerp.apos.trType = 1;
-  ent->s.lerp.apos.trDelta[0] = *(float *)&FLOAT_0_0;
-  ent->s.lerp.apos.trDelta[1] = *(float *)&FLOAT_0_0;
-  ent->s.lerp.apos.trDelta[2] = *(float *)&FLOAT_0_0;
+  ent->s.lerp.apos.trDelta[0] = 0.0f;
+  ent->s.lerp.apos.trDelta[1] = 0.0f;
+  ent->s.lerp.apos.trDelta[2] = 0.0f;
   ent->s.lerp.apos.trTime = 0;
   ent->s.lerp.apos.trDuration = 0;
   SV_LinkEntity((int)&savedregs, ent);
@@ -1495,7 +1495,7 @@ void __cdecl G_TraceBulletPathForVehTurret(gentity_s *ent, DObjTrace_s *trace, i
   obj = Com_GetServerDObj(ent->s.number);
   DObjGeomTracelinePartBits(obj, contentmask, partBits);
   G_DObjCalcPose(ent, partBits);
-  trace->fraction = FLOAT_1_0;
+  trace->fraction = 1.0f;
   DObjGeomTraceline(obj, localStart, localEnd, contentmask, trace);
 }
 
@@ -1676,9 +1676,9 @@ void __cdecl G_ClearGroundEntity(gentity_s *ent)
     ent->s.lerp.pos.trBase[0] = ent->r.currentOrigin[0];
     ent->s.lerp.pos.trBase[1] = ent->r.currentOrigin[1];
     ent->s.lerp.pos.trBase[2] = ent->r.currentOrigin[2];
-    ent->s.lerp.pos.trDelta[0] = *(float *)&FLOAT_0_0;
-    ent->s.lerp.pos.trDelta[1] = *(float *)&FLOAT_0_0;
-    ent->s.lerp.pos.trDelta[2] = *(float *)&FLOAT_0_0;
+    ent->s.lerp.pos.trDelta[0] = 0.0f;
+    ent->s.lerp.pos.trDelta[1] = 0.0f;
+    ent->s.lerp.pos.trDelta[2] = 0.0f;
   }
   ent->s.groundEntityNum = 1023;
 }
@@ -2061,9 +2061,9 @@ void __cdecl G_SetOrigin(gentity_s *ent, const float *origin)
   ent->s.lerp.pos.trType = 0;
   ent->s.lerp.pos.trTime = 0;
   ent->s.lerp.pos.trDuration = 0;
-  ent->s.lerp.pos.trDelta[0] = *(float *)&FLOAT_0_0;
-  ent->s.lerp.pos.trDelta[1] = *(float *)&FLOAT_0_0;
-  ent->s.lerp.pos.trDelta[2] = *(float *)&FLOAT_0_0;
+  ent->s.lerp.pos.trDelta[0] = 0.0f;
+  ent->s.lerp.pos.trDelta[1] = 0.0f;
+  ent->s.lerp.pos.trDelta[2] = 0.0f;
   ent->r.currentOrigin[0] = *origin;
   ent->r.currentOrigin[1] = origin[1];
   ent->r.currentOrigin[2] = origin[2];
@@ -2077,9 +2077,9 @@ void __cdecl G_SetAngle(gentity_s *ent, const float *angle)
   ent->s.lerp.apos.trType = 0;
   ent->s.lerp.apos.trTime = 0;
   ent->s.lerp.apos.trDuration = 0;
-  ent->s.lerp.apos.trDelta[0] = *(float *)&FLOAT_0_0;
-  ent->s.lerp.apos.trDelta[1] = *(float *)&FLOAT_0_0;
-  ent->s.lerp.apos.trDelta[2] = *(float *)&FLOAT_0_0;
+  ent->s.lerp.apos.trDelta[0] = 0.0f;
+  ent->s.lerp.apos.trDelta[1] = 0.0f;
+  ent->s.lerp.apos.trDelta[2] = 0.0f;
   ent->r.currentAngles[0] = *angle;
   ent->r.currentAngles[1] = angle[1];
   ent->r.currentAngles[2] = angle[2];

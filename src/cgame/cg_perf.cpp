@@ -42,8 +42,8 @@ void __cdecl UpdateData(CG_PerfData *data, int value)
   data->instant = value;
   data->min = 0x7FFFFFFF;
   data->max = 0;
-  data->average = *(float *)&FLOAT_0_0;
-  data->variance = *(float *)&FLOAT_0_0;
+  data->average = 0.0f;
+  data->variance = 0.0f;
   data->total = 0;
   for ( i = 0; i < data->count; ++i )
   {

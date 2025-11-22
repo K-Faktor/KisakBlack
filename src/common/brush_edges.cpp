@@ -211,7 +211,7 @@ double __cdecl RepresentativeTriangleFromWinding(
   *i0 = 0;
   *i1 = 1;
   *i2 = 2;
-  areaBest = *(float *)&FLOAT_0_0;
+  areaBest = 0.0f;
   for ( k = 2; k < pointCount; ++k )
   {
     for ( j = 1; j < k; ++j )

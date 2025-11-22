@@ -46,8 +46,8 @@ void __cdecl Flame_Class_Smoke_Age(bool is_server, int time)
       {
         if ( ((*((unsigned int *)&trav->gen + 23) >> 4) & 0xFFFFFFFu) < flame_freeze_id )
         {
-          trav->gen.phys.velocity[0] = *(float *)&FLOAT_0_0;
-          trav->gen.phys.velocity[1] = *(float *)&FLOAT_0_0;
+          trav->gen.phys.velocity[0] = 0.0f;
+          trav->gen.phys.velocity[1] = 0.0f;
         }
         Flame_Phys_Update_Item_Smoke(&trav->gen, time);
         if ( trav->gen.age.lastUpdateTime > trav->gen.age.endTime )
@@ -140,7 +140,7 @@ void __cdecl Flame_Class_Smoke_Render_Item(int localClientNum, flameSmoke_t *smo
   }
   if ( flame_debug_render->current.integer <= 0 )
   {
-    alpha = FLOAT_1_0;
+    alpha = 1.0f;
     if ( (float)((float)smoke->gen.age.startTime
                + (float)((float)(smoke->gen.age.endTime - smoke->gen.age.startTime) * smoke->smokeFadein)) <= (float)smoke->gen.age.lastUpdateTime )
     {
@@ -170,12 +170,12 @@ void __cdecl Flame_Class_Smoke_Render_Item(int localClientNum, flameSmoke_t *smo
   }
   else
   {
-    points[0][0] = FLOAT_N1_0;
-    points[0][1] = FLOAT_N1_0;
-    *(_QWORD *)&points[1][0] = __PAIR64__(LODWORD(FLOAT_N1_0), LODWORD(FLOAT_1_0));
-    points[2][0] = FLOAT_1_0;
-    points[2][1] = FLOAT_1_0;
-    *(_QWORD *)&points[3][0] = __PAIR64__(LODWORD(FLOAT_1_0), LODWORD(FLOAT_N1_0));
+    points[0][0] = -1.0f;
+    points[0][1] = -1.0f;
+    *(_QWORD *)&points[1][0] = __PAIR64__(LODWORD(-1.0f), LODWORD(1.0f));
+    points[2][0] = 1.0f;
+    points[2][1] = 1.0f;
+    *(_QWORD *)&points[3][0] = __PAIR64__(LODWORD(1.0f), LODWORD(-1.0f));
     AxisToAngles(clientGlobals->refdef.viewaxis, angles);
     angles[2] = smoke->gen.phys.rotation;
     AngleVectors(angles, fwd, right, down);

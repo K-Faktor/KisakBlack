@@ -743,15 +743,15 @@ void __cdecl DestructibleExplosiveDamageEvent(
     tent->s.lerp.pos.trBase[0] = *point;
     tent->s.lerp.pos.trBase[1] = point[1];
     tent->s.lerp.pos.trBase[2] = point[2];
-    tent->s.lerp.pos.trDelta[0] = *(float *)&FLOAT_0_0;
-    tent->s.lerp.pos.trDelta[1] = *(float *)&FLOAT_0_0;
-    tent->s.lerp.pos.trDelta[2] = *(float *)&FLOAT_0_0;
-    tent->s.lerp.apos.trBase[0] = *(float *)&FLOAT_0_0;
-    tent->s.lerp.apos.trBase[1] = *(float *)&FLOAT_0_0;
-    tent->s.lerp.apos.trBase[2] = *(float *)&FLOAT_0_0;
-    tent->s.lerp.apos.trDelta[0] = *(float *)&FLOAT_0_0;
-    tent->s.lerp.apos.trDelta[1] = *(float *)&FLOAT_0_0;
-    tent->s.lerp.apos.trDelta[2] = *(float *)&FLOAT_0_0;
+    tent->s.lerp.pos.trDelta[0] = 0.0f;
+    tent->s.lerp.pos.trDelta[1] = 0.0f;
+    tent->s.lerp.pos.trDelta[2] = 0.0f;
+    tent->s.lerp.apos.trBase[0] = 0.0f;
+    tent->s.lerp.apos.trBase[1] = 0.0f;
+    tent->s.lerp.apos.trBase[2] = 0.0f;
+    tent->s.lerp.apos.trDelta[0] = 0.0f;
+    tent->s.lerp.apos.trDelta[1] = 0.0f;
+    tent->s.lerp.apos.trDelta[2] = 0.0f;
     tent->s.un1 = mod;
     DestructibleEventSetPieceState(self, (LerpEntityStateDestructibleHit *)&tent->s.lerp.u);
   }
@@ -787,12 +787,12 @@ void __cdecl DestructibleBulletDamageEvent(
     tent->s.lerp.pos.trDelta[0] = *dir;
     tent->s.lerp.pos.trDelta[1] = dir[1];
     tent->s.lerp.pos.trDelta[2] = dir[2];
-    tent->s.lerp.apos.trBase[0] = *(float *)&FLOAT_0_0;
-    tent->s.lerp.apos.trBase[1] = *(float *)&FLOAT_0_0;
-    tent->s.lerp.apos.trBase[2] = *(float *)&FLOAT_0_0;
-    tent->s.lerp.apos.trDelta[0] = *(float *)&FLOAT_0_0;
-    tent->s.lerp.apos.trDelta[1] = *(float *)&FLOAT_0_0;
-    tent->s.lerp.apos.trDelta[2] = *(float *)&FLOAT_0_0;
+    tent->s.lerp.apos.trBase[0] = 0.0f;
+    tent->s.lerp.apos.trBase[1] = 0.0f;
+    tent->s.lerp.apos.trBase[2] = 0.0f;
+    tent->s.lerp.apos.trDelta[0] = 0.0f;
+    tent->s.lerp.apos.trDelta[1] = 0.0f;
+    tent->s.lerp.apos.trDelta[2] = 0.0f;
     tent->s.un1 = mod;
     DestructibleEventSetPieceState(self, (LerpEntityStateDestructibleHit *)&tent->s.lerp.u);
   }
@@ -988,7 +988,7 @@ bool __cdecl DamagePiece(
         scale = dynEnt_explodeForce->current.value;
         break;
       case 17:
-        scale = FLOAT_0_1;
+        scale = 0.1f;
         break;
       default:
         scale = dynEnt_bulletForce->current.value;
@@ -1124,18 +1124,18 @@ double __cdecl DestructibleRadiusDamage(
   needsDObjUpdate = 0;
   radiusSquared = radius * radius;
   Destructible_SetDebugRender(destructible);
-  entityDamage = *(float *)&FLOAT_0_0;
-  nonBaseDamage = *(float *)&FLOAT_0_0;
-  coreDistance = *(float *)&FLOAT_0_0;
-  smallestArmorDistance = FLOAT_3_4028235e38;
+  entityDamage = 0.0f;
+  nonBaseDamage = 0.0f;
+  coreDistance = 0.0f;
+  smallestArmorDistance = FLT_MAX;
   AnglesToAxis(self->r.currentAngles, ent_axis);
   ent_axis[3][0] = self->r.currentOrigin[0];
   ent_axis[3][1] = self->r.currentOrigin[1];
   ent_axis[3][2] = self->r.currentOrigin[2];
   leftTreadIndex = -1;
-  leftTreadDamage = *(float *)&FLOAT_0_0;
+  leftTreadDamage = 0.0f;
   rightTreadIndex = -1;
-  rightTreadDamage = *(float *)&FLOAT_0_0;
+  rightTreadDamage = 0.0f;
   memset(leftTreadPoint, 0, sizeof(leftTreadPoint));
   memset(leftTreadDir, 0, sizeof(leftTreadDir));
   memset(rightTreadPoint, 0, sizeof(rightTreadPoint));
@@ -1208,9 +1208,9 @@ double __cdecl DestructibleRadiusDamage(
       damage = damage * piece->explosiveDamageScale;
       if ( dist <= 0.001 )
       {
-        dir[0] = *(float *)&FLOAT_0_0;
-        dir[1] = *(float *)&FLOAT_0_0;
-        dir[2] = FLOAT_1_0;
+        dir[0] = 0.0f;
+        dir[1] = 0.0f;
+        dir[2] = 1.0f;
       }
       else
       {
@@ -1248,7 +1248,7 @@ double __cdecl DestructibleRadiusDamage(
         {
           absorbedDamage = damage - (float)(piece->entityDamageTransfer * damage);
           if ( absorbedDamage < 0.0 )
-            absorbedDamage = *(float *)&FLOAT_0_0;
+            absorbedDamage = 0.0f;
           if ( absorbedDamage > nonBaseDamage )
             nonBaseDamage = absorbedDamage;
         }
@@ -1270,7 +1270,7 @@ double __cdecl DestructibleRadiusDamage(
   if ( leftTreadIndex >= 0 )
   {
     if ( (float)((float)(leftTreadDamage - nonBaseDamage) - 0.0) < 0.0 )
-      v17 = *(float *)&FLOAT_0_0;
+      v17 = 0.0f;
     else
       v17 = leftTreadDamage - nonBaseDamage;
     leftTreadDamage = v17;
@@ -1281,7 +1281,7 @@ double __cdecl DestructibleRadiusDamage(
   if ( rightTreadIndex >= 0 )
   {
     if ( (float)((float)(rightTreadDamage - nonBaseDamage) - 0.0) < 0.0 )
-      v16 = *(float *)&FLOAT_0_0;
+      v16 = 0.0f;
     else
       v16 = rightTreadDamage - nonBaseDamage;
     rightTreadDamage = v16;
@@ -1316,19 +1316,19 @@ double __cdecl DestructibleRadiusDamage(
     if ( (float)((float)(maxTreadShielding
                        - (float)(ddef->pieces[leftTreadIndex].entityDamageTransfer * maxTreadShielding))
                - 0.0) < 0.0 )
-      v13 = *(float *)&FLOAT_0_0;
+      v13 = 0.0f;
     else
       v13 = maxTreadShielding - (float)(ddef->pieces[leftTreadIndex].entityDamageTransfer * maxTreadShielding);
     maxTreadShielding = v13;
     if ( !hitArmor )
-      nonBaseDamage = *(float *)&FLOAT_0_0;
+      nonBaseDamage = 0.0f;
     if ( (float)(nonBaseDamage - maxTreadShielding) < 0.0 )
       v12 = maxTreadShielding;
     else
       v12 = nonBaseDamage;
     nonBaseDamage = v12;
     if ( (float)((float)(entityDamage - v12) - 0.0) < 0.0 )
-      return *(float *)&FLOAT_0_0;
+      return 0.0f;
     else
       return (float)(entityDamage - v12);
   }
@@ -1393,9 +1393,9 @@ int __cdecl DestructibleDamage(
     hitd[2] = dir[2];
     if ( (float)((float)((float)(hitd[0] * hitd[0]) + (float)(hitd[1] * hitd[1])) + (float)(hitd[2] * hitd[2])) < 0.001 )
     {
-      hitd[0] = *(float *)&FLOAT_0_0;
-      hitd[1] = *(float *)&FLOAT_0_0;
-      hitd[2] = FLOAT_1_0;
+      hitd[0] = 0.0f;
+      hitd[1] = 0.0f;
+      hitd[2] = 1.0f;
     }
     if ( mod == 5 || mod == 3 || mod == 16 )
       Vec3NormalizeFast(hitd);
@@ -2208,11 +2208,11 @@ double __cdecl CG_DestructibleGetBurnFrac(Destructible *destructible)
   if ( (float)(burnFraction - 1.0) < 0.0 )
     v4 = (float)(LocalClientGlobals->time - destructible->oldestBurnTime) / 5000.0;
   else
-    v4 = FLOAT_1_0;
+    v4 = 1.0f;
   if ( (float)(0.0 - burnFraction) < 0.0 )
     return v4;
   else
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
 }
 
 bool __cdecl CG_DestructibleIsClientOnly(Destructible *destructible)
@@ -2342,8 +2342,8 @@ void __cdecl CG_DestructibleRadiusDamage(
       ddef = destructible->ddef;
       if ( !ddef->clientOnly )
       {
-        damgeInner = *(float *)&FLOAT_0_0;
-        damgeOuter = *(float *)&FLOAT_0_0;
+        damgeInner = 0.0f;
+        damgeOuter = 0.0f;
       }
       if ( (destructible->flags & 4) != 0 )
       {
@@ -2354,7 +2354,7 @@ void __cdecl CG_DestructibleRadiusDamage(
       needsDObjUpdate = 0;
       radiusSquared = radius * radius;
       Destructible_SetDebugRender(destructible);
-      entityDamage = *(float *)&FLOAT_0_0;
+      entityDamage = 0.0f;
       for ( index = 0; index < ddef->numPieces; ++index )
       {
         piece = &ddef->pieces[index];
@@ -2391,7 +2391,7 @@ void __cdecl CG_DestructibleRadiusDamage(
           hitp[1] = self->pose.origin[1];
           hitp[2] = self->pose.origin[2];
         }
-        spin_scale = FLOAT_7_0;
+        spin_scale = 7.0f;
         v8 = G_flrand(-1.0, 1.0);
         v9 = G_flrand(-1.0, 1.0);
         v10 = G_flrand(-1.0, 1.0);
@@ -2412,9 +2412,9 @@ void __cdecl CG_DestructibleRadiusDamage(
           damage = damage * piece->explosiveDamageScale;
           if ( dist <= 0.001 )
           {
-            dir[0] = *(float *)&FLOAT_0_0;
-            dir[1] = *(float *)&FLOAT_0_0;
-            dir[2] = FLOAT_1_0;
+            dir[0] = 0.0f;
+            dir[1] = 0.0f;
+            dir[2] = 1.0f;
           }
           else
           {
@@ -2832,9 +2832,9 @@ void __cdecl CG_DestructibleHitEvent(int localClientNum, int event, const entity
                  + (float)((float)(hitp[2] - point[2]) * (float)(hitp[2] - point[2]));
             if ( dist <= 0.001 )
             {
-              dir[0] = *(float *)&FLOAT_0_0;
-              dir[1] = *(float *)&FLOAT_0_0;
-              dir[2] = FLOAT_1_0;
+              dir[0] = 0.0f;
+              dir[1] = 0.0f;
+              dir[2] = 1.0f;
             }
             else
             {
@@ -3498,7 +3498,7 @@ $LN4_164:
           }
           if ( mod == 17 )
           {
-            rot[1] = *(float *)&FLOAT_0_0;
+            rot[1] = 0.0f;
             rot[0] = burn_force * 0.5;
             rot[2] = burn_force;
           }
@@ -3685,13 +3685,13 @@ void __cdecl Destructible_DebugRender()
   {
     if ( g_destructibleDraw->current.enabled )
     {
-      fontScale = FLOAT_0_69999999;
+      fontScale = 0.7f;
       if ( g_DebugRenderDestructible )
       {
         if ( g_DebugRenderDestructible->entNum != 1023 )
         {
-          x = FLOAT_8_0;
-          y = FLOAT_10_0;
+          x = 8.0f;
+          y = 10.0f;
           ddef = g_DebugRenderDestructible->ddef;
           ent = &g_entities[g_DebugRenderDestructible->entNum];
           smallDevFont = cgMedia.smallDevFont;
@@ -3819,15 +3819,15 @@ Destructible_BonePose *__thiscall Destructible_BonePose::Destructible_BonePose(D
 {
   this->boneid = 0;
   this->pieceIndex = 0;
-  this->angles_original[0] = *(float *)&FLOAT_0_0;
-  this->angles_original[1] = *(float *)&FLOAT_0_0;
-  this->angles_original[2] = *(float *)&FLOAT_0_0;
-  this->angles_offset[0] = *(float *)&FLOAT_0_0;
-  this->angles_offset[1] = *(float *)&FLOAT_0_0;
-  this->angles_offset[2] = *(float *)&FLOAT_0_0;
-  this->angles_vel[0] = *(float *)&FLOAT_0_0;
-  this->angles_vel[1] = *(float *)&FLOAT_0_0;
-  this->angles_vel[2] = *(float *)&FLOAT_0_0;
+  this->angles_original[0] = 0.0f;
+  this->angles_original[1] = 0.0f;
+  this->angles_original[2] = 0.0f;
+  this->angles_offset[0] = 0.0f;
+  this->angles_offset[1] = 0.0f;
+  this->angles_offset[2] = 0.0f;
+  this->angles_vel[0] = 0.0f;
+  this->angles_vel[1] = 0.0f;
+  this->angles_vel[2] = 0.0f;
   return this;
 }
 

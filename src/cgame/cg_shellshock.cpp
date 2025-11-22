@@ -7,10 +7,10 @@ void __cdecl CG_PerturbCamera(cg_s *cgameGlob)
 
   if ( cgameGlob->shellshock.viewDelta[0] != 0.0 || cgameGlob->shellshock.viewDelta[1] != 0.0 )
   {
-    rot[0][0] = FLOAT_1_0;
+    rot[0][0] = 1.0f;
     *(_QWORD *)&rot[0][1] = *(_QWORD *)cgameGlob->shellshock.viewDelta;
-    rot[2][0] = *(float *)&FLOAT_0_0;
-    *(_QWORD *)&rot[2][1] = __PAIR64__(LODWORD(FLOAT_1_0), *(unsigned int *)&FLOAT_0_0);
+    rot[2][0] = 0.0f;
+    *(_QWORD *)&rot[2][1] = __PAIR64__(LODWORD(1.0f), 0);
     Vec3Normalize(rot[0]);
     Vec3Cross(rot[2], rot[0], rot[1]);
     Vec3Normalize(rot[1]);
@@ -104,11 +104,11 @@ int __cdecl CG_DrawShellShockSavedScreenBlendFlashed(
       whiteFactor = (float)parms->screenBlend.flashWhiteFadeTime;
       grabFactor = (float)parms->screenBlend.flashShotFadeTime;
       if ( whiteFactor <= (float)dt )
-        whiteFactora = FLOAT_1_0;
+        whiteFactora = 1.0f;
       else
         whiteFactora = (float)dt / whiteFactor;
       if ( grabFactor <= (float)dt )
-        grabFactora = FLOAT_1_0;
+        grabFactora = 1.0f;
       else
         grabFactora = (float)dt / grabFactor;
       whiteFactorb = BlendSmooth(whiteFactora);
@@ -176,7 +176,7 @@ void __cdecl EndShellShockSound(int localClientNum)
 
 void __cdecl EndShellShockLookControl(int localClientNum)
 {
-  CG_GetLocalClientGlobals(localClientNum)->shellshock.sensitivity = FLOAT_1_0;
+  CG_GetLocalClientGlobals(localClientNum)->shellshock.sensitivity = 1.0f;
   CL_CapTurnRate(localClientNum, 0.0, 0.0);
 }
 
@@ -185,8 +185,8 @@ void __cdecl EndShellShockCamera(int localClientNum)
   cg_s *cgameGlob; // eax
 
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
-  cgameGlob->shellshock.viewDelta[0] = *(float *)&FLOAT_0_0;
-  cgameGlob->shellshock.viewDelta[1] = *(float *)&FLOAT_0_0;
+  cgameGlob->shellshock.viewDelta[0] = 0.0f;
+  cgameGlob->shellshock.viewDelta[1] = 0.0f;
 }
 
 void __cdecl EndShellShockScreen(int localClientNum)
@@ -333,7 +333,7 @@ LABEL_11:
   }
   else
   {
-    fade = FLOAT_1_0;
+    fade = 1.0f;
   }
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
   if ( fade == 1.0 )
@@ -368,7 +368,7 @@ void __cdecl UpdateShellShockCamera(int localClientNum, const shellshock_parms_t
     {
       __debugbreak();
     }
-    scale = FLOAT_1_0;
+    scale = 1.0f;
     if ( dt < parms->view.fadeTime )
       scale = (float)dt / (float)parms->view.fadeTime;
     radius = parms->view.kickRadius * (float)((float)((float)(3.0 - (float)(2.0 * scale)) * scale) * scale);

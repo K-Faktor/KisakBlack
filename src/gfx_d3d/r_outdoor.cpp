@@ -46,8 +46,8 @@ void __cdecl Outdoor_ApplyBoundingBox(const float *outdoorMin, const float *outd
       {
         __debugbreak();
       }
-      outdoorGlob.bbox[0][dimIter] = *(float *)&FLOAT_0_0;
-      outdoorGlob.scale[dimIter - 3] = *(float *)&FLOAT_0_0;
+      outdoorGlob.bbox[0][dimIter] = 0.0f;
+      outdoorGlob.scale[dimIter - 3] = 0.0f;
     }
     if ( outdoorGlob.scale[dimIter - 3] < outdoorGlob.bbox[0][dimIter]
       && !Assert_MyHandler(
@@ -181,7 +181,7 @@ double __cdecl Outdoor_TraceHeightInWorld(float worldX, float worldY)
   traceEnd[1] = worldY;
   traceEnd[2] = outdoorGlob.bbox[0][2] - 1.0;
   memset((unsigned __int8 *)&results, 0, sizeof(results));
-  results.fraction = FLOAT_1_0;
+  results.fraction = 1.0f;
   CM_BoxTrace(&results, traceStart, traceEnd, vec3_origin, vec3_origin, 8241, &context);
   return (traceEndHeight - traceStartHeight) * results.fraction + traceStartHeight;
 }

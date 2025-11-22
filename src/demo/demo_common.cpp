@@ -2194,7 +2194,7 @@ LABEL_28:
   }
 }
 
-void  Demo_Screenshot_f(int a1@<esi>)
+void  Demo_Screenshot_f()
 {
   const char *v1; // eax
   int tiles; // [esp+10h] [ebp-2Ch]

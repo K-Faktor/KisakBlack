@@ -50,15 +50,15 @@ void __cdecl R_SkinCachedStaticModelCmd(SkinCachedStaticModelCmd *skinCmd)
   smodelDrawInst = &rgp.world->dpvs.smodelDrawInsts[cachedSurf->smodelIndex];
   *(_QWORD *)normAxis[0].v = *(_QWORD *)&smodelDrawInst->placement.axis[0][0];
   normAxis[0].u[2] = LODWORD(smodelDrawInst->placement.axis[0][2]);
-  normAxis[0].u[3] = *(unsigned int *)&FLOAT_0_0;
+  normAxis[0].u[3] = 0;
   normAxis[1].v[0] = smodelDrawInst->placement.axis[1][0];
   normAxis[1].v[1] = smodelDrawInst->placement.axis[1][1];
   normAxis[1].v[2] = smodelDrawInst->placement.axis[1][2];
-  normAxis[1].u[3] = *(unsigned int *)&FLOAT_0_0;
+  normAxis[1].u[3] = 0;
   normAxis[2].v[0] = smodelDrawInst->placement.axis[2][0];
   normAxis[2].v[1] = smodelDrawInst->placement.axis[2][1];
   normAxis[2].v[2] = smodelDrawInst->placement.axis[2][2];
-  normAxis[2].u[3] = *(unsigned int *)&FLOAT_0_0;
+  normAxis[2].u[3] = 0;
   scale = smodelDrawInst->placement.scale;
   useAxis[0].v[0] = scale * normAxis[0].v[0];
   useAxis[0].v[1] = scale * normAxis[0].v[1];
@@ -77,7 +77,7 @@ void __cdecl R_SkinCachedStaticModelCmd(SkinCachedStaticModelCmd *skinCmd)
   useAxis[3].v[0] = smodelDrawInst->placement.origin[0];
   useAxis[3].v[1] = smodelDrawInst->placement.origin[1];
   useAxis[3].v[2] = smodelDrawInst->placement.origin[2];
-  useAxis[3].u[3] = *(unsigned int *)&FLOAT_0_0;
+  useAxis[3].u[3] = 0;
   SetupTransformUnitVec(normAxis, fixedNormAxis);
   surfCount = XModelGetSurfCount(smodelDrawInst->model, cachedSurf->lodIndex);
   XModelGetSurfaces(smodelDrawInst->model, &surfs, cachedSurf->lodIndex);

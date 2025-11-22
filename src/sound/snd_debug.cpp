@@ -217,9 +217,9 @@ void __cdecl SND_PlayLocal_f()
   float pitch; // [esp+68h] [ebp-10h]
   float soundPos[3]; // [esp+6Ch] [ebp-Ch] BYREF
 
-  dist = FLOAT_100_0;
-  yaw = *(float *)&FLOAT_0_0;
-  pitch = *(float *)&FLOAT_0_0;
+  dist = 100.0f;
+  yaw = 0.0f;
+  pitch = 0.0f;
   switch ( Cmd_Argc() )
   {
     case 2:
@@ -238,9 +238,9 @@ $LN3_216:
       v2 = Cmd_Argv(2);
       dist = atof(v2);
 LABEL_6:
-      soundDir[0] = FLOAT_1_0;
-      soundDir[1] = *(float *)&FLOAT_0_0;
-      soundDir[2] = *(float *)&FLOAT_0_0;
+      soundDir[0] = 1.0f;
+      soundDir[1] = 0.0f;
+      soundDir[2] = 0.0f;
       RelativeToListener(g_snd.listeners, yaw, pitch, dist, soundPos);
       entHandle.field = SND_EntHandle(0, 4094, 0, 0, 1, TEAM_FREE).field;
       v4 = (char *)Cmd_Argv(1);
@@ -260,7 +260,7 @@ void __cdecl RelativeToListener(const snd_listener *listener, float yaw, float p
   float clientAngles[3]; // [esp+18h] [ebp-Ch] BYREF
 
   LODWORD(inputAngles[0]) = LODWORD(pitch) ^ _mask__NegFloat_;
-  inputAngles[2] = *(float *)&FLOAT_0_0;
+  inputAngles[2] = 0.0f;
   AxisToAngles(listener->orient.axis, clientAngles);
   inputAngles[1] = COERCE_FLOAT(LODWORD(yaw) ^ _mask__NegFloat_) + clientAngles[1];
   AngleVectors(inputAngles, sndDir, 0, 0);
@@ -293,7 +293,7 @@ int __cdecl SND_GetSoundOverlay(snd_overlay_info *info, int start, int count)
   {
     voice = (snd_voice_t *)&g_snd.voiceAliasHash[118 * start - 8732 + 118 * i];
     info[i].channel = i;
-    info[i].fGlobalPriority = FLOAT_N1_0;
+    info[i].fGlobalPriority = -1.0f;
     info[i].pszSampleName[0] = 0;
     if ( g_snd.voiceAliasHash[i + start] && SND_GroupGetAttenuation(voice->group) >= 0.0000152879 )
     {

@@ -83,7 +83,7 @@ unsigned int __cdecl R_FindNearestReflectionProbeInCell(
     __debugbreak();
   }
   bestProbe = 0;
-  bestProbeDist = FLOAT_3_4028235e38;
+  bestProbeDist = FLT_MAX;
   if ( !cell->reflectionProbeCount
     && !Assert_MyHandler(
           "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_dpvs.cpp",
@@ -154,7 +154,7 @@ unsigned int __cdecl R_FindNearestReflectionProbe(const GfxWorldDraw *worldDraw,
     __debugbreak();
   }
   bestProbe = 0;
-  bestProbeDist = FLOAT_3_4028235e38;
+  bestProbeDist = FLT_MAX;
   for ( probeIndex = 1; probeIndex < worldDraw->reflectionProbeCount; ++probeIndex )
   {
     if ( !worldDraw->reflectionProbes[probeIndex].probeVolumeCount )
@@ -224,12 +224,12 @@ void __cdecl R_SortGfxAabbTree(GfxWorld *world, GfxAabbTree *tree)
   }
   else
   {
-    mins[0] = FLOAT_3_4028235e38;
-    mins[1] = FLOAT_3_4028235e38;
-    mins[2] = FLOAT_3_4028235e38;
-    maxs[0] = FLOAT_N3_4028235e38;
-    maxs[1] = FLOAT_N3_4028235e38;
-    maxs[2] = FLOAT_N3_4028235e38;
+    mins[0] = FLT_MAX;
+    mins[1] = FLT_MAX;
+    mins[2] = FLT_MAX;
+    maxs[0] = -FLT_MAX;
+    maxs[1] = -FLT_MAX;
+    maxs[2] = -FLT_MAX;
     for ( smodelIndexIter = 0; smodelIndexIter < tree->smodelIndexCount; ++smodelIndexIter )
     {
       smodelIndex = tree->smodelIndexes[smodelIndexIter];

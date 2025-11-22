@@ -29,45 +29,45 @@ void __cdecl CG_Respawn(int localClientNum, int spectate)
   cgameGlob->cursorHintIcon = 0;
   cgameGlob->cursorHintTime = 0;
   cgameGlob->proneBlockedEndTime = 0;
-  cgameGlob->recoilAngles[0] = *(float *)&FLOAT_0_0;
-  cgameGlob->recoilAngles[1] = *(float *)&FLOAT_0_0;
-  cgameGlob->recoilAngles[2] = *(float *)&FLOAT_0_0;
-  cgameGlob->recoilSpeed[0] = *(float *)&FLOAT_0_0;
-  cgameGlob->recoilSpeed[1] = *(float *)&FLOAT_0_0;
-  cgameGlob->recoilSpeed[2] = *(float *)&FLOAT_0_0;
-  cgameGlob->swayViewAngles[0] = *(float *)&FLOAT_0_0;
-  cgameGlob->swayViewAngles[1] = *(float *)&FLOAT_0_0;
-  cgameGlob->swayViewAngles[2] = *(float *)&FLOAT_0_0;
-  cgameGlob->swayAngles[0] = *(float *)&FLOAT_0_0;
-  cgameGlob->swayAngles[1] = *(float *)&FLOAT_0_0;
-  cgameGlob->swayAngles[2] = *(float *)&FLOAT_0_0;
-  cgameGlob->swayOffset[0] = *(float *)&FLOAT_0_0;
-  cgameGlob->swayOffset[1] = *(float *)&FLOAT_0_0;
-  cgameGlob->swayOffset[2] = *(float *)&FLOAT_0_0;
-  cgameGlob->kickAngles[0] = *(float *)&FLOAT_0_0;
-  cgameGlob->kickAngles[1] = *(float *)&FLOAT_0_0;
-  cgameGlob->kickAngles[2] = *(float *)&FLOAT_0_0;
-  cgameGlob->kickAVel[0] = *(float *)&FLOAT_0_0;
-  cgameGlob->kickAVel[1] = *(float *)&FLOAT_0_0;
-  cgameGlob->kickAVel[2] = *(float *)&FLOAT_0_0;
-  cgameGlob->xyspeed = *(float *)&FLOAT_0_0;
+  cgameGlob->recoilAngles[0] = 0.0f;
+  cgameGlob->recoilAngles[1] = 0.0f;
+  cgameGlob->recoilAngles[2] = 0.0f;
+  cgameGlob->recoilSpeed[0] = 0.0f;
+  cgameGlob->recoilSpeed[1] = 0.0f;
+  cgameGlob->recoilSpeed[2] = 0.0f;
+  cgameGlob->swayViewAngles[0] = 0.0f;
+  cgameGlob->swayViewAngles[1] = 0.0f;
+  cgameGlob->swayViewAngles[2] = 0.0f;
+  cgameGlob->swayAngles[0] = 0.0f;
+  cgameGlob->swayAngles[1] = 0.0f;
+  cgameGlob->swayAngles[2] = 0.0f;
+  cgameGlob->swayOffset[0] = 0.0f;
+  cgameGlob->swayOffset[1] = 0.0f;
+  cgameGlob->swayOffset[2] = 0.0f;
+  cgameGlob->kickAngles[0] = 0.0f;
+  cgameGlob->kickAngles[1] = 0.0f;
+  cgameGlob->kickAngles[2] = 0.0f;
+  cgameGlob->kickAVel[0] = 0.0f;
+  cgameGlob->kickAVel[1] = 0.0f;
+  cgameGlob->kickAVel[2] = 0.0f;
+  cgameGlob->xyspeed = 0.0f;
   memset((unsigned __int8 *)&cgameGlob->playerEntity, 0, sizeof(cgameGlob->playerEntity));
   cgameGlob->damageTime = 0;
-  cgameGlob->v_dmg_pitch = *(float *)&FLOAT_0_0;
-  cgameGlob->v_dmg_roll = *(float *)&FLOAT_0_0;
+  cgameGlob->v_dmg_pitch = 0.0f;
+  cgameGlob->v_dmg_roll = 0.0f;
   memset((unsigned __int8 *)cgameGlob->viewDamage, 0, sizeof(cgameGlob->viewDamage));
   CG_ClearCameraShakes(localClientNum);
-  cgameGlob->predictedError[0] = *(float *)&FLOAT_0_0;
-  cgameGlob->predictedError[1] = *(float *)&FLOAT_0_0;
-  cgameGlob->predictedError[2] = *(float *)&FLOAT_0_0;
+  cgameGlob->predictedError[0] = 0.0f;
+  cgameGlob->predictedError[1] = 0.0f;
+  cgameGlob->predictedError[2] = 0.0f;
   cgameGlob->adsViewErrorDone = 0;
   CL_SetStance(localClientNum, CL_STANCE_STAND);
   cgameGlob->warCurrentMomentumProgress = cgameGlob->warDesiredMomentumProgress;
   CL_SetADS(localClientNum, 0);
   CG_SetEquippedOffHand(localClientNum, cgameGlob->predictedPlayerState.offHandIndex);
-  cgameGlob->playerEntity.fLastIdleFactor = *(float *)&FLOAT_0_0;
+  cgameGlob->playerEntity.fLastIdleFactor = 0.0f;
   cgameGlob->weapIdleTime = 0;
-  cgameGlob->heightToCeiling = FLOAT_3_4028235e38;
+  cgameGlob->heightToCeiling = FLT_MAX;
   CG_HoldBreathInit(cgameGlob);
   CG_ResetFullscreenFX(localClientNum);
   if ( (cgameGlob->snap->ps.otherFlags & 0xA) != 0 )
@@ -123,7 +123,7 @@ void __cdecl CG_DamageFeedback(int localClientNum, int yawByte, int pitchByte, i
   }
   if ( yawByte == 255 && pitchByte == 255 )
   {
-    cgameGlob->v_dmg_roll = *(float *)&FLOAT_0_0;
+    cgameGlob->v_dmg_roll = 0.0f;
     LODWORD(cgameGlob->v_dmg_pitch) = LODWORD(kick) ^ _mask__NegFloat_;
   }
   else
@@ -132,7 +132,7 @@ void __cdecl CG_DamageFeedback(int localClientNum, int yawByte, int pitchByte, i
     yaw = (float)((float)yawByte / 255.0) * 360.0;
     angles[0] = pitch;
     angles[1] = yaw;
-    angles[2] = *(float *)&FLOAT_0_0;
+    angles[2] = 0.0f;
     AngleVectors(angles, dir, 0, 0);
     sideFrac = (float)((float)(dir[0] * cgameGlob->refdef.viewaxis[1][0])
                      + (float)(dir[1] * cgameGlob->refdef.viewaxis[1][1]))

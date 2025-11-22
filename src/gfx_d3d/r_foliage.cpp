@@ -32,10 +32,10 @@ double __cdecl GetFoliageSquashFromHash(unsigned int drawInstIndex)
   {
     __debugbreak();
   }
-  squashAmt = *(float *)&FLOAT_0_0;
+  squashAmt = 0.0f;
   if ( ModelIsFullySquashed(drawInstIndex) )
   {
-    return FLOAT_1_0;
+    return 1.0f;
   }
   else
   {
@@ -164,7 +164,7 @@ double __cdecl R_GetWindBestStrength(
   float best_str; // [esp+1Ch] [ebp-4h]
 
   best = -1;
-  best_str = *(float *)&FLOAT_0_0;
+  best_str = 0.0f;
   for ( i = 0; i < numWindForces; ++i )
   {
     ratio = (float)((float)((float)(*modelPlacement - windForces[i].worldPosition[0])
@@ -268,7 +268,7 @@ void __cdecl R_FoliageNotifyBurn(float *loc, float rad, int *models, int models_
           else if ( !ModelIsFullySquashed(modelIndex)
                  && !ModelHashTable<ActiveModelNode,63,128>::FindByKey(&g_activeModelsHash, key) )
           {
-            n.curSquashValue = *(float *)&FLOAT_0_0;
+            n.curSquashValue = 0.0f;
             n.modelIndex = key;
             ModelHashTable<ActiveModelNode,63,128>::Add(&g_activeModelsHash, &n);
           }
@@ -307,7 +307,7 @@ void __cdecl R_FoliageNotifyBurn(float *loc, float rad, int *models, int models_
       else if ( !ModelIsFullySquashed(drawInstIndex)
              && !ModelHashTable<ActiveModelNode,63,128>::FindByKey(&g_activeModelsHash, v7) )
       {
-        newNode.curSquashValue = *(float *)&FLOAT_0_0;
+        newNode.curSquashValue = 0.0f;
         newNode.modelIndex = v7;
         ModelHashTable<ActiveModelNode,63,128>::Add(&g_activeModelsHash, &newNode);
       }
@@ -326,7 +326,7 @@ bool __cdecl AABBOverlapsSphere(
   float s; // [esp+10h] [ebp-4h]
   float sa; // [esp+10h] [ebp-4h]
 
-  d = *(float *)&FLOAT_0_0;
+  d = 0.0f;
   for ( i = 0; i < 3; ++i )
   {
     if ( boxMin[i] <= sphereCenter[i] )
@@ -400,7 +400,7 @@ void __cdecl AddNearMuzzleShakeForce(
             {
               if ( force->shakeForceState == MAINTAINING )
               {
-                force->age = *(float *)&FLOAT_0_0;
+                force->age = 0.0f;
               }
               else if ( force->shakeForceState == DECAYING )
               {
@@ -411,12 +411,12 @@ void __cdecl AddNearMuzzleShakeForce(
           else
           {
             force->id = id;
-            force->age = *(float *)&FLOAT_0_0;
+            force->age = 0.0f;
             force->forceType = NEAR_MUZZLE_SHAKE;
-            force->strength = *(float *)&FLOAT_0_0;
-            force->trgForcePercent = FLOAT_1_0;
+            force->strength = 0.0f;
+            force->trgForcePercent = 1.0f;
             force->shakeForceState = GAINING;
-            force->curForcePercent = *(float *)&FLOAT_0_0;
+            force->curForcePercent = 0.0f;
             SetGrassPersistForceToActive(force);
             force->maxStrength = params->strength;
             force->radius = params->radius;
@@ -458,10 +458,10 @@ void __cdecl R_FoliageNotifyGrenadeExplosion(int localClientNum, float *loc)
   int modelsCount; // [esp+468h] [ebp-10h] BYREF
   float min[3]; // [esp+46Ch] [ebp-Ch] BYREF
 
-  rad = FLOAT_8_0;
-  ext[0] = FLOAT_8_0;
-  ext[1] = FLOAT_8_0;
-  ext[2] = FLOAT_8_0;
+  rad = 8.0f;
+  ext[0] = 8.0f;
+  ext[1] = 8.0f;
+  ext[2] = 8.0f;
   max[0] = *loc + 8.0;
   max[1] = loc[1] + 8.0;
   max[2] = loc[2] + 8.0;
@@ -537,12 +537,12 @@ void __cdecl DrawDebugAxis(const float *pos)
   float yend[3]; // [esp+30h] [ebp-18h] BYREF
   float zaxis[3]; // [esp+3Ch] [ebp-Ch]
 
-  yaxis[0] = *(float *)&FLOAT_0_0;
-  yaxis[1] = FLOAT_1_0;
-  yaxis[2] = *(float *)&FLOAT_0_0;
-  zaxis[0] = *(float *)&FLOAT_0_0;
-  zaxis[1] = *(float *)&FLOAT_0_0;
-  zaxis[2] = FLOAT_1_0;
+  yaxis[0] = 0.0f;
+  yaxis[1] = 1.0f;
+  yaxis[2] = 0.0f;
+  zaxis[0] = 0.0f;
+  zaxis[1] = 0.0f;
+  zaxis[2] = 1.0f;
   xend[0] = (float)(30.0 * 1.0) + *pos;
   xend[1] = (float)(30.0 * 0.0) + pos[1];
   xend[2] = (float)(30.0 * 0.0) + pos[2];
@@ -596,7 +596,7 @@ void __cdecl R_FoliageNotifyVehiclePosition(int localClientNum, const float *veh
   force.worldPosition[2] = vehiclePos[2];
   force.radius = grassForceVehicleRad;
   force.strength = grassForceStrengthVehiclePos;
-  force.frequency = *(float *)&FLOAT_0_0;
+  force.frequency = 0.0f;
   AddInstantForce(&force);
   if ( drawGrassForceBox )
   {
@@ -619,10 +619,10 @@ void __cdecl R_FoliageSetDefaultShaderConstants(GfxCmdBufSourceState *source)
   float zero[4]; // [esp+10h] [ebp-20h] BYREF
   float parms[4]; // [esp+20h] [ebp-10h] BYREF
 
-  parms[0] = FLOAT_1_0;
-  parms[1] = *(float *)&FLOAT_0_0;
-  parms[2] = FLOAT_1_0;
-  parms[3] = FLOAT_1_0;
+  parms[0] = 1.0f;
+  parms[1] = 0.0f;
+  parms[2] = 1.0f;
+  parms[3] = 1.0f;
   R_SetCodeConstantFromVec4(source, 0x51u, parms);
   memset(zero, 0, sizeof(zero));
   R_SetCodeConstantFromVec4(source, 0x52u, zero);
@@ -790,7 +790,7 @@ void __cdecl R_CalcVisDynSModelDrawState(
     }
     else
     {
-      WindBestStrength = *(float *)&FLOAT_0_0;
+      WindBestStrength = 0.0f;
     }
     if ( squash == 0.0 && !numForces && WindBestStrength == 0.0 )
     {
@@ -903,11 +903,11 @@ void __cdecl R_DynSModelBuildClientView(
   forceFrequency[1] = 0.0;
   persistForceIndexOffset = 1;
   instantForceIndexOffset = 9;
-  view->forceFrequency[0] = *(float *)&FLOAT_0_0;
-  view->grassForceConstants[0][0] = *(float *)&FLOAT_0_0;
-  view->grassForceConstants[0][1] = *(float *)&FLOAT_0_0;
-  view->grassForceConstants[0][2] = *(float *)&FLOAT_0_0;
-  view->grassForceConstants[0][3] = *(float *)&FLOAT_0_0;
+  view->forceFrequency[0] = 0.0f;
+  view->grassForceConstants[0][0] = 0.0f;
+  view->grassForceConstants[0][1] = 0.0f;
+  view->grassForceConstants[0][2] = 0.0f;
+  view->grassForceConstants[0][3] = 0.0f;
   ClearBounds((float *)bounds, bounds->persistForceBounds[1]);
   forceConstantIndex = 1;
   i = 0;
@@ -943,7 +943,7 @@ void __cdecl R_DynSModelBuildClientView(
     (*constant)[0] = gforce->worldPosition[0];
     (*constant)[1] = gforce->worldPosition[1];
     (*constant)[2] = gforce->worldPosition[2];
-    (*constant)[3] = *(float *)&FLOAT_0_0;
+    (*constant)[3] = 0.0f;
     (*constant)[2] = gforce->strength;
     (*constant)[3] = gforce->radius * gforce->radius;
     if ( forceConstantIndex >= 0x19
@@ -1005,7 +1005,7 @@ void __cdecl R_DynSModelBuildClientView(
     *v20 = *worldPosition;
     v20[1] = worldPosition[1];
     v20[2] = worldPosition[2];
-    v20[3] = *(float *)&FLOAT_0_0;
+    v20[3] = 0.0f;
     v20[2] = worldPosition[4];
     v20[3] = worldPosition[3] * worldPosition[3];
     if ( forceConstantIndex >= 0x19
@@ -1019,7 +1019,7 @@ void __cdecl R_DynSModelBuildClientView(
     {
       __debugbreak();
     }
-    view->forceFrequency[forceConstantIndex] = *(float *)&FLOAT_0_0;
+    view->forceFrequency[forceConstantIndex] = 0.0f;
     v21 = worldPosition[3];
     v22 = worldPosition[3];
     v23 = worldPosition[3];
@@ -1197,10 +1197,10 @@ void __cdecl R_FoliageSetStaticModelShaderConstants(
     updatedConstant = 0;
     if ( drawStateIndex == 0xFFFF )
     {
-      value[0] = FLOAT_1_0;
-      value[1] = *(float *)&FLOAT_0_0;
-      value[2] = FLOAT_1_0;
-      value[3] = FLOAT_1_0;
+      value[0] = 1.0f;
+      value[1] = 0.0f;
+      value[2] = 1.0f;
+      value[3] = 1.0f;
       updated = R_UpdateCodeConstantFromVec4(context->source, 0x51u, value);
       updatedConstant |= updated;
       v16 = R_UpdateCodeConstantFromVec4(context->source, 0x52u, zero);
@@ -1261,7 +1261,7 @@ void __cdecl R_FoliageSetStaticModelShaderConstants(
       constBlock.windForce0[0] = smodelClientView->forceFrequency[drawState->force0Index];
       constBlock.windForce0[1] = v20;
       constBlock.windForce0[2] = windForceStrength;
-      constBlock.windForce0[3] = *(float *)&FLOAT_0_0;
+      constBlock.windForce0[3] = 0.0f;
       v10 = R_UpdateCodeConstantFromVec4(context->source, 0x51u, constBlock.grassParms);
       updatedConstant |= v10;
       v11 = R_UpdateCodeConstantFromVec4(context->source, 0x52u, constBlock.grassForce0);
@@ -1279,10 +1279,10 @@ void __cdecl R_FoliageSetStaticModelShaderConstants(
   else
   {
     v27 = 0;
-    defaultGrassParm[0] = FLOAT_1_0;
-    defaultGrassParm[1] = *(float *)&FLOAT_0_0;
-    defaultGrassParm[2] = FLOAT_1_0;
-    defaultGrassParm[3] = FLOAT_1_0;
+    defaultGrassParm[0] = 1.0f;
+    defaultGrassParm[1] = 0.0f;
+    defaultGrassParm[2] = 1.0f;
+    defaultGrassParm[3] = 1.0f;
     v4 = R_UpdateCodeConstantFromVec4(context->source, 0x51u, defaultGrassParm);
     v27 |= v4;
     v5 = R_UpdateCodeConstantFromVec4(context->source, 0x52u, zero);
@@ -1434,14 +1434,14 @@ ClientFoliageInfo *__thiscall ClientFoliageInfo::ClientFoliageInfo(ClientFoliage
   v2 = 8;
   for ( j = this->persistantForces; --v2 >= 0; ++j )
   {
-    j->age = *(float *)&FLOAT_0_0;
-    j->maxAge = *(float *)&FLOAT_0_0;
+    j->age = 0.0f;
+    j->maxAge = 0.0f;
     j->isActive = 0;
   }
   this->clientIsActive = 0;
-  this->clientPlayerPos[0] = *(float *)&FLOAT_0_0;
-  this->clientPlayerPos[1] = *(float *)&FLOAT_0_0;
-  this->clientPlayerPos[2] = *(float *)&FLOAT_0_0;
+  this->clientPlayerPos[0] = 0.0f;
+  this->clientPlayerPos[1] = 0.0f;
+  this->clientPlayerPos[2] = 0.0f;
   return this;
 }
 

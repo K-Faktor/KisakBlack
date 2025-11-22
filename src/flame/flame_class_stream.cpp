@@ -110,9 +110,9 @@ void __cdecl Flame_Class_Stream_Light_Chunks(const flameStream_s *stream)
     median_point[1] = median_point[1] / (float)point_count;
     median_point[2] = median_point[2] / (float)point_count;
     if ( point_count == 1 || point_count == 2 )
-      color_fade = FLOAT_0_2;
+      color_fade = 0.2f;
     else
-      color_fade = FLOAT_1_0;
+      color_fade = 1.0f;
     radius_flutter = Flame_CRandom(0) * stream->flameVars->flameVar_streamPrimaryLightRadiusFlutter;
     red_flutter = Flame_CRandom(0) * stream->flameVars->flameVar_streamPrimaryLightFlutterR;
     blue_flutter = Flame_CRandom(0) * stream->flameVars->flameVar_streamPrimaryLightFlutterG;
@@ -184,9 +184,9 @@ void __cdecl Flame_Class_Stream_Fire_Chunks(
     Com_Printf(16, "FLAMETHROWER TEST ACTIVE\n%s\n", flameVar_editingFlameTable->current.string);
   }
   memset(diffOrigin, 0, sizeof(diffOrigin));
-  diffAngle = *(float *)&FLOAT_0_0;
-  diffAngle_4 = *(float *)&FLOAT_0_0;
-  diffAngle_8 = *(float *)&FLOAT_0_0;
+  diffAngle = 0.0f;
+  diffAngle_4 = 0.0f;
+  diffAngle_8 = 0.0f;
   if ( weaponConfig->bIsFiring == source->bIsFiring && source->currentStream
     || (source->currentStream = Flame_Class_Stream_Alloc(source->is_server_alloc)) != 0 )
   {
@@ -413,9 +413,9 @@ void __cdecl Flame_Class_Stream_Render_Item(
             else
               v6 = stream->flameVars->flameVar_streamFuelLength * stream->flameVars->flameVar_streamFuelLength;
             beamLength = (int)v6;
-            minDist = FLOAT_144_0;
+            minDist = 144.0f;
             if ( dobjHandle < 32 )
-              minDist = FLOAT_14400_0;
+              minDist = 14400.0f;
             segCount = 1;
             do
             {
@@ -437,7 +437,7 @@ void __cdecl Flame_Class_Stream_Render_Item(
             cCurveManager::SortCurve(curve, beam.begin, 1);
             cCurveManager::BuildCurve(curve);
             segCount = 0;
-            segDist = *(float *)&FLOAT_0_0;
+            segDist = 0.0f;
             while ( segCount < numSegments )
             {
               cCurveManager::GetPos(curve, segDist, &(*verts)[3 * segCount]);
@@ -463,7 +463,7 @@ void __cdecl Flame_Class_Stream_Render_Item(
             beam.segmentVerts = (float *)verts;
             beam.segmentCount = numSegments - 1;
             beam.perpSegmentCount = 1;
-            beam.wiggleDist = *(float *)&FLOAT_0_0;
+            beam.wiggleDist = 0.0f;
             beam.flags = 14;
             if ( isFire )
               v7 = 1000.0 * stream->flameVars->flameVar_streamFlameAnimLoopTime;

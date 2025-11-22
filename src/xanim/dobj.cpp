@@ -569,14 +569,14 @@ void __cdecl DObjComputeBounds(DObj *obj)
   XModel **models; // [esp+2Ch] [ebp-8h]
   unsigned __int8 baseModelNumBones; // [esp+33h] [ebp-1h]
 
-  maxRadius = *(float *)&FLOAT_0_0;
+  maxRadius = 0.0f;
   if ( !obj && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\xanim\\dobj.cpp", 675, 0, "%s", "obj") )
     __debugbreak();
   numModels = obj->numModels;
   models = obj->localModels;
   if ( !obj->numModels )
   {
-    obj->radius = *(float *)&FLOAT_0_0;
+    obj->radius = 0.0f;
     return;
   }
   modelParents = (const unsigned __int8 *)&obj->localModels[obj->numModels];
@@ -767,12 +767,12 @@ void __cdecl DObjCalcBounds(DObj *dobj, float *mins, float *maxs)
   if ( !numModels && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\xanim\\dobj.cpp", 1019, 0, "%s", "numModels") )
     __debugbreak();
   model = *dobj->localModels;
-  *mins = FLOAT_N4_0;
-  mins[1] = FLOAT_N4_0;
-  mins[2] = *(float *)&FLOAT_0_0;
-  *maxs = FLOAT_4_0;
-  maxs[1] = FLOAT_4_0;
-  maxs[2] = FLOAT_10_0;
+  *mins = -4.0f;
+  mins[1] = -4.0f;
+  mins[2] = 0.0f;
+  *maxs = 4.0f;
+  maxs[1] = 4.0f;
+  maxs[2] = 10.0f;
   modelParents = (const unsigned __int8 *)&dobj->localModels[dobj->numModels];
   for ( j = 0; j < numModels; ++j )
   {
@@ -799,12 +799,12 @@ void __cdecl DObjCalcBounds(DObj *dobj, float *mins, float *maxs)
       }
       else
       {
-        lmins[0] = FLOAT_3_4028235e38;
-        lmins[1] = FLOAT_3_4028235e38;
-        lmins[2] = FLOAT_3_4028235e38;
-        lmaxs[0] = FLOAT_N3_4028235e38;
-        lmaxs[1] = FLOAT_N3_4028235e38;
-        lmaxs[2] = FLOAT_N3_4028235e38;
+        lmins[0] = FLT_MAX;
+        lmins[1] = FLT_MAX;
+        lmins[2] = FLT_MAX;
+        lmaxs[0] = -FLT_MAX;
+        lmaxs[1] = -FLT_MAX;
+        lmaxs[2] = -FLT_MAX;
       }
     }
     for ( i = 0; i < 3; ++i )
@@ -1165,9 +1165,9 @@ void __cdecl DObjTraceline(DObj *obj, float *start, float *end, unsigned __int8 
   trace->partName = 0;
   trace->partGroup = 0;
   trace->localBoneIndex = 254;
-  trace->normal[0] = *(float *)&FLOAT_0_0;
-  trace->normal[1] = *(float *)&FLOAT_0_0;
-  trace->normal[2] = *(float *)&FLOAT_0_0;
+  trace->normal[0] = 0.0f;
+  trace->normal[1] = 0.0f;
+  trace->normal[2] = 0.0f;
   delta = *end - *start;
   delta_4 = end[1] - start[1];
   delta_8 = end[2] - start[2];
@@ -1228,7 +1228,7 @@ LABEL_6:
   globalBoneIndex = 0;
   hitT = -1;
   traceHitT = -1;
-  hitSign = *(float *)&FLOAT_0_0;
+  hitSign = 0.0f;
   hitBoneMatrix = 0;
   solidHitFrac = trace->fraction;
   models = obj->localModels;
@@ -1350,8 +1350,8 @@ LABEL_25:
                         + (float)(startOffset[2] * delta_8))
                       ^ _mask__NegFloat_)
                     * invL2
-                    : FLOAT_1_0;
-                v7 = (float)(0.0 - sphereFraction) < 0.0 ? v10 : *(float *)&FLOAT_0_0;
+                    : 1.0f;
+                v7 = (float)(0.0 - sphereFraction) < 0.0 ? v10 : 0.0f;
                 cappedSphereFraction = v7;
                 offset[0] = (float)(v7 * delta) + startOffset[0];
                 offset[1] = (float)(v7 * delta_4) + startOffset[1];
@@ -1389,14 +1389,14 @@ LABEL_25:
                   {
                     __debugbreak();
                   }
-                  enterFrac = *(float *)&FLOAT_0_0;
+                  enterFrac = 0.0f;
                   if ( lowestPriority == currentPriority )
                     leaveFrac = trace->fraction;
                   else
                     leaveFrac = solidHitFrac;
                   bStartSolid = 1;
                   bEndSolid = 1;
-                  sign = FLOAT_N1_0;
+                  sign = -1.0f;
                   for ( bounds = (float *)boneInfo; ; bounds += 3 )
                   {
                     if ( ((*(unsigned int *)bounds & 0x7F800000) == 0x7F800000
@@ -1467,13 +1467,13 @@ LABEL_25:
                     }
                     if ( sign == 1.0 )
                       break;
-                    sign = FLOAT_1_0;
+                    sign = 1.0f;
                   }
                   if ( bStartSolid )
                   {
                     if ( bEndSolid && (float)((float)(delta * *start) + (float)(delta_4 * start[1])) < 0.0 )
                     {
-                      trace->fraction = *(float *)&FLOAT_0_0;
+                      trace->fraction = 0.0f;
                       trace->modelIndex = j;
                       if ( trace->modelIndex != j
                         && !Assert_MyHandler(

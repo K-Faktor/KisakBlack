@@ -723,7 +723,7 @@ void __cdecl CL_GamepadMove(int localClientNum, usercmd_s *cmd)
         forward = CL_GamepadAxisValue(localClientNum, 1u);
         side = CL_GamepadAxisValue(localClientNum, 0);
         attack = CL_GamepadAxisValue(localClientNum, 5u);
-        moveScale = FLOAT_127_0;
+        moveScale = 127.0f;
         if ( COERCE_FLOAT(LODWORD(side) & _mask__AbsFloat_) > 0.0
           || COERCE_FLOAT(LODWORD(forward) & _mask__AbsFloat_) > 0.0 )
         {
@@ -850,7 +850,7 @@ void __cdecl CL_RandomMove(usercmd_s *cmd)
         if ( irand(0, buttonFreqTable[i][2]) == 1 )
           CL_UpdateCmdButton(0, &cmd->button_bits, buttonFreqTable[i][0], buttonFreqTable[i][1], 1);
       }
-      moveScale = FLOAT_127_0;
+      moveScale = 127.0f;
       if ( COERCE_FLOAT(LODWORD(side) & _mask__AbsFloat_) > 0.0
         || COERCE_FLOAT(LODWORD(forward) & _mask__AbsFloat_) > 0.0 )
       {
@@ -942,7 +942,7 @@ void __cdecl CL_MouseMove(int localClientNum, usercmd_s *cmd)
       {
         yawMove = 0;
         pitchMove = 0;
-        moveScale = FLOAT_127_0;
+        moveScale = 127.0f;
         kb = playersKb[localClientNum];
         if ( kb[8].active )
         {
@@ -1008,8 +1008,8 @@ void __cdecl CL_MouseMove(int localClientNum, usercmd_s *cmd)
           aimInput.button_bits.array[i] = 0;
         aimInput.deltaTime = (float)cls.frametime * 0.001;
         aimInput.pitch = LocalClientGlobals->viewangles[0];
-        aimInput.pitchAxis = *(float *)&FLOAT_0_0;
-        aimInput.pitchMax = *(float *)&FLOAT_0_0;
+        aimInput.pitchAxis = 0.0f;
+        aimInput.pitchMax = 0.0f;
         aimInput.yaw = LocalClientGlobals->viewangles[1];
         memset(&aimInput.yawAxis, 0, 16);
         for ( j = 0; j < 2; ++j )
@@ -1160,8 +1160,8 @@ char __cdecl CG_HandleLocationSelectionInput(int localClientNum, usercmd_s *cmd)
   frametime = (float)cgameGlob->frametime * 0.001;
   mapAspectRatio = cgameGlob->compassMapWorldSize[0] / cgameGlob->compassMapWorldSize[1];
   locSelInputState = playerKeys[localClientNum].locSelInputState;
-  cursorSpeedScalar = FLOAT_0_1;
-  cursorRotationSpeedScalar = FLOAT_2_0;
+  cursorSpeedScalar = 0.1f;
+  cursorRotationSpeedScalar = 2.0f;
   LocalClientGlobals = CL_GetLocalClientGlobals(localClientNum);
   CL_GetMouseMovement(LocalClientGlobals, &mx, &my);
   if ( mx != 0.0 || my != 0.0 )
@@ -1169,9 +1169,9 @@ char __cdecl CG_HandleLocationSelectionInput(int localClientNum, usercmd_s *cmd)
     if ( locSelInputState == LOC_SEL_INPUT_YAW )
     {
       *(_QWORD *)yawVector = *(_QWORD *)cgameGlob->selectedYaw;
-      yawVector[2] = *(float *)&FLOAT_0_0;
+      yawVector[2] = 0.0f;
       vectoangles(yawVector, diffAngles);
-      diffAngles[0] = *(float *)&FLOAT_0_0;
+      diffAngles[0] = 0.0f;
       diffAngles[1] = (float)((float)((float)((float)cg_mapLocationSelectionRotationSpeed->current.integer * mx)
                                     * frametime)
                             * cursorRotationSpeedScalar)
@@ -1229,8 +1229,8 @@ char __cdecl CG_HandleLocationSelectionInput(int localClientNum, usercmd_s *cmd)
                                    - (float)((float)((float)(yawUp * mapAspectRatio)
                                                    * cg_mapLocationSelectionCursorSpeed->current.value)
                                            * frametime);
-    cgameGlob->selectedYaw[0] = *(float *)&FLOAT_0_0;
-    cgameGlob->selectedYaw[1] = *(float *)&FLOAT_0_0;
+    cgameGlob->selectedYaw[0] = 0.0f;
+    cgameGlob->selectedYaw[1] = 0.0f;
   }
   v6 = cgameGlob->selectedLocation[0];
   if ( 1.0 <= 0.0
@@ -1243,11 +1243,11 @@ char __cdecl CG_HandleLocationSelectionInput(int localClientNum, usercmd_s *cmd)
     if ( v6 <= 1.0 )
       v5 = v6;
     else
-      v5 = FLOAT_1_0;
+      v5 = 1.0f;
   }
   else
   {
-    v5 = *(float *)&FLOAT_0_0;
+    v5 = 0.0f;
   }
   cgameGlob->selectedLocation[0] = v5;
   v4 = cgameGlob->selectedLocation[1];
@@ -1261,11 +1261,11 @@ char __cdecl CG_HandleLocationSelectionInput(int localClientNum, usercmd_s *cmd)
     if ( v4 <= 1.0 )
       v3 = v4;
     else
-      v3 = FLOAT_1_0;
+      v3 = 1.0f;
   }
   else
   {
-    v3 = *(float *)&FLOAT_0_0;
+    v3 = 0.0f;
   }
   cgameGlob->selectedLocation[1] = v3;
   if ( locSelInputState && locSelInputState != LOC_SEL_INPUT_YAW )
@@ -1285,7 +1285,7 @@ char __cdecl CG_HandleLocationSelectionInput(int localClientNum, usercmd_s *cmd)
         }
       }
       *(_QWORD *)yawVector = *(_QWORD *)cgameGlob->selectedYaw;
-      yawVector[2] = *(float *)&FLOAT_0_0;
+      yawVector[2] = 0.0f;
       vectoangles(yawVector, diffAngles);
       diffAngles[1] = 360.0 - diffAngles[1];
       cmd->selectedYaw = (int)(diffAngles[1] + 9.313225746154785e-10) / 2;
@@ -1526,7 +1526,7 @@ void __cdecl IN_KeyDown(kbutton_t *b)
   if ( *ca )
     b->val = atof(ca);
   else
-    b->val = FLOAT_1_0;
+    b->val = 1.0f;
   if ( k != b->down[0] && k != b->down[1] )
   {
     if ( b->down[0] )
@@ -1595,7 +1595,7 @@ void __cdecl IN_KeyUp(kbutton_t *b)
     else
       v1 = b->msec + (frame_msec >> 1);
     b->msec = v1;
-    b->val = *(float *)&FLOAT_0_0;
+    b->val = 0.0f;
     b->active = 0;
   }
 }

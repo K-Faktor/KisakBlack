@@ -238,7 +238,7 @@ void __cdecl CM_TraceCapsuleThroughTriangle(
       start_v0[0] = (float)(COERCE_FLOAT(LODWORD(startDist) ^ _mask__NegFloat_) * normal[0]) + start_v0[0];
       start_v0[1] = (float)(COERCE_FLOAT(LODWORD(startDist) ^ _mask__NegFloat_) * normal[1]) + start_v0[1];
       start_v0[2] = (float)(COERCE_FLOAT(LODWORD(startDist) ^ _mask__NegFloat_) * normal[2]) + start_v0[2];
-      hitFrac = *(float *)&FLOAT_0_0;
+      hitFrac = 0.0f;
       startSolid = 1;
     }
     Vec3Cross(tw->delta.vec.v, start_v0, tracePlaneScaledNormal);
@@ -335,7 +335,7 @@ void __cdecl CM_TraceCapsuleThroughTriangle(
       if ( (float)(0.0 - hitFrac) < 0.0 )
         v6 = hitFrac;
       else
-        v6 = *(float *)&FLOAT_0_0;
+        v6 = 0.0f;
       trace->fraction = v6;
       trace->startsolid = startSolid;
       if ( (trace->fraction < 0.0 || trace->fraction > 1.0)
@@ -488,7 +488,7 @@ int __cdecl CM_TraceSphereThroughEdge(
                    + (float)(scaledNormal[2] * tw->delta.vec.v[2])) < 0.0 )
         {
           Vec3NormalizeTo(scaledNormal, trace->normal.vec.v);
-          trace->fraction = *(float *)&FLOAT_0_0;
+          trace->fraction = 0.0f;
           trace->startsolid = (float)(edgeLenSq
                                     * (float)((float)((float)(tw->radius * tw->radius) * perpendicularLenSq)
                                             - (float)(scaledDist * scaledDist))) > (float)(tScaled * tScaled);
@@ -645,7 +645,7 @@ void __cdecl CM_TraceSphereThroughVertex(
       trace->normal.vec.v[1] = fraca * delta_4;
       trace->normal.vec.v[2] = fraca * delta_8;
       trace->walkable = isWalkable;
-      trace->fraction = *(float *)&FLOAT_0_0;
+      trace->fraction = 0.0f;
       if ( (float)(tw->radius * tw->radius) > deltaLenSq )
         trace->startsolid = 1;
     }
@@ -743,7 +743,7 @@ void __cdecl CM_TraceCapsuleThroughBorder(const traceWork_t *tw, const Collision
         v14 = border->distEq[1];
         trace->normal.vec.u[0] = LODWORD(border->distEq[0]);
         trace->normal.vec.v[1] = v14;
-        trace->normal.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
+        trace->normal.vec.u[2] = 0;
         if ( !Vec3IsNormalized(trace->normal.vec.v) )
         {
           v4 = Abs(trace->normal.vec.v);
@@ -758,7 +758,7 @@ void __cdecl CM_TraceCapsuleThroughBorder(const traceWork_t *tw, const Collision
             __debugbreak();
         }
         trace->walkable = 0;
-        trace->fraction = *(float *)&FLOAT_0_0;
+        trace->fraction = 0.0f;
         if ( (float)(tw->radius * tw->radius) > offsetLenSq )
           trace->startsolid = 1;
       }
@@ -782,7 +782,7 @@ void __cdecl CM_TraceCapsuleThroughBorder(const traceWork_t *tw, const Collision
     if ( t >= trace->fraction || t <= 0.0 )
       return;
     endpos_8 = (float)(t * tw->delta.vec.v[2]) + tw->extents.start.vec.v[2];
-    s = *(float *)&FLOAT_0_0;
+    s = 0.0f;
 LABEL_55:
     edgeZ = (float)((float)(s * border->zSlope) + border->zBase) - endpos_8;
     if ( tw->offsetZ != (float)(tw->size.vec.v[2] - tw->radius) )
@@ -822,7 +822,7 @@ LABEL_55:
         v12 = border->distEq[1];
         trace->normal.vec.u[0] = LODWORD(border->distEq[0]);
         trace->normal.vec.v[1] = v12;
-        trace->normal.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
+        trace->normal.vec.u[2] = 0;
         if ( !Vec3IsNormalized(trace->normal.vec.v) )
         {
           v10 = Abs(trace->normal.vec.v);
@@ -851,7 +851,7 @@ LABEL_55:
   if ( s <= border->length )
   {
     if ( t < 0.0 )
-      t = *(float *)&FLOAT_0_0;
+      t = 0.0f;
     goto LABEL_55;
   }
   offseta = tw->extents.start.vec.v[0]
@@ -890,7 +890,7 @@ LABEL_55:
       v13 = border->distEq[1];
       trace->normal.vec.u[0] = LODWORD(border->distEq[0]);
       trace->normal.vec.v[1] = v13;
-      trace->normal.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
+      trace->normal.vec.u[2] = 0;
       if ( !Vec3IsNormalized(trace->normal.vec.v) )
       {
         v7 = Abs(trace->normal.vec.v);
@@ -905,7 +905,7 @@ LABEL_55:
           __debugbreak();
       }
       trace->walkable = 0;
-      trace->fraction = *(float *)&FLOAT_0_0;
+      trace->fraction = 0.0f;
       if ( (float)(tw->radius * tw->radius) > offsetLenSqa )
         trace->startsolid = 1;
     }
@@ -1091,12 +1091,12 @@ void __cdecl CM_TraceThroughAabbTree_r(const traceWork_t *tw, const CollisionAab
   a[0] = aabbTree->halfSize[0];
   a[1] = aabbTree->halfSize[1];
   a[2] = aabbTree->halfSize[2];
-  a[3] = *(float *)&FLOAT_0_0;
+  a[3] = 0.0f;
   v86 = &v49;
   v49 = aabbTree->origin[0];
   v50 = aabbTree->origin[1];
   v51 = aabbTree->origin[2];
-  v52 = *(unsigned int *)&FLOAT_0_0;
+  v52 = 0;
   p_midpoint = &tw->midpoint;
   v80 = tw->midpoint.vec.v[0] - v49;
   v81 = tw->midpoint.vec.v[1] - v50;
@@ -1190,12 +1190,12 @@ void __cdecl CM_TraceThroughAabbTree_r(const traceWork_t *tw, const CollisionAab
           v8 = now->halfSize[0];
           v9 = now->halfSize[1];
           v10 = now->halfSize[2];
-          v11 = *(unsigned int *)&FLOAT_0_0;
+          v11 = 0;
           v45 = &v4;
           v4 = now->origin[0];
           v5 = now->origin[1];
           v6 = now->origin[2];
-          v7 = *(unsigned int *)&FLOAT_0_0;
+          v7 = 0;
           v38 = &tw->midpoint;
           v39 = tw->midpoint.vec.v[0] - v4;
           v40 = tw->midpoint.vec.v[1] - v5;
@@ -1499,12 +1499,12 @@ void __cdecl CM_PositionTestInAabbTree_r(const traceWork_t *tw, CollisionAabbTre
   v8 = aabbTree->halfSize[0];
   v9 = aabbTree->halfSize[1];
   v10 = aabbTree->halfSize[2];
-  v11 = *(unsigned int *)&FLOAT_0_0;
+  v11 = 0;
   v45 = &v4;
   v4 = aabbTree->origin[0];
   v5 = aabbTree->origin[1];
   v6 = aabbTree->origin[2];
-  v7 = *(unsigned int *)&FLOAT_0_0;
+  v7 = 0;
   p_midpoint = &tw->midpoint;
   v39 = tw->midpoint.vec.v[0] - v4;
   v40 = tw->midpoint.vec.v[1] - v5;
@@ -1634,7 +1634,7 @@ void __cdecl CM_PositionTestCapsuleInTriangle(const traceWork_t *tw, const unsig
     distSq = CM_DistanceSquaredFromPointToTriangle(tw->extents.start.vec.v, indices);
     if ( (float)(tw->radius * tw->radius) > distSq )
     {
-      trace->fraction = *(float *)&FLOAT_0_0;
+      trace->fraction = 0.0f;
       trace->startsolid = 1;
       trace->allsolid = 1;
     }
@@ -1653,7 +1653,7 @@ void __cdecl CM_PositionTestCapsuleInTriangle(const traceWork_t *tw, const unsig
     end[2] = v3;
     if ( CM_DoesCapsuleIntersectTriangle(start, end, tw->radius * tw->radius, indices) )
     {
-      trace->fraction = *(float *)&FLOAT_0_0;
+      trace->fraction = 0.0f;
       trace->startsolid = 1;
       trace->allsolid = 1;
     }
@@ -1731,8 +1731,8 @@ void __cdecl CM_ClosestPointOnTri(
     {
       if ( v < 0.0 )
       {
-        ua = *(float *)&FLOAT_0_0;
-        va = *(float *)&FLOAT_0_0;
+        ua = 0.0f;
+        va = 0.0f;
         if ( b0 >= 0.0 )
         {
           if ( b1 >= 0.0 )
@@ -1742,17 +1742,17 @@ void __cdecl CM_ClosestPointOnTri(
         goto region_5;
       }
 region_3:
-      ua = *(float *)&FLOAT_0_0;
+      ua = 0.0f;
       if ( b1 < 0.0 )
       {
         if ( COERCE_FLOAT(LODWORD(b1) ^ _mask__NegFloat_) < a11 )
           va = COERCE_FLOAT(LODWORD(b1) ^ _mask__NegFloat_) / a11;
         else
-          va = FLOAT_1_0;
+          va = 1.0f;
       }
       else
       {
-        va = *(float *)&FLOAT_0_0;
+        va = 0.0f;
       }
       goto LABEL_30;
     }
@@ -1763,17 +1763,17 @@ region_3:
       goto LABEL_30;
     }
 region_5:
-    va = *(float *)&FLOAT_0_0;
+    va = 0.0f;
     if ( b0 < 0.0 )
     {
       if ( COERCE_FLOAT(LODWORD(b0) ^ _mask__NegFloat_) < a00 )
         ua = COERCE_FLOAT(LODWORD(b0) ^ _mask__NegFloat_) / a00;
       else
-        ua = FLOAT_1_0;
+        ua = 1.0f;
     }
     else
     {
-      ua = *(float *)&FLOAT_0_0;
+      ua = 0.0f;
     }
     goto LABEL_30;
   }
@@ -1781,8 +1781,8 @@ region_5:
   {
     if ( v < 0.0 )
     {
-      ua = FLOAT_1_0;
-      va = *(float *)&FLOAT_0_0;
+      ua = 1.0f;
+      va = 0.0f;
       if ( (float)(a00 + b0) > 0.0 )
         goto region_5;
       if ( (float)(a00 + b0) <= (float)(a01 + b1) )
@@ -1791,8 +1791,8 @@ region_5:
   }
   else
   {
-    ua = *(float *)&FLOAT_0_0;
-    va = FLOAT_1_0;
+    ua = 0.0f;
+    va = 1.0f;
     if ( (float)(a11 + b1) > 0.0 )
       goto region_3;
     if ( (float)(a11 + b1) <= (float)(a01 + b0) )
@@ -1809,14 +1809,14 @@ region_5:
     }
     else
     {
-      ua = FLOAT_1_0;
-      va = *(float *)&FLOAT_0_0;
+      ua = 1.0f;
+      va = 0.0f;
     }
   }
   else
   {
-    ua = *(float *)&FLOAT_0_0;
-    va = FLOAT_1_0;
+    ua = 0.0f;
+    va = 1.0f;
   }
 LABEL_30:
   *ptOnTri = (float)((float)(ua * *e0) + *v0) + (float)(va * *e1);

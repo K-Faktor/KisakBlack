@@ -163,9 +163,9 @@ void __cdecl SND_PlayInternal(
       }
       else
       {
-        cmd->context.play.position[0] = *(float *)&FLOAT_0_0;
-        cmd->context.play.position[1] = *(float *)&FLOAT_0_0;
-        cmd->context.play.position[2] = *(float *)&FLOAT_0_0;
+        cmd->context.play.position[0] = 0.0f;
+        cmd->context.play.position[1] = 0.0f;
+        cmd->context.play.position[2] = 0.0f;
       }
       if ( direction )
       {
@@ -187,9 +187,9 @@ void __cdecl SND_PlayInternal(
       }
       else
       {
-        cmd->context.play.direction[0] = *(float *)&FLOAT_0_0;
-        cmd->context.play.direction[1] = *(float *)&FLOAT_0_0;
-        cmd->context.play.direction[2] = *(float *)&FLOAT_0_0;
+        cmd->context.play.direction[0] = 0.0f;
+        cmd->context.play.direction[1] = 0.0f;
+        cmd->context.play.direction[2] = 0.0f;
       }
       SND_CommandPush(cmd);
     }
@@ -1354,7 +1354,7 @@ snd_playback *__cdecl SND_AllocatePlayback()
     if ( g_snd.playbacks[i].id == -1 )
     {
       g_snd.playbacks[i].id = SND_AcquirePlaybackId();
-      g_snd.playbacks[i].attenuation = FLOAT_1_0;
+      g_snd.playbacks[i].attenuation = 1.0f;
       g_snd.playbacks[i].lengthMs = 0;
       g_snd.playbacks[i].playedMs = 0;
       playback = &g_snd.playbacks[i];

@@ -260,7 +260,7 @@ void __cdecl R_AddScaledDebugString(
       + (float)(delta[2] * viewParms->axis[0][2]);
   scale = (float)(dot - 0.995) * scale;
   if ( scale < 1.0 )
-    scale = FLOAT_1_0;
+    scale = 1.0f;
   R_AddDebugString(debugGlobalsEntry, origin, color, scale, string);
 }
 

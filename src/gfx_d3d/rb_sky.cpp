@@ -67,20 +67,20 @@ GfxVertex *__cdecl RB_SetTessQuad(GfxColor color)
   tess.indices[tess.indexCount + 5] = vertCount + 1;
   vert = &tess.verts[vertCount];
   vert->normal.packed = 1073643391;
-  vert->texCoord[0] = *(float *)&FLOAT_0_0;
-  vert->texCoord[1] = *(float *)&FLOAT_0_0;
+  vert->texCoord[0] = 0.0f;
+  vert->texCoord[1] = 0.0f;
   vert->color = color;
   vert[1].normal.packed = 1073643391;
-  vert[1].texCoord[0] = FLOAT_1_0;
-  vert[1].texCoord[1] = *(float *)&FLOAT_0_0;
+  vert[1].texCoord[0] = 1.0f;
+  vert[1].texCoord[1] = 0.0f;
   vert[1].color = color;
   vert[2].normal.packed = 1073643391;
-  vert[2].texCoord[0] = FLOAT_1_0;
-  vert[2].texCoord[1] = FLOAT_1_0;
+  vert[2].texCoord[0] = 1.0f;
+  vert[2].texCoord[1] = 1.0f;
   vert[2].color = color;
   vert[3].normal.packed = 1073643391;
-  vert[3].texCoord[0] = *(float *)&FLOAT_0_0;
-  vert[3].texCoord[1] = FLOAT_1_0;
+  vert[3].texCoord[0] = 0.0f;
+  vert[3].texCoord[1] = 1.0f;
   vert[3].color = color;
   tess.vertexCount += 4;
   tess.indexCount += 6;
@@ -339,14 +339,14 @@ void __cdecl RB_DrawSunQuerySprite(SunFlareDynamic *sunFlare)
       sunFlare->error = 1;
     lastVisibilitya = (double)drawnSampleCount / (double)sunSpriteSamples;
     if ( (float)(1.0 - lastVisibilitya) < 0.0 )
-      v2 = FLOAT_1_0;
+      v2 = 1.0f;
     else
       v2 = (double)drawnSampleCount / (double)sunSpriteSamples;
     lastVisibility = v2;
   }
   else
   {
-    lastVisibility = *(float *)&FLOAT_0_0;
+    lastVisibility = 0.0f;
   }
   if ( !sunFlare->error )
     sunFlare->lastVisibility = lastVisibility;
@@ -452,7 +452,7 @@ void __cdecl RB_UpdateSunVisibilityWithoutQuery(SunFlareDynamic *sunFlare)
                          0,
                          8195);
     if ( sunFlare->hitNum )
-      sunFlare->lastVisibility = *(float *)&FLOAT_0_0;
+      sunFlare->lastVisibility = 0.0f;
   }
 }
 
@@ -620,7 +620,7 @@ LABEL_36:
     lerp = (float)(sunFlare->lastDot - rgp.world->sun.flareMinDot)
          / (float)(rgp.world->sun.flareMaxDot - rgp.world->sun.flareMinDot);
   else
-    lerp = FLOAT_1_0;
+    lerp = 1.0f;
   if ( (lerp < 0.0 || lerp > 1.0)
     && !Assert_MyHandler(
           "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\rb_sky.cpp",
@@ -740,7 +740,7 @@ void __cdecl RB_DrawBlindAndGlare(SunFlareDynamic *sunFlare, int frameTime)
     __debugbreak();
   }
   RB_CalcSunBlind(sunFlare, frameTime, &blind, &glare);
-  epsilon = FLOAT_0_001;
+  epsilon = 0.001f;
   if ( glare <= 0.001 && blind <= epsilon )
   {
     if ( tess.indexCount )
@@ -787,11 +787,11 @@ void __cdecl RB_CalcSunBlind(SunFlareDynamic *sunFlare, int frameTime, float *bl
         blindLerp = (float)(sunDot - rgp.world->sun.blindMinDot)
                   / (float)(rgp.world->sun.blindMaxDot - rgp.world->sun.blindMinDot);
       else
-        blindLerp = FLOAT_1_0;
+        blindLerp = 1.0f;
     }
     else
     {
-      blindLerp = *(float *)&FLOAT_0_0;
+      blindLerp = 0.0f;
     }
     if ( blindLerp < 0.0
       && !Assert_MyHandler(
@@ -870,7 +870,7 @@ void __cdecl RB_CalcSunBlind(SunFlareDynamic *sunFlare, int frameTime, float *bl
   }
   else
   {
-    *blind = *(float *)&FLOAT_0_0;
+    *blind = 0.0f;
   }
   if ( rgp.world->sun.glareMaxLighten > 0.0 )
   {
@@ -880,11 +880,11 @@ void __cdecl RB_CalcSunBlind(SunFlareDynamic *sunFlare, int frameTime, float *bl
         glareLerp = (float)(sunDot - rgp.world->sun.glareMinDot)
                   / (float)(rgp.world->sun.glareMaxDot - rgp.world->sun.glareMinDot);
       else
-        glareLerp = FLOAT_1_0;
+        glareLerp = 1.0f;
     }
     else
     {
-      glareLerp = *(float *)&FLOAT_0_0;
+      glareLerp = 0.0f;
     }
     sunFlare->currentGlare = R_UpdateOverTime_0(
                                sunFlare->currentGlare,
@@ -896,7 +896,7 @@ void __cdecl RB_CalcSunBlind(SunFlareDynamic *sunFlare, int frameTime, float *bl
   }
   else
   {
-    *glare = *(float *)&FLOAT_0_0;
+    *glare = 0.0f;
   }
 }
 

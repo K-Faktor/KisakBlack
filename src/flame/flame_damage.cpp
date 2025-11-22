@@ -12,12 +12,12 @@ void __cdecl SV_Flame_Apply_Damage(gentity_s *ent)
   int total_time; // [esp+30h] [ebp-4h]
 
   dflags = 0;
-  dir[0] = *(float *)&FLOAT_0_0;
-  dir[1] = FLOAT_1_0;
-  dir[2] = *(float *)&FLOAT_0_0;
-  hitPos[0] = *(float *)&FLOAT_0_0;
-  hitPos[1] = FLOAT_1_0;
-  hitPos[2] = *(float *)&FLOAT_0_0;
+  dir[0] = 0.0f;
+  dir[1] = 1.0f;
+  dir[2] = 0.0f;
+  hitPos[0] = 0.0f;
+  hitPos[1] = 1.0f;
+  hitPos[2] = 0.0f;
   cur_time = G_GetTime();
   for ( i = 0; i < 4; ++i )
   {

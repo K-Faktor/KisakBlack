@@ -903,9 +903,9 @@ LABEL_25:
                 }
                 flameWeaponConfig.bFireWhileIdle = 0;
                 flameWeaponConfig.bIsFiring = isFiring;
-                flameWeaponConfig.burnRate = FLOAT_1_0;
-                flameWeaponConfig.strength = FLOAT_1_0;
-                flameWeaponConfig.thickness = FLOAT_1_0;
+                flameWeaponConfig.burnRate = 1.0f;
+                flameWeaponConfig.strength = 1.0f;
+                flameWeaponConfig.thickness = 1.0f;
                 flameWeaponConfig.entityOrigin[0] = cent->nextState.lerp.pos.trBase[0];
                 flameWeaponConfig.entityOrigin[1] = cent->nextState.lerp.pos.trBase[1];
                 flameWeaponConfig.entityOrigin[2] = cent->nextState.lerp.pos.trBase[2];
@@ -1048,7 +1048,7 @@ void __cdecl CG_Flame_Update_ViewModel(int localClientNum, centity_s *cent)
       if ( COERCE_FLOAT(LODWORD(cgameGlob->flamethrowerKickOffset[j]) & _mask__AbsFloat_) > COERCE_FLOAT(
                                                                                               LODWORD(oldOffset)
                                                                                             & _mask__AbsFloat_) )
-        cgameGlob->flamethrowerKickOffset[j] = *(float *)&FLOAT_0_0;
+        cgameGlob->flamethrowerKickOffset[j] = 0.0f;
     }
   }
   for ( k = 0; k < 3; ++k )
@@ -1089,7 +1089,7 @@ double __cdecl Flame_CalcInvStartSpeed(float invInitialSpeed, float speedScale)
   float speedScalea; // [esp+14h] [ebp+Ch]
 
   if ( invInitialSpeed == 0.0 )
-    v3 = *(float *)&FLOAT_0_0;
+    v3 = 0.0f;
   else
     v3 = 1.0 / invInitialSpeed;
   speedScalea = speedScale * v3;

@@ -301,12 +301,12 @@ void __cdecl ScriptEntCmdGetCommandTimes(float *pfTotalTime, float *pfAccelTime,
   if ( *pfTotalTime <= 0.0 )
     Scr_ParamError(1u, "total time must be positive", SCRIPTINSTANCE_SERVER);
   if ( *pfTotalTime < 0.001 )
-    *pfTotalTime = FLOAT_0_001;
+    *pfTotalTime = 0.001f;
   iNumParms = Scr_GetNumParam(SCRIPTINSTANCE_SERVER);
   if ( iNumParms <= 2 )
   {
-    *pfAccelTime = *(float *)&FLOAT_0_0;
-    *pfDecelTime = *(float *)&FLOAT_0_0;
+    *pfAccelTime = 0.0f;
+    *pfDecelTime = 0.0f;
   }
   else
   {
@@ -315,7 +315,7 @@ void __cdecl ScriptEntCmdGetCommandTimes(float *pfTotalTime, float *pfAccelTime,
       Scr_ParamError(2u, "accel time must be nonnegative", SCRIPTINSTANCE_SERVER);
     if ( iNumParms <= 3 )
     {
-      *pfDecelTime = *(float *)&FLOAT_0_0;
+      *pfDecelTime = 0.0f;
     }
     else
     {
@@ -432,7 +432,7 @@ void __cdecl ScriptMover_SetupMove(
     pTr->trTime = level.time;
     pTr->trDuration = (int)(float)(fTotalTime * 1000.0);
     *pfMidTime = fTotalTime;
-    *pfDecelTime = *(float *)&FLOAT_0_0;
+    *pfDecelTime = 0.0f;
     *vPos3 = *vPos;
     vPos3[1] = vPos[1];
     vPos3[2] = vPos[2];
@@ -1034,7 +1034,7 @@ void __cdecl ScriptEntCmd_Vibrate(scr_entref_t entref)
                                           + (float)(axis[1][1] * scaledImpulseVector[1]))
                                   + (float)(axis[1][2] * scaledImpulseVector[2]))
                                 ^ _mask__NegFloat_;
-    vibrationAngles[1] = *(float *)&FLOAT_0_0;
+    vibrationAngles[1] = 0.0f;
     pSelf->mover.apos3[0] = pSelf->r.currentAngles[0];
     pSelf->mover.apos3[1] = pSelf->r.currentAngles[1];
     pSelf->mover.apos3[2] = pSelf->r.currentAngles[2];
@@ -1144,7 +1144,7 @@ void __cdecl ScriptMover_SetupMoveSpeed(
     pTr->trTime = level.time;
     pTr->trDuration = (int)(float)(fTotalTime * 1000.0);
     *pfMidTime = fTotalTime;
-    *pfDecelTime = *(float *)&FLOAT_0_0;
+    *pfDecelTime = 0.0f;
     pTr->trBase[0] = *vCurrPos;
     pTr->trBase[1] = vCurrPos[1];
     pTr->trBase[2] = vCurrPos[2];

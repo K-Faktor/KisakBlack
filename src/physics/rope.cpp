@@ -375,10 +375,10 @@ void __cdecl Rope_Init(
   vlen = Abs(v);
   if ( vlen < 0.001 )
   {
-    v[0] = *(float *)&FLOAT_0_0;
-    v[1] = *(float *)&FLOAT_0_0;
-    v[2] = FLOAT_N1_0;
-    vlen = FLOAT_1_0;
+    v[0] = 0.0f;
+    v[1] = 0.0f;
+    v[2] = -1.0f;
+    vlen = 1.0f;
   }
   v[0] = (float)(1.0 / vlen) * v[0];
   v[1] = (float)(1.0 / vlen) * v[1];
@@ -511,12 +511,12 @@ void __cdecl Rope_Tick(const RopeUpdateCmdData *cmd, int rope_index, float dt, b
         rope->m_flags &= ~8u;
         g_num_contacts = 0;
         Rope_ApplyPhysics(rope_index, dt);
-        rope->m_min[0] = FLOAT_3_4028235e38;
-        rope->m_min[1] = FLOAT_3_4028235e38;
-        rope->m_min[2] = FLOAT_3_4028235e38;
-        rope->m_max[0] = FLOAT_N3_4028235e38;
-        rope->m_max[1] = FLOAT_N3_4028235e38;
-        rope->m_max[2] = FLOAT_N3_4028235e38;
+        rope->m_min[0] = FLT_MAX;
+        rope->m_min[1] = FLT_MAX;
+        rope->m_min[2] = FLT_MAX;
+        rope->m_max[0] = -FLT_MAX;
+        rope->m_max[1] = -FLT_MAX;
+        rope->m_max[2] = -FLT_MAX;
         stable = 1;
         for ( i = 0; i < rope->m_num_particles; ++i )
         {
@@ -994,7 +994,7 @@ void __cdecl Rope_BuildCurve(const RopeUpdateCmdData *cmd, int rope_index)
         g_ropeCurve.mCurveType = CURVE_BSPLINE;
       cCurve::Build(&g_ropeCurve);
       segLength = 1.0 / (float)numSegments;
-      segDist = *(float *)&FLOAT_0_0;
+      segDist = 0.0f;
       for ( segCount = 0; segCount < numSegments; ++segCount )
       {
         cCurve::GetPos(&g_ropeCurve, segDist, verts->v[segCount]);
@@ -1119,9 +1119,9 @@ void __cdecl Rope_DebugDraw(int rope_index)
   mins[0] = FLOAT_N2_5;
   mins[1] = FLOAT_N2_5;
   mins[2] = FLOAT_N2_5;
-  maxs[0] = FLOAT_2_5;
-  maxs[1] = FLOAT_2_5;
-  maxs[2] = FLOAT_2_5;
+  maxs[0] = 2.5f;
+  maxs[1] = 2.5f;
+  maxs[2] = 2.5f;
   if ( !Rope_IsValid(rope_index)
     && !Assert_MyHandler(
           "C:\\projects_pc\\cod\\codsrc\\src\\physics\\rope.cpp",
@@ -1276,7 +1276,7 @@ void __cdecl Rope_ExplosionEvent(
     {
       rope->m_flags &= ~2u;
       rope->m_stable_count = 0;
-      invRange = *(float *)&FLOAT_0_0;
+      invRange = 0.0f;
       if ( outerRadiusSqr > innerRadiusSqr )
         invRange = 1.0 / (float)(innerRadius - outerRadius);
       for ( i = 0; i < rope->m_num_particles; ++i )
@@ -1290,7 +1290,7 @@ void __cdecl Rope_ExplosionEvent(
         dist2 = (float)((float)(f * f) + (float)(f_4 * f_4)) + (float)(f_8 * f_8);
         if ( dist2 < outerRadiusSqr )
         {
-          scale = FLOAT_1_0;
+          scale = 1.0f;
           dist = fsqrt(dist2);
           if ( dist2 > innerRadiusSqr )
           {
@@ -1352,27 +1352,27 @@ double __cdecl PointToBoxDistSq(const float *pt, const float *mins, const float 
   delta1_pt_maxs = pt[1] - maxs[1];
   delta2_pt_maxs = pt[2] - maxs[2];
   if ( delta0_mins_pt < 0.0 )
-    v9 = *(float *)&FLOAT_0_0;
+    v9 = 0.0f;
   else
     v9 = delta0_mins_pt * delta0_mins_pt;
   if ( delta1_mins_pt < 0.0 )
-    v8 = *(float *)&FLOAT_0_0;
+    v8 = 0.0f;
   else
     v8 = delta1_mins_pt * delta1_mins_pt;
   if ( delta2_mins_pt < 0.0 )
-    v7 = *(float *)&FLOAT_0_0;
+    v7 = 0.0f;
   else
     v7 = delta2_mins_pt * delta2_mins_pt;
   if ( delta0_pt_maxs < 0.0 )
-    v6 = *(float *)&FLOAT_0_0;
+    v6 = 0.0f;
   else
     v6 = delta0_pt_maxs * delta0_pt_maxs;
   if ( delta1_pt_maxs < 0.0 )
-    v5 = *(float *)&FLOAT_0_0;
+    v5 = 0.0f;
   else
     v5 = delta1_pt_maxs * delta1_pt_maxs;
   if ( delta2_pt_maxs < 0.0 )
-    v4 = *(float *)&FLOAT_0_0;
+    v4 = 0.0f;
   else
     v4 = delta2_pt_maxs * delta2_pt_maxs;
   return v9 + v8 + v7 + v6 + v5 + v4;
@@ -1406,7 +1406,7 @@ int __cdecl trace_point_through_sphere(
     return 0;
   *t = COERCE_FLOAT(LODWORD(b) ^ _mask__NegFloat_) - fsqrt(discr);
   if ( *t < 0.0 )
-    *t = *(float *)&FLOAT_0_0;
+    *t = 0.0f;
   v7 = *t;
   *hitp = (float)(*t * *ud) + *p;
   hitp[1] = (float)(v7 * ud[1]) + p[1];
@@ -1569,9 +1569,9 @@ void __cdecl Rope_CollideWorld(int rope_index)
     rope->m_min[0] = rope->m_min[0] - fudge_vec[0];
     m_min[1] = v7[1] - fudge_vec[1];
     m_min[2] = v7[2] - fudge_vec[2];
-    expand_vec[0] = FLOAT_1_0;
-    expand_vec[1] = FLOAT_1_0;
-    expand_vec[2] = FLOAT_1_0;
+    expand_vec[0] = 1.0f;
+    expand_vec[1] = 1.0f;
+    expand_vec[2] = 1.0f;
     colgeom_visitor_inlined_t<200>::update(&visitor, rope->m_min, rope->m_max, mask, expand_vec);
     context.prims = visitor.prims;
     context.nprims = visitor.nprims;

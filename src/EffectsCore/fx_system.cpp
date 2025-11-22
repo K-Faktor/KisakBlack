@@ -964,7 +964,7 @@ unsigned int __cdecl FX_SpawnEffect(
         memcpy(&remoteEffect->effect.boneOffset, boneOffset, sizeof(remoteEffect->effect.boneOffset));
         remoteEffect->effect.msecBegin = msecBegin;
         remoteEffect->effect.msecLastUpdate = remoteEffect->effect.msecBegin;
-        remoteEffect->effect.distanceTraveled = *(float *)&FLOAT_0_0;
+        remoteEffect->effect.distanceTraveled = 0.0f;
         FX_SetEffectRandomSeed(&remoteEffect->effect, remoteDef);
         remoteEffect->effect.firstTrailHandle = -1;
         FX_SpawnEffect_AllocTrails(system, &remoteEffect->effect, &remoteEffect->effect);
@@ -1682,7 +1682,7 @@ void __cdecl FX_RetriggerEffect(int localClientNum, FxEffectContainer *effect, i
         lastOldTrailElemHandle);
     }
     effect->effect.msecBegin = msecBegin;
-    effect->effect.distanceTraveled = *(float *)&FLOAT_0_0;
+    effect->effect.distanceTraveled = 0.0f;
     FX_BeginLooping(
       system,
       &effect->effect,
@@ -2365,7 +2365,7 @@ bool __cdecl FX_CullTrailElem(
     return 0;
   if ( !sequence )
     return 0;
-  cutoffMultiple = FLOAT_1_0;
+  cutoffMultiple = 1.0f;
   while ( (sequence & 1) == 0 )
   {
     cutoffMultiple = cutoffMultiple + 1.0;
@@ -2536,11 +2536,11 @@ void __cdecl FX_SpawnElem(
                   if ( (float)(v12 - 1.0) < 0.0 )
                     v13 = v12;
                   else
-                    v13 = FLOAT_1_0;
+                    v13 = 1.0f;
                   if ( (float)(0.0 - v12) < 0.0 )
                     v9 = v13;
                   else
-                    v9 = *(float *)&FLOAT_0_0;
+                    v9 = 0.0f;
                   remoteElem->item.elem.windInterp = (int)(float)(v9 * 65535.0);
                 }
                 else
@@ -2562,9 +2562,9 @@ void __cdecl FX_SpawnElem(
                 }
                 if ( elemDef->elemType != 7 || (elemDef->flags & 0x8000000) == 0 )
                   FX_GetOriginForElem(effect, elemDef, effectFrameWhenPlayed, randomSeed, remoteElem->item.elem.origin);
-                remoteElem->item.elem.baseVel[0] = *(float *)&FLOAT_0_0;
-                remoteElem->item.elem.baseVel[1] = *(float *)&FLOAT_0_0;
-                remoteElem->item.elem.baseVel[2] = *(float *)&FLOAT_0_0;
+                remoteElem->item.elem.baseVel[0] = 0.0f;
+                remoteElem->item.elem.baseVel[1] = 0.0f;
+                remoteElem->item.elem.baseVel[2] = 0.0f;
                 if ( elemDef->elemType == 5 )
                   remoteElem->item.elem.u.trailTexCoord = distanceWhenPlayed / (float)elemDef->localTrailDef->repeatDist;
                 remoteElem->item.shared.prevElemHandleInEffect = -1;
@@ -2830,12 +2830,12 @@ bool __cdecl FX_SpawnModelPhysics(
          * 8208.0312;
     v[2] = (float)(COERCE_FLOAT(((rotationAxis >> 19) & 0x3FF) + 1077936128 - 2 * ((rotationAxis >> 19) & 0x200)) - 3.0)
          * 8208.0312;
-    v[3] = FLOAT_1_0;
+    v[3] = 1.0f;
     v10 = Vec4Length(v);
     if ( (rotationAxis & 0x80000000) == 0 )
-      v7 = FLOAT_1_0;
+      v7 = 1.0f;
     else
-      v7 = FLOAT_N1_0;
+      v7 = -1.0f;
     Vec4Scale(v, v7 / v10, v);
     fAxis.v[0] = v[(rotationAxis >> 29) & 3];
     fAxis.v[1] = v[(((rotationAxis >> 29) & 3) + 1) & 3];
@@ -2949,9 +2949,9 @@ void __cdecl FX_GetOriginForElem(
   effectFrame = p_frameAtSpawn;
   if ( runFlags == 192 )
   {
-    *outOrigin = *(float *)&FLOAT_0_0;
-    outOrigin[1] = *(float *)&FLOAT_0_0;
-    outOrigin[2] = *(float *)&FLOAT_0_0;
+    *outOrigin = 0.0f;
+    outOrigin[1] = 0.0f;
+    outOrigin[2] = 0.0f;
   }
   else
   {
@@ -3237,7 +3237,7 @@ double __cdecl FX_GetClientVisibility(int localClientNum, const float *start, co
     if ( fx_visMinTraceDist->current.value <= len )
     {
       halfLen = len * 0.5;
-      totalVis = FLOAT_1_0;
+      totalVis = 1.0f;
       if ( visState->blockerCount > 256
         && !Assert_MyHandler(
               "C:\\projects_pc\\cod\\codsrc\\src\\EffectsCore\\fx_system.cpp",

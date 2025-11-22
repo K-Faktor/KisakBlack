@@ -81,8 +81,8 @@ void __cdecl Actor_MoveAlongPathWithTeam(actor_s *self, bool bRun, bool bUseInte
       self->moveMode = 0;
       if ( self->stateLevel < 6 && self->eState[self->stateLevel + 1] != AIS_NEGOTIATION )
       {
-        self->prevMoveDir[0] = *(float *)&FLOAT_0_0;
-        self->prevMoveDir[1] = *(float *)&FLOAT_0_0;
+        self->prevMoveDir[0] = 0.0f;
+        self->prevMoveDir[1] = 0.0f;
       }
     }
     eTeamMove = Actor_GetTeamMoveStatus(self, bUseInterval, bAllowGoalPileUp);
@@ -100,7 +100,7 @@ LABEL_18:
       if ( !wasMoving && Actor_IsMoving(self) )
       {
         Actor_ClearMoveHistory(self);
-        self->yawVeloc = *(float *)&FLOAT_0_0;
+        self->yawVeloc = 0.0f;
         self->ent->flags &= 0xE7FFFFFF;
         self->Path.iPathEndTime = 0;
       }
@@ -575,8 +575,8 @@ char __cdecl Actor_TeamMoveShouldTryDodgeSentient(
   {
     if ( pOtherActor->pPileUpActor || EntHandle::isDefined(&pOtherActor->pCloseEnt) )
     {
-      context_other->vVelOther[0] = *(float *)&FLOAT_0_0;
-      context_other->vVelOther[1] = *(float *)&FLOAT_0_0;
+      context_other->vVelOther[0] = 0.0f;
+      context_other->vVelOther[1] = 0.0f;
     }
     else
     {
@@ -901,7 +901,7 @@ void __cdecl Actor_CalcInterval(actor_s *self, bool bUseInterval, float *fInterv
     {
       fWalkInterval = FLOAT_37_5;
       if ( fInterval < 30.0 )
-        fInterval = FLOAT_30_0;
+        fInterval = 30.0f;
     }
     *fIntervalSqrdOut = fInterval * fInterval;
     *fWalkIntervalSqrdOut = fWalkInterval * fWalkInterval;
@@ -918,7 +918,7 @@ double __cdecl Actor_TeamMoveDeltaCorrection(actor_s *self, float fVelSelfSqrd)
   if ( self->moveMode )
     return (float)((float)(fVelSelfSqrd * 0.1) * 0.1);
   else
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
 }
 
 int __cdecl Actor_TeamMoveTrimPath(path_t *pPath, const team_move_context_t *context)

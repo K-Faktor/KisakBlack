@@ -356,7 +356,7 @@ void __cdecl R_AddAllStaticModelSurfacesCamera(
       if ( inst->placement.scale >= 1.0 )
         v15 = inst->placement.scale;
       else
-        v15 = FLOAT_1_0;
+        v15 = 1.0f;
       v23 = v15;
       v6 = I_fres(v15);
       val = v6 * v64;
@@ -1181,7 +1181,7 @@ void __cdecl R_AddAllStaticModelSurfacesRangeSunShadow(
           if ( smodelDrawInst->placement.scale >= 1.0 )
             v7 = smodelDrawInst->placement.scale;
           else
-            v7 = FLOAT_1_0;
+            v7 = 1.0f;
           v3 = I_fres(v7);
           val = v3 * v28;
           v4 = I_fres(v7);
@@ -1456,7 +1456,7 @@ void __cdecl R_AddAllStaticModelSurfacesSpotShadow(
       if ( *(float *)&surfData.drawSurf[1].current < smodelDrawInst->cullDist )
       {
         model = smodelDrawInst->model;
-        v7 = smodelDrawInst->placement.scale >= 1.0 ? smodelDrawInst->placement.scale : FLOAT_1_0;
+        v7 = smodelDrawInst->placement.scale >= 1.0 ? smodelDrawInst->placement.scale : 1.0f;
         v3 = I_fres(v7);
         val = v3 * *(float *)&surfData.drawSurf[1].current;
         v4 = I_fres(v7);

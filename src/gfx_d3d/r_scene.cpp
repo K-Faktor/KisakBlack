@@ -274,7 +274,7 @@ void __cdecl R_AddDObjToScene(
       else
         integer = LODWORD(burnFraction);
       LODWORD(gfxEnt->destructibleBurnAmount) = integer;
-      gfxEnt->destructibleFadeAmount = *(float *)&FLOAT_0_0;
+      gfxEnt->destructibleFadeAmount = 0.0f;
       gfxEnt->renderFxFlags = renderFxFlags;
       gfxEnt->wetness = wetness;
       gfxEnt->textureOverrideIndex = textureOverrideIndex;
@@ -292,7 +292,7 @@ void __cdecl R_AddDObjToScene(
         else
           v17 = LODWORD(burnFraction);
         LODWORD(gfxEnt2->destructibleBurnAmount) = v17;
-        gfxEnt2->destructibleFadeAmount = *(float *)&FLOAT_0_0;
+        gfxEnt2->destructibleFadeAmount = 0.0f;
         gfxEnt2->renderFxFlags = renderFxFlags;
         gfxEnt2->wetness = wetness;
         gfxEnt2->textureOverrideIndex = textureOverrideIndex;
@@ -563,7 +563,7 @@ void __cdecl R_AddOmniLightToScene(const float *org, const float (*axis)[3], int
         v18->diffuseColor[0] = v11;
         v18->diffuseColor[1] = v12;
         v18->diffuseColor[2] = v13;
-        v18->diffuseColor[3] = FLOAT_1_0;
+        v18->diffuseColor[3] = 1.0f;
       }
       else
       {
@@ -678,18 +678,18 @@ void __cdecl R_AddSpotLightToScene(const float *org, const float (*axis)[3], flo
         light->cosHalfFovInner = spotLightFovInner;
         __libm_sse2_cos(v12);
         light->cosHalfFovOuter = v7;
-        light->angles[0] = *(float *)&FLOAT_0_0;
-        light->angles[1] = *(float *)&FLOAT_0_0;
-        light->angles[2] = *(float *)&FLOAT_0_0;
-        light->attenuation[0] = FLOAT_1_0;
-        light->attenuation[1] = *(float *)&FLOAT_0_0;
-        light->attenuation[2] = *(float *)&FLOAT_0_0;
-        light->attenuation[3] = FLOAT_1_0;
-        light->aAbB[0] = FLOAT_0_75;
-        light->aAbB[1] = FLOAT_1_0;
-        light->aAbB[2] = FLOAT_0_75;
-        light->aAbB[3] = FLOAT_1_0;
-        light->falloff[0] = *(float *)&FLOAT_0_0;
+        light->angles[0] = 0.0f;
+        light->angles[1] = 0.0f;
+        light->angles[2] = 0.0f;
+        light->attenuation[0] = 1.0f;
+        light->attenuation[1] = 0.0f;
+        light->attenuation[2] = 0.0f;
+        light->attenuation[3] = 1.0f;
+        light->aAbB[0] = 0.75f;
+        light->aAbB[1] = 1.0f;
+        light->aAbB[2] = 0.75f;
+        light->aAbB[3] = 1.0f;
+        light->falloff[0] = 0.0f;
         light->falloff[1] = radiusa;
         light->falloff[2] = (float)((float)(radiusa - 0.0) * 0.0) + 0.0;
         light->falloff[3] = (float)((float)(radiusa - 0.0) * 0.0) + 0.0;
@@ -1816,8 +1816,8 @@ void __cdecl R_SetCharacterPrimaryLightScaleInfo(GfxViewInfo *viewInfo, const Gf
   }
   else
   {
-    viewInfo->charPrimaryLightScale.diffuseScale = FLOAT_1_0;
-    viewInfo->charPrimaryLightScale.specularScale = FLOAT_1_0;
+    viewInfo->charPrimaryLightScale.diffuseScale = 1.0f;
+    viewInfo->charPrimaryLightScale.specularScale = 1.0f;
   }
 }
 
@@ -2019,9 +2019,9 @@ void  R_SetHDRControlConstants(float a1@<ebp>, GfxCmdBufInput *input, const GfxV
   exposure = a1;
   debugLayers = retaddr;
   if ( r_debugLayers->current.enabled )
-    whitePoint = FLOAT_1_0;
+    whitePoint = 1.0f;
   else
-    whitePoint = *(float *)&FLOAT_0_0;
+    whitePoint = 0.0f;
   blackPoint = whitePoint;
   R_SetInputCodeConstant(input, 0x89u, viewInfo->exposureRemap.remapMul[0], 0.0, 0.0, 0.0);
   R_SetInputCodeConstant(input, 0x8Au, 1.0, 0.0, 0.0, whitePoint);
@@ -2063,7 +2063,7 @@ void  R_SetHDRControlConstants(float a1@<ebp>, GfxCmdBufInput *input, const GfxV
   i = LODWORD(viewInfo->exposureValue.scurveEnd[1]);
   bloomS = viewInfo->exposureValue.scurveEnd[2];
   curveE[0] = viewInfo->exposureValue.scurveEnd[3];
-  v43 = FLOAT_1_0;
+  v43 = 1.0f;
   for ( j = 0; j < 3; ++j )
   {
     if ( linearE[j + 2] <= 0.99998474 )
@@ -2089,14 +2089,14 @@ void  R_SetHDRControlConstants(float a1@<ebp>, GfxCmdBufInput *input, const GfxV
     Amul[2] = v4;
     curveS[j + 2] = v4;
     if ( linearE[j + 2] == 0.0 )
-      Amul[1] = *(float *)&FLOAT_0_0;
+      Amul[1] = 0.0f;
     else
       Amul[1] = 1.0 / linearE[j + 2];
     Bmul[j + 1] = Amul[1];
     Badd[j + 1] = 1.0 / (float)(remapS[j + 2] - linearE[j + 2]);
     Cmul[j + 2] = COERCE_FLOAT(LODWORD(linearE[j + 2]) ^ _mask__NegFloat_) * Badd[j + 1];
     if ( remapS[j + 2] == 1.0 )
-      Cmul[1] = *(float *)&FLOAT_0_0;
+      Cmul[1] = 0.0f;
     else
       Cmul[1] = 1.0 / (float)(1.0 - remapS[j + 2]);
     Cadd[j + 1] = Cmul[1];
@@ -2313,7 +2313,7 @@ void  R_SetSkyDynamicIntensity(float a1@<ebp>, const float *viewForward, GfxCmdB
     skyIntensity = interp - v12;
     if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(interp - v12) & _mask__AbsFloat_) <= 0.000099999997 )
     {
-      textX = *(float *)&FLOAT_0_0;
+      textX = 0.0f;
     }
     else
     {
@@ -2328,11 +2328,11 @@ void  R_SetSkyDynamicIntensity(float a1@<ebp>, const float *viewForward, GfxCmdB
         if ( *(float *)&font <= 1.0 )
           textX = *(float *)&font;
         else
-          textX = FLOAT_1_0;
+          textX = 1.0f;
       }
       else
       {
-        textX = *(float *)&FLOAT_0_0;
+        textX = 0.0f;
       }
       textX = textX * textX;
     }
@@ -2340,8 +2340,8 @@ void  R_SetSkyDynamicIntensity(float a1@<ebp>, const float *viewForward, GfxCmdB
     if ( r_sky_intensity_showDebugDisplay->current.enabled )
     {
       v6 = R_RegisterFont("fonts/consoleFont", 1);
-      *(float *)&textBuff[60] = FLOAT_100_0;
-      *(float *)&textBuff[56] = FLOAT_100_0;
+      *(float *)&textBuff[60] = 100.0f;
+      *(float *)&textBuff[56] = 100.0f;
       _snprintf((char *)&v4, 0x40u, "intensity0 angle=%.2f factor=%.2f", factor1, dotAngle1);
       R_AddCmdDrawText(
         (char *)&v4,
@@ -2596,7 +2596,7 @@ void __cdecl R_UpdateFrameFog(unsigned int localClientNum)
       fadeTime = 1;
     lerpPos = (float)(scene.def.time - f->settings[4].startTime) / (float)fadeTime;
     if ( lerpPos > 1.0 )
-      lerpPos = FLOAT_1_0;
+      lerpPos = 1.0f;
     f->settings[2].fogStart = (float)((float)(f->settings[4].fogStart - f->settings[3].fogStart) * lerpPos)
                             + f->settings[3].fogStart;
     f->settings[2].heightDensity = (float)((float)(f->settings[4].heightDensity - f->settings[3].heightDensity) * lerpPos)
@@ -2650,7 +2650,7 @@ void __cdecl R_SetViewParmsForScene(const refdef_s *refdef, GfxViewParms *viewPa
   viewParms->origin[0] = refdef->vieworg[0];
   viewParms->origin[1] = refdef->vieworg[1];
   viewParms->origin[2] = refdef->vieworg[2];
-  viewParms->origin[3] = FLOAT_1_0;
+  viewParms->origin[3] = 1.0f;
   viewParms->axis[0][0] = refdef->viewaxis[0][0];
   viewParms->axis[0][1] = refdef->viewaxis[0][1];
   viewParms->axis[0][2] = refdef->viewaxis[0][2];
@@ -2788,11 +2788,11 @@ void __cdecl R_LerpDir(
   if ( (float)(lerpFraction - 1.0) < 0.0 )
     v7 = (float)(currTime - beginLerpTime) / (float)(endLerpTime - beginLerpTime);
   else
-    v7 = FLOAT_1_0;
+    v7 = 1.0f;
   if ( (float)(0.0 - lerpFraction) < 0.0 )
     fraction = v7;
   else
-    fraction = *(float *)&FLOAT_0_0;
+    fraction = 0.0f;
   Vec3Lerp(dirBegin, dirEnd, fraction, result);
   Vec3Normalize(result);
 }
@@ -3008,13 +3008,13 @@ void __cdecl R_UpdateExposureValue(refdef_s *refdef)
   float lerpBaseIncrease; // [esp+20h] [ebp-8h]
   int exposureId; // [esp+24h] [ebp-4h]
 
-  feather = FLOAT_50_0;
+  feather = 50.0f;
   exposureId = R_CheckExposureVolumes(refdef->vieworg, &feather);
   if ( exposureId == -1 )
   {
     targetExposure = rgp.world->sunParse.sunSettings[0].exposure;
-    lerpBaseIncrease = FLOAT_15_0;
-    lerpBaseDecrease = FLOAT_20_0;
+    lerpBaseIncrease = 15.0f;
+    lerpBaseDecrease = 20.0f;
   }
   else
   {
@@ -3026,7 +3026,7 @@ void __cdecl R_UpdateExposureValue(refdef_s *refdef)
     if ( feather <= 1.0 )
       v4 = feather;
     else
-      v4 = FLOAT_1_0;
+      v4 = 1.0f;
     feather = v4;
     targetExposure = (float)(rgp.world->exposureVolumes[exposureId].featherAdjust * v4) + targetExposure;
     lerpBaseIncrease = 15.0 * rgp.world->exposureVolumes[exposureId].luminanceIncreaseScale;
@@ -3034,12 +3034,12 @@ void __cdecl R_UpdateExposureValue(refdef_s *refdef)
     if ( lerpBaseIncrease >= 1.0 )
       v3 = lerpBaseIncrease;
     else
-      v3 = FLOAT_1_0;
+      v3 = 1.0f;
     lerpBaseIncrease = v3;
     if ( lerpBaseDecreasea >= 1.0 )
       v2 = lerpBaseDecreasea;
     else
-      v2 = FLOAT_1_0;
+      v2 = 1.0f;
     lerpBaseDecrease = v2;
   }
   if ( refdef->exposure <= targetExposure )
@@ -3049,15 +3049,15 @@ void __cdecl R_UpdateExposureValue(refdef_s *refdef)
   if ( lerpSpeed >= 1.0 )
     v1 = lerpSpeed;
   else
-    v1 = FLOAT_1_0;
+    v1 = 1.0f;
   refdef->exposure = (float)((float)((float)(v1 - 1.0) * refdef->exposure) + targetExposure) / v1;
-  refdef->exposureValue.blackPoint[0] = *(float *)&FLOAT_0_0;
-  refdef->exposureValue.blackPoint[1] = *(float *)&FLOAT_0_0;
-  refdef->exposureValue.blackPoint[2] = *(float *)&FLOAT_0_0;
+  refdef->exposureValue.blackPoint[0] = 0.0f;
+  refdef->exposureValue.blackPoint[1] = 0.0f;
+  refdef->exposureValue.blackPoint[2] = 0.0f;
   refdef->exposureValue.blackPoint[3] = refdef->exposure;
-  refdef->exposureValue.whitePoint[0] = FLOAT_8_0;
-  refdef->exposureValue.whitePoint[1] = FLOAT_8_0;
-  refdef->exposureValue.whitePoint[2] = FLOAT_8_0;
+  refdef->exposureValue.whitePoint[0] = 8.0f;
+  refdef->exposureValue.whitePoint[1] = 8.0f;
+  refdef->exposureValue.whitePoint[2] = 8.0f;
 }
 
 unsigned int __cdecl R_CheckExposureVolumes(float *position, float *feather)
@@ -3192,7 +3192,7 @@ void __cdecl R_GenerateSortedDrawSurfs(
   LODWORD(rg.sunShadowmapScale) = sm_sunShadowScale->current.integer;
   bestDen = 1;
   bestNum = 1;
-  bestError = FLOAT_1_0;
+  bestError = 1.0f;
   for ( den = 1; den <= 10; ++den )
   {
     v21 = (double)den * rg.sunShadowmapScale + 0.5;
@@ -3690,14 +3690,14 @@ void __cdecl R_SetExposure(GfxViewInfo *viewInfo, const refdef_s *refdef)
   if ( r_exposureTweak->current.enabled )
   {
     integer = r_exposureValue->current.integer;
-    viewInfo->exposureValue.blackPoint[0] = *(float *)&FLOAT_0_0;
-    viewInfo->exposureValue.blackPoint[1] = *(float *)&FLOAT_0_0;
-    viewInfo->exposureValue.blackPoint[2] = *(float *)&FLOAT_0_0;
+    viewInfo->exposureValue.blackPoint[0] = 0.0f;
+    viewInfo->exposureValue.blackPoint[1] = 0.0f;
+    viewInfo->exposureValue.blackPoint[2] = 0.0f;
     LODWORD(viewInfo->exposureValue.blackPoint[3]) = integer;
-    viewInfo->exposureValue.whitePoint[0] = FLOAT_8_0;
-    viewInfo->exposureValue.whitePoint[1] = FLOAT_8_0;
-    viewInfo->exposureValue.whitePoint[2] = FLOAT_8_0;
-    viewInfo->exposureValue.whitePoint[3] = FLOAT_1_0;
+    viewInfo->exposureValue.whitePoint[0] = 8.0f;
+    viewInfo->exposureValue.whitePoint[1] = 8.0f;
+    viewInfo->exposureValue.whitePoint[2] = 8.0f;
+    viewInfo->exposureValue.whitePoint[3] = 1.0f;
   }
   else
   {
@@ -3731,9 +3731,9 @@ void __cdecl R_SetExposure(GfxViewInfo *viewInfo, const refdef_s *refdef)
   viewInfo->exposureRemap.remapMul[0] = viewInfo->exposureValue.blackPoint[3] / 8.0;
   viewInfo->exposureRemap.remapMul[1] = viewInfo->exposureValue.blackPoint[3] / 8.0;
   viewInfo->exposureRemap.remapMul[2] = viewInfo->exposureValue.blackPoint[3] / 8.0;
-  viewInfo->exposureRemap.remapAdd[0] = *(float *)&FLOAT_0_0;
-  viewInfo->exposureRemap.remapAdd[1] = *(float *)&FLOAT_0_0;
-  viewInfo->exposureRemap.remapAdd[2] = *(float *)&FLOAT_0_0;
+  viewInfo->exposureRemap.remapAdd[0] = 0.0f;
+  viewInfo->exposureRemap.remapAdd[1] = 0.0f;
+  viewInfo->exposureRemap.remapAdd[2] = 0.0f;
 }
 
 void __cdecl R_SetDepthOfField(GfxViewInfo *viewInfo, const GfxSceneParms *sceneParms)
@@ -3784,8 +3784,8 @@ void __cdecl R_SetDepthOfField(GfxViewInfo *viewInfo, const GfxSceneParms *scene
   if ( r_dof_showdebug->current.enabled )
   {
     font = R_RegisterFont("fonts/consoleFont", 1);
-    x = FLOAT_60_0;
-    y = FLOAT_60_0;
+    x = 60.0f;
+    y = 60.0f;
     _snprintf(buff, 0x200u, "DOF.viewModelStart = %.2f", viewInfo->dof.viewModelStart);
     R_AddCmdDrawText(buff, 0x7FFFFFFF, font, x, y, 1.5, 2.0, 0.0, colorRed, 0);
     y = y + 25.0;
@@ -3871,7 +3871,7 @@ void __cdecl R_SetWaterSheetingFx(GfxViewInfo *viewInfo, const GfxSceneParms *sc
     viewInfo->waterSheetingFx.distortionScale[0] = r_waterSheetingFX_distortionScaleFactor->current.value;
     viewInfo->waterSheetingFx.distortionScale[1] = r_waterSheetingFX_distortionScaleFactor->current.vector[1];
     viewInfo->waterSheetingFx.duration = 0;
-    viewInfo->waterSheetingFx.frameRate = *(float *)&FLOAT_0_0;
+    viewInfo->waterSheetingFx.frameRate = 0.0f;
   }
 }
 
@@ -3979,9 +3979,9 @@ void __cdecl R_SetPoisonFx(GfxViewInfo *viewInfo, const GfxSceneParms *sceneParm
   {
     blend = r_poisonFX_pulse->current.value - 1.0;
     if ( blend < 0.0 )
-      blend = *(float *)&FLOAT_0_0;
+      blend = 0.0f;
     *((float *)&POISON_BLUR_SLOW + 1) = (float)((float)((float)(-2.0 * blend) + 3.0) * blend) * blend;
-    *(float *)&POISON_BLUR_SLOW = FLOAT_6_0;
+    *(float *)&POISON_BLUR_SLOW = 6.0f;
     blur1 = viewInfo->sceneDef.floatTime / 3.0;
     base = r_poisonFX_blurMin->current.value;
     range = r_poisonFX_blurMax->current.value - base;
@@ -4181,21 +4181,21 @@ void __cdecl R_SetBloomInfo(GfxViewInfo *viewInfo, const GfxSceneParms *scenePar
       v5 = (float)((float)(1.0 / (float)(0.75 - 1.0)) * COERCE_FLOAT(LODWORD(tx) & _mask__AbsFloat_))
          - (float)((float)(1.0 / (float)(0.75 - 1.0)) * 1.0);
     else
-      v5 = *(float *)&FLOAT_0_0;
+      v5 = 0.0f;
     if ( v5 <= 1.0 )
       v4 = v5;
     else
-      v4 = FLOAT_1_0;
+      v4 = 1.0f;
     if ( (float)((float)((float)(1.0 / (float)(0.75 - 1.0)) * COERCE_FLOAT(LODWORD(ty) & _mask__AbsFloat_))
                - (float)((float)(1.0 / (float)(0.75 - 1.0)) * 1.0)) >= 0.0 )
       v3 = (float)((float)(1.0 / (float)(0.75 - 1.0)) * COERCE_FLOAT(LODWORD(ty) & _mask__AbsFloat_))
          - (float)((float)(1.0 / (float)(0.75 - 1.0)) * 1.0);
     else
-      v3 = *(float *)&FLOAT_0_0;
+      v3 = 0.0f;
     if ( v3 <= 1.0 )
       v2 = v3;
     else
-      v2 = FLOAT_1_0;
+      v2 = 1.0f;
     xa = (float)(v4 * v4) * (float)(3.0 - (float)(2.0 * v4));
     ya = (float)(v2 * v2) * (float)(3.0 - (float)(2.0 * v2));
     viewInfo->bloom.bloomExpansionWeights[0] = (float)(xa * ya) * viewInfo->bloom.bloomExpansionWeights[0];
@@ -4421,9 +4421,9 @@ void  R_SetHeroLighting(float a1@<ebp>, GfxCmdBufInput *input, GfxViewInfo *view
 
   bwght = a1;
   gwght = retaddr;
-  s = FLOAT_0_25;
-  *(float *)&sc[208] = FLOAT_0_5;
-  *(float *)&sc[204] = FLOAT_0_25;
+  s = 0.25f;
+  *(float *)&sc[208] = 0.5f;
+  *(float *)&sc[204] = 0.25f;
   *(unsigned int *)&sc[200] = r_heroLightSaturation->current.integer;
   s = (float)(1.0 - *(float *)&sc[200]) * 0.25;
   *(float *)&sc[208] = (float)(1.0 - *(float *)&sc[200]) * 0.5;
@@ -4431,16 +4431,16 @@ void  R_SetHeroLighting(float a1@<ebp>, GfxCmdBufInput *input, GfxViewInfo *view
   *(float *)&sc[136] = s + *(float *)&sc[200];
   *(float *)&sc[140] = s;
   *(float *)&sc[144] = s;
-  *(unsigned int *)&sc[148] = *(unsigned int *)&FLOAT_0_0;
+  *(unsigned int *)&sc[148] = 0;
   *(float *)&sc[152] = *(float *)&sc[208];
   *(float *)&sc[156] = *(float *)&sc[208] + *(float *)&sc[200];
   *(float *)&sc[160] = *(float *)&sc[208];
-  *(unsigned int *)&sc[164] = *(unsigned int *)&FLOAT_0_0;
+  *(unsigned int *)&sc[164] = 0;
   *(float *)&sc[168] = s;
   *(float *)&sc[172] = s;
   *(float *)&sc[176] = s + *(float *)&sc[200];
   memset(&sc[180], 0, 16);
-  *(float *)&sc[196] = FLOAT_1_0;
+  *(float *)&sc[196] = 1.0f;
   colorTempMatrix((float (*)[4])&sc[72], r_heroLightColorTemp->current.value);
   MatrixMultiply44((const float (*)[4])&sc[72], (const float (*)[4])&sc[136], (float (*)[4])&sc[8]);
   *(unsigned int *)&sc[4] = &r_heroLightScale->current;
@@ -4461,7 +4461,7 @@ void  R_SetHeroLighting(float a1@<ebp>, GfxCmdBufInput *input, GfxViewInfo *view
   memset(&x[88], 0, 16);
   *(float *)&x[104] = v6;
   memset(&x[108], 0, 16);
-  *(float *)&x[124] = FLOAT_1_0;
+  *(float *)&x[124] = 1.0f;
   MatrixMultiply44((const float (*)[4])&sc[8], (const float (*)[4])&x[64], (float (*)[4])x);
   R_SetInputCodeConstant(input, 0xA6u, *(float *)x, *(float *)&x[16], *(float *)&x[32], 0.0);
   R_SetInputCodeConstant(input, 0xA7u, *(float *)&x[4], *(float *)&x[20], *(float *)&x[36], 0.0);
@@ -4595,7 +4595,7 @@ void  R_SetDLightsConstants(
 
   xs[1] = a1;
   xs[2] = retaddr;
-  xs[0] = *(float *)&FLOAT_0_0;
+  xs[0] = 0.0f;
   memset(ys, 0, sizeof(ys));
   memset(zs, 0, sizeof(zs));
   memset(falloffs, 0, sizeof(falloffs));
@@ -4605,21 +4605,21 @@ void  R_SetDLightsConstants(
   memset(blues, 0, sizeof(blues));
   memset(diffuseColor, 0, sizeof(diffuseColor));
   memset(specularColor, 0, sizeof(specularColor));
-  lightOrigin[2] = *(float *)&FLOAT_0_0;
-  lightOrigin[3] = *(float *)&FLOAT_0_0;
-  v60 = *(float *)&FLOAT_0_0;
-  lightOrigin[0] = FLOAT_1_0;
+  lightOrigin[2] = 0.0f;
+  lightOrigin[3] = 0.0f;
+  v60 = 0.0f;
+  lightOrigin[0] = 1.0f;
   memset(lightDir, 0, sizeof(lightDir));
   memset(lightAttentuation, 0, sizeof(lightAttentuation));
-  lightCosHalfFovInner = *(float *)&FLOAT_0_0;
-  spotShadowFade = *(float *)&FLOAT_0_0;
-  lightRadius = *(float *)&FLOAT_0_0;
-  lightCosHalfFovOuter = *(float *)&FLOAT_0_0;
-  lightExponent = *(unsigned int *)&FLOAT_0_0;
-  cutOn = *(float *)&FLOAT_0_0;
-  cutOff = *(float *)&FLOAT_0_0;
+  lightCosHalfFovInner = 0.0f;
+  spotShadowFade = 0.0f;
+  lightRadius = 0.0f;
+  lightCosHalfFovOuter = 0.0f;
+  lightExponent = 0;
+  cutOn = 0.0f;
+  cutOff = 0.0f;
   nearEdge = 0;
-  farEdge = *(float *)&FLOAT_0_0;
+  farEdge = 0.0f;
   memset(scale, 0, sizeof(scale));
   v46 = 0;
   for ( i = 0; i < visibleLightCount; ++i )
@@ -4753,9 +4753,9 @@ void  R_SetDLightsConstants(
   R_SetInputCodeConstant(input, 0x91u, diffuseColor[1], diffuseColor[2], *(float *)&lightDef, blues[0]);
   if ( viewInfo->cullViewInfo.viewParms.origin[3] == 0.0 )
   {
-    *(unsigned int *)&v17[72] = *(unsigned int *)&FLOAT_0_0;
-    *(unsigned int *)&v17[76] = *(unsigned int *)&FLOAT_0_0;
-    v18 = *(float *)&FLOAT_0_0;
+    *(unsigned int *)&v17[72] = 0;
+    *(unsigned int *)&v17[76] = 0;
+    v18 = 0.0f;
   }
   else
   {
@@ -4763,7 +4763,7 @@ void  R_SetDLightsConstants(
     *(_QWORD *)&v17[72] = *(_QWORD *)viewInfo->viewParms.origin;
     v18 = viewInfo->cullViewInfo.viewParms.origin[2];
   }
-  eyeOffset[0] = FLOAT_1_0;
+  eyeOffset[0] = 1.0f;
   if ( LODWORD(diffuseColor[0]) )
   {
     *(unsigned int *)&v17[68] = *(unsigned int *)(LODWORD(diffuseColor[0]) + 4);
@@ -4805,7 +4805,7 @@ void  R_SetDLightsConstants(
   }
   R_SetInputCodeConstantFromVec4(input, 0x95u, lightDir);
   if ( farEdge == *(float *)&scale[132] )
-    sAdd = FLOAT_1_0;
+    sAdd = 1.0f;
   else
     sAdd = 1.0 / (float)(*(float *)&scale[132] - farEdge);
   x = sAdd;
@@ -4816,7 +4816,7 @@ void  R_SetDLightsConstants(
   eMul = v5;
   z = v5;
   if ( *(float *)&scale[128] == *(float *)&scale[136] )
-    eAdd = FLOAT_1_0;
+    eAdd = 1.0f;
   else
     eAdd = 1.0 / (float)(*(float *)&scale[136] - *(float *)&scale[128]);
   y = eAdd;
@@ -4902,9 +4902,9 @@ void __cdecl DrawLightDebug(const GfxViewInfo *viewInfo, const GfxLight *L, cons
   float maxs[3]; // [esp+38h] [ebp-1Ch] BYREF
   float lightColor[4]; // [esp+44h] [ebp-10h] BYREF
 
-  ext[0] = FLOAT_10_0;
-  ext[1] = FLOAT_10_0;
-  ext[2] = FLOAT_10_0;
+  ext[0] = 10.0f;
+  ext[1] = 10.0f;
+  ext[2] = 10.0f;
   maxs[0] = L->origin[0] + 10.0;
   maxs[1] = L->origin[1] + 10.0;
   maxs[2] = L->origin[2] + 10.0;
@@ -4914,7 +4914,7 @@ void __cdecl DrawLightDebug(const GfxViewInfo *viewInfo, const GfxLight *L, cons
   lightColor[0] = L->color[0];
   lightColor[1] = L->color[1];
   lightColor[2] = L->color[2];
-  lightColor[3] = FLOAT_1_0;
+  lightColor[3] = 1.0f;
   lightColor[0] = (float)(viewInfo->exposureValue.blackPoint[3] / 8.0) * lightColor[0];
   lightColor[1] = (float)(viewInfo->exposureValue.blackPoint[3] / 8.0) * lightColor[1];
   lightColor[2] = (float)(viewInfo->exposureValue.blackPoint[3] / 8.0) * lightColor[2];
@@ -4940,10 +4940,10 @@ void DrawOutdoorBoundsVolumeDebug()
   {
     if ( rgp.world->numOutdoorBounds )
     {
-      boxColor[0] = FLOAT_1_0;
-      boxColor[1] = FLOAT_1_0;
-      boxColor[2] = FLOAT_1_0;
-      boxColor[3] = FLOAT_1_0;
+      boxColor[0] = 1.0f;
+      boxColor[1] = 1.0f;
+      boxColor[2] = 1.0f;
+      boxColor[3] = 1.0f;
       R_AddDebugBox(
         &frontEndDataOut->debugGlobals,
         (const float *)rgp.world->outdoorBounds,
@@ -4979,18 +4979,18 @@ void __cdecl DrawSunDirectionDebug(const float *viewOrg, const float *viewForwar
     lineEnd[0] = (float)(200.0 * frontEndDataOut->sunLight.dir[0]) + debugOrigin[0];
     lineEnd[1] = (float)(200.0 * frontEndDataOut->sunLight.dir[1]) + *(float *)&dword_AA1C458;
     lineEnd[2] = (float)(200.0 * frontEndDataOut->sunLight.dir[2]) + *(float *)&dword_AA1C45C;
-    sunColor[0] = FLOAT_1_0;
-    sunColor[1] = FLOAT_1_0;
-    sunColor[2] = FLOAT_1_0;
-    sunColor[3] = FLOAT_1_0;
+    sunColor[0] = 1.0f;
+    sunColor[1] = 1.0f;
+    sunColor[2] = 1.0f;
+    sunColor[3] = 1.0f;
     R_AddDebugLine(&frontEndDataOut->debugGlobals, debugOrigin, lineEnd, sunColor, 0);
-    boxColor[0] = FLOAT_1_0;
-    boxColor[1] = FLOAT_1_0;
-    boxColor[2] = FLOAT_1_0;
-    boxColor[3] = FLOAT_1_0;
-    ext[0] = FLOAT_5_0;
-    ext[1] = FLOAT_5_0;
-    ext[2] = FLOAT_5_0;
+    boxColor[0] = 1.0f;
+    boxColor[1] = 1.0f;
+    boxColor[2] = 1.0f;
+    boxColor[3] = 1.0f;
+    ext[0] = 5.0f;
+    ext[1] = 5.0f;
+    ext[2] = 5.0f;
     maxs[0] = debugOrigin[0] + 5.0;
     maxs[1] = *(float *)&dword_AA1C458 + 5.0;
     maxs[2] = *(float *)&dword_AA1C45C + 5.0;
@@ -4998,18 +4998,18 @@ void __cdecl DrawSunDirectionDebug(const float *viewOrg, const float *viewForwar
     mins[1] = (float)(-1.0 * 5.0) + *(float *)&dword_AA1C458;
     mins[2] = (float)(-1.0 * 5.0) + *(float *)&dword_AA1C45C;
     R_AddDebugBox(&frontEndDataOut->debugGlobals, mins, maxs, boxColor);
-    xColor[0] = FLOAT_1_0;
-    xColor[1] = *(float *)&FLOAT_0_0;
-    xColor[2] = *(float *)&FLOAT_0_0;
-    xColor[3] = FLOAT_1_0;
-    yColor[0] = *(float *)&FLOAT_0_0;
-    yColor[1] = FLOAT_1_0;
-    yColor[2] = *(float *)&FLOAT_0_0;
-    yColor[3] = FLOAT_1_0;
-    zColor[0] = *(float *)&FLOAT_0_0;
-    zColor[1] = *(float *)&FLOAT_0_0;
-    zColor[2] = FLOAT_1_0;
-    zColor[3] = FLOAT_1_0;
+    xColor[0] = 1.0f;
+    xColor[1] = 0.0f;
+    xColor[2] = 0.0f;
+    xColor[3] = 1.0f;
+    yColor[0] = 0.0f;
+    yColor[1] = 1.0f;
+    yColor[2] = 0.0f;
+    yColor[3] = 1.0f;
+    zColor[0] = 0.0f;
+    zColor[1] = 0.0f;
+    zColor[2] = 1.0f;
+    zColor[3] = 1.0f;
     xdir[0] = (float)(40.0 * 1.0) + debugOrigin[0];
     xdir[1] = (float)(40.0 * 0.0) + *(float *)&dword_AA1C458;
     xdir[2] = (float)(40.0 * 0.0) + *(float *)&dword_AA1C45C;

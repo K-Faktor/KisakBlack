@@ -475,9 +475,9 @@ char __cdecl WorldPosToScreenPos(int localClientNum, const float *worldPos, floa
       || COERCE_FLOAT((unsigned int)outScreenPos[1] & _mask__AbsFloat_) >= 0.001 )
     {
       if ( COERCE_FLOAT(*(unsigned int *)outScreenPos & _mask__AbsFloat_) < 0.001 )
-        *outScreenPos = FLOAT_0_001;
+        *outScreenPos = 0.001f;
       if ( COERCE_FLOAT((unsigned int)outScreenPos[1] & _mask__AbsFloat_) < 0.001 )
-        outScreenPos[1] = FLOAT_0_001;
+        outScreenPos[1] = 0.001f;
       while ( scrPlace->realViewportSize[0] > COERCE_FLOAT(*(unsigned int *)outScreenPos & _mask__AbsFloat_) )
       {
         v5 = scrPlace->realViewportSize[0];
@@ -558,9 +558,9 @@ char __cdecl WorldPosToExtraCamScreenPos(int localClientNum, const float *worldP
       || COERCE_FLOAT((unsigned int)outScreenPos[1] & _mask__AbsFloat_) >= 0.001 )
     {
       if ( COERCE_FLOAT(*(unsigned int *)outScreenPos & _mask__AbsFloat_) < 0.001 )
-        *outScreenPos = FLOAT_0_001;
+        *outScreenPos = 0.001f;
       if ( COERCE_FLOAT((unsigned int)outScreenPos[1] & _mask__AbsFloat_) < 0.001 )
-        outScreenPos[1] = FLOAT_0_001;
+        outScreenPos[1] = 0.001f;
       while ( scrPlace->realViewportSize[0] > COERCE_FLOAT(*(unsigned int *)outScreenPos & _mask__AbsFloat_) )
       {
         v5 = scrPlace->realViewportSize[0];
@@ -1043,34 +1043,34 @@ void __cdecl GetHudElemInfo(int localClientNum, const hudelem_s *elem, cg_hudele
     case 0u:
       goto $LN32_2;
     case 1u:
-      baseFontScale = FLOAT_0_5;
+      baseFontScale = 0.5f;
       fontEnum = 4;
       break;
     case 2u:
-      baseFontScale = FLOAT_0_33333334;
+      baseFontScale = (1.0f / 3.0f);
       fontEnum = 5;
       break;
     case 3u:
-      baseFontScale = FLOAT_0_25;
+      baseFontScale = 0.25f;
       fontEnum = 1;
       break;
     case 4u:
-      baseFontScale = FLOAT_0_25;
+      baseFontScale = 0.25f;
       fontEnum = 2;
       break;
     case 5u:
-      baseFontScale = FLOAT_0_25;
+      baseFontScale = 0.25f;
       fontEnum = 3;
       break;
     case 6u:
-      baseFontScale = FLOAT_0_25;
+      baseFontScale = 0.25f;
       fontEnum = 6;
       break;
     default:
       if ( !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_hudelem.cpp", 842, 0, "invalid case") )
         __debugbreak();
 $LN32_2:
-      baseFontScale = FLOAT_0_25;
+      baseFontScale = 0.25f;
       fontEnum = 0;
       break;
   }
@@ -1139,11 +1139,11 @@ $LN32_2:
   if ( cghe->hudElemLabel[0] )
     cghe->labelWidth = HudElemStringWidth(cghe->hudElemLabel, elem, cghe);
   else
-    cghe->labelWidth = *(float *)&FLOAT_0_0;
+    cghe->labelWidth = 0.0f;
   if ( cghe->hudElemText[0] )
     cghe->textWidth = HudElemStringWidth(cghe->hudElemText, elem, cghe);
   else
-    cghe->textWidth = *(float *)&FLOAT_0_0;
+    cghe->textWidth = 0.0f;
   cghe->width = HudElemWidth(scrPlace, elem, cghe);
   cghe->height = HudElemHeight(scrPlace, elem, cghe);
   SetHudElemPos(&scrPlaceView[localClientNum], elem, cghe);
@@ -1359,7 +1359,7 @@ double __cdecl HudElemHeight(const ScreenPlacement *scrPlace, const hudelem_s *e
       height = cghe->fontHeight;
       goto LABEL_10;
     case 6u:
-      height = *(float *)&FLOAT_0_0;
+      height = 0.0f;
       goto LABEL_10;
     case 7u:
       height = cghe->fontHeight;
@@ -1581,7 +1581,7 @@ void __cdecl ConsolidateHudElemText(const hudelem_s *elem, cg_hudelem_t *cghe, c
   memcpy(cghe->hudElemText, hudElemString, sizeof(cghe->hudElemText));
   cghe->textWidth = HudElemStringWidth(cghe->hudElemText, elem, cghe);
   cghe->hudElemLabel[0] = 0;
-  cghe->labelWidth = *(float *)&FLOAT_0_0;
+  cghe->labelWidth = 0.0f;
 }
 
 void __cdecl CopyStringToHudElemString(char *string, char *hudElemString)
@@ -2030,7 +2030,7 @@ void  DrawOffscreenViewableWaypoint(int a1@<ebp>, int localClientNum, const hude
         padLeft = waypointOffscreenPointerDistance->current.value * pointerWidth;
         padRight = waypointOffscreenDistanceThresholdAlpha->current.value * pointerWidth;
         if ( padRight < 0.1 )
-          padRight = FLOAT_0_1;
+          padRight = 0.1f;
         padTop = (float)(0.5 * padding) + padLeft;
         padBottom = (float)(waypointOffscreenPadLeft->current.value * iconHeight->scaleVirtualToReal[0]) + padTop;
         tweak2dY = (float)(waypointOffscreenPadRight->current.value * iconHeight->scaleVirtualToReal[0]) + padTop;
@@ -2178,8 +2178,8 @@ void  DrawOffscreenViewableWaypoint(int a1@<ebp>, int localClientNum, const hude
         GetHudElemInfo(localClientNum, elem, (cg_hudelem_t *)&v19, (char *)&cghe.color[3]);
         if ( text[251] && !text[249] )
         {
-          v18 = FLOAT_1_5;
-          delta[2] = FLOAT_39_369999;
+          v18 = 1.5f;
+          delta[2] = 39.37f;
           LODWORD(delta[1]) = CG_GetLocalClientGlobals(localClientNum);
           LODWORD(delta[0]) = LODWORD(delta[1]) + 274140;
           v14 = v37 - *(float *)(LODWORD(delta[1]) + 274140);
@@ -2249,7 +2249,7 @@ double __cdecl GetScaleForDistance(int localClientNum, const float *worldPos)
     return waypointDistScaleSmallest->current.value;
   range = waypointDistScaleRangeMax->current.value - waypointDistScaleRangeMin->current.value;
   if ( range <= 0.0 )
-    range = FLOAT_1_0;
+    range = 1.0f;
   return waypointDistScaleSmallest->current.value
        * (float)((float)(dist3D - waypointDistScaleRangeMin->current.value) / range)
        + (1.0 - (float)((float)(dist3D - waypointDistScaleRangeMin->current.value) / range)) * 1.0;
@@ -2279,7 +2279,7 @@ void __cdecl WaypointTargetFade(int localClientNum, const hudelem_s *elem, const
         if ( !cgameGlob->waypointFadeTime )
           cgameGlob->waypointFadeTime = currentTime;
         percent = distSq / (float)(waypointDistFade->current.value * waypointDistFade->current.value);
-        timeFrac = *(float *)&FLOAT_0_0;
+        timeFrac = 0.0f;
         if ( currentTime <= waypointTimeFade->current.integer + cgameGlob->waypointFadeTime
           && cgameGlob->waypointFadeTime < waypointTimeFade->current.integer + currentTime )
         {
@@ -2308,11 +2308,11 @@ double __cdecl WaypointFadeGetTimeFrac(const cg_s *cgameGlob, int currentTime)
   if ( (float)(frac - 1.0) < 0.0 )
     v4 = 1.0 - (float)((float)(currentTime - cgameGlob->waypointFadeTime) / (float)waypointTimeFade->current.integer);
   else
-    v4 = FLOAT_1_0;
+    v4 = 1.0f;
   if ( (float)(0.0 - frac) < 0.0 )
     return v4;
   else
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
 }
 
 void __cdecl CG_AddDrawSurfsFor3dHudElems(int localClientNum)
@@ -2393,7 +2393,7 @@ void  AddDrawSurfForHudElemWaypoint(hudelem_color_t a1@<ebp>, int localClientNum
           sprite.pos[0] = *(float *)&materialName[56];
           *(unsigned int *)sprite.rgbaColor = v8;
           sprite.pos[1] = v3;
-          sprite.pos[2] = *(float *)&FLOAT_0_0;
+          sprite.pos[2] = 0.0f;
           v4[0] = radius;
           FX_SpriteAdd((FxSprite *)v4);
         }

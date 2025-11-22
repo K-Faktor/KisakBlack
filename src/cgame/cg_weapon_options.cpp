@@ -110,10 +110,10 @@ void __thiscall WeaponOptions::InitWeaponOptionColors(
   for ( i = 0; i < 0x10; ++i )
   {
     v7 = &(*colors)[4 * i];
-    *v7 = FLOAT_N1_0;
-    v7[1] = FLOAT_N1_0;
-    v7[2] = FLOAT_N1_0;
-    v7[3] = FLOAT_N1_0;
+    *v7 = -1.0f;
+    v7[1] = -1.0f;
+    v7[2] = -1.0f;
+    v7[3] = -1.0f;
   }
   StringTable_GetAsset(tableName, (XAssetHeader *)&tablePtr);
   nRows = StringTable_Find(tablePtr, rows, 16, labelCol, label, -1, 0);
@@ -648,7 +648,7 @@ int __thiscall WeaponOptions::SetupWeaponOptionsRender(
     }
     else
     {
-      AdjustedLodDist = *(float *)&FLOAT_0_0;
+      AdjustedLodDist = 0.0f;
     }
     dist = AdjustedLodDist;
     camo = weaponOptions.i & 0x3F;
@@ -733,7 +733,7 @@ int __thiscall WeaponOptions::SetupWeaponOptionsRender(
       {
         if ( (*((_BYTE *)&weaponOptions.s + 2) & 7) != 0 )
         {
-          shaderBase[0] = FLOAT_1_0;
+          shaderBase[0] = 1.0f;
           memset(&shaderBase[1], 0, 12);
           v10 = *((_BYTE *)&weaponOptions.s + 2) & 7;
           color[0] = this->reticleColors[v10][0] - 1.0;

@@ -1684,7 +1684,7 @@ void __cdecl BG_EvaluateTrajectory(const trajectory_t *tr, int atTime, float *re
         atTime = tr->trDuration + tr->trTime;
       v12 = (float)(atTime - tr->trTime) * 0.001;
       if ( v12 < 0.0 )
-        v12 = *(float *)&FLOAT_0_0;
+        v12 = 0.0f;
       *result = (float)(v12 * tr->trDelta[0]) + tr->trBase[0];
       result[1] = (float)(v12 * tr->trDelta[1]) + tr->trBase[1];
       result[2] = (float)(v12 * tr->trDelta[2]) + tr->trBase[2];
@@ -1835,7 +1835,7 @@ double __cdecl Vec3NormalizeTo(const float *v, float *out)
   if ( COERCE_FLOAT(LODWORD(length) ^ _mask__NegFloat_) < 0.0 )
     v3 = length;
   else
-    v3 = FLOAT_1_0;
+    v3 = 1.0f;
   *out = *v * (float)(1.0 / v3);
   out[1] = v[1] * (float)(1.0 / v3);
   out[2] = v[2] * (float)(1.0 / v3);
@@ -1879,9 +1879,9 @@ void __cdecl BG_EvaluateTrajectoryDelta(const trajectory_t *tr, int atTime, floa
   {
     case 0u:
     case 1u:
-      *result = *(float *)&FLOAT_0_0;
-      result[1] = *(float *)&FLOAT_0_0;
-      result[2] = *(float *)&FLOAT_0_0;
+      *result = 0.0f;
+      result[1] = 0.0f;
+      result[2] = 0.0f;
       goto LABEL_27;
     case 3u:
       *result = tr->trDelta[0];
@@ -1891,9 +1891,9 @@ void __cdecl BG_EvaluateTrajectoryDelta(const trajectory_t *tr, int atTime, floa
     case 4u:
       if ( atTime > tr->trDuration + tr->trTime )
       {
-        *result = *(float *)&FLOAT_0_0;
-        result[1] = *(float *)&FLOAT_0_0;
-        result[2] = *(float *)&FLOAT_0_0;
+        *result = 0.0f;
+        result[1] = 0.0f;
+        result[2] = 0.0f;
         return;
       }
       *result = tr->trDelta[0];
@@ -1927,9 +1927,9 @@ void __cdecl BG_EvaluateTrajectoryDelta(const trajectory_t *tr, int atTime, floa
 $LN5_1:
       if ( atTime > tr->trDuration + tr->trTime )
       {
-        *result = *(float *)&FLOAT_0_0;
-        result[1] = *(float *)&FLOAT_0_0;
-        result[2] = *(float *)&FLOAT_0_0;
+        *result = 0.0f;
+        result[1] = 0.0f;
+        result[2] = 0.0f;
         return;
       }
       deltaTimeb = (float)(atTime - tr->trTime) * 0.001;
@@ -1972,9 +1972,9 @@ LABEL_27:
       }
       else
       {
-        *result = *(float *)&FLOAT_0_0;
-        result[1] = *(float *)&FLOAT_0_0;
-        result[2] = *(float *)&FLOAT_0_0;
+        *result = 0.0f;
+        result[1] = 0.0f;
+        result[2] = 0.0f;
       }
       return;
     default:
@@ -2081,26 +2081,26 @@ void __cdecl BG_PlayerToEntitySetPitchAngles(playerState_s *ps, entityState_s *s
       if ( fLerpFrac >= 0.0 )
       {
         if ( fLerpFrac > 1.0 )
-          fLerpFrac = FLOAT_1_0;
+          fLerpFrac = 1.0f;
       }
       else
       {
-        fLerpFrac = *(float *)&FLOAT_0_0;
+        fLerpFrac = 0.0f;
       }
       if ( !ps->viewHeightLerpDown )
         fLerpFrac = 1.0 - fLerpFrac;
     }
     else
     {
-      fLerpFrac = FLOAT_1_0;
+      fLerpFrac = 1.0f;
     }
     s->un2.animState.fAimUpDown = AngleNormalize180(ps->fTorsoPitch) * fLerpFrac;
     s->un2.animState.fAimLeftRight = AngleNormalize180(ps->fWaistPitch) * fLerpFrac;
   }
   else
   {
-    s->un2.animState.fAimUpDown = *(float *)&FLOAT_0_0;
-    s->un2.animState.fAimLeftRight = *(float *)&FLOAT_0_0;
+    s->un2.animState.fAimUpDown = 0.0f;
+    s->un2.animState.fAimLeftRight = 0.0f;
   }
 }
 
@@ -2331,18 +2331,18 @@ void __cdecl BG_PlayerToEntitySetTrajectory(playerState_s *ps, entityState_s *s,
   s->lerp.pos.trType = 1;
   s->lerp.pos.trDuration = 0;
   s->lerp.pos.trTime = 0;
-  s->lerp.pos.trDelta[0] = *(float *)&FLOAT_0_0;
-  s->lerp.pos.trDelta[1] = *(float *)&FLOAT_0_0;
-  s->lerp.pos.trDelta[2] = *(float *)&FLOAT_0_0;
+  s->lerp.pos.trDelta[0] = 0.0f;
+  s->lerp.pos.trDelta[1] = 0.0f;
+  s->lerp.pos.trDelta[2] = 0.0f;
   s->lerp.pos.trBase[0] = ps->origin[0];
   s->lerp.pos.trBase[1] = ps->origin[1];
   s->lerp.pos.trBase[2] = ps->origin[2];
   s->lerp.apos.trType = 1;
   s->lerp.apos.trDuration = 0;
   s->lerp.apos.trTime = 0;
-  s->lerp.apos.trDelta[0] = *(float *)&FLOAT_0_0;
-  s->lerp.apos.trDelta[1] = *(float *)&FLOAT_0_0;
-  s->lerp.apos.trDelta[2] = *(float *)&FLOAT_0_0;
+  s->lerp.apos.trDelta[0] = 0.0f;
+  s->lerp.apos.trDelta[1] = 0.0f;
+  s->lerp.apos.trDelta[2] = 0.0f;
   if ( (ps->eFlags & 0x300) == 0 )
   {
     s->lerp.apos.trBase[0] = ps->viewangles[0];
@@ -2364,34 +2364,34 @@ void __cdecl BG_PlayerToEntitySetTrajectory(playerState_s *ps, entityState_s *s,
   if ( snap )
   {
     if ( s->lerp.pos.trBase[0] >= 0.0 )
-      v8 = FLOAT_0_5;
+      v8 = 0.5f;
     else
-      v8 = FLOAT_N0_5;
+      v8 = -0.5f;
     s->lerp.pos.trBase[0] = (float)(int)(float)(s->lerp.pos.trBase[0] + v8);
     if ( s->lerp.pos.trBase[1] >= 0.0 )
-      v7 = FLOAT_0_5;
+      v7 = 0.5f;
     else
-      v7 = FLOAT_N0_5;
+      v7 = -0.5f;
     s->lerp.pos.trBase[1] = (float)(int)(float)(s->lerp.pos.trBase[1] + v7);
     if ( s->lerp.pos.trBase[2] >= 0.0 )
-      v6 = FLOAT_0_5;
+      v6 = 0.5f;
     else
-      v6 = FLOAT_N0_5;
+      v6 = -0.5f;
     s->lerp.pos.trBase[2] = (float)(int)(float)(s->lerp.pos.trBase[2] + v6);
     if ( s->lerp.apos.trBase[0] >= 0.0 )
-      v5 = FLOAT_0_5;
+      v5 = 0.5f;
     else
-      v5 = FLOAT_N0_5;
+      v5 = -0.5f;
     s->lerp.apos.trBase[0] = (float)(int)(float)(s->lerp.apos.trBase[0] + v5);
     if ( s->lerp.apos.trBase[1] >= 0.0 )
-      v4 = FLOAT_0_5;
+      v4 = 0.5f;
     else
-      v4 = FLOAT_N0_5;
+      v4 = -0.5f;
     s->lerp.apos.trBase[1] = (float)(int)(float)(s->lerp.apos.trBase[1] + v4);
     if ( s->lerp.apos.trBase[2] >= 0.0 )
-      v3 = FLOAT_0_5;
+      v3 = 0.5f;
     else
-      v3 = FLOAT_N0_5;
+      v3 = -0.5f;
     s->lerp.apos.trBase[2] = (float)(int)(float)(s->lerp.apos.trBase[2] + v3);
   }
 }
@@ -2454,9 +2454,9 @@ char  BG_CheckProne@<al>(
   trace.staticModel = a1;
   trace.hitPartition = retaddr;
   context.collide_entity_func = *(int (__cdecl **)(int, col_context_t *))&FLOAT_0_0;
-  v48 = *(unsigned int *)&FLOAT_0_0;
-  bFirstTraceHit = *(unsigned int *)&FLOAT_0_0;
-  trace.normal.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
+  v48 = 0;
+  bFirstTraceHit = 0;
+  trace.normal.vec.u[0] = 0;
   context.priorityMap = 0;
   HIBYTE(context.locational) = 1;
   col_context_t::col_context_t((col_context_t *)&fWaistDistance);
@@ -2468,7 +2468,7 @@ char  BG_CheckProne@<al>(
     *(float *)&iTraceMask = *(float *)&iTraceMask * lastStandDistScale;
     prone_feet_dist = prone_feet_dist * lastStandDistScale;
   }
-  vMins[2] = FLOAT_1_0;
+  vMins[2] = 1.0f;
   vMins[1] = *(float *)&pmoveHandlers[handler].trace;
   if ( !LODWORD(vMins[1])
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\bgame\\bg_misc.cpp", 2104, 0, "%s", "traceFunc") )
@@ -2483,7 +2483,7 @@ char  BG_CheckProne@<al>(
   {
     LODWORD(vMaxs[0]) = LODWORD(fSize) ^ _mask__NegFloat_;
     LODWORD(vMaxs[1]) = LODWORD(fSize) ^ _mask__NegFloat_;
-    vMaxs[2] = *(float *)&FLOAT_0_0;
+    vMaxs[2] = 0.0f;
     vStart[0] = fSize;
     vStart[1] = fSize;
     vStart[2] = fHeight;
@@ -2508,15 +2508,15 @@ char  BG_CheckProne@<al>(
   }
   if ( isOnGround && !groundIsWalkable )
     return 0;
-  vMaxs[0] = FLOAT_N6_0;
-  vMaxs[1] = FLOAT_N6_0;
-  vMaxs[2] = FLOAT_N6_0;
-  vStart[0] = FLOAT_6_0;
-  vStart[1] = FLOAT_6_0;
-  vStart[2] = FLOAT_6_0;
-  vForward[0] = *(float *)&FLOAT_0_0;
+  vMaxs[0] = -6.0f;
+  vMaxs[1] = -6.0f;
+  vMaxs[2] = -6.0f;
+  vStart[0] = 6.0f;
+  vStart[1] = 6.0f;
+  vStart[2] = 6.0f;
+  vForward[0] = 0.0f;
   vForward[1] = fYaw - 180.0;
-  vForward[2] = *(float *)&FLOAT_0_0;
+  vForward[2] = 0.0f;
   AngleVectors(vForward, &v35, 0, 0);
   fFirstTraceDist = fHeight - 6.0;
   vDelta[2] = (float)(fHeight - 6.0) - 6.0;
@@ -2684,9 +2684,9 @@ char  BG_CheckProne@<al>(
     vFeetPos[0] = AngleNormalize180(v23 - v22);
     if ( vFeetPos[0] < -50.0 || vFeetPos[0] > 70.0 )
       HIBYTE(context.locational) = 0;
-    vMaxs[0] = FLOAT_N0_0;
-    vMaxs[1] = FLOAT_N0_0;
-    vMaxs[2] = FLOAT_N0_0;
+    vMaxs[0] = -0.0f;
+    vMaxs[1] = -0.0f;
+    vMaxs[2] = -0.0f;
     memset(vStart, 0, sizeof(vStart));
     vEnd[0] = v24;
     vEnd[1] = fWaistPitch;
@@ -2730,12 +2730,12 @@ char  BG_CheckProne@<al>(
     {
       if ( v22 >= 0.0 || v22 <= -20.0 )
       {
-        v22 = *(float *)&FLOAT_0_0;
+        v22 = 0.0f;
         HIBYTE(context.locational) = 0;
       }
       else
       {
-        v22 = *(float *)&FLOAT_0_0;
+        v22 = 0.0f;
       }
     }
     if ( ps && ps->pm_type == 6 )
@@ -2746,7 +2746,7 @@ char  BG_CheckProne@<al>(
     if ( pfTorsoPitch )
     {
       if ( traceFunc )
-        v19 = *(float *)&FLOAT_0_0;
+        v19 = 0.0f;
       else
         v19 = v23 * vMins[2];
       *pfTorsoPitch = v19;
@@ -2754,7 +2754,7 @@ char  BG_CheckProne@<al>(
     if ( pfWaistPitch )
     {
       if ( traceFunc )
-        v18 = *(float *)&FLOAT_0_0;
+        v18 = 0.0f;
       else
         v18 = v22 * vMins[2];
       *pfWaistPitch = v18;
@@ -2766,9 +2766,9 @@ fail:
   if ( isOnGround )
     return 0;
   if ( pfTorsoPitch )
-    *pfTorsoPitch = *(float *)&FLOAT_0_0;
+    *pfTorsoPitch = 0.0f;
   if ( pfWaistPitch )
-    *pfWaistPitch = *(float *)&FLOAT_0_0;
+    *pfWaistPitch = 0.0f;
   return 1;
 }
 
@@ -2807,7 +2807,7 @@ void __cdecl BG_GetPlayerViewOrigin(const playerState_s *ps, float *origin, int 
     if ( time - ps->jumpTime >= 500 )
       xyspeed = ps->velocity[2];
     else
-      xyspeed = *(float *)&FLOAT_0_0;
+      xyspeed = 0.0f;
   }
   else
   {
@@ -2933,7 +2933,7 @@ void __cdecl BG_SetShellShockParmsFromDvars(shellshock_parms_t *parms)
   if ( (float)(0.001 - bg_shock_viewKickPeriod->current.value) < 0.0 )
     value = bg_shock_viewKickPeriod->current.value;
   else
-    value = FLOAT_0_001;
+    value = 0.001f;
   parms->view.kickRate = 0.001 / value;
   parms->view.kickRadius = bg_shock_viewKickRadius->current.value;
   parms->sound.affect = bg_shock_sound->current.enabled;
@@ -3107,7 +3107,7 @@ int __cdecl BG_GetMaxSprintTime(const playerState_s *ps)
     sprintDuration = (float)ps->sprintState.sprintDuration;
     maxSprintTime = sprintDuration * BG_GetWeaponDef(ps->weapon)->sprintDurationScale;
     if ( player_sprintTime->current.value == 0.0 )
-      maxSprintTime = *(float *)&FLOAT_0_0;
+      maxSprintTime = 0.0f;
   }
   if ( (ps->perks[0] & 0x40000000) != 0 )
     maxSprintTime = (float)(perk_sprintMultiplier->current.value * 1.0) * maxSprintTime;
@@ -3170,18 +3170,18 @@ void __cdecl BG_ClipCameraToHeliPatch(float *origin, float *oldpos, float *veloc
           *origin = *oldpos;
           origin[1] = oldpos[1];
           origin[2] = oldpos[2];
-          *velocity = *(float *)&FLOAT_0_0;
-          velocity[1] = *(float *)&FLOAT_0_0;
-          velocity[2] = *(float *)&FLOAT_0_0;
+          *velocity = 0.0f;
+          velocity[1] = 0.0f;
+          velocity[2] = 0.0f;
         }
         else if ( breachPos )
         {
           *origin = (*breachPos)[0];
           origin[1] = (*breachPos)[1];
           origin[2] = (*breachPos)[2];
-          *velocity = *(float *)&FLOAT_0_0;
-          velocity[1] = *(float *)&FLOAT_0_0;
-          velocity[2] = *(float *)&FLOAT_0_0;
+          *velocity = 0.0f;
+          velocity[1] = 0.0f;
+          velocity[2] = 0.0f;
           if ( CM_GetHeliHeight(origin, 3000.0, &heliPatchZ) )
             origin[2] = heliPatchZ - 1.0;
         }

@@ -271,8 +271,8 @@ void __cdecl CalcSkelRootBonesNoParentOrDuplicate(
       v8 = Vec4LengthSq(v);
       if ( v8 == 0.0 )
       {
-        v[3] = FLOAT_1_0;
-        v[7] = FLOAT_2_0;
+        v[3] = 1.0f;
+        v[7] = 2.0f;
       }
       else
       {
@@ -462,8 +462,8 @@ void __cdecl CalcSkelRootBonesWithParent(
       v9 = Vec4LengthSq(childMat->quat);
       if ( v9 == 0.0 )
       {
-        childMat->quat[3] = FLOAT_1_0;
-        childMat->transWeight = FLOAT_2_0;
+        childMat->quat[3] = 1.0f;
+        childMat->transWeight = 2.0f;
       }
       else
       {
@@ -712,8 +712,8 @@ void __cdecl CalcSkelNonRootBones(
       v8 = Vec4LengthSq(childMat->quat);
       if ( v8 == 0.0 )
       {
-        childMat->quat[3] = FLOAT_1_0;
-        childMat->transWeight = FLOAT_2_0;
+        childMat->quat[3] = 1.0f;
+        childMat->transWeight = 2.0f;
       }
       else
       {
@@ -824,13 +824,13 @@ void __cdecl DObjCalcBaseAnim(const DObj *obj, DObjAnimMat *mat, int *partBits)
     model = obj->localModels[j];
     for ( i = model->numRootBones; i; --i )
     {
-      mat->quat[0] = *(float *)&FLOAT_0_0;
-      mat->quat[1] = *(float *)&FLOAT_0_0;
-      mat->quat[2] = *(float *)&FLOAT_0_0;
-      mat->quat[3] = FLOAT_1_0;
-      mat->trans[0] = *(float *)&FLOAT_0_0;
-      mat->trans[1] = *(float *)&FLOAT_0_0;
-      mat->trans[2] = *(float *)&FLOAT_0_0;
+      mat->quat[0] = 0.0f;
+      mat->quat[1] = 0.0f;
+      mat->quat[2] = 0.0f;
+      mat->quat[3] = 1.0f;
+      mat->trans[0] = 0.0f;
+      mat->trans[1] = 0.0f;
+      mat->trans[2] = 0.0f;
       ++mat;
       ++boneIndex;
     }
@@ -844,9 +844,9 @@ void __cdecl DObjCalcBaseAnim(const DObj *obj, DObjAnimMat *mat, int *partBits)
         mat->quat[1] = (float)quats[1] * 0.000030518509;
         mat->quat[2] = (float)quats[2] * 0.000030518509;
         mat->quat[3] = (float)quats[3] * 0.000030518509;
-        mat->trans[0] = *(float *)&FLOAT_0_0;
-        mat->trans[1] = *(float *)&FLOAT_0_0;
-        mat->trans[2] = *(float *)&FLOAT_0_0;
+        mat->trans[0] = 0.0f;
+        mat->trans[1] = 0.0f;
+        mat->trans[2] = 0.0f;
       }
       --ia;
       ++mat;

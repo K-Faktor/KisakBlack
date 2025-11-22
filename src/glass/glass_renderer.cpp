@@ -279,12 +279,12 @@ GlassRenderer *__thiscall GlassRenderer::GlassRenderer(GlassRenderer *this, cons
                                    1000.0,
                                    0,
                                    "Minimum length that the window edge has to be to have a shatter fx spawned on it.");
-  this->allBBoxMin[0] = FLOAT_3_4028235e38;
-  this->allBBoxMin[1] = FLOAT_3_4028235e38;
-  this->allBBoxMin[2] = FLOAT_3_4028235e38;
-  this->allBBoxMax[0] = FLOAT_N3_4028235e38;
-  this->allBBoxMax[1] = FLOAT_N3_4028235e38;
-  this->allBBoxMax[2] = FLOAT_N3_4028235e38;
+  this->allBBoxMin[0] = FLT_MAX;
+  this->allBBoxMin[1] = FLT_MAX;
+  this->allBBoxMin[2] = FLT_MAX;
+  this->allBBoxMax[0] = -FLT_MAX;
+  this->allBBoxMax[1] = -FLT_MAX;
+  this->allBBoxMax[2] = -FLT_MAX;
   for ( i = 0; i < glasses->numGlasses; ++i )
   {
     Vec3Min(this->allBBoxMin, glasses->glasses[i].absmin, this->allBBoxMin);
@@ -305,9 +305,9 @@ GlassRenderer *__thiscall GlassRenderer::GlassRenderer(GlassRenderer *this, cons
   allExtent[1] = this->allBBoxMax[1] - this->allBBoxMin[1];
   allExtent[2] = this->allBBoxMax[2] - this->allBBoxMin[2];
   if ( !strcmp(ui_mapname->current.string, "mp_mountain") )
-    MIN_SHARD_GROUP_VOLUME_SIZE = FLOAT_128_0;
+    MIN_SHARD_GROUP_VOLUME_SIZE = 128.0f;
   else
-    MIN_SHARD_GROUP_VOLUME_SIZE = FLOAT_32_0;
+    MIN_SHARD_GROUP_VOLUME_SIZE = 32.0f;
   scale[0] = FLOAT_0_00048828125;
   scale[1] = FLOAT_0_00048828125;
   scale[2] = FLOAT_0_0009765625;
@@ -652,7 +652,7 @@ void __thiscall GlassRenderer::Update(GlassRenderer *this, int threadId)
   if ( !threadId )
   {
     ++this->frame;
-    this->deltaTime = FLOAT_0_016666668;
+    this->deltaTime = 0.016666668f;
     cg = CG_GetLocalClientGlobals(0);
     if ( cg && cg->snap )
     {
@@ -679,11 +679,11 @@ void __thiscall GlassRenderer::Update(GlassRenderer *this, int threadId)
             if ( v9 <= 0.1 )
               v8 = v9;
             else
-              v8 = FLOAT_0_1;
+              v8 = 0.1f;
           }
           else
           {
-            v8 = *(float *)&FLOAT_0_0;
+            v8 = 0.0f;
           }
           this->deltaTime = v8;
           this->timeLastUpdate = now;
@@ -1822,9 +1822,9 @@ void __thiscall GlassRenderer::Broom(GlassRenderer *this)
 
   if ( this->broom->current.enabled )
   {
-    DISTANCE = FLOAT_150_0;
+    DISTANCE = 150.0f;
     RADIUS = FLOAT_120_0;
-    FORCE_SCALE = FLOAT_0_050000001;
+    FORCE_SCALE = 0.05f;
     cgameGlob = CG_GetLocalClientGlobals(0);
     v5 = cgameGlob->refdef.vieworg[1];
     origin[0] = cgameGlob->refdef.vieworg[0];
@@ -1914,9 +1914,9 @@ void __thiscall GlassRenderer::DrawDebug(GlassRenderer *this)
 
   if ( this->drawDebug && this->drawDebug->current.enabled )
   {
-    x = *(float *)&FLOAT_0_0;
-    y = *(float *)&FLOAT_0_0;
-    idx2vtx = *(float *)&FLOAT_0_0;
+    x = 0.0f;
+    y = 0.0f;
+    idx2vtx = 0.0f;
     s = va(
           "glasses:%d shards:%d(free:%d) moving:%d(%d) vis:%d idx/vtx=%.1f",
           clGlasses->numGlasses,
@@ -1930,19 +1930,19 @@ void __thiscall GlassRenderer::DrawDebug(GlassRenderer *this)
     if ( this->genVertsCount )
       v14 = (double)this->genVertsTimer * 1000000.0 / tlPcTicksPerMS / (double)this->genVertsCount;
     else
-      v14 = *(float *)&FLOAT_0_0;
+      v14 = 0.0f;
     if ( this->numSplits )
       v13 = (double)this->splitTimer * 1000.0 / tlPcTicksPerMS / (double)this->numSplits;
     else
-      v13 = *(float *)&FLOAT_0_0;
+      v13 = 0.0f;
     if ( HIDWORD(this->triangulateTimer) || LODWORD(this->triangulateTimer) )
       v12 = (double)this->triangulateTimer * 100.0 / (double)this->splitTimer;
     else
-      v12 = *(float *)&FLOAT_0_0;
+      v12 = 0.0f;
     if ( this->numShatters )
       v11 = (double)this->shatterTimer / tlPcTicksPerMS / (double)this->numShatters;
     else
-      v11 = *(float *)&FLOAT_0_0;
+      v11 = 0.0f;
     if ( this->shardsAllocator->used._Mysize )
     {
       v25 = (char *)this->shardMemoryAllocator.tail - (char *)this->shardMemoryAllocator.head;

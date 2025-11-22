@@ -16,7 +16,7 @@ void __fastcall Actor_Dog_Exposed_Finish(actor_s *self, ai_state_t eNextState)
 {
   self->ProneInfo.prone = 0;
   self->ProneInfo.orientPitch = 0;
-  self->ProneInfo.fTorsoPitch = *(float *)&FLOAT_0_0;
+  self->ProneInfo.fTorsoPitch = 0.0f;
 }
 
 void __fastcall Actor_Dog_Exposed_Suspend(actor_s *self, ai_state_t eNextState)
@@ -372,7 +372,7 @@ int __cdecl Actor_Dog_IsEnemyInAttackRange(actor_s *self, sentient_s *enemy, int
     memset(&trace, 0, 16);
     mins[0] = actorMins[0];
     mins[1] = -15.0;
-    mins[2] = FLOAT_18_0;
+    mins[2] = 18.0f;
     col_context_t::col_context_t(&context);
     G_TraceCapsule(
       &trace,
@@ -435,7 +435,7 @@ char __fastcall Actor_SetMeleeAttackSpot(actor_s *self, const float *enemyPositi
     __debugbreak();
   }
   memset(&trace, 0, 16);
-  bestFraction = *(float *)&FLOAT_0_0;
+  bestFraction = 0.0f;
   enemy = Actor_GetTargetSentient(self);
   currentOrigin = self->ent->r.currentOrigin;
   dirFromEnemy[0] = *currentOrigin - *enemyPosition;
@@ -466,7 +466,7 @@ char __fastcall Actor_SetMeleeAttackSpot(actor_s *self, const float *enemyPositi
   attackPosition[2] = enemyPosition[2];
   mins[0] = actorMins[0];
   mins[1] = -15.0;
-  mins[2] = FLOAT_18_0;
+  mins[2] = 18.0f;
   maxs[0] = actorMaxs[0];
   maxs[1] = 15.0;
   maxs[2] = 48.0;

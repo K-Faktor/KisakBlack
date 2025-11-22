@@ -12,18 +12,18 @@ void __cdecl CG_GetTagMatrix(int localClientNum, int linkEntNum, unsigned __int1
     if ( !objLink || !CG_DObjGetWorldTagMatrix(&centLink->pose, objLink, tagName, resultTagMat, &(*resultTagMat)[9]) )
     {
       MatrixIdentity33(resultTagMat);
-      (*resultTagMat)[9] = *(float *)&FLOAT_0_0;
-      (*resultTagMat)[10] = *(float *)&FLOAT_0_0;
-      (*resultTagMat)[11] = *(float *)&FLOAT_0_0;
+      (*resultTagMat)[9] = 0.0f;
+      (*resultTagMat)[10] = 0.0f;
+      (*resultTagMat)[11] = 0.0f;
     }
   }
   else
   {
     Com_PrintWarning(14, "An actor is linking to an entity that was not included in latest snapshot.\n");
     MatrixIdentity33(resultTagMat);
-    (*resultTagMat)[9] = *(float *)&FLOAT_0_0;
-    (*resultTagMat)[10] = *(float *)&FLOAT_0_0;
-    (*resultTagMat)[11] = *(float *)&FLOAT_0_0;
+    (*resultTagMat)[9] = 0.0f;
+    (*resultTagMat)[10] = 0.0f;
+    (*resultTagMat)[11] = 0.0f;
   }
 }
 
@@ -173,9 +173,9 @@ void __cdecl CG_GenerateLinkInfo(int localClientNum, centity_s *cent, int attach
     cent->linkInfo = (cLinkInfo_s *)MT_Alloc(72, 18, SCRIPTINSTANCE_SERVER);
     cent->linkInfo->linkEnt = 1023;
     relative_angles = cent->linkInfo->relative_angles;
-    *relative_angles = *(float *)&FLOAT_0_0;
-    relative_angles[1] = *(float *)&FLOAT_0_0;
-    relative_angles[2] = *(float *)&FLOAT_0_0;
+    *relative_angles = 0.0f;
+    relative_angles[1] = 0.0f;
+    relative_angles[2] = 0.0f;
     cent->linkInfo->angles_set = 0;
   }
   if ( cent->linkInfo->linkEnt != attachedEntNum )

@@ -113,17 +113,17 @@ void __thiscall gjk_aabb_t::support(
   float v8; // [esp-8h] [ebp-14h]
 
   if ( v->z >= 0.0 )
-    v8 = FLOAT_1_0;
+    v8 = 1.0f;
   else
-    v8 = FLOAT_N1_0;
+    v8 = -1.0f;
   if ( v->y >= 0.0 )
-    v7 = FLOAT_1_0;
+    v7 = 1.0f;
   else
-    v7 = FLOAT_N1_0;
+    v7 = -1.0f;
   if ( v->x >= 0.0 )
-    v6 = FLOAT_1_0;
+    v6 = 1.0f;
   else
-    v6 = FLOAT_N1_0;
+    v6 = -1.0f;
   support_ind->x = v6;
   support_ind->y = v7;
   support_ind->z = v8;
@@ -266,7 +266,7 @@ void __thiscall phys_contact_manifold::add_feature_point(phys_contact_manifold *
     v2->m_contact_p.y = v4;
     if ( v4 <= (float)(0.0033999998 * 0.0033999998) )
     {
-      v2->m_contact_p.x = FLOAT_2_0;
+      v2->m_contact_p.x = 2.0f;
       ++this->m_close_mesh_point_count;
     }
     else
@@ -421,17 +421,17 @@ void __userpurge gjk_obb_t::support(
   v19 = this;
   phys_inv_multiply((const phys_vec3 *)v18, &this->m_xform, v);
   if ( v18[2] >= 0.0 )
-    v17 = FLOAT_1_0;
+    v17 = 1.0f;
   else
-    v17 = FLOAT_N1_0;
+    v17 = -1.0f;
   if ( v18[1] >= 0.0 )
-    v16 = FLOAT_1_0;
+    v16 = 1.0f;
   else
-    v16 = FLOAT_N1_0;
+    v16 = -1.0f;
   if ( v18[0] >= 0.0 )
-    v15 = FLOAT_1_0;
+    v15 = 1.0f;
   else
-    v15 = FLOAT_N1_0;
+    v15 = -1.0f;
   v12 = v15;
   v13 = v16;
   v14 = v17;
@@ -1042,9 +1042,9 @@ void __thiscall gjk_partition_t::get_simplex(
 
 const phys_vec3 *__thiscall gjk_brush_t::get_center(gjk_partition_t *this, const phys_vec3 *result)
 {
-  result->x = *(float *)&FLOAT_0_0;
-  result->y = *(float *)&FLOAT_0_0;
-  result->z = *(float *)&FLOAT_0_0;
+  result->x = 0.0f;
+  result->y = 0.0f;
+  result->z = 0.0f;
   return result;
 }
 
@@ -1497,8 +1497,8 @@ gjk_double_sphere_t *__cdecl gjk_double_sphere_t::create(
   v9->m_list_center[1].x = c1->x;
   v9->m_list_center[1].y = c1->y;
   v9->m_list_center[1].z = c1->z;
-  v9->m_list_radius[0] = *(float *)&FLOAT_0_0;
-  v9->m_list_radius[1] = *(float *)&FLOAT_0_0;
+  v9->m_list_radius[0] = 0.0f;
+  v9->m_list_radius[1] = 0.0f;
   v9->m_geom_radius = r;
   if ( stype >= 31
     && !Assert_MyHandler(
@@ -1580,7 +1580,7 @@ gjk_cylinder_t *__cdecl gjk_cylinder_t::create(
   obj->direction = _direction;
   obj->halfHeight = _halfHeight;
   obj->radius = _radius;
-  obj->m_geom_radius = *(float *)&FLOAT_0_0;
+  obj->m_geom_radius = 0.0f;
   phys_mat44::operator=(&obj->xform, _xform);
   if ( stype >= 31
     && !Assert_MyHandler(
@@ -1650,7 +1650,7 @@ void __userpurge gjk_cylinder_t::support(
   {
     __debugbreak();
   }
-  *(&x + direction) = *(float *)&FLOAT_0_0;
+  *(&x + direction) = 0.0f;
   v16 = Abs(&x);
   if ( v16 <= 0.001 )
   {
@@ -1666,9 +1666,9 @@ void __userpurge gjk_cylinder_t::support(
     z = z * (float)(1.0 / v16);
   }
   if ( v18 < 0.0 )
-    v14 = FLOAT_N1_0;
+    v14 = -1.0f;
   else
-    v14 = FLOAT_1_0;
+    v14 = 1.0f;
   v13 = v23->direction;
   if ( v13 > 2
     && _tlAssert(
@@ -1927,7 +1927,7 @@ void __userpurge gjk_cylinder_t::get_feature(gjk_cylinder_t *this@<ecx>, int a2@
   {
     __debugbreak();
   }
-  *(&len + LODWORD(sr)) = *(float *)&FLOAT_0_0;
+  *(&len + LODWORD(sr)) = 0.0f;
   v50 = (float)((float)(x * r1.y) + (float)(y * r1.z)) + (float)(z * r1.w);
   if ( COERCE_FLOAT(LODWORD(v50) & _mask__AbsFloat_) >= 0.70709997 )
   {
@@ -2252,7 +2252,7 @@ void  setup_gjk_polygon_cylinder(
   if ( (float)(0.5 * v13) >= 1.0 )
     v6 = 0.5 * v13;
   else
-    v6 = FLOAT_1_0;
+    v6 = 1.0f;
   v12 = v6;
   if ( v6 == 1.0 )
     tlWarning("degenerate capsule.");
@@ -2264,7 +2264,7 @@ void  setup_gjk_polygon_cylinder(
   if ( (float)(0.5 * v16) >= 1.0 )
     v7 = 0.5 * v16;
   else
-    v7 = FLOAT_1_0;
+    v7 = 1.0f;
   gjk_cylinder->m_half_height = v7;
   if ( gjk_cylinder->m_half_height == 1.0 )
     tlWarning("degenerate capsule1.");
@@ -2285,8 +2285,8 @@ void  setup_gjk_polygon_cylinder(
   }
   gjk_cylinder->m_geom_radius = radius_adjust;
   v11 = (float)((float)(pv_maxs.w + dim_adjust) * 0.5) + phys_player_collision_adjust_height->current.value;
-  gjk_cylinder->m_center.x = *(float *)&FLOAT_0_0;
-  gjk_cylinder->m_center.y = *(float *)&FLOAT_0_0;
+  gjk_cylinder->m_center.x = 0.0f;
+  gjk_cylinder->m_center.y = 0.0f;
   gjk_cylinder->m_center.z = v11;
   if ( gjk_cylinder->m_half_height <= head_offset )
     m_half_height = gjk_cylinder->m_half_height;
@@ -2948,11 +2948,11 @@ void __cdecl create_gjk_geom(
     }
     else
     {
-      mins[0] = FLOAT_N15_0;
-      mins[1] = FLOAT_N15_0;
-      mins[2] = *(float *)&FLOAT_0_0;
-      maxs[0] = FLOAT_15_0;
-      maxs[1] = FLOAT_15_0;
+      mins[0] = -15.0f;
+      mins[1] = -15.0f;
+      mins[2] = 0.0f;
+      maxs[0] = 15.0f;
+      maxs[1] = 15.0f;
       maxs[2] = FLOAT_72_0;
     }
     if ( b_use_smallerbox_for_characters )

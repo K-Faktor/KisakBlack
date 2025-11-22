@@ -1237,9 +1237,9 @@ void __cdecl BG_SetupTransitionTimes(WeaponVariantDef *weapVariantDef)
 void __cdecl BG_CheckWeaponDamageRanges(WeaponDef *weapDef)
 {
   if ( weapDef->fMaxDamageRange <= 0.0 )
-    weapDef->fMaxDamageRange = FLOAT_999999_0;
+    weapDef->fMaxDamageRange = 999999.0f;
   if ( weapDef->fMinDamageRange <= 0.0 )
-    weapDef->fMinDamageRange = FLOAT_999999_12;
+    weapDef->fMinDamageRange = 999999.12f;
 }
 
 void __cdecl BG_CheckProjectileValues(WeaponFullDef *weaponFullDef)
@@ -1360,7 +1360,7 @@ WeaponFullDef *__cdecl BG_LoadDefaultWeaponVariantDef_LoadObj()
   bg_defaultWeaponFullDefs.weapVariantDef.szInternalName = "none";
   bg_defaultWeaponFullDefs.weapDef.accuracyGraphName[0] = "noweapon.accu";
   bg_defaultWeaponFullDefs.weapDef.accuracyGraphName[1] = "noweapon.accu";
-  bg_defaultWeaponFullDefs.weapDef.sprintDurationScale = FLOAT_1_75;
+  bg_defaultWeaponFullDefs.weapDef.sprintDurationScale = 1.75f;
   G_ParseWeaponAccurayGraphs(&bg_defaultWeaponFullDefs.weapDef);
   return &bg_defaultWeaponFullDefs;
 }

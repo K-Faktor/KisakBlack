@@ -123,7 +123,7 @@ void __cdecl CG_Laser_Add_Core(
   beam.endRadius = cg_laserRadius->current.value * laserEndWidenScale;
   beam.material = cgMedia.laserMaterial;
   beam.segmentCount = 1;
-  beam.wiggleDist = *(float *)&FLOAT_0_0;
+  beam.wiggleDist = 0.0f;
   FX_Beam_Add(&beam);
   if ( cg_laserLight->current.enabled )
   {

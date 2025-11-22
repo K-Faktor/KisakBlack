@@ -3426,7 +3426,7 @@ void __cdecl CL_DrawLogo(int localClientNum)
   if ( cls.realtime - cls.logo.startTime >= cls.logo.fadein )
   {
     if ( time <= cls.logo.duration - cls.logo.fadeout )
-      fade = FLOAT_1_0;
+      fade = 1.0f;
     else
       fade = (float)(cls.logo.duration - time) / (float)cls.logo.fadeout;
   }
@@ -3437,16 +3437,16 @@ void __cdecl CL_DrawLogo(int localClientNum)
   if ( fade >= 0.0 )
   {
     if ( fade > 1.0 )
-      fade = FLOAT_1_0;
+      fade = 1.0f;
   }
   else
   {
-    fade = *(float *)&FLOAT_0_0;
+    fade = 0.0f;
   }
   color[0] = fade;
   color[1] = fade;
   color[2] = fade;
-  color[3] = FLOAT_1_0;
+  color[3] = 1.0f;
   w = (float)cls.vidConfig.displayWidth;
   h0 = ((double)cls.vidConfig.displayHeight + (double)cls.vidConfig.displayHeight) / 3.0;
   h1 = (double)cls.vidConfig.displayHeight - h0;

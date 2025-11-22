@@ -306,13 +306,13 @@ void __cdecl R_FlushSun()
   for ( viewIndex = 0; viewIndex < 4; ++viewIndex )
   {
     sunFlare = &sunFlareArray[viewIndex];
-    sunFlare->currentBlind = *(float *)&FLOAT_0_0;
-    sunFlare->currentGlare = *(float *)&FLOAT_0_0;
-    sunFlare->flareIntensity = *(float *)&FLOAT_0_0;
+    sunFlare->currentBlind = 0.0f;
+    sunFlare->currentGlare = 0.0f;
+    sunFlare->flareIntensity = 0.0f;
     sunFlare->hitNum = 0;
-    sunFlare->lastDot = *(float *)&FLOAT_0_0;
+    sunFlare->lastDot = 0.0f;
     sunFlare->lastTime = 0;
-    sunFlare->lastVisibility = *(float *)&FLOAT_0_0;
+    sunFlare->lastVisibility = 0.0f;
   }
 }
 

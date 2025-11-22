@@ -3,14 +3,14 @@
 void __cdecl Actor_InitLookAt(actor_s *self)
 {
   self->lookAtInfo.bDoLookAt = 0;
-  self->lookAtInfo.vLookAtPos[0] = *(float *)&FLOAT_0_0;
-  self->lookAtInfo.vLookAtPos[1] = *(float *)&FLOAT_0_0;
-  self->lookAtInfo.vLookAtPos[2] = *(float *)&FLOAT_0_0;
-  self->lookAtInfo.fLookAtTurnAngle = *(float *)&FLOAT_0_0;
-  self->lookAtInfo.fLookAtTurnSpeed = *(float *)&FLOAT_0_0;
+  self->lookAtInfo.vLookAtPos[0] = 0.0f;
+  self->lookAtInfo.vLookAtPos[1] = 0.0f;
+  self->lookAtInfo.vLookAtPos[2] = 0.0f;
+  self->lookAtInfo.fLookAtTurnAngle = 0.0f;
+  self->lookAtInfo.fLookAtTurnSpeed = 0.0f;
   self->lookAtInfo.fLookAtTurnAccel = FLOAT_120_0;
-  self->lookAtInfo.fLookAtAnimYawLimit = FLOAT_90_0;
-  self->lookAtInfo.fLookAtYawLimit = FLOAT_90_0;
+  self->lookAtInfo.fLookAtAnimYawLimit = 90.0f;
+  self->lookAtInfo.fLookAtYawLimit = 90.0f;
   self->lookAtInfo.bLookAtSetup = 0;
 }
 
@@ -35,8 +35,8 @@ void __cdecl Actor_SetLookAtAnimNodes(
   animLookAtStraight = self->lookAtInfo.animLookAtStraight;
   Com_GetServerDObj(self->ent->s.number);
   Actor_AnimSetCompleteGoalWeight(tree, animLookAtStraight, 1.0, 0.0, 1.0, 0, 0, 0);
-  self->lookAtInfo.fLookAtAnimBlendRate = *(float *)&FLOAT_0_0;
-  self->lookAtInfo.fLookAtLimitBlendRate = *(float *)&FLOAT_0_0;
+  self->lookAtInfo.fLookAtAnimBlendRate = 0.0f;
+  self->lookAtInfo.fLookAtLimitBlendRate = 0.0f;
   self->lookAtInfo.iLookAtBlendEndTime = level.time;
   self->lookAtInfo.bLookAtSetup = 1;
 }
@@ -49,7 +49,7 @@ void __cdecl Actor_SetLookAt(actor_s *self, const float *vPosition, float fTurnA
   if ( fTurnAccel > 20.0 )
     self->lookAtInfo.fLookAtTurnAccel = fTurnAccel;
   if ( self->lookAtInfo.fLookAtTurnAccel < 20.0 )
-    self->lookAtInfo.fLookAtTurnAccel = FLOAT_20_0;
+    self->lookAtInfo.fLookAtTurnAccel = 20.0f;
   self->lookAtInfo.bDoLookAt = 1;
 }
 
@@ -91,11 +91,11 @@ double __cdecl Actor_CurrentLookAtAnimYawMax(actor_s *self)
   if ( fCurrentLimit >= 0.0 )
   {
     if ( fCurrentLimit > 180.0 )
-      return FLOAT_180_0;
+      return 180.0f;
   }
   else
   {
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
   }
   return fCurrentLimit;
 }
@@ -113,11 +113,11 @@ double __cdecl Actor_CurrentLookAtYawMax(actor_s *self)
   if ( fCurrentLimit >= 0.0 )
   {
     if ( fCurrentLimit > 180.0 )
-      return FLOAT_180_0;
+      return 180.0f;
   }
   else
   {
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
   }
   return fCurrentLimit;
 }
@@ -149,7 +149,7 @@ void __cdecl Actor_UpdateLookAt(actor_s *self)
      && self->lookAtInfo.fLookAtYawLimit != 0.0
      || self->lookAtInfo.fLookAtTurnAngle != 0.0) )
   {
-    fFrametime = FLOAT_0_050000001;
+    fFrametime = 0.05f;
     fLookYawLimit = Actor_CurrentLookAtYawMax(self);
     Sentient_GetEyePosition(self->sentient, vEyePosition);
     vDelta[0] = self->lookAtInfo.vLookAtPos[0] - vEyePosition[0];
@@ -161,7 +161,7 @@ void __cdecl Actor_UpdateLookAt(actor_s *self)
       || self->lookAtInfo.fLookAtAnimYawLimit == 0.0
       || self->lookAtInfo.fLookAtYawLimit == 0.0 )
     {
-      fLookYawTarget = *(float *)&FLOAT_0_0;
+      fLookYawTarget = 0.0f;
     }
     else
     {
@@ -203,7 +203,7 @@ void __cdecl Actor_UpdateLookAt(actor_s *self)
           }
           else
           {
-            fYawSpeed = FLOAT_10_0;
+            fYawSpeed = 10.0f;
           }
         }
       }
@@ -221,7 +221,7 @@ void __cdecl Actor_UpdateLookAt(actor_s *self)
         }
         else
         {
-          fYawSpeed = FLOAT_N10_0;
+          fYawSpeed = -10.0f;
         }
       }
       if ( fYawSpeed > (float)(self->lookAtInfo.fLookAtTurnAccel * 0.22) )
@@ -239,7 +239,7 @@ void __cdecl Actor_UpdateLookAt(actor_s *self)
         if ( fLookYawTarget >= self->lookAtInfo.fLookAtTurnAngle )
         {
           self->lookAtInfo.fLookAtTurnAngle = fLookYawTarget;
-          self->lookAtInfo.fLookAtTurnSpeed = *(float *)&FLOAT_0_0;
+          self->lookAtInfo.fLookAtTurnSpeed = 0.0f;
         }
       }
       else
@@ -249,14 +249,14 @@ void __cdecl Actor_UpdateLookAt(actor_s *self)
         if ( self->lookAtInfo.fLookAtTurnAngle >= fLookYawTarget )
         {
           self->lookAtInfo.fLookAtTurnAngle = fLookYawTarget;
-          self->lookAtInfo.fLookAtTurnSpeed = *(float *)&FLOAT_0_0;
+          self->lookAtInfo.fLookAtTurnSpeed = 0.0f;
         }
       }
     }
     else
     {
       self->lookAtInfo.fLookAtTurnAngle = fLookYawTarget;
-      self->lookAtInfo.fLookAtTurnSpeed = *(float *)&FLOAT_0_0;
+      self->lookAtInfo.fLookAtTurnSpeed = 0.0f;
     }
   }
 }

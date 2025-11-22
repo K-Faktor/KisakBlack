@@ -82,15 +82,15 @@ void __cdecl make_rotate(phys_mat44 *m, const phys_vec3 *u, float ca, float sa)
   m->x.x = (float)((float)(u->x * u->x) * (float)(1.0 - ca)) + ca;
   m->y.x = xy - zsa;
   m->z.x = xz + ysa;
-  m->w.x = *(float *)&FLOAT_0_0;
+  m->w.x = 0.0f;
   *phys_vec3::operator[]<int>(&m->x, 1u) = xy + zsa;
   *phys_vec3::operator[]<int>(&m->y, 1u) = yy + ca;
   *phys_vec3::operator[]<int>(&m->z, 1u) = yz - xsa;
-  *phys_vec3::operator[]<int>(&m->w, 1u) = *(float *)&FLOAT_0_0;
+  *phys_vec3::operator[]<int>(&m->w, 1u) = 0.0f;
   *phys_vec3::operator[]<int>(&m->x, 2u) = xz - ysa;
   *phys_vec3::operator[]<int>(&m->y, 2u) = yz + xsa;
   *phys_vec3::operator[]<int>(&m->z, 2u) = zz + ca;
-  *phys_vec3::operator[]<int>(&m->w, 2u) = *(float *)&FLOAT_0_0;
+  *phys_vec3::operator[]<int>(&m->w, 2u) = 0.0f;
   phys_mat44::fix_w_column(m);
 }
 
@@ -261,73 +261,73 @@ void __userpurge debug_brush_info_t::add_brush(
       phys_vec3::operator=(&v72->n, &v73);
       v72->d = v74;
     }
-    v68 = FLOAT_N1_0;
-    v69 = *(unsigned int *)&FLOAT_0_0;
-    v70 = *(unsigned int *)&FLOAT_0_0;
+    v68 = -1.0f;
+    v69 = 0;
+    v70 = 0;
     v67 = LODWORD(v82.x) ^ _mask__NegFloat_;
-    v65.x = FLOAT_N1_0;
-    v65.y = *(float *)&FLOAT_0_0;
-    v65.z = *(float *)&FLOAT_0_0;
+    v65.x = -1.0f;
+    v65.y = 0.0f;
+    v65.z = 0.0f;
     v65.w = v71;
     LODWORD(v66) = LODWORD(v82.x) ^ _mask__NegFloat_;
     v64 = phys_static_array<plane_lt,512>::add(&v79, 0, "phys array add overflow.");
     phys_vec3::operator=(&v64->n, &v65);
     v64->d = v66;
-    v60 = *(unsigned int *)&FLOAT_0_0;
-    v61 = FLOAT_N1_0;
-    v62 = *(unsigned int *)&FLOAT_0_0;
+    v60 = 0;
+    v61 = -1.0f;
+    v62 = 0;
     v59 = LODWORD(v82.y) ^ _mask__NegFloat_;
-    v57.x = *(float *)&FLOAT_0_0;
-    v57.y = FLOAT_N1_0;
-    v57.z = *(float *)&FLOAT_0_0;
+    v57.x = 0.0f;
+    v57.y = -1.0f;
+    v57.z = 0.0f;
     v57.w = v63;
     LODWORD(v58) = LODWORD(v82.y) ^ _mask__NegFloat_;
     v56 = phys_static_array<plane_lt,512>::add(&v79, 0, "phys array add overflow.");
     phys_vec3::operator=(&v56->n, &v57);
     v56->d = v58;
-    v52 = *(unsigned int *)&FLOAT_0_0;
-    v53 = *(unsigned int *)&FLOAT_0_0;
-    v54 = FLOAT_N1_0;
+    v52 = 0;
+    v53 = 0;
+    v54 = -1.0f;
     v51 = LODWORD(v82.z) ^ _mask__NegFloat_;
-    v49.x = *(float *)&FLOAT_0_0;
-    v49.y = *(float *)&FLOAT_0_0;
-    v49.z = FLOAT_N1_0;
+    v49.x = 0.0f;
+    v49.y = 0.0f;
+    v49.z = -1.0f;
     v49.w = v55;
     LODWORD(v50) = LODWORD(v82.z) ^ _mask__NegFloat_;
     v48 = phys_static_array<plane_lt,512>::add(&v79, 0, "phys array add overflow.");
     phys_vec3::operator=(&v48->n, &v49);
     v48->d = v50;
-    v44 = FLOAT_1_0;
-    v45 = *(unsigned int *)&FLOAT_0_0;
-    v46 = *(unsigned int *)&FLOAT_0_0;
+    v44 = 1.0f;
+    v45 = 0;
+    v46 = 0;
     x = v81.x;
-    v41.x = FLOAT_1_0;
-    v41.y = *(float *)&FLOAT_0_0;
-    v41.z = *(float *)&FLOAT_0_0;
+    v41.x = 1.0f;
+    v41.y = 0.0f;
+    v41.z = 0.0f;
     v41.w = v47;
     v42 = v81.x;
     v40 = phys_static_array<plane_lt,512>::add(&v79, 0, "phys array add overflow.");
     phys_vec3::operator=(&v40->n, &v41);
     v40->d = v42;
-    v36 = *(unsigned int *)&FLOAT_0_0;
-    v37 = FLOAT_1_0;
-    v38 = *(unsigned int *)&FLOAT_0_0;
+    v36 = 0;
+    v37 = 1.0f;
+    v38 = 0;
     y = v81.y;
-    v33.x = *(float *)&FLOAT_0_0;
-    v33.y = FLOAT_1_0;
-    v33.z = *(float *)&FLOAT_0_0;
+    v33.x = 0.0f;
+    v33.y = 1.0f;
+    v33.z = 0.0f;
     v33.w = v39;
     v34 = v81.y;
     v32 = phys_static_array<plane_lt,512>::add(&v79, 0, "phys array add overflow.");
     phys_vec3::operator=(&v32->n, &v33);
     v32->d = v34;
-    v28 = *(unsigned int *)&FLOAT_0_0;
-    v29 = *(unsigned int *)&FLOAT_0_0;
-    v30 = FLOAT_1_0;
+    v28 = 0;
+    v29 = 0;
+    v30 = 1.0f;
     z = v81.z;
-    v25.x = *(float *)&FLOAT_0_0;
-    v25.y = *(float *)&FLOAT_0_0;
-    v25.z = FLOAT_1_0;
+    v25.x = 0.0f;
+    v25.y = 0.0f;
+    v25.z = 1.0f;
     v25.w = v31;
     v26 = v81.z;
     v24 = phys_static_array<plane_lt,512>::add(&v79, 0, "phys array add overflow.");
@@ -573,18 +573,18 @@ void __cdecl render_debug_brushes()
   float default_color[4]; // [esp+9Ch] [ebp-20h]
   float mantle_color[4]; // [esp+ACh] [ebp-10h]
 
-  default_color[0] = *(float *)&FLOAT_0_0;
-  default_color[1] = FLOAT_0_75;
-  default_color[2] = FLOAT_0_75;
-  default_color[3] = FLOAT_1_0;
-  player_clip_color[0] = FLOAT_0_75;
-  player_clip_color[1] = FLOAT_0_75;
-  player_clip_color[2] = *(float *)&FLOAT_0_0;
-  player_clip_color[3] = FLOAT_1_0;
-  mantle_color[0] = FLOAT_0_5;
-  mantle_color[1] = *(float *)&FLOAT_0_0;
-  mantle_color[2] = *(float *)&FLOAT_0_0;
-  mantle_color[3] = FLOAT_1_0;
+  default_color[0] = 0.0f;
+  default_color[1] = 0.75f;
+  default_color[2] = 0.75f;
+  default_color[3] = 1.0f;
+  player_clip_color[0] = 0.75f;
+  player_clip_color[1] = 0.75f;
+  player_clip_color[2] = 0.0f;
+  player_clip_color[3] = 1.0f;
+  mantle_color[0] = 0.5f;
+  mantle_color[1] = 0.0f;
+  mantle_color[2] = 0.0f;
+  mantle_color[3] = 1.0f;
   DebugPatchesAndBrushesProlog();
   if ( debug_brush_info->num_brushes )
   {
@@ -704,10 +704,10 @@ void __cdecl render_debug_patches_full()
   float polygonVerts[3][3]; // [esp+44h] [ebp-34h] BYREF
   float faceColor[4]; // [esp+68h] [ebp-10h] BYREF
 
-  faceColor[0] = FLOAT_0_1;
+  faceColor[0] = 0.1f;
   faceColor[1] = FLOAT_0_85000002;
-  faceColor[2] = FLOAT_0_40000001;
-  faceColor[3] = FLOAT_1_0;
+  faceColor[2] = 0.4f;
+  faceColor[3] = 1.0f;
   DebugPatchesAndBrushesProlog();
   if ( debug_patch_info && debug_patch_info->num_patches )
   {
@@ -798,10 +798,10 @@ void  render_brush(
 
   clr[1] = a1;
   clr[2] = retaddr;
-  vert_list[99][2] = *(float *)&FLOAT_0_0;
-  *(float *)&vi = FLOAT_1_0;
-  *(float *)&chull = FLOAT_1_0;
-  clr[0] = FLOAT_0_25;
+  vert_list[99][2] = 0.0f;
+  *(float *)&vi = 1.0f;
+  *(float *)&chull = 1.0f;
+  clr[0] = 0.25f;
   if ( color )
   {
     vert_list[99][2] = *color;
@@ -893,15 +893,15 @@ void  render_brush(
         normal[2] = verts[1][2] - v21[2];
         Vec3Cross(&p02[1], normal, v12);
         Vec3Normalize(v12);
-        v11 = FLOAT_1_0;
+        v11 = 1.0f;
         if ( 1.0 > 0.0 )
         {
           if ( 1.0 < 0.60000002 )
-            v11 = FLOAT_0_60000002;
+            v11 = 0.6f;
           vert_list[99][2] = v11 * vert_list[99][2];
           *(float *)&vi = v11 * *(float *)&vi;
           *(float *)&chull = v11 * *(float *)&chull;
-          clr[0] = FLOAT_0_25;
+          clr[0] = 0.25f;
           if ( persistent )
           {
 LABEL_22:
@@ -937,10 +937,10 @@ LABEL_22:
 
 void __cdecl calc_color(unsigned int id, float alpha, float *color)
 {
-  *color = FLOAT_0_1;
+  *color = 0.1f;
   color[1] = FLOAT_0_85000002;
-  color[2] = FLOAT_0_40000001;
-  color[3] = FLOAT_1_0;
+  color[2] = 0.4f;
+  color[3] = 1.0f;
   *color = (float)(0.5 * (float)((float)(((id >> 4) & 0xF00) >> 4) / 256.0)) + 0.5;
   color[1] = (float)(0.5 * (float)((float)((id >> 4) & 0xF0) / 256.0)) + 0.5;
   color[2] = (float)(0.5 * (float)((float)(unsigned __int8)(16 * ((unsigned __int8)id >> 4)) / 256.0)) + 0.5;
@@ -957,7 +957,7 @@ void __cdecl render_convex_partition(const CollisionAabbTree *tree)
 
   calc_color((unsigned int)tree, alpha, faceColor);
   memset(edgeColor, 0, 12);
-  edgeColor[3] = FLOAT_1_0;
+  edgeColor[3] = 1.0f;
   chull = get_partition_chull(tree);
   if ( chull )
   {
@@ -990,10 +990,10 @@ void  render_chull(float a1@<ebp>, const chull_t *first, const phys_mat44 *xform
   clr[2] = retaddr;
   if ( first )
   {
-    verts[99][2] = *(float *)&FLOAT_0_0;
-    v12 = FLOAT_1_0;
-    vi = LODWORD(FLOAT_1_0);
-    clr[0] = FLOAT_0_25;
+    verts[99][2] = 0.0f;
+    v12 = 1.0f;
+    vi = LODWORD(1.0f);
+    clr[0] = 0.25f;
     if ( color )
     {
       verts[99][2] = *color;
@@ -1279,7 +1279,7 @@ void  render_gjk_geom(float a1@<ebp>, gjk_base_t *geom, const phys_mat44 *cg2w)
         v7 = geom->get_brush(geom);
         calc_color((unsigned int)v7, alpha_0, v6);
         memset(v5, 0, 12);
-        v5[3] = FLOAT_1_0;
+        v5[3] = 1.0f;
         render_brush(COERCE_FLOAT(&faceColor[2]), v7, cg2w, v6, 0, 0, 0, 1, v5);
         break;
       case 3u:
@@ -1686,22 +1686,22 @@ void  init_winding(float a1@<ebp>, const plane_lt *plane, phys_static_array<phys
   v54 = v55;
   if ( COERCE_FLOAT(LODWORD(dist) & _mask__AbsFloat_) <= *((float *)&v56 + v55) )
   {
-    v47 = *(unsigned int *)&FLOAT_0_0;
-    v48 = *(unsigned int *)&FLOAT_0_0;
-    proj = FLOAT_1_0;
-    v50 = *(float *)&FLOAT_0_0;
-    v51 = *(float *)&FLOAT_0_0;
-    v3 = FLOAT_1_0;
+    v47 = 0;
+    v48 = 0;
+    proj = 1.0f;
+    v50 = 0.0f;
+    v51 = 0.0f;
+    v3 = 1.0f;
   }
   else
   {
     v54 = 2;
-    up.y = FLOAT_1_0;
-    up.z = *(float *)&FLOAT_0_0;
-    up.w = *(float *)&FLOAT_0_0;
-    v50 = FLOAT_1_0;
-    v51 = *(float *)&FLOAT_0_0;
-    v3 = *(float *)&FLOAT_0_0;
+    up.y = 1.0f;
+    up.z = 0.0f;
+    up.w = 0.0f;
+    v50 = 1.0f;
+    v51 = 0.0f;
+    v3 = 0.0f;
   }
   v46 = (float)((float)(v50 * x) + (float)(v51 * y)) + (float)(v3 * dist);
   v45 = v46 * x;
@@ -1838,8 +1838,8 @@ void __cdecl Phys_DebugBox(const phys_mat44 *mat, const float *color, float scal
   float size; // [esp+60h] [ebp-10h]
   float maxs[3]; // [esp+64h] [ebp-Ch] BYREF
 
-  size = FLOAT_7_0;
-  mins[0] = scale * COERCE_FLOAT(LODWORD(FLOAT_7_0) ^ _mask__NegFloat_);
+  size = 7.0f;
+  mins[0] = scale * COERCE_FLOAT(LODWORD(7.0f) ^ _mask__NegFloat_);
   mins[1] = scale * -3.0;
   mins[2] = scale * -3.0;
   maxs[0] = scale * 7.0;
@@ -2088,7 +2088,7 @@ void  Phys_JointDebugRender(rigid_body *a1@<ebp>, int id)
 
   b1 = a1;
   joint = retaddr;
-  *(float *)&b2 = FLOAT_15_0;
+  *(float *)&b2 = 15.0f;
   if ( !id && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_render.cpp", 1266, 0, "%s", "id") )
     __debugbreak();
   LODWORD(b1_axis.w) = id;
@@ -2484,10 +2484,10 @@ void __cdecl render_collision_tree(const CollisionAabbTree *tree, const float *c
     maxs[0] = rad;
     maxs[1] = rad;
     maxs[2] = rad;
-    v7[0] = FLOAT_1_0;
-    v7[1] = *(float *)&FLOAT_0_0;
-    v7[2] = *(float *)&FLOAT_0_0;
-    v7[3] = FLOAT_1_0;
+    v7[0] = 1.0f;
+    v7[1] = 0.0f;
+    v7[2] = 0.0f;
+    v7[3] = 1.0f;
     CG_DebugBox(center, mins, maxs, 0.0, v7, 1, 0);
   }
 }

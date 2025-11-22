@@ -43,12 +43,12 @@ void __cdecl R_GetXModelBounds(XModel *model, const float (*axes)[3], float *min
   int vertIndex; // [esp+20h] [ebp-8h]
   float (*vert)[3]; // [esp+24h] [ebp-4h]
 
-  *mins = FLOAT_3_4028235e38;
-  mins[1] = FLOAT_3_4028235e38;
-  mins[2] = FLOAT_3_4028235e38;
-  *maxs = FLOAT_N3_4028235e38;
-  maxs[1] = FLOAT_N3_4028235e38;
-  maxs[2] = FLOAT_N3_4028235e38;
+  *mins = FLT_MAX;
+  mins[1] = FLT_MAX;
+  mins[2] = FLT_MAX;
+  *maxs = -FLT_MAX;
+  maxs[1] = -FLT_MAX;
+  maxs[2] = -FLT_MAX;
   surfaceCount = XModelGetSurfaces(model, &surfaces, 0);
   if ( !surfaces
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\xanim\\xmodel_load_obj.cpp", 1230, 0, "%s", "surfaces") )
@@ -359,11 +359,11 @@ XModel *__cdecl XModelLoadFile(
             {
               __debugbreak();
             }
-            axes[0] = FLOAT_1_0;
+            axes[0] = 1.0f;
             memset(&axes[1], 0, 12);
-            axes[4] = FLOAT_1_0;
+            axes[4] = 1.0f;
             memset(&axes[5], 0, 12);
-            axes[8] = FLOAT_1_0;
+            axes[8] = 1.0f;
             R_GetXModelBounds(model, (const float (*)[3])axes, model->mins, model->maxs);
           }
           for ( i = 0; i < model->numLods; ++i )
@@ -1081,15 +1081,15 @@ void __cdecl XModelCalcBasePose(XModelPartsLoad *modelParts)
   quatTrans = modelParts->baseMat;
   for ( i = modelParts->numRootBones; i; --i )
   {
-    quatTrans->quat[0] = *(float *)&FLOAT_0_0;
-    quatTrans->quat[1] = *(float *)&FLOAT_0_0;
-    quatTrans->quat[2] = *(float *)&FLOAT_0_0;
-    quatTrans->quat[3] = FLOAT_1_0;
+    quatTrans->quat[0] = 0.0f;
+    quatTrans->quat[1] = 0.0f;
+    quatTrans->quat[2] = 0.0f;
+    quatTrans->quat[3] = 1.0f;
     v2 = quatTrans->trans;
-    quatTrans->trans[0] = *(float *)&FLOAT_0_0;
-    v2[1] = *(float *)&FLOAT_0_0;
-    v2[2] = *(float *)&FLOAT_0_0;
-    quatTrans->transWeight = FLOAT_2_0;
+    quatTrans->trans[0] = 0.0f;
+    v2[1] = 0.0f;
+    v2[2] = 0.0f;
+    quatTrans->transWeight = 2.0f;
     ++quatTrans;
   }
   ia = numBones - modelParts->numRootBones;
@@ -1103,8 +1103,8 @@ void __cdecl XModelCalcBasePose(XModelPartsLoad *modelParts)
     v1 = Vec4LengthSq(quatTrans->quat);
     if ( v1 == 0.0 )
     {
-      quatTrans->quat[3] = FLOAT_1_0;
-      quatTrans->transWeight = FLOAT_2_0;
+      quatTrans->quat[3] = 1.0f;
+      quatTrans->transWeight = 2.0f;
     }
     else
     {
@@ -1207,12 +1207,12 @@ void __cdecl XModelGenerateHighMipVolume(XModel *model)
         __debugbreak();
       }
       ClearBounds(surfBoundBoxMins, surfBoundBoxMaxs);
-      radiusForModel = *(float *)&FLOAT_0_0;
+      radiusForModel = 0.0f;
       for ( texIter = 0; texIter != material->textureCount; ++texIter )
       {
-        cumulativeCoverage = *(float *)&FLOAT_0_0;
-        cumulativeArea = *(float *)&FLOAT_0_0;
-        radiusForTexture = *(float *)&FLOAT_0_0;
+        cumulativeCoverage = 0.0f;
+        cumulativeArea = 0.0f;
+        radiusForTexture = 0.0f;
         if ( R_StreamGetMaterialTextureSize(material, texIter, texSize, &filterState) )
         {
           v4 = (int)maxFilterState < (int)filterState ? filterState : maxFilterState;
@@ -1240,14 +1240,14 @@ void __cdecl XModelGenerateHighMipVolume(XModel *model)
           uvmax = fsqrt(cumulativeCoverage);
           width = fsqrt(cumulativeArea);
           memset(fakePos, 0, 12);
-          *(_QWORD *)&fakePos[1][0] = __PAIR64__(width, *(unsigned int *)&FLOAT_0_0);
-          fakePos[1][2] = *(float *)&FLOAT_0_0;
-          *(_QWORD *)&fakePos[2][0] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, width);
-          fakePos[2][2] = *(float *)&FLOAT_0_0;
-          fakeTexCoord[0][0] = *(float *)&FLOAT_0_0;
-          fakeTexCoord[0][1] = *(float *)&FLOAT_0_0;
-          *(_QWORD *)&fakeTexCoord[1][0] = __PAIR64__(uvmax, *(unsigned int *)&FLOAT_0_0);
-          *(_QWORD *)&fakeTexCoord[2][0] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, uvmax);
+          *(_QWORD *)&fakePos[1][0] = __PAIR64__(width, 0);
+          fakePos[1][2] = 0.0f;
+          *(_QWORD *)&fakePos[2][0] = __PAIR64__(0, width);
+          fakePos[2][2] = 0.0f;
+          fakeTexCoord[0][0] = 0.0f;
+          fakeTexCoord[0][1] = 0.0f;
+          *(_QWORD *)&fakeTexCoord[1][0] = __PAIR64__(uvmax, 0);
+          *(_QWORD *)&fakeTexCoord[2][0] = __PAIR64__(0, uvmax);
           if ( R_CalculateTriangleTopMipAabb(fakePos, fakeTexCoord, texSize, 2, 0, 0, &radiusForTexture) )
           {
             if ( (float)(radiusForModel - radiusForTexture) < 0.0 )
@@ -1285,7 +1285,7 @@ void __cdecl XModelGenerateHighMipVolume(XModel *model)
           boundsJ->center[1] = v2->center[1];
           boundsJ->center[2] = v2->center[2];
 LABEL_54:
-          v2->himipRadiusSq = *(float *)&FLOAT_0_0;
+          v2->himipRadiusSq = 0.0f;
           break;
         }
         newRadius = (float)((float)(radius + dist) + radiusJ) / 2.0;
@@ -1754,12 +1754,12 @@ int __cdecl XModelGetStaticBounds(const XModel *model, float (*axis)[3], float *
 
   if ( model->numCollSurfs )
   {
-    *mins = FLOAT_3_4028235e38;
-    mins[1] = FLOAT_3_4028235e38;
-    mins[2] = FLOAT_3_4028235e38;
-    *maxs = FLOAT_N3_4028235e38;
-    maxs[1] = FLOAT_N3_4028235e38;
-    maxs[2] = FLOAT_N3_4028235e38;
+    *mins = FLT_MAX;
+    mins[1] = FLT_MAX;
+    mins[2] = FLT_MAX;
+    *maxs = -FLT_MAX;
+    maxs[1] = -FLT_MAX;
+    maxs[2] = -FLT_MAX;
     for ( i = 0; i < model->numCollSurfs; ++i )
     {
       csurf = &model->collSurfs[i];
@@ -1826,12 +1826,12 @@ int __cdecl XModelGetStaticBoundsExact(const XModel *model, float (*axis)[3], fl
 
   if ( model->numCollSurfs )
   {
-    *mins = FLOAT_3_4028235e38;
-    mins[1] = FLOAT_3_4028235e38;
-    mins[2] = FLOAT_3_4028235e38;
-    *maxs = FLOAT_N3_4028235e38;
-    maxs[1] = FLOAT_N3_4028235e38;
-    maxs[2] = FLOAT_N3_4028235e38;
+    *mins = FLT_MAX;
+    mins[1] = FLT_MAX;
+    mins[2] = FLT_MAX;
+    *maxs = -FLT_MAX;
+    maxs[1] = -FLT_MAX;
+    maxs[2] = -FLT_MAX;
     nsurfs = XModelGetSurfaces(model, &surfaces, model->collLod);
     for ( i = 0; i < nsurfs; ++i )
     {

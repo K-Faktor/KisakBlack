@@ -1194,38 +1194,38 @@ void __cdecl Dvar_StringToColor(const char *string, unsigned __int8 *color)
   if ( (float)(colorVec[0] - 1.0) < 0.0 )
     v9 = colorVec[0];
   else
-    v9 = FLOAT_1_0;
+    v9 = 1.0f;
   if ( (float)(0.0 - v9) < 0.0 )
     v5 = v9;
   else
-    v5 = *(float *)&FLOAT_0_0;
+    v5 = 0.0f;
   *color = (int)((float)(255.0 * v5) + 9.313225746154785e-10);
   if ( (float)(colorVec[1] - 1.0) < 0.0 )
     v8 = colorVec[1];
   else
-    v8 = FLOAT_1_0;
+    v8 = 1.0f;
   if ( (float)(0.0 - v8) < 0.0 )
     v4 = v8;
   else
-    v4 = *(float *)&FLOAT_0_0;
+    v4 = 0.0f;
   color[1] = (int)((float)(255.0 * v4) + 9.313225746154785e-10);
   if ( (float)(colorVec[2] - 1.0) < 0.0 )
     v7 = colorVec[2];
   else
-    v7 = FLOAT_1_0;
+    v7 = 1.0f;
   if ( (float)(0.0 - v7) < 0.0 )
     v3 = v7;
   else
-    v3 = *(float *)&FLOAT_0_0;
+    v3 = 0.0f;
   color[2] = (int)((float)(255.0 * v3) + 9.313225746154785e-10);
   if ( (float)(colorVec[3] - 1.0) < 0.0 )
     v6 = colorVec[3];
   else
-    v6 = FLOAT_1_0;
+    v6 = 1.0f;
   if ( (float)(0.0 - v6) < 0.0 )
     v2 = v6;
   else
-    v2 = *(float *)&FLOAT_0_0;
+    v2 = 0.0f;
   color[3] = (int)((float)(255.0 * v2) + 9.313225746154785e-10);
 }
 
@@ -1980,8 +1980,8 @@ void __cdecl Dvar_StringToVec2(const char *string, float *vector)
 {
   if ( !string && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\universal\\dvar.cpp", 362, 0, "%s", "string") )
     __debugbreak();
-  *vector = *(float *)&FLOAT_0_0;
-  vector[1] = *(float *)&FLOAT_0_0;
+  *vector = 0.0f;
+  vector[1] = 0.0f;
   sscanf(string, "%g %g", vector, vector + 1);
 }
 
@@ -1989,9 +1989,9 @@ void __cdecl Dvar_StringToVec3(const char *string, float *vector)
 {
   if ( !string && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\universal\\dvar.cpp", 371, 0, "%s", "string") )
     __debugbreak();
-  *vector = *(float *)&FLOAT_0_0;
-  vector[1] = *(float *)&FLOAT_0_0;
-  vector[2] = *(float *)&FLOAT_0_0;
+  *vector = 0.0f;
+  vector[1] = 0.0f;
+  vector[2] = 0.0f;
   if ( *string == 40 )
     sscanf(string, "( %g, %g, %g )", vector, vector + 1, vector + 2);
   else
@@ -2002,10 +2002,10 @@ void __cdecl Dvar_StringToVec4(const char *string, float *vector)
 {
   if ( !string && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\universal\\dvar.cpp", 383, 0, "%s", "string") )
     __debugbreak();
-  *vector = *(float *)&FLOAT_0_0;
-  vector[1] = *(float *)&FLOAT_0_0;
-  vector[2] = *(float *)&FLOAT_0_0;
-  vector[3] = *(float *)&FLOAT_0_0;
+  *vector = 0.0f;
+  vector[1] = 0.0f;
+  vector[2] = 0.0f;
+  vector[3] = 0.0f;
   sscanf(string, "%g %g %g %g", vector, vector + 1, vector + 2, vector + 3);
 }
 
@@ -2477,35 +2477,35 @@ const dvar_s *__cdecl _Dvar_RegisterColor(
   if ( (float)(r - 1.0) < 0.0 )
     v16 = r;
   else
-    v16 = FLOAT_1_0;
+    v16 = 1.0f;
   if ( (float)(0.0 - v16) < 0.0 )
     v12 = v16;
   else
-    v12 = *(float *)&FLOAT_0_0;
+    v12 = 0.0f;
   if ( (float)(g - 1.0) < 0.0 )
     v15 = g;
   else
-    v15 = FLOAT_1_0;
+    v15 = 1.0f;
   if ( (float)(0.0 - v15) < 0.0 )
     v11 = v15;
   else
-    v11 = *(float *)&FLOAT_0_0;
+    v11 = 0.0f;
   if ( (float)(b - 1.0) < 0.0 )
     v14 = b;
   else
-    v14 = FLOAT_1_0;
+    v14 = 1.0f;
   if ( (float)(0.0 - v14) < 0.0 )
     v10 = v14;
   else
-    v10 = *(float *)&FLOAT_0_0;
+    v10 = 0.0f;
   if ( (float)(a - 1.0) < 0.0 )
     v13 = a;
   else
-    v13 = FLOAT_1_0;
+    v13 = 1.0f;
   if ( (float)(0.0 - v13) < 0.0 )
     v9 = v13;
   else
-    v9 = *(float *)&FLOAT_0_0;
+    v9 = 0.0f;
   dvarValue.color[3] = (int)((float)((float)(255.0 * v9) + 0.001) + 9.313225746154785e-10);
   memset(&v8, 0, sizeof(v8));
   dvarValue.enabled = (int)((float)((float)(255.0 * v12) + 0.001) + 9.313225746154785e-10);
@@ -2910,38 +2910,38 @@ void __cdecl Dvar_SetColorFromSource(dvar_s *dvar, float r, float g, float b, fl
       if ( (float)(r - 1.0) < 0.0 )
         v13 = r;
       else
-        v13 = FLOAT_1_0;
+        v13 = 1.0f;
       if ( (float)(0.0 - v13) < 0.0 )
         v9 = v13;
       else
-        v9 = *(float *)&FLOAT_0_0;
+        v9 = 0.0f;
       newValue.enabled = (int)((float)(255.0 * v9) + 9.313225746154785e-10);
       if ( (float)(g - 1.0) < 0.0 )
         v12 = g;
       else
-        v12 = FLOAT_1_0;
+        v12 = 1.0f;
       if ( (float)(0.0 - v12) < 0.0 )
         v8 = v12;
       else
-        v8 = *(float *)&FLOAT_0_0;
+        v8 = 0.0f;
       newValue.color[1] = (int)((float)(255.0 * v8) + 9.313225746154785e-10);
       if ( (float)(b - 1.0) < 0.0 )
         v11 = b;
       else
-        v11 = FLOAT_1_0;
+        v11 = 1.0f;
       if ( (float)(0.0 - v11) < 0.0 )
         v7 = v11;
       else
-        v7 = *(float *)&FLOAT_0_0;
+        v7 = 0.0f;
       newValue.color[2] = (int)((float)(255.0 * v7) + 9.313225746154785e-10);
       if ( (float)(a - 1.0) < 0.0 )
         v10 = a;
       else
-        v10 = FLOAT_1_0;
+        v10 = 1.0f;
       if ( (float)(0.0 - v10) < 0.0 )
         v6 = v10;
       else
-        v6 = *(float *)&FLOAT_0_0;
+        v6 = 0.0f;
       newValue.color[3] = (int)((float)(255.0 * v6) + 9.313225746154785e-10);
     }
     else

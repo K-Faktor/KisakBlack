@@ -120,7 +120,7 @@ double __cdecl GraphGetValueFromFraction(int knotCount, const float (*knots)[2],
   float adjustedFrac; // [esp+10h] [ebp-8h]
   int knotIndex; // [esp+14h] [ebp-4h]
 
-  result = FLOAT_N1_0;
+  result = -1.0f;
   if ( !knots && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_math.cpp", 467, 0, "%s", "knots") )
     __debugbreak();
   if ( knotCount < 2
@@ -252,7 +252,7 @@ unsigned __int8 __cdecl DirToByte(const float *dir)
 
   if ( !dir )
     return 0;
-  bestd = *(float *)&FLOAT_0_0;
+  bestd = 0.0f;
   best = 0;
   for ( i = 0; i < 0xA2u; ++i )
   {
@@ -388,9 +388,9 @@ void __cdecl RotatePointAroundVector(float *dst, const float *dir, const float *
   zrot[0][2] = 0.0;
   zrot[1][0] = 0.0;
   *(_QWORD *)&zrot[2][0] = 0;
-  zrot[2][2] = FLOAT_1_0;
-  *(_QWORD *)&zrot[1][1] = LODWORD(FLOAT_1_0);
-  *(_QWORD *)&zrot[0][0] = LODWORD(FLOAT_1_0);
+  zrot[2][2] = 1.0f;
+  *(_QWORD *)&zrot[1][1] = LODWORD(1.0f);
+  *(_QWORD *)&zrot[0][0] = LODWORD(1.0f);
   rad = degrees * 0.017453292;
   if ( (COERCE_UNSIGNED_INT(degrees * 0.017453292) & 0x7F800000) == 0x7F800000
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_math.cpp", 768, 0, "%s", "!IS_NAN(rad)") )
@@ -443,7 +443,7 @@ double __cdecl vectoyaw(const float *vec)
 
   if ( vec[1] == 0.0 && *vec == 0.0 )
   {
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
   }
   else
   {
@@ -454,9 +454,9 @@ double __cdecl vectoyaw(const float *vec)
     *(float *)&v1 = v1;
     yawa = (float)(*(float *)&v1 * 180.0) / 3.1415927;
     if ( yawa < 0.0 )
-      v4 = FLOAT_360_0;
+      v4 = 360.0f;
     else
-      v4 = *(float *)&FLOAT_0_0;
+      v4 = 0.0f;
     return (float)(yawa + v4);
   }
 }
@@ -470,7 +470,7 @@ double __cdecl vectosignedyaw(const float *vec)
 
   if ( vec[1] == 0.0 && *vec == 0.0 )
   {
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
   }
   else
   {
@@ -505,9 +505,9 @@ double __cdecl vectopitch(const float *vec)
   if ( vec[1] == 0.0 && *vec == 0.0 )
   {
     if ( COERCE_FLOAT(*((unsigned int *)vec + 2) ^ _mask__NegFloat_) < 0.0 )
-      return FLOAT_270_0;
+      return 270.0f;
     else
-      return FLOAT_90_0;
+      return 90.0f;
   }
   else
   {
@@ -517,9 +517,9 @@ double __cdecl vectopitch(const float *vec)
     *(float *)&v1 = v1;
     v7 = (float)(*(float *)&v1 * -180.0) / 3.1415927;
     if ( v7 < 0.0 )
-      v5 = FLOAT_360_0;
+      v5 = 360.0f;
     else
-      v5 = *(float *)&FLOAT_0_0;
+      v5 = 0.0f;
     return (float)(v7 + v5);
   }
 }
@@ -542,11 +542,11 @@ void __cdecl vectoangles(const float *vec, float *angles)
 
   if ( vec[1] == 0.0 && *vec == 0.0 )
   {
-    v13 = *(float *)&FLOAT_0_0;
+    v13 = 0.0f;
     if ( COERCE_FLOAT(*((unsigned int *)vec + 2) ^ _mask__NegFloat_) < 0.0 )
-      v12 = FLOAT_270_0;
+      v12 = 270.0f;
     else
-      v12 = FLOAT_90_0;
+      v12 = 90.0f;
     v10 = v12;
   }
   else
@@ -556,9 +556,9 @@ void __cdecl vectoangles(const float *vec, float *angles)
     *(float *)&v2 = v2;
     v14 = (float)(*(float *)&v2 * 180.0) / 3.1415927;
     if ( v14 < 0.0 )
-      v9 = FLOAT_360_0;
+      v9 = 360.0f;
     else
-      v9 = *(float *)&FLOAT_0_0;
+      v9 = 0.0f;
     v13 = v14 + v9;
     *((float *)&v7 + 1) = vec[2];
     v3 = *((float *)&v7 + 1);
@@ -566,14 +566,14 @@ void __cdecl vectoangles(const float *vec, float *angles)
     *(float *)&v3 = v3;
     v11 = (float)(*(float *)&v3 * -180.0) / 3.1415927;
     if ( v11 < 0.0 )
-      v8 = FLOAT_360_0;
+      v8 = 360.0f;
     else
-      v8 = *(float *)&FLOAT_0_0;
+      v8 = 0.0f;
     v10 = v11 + v8;
   }
   *angles = v10;
   angles[1] = v13;
-  angles[2] = *(float *)&FLOAT_0_0;
+  angles[2] = 0.0f;
 }
 
 void __cdecl UnitQuatToAngles(const float *quat, float *angles)
@@ -597,13 +597,13 @@ void __cdecl YawVectors(float yaw, float *forward, float *right)
   {
     *forward = cy;
     forward[1] = sy;
-    forward[2] = *(float *)&FLOAT_0_0;
+    forward[2] = 0.0f;
   }
   if ( right )
   {
     *right = sy;
     *((unsigned int *)right + 1) = LODWORD(cy) ^ _mask__NegFloat_;
-    right[2] = *(float *)&FLOAT_0_0;
+    right[2] = 0.0f;
   }
 }
 
@@ -739,44 +739,44 @@ int __cdecl BoxInPlanes(const float (*planes)[4], unsigned int numPlanes, const 
     plane = &(*planes)[4 * planeIndex];
     if ( (float)((float)((float)((float)(*plane * *mins) + (float)(plane[1] * mins[1])) + (float)(plane[2] * mins[2]))
                + plane[3]) < 0.0 )
-      v12 = FLOAT_1_0;
+      v12 = 1.0f;
     else
-      v12 = *(float *)&FLOAT_0_0;
+      v12 = 0.0f;
     if ( (float)((float)((float)((float)(*plane * *mins) + (float)(plane[1] * mins[1])) + (float)(plane[2] * maxs[2]))
                + plane[3]) < 0.0 )
-      v11 = FLOAT_1_0;
+      v11 = 1.0f;
     else
-      v11 = *(float *)&FLOAT_0_0;
+      v11 = 0.0f;
     if ( (float)((float)((float)((float)(*plane * *mins) + (float)(plane[1] * maxs[1])) + (float)(plane[2] * mins[2]))
                + plane[3]) < 0.0 )
-      v10 = FLOAT_1_0;
+      v10 = 1.0f;
     else
-      v10 = *(float *)&FLOAT_0_0;
+      v10 = 0.0f;
     if ( (float)((float)((float)((float)(*plane * *mins) + (float)(plane[1] * maxs[1])) + (float)(plane[2] * maxs[2]))
                + plane[3]) < 0.0 )
-      v9 = FLOAT_1_0;
+      v9 = 1.0f;
     else
-      v9 = *(float *)&FLOAT_0_0;
+      v9 = 0.0f;
     if ( (float)((float)((float)((float)(*plane * *maxs) + (float)(plane[1] * mins[1])) + (float)(plane[2] * mins[2]))
                + plane[3]) < 0.0 )
-      v8 = FLOAT_1_0;
+      v8 = 1.0f;
     else
-      v8 = *(float *)&FLOAT_0_0;
+      v8 = 0.0f;
     if ( (float)((float)((float)((float)(*plane * *maxs) + (float)(plane[1] * mins[1])) + (float)(plane[2] * maxs[2]))
                + plane[3]) < 0.0 )
-      v7 = FLOAT_1_0;
+      v7 = 1.0f;
     else
-      v7 = *(float *)&FLOAT_0_0;
+      v7 = 0.0f;
     if ( (float)((float)((float)((float)(*plane * *maxs) + (float)(plane[1] * maxs[1])) + (float)(plane[2] * mins[2]))
                + plane[3]) < 0.0 )
-      v6 = FLOAT_1_0;
+      v6 = 1.0f;
     else
-      v6 = *(float *)&FLOAT_0_0;
+      v6 = 0.0f;
     if ( (float)((float)((float)((float)(*plane * *maxs) + (float)(plane[1] * maxs[1])) + (float)(plane[2] * maxs[2]))
                + plane[3]) < 0.0 )
-      v5 = FLOAT_1_0;
+      v5 = 1.0f;
     else
-      v5 = *(float *)&FLOAT_0_0;
+      v5 = 0.0f;
     if ( (float)((float)((float)((float)((float)((float)((float)((float)(v12 + 0.0) + v11) + v10) + v9) + v8) + v7) + v6)
                + v5) == 0.0 )
       return 0;
@@ -813,9 +813,9 @@ void __cdecl MatrixIdentity33(float (*out)[3])
   (*out)[6] = 0.0;
   (*out)[7] = 0.0;
   (*out)[8] = 0.0;
-  (*out)[0] = FLOAT_1_0;
-  (*out)[4] = FLOAT_1_0;
-  (*out)[8] = FLOAT_1_0;
+  (*out)[0] = 1.0f;
+  (*out)[4] = 1.0f;
+  (*out)[8] = 1.0f;
 }
 
 void __cdecl MatrixIdentity44(float (*out)[4])
@@ -882,7 +882,7 @@ void __cdecl MatrixVecMultiplyProject(const float (*mulMat)[4], const float *mul
   mul[0] = *mulVec;
   mul[1] = mulVec[1];
   mul[2] = mulVec[2];
-  mul[3] = FLOAT_1_0;
+  mul[3] = 1.0f;
   MatrixVecMultiply(mulMat, mul, ret);
   invW = 1.0 / ret[3];
   *solution = ret[0] * (float)(1.0 / ret[3]);
@@ -1477,13 +1477,13 @@ void __cdecl MatrixRotationZ(float (*mat)[3], float degree)
   s = sin(v2);
   (*mat)[0] = c;
   LODWORD((*mat)[1]) = LODWORD(s) ^ _mask__NegFloat_;
-  (*mat)[2] = *(float *)&FLOAT_0_0;
+  (*mat)[2] = 0.0f;
   (*mat)[3] = s;
   (*mat)[4] = c;
-  (*mat)[5] = *(float *)&FLOAT_0_0;
-  (*mat)[6] = *(float *)&FLOAT_0_0;
-  (*mat)[7] = *(float *)&FLOAT_0_0;
-  (*mat)[8] = FLOAT_1_0;
+  (*mat)[5] = 0.0f;
+  (*mat)[6] = 0.0f;
+  (*mat)[7] = 0.0f;
+  (*mat)[8] = 1.0f;
 }
 
 void __cdecl FinitePerspectiveMatrix(float tanHalfFovX, float tanHalfFovY, float zNear, float zFar, float (*mtx)[4])
@@ -1516,7 +1516,7 @@ void __cdecl FinitePerspectiveMatrix(float tanHalfFovX, float tanHalfFovY, float
   (*mtx)[0] = 1.0 / tanHalfFovX;
   (*mtx)[5] = 1.0 / tanHalfFovY;
   (*mtx)[10] = COERCE_FLOAT(LODWORD(zFar) ^ _mask__NegFloat_) / (float)(zNear - zFar);
-  (*mtx)[11] = FLOAT_1_0;
+  (*mtx)[11] = 1.0f;
   (*mtx)[14] = (float)(zNear * zFar) / (float)(zNear - zFar);
 }
 
@@ -1547,10 +1547,10 @@ void  SpotLightViewMatrix(unsigned int a1@<ebp>, const float *direction, float r
   *(float *)&v6[72] = v7;
   *(unsigned int *)&v6[88] = v8;
   *(unsigned int *)&v6[104] = v9;
-  *(unsigned int *)&v6[76] = *(unsigned int *)&FLOAT_0_0;
-  *(unsigned int *)&v6[92] = *(unsigned int *)&FLOAT_0_0;
+  *(unsigned int *)&v6[76] = 0;
+  *(unsigned int *)&v6[92] = 0;
   memset(&v6[108], 0, 16);
-  *(float *)&v6[124] = FLOAT_1_0;
+  *(float *)&v6[124] = 1.0f;
   memset(v6, 0, 0x40u);
   __libm_sse2_sin(v4);
   __libm_sse2_cos(v5);
@@ -1558,8 +1558,8 @@ void  SpotLightViewMatrix(unsigned int a1@<ebp>, const float *direction, float r
   *(unsigned int *)&v6[4] = LODWORD(rotation) ^ _mask__NegFloat_;
   *(float *)&v6[16] = rotation;
   *(float *)&v6[20] = rotation;
-  *(float *)&v6[40] = FLOAT_1_0;
-  *(float *)&v6[60] = FLOAT_1_0;
+  *(float *)&v6[40] = 1.0f;
+  *(float *)&v6[60] = 1.0f;
   MatrixMultiply44((const float (*)[4])&v6[64], (const float (*)[4])v6, mtx);
 }
 
@@ -1602,10 +1602,10 @@ void  SpotLightViewMatrixDir3(
   *(unsigned int *)&v8[72] = *(unsigned int *)&v8[136];
   *(unsigned int *)&v8[88] = v9;
   *(unsigned int *)&v8[104] = v10;
-  *(unsigned int *)&v8[76] = *(unsigned int *)&FLOAT_0_0;
-  *(unsigned int *)&v8[92] = *(unsigned int *)&FLOAT_0_0;
+  *(unsigned int *)&v8[76] = 0;
+  *(unsigned int *)&v8[92] = 0;
   memset(&v8[108], 0, 16);
-  *(float *)&v8[124] = FLOAT_1_0;
+  *(float *)&v8[124] = 1.0f;
   memset(v8, 0, 0x40u);
   __libm_sse2_sin(v6);
   v5 = axis[2][0];
@@ -1615,8 +1615,8 @@ void  SpotLightViewMatrixDir3(
   *(unsigned int *)&v8[4] = COERCE_UNSIGNED_INT(3.1415927) ^ _mask__NegFloat_;
   *(float *)&v8[16] = 3.1415927;
   *(unsigned int *)&v8[20] = LODWORD(v5);
-  *(float *)&v8[40] = FLOAT_1_0;
-  *(float *)&v8[60] = FLOAT_1_0;
+  *(float *)&v8[40] = 1.0f;
+  *(float *)&v8[60] = 1.0f;
   MatrixMultiply44((const float (*)[4])&v8[64], (const float (*)[4])v8, mtx);
 }
 
@@ -1630,13 +1630,13 @@ void __cdecl SpotLightProjectionMatrix(float cosFov, float zNear, float zFar, fl
   if ( zNear >= 0.001 )
     v4 = zNear;
   else
-    v4 = FLOAT_0_001;
+    v4 = 0.001f;
   Q = zFar / (float)(zFar - v4);
   cotanFov = 1.0 / (float)(fsqrt(1.0 - (float)(cosFov * cosFov)) / cosFov);
   (*mtx)[0] = cotanFov;
   (*mtx)[5] = cotanFov;
   (*mtx)[10] = Q;
-  (*mtx)[11] = FLOAT_1_0;
+  (*mtx)[11] = 1.0f;
   (*mtx)[14] = COERCE_FLOAT(LODWORD(Q) ^ _mask__NegFloat_) * v4;
 }
 
@@ -1653,7 +1653,7 @@ void __cdecl InfinitePerspectiveMatrix(float tanHalfFovX, float tanHalfFovY, flo
   (*mtx)[0] = 0.99951172 / tanHalfFovX;
   (*mtx)[5] = 0.99951172 / tanHalfFovY;
   (*mtx)[10] = FLOAT_0_99951172;
-  (*mtx)[11] = FLOAT_1_0;
+  (*mtx)[11] = 1.0f;
   (*mtx)[14] = COERCE_FLOAT(LODWORD(zNear) ^ _mask__NegFloat_) * 0.99951172;
 }
 
@@ -1689,10 +1689,10 @@ void __cdecl MatrixForViewer(const float *origin, const float (*axis)[3], float 
                           (float)((float)(*origin * (*mtx)[2]) + (float)(origin[1] * (*mtx)[6]))
                         + (float)(origin[2] * (*mtx)[10]))
                       ^ _mask__NegFloat_;
-  (*mtx)[3] = *(float *)&FLOAT_0_0;
-  (*mtx)[7] = *(float *)&FLOAT_0_0;
-  (*mtx)[11] = *(float *)&FLOAT_0_0;
-  (*mtx)[15] = FLOAT_1_0;
+  (*mtx)[3] = 0.0f;
+  (*mtx)[7] = 0.0f;
+  (*mtx)[11] = 0.0f;
+  (*mtx)[15] = 1.0f;
 }
 
 void __cdecl AnglesSubtract(const float *v1, const float *v2, float *v3)
@@ -1841,9 +1841,9 @@ void __cdecl ExpandBoundsToWidth(float *mins, float *maxs)
 
 void __cdecl ClearBounds(float *mins, float *maxs)
 {
-  *mins = FLOAT_131072_0;
-  mins[1] = FLOAT_131072_0;
-  mins[2] = FLOAT_131072_0;
+  *mins = 131072.0f;
+  mins[1] = 131072.0f;
+  mins[2] = 131072.0f;
   *maxs = FLOAT_N131072_0;
   maxs[1] = FLOAT_N131072_0;
   maxs[2] = FLOAT_N131072_0;
@@ -1858,8 +1858,8 @@ bool __cdecl IsClearedBounds(const float *mins, const float *maxs)
 
 void __cdecl ClearBounds2D(float *mins, float *maxs)
 {
-  *mins = FLOAT_131072_0;
-  mins[1] = FLOAT_131072_0;
+  *mins = 131072.0f;
+  mins[1] = 131072.0f;
   *maxs = FLOAT_N131072_0;
   maxs[1] = FLOAT_N131072_0;
 }
@@ -1994,15 +1994,15 @@ void __cdecl GetRotatedBounds(
 
 void __cdecl AxisClear(float (*axis)[3])
 {
-  (*axis)[0] = FLOAT_1_0;
-  (*axis)[1] = *(float *)&FLOAT_0_0;
-  (*axis)[2] = *(float *)&FLOAT_0_0;
-  (*axis)[3] = *(float *)&FLOAT_0_0;
-  (*axis)[4] = FLOAT_1_0;
-  (*axis)[5] = *(float *)&FLOAT_0_0;
-  (*axis)[6] = *(float *)&FLOAT_0_0;
-  (*axis)[7] = *(float *)&FLOAT_0_0;
-  (*axis)[8] = FLOAT_1_0;
+  (*axis)[0] = 1.0f;
+  (*axis)[1] = 0.0f;
+  (*axis)[2] = 0.0f;
+  (*axis)[3] = 0.0f;
+  (*axis)[4] = 1.0f;
+  (*axis)[5] = 0.0f;
+  (*axis)[6] = 0.0f;
+  (*axis)[7] = 0.0f;
+  (*axis)[8] = 1.0f;
 }
 
 void __cdecl AxisTranspose(const float (*in)[3], float (*out)[3])
@@ -2037,9 +2037,9 @@ void __cdecl YawToAxis(float yaw, float (*axis)[3])
   float right[3]; // [esp+10h] [ebp-Ch] BYREF
 
   YawVectors(yaw, (float *)axis, right);
-  (*axis)[6] = *(float *)&FLOAT_0_0;
-  (*axis)[7] = *(float *)&FLOAT_0_0;
-  (*axis)[8] = FLOAT_1_0;
+  (*axis)[6] = 0.0f;
+  (*axis)[7] = 0.0f;
+  (*axis)[8] = 1.0f;
   (*axis)[3] = 0.0 - right[0];
   (*axis)[4] = 0.0 - right[1];
   (*axis)[5] = 0.0 - right[2];
@@ -2078,9 +2078,9 @@ void __cdecl AxisToAngles(const float (*axis)[3], float *angles)
   else
   {
     if ( pitch >= 0.0 )
-      v2 = FLOAT_N180_0;
+      v2 = -180.0f;
     else
-      v2 = FLOAT_180_0;
+      v2 = 180.0f;
     angles[2] = pitch + v2;
   }
 }
@@ -2119,9 +2119,9 @@ void __cdecl Axis4ToAngles(const float (*axis)[4], float *angles)
   else
   {
     if ( pitch >= 0.0 )
-      v2 = FLOAT_N180_0;
+      v2 = -180.0f;
     else
-      v2 = FLOAT_180_0;
+      v2 = 180.0f;
     angles[2] = pitch + v2;
   }
 }
@@ -2180,7 +2180,7 @@ void __cdecl SnapPointToIntersectingPlanes(const float **planes, float *xyz, flo
   }
   if ( snapped[0] != *xyz || snapped[1] != xyz[1] || snapped[2] != xyz[2] )
   {
-    maxSnapError = *(float *)&FLOAT_0_0;
+    maxSnapError = 0.0f;
     maxBaseError = snapEpsilon;
     for ( planeIndex = 0; planeIndex < 3; ++planeIndex )
     {
@@ -2425,7 +2425,7 @@ bool __cdecl BoxDistSqrdExceeds(const float *absmin, const float *absmax, const 
   maxs[0] = *absmax - *org;
   maxs[1] = absmax[1] - org[1];
   maxs[2] = absmax[2] - org[2];
-  total = *(float *)&FLOAT_0_0;
+  total = 0.0f;
   for ( i = 0; i < 3; ++i )
   {
     if ( (float)(mins[i] * maxs[i]) > 0.0 )
@@ -2458,9 +2458,9 @@ double __cdecl ColorNormalize(float *in, float *out)
     max = in[2];
   if ( max == 0.0 )
   {
-    out[2] = FLOAT_1_0;
-    out[1] = FLOAT_1_0;
-    *out = FLOAT_1_0;
+    out[2] = 1.0f;
+    out[1] = 1.0f;
+    *out = 1.0f;
     return 0.0;
   }
   else
@@ -2713,19 +2713,19 @@ bool __cdecl CullBoxFromCone(
   deltaMid_4 = boxCenter[1] - coneOrg[1];
   deltaMid_8 = boxCenter[2] - coneOrg[2];
   if ( *coneDir < 0.0 )
-    v8 = FLOAT_N1_0;
+    v8 = -1.0f;
   else
-    v8 = FLOAT_1_0;
+    v8 = 1.0f;
   farCorner = deltaMid - (float)(*boxHalfSize * v8);
   if ( coneDir[1] < 0.0 )
-    v7 = FLOAT_N1_0;
+    v7 = -1.0f;
   else
-    v7 = FLOAT_1_0;
+    v7 = 1.0f;
   farCorner_4 = deltaMid_4 - (float)(boxHalfSize[1] * v7);
   if ( coneDir[2] < 0.0 )
-    v6 = FLOAT_N1_0;
+    v6 = -1.0f;
   else
-    v6 = FLOAT_1_0;
+    v6 = 1.0f;
   farCorner_8 = deltaMid_8 - (float)(boxHalfSize[2] * v6);
   dist = (float)((float)(farCorner * *coneDir) + (float)(farCorner_4 * coneDir[1])) + (float)(farCorner_8 * coneDir[2]);
   if ( dist >= 0.0 )
@@ -2762,17 +2762,17 @@ bool __cdecl CullBoxFromSphere(const float *sphereOrg, float radius, const float
 
   if ( (float)((float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(*sphereOrg - *boxCenter) & _mask__AbsFloat_) - *boxHalfSize)
              - 0.0) < 0.0 )
-    v7 = *(float *)&FLOAT_0_0;
+    v7 = 0.0f;
   else
     v7 = COERCE_FLOAT(COERCE_UNSIGNED_INT(*sphereOrg - *boxCenter) & _mask__AbsFloat_) - *boxHalfSize;
   if ( (float)((float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(sphereOrg[1] - boxCenter[1]) & _mask__AbsFloat_) - boxHalfSize[1])
              - 0.0) < 0.0 )
-    v6 = *(float *)&FLOAT_0_0;
+    v6 = 0.0f;
   else
     v6 = COERCE_FLOAT(COERCE_UNSIGNED_INT(sphereOrg[1] - boxCenter[1]) & _mask__AbsFloat_) - boxHalfSize[1];
   if ( (float)((float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(sphereOrg[2] - boxCenter[2]) & _mask__AbsFloat_) - boxHalfSize[2])
              - 0.0) < 0.0 )
-    v5 = *(float *)&FLOAT_0_0;
+    v5 = 0.0f;
   else
     v5 = COERCE_FLOAT(COERCE_UNSIGNED_INT(sphereOrg[2] - boxCenter[2]) & _mask__AbsFloat_) - boxHalfSize[2];
   return (float)((float)((float)(v7 * v7) + (float)(v6 * v6)) + (float)(v5 * v5)) > (float)(radius * radius);
@@ -2820,33 +2820,33 @@ bool __cdecl CullBoxFromConicSectionOfSphere(
   deltaMid_4 = boxCenter[1] - coneOrg[1];
   deltaMid_8 = boxCenter[2] - coneOrg[2];
   if ( (float)((float)(COERCE_FLOAT(LODWORD(deltaMid) & _mask__AbsFloat_) - *boxHalfSize) - 0.0) < 0.0 )
-    v12 = *(float *)&FLOAT_0_0;
+    v12 = 0.0f;
   else
     v12 = COERCE_FLOAT(LODWORD(deltaMid) & _mask__AbsFloat_) - *boxHalfSize;
   if ( (float)((float)(COERCE_FLOAT(LODWORD(deltaMid_4) & _mask__AbsFloat_) - boxHalfSize[1]) - 0.0) < 0.0 )
-    v11 = *(float *)&FLOAT_0_0;
+    v11 = 0.0f;
   else
     v11 = COERCE_FLOAT(LODWORD(deltaMid_4) & _mask__AbsFloat_) - boxHalfSize[1];
   if ( (float)((float)(COERCE_FLOAT(LODWORD(deltaMid_8) & _mask__AbsFloat_) - boxHalfSize[2]) - 0.0) < 0.0 )
-    v10 = *(float *)&FLOAT_0_0;
+    v10 = 0.0f;
   else
     v10 = COERCE_FLOAT(LODWORD(deltaMid_8) & _mask__AbsFloat_) - boxHalfSize[2];
   if ( (float)((float)((float)(v12 * v12) + (float)(v11 * v11)) + (float)(v10 * v10)) > (float)(radius * radius) )
     return 1;
   if ( *coneDir < 0.0 )
-    v9 = FLOAT_N1_0;
+    v9 = -1.0f;
   else
-    v9 = FLOAT_1_0;
+    v9 = 1.0f;
   farCorner = deltaMid - (float)(*boxHalfSize * v9);
   if ( coneDir[1] < 0.0 )
-    v8 = FLOAT_N1_0;
+    v8 = -1.0f;
   else
-    v8 = FLOAT_1_0;
+    v8 = 1.0f;
   farCorner_4 = deltaMid_4 - (float)(boxHalfSize[1] * v8);
   if ( coneDir[2] < 0.0 )
-    v7 = FLOAT_N1_0;
+    v7 = -1.0f;
   else
-    v7 = FLOAT_1_0;
+    v7 = 1.0f;
   farCorner_8 = deltaMid_8 - (float)(boxHalfSize[2] * v7);
   dist = (float)((float)(farCorner * *coneDir) + (float)(farCorner_4 * coneDir[1])) + (float)(farCorner_8 * coneDir[2]);
   if ( dist >= 0.0 )
@@ -2946,7 +2946,7 @@ void __cdecl colorTempMatrix(float (*finalMatrix)[4], float colorTemp)
   memset(&in1[22], 0, 16);
   in1[26] = v13[2] / out[2];
   memset(&in1[27], 0, 16);
-  in1[31] = FLOAT_1_0;
+  in1[31] = 1.0f;
   MatrixMultiply44(bradfordMA, (const float (*)[4])&in1[16], (float (*)[4])in1);
   MatrixMultiply44((const float (*)[4])in1, bradfordMI, (float (*)[4])v11);
   MatrixMultiply44(sRGBtoXYZ, (const float (*)[4])v11, (float (*)[4])in1);
@@ -3035,7 +3035,7 @@ void __cdecl colorTempToXYZ(float colorTemp, float *XYZ)
   *XYZ = x;
   XYZ[1] = v3;
   XYZ[2] = (float)(1.0 - x) - v3;
-  XYZ[3] = FLOAT_1_0;
+  XYZ[3] = 1.0f;
 }
 
 void __cdecl colorHueMatrix(float (*finalMatrix)[4], float hue)
@@ -3054,45 +3054,45 @@ void __cdecl colorHueMatrix(float (*finalMatrix)[4], float hue)
   float out[68]; // [esp+3FCh] [ebp-110h] BYREF
 
   out[52] = FLOAT_0_81649655;
-  out[53] = *(float *)&FLOAT_0_0;
-  out[54] = FLOAT_0_53451085;
-  out[55] = *(float *)&FLOAT_0_0;
+  out[53] = 0.0f;
+  out[54] = 0.5f3451085;
+  out[55] = 0.0f;
   out[56] = FLOAT_N0_40824828;
   out[57] = FLOAT_0_70710665;
-  out[58] = FLOAT_1_0555116;
-  out[59] = *(float *)&FLOAT_0_0;
+  out[58] = 1.0f555116;
+  out[59] = 0.0f;
   out[60] = FLOAT_N0_40824828;
   out[61] = FLOAT_N0_70710677;
-  out[62] = FLOAT_0_14204822;
+  out[62] = 0.1f4204822;
   memset(&out[63], 0, 16);
-  out[67] = FLOAT_1_0;
+  out[67] = 1.0f;
   out[36] = FLOAT_0_84678853;
   out[37] = FLOAT_N0_37795621;
   out[38] = FLOAT_N0_37795624;
-  out[39] = *(float *)&FLOAT_0_0;
-  out[40] = FLOAT_N0_37292805;
-  out[41] = FLOAT_0_33417869;
-  out[42] = FLOAT_N1_0800347;
-  out[43] = *(float *)&FLOAT_0_0;
-  out[44] = FLOAT_0_5773502;
-  out[45] = FLOAT_0_5773502;
-  out[46] = FLOAT_0_5773502;
+  out[39] = 0.0f;
+  out[40] = -0.37292805f;
+  out[41] = 0.33417869f;
+  out[42] = -1.0f800347;
+  out[43] = 0.0f;
+  out[44] = 0.5f773502;
+  out[45] = 0.5f773502;
+  out[46] = 0.5f773502;
   memset(&out[47], 0, 16);
-  out[51] = FLOAT_1_0;
+  out[51] = 1.0f;
   __libm_sse2_sin(v2);
   out[35] = hue * 0.017453199;
   __libm_sse2_cos(v3);
   out[34] = hue * 0.017453199;
   out[16] = hue * 0.017453199;
   out[17] = hue * 0.017453199;
-  out[18] = *(float *)&FLOAT_0_0;
-  out[19] = *(float *)&FLOAT_0_0;
+  out[18] = 0.0f;
+  out[19] = 0.0f;
   LODWORD(out[20]) = COERCE_UNSIGNED_INT(hue * 0.017453199) ^ _mask__NegFloat_;
   out[21] = hue * 0.017453199;
   memset(&out[22], 0, 16);
-  out[26] = FLOAT_1_0;
+  out[26] = 1.0f;
   memset(&out[27], 0, 16);
-  out[31] = FLOAT_1_0;
+  out[31] = 1.0f;
   MatrixMultiply44((const float (*)[4])&out[52], (const float (*)[4])&out[16], (float (*)[4])out);
   MatrixMultiply44((const float (*)[4])out, (const float (*)[4])&out[36], finalMatrix);
   (*finalMatrix)[0] = (*finalMatrix)[0] + 0.00048828125;
@@ -3134,19 +3134,19 @@ void __cdecl colorSaturationMatrix(float (*finalMatrix)[4], float saturation)
   (*finalMatrix)[0] = r + saturation;
   (*finalMatrix)[1] = r;
   (*finalMatrix)[2] = r;
-  (*finalMatrix)[3] = *(float *)&FLOAT_0_0;
+  (*finalMatrix)[3] = 0.0f;
   (*finalMatrix)[4] = g;
   (*finalMatrix)[5] = g + saturation;
   (*finalMatrix)[6] = g;
-  (*finalMatrix)[7] = *(float *)&FLOAT_0_0;
+  (*finalMatrix)[7] = 0.0f;
   (*finalMatrix)[8] = r;
   (*finalMatrix)[9] = r;
   (*finalMatrix)[10] = r + saturation;
-  (*finalMatrix)[15] = *(float *)&FLOAT_0_0;
-  (*finalMatrix)[12] = *(float *)&FLOAT_0_0;
-  (*finalMatrix)[13] = *(float *)&FLOAT_0_0;
-  (*finalMatrix)[14] = *(float *)&FLOAT_0_0;
-  (*finalMatrix)[15] = FLOAT_1_0;
+  (*finalMatrix)[15] = 0.0f;
+  (*finalMatrix)[12] = 0.0f;
+  (*finalMatrix)[13] = 0.0f;
+  (*finalMatrix)[14] = 0.0f;
+  (*finalMatrix)[15] = 1.0f;
 }
 
 void __cdecl AxisCopy(const float (*in)[3], float (*out)[3])

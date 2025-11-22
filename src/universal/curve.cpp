@@ -21,21 +21,21 @@ void __cdecl GetPositionOnCubic(
 
   *(_QWORD *)&mat[0][0] = *(_QWORD *)startPos;
   mat[0][2] = startPos[2];
-  mat[0][3] = *(float *)&FLOAT_0_0;
+  mat[0][3] = 0.0f;
   *(_QWORD *)&mat[1][0] = *(_QWORD *)endPos;
   mat[1][2] = endPos[2];
-  mat[1][3] = *(float *)&FLOAT_0_0;
+  mat[1][3] = 0.0f;
   *(_QWORD *)&mat[2][0] = *(_QWORD *)startVel;
   mat[2][2] = startVel[2];
-  mat[2][3] = *(float *)&FLOAT_0_0;
+  mat[2][3] = 0.0f;
   *(_QWORD *)&mat[3][0] = *(_QWORD *)endVel;
   mat[3][2] = endVel[2];
-  mat[3][3] = *(float *)&FLOAT_0_0;
+  mat[3][3] = 0.0f;
   MatrixMultiply44(gHermiteMatrix, mat, result);
   timeVector[0] = (float)(time * time) * time;
   timeVector[1] = time * time;
   timeVector[2] = time;
-  timeVector[3] = FLOAT_1_0;
+  timeVector[3] = 1.0f;
   MatrixTransformVector44(timeVector, result, resVec);
   *output = resVec[0];
   output[1] = resVec[1];
@@ -72,20 +72,20 @@ void __thiscall cCurve::Reset(cCurve *this)
   this->mLastNode = -1;
   this->mNumNodes = 0;
   this->mCurveType = CURVE_RNS;
-  this->mDistance = *(float *)&FLOAT_0_0;
-  this->mCurPos = *(float *)&FLOAT_0_0;
-  this->mCurServerPos = *(float *)&FLOAT_0_0;
-  this->mSpeed = FLOAT_12_0;
+  this->mDistance = 0.0f;
+  this->mCurPos = 0.0f;
+  this->mCurServerPos = 0.0f;
+  this->mSpeed = 12.0f;
   for ( i = 0; i < 100; ++i )
   {
-    this->mNodes[i].pos[2] = *(float *)&FLOAT_0_0;
-    this->mNodes[i].pos[1] = *(float *)&FLOAT_0_0;
-    this->mNodes[i].pos[0] = *(float *)&FLOAT_0_0;
-    this->mNodes[i].vel[2] = *(float *)&FLOAT_0_0;
-    this->mNodes[i].vel[1] = *(float *)&FLOAT_0_0;
-    this->mNodes[i].vel[0] = *(float *)&FLOAT_0_0;
-    this->mNodes[i].dist = *(float *)&FLOAT_0_0;
-    this->mNodes[i].totalDist = *(float *)&FLOAT_0_0;
+    this->mNodes[i].pos[2] = 0.0f;
+    this->mNodes[i].pos[1] = 0.0f;
+    this->mNodes[i].pos[0] = 0.0f;
+    this->mNodes[i].vel[2] = 0.0f;
+    this->mNodes[i].vel[1] = 0.0f;
+    this->mNodes[i].vel[0] = 0.0f;
+    this->mNodes[i].dist = 0.0f;
+    this->mNodes[i].totalDist = 0.0f;
     this->mNodes[i].bReached = 0;
   }
 }
@@ -102,9 +102,9 @@ void __thiscall cCurve::Reinit(cCurve *this)
   this->mLastNode = -1;
   this->mNumNodes = 0;
   this->mCurveType = CURVE_RNS;
-  this->mDistance = *(float *)&FLOAT_0_0;
-  this->mCurPos = *(float *)&FLOAT_0_0;
-  this->mCurServerPos = *(float *)&FLOAT_0_0;
+  this->mDistance = 0.0f;
+  this->mCurPos = 0.0f;
+  this->mCurServerPos = 0.0f;
 }
 
 void __thiscall cCurve::AddNode(cCurve *this, float *p)
@@ -142,7 +142,7 @@ void __thiscall cCurve::AddNode(cCurve *this, float *p)
   }
   else
   {
-    this->mDistance = *(float *)&FLOAT_0_0;
+    this->mDistance = 0.0f;
   }
   ++this->mNumNodes;
 }
@@ -175,7 +175,7 @@ void __thiscall cCurve::AddNode(cCurve *this, float *p, float timePeriod)
   }
   else
   {
-    this->mDistance = *(float *)&FLOAT_0_0;
+    this->mDistance = 0.0f;
   }
   this->mCurveType = CURVE_TNS;
   ++this->mNumNodes;
@@ -198,14 +198,14 @@ void __thiscall cCurve::GetPosition(cCurve *this, float time, float *pos)
   if ( time >= 0.0 )
   {
     if ( time > 1.0 )
-      time = FLOAT_1_0;
+      time = 1.0f;
   }
   else
   {
-    time = *(float *)&FLOAT_0_0;
+    time = 0.0f;
   }
   distance = time * this->mDistance;
-  currentDistance = *(float *)&FLOAT_0_0;
+  currentDistance = 0.0f;
   i = 0;
   if ( this->mCurveType == CURVE_BSPLINE )
   {
@@ -231,7 +231,7 @@ void __thiscall cCurve::GetPosition(cCurve *this, float time, float *pos)
     if ( i <= 0 )
     {
       if ( this->mNodes[i + 3].totalDist <= 0.000001 )
-        curveTime = FLOAT_1_0;
+        curveTime = 1.0f;
       else
         curveTime = distance / this->mNodes[i + 3].totalDist;
     }
@@ -351,8 +351,8 @@ void __thiscall cCurve::Sort(cCurve *this, float *p, bool is_increasing_sort_ord
     }
     else
     {
-      this->mDistance = *(float *)&FLOAT_0_0;
-      this->mNodes[0].totalDist = *(float *)&FLOAT_0_0;
+      this->mDistance = 0.0f;
+      this->mNodes[0].totalDist = 0.0f;
     }
   }
 }
@@ -552,8 +552,8 @@ double __thiscall cCurve::GetLength(cCurve *this)
   }
   if ( this->mCurveType != CURVE_TNS )
     return this->mDistance;
-  curveLength = *(float *)&FLOAT_0_0;
-  start = *(float *)&FLOAT_0_0;
+  curveLength = 0.0f;
+  start = 0.0f;
   kNumSteps = 32;
   for ( i = 0; i < this->mNumNodes; ++i )
   {

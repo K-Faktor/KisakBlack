@@ -182,7 +182,7 @@ void __cdecl PhysConstraintsPostLoadFixup(PhysConstraints *physConstraints)
     }
     else if ( physConstraints->data[ci].type == CONSTRAINT_LAUNCH )
     {
-      physConstraints->data[ci].scale[2] = *(float *)&FLOAT_0_0;
+      physConstraints->data[ci].scale[2] = 0.0f;
     }
   }
 }

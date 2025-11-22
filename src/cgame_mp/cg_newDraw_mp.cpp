@@ -307,11 +307,11 @@ double __cdecl CG_CalcPlayerHealth(const playerState_s *ps)
   if ( (float)(health - 1.0) < 0.0 )
     v3 = (float)ps->stats[0] / (float)ps->stats[2];
   else
-    v3 = FLOAT_1_0;
+    v3 = 1.0f;
   if ( (float)(0.0 - health) < 0.0 )
     return v3;
   else
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
 }
 
 void __cdecl CG_ResetLowHealthOverlay(cg_s *cgameGlob)
@@ -321,7 +321,7 @@ void __cdecl CG_ResetLowHealthOverlay(cg_s *cgameGlob)
   cgameGlob->healthOverlayPulseDuration = 0;
   cgameGlob->healthOverlayPulsePhase = 0;
   cgameGlob->healthOverlayPulseIndex = 0;
-  cgameGlob->healthOverlayOldHealth = FLOAT_1_0;
+  cgameGlob->healthOverlayOldHealth = 1.0f;
 }
 
 void __cdecl CG_ResetDirectionalDamageIndicators(int localClientNum, int time)
@@ -809,9 +809,9 @@ void __cdecl CG_DrawPlayerAmmoBackdrop(
     {
       if ( CG_CheckPlayerForLowAmmo(cgameGlob) )
       {
-        drawColor[0] = FLOAT_0_88999999;
-        drawColor[1] = FLOAT_0_18000001;
-        drawColor[2] = FLOAT_0_0099999998;
+        drawColor[0] = 0.89f;
+        drawColor[1] = 0.1f8000001;
+        drawColor[2] = 0.01f;
       }
       else
       {
@@ -886,13 +886,13 @@ void __cdecl CG_DrawPlayerHeatValue(
         heatValue = BG_PlayerWeaponHeat(ps, weaponIndex);
         overheating = BG_PlayerWeaponOverheating(ps, weaponIndex);
       }
-      iconColor[0] = FLOAT_0_88999999;
-      iconColor[1] = FLOAT_0_18000001;
-      iconColor[2] = FLOAT_0_0099999998;
-      iconColor[3] = FLOAT_1_0;
-      flashColor[0] = FLOAT_1_0;
-      flashColor[1] = FLOAT_1_0;
-      flashColor[2] = *(float *)&FLOAT_0_0;
+      iconColor[0] = 0.89f;
+      iconColor[1] = 0.1f8000001;
+      iconColor[2] = 0.01f;
+      iconColor[3] = 1.0f;
+      flashColor[0] = 1.0f;
+      flashColor[1] = 1.0f;
+      flashColor[2] = 0.0f;
       CL_DrawStretchPic(
         &scrPlaceView[localClientNum],
         rect->x,
@@ -975,10 +975,10 @@ void __cdecl CG_DrawPlayerFuelAmmoValue(int localClientNum, const rectDef_s *rec
   if ( weapDef->fuelTankWeapon )
   {
     fuelValue = (float)BG_PlayerFuelTankTime(ps, weaponIndex) / (float)weapDef->iTankLifeTime;
-    iconColor[0] = FLOAT_0_88999999;
-    iconColor[1] = FLOAT_0_18000001;
-    iconColor[2] = FLOAT_0_0099999998;
-    iconColor[3] = FLOAT_1_0;
+    iconColor[0] = 0.89f;
+    iconColor[1] = 0.1f8000001;
+    iconColor[2] = 0.01f;
+    iconColor[3] = 1.0f;
     if ( !cg_fuelHudVersion->current.integer )
     {
       CL_DrawStretchPic(
@@ -1040,16 +1040,16 @@ void __cdecl CG_DrawPlayerReloadValue(int localClientNum, const rectDef_s *rect,
         dtMilliseconds = (float)(cgameGlob->time - cent->vehicle->fireTime);
         if ( reloadTimeMilliseconds <= 0.0 || dtMilliseconds < 0.0 || reloadTimeMilliseconds <= dtMilliseconds )
         {
-          reloadPercentage = FLOAT_1_0;
+          reloadPercentage = 1.0f;
         }
         else
         {
           if ( (float)((float)(dtMilliseconds / reloadTimeMilliseconds) - 0.0) < 0.0 )
-            v5 = *(float *)&FLOAT_0_0;
+            v5 = 0.0f;
           else
             v5 = dtMilliseconds / reloadTimeMilliseconds;
           if ( (float)(1.0 - v5) < 0.0 )
-            v4 = FLOAT_1_0;
+            v4 = 1.0f;
           else
             v4 = v5;
           reloadPercentage = v4;
@@ -1057,7 +1057,7 @@ void __cdecl CG_DrawPlayerReloadValue(int localClientNum, const rectDef_s *rect,
       }
       else
       {
-        reloadPercentage = FLOAT_1_0;
+        reloadPercentage = 1.0f;
       }
       if ( reloadPercentage < 1.0 )
         CL_DrawStretchPic(
@@ -1104,16 +1104,16 @@ void __cdecl CG_DrawPlayerReloadedValue(int localClientNum, const rectDef_s *rec
         dtMilliseconds = (float)(cgameGlob->time - cent->vehicle->fireTime);
         if ( reloadTimeMilliseconds <= 0.0 || dtMilliseconds < 0.0 || reloadTimeMilliseconds <= dtMilliseconds )
         {
-          reloadPercentage = FLOAT_1_0;
+          reloadPercentage = 1.0f;
         }
         else
         {
           if ( (float)((float)(dtMilliseconds / reloadTimeMilliseconds) - 0.0) < 0.0 )
-            v5 = *(float *)&FLOAT_0_0;
+            v5 = 0.0f;
           else
             v5 = dtMilliseconds / reloadTimeMilliseconds;
           if ( (float)(1.0 - v5) < 0.0 )
-            v4 = FLOAT_1_0;
+            v4 = 1.0f;
           else
             v4 = v5;
           reloadPercentage = v4;
@@ -1121,7 +1121,7 @@ void __cdecl CG_DrawPlayerReloadedValue(int localClientNum, const rectDef_s *rec
       }
       else
       {
-        reloadPercentage = FLOAT_1_0;
+        reloadPercentage = 1.0f;
       }
       if ( reloadPercentage > 0.0 )
         CL_DrawStretchPic(
@@ -1296,11 +1296,11 @@ void __cdecl CG_DrawPlayerBarHealth(int localClientNum, const rectDef_s *rect, M
       if ( (float)(health - 1.0) < 0.0 )
         v5 = health;
       else
-        v5 = FLOAT_1_0;
+        v5 = 1.0f;
       if ( (float)(0.0 - health) < 0.0 )
         v4 = v5;
       else
-        v4 = *(float *)&FLOAT_0_0;
+        v4 = 0.0f;
       if ( health > 0.0 )
       {
         x = rect->x;
@@ -1367,9 +1367,9 @@ void __cdecl CG_DrawPlayerBarHealth(int localClientNum, const rectDef_s *rect, M
         ya = rect->y;
         wa = (float)(cgameGlob->lastHealth - health) * rect->w;
         ha = rect->h;
-        *color = FLOAT_1_0;
-        color[1] = *(float *)&FLOAT_0_0;
-        color[2] = *(float *)&FLOAT_0_0;
+        *color = 1.0f;
+        color[1] = 0.0f;
+        color[2] = 0.0f;
         CL_DrawStretchPic(
           &scrPlaceView[localClientNum],
           xa,
@@ -1445,9 +1445,9 @@ void __cdecl CG_DrawPlayerBarHealthBack(int localClientNum, const rectDef_s *rec
           {
             cgameGlob->lastHealthPulseTime = cgameGlob->time;
           }
-          *color = FLOAT_0_88999999;
-          color[1] = FLOAT_0_18000001;
-          color[2] = FLOAT_0_0099999998;
+          *color = 0.89f;
+          color[1] = 0.1f8000001;
+          color[2] = 0.01f;
           color[3] = (float)(flashTime + cgameGlob->lastHealthPulseTime - cgameGlob->time) / (float)flashTime;
           if ( color[3] > fadeAlpha )
             color[3] = fadeAlpha;
@@ -1571,10 +1571,10 @@ void __cdecl CG_PulseLowHealthOverlay(cg_s *cgameGlob, float healthRatio)
   float v12; // [esp+24h] [ebp-1Ch]
   float pulseMags[4]; // [esp+30h] [ebp-10h]
 
-  pulseMags[0] = FLOAT_1_0;
-  pulseMags[1] = FLOAT_1_0;
-  pulseMags[2] = FLOAT_1_0;
-  pulseMags[3] = FLOAT_0_30000001;
+  pulseMags[0] = 1.0f;
+  pulseMags[1] = 1.0f;
+  pulseMags[2] = 1.0f;
+  pulseMags[3] = 0.3f;
   if ( cgameGlob->healthOverlayOldHealth > healthRatio && hud_healthOverlay_pulseStart->current.value > healthRatio )
   {
     cgameGlob->healthOverlayLastHitTime = cgameGlob->time;
@@ -1602,11 +1602,11 @@ void __cdecl CG_PulseLowHealthOverlay(cg_s *cgameGlob, float healthRatio)
               v10 = pulseMags[cgameGlob->healthOverlayPulseIndex]
                   * hud_healthOverlay_phaseTwo_toAlphaMultiplier->current.value;
             else
-              v10 = FLOAT_1_0;
+              v10 = 1.0f;
             if ( (float)(0.0 - v9) < 0.0 )
               v4 = v10;
             else
-              v4 = *(float *)&FLOAT_0_0;
+              v4 = 0.0f;
             cgameGlob->healthOverlayToAlpha = v4;
             cgameGlob->healthOverlayPulseDuration = hud_healthOverlay_phaseTwo_pulseDuration->current.integer;
             ++cgameGlob->healthOverlayPulsePhase;
@@ -1619,11 +1619,11 @@ void __cdecl CG_PulseLowHealthOverlay(cg_s *cgameGlob, float healthRatio)
               v8 = pulseMags[cgameGlob->healthOverlayPulseIndex]
                  * hud_healthOverlay_phaseThree_toAlphaMultiplier->current.value;
             else
-              v8 = FLOAT_1_0;
+              v8 = 1.0f;
             if ( (float)(0.0 - v7) < 0.0 )
               v3 = v8;
             else
-              v3 = *(float *)&FLOAT_0_0;
+              v3 = 0.0f;
             cgameGlob->healthOverlayToAlpha = v3;
             cgameGlob->healthOverlayPulseDuration = hud_healthOverlay_phaseThree_pulseDuration->current.integer;
             cgameGlob->healthOverlayPulsePhase = 0;
@@ -1648,11 +1648,11 @@ void __cdecl CG_PulseLowHealthOverlay(cg_s *cgameGlob, float healthRatio)
           if ( (float)(v11 - 1.0) < 0.0 )
             v12 = pulseMags[cgameGlob->healthOverlayPulseIndex];
           else
-            v12 = FLOAT_1_0;
+            v12 = 1.0f;
           if ( (float)(0.0 - v11) < 0.0 )
             v5 = v12;
           else
-            v5 = *(float *)&FLOAT_0_0;
+            v5 = 0.0f;
           cgameGlob->healthOverlayToAlpha = v5;
           cgameGlob->healthOverlayPulseDuration = hud_healthOverlay_phaseOne_pulseDuration->current.integer;
           ++cgameGlob->healthOverlayPulsePhase;
@@ -1706,7 +1706,7 @@ void __cdecl CG_DrawPlayerDirectionalHitIndicator(
           victimYaw = vectoyaw(victimDirection);
           playerDir[0] = cgameGlob->refdef.viewaxis[0][0];
           playerDir[1] = cgameGlob->refdef.viewaxis[0][1];
-          playerDir[2] = *(float *)&FLOAT_0_0;
+          playerDir[2] = 0.0f;
           Vec3Normalize(playerDir);
           playerYaw = vectoyaw(playerDir);
           yaw = AngleNormalize180(playerYaw - victimYaw);
@@ -1827,17 +1827,17 @@ void __cdecl get_tank_seat_tint_color(const centity_s *cent, unsigned int seat_i
   seat_occupation_flags = CG_VehGetSeatOccupancyFlags(cent);
   v5 = seat_index < 2 && (seat_occupation_flags & (1 << seat_index)) != 0;
   if ( v5 )
-    v4 = *(float *)&FLOAT_0_0;
+    v4 = 0.0f;
   else
-    v4 = FLOAT_1_0;
+    v4 = 1.0f;
   *rgba = v4;
-  rgba[1] = FLOAT_1_0;
+  rgba[1] = 1.0f;
   if ( v5 )
-    v3 = *(float *)&FLOAT_0_0;
+    v3 = 0.0f;
   else
-    v3 = FLOAT_1_0;
+    v3 = 1.0f;
   rgba[2] = v3;
-  rgba[3] = FLOAT_1_0;
+  rgba[3] = 1.0f;
 }
 
 void __cdecl get_tank_hud_health_tint_color(float health_fraction, float *rgba, float black_when_dead)
@@ -1846,21 +1846,21 @@ void __cdecl get_tank_hud_health_tint_color(float health_fraction, float *rgba, 
 
   if ( black_when_dead == 0.0 || health_fraction > 0.0 )
   {
-    *rgba = FLOAT_1_0;
+    *rgba = 1.0f;
     rgba[1] = health_fraction;
     if ( health_fraction < 0.94999999 )
-      v3 = *(float *)&FLOAT_0_0;
+      v3 = 0.0f;
     else
-      v3 = FLOAT_1_0;
+      v3 = 1.0f;
     rgba[2] = v3;
-    rgba[3] = FLOAT_1_0;
+    rgba[3] = 1.0f;
   }
   else
   {
-    *rgba = FLOAT_0_25;
-    rgba[1] = FLOAT_0_25;
-    rgba[2] = FLOAT_0_25;
-    rgba[3] = FLOAT_1_0;
+    *rgba = 0.25f;
+    rgba[1] = 0.25f;
+    rgba[2] = 0.25f;
+    rgba[3] = 1.0f;
   }
 }
 
@@ -1989,13 +1989,13 @@ void __cdecl CG_DrawWarMomentumProgress(
       {
         if ( cgameGlob->warMomentumMultiplier < 2 )
         {
-          w = *(float *)&FLOAT_0_0;
-          sourceWidth = *(float *)&FLOAT_0_0;
+          w = 0.0f;
+          sourceWidth = 0.0f;
         }
         else
         {
           w = rect->w;
-          sourceWidth = FLOAT_1_0;
+          sourceWidth = 1.0f;
         }
       }
       else
@@ -2053,14 +2053,14 @@ void __cdecl CG_DrawWarMomentumProgress(
           material);
       break;
     case 284:
-      bonusColor[0] = FLOAT_0_69999999;
-      bonusColor[1] = FLOAT_0_5;
-      bonusColor[2] = FLOAT_0_2;
-      bonusColor[3] = FLOAT_1_0;
-      blitzKriegColor[0] = FLOAT_0_69999999;
-      blitzKriegColor[1] = FLOAT_0_30000001;
-      blitzKriegColor[2] = *(float *)&FLOAT_0_0;
-      blitzKriegColor[3] = FLOAT_1_0;
+      bonusColor[0] = 0.7f;
+      bonusColor[1] = 0.5f;
+      bonusColor[2] = 0.2f;
+      bonusColor[3] = 1.0f;
+      blitzKriegColor[0] = 0.7f;
+      blitzKriegColor[1] = 0.3f;
+      blitzKriegColor[2] = 0.0f;
+      blitzKriegColor[3] = 1.0f;
       if ( cgameGlob->warMomentumMultiplier >= 2 )
       {
         if ( cgameGlob->warMomentumMultiplier >= 3 )
@@ -2166,25 +2166,25 @@ void __cdecl CG_DrawWarMomentumMultiplier(int localClientNum, const rectDef_s *r
 
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
   if ( cgameGlob->warMomentumMultiplier >= 2 )
-    iconColor[0] = FLOAT_1_0;
+    iconColor[0] = 1.0f;
   else
-    iconColor[0] = FLOAT_0_0099999998;
-  iconColor[1] = FLOAT_0_89999998;
-  iconColor[2] = FLOAT_0_0099999998;
-  iconColor[3] = FLOAT_1_0;
+    iconColor[0] = 0.01f;
+  iconColor[1] = 0.9f;
+  iconColor[2] = 0.01f;
+  iconColor[3] = 1.0f;
   if ( cgameGlob->warMomentumMultiplier == 2 )
   {
-    *color = FLOAT_0_0099999998;
-    color[1] = FLOAT_0_89999998;
-    color[2] = FLOAT_0_0099999998;
-    color[3] = FLOAT_1_0;
+    *color = 0.01f;
+    color[1] = 0.9f;
+    color[2] = 0.01f;
+    color[3] = 1.0f;
   }
   else if ( cgameGlob->warMomentumMultiplier == 3 )
   {
-    *color = FLOAT_1_0;
-    color[1] = FLOAT_0_89999998;
-    color[2] = FLOAT_0_0099999998;
-    color[3] = FLOAT_1_0;
+    *color = 1.0f;
+    color[1] = 0.9f;
+    color[2] = 0.01f;
+    color[3] = 1.0f;
   }
   CL_DrawStretchPic(
     &scrPlaceView[localClientNum],
@@ -2228,10 +2228,10 @@ void __cdecl CG_DrawWarMomentumMultiplierDetail(
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
   if ( cgameGlob->warMomentumMultiplier == 2 )
   {
-    *color = FLOAT_1_0;
-    color[1] = FLOAT_0_89999998;
-    color[2] = FLOAT_0_40000001;
-    color[3] = FLOAT_1_0;
+    *color = 1.0f;
+    color[1] = 0.9f;
+    color[2] = 0.4f;
+    color[3] = 1.0f;
 LABEL_6:
     CL_DrawStretchPic(
       &scrPlaceView[localClientNum],
@@ -2251,10 +2251,10 @@ LABEL_6:
   }
   if ( cgameGlob->warMomentumMultiplier == 3 )
   {
-    *color = FLOAT_1_0;
-    color[1] = FLOAT_0_89999998;
-    color[2] = FLOAT_0_40000001;
-    color[3] = FLOAT_1_0;
+    *color = 1.0f;
+    color[1] = 0.9f;
+    color[2] = 0.4f;
+    color[3] = 1.0f;
     goto LABEL_6;
   }
 }
@@ -2270,7 +2270,7 @@ void __cdecl CG_DrawWarMomentumMultiplierBlitzkrieg(
   float flashColor[4]; // [esp+40h] [ebp-14h] BYREF
   float k_mimimum_transparency; // [esp+50h] [ebp-4h]
 
-  k_mimimum_transparency = FLOAT_0_25;
+  k_mimimum_transparency = 0.25f;
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
   if ( cgameGlob->warMomentumMultiplier == 3 )
   {
@@ -2504,58 +2504,58 @@ void __cdecl CG_DrawDemoControls(int localClientNum, const rectDef_s *rect, Mate
   float timelineHeight; // [esp+278h] [ebp-8h]
   float controlNamesBoxIconX; // [esp+27Ch] [ebp-4h]
 
-  disabledText[0] = FLOAT_0_34999999;
-  disabledText[1] = FLOAT_0_34999999;
-  disabledText[2] = FLOAT_0_34999999;
-  disabledText[3] = FLOAT_1_0;
+  disabledText[0] = 0.35f;
+  disabledText[1] = 0.35f;
+  disabledText[2] = 0.35f;
+  disabledText[3] = 1.0f;
   bookmarkIndex = -1;
-  activityBlockColor[0] = FLOAT_0_60000002;
-  activityBlockColor[1] = *(float *)&FLOAT_0_0;
-  activityBlockColor[2] = *(float *)&FLOAT_0_0;
-  activityBlockColor[3] = FLOAT_1_0;
-  keyframeColor[0] = FLOAT_1_0;
-  keyframeColor[1] = FLOAT_1_0;
-  keyframeColor[2] = FLOAT_1_0;
-  keyframeColor[3] = FLOAT_0_5;
-  outerBoxColor[0] = FLOAT_0_050000001;
-  outerBoxColor[1] = FLOAT_0_029999999;
-  outerBoxColor[2] = FLOAT_0_029999999;
-  outerBoxColor[3] = FLOAT_1_0;
-  outlineBoxSpacing = FLOAT_10_0;
+  activityBlockColor[0] = 0.6f;
+  activityBlockColor[1] = 0.0f;
+  activityBlockColor[2] = 0.0f;
+  activityBlockColor[3] = 1.0f;
+  keyframeColor[0] = 1.0f;
+  keyframeColor[1] = 1.0f;
+  keyframeColor[2] = 1.0f;
+  keyframeColor[3] = 0.5f;
+  outerBoxColor[0] = 0.05f;
+  outerBoxColor[1] = 0.03f;
+  outerBoxColor[2] = 0.03f;
+  outerBoxColor[3] = 1.0f;
+  outlineBoxSpacing = 10.0f;
   innerGreyBoxX = rect->x + 10.0;
   innerGreyBoxY = rect->y + 10.0;
   innerGreyBoxWidth = rect->w - (float)(2.0 * 10.0);
   innerGreyBoxHeight = rect->h - (float)(3.0 * 10.0);
-  innerGreyBoxXSpacing = FLOAT_5_0;
-  innerGreyBoxYSpacing = FLOAT_6_0;
-  innerGreyBoxColor[0] = FLOAT_0_14;
-  innerGreyBoxColor[1] = FLOAT_0_14;
-  innerGreyBoxColor[2] = FLOAT_0_14;
-  innerGreyBoxColor[3] = FLOAT_1_0;
+  innerGreyBoxXSpacing = 5.0f;
+  innerGreyBoxYSpacing = 6.0f;
+  innerGreyBoxColor[0] = 0.1f4;
+  innerGreyBoxColor[1] = 0.1f4;
+  innerGreyBoxColor[2] = 0.1f4;
+  innerGreyBoxColor[3] = 1.0f;
   timelineX = innerGreyBoxX + 5.0;
   timelineY = innerGreyBoxY + 6.0;
   v4 = innerGreyBoxWidth - 10.0 * 3.5;
   timelineWidth = v4;
   v5 = 10.0 * 0.8;
   timelineHeight = v5;
-  timelineCursorWidth = FLOAT_10_0;
-  timelineCursorHeight = FLOAT_5_0;
+  timelineCursorWidth = 10.0f;
+  timelineCursorHeight = 5.0f;
   memset(timelineColor, 0, 12);
-  timelineColor[3] = FLOAT_1_0;
-  timelineColorFaded[0] = FLOAT_1_0;
-  timelineColorFaded[1] = FLOAT_1_0;
-  timelineColorFaded[2] = FLOAT_1_0;
-  timelineColorFaded[3] = FLOAT_0_1;
+  timelineColor[3] = 1.0f;
+  timelineColorFaded[0] = 1.0f;
+  timelineColorFaded[1] = 1.0f;
+  timelineColorFaded[2] = 1.0f;
+  timelineColorFaded[3] = 0.1f;
   controlNamesBoxY = (float)((float)(innerGreyBoxY + 6.0) + v5) + 6.0;
   v6 = 10.0 * 1.6;
   controlNamesBoxHeight = v6;
   memset(controlNamesBoxColor, 0, 12);
-  controlNamesBoxColor[3] = FLOAT_1_0;
-  controlNamesBoxColorFaded[0] = FLOAT_1_0;
-  controlNamesBoxColorFaded[1] = FLOAT_1_0;
-  controlNamesBoxColorFaded[2] = FLOAT_1_0;
-  controlNamesBoxColorFaded[3] = FLOAT_0_050000001;
-  controlNamesBoxIconSpacing = FLOAT_4_0;
+  controlNamesBoxColor[3] = 1.0f;
+  controlNamesBoxColorFaded[0] = 1.0f;
+  controlNamesBoxColorFaded[1] = 1.0f;
+  controlNamesBoxColorFaded[2] = 1.0f;
+  controlNamesBoxColorFaded[3] = 0.05f;
+  controlNamesBoxIconSpacing = 4.0f;
   if ( !Demo_IsClipPreviewRunning()
     && !Demo_IsSaveDialogOpen(localClientNum)
     && !Demo_IsErrorDialogOpen(localClientNum)
@@ -2564,7 +2564,7 @@ void __cdecl CG_DrawDemoControls(int localClientNum, const rectDef_s *rect, Mate
   {
     cgameGlob = CG_GetLocalClientGlobals(localClientNum);
     scrPlace = &scrPlaceView[localClientNum];
-    spacing = FLOAT_20_0;
+    spacing = 20.0f;
     textStyle = 6;
     font = UI_GetFontHandle(scrPlace, 3, 0.33333334);
     controlsNamesBoxBackground = Material_RegisterHandle("demo_button_outline", 7);
@@ -2683,12 +2683,12 @@ void __cdecl CG_DrawDemoControls(int localClientNum, const rectDef_s *rect, Mate
     currentTime = ClipTime;
     duration = endTime - startTime;
     if ( Demo_IsCompleted() )
-      v20 = FLOAT_1_0;
+      v20 = 1.0f;
     else
       v20 = (float)(currentTime - startTime) / (float)duration;
     percentCompleted = v20;
     if ( v20 > 1.0 )
-      percentCompleted = FLOAT_1_0;
+      percentCompleted = 1.0f;
     playerActivityColor[0] = colorMdYellow[0];
     playerActivityColor[1] = 0.5;
     playerActivityColor[2] = 0.0;
@@ -2718,7 +2718,7 @@ void __cdecl CG_DrawDemoControls(int localClientNum, const rectDef_s *rect, Mate
     {
       if ( Demo_IsMovieCamera() )
         break;
-      bookmarkEventColor[3] = *(float *)&FLOAT_0_0;
+      bookmarkEventColor[3] = 0.0f;
       bookmarkIndex = Demo_GetNextDefaultBookmarkForPlayer(
                         localClientNum,
                         bookmarkIndex,
@@ -2736,11 +2736,11 @@ void __cdecl CG_DrawDemoControls(int localClientNum, const rectDef_s *rect, Mate
         if ( (float)(v22 - 1.0) < 0.0 )
           v23 = v22;
         else
-          v23 = FLOAT_1_0;
+          v23 = 1.0f;
         if ( (float)(0.0 - v22) < 0.0 )
           v19 = v23;
         else
-          v19 = *(float *)&FLOAT_0_0;
+          v19 = 0.0f;
         bookmarkEventColor[3] = v19;
         Demo_DrawVerticalLine(
           &scrPlaceView[localClientNum],
@@ -3583,11 +3583,11 @@ void  CG_DrawPlayerImageSwing(
   maxAngleChange = a1;
   swayStartTime = retaddr;
   swingLength = 0;
-  rotation = FLOAT_0_5;
-  maxSwayAngle = FLOAT_2500_0;
-  *(float *)&cgameGlob = FLOAT_100_0;
+  rotation = 0.5f;
+  maxSwayAngle = 2500.0f;
+  *(float *)&cgameGlob = 100.0f;
   scrPlace = *(const ScreenPlacement **)&FLOAT_0_0;
-  *(float *)&time = FLOAT_7_0;
+  *(float *)&time = 7.0f;
   ratio = CG_GetLocalClientGlobals(localClientNum);
   previousPopUpAngle = &scrPlaceView[localClientNum];
   swingLength = ratio->popUpSwayStartTime;
@@ -3596,8 +3596,8 @@ void  CG_DrawPlayerImageSwing(
   {
     if ( (float)swingPoint > (float)((float)swingLength + maxSwayAngle) )
     {
-      ratio->popupRotationAngle = *(float *)&FLOAT_0_0;
-      ratio->popUpAngleDelta = *(float *)&FLOAT_0_0;
+      ratio->popupRotationAngle = 0.0f;
+      ratio->popUpAngleDelta = 0.0f;
     }
     rotatedX = (float)((float)((float)swingLength + maxSwayAngle) - (float)swingPoint) / maxSwayAngle;
     rotatedY = ratio->popupRotationAngle;
@@ -3635,9 +3635,9 @@ void  CG_DrawPlayerImageSwing(
       Com_sprintf((char *)&rankUpColor[3], 0x400u, "rankUpPopUpIcon%d", 0);
       LODWORD(rankUpColor[2]) = Dvar_GetString((const char *)&rankUpColor[3]);
       LODWORD(rankUpColor[1]) = Material_RegisterHandle((char *)LODWORD(rankUpColor[2]), 7);
-      v10[0] = FLOAT_1_0;
-      v10[1] = FLOAT_1_0;
-      v10[2] = FLOAT_1_0;
+      v10[0] = 1.0f;
+      v10[1] = 1.0f;
+      v10[2] = 1.0f;
       rankUpColor[0] = color[3];
       CL_DrawStretchPicRotatedXY(
         previousPopUpAngle,
@@ -3834,23 +3834,23 @@ void __cdecl CG_DrawGuidedMissileFuel(int localClientNum, const rectDef_s *rect,
     if ( (ps->eFlags2 & 0x40000) != 0 )
       fuelValue = (float)BG_PlayerFuelTankTime(ps, weaponIndex) / (float)(weapDef->projLifetime * 1000.0);
     else
-      fuelValue = *(float *)&FLOAT_0_0;
+      fuelValue = 0.0f;
     if ( (float)(1.0 - (float)(fuelValue + 0.2)) < 0.0 )
-      v4 = FLOAT_1_0;
+      v4 = 1.0f;
     else
       v4 = fuelValue + 0.2;
     if ( (float)((float)(0.80000001 - fuelValue) - 0.0) < 0.0 )
-      v3 = *(float *)&FLOAT_0_0;
+      v3 = 0.0f;
     else
       v3 = 0.80000001 - fuelValue;
     iconColor[0] = v4;
     iconColor[1] = v3;
-    iconColor[2] = FLOAT_0_1;
-    iconColor[3] = FLOAT_1_0;
-    UsedColor[0] = FLOAT_0_40000001;
-    UsedColor[1] = FLOAT_0_40000001;
-    UsedColor[2] = FLOAT_0_40000001;
-    UsedColor[3] = FLOAT_1_0;
+    iconColor[2] = 0.1f;
+    iconColor[3] = 1.0f;
+    UsedColor[0] = 0.4f;
+    UsedColor[1] = 0.4f;
+    UsedColor[2] = 0.4f;
+    UsedColor[3] = 1.0f;
     if ( fuelValue >= 0.0 )
     {
       h = rect->h * fuelValue;
@@ -4284,18 +4284,18 @@ void __cdecl CG_DrawPlayerAmmoValue(
         {
           if ( cgameGlob->lastClipFlashTime > cgameGlob->time || cgameGlob->lastClipFlashTime + 800 < cgameGlob->time )
             cgameGlob->lastClipFlashTime = cgameGlob->time;
-          flashColor[0] = FLOAT_0_88999999;
-          flashColor[1] = FLOAT_0_18000001;
-          flashColor[2] = FLOAT_0_0099999998;
+          flashColor[0] = 0.89f;
+          flashColor[1] = 0.1f8000001;
+          flashColor[2] = 0.01f;
           flashColor[3] = (float)(cgameGlob->lastClipFlashTime + 800 - cgameGlob->time) / 800.0;
           if ( flashColor[3] > color[3] )
             flashColor[3] = color[3];
         }
         if ( lowAmmo )
         {
-          ammoColor[0] = FLOAT_0_88999999;
-          ammoColor[1] = FLOAT_0_18000001;
-          ammoColor[2] = FLOAT_0_0099999998;
+          ammoColor[0] = 0.89f;
+          ammoColor[1] = 0.1f8000001;
+          ammoColor[2] = 0.01f;
         }
         else
         {
@@ -4739,7 +4739,7 @@ void __cdecl CG_DrawStanceHintPrints(
   if ( cgameGlob->lastStanceChangeTime + 3000 - cgameGlob->time <= 1000 )
     drawColor[3] = (float)(cgameGlob->lastStanceChangeTime + 3000 - cgameGlob->time) * 0.001;
   else
-    drawColor[3] = FLOAT_1_0;
+    drawColor[3] = 1.0f;
   height = (float)UI_TextHeight(font, scale);
   numHintLines = 0;
   for ( i = 0; i < 3; ++i )
@@ -4873,9 +4873,9 @@ void  CG_DrawCursorhint(
         cgameGlob->cursorHintIcon = 0;
         return;
       }
-      *(float *)&displayString = FLOAT_1_0;
+      *(float *)&displayString = 1.0f;
       secondaryString = *(const char **)&FLOAT_0_0;
-      v31 = FLOAT_1_0;
+      v31 = 1.0f;
       UseString = 0;
       halfscale = 0;
       if ( cg_cursorHints->current.integer == 3 )
@@ -4901,8 +4901,8 @@ void  CG_DrawCursorhint(
       }
       else
       {
-        length = *(float *)&FLOAT_0_0;
-        height = *(float *)&FLOAT_0_0;
+        length = 0.0f;
+        height = 0.0f;
       }
       if ( cgameGlob->cursorHintIcon == 1 || cgameGlob->cursorHintIcon == 2 )
       {
@@ -4971,9 +4971,9 @@ LABEL_20:
                 {
                   if ( *(unsigned int *)&binding[248] == 1 )
                   {
-                    *(float *)&displayString = FLOAT_2_0;
+                    *(float *)&displayString = 2.0f;
                     *(float *)&secondaryString = rect->w * -0.5;
-                    v31 = FLOAT_1_0;
+                    v31 = 1.0f;
                   }
                   else
                   {
@@ -4987,9 +4987,9 @@ LABEL_20:
                     {
                       __debugbreak();
                     }
-                    *(float *)&displayString = FLOAT_2_0;
+                    *(float *)&displayString = 2.0f;
                     *(float *)&secondaryString = rect->w * -0.5;
-                    v31 = FLOAT_0_5;
+                    v31 = 0.5f;
                   }
                 }
               }
@@ -5631,7 +5631,7 @@ double __cdecl CG_GetClosestTargetToGuidedMissile(int localClientNum)
   {
     __debugbreak();
   }
-  closestEntDist = FLOAT_N1_0;
+  closestEntDist = -1.0f;
   for ( i = 0; i < 32; ++i )
   {
     cent = CG_GetEntity(localClientNum, i);
@@ -5657,7 +5657,7 @@ double __cdecl CG_GetClosestTargetToGuidedMissile(int localClientNum)
     }
   }
   if ( closestEntDist == -1.0 )
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
   return closestEntDist;
 }
 
@@ -5676,7 +5676,7 @@ double __cdecl CG_GetDistanceGuidedMissileAndOwner(int localClientNum)
   if ( LocalClientGlobals->predictedPlayerState.pm_type < 9 )
     return (float)Vec3Distance(cgameGlob->refdef.vieworg, LocalClientGlobals->predictedPlayerState.origin);
   else
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
 }
 
 void __cdecl CG_DrawTurretPlaceHint(
@@ -5775,9 +5775,9 @@ void __cdecl CG_DrawMantleHint(
         string = UI_ReplaceConversionString(v7, binding);
         length = (float)UI_TextWidth(string, 0, font, fontscale);
         height = (float)UI_TextHeight(font, fontscale);
-        heightAdjust = *(float *)&FLOAT_0_0;
+        heightAdjust = 0.0f;
         if ( (ps->mantleState.flags & 0x80) != 0 )
-          heightAdjust = FLOAT_N35_0;
+          heightAdjust = -35.0f;
         x = rect->x - (float)((float)(rect->w + length) * 0.5);
         y = (float)(rect->y + heightAdjust) + (float)(height * 0.5);
         UI_DrawText(
@@ -6064,10 +6064,10 @@ void __cdecl CG_DrawWarText(
   float otherTeamCappingColor[4]; // [esp+94h] [ebp-218h]
   char convertedStr[516]; // [esp+A4h] [ebp-208h] BYREF
 
-  otherTeamCappingColor[0] = FLOAT_1_0;
-  otherTeamCappingColor[1] = FLOAT_0_30000001;
-  otherTeamCappingColor[2] = FLOAT_0_30000001;
-  otherTeamCappingColor[3] = FLOAT_1_0;
+  otherTeamCappingColor[0] = 1.0f;
+  otherTeamCappingColor[1] = 0.3f;
+  otherTeamCappingColor[2] = 0.3f;
+  otherTeamCappingColor[3] = 1.0f;
   localTeam = cgameGlob->bgs.clientinfo[cgameGlob->predictedPlayerState.clientNum].team;
   if ( localTeam == TEAM_ALLIES || localTeam == TEAM_AXIS )
   {
@@ -6094,10 +6094,10 @@ void __cdecl CG_DrawWarText(
                 wartexta = UI_SafeTranslateString("MENU_WAR_STATUS_CONTESTED");
                 v9 = SEH_LocalizeTextMessage(location, "game message", LOCMSG_SAFE);
                 wartext = UI_ReplaceConversionString(wartexta, v9);
-                *color = FLOAT_1_0;
-                color[1] = FLOAT_1_0;
-                color[2] = FLOAT_0_30000001;
-                color[3] = FLOAT_1_0;
+                *color = 1.0f;
+                color[1] = 1.0f;
+                color[2] = 0.3f;
+                color[3] = 1.0f;
 LABEL_26:
                 UI_DrawWrappedText(
                   &scrPlaceFull,

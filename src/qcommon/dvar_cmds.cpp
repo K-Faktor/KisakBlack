@@ -952,7 +952,7 @@ void __cdecl Dvar_RegisterColor_f()
     }
     else
     {
-      a = FLOAT_1_0;
+      a = 1.0f;
     }
     dvar = Dvar_FindVar(dvarName);
     if ( !dvar || dvar->type == DVAR_TYPE_STRING && (dvar->flags & 0x4000) != 0 )

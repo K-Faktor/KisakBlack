@@ -27,7 +27,7 @@ void __cdecl SpawnSystem_Init()
   int i; // [esp+4h] [ebp-4h]
 
   SpawnSystem_RegisterDvars();
-  g_spawnRandomVariation = *(float *)&FLOAT_0_0;
+  g_spawnRandomVariation = 0.0f;
   g_spawnPointCount = 0;
   g_sortedSpawnInfluencerCount = 0;
   g_lastInfluencerSortTime = 0;
@@ -295,7 +295,7 @@ void __cdecl SpawnSystem_SetPointsBaseWeight(int teammask, float *objective_posi
   point = 0;
   __libm_sse2_cos(v6);
   angle_cos = angle * 0.017453292;
-  dot = *(float *)&FLOAT_0_0;
+  dot = 0.0f;
   for ( i = 0; i < g_spawnPointCount; ++i )
   {
     point = &g_spawnPoints[i];
@@ -513,12 +513,12 @@ int __cdecl SpawnSystem_AddSphereInfluencer(
   if ( index == -1 )
     Com_Error(ERR_DROP, "No more free spawn influencers");
   influencer = &g_spawnInfluencers[index];
-  up[0] = *(float *)&FLOAT_0_0;
-  up[1] = *(float *)&FLOAT_0_0;
-  up[2] = FLOAT_1_0;
-  forward[0] = FLOAT_1_0;
-  forward[1] = *(float *)&FLOAT_0_0;
-  forward[2] = *(float *)&FLOAT_0_0;
+  up[0] = 0.0f;
+  up[1] = 0.0f;
+  up[2] = 1.0f;
+  forward[0] = 1.0f;
+  forward[1] = 0.0f;
+  forward[2] = 0.0f;
   SpawnSystem_InitInfluencer(
     influencer,
     type,
@@ -822,7 +822,7 @@ void __cdecl SpawnSystem_CalculateCylinderLength(SpawnInfluencer *influencer)
       }
       else
       {
-        influencer->length = FLOAT_1_0;
+        influencer->length = 1.0f;
       }
       influencer->lastUpdateTime = level.time;
     }
@@ -887,11 +887,11 @@ void __cdecl SpawnSystem_CalculateCylinderAxis(SpawnInfluencer *influencer)
       if ( (float)(v7 - 90.0) < 0.0 )
         v8 = v7;
       else
-        v8 = FLOAT_90_0;
+        v8 = 90.0f;
       if ( (float)(-90.0 - v7) < 0.0 )
         v4 = v8;
       else
-        v4 = FLOAT_N90_0;
+        v4 = -90.0f;
       angles[0] = v4;
     }
     else if ( ent->s.eType == 4 )
@@ -900,11 +900,11 @@ void __cdecl SpawnSystem_CalculateCylinderAxis(SpawnInfluencer *influencer)
       if ( (float)(v5 - 90.0) < 0.0 )
         v6 = v5;
       else
-        v6 = FLOAT_90_0;
+        v6 = 90.0f;
       if ( (float)(-90.0 - v5) < 0.0 )
         v3 = v6;
       else
-        v3 = FLOAT_N90_0;
+        v3 = -90.0f;
       angles[0] = v3;
     }
     AnglesToQuat(angles, ent_quat);
@@ -1467,8 +1467,8 @@ void __cdecl SpawnSystem_ComputePointWeight(
   axis = g_sortAxis;
   teamMask = 1 << influencer_team;
   memset(influencer_scores, 0, sizeof(influencer_scores));
-  influencer_score = *(float *)&FLOAT_0_0;
-  friendly_player_influencer_score = *(float *)&FLOAT_0_0;
+  influencer_score = 0.0f;
+  friendly_player_influencer_score = 0.0f;
   sortedCount = g_sortedSpawnInfluencerCount;
   for ( index = 0; index < sortedCount; ++index )
   {
@@ -1495,7 +1495,7 @@ void __cdecl SpawnSystem_ComputePointWeight(
         || !EntHandle::isDefined(&influencer->entity)
         || EntHandle::ent(&influencer->entity) != player )
       {
-        influencer_score = *(float *)&FLOAT_0_0;
+        influencer_score = 0.0f;
         if ( influencer->preset->type >= (unsigned int)MAX_INFLUENCER_TYPE
           && !Assert_MyHandler(
                 "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_spawnsystem_mp.cpp",
@@ -1882,11 +1882,11 @@ void __cdecl SpawnSystem_DebugRenderVisibilityBox(float *point1, float *angles1,
   float maxs[3]; // [esp+1Ch] [ebp-10h] BYREF
   int time; // [esp+28h] [ebp-4h]
 
-  mins[0] = FLOAT_N16_0;
-  mins[1] = FLOAT_N16_0;
-  mins[2] = *(float *)&FLOAT_0_0;
-  maxs[0] = FLOAT_16_0;
-  maxs[1] = FLOAT_16_0;
+  mins[0] = -16.0f;
+  mins[1] = -16.0f;
+  mins[2] = 0.0f;
+  maxs[0] = 16.0f;
+  maxs[1] = 16.0f;
   maxs[2] = FLOAT_72_0;
   time = 500;
   if ( spawnsystem_debug_visibility_time )
@@ -2096,8 +2096,8 @@ void __cdecl SpawnSystem_DebugRenderTeamPointWeights(int teamMask)
   SpawnPoint *SpawnPoints; // [esp+40h] [ebp-8h]
   float score; // [esp+44h] [ebp-4h]
 
-  start_height = FLOAT_45_0;
-  height_inc = FLOAT_12_0;
+  start_height = 45.0f;
+  height_inc = 12.0f;
   spCount = SpawnSystem_GetSpawnPointCount();
   SpawnPoints = SpawnSystem_GetSpawnPoints();
   for ( index = 0; index < spCount; ++index )
@@ -2173,9 +2173,9 @@ void __cdecl SpawnSystem_DebugRenderTeamPoints(int teamMask)
         && g_entities[0].client->sess.connected == CON_CONNECTED )
       {
         yaw = SpawnPoints->yaw;
-        angles[0] = *(float *)&FLOAT_0_0;
+        angles[0] = 0.0f;
         angles[1] = yaw;
-        angles[2] = *(float *)&FLOAT_0_0;
+        angles[2] = 0.0f;
         SpawnSystem_IsSpawnPointVisible(SpawnPoints->origin, angles, g_entities[0].client->sess.cs.team, 0);
       }
     }
@@ -2195,13 +2195,13 @@ void __cdecl SpawnSystem_DebugRenderSpawnPointBox(SpawnPoint *sp, const float *c
   float maxs[3]; // [esp+58h] [ebp-10h] BYREF
   float height_offset; // [esp+64h] [ebp-4h]
 
-  mins[0] = FLOAT_N16_0;
-  mins[1] = FLOAT_N16_0;
-  mins[2] = *(float *)&FLOAT_0_0;
-  maxs[0] = FLOAT_16_0;
-  maxs[1] = FLOAT_16_0;
+  mins[0] = -16.0f;
+  mins[1] = -16.0f;
+  mins[2] = 0.0f;
+  maxs[0] = 16.0f;
+  maxs[1] = 16.0f;
   maxs[2] = FLOAT_72_0;
-  height_offset = FLOAT_45_0;
+  height_offset = 45.0f;
   origin[0] = sp->origin[0];
   origin[1] = sp->origin[1];
   origin[2] = sp->origin[2];

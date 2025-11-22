@@ -208,7 +208,7 @@ flameChunk_s *__cdecl Flame_Class_Chunk_Spawn(
   chunk->gen.phys.invStartSpeed = Flame_CalcInvStartSpeed(1.0, spawnVars->speed);
   chunk->gen.phys.gravity = spawnVars->gravityStart;
   chunk->gen.phys.rotation = Flame_CRandom(is_server) * fTable->flameVar_streamChunkRotationRange;
-  chunk->gen.phys.rotVel = *(float *)&FLOAT_0_0;
+  chunk->gen.phys.rotVel = 0.0f;
   chunk->spawnFireInterval = (int)(float)(1000.0 * fTable->flameVar_streamChunkSpawnFireIntervalStart);
   v6 = (int)(float)(1000.0 * fTable->flameVar_streamChunkSpawnFireMinLifeFrac);
   chunk->lastSpawnFire = spawnVars->time - (int)(Flame_Random(is_server) * (double)chunk->spawnFireInterval) + v6;
@@ -249,12 +249,12 @@ void __cdecl Flame_Class_Chunk_Render_Item(int localClientNum, flameChunk_s *chu
   }
   if ( flame_debug_render->current.integer > 0 )
   {
-    points[0][0] = FLOAT_N1_0;
-    points[0][1] = FLOAT_N1_0;
-    *(_QWORD *)&points[1][0] = __PAIR64__(LODWORD(FLOAT_N1_0), LODWORD(FLOAT_1_0));
-    points[2][0] = FLOAT_1_0;
-    points[2][1] = FLOAT_1_0;
-    *(_QWORD *)&points[3][0] = __PAIR64__(LODWORD(FLOAT_1_0), LODWORD(FLOAT_N1_0));
+    points[0][0] = -1.0f;
+    points[0][1] = -1.0f;
+    *(_QWORD *)&points[1][0] = __PAIR64__(LODWORD(-1.0f), LODWORD(1.0f));
+    points[2][0] = 1.0f;
+    points[2][1] = 1.0f;
+    *(_QWORD *)&points[3][0] = __PAIR64__(LODWORD(1.0f), LODWORD(-1.0f));
     AxisToAngles(clientGlobals->refdef.viewaxis, angles);
     angles[2] = chunk->gen.phys.rotation;
     AngleVectors(angles, fwd, right, down);

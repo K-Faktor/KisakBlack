@@ -1285,8 +1285,8 @@ void __cdecl SP_worldspawn(SpawnVar *spawnVar)
   else
   {
     SV_SetConfigstring(1548, "0");
-    level.compassNorth[0] = FLOAT_1_0;
-    level.compassNorth[1] = *(float *)&FLOAT_0_0;
+    level.compassNorth[0] = 1.0f;
+    level.compassNorth[1] = 0.0f;
   }
   G_SpawnString(spawnVar, "spawnflags", "0", &s);
   g_entities[1022].spawnflags = atoi(s);

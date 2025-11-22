@@ -401,7 +401,7 @@ void __cdecl CG_DrawChatMessages(int localClientNum)
       __debugbreak();
     }
     v2 = CG_IsScoreboardDisplayed(localClientNum) ? cg_hudChatIntermissionPosition : cg_hudChatPosition;
-    fontHeight = cgs->viewHeight <= 600 ? FLOAT_16_0 : FLOAT_10_0;
+    fontHeight = cgs->viewHeight <= 600 ? 16.0f : 10.0f;
     fontScale = fontHeight / 48.0;
     hudChatX = (int)v2->current.value;
     hudChatY = (int)v2->current.vector[1];
@@ -426,7 +426,7 @@ void __cdecl CG_DrawChatMessages(int localClientNum)
         }
         else
         {
-          alphapercenta = FLOAT_1_0;
+          alphapercenta = 1.0f;
         }
         v1 = i % chatHeight;
         msg = cgs->teamChatMsgs[v1];
@@ -437,9 +437,9 @@ void __cdecl CG_DrawChatMessages(int localClientNum)
           || cgs->teamChatMsgs[v1][1] < '0'
           || cgs->teamChatMsgs[v1][1] > 64 )
         {
-          color[0] = FLOAT_1_0;
-          color[1] = FLOAT_1_0;
-          color[2] = FLOAT_1_0;
+          color[0] = 1.0f;
+          color[1] = 1.0f;
+          color[2] = 1.0f;
         }
         else
         {
@@ -454,9 +454,9 @@ void __cdecl CG_DrawChatMessages(int localClientNum)
         UI_DrawHandlePic(scrPlace, 0.0, y, w, fontHeight, 1, 1, color, cgMedia.teamStatusBar);
         color[3] = alphapercenta;
         ya = (float)((float)hudChatY - (float)((float)(cgs->teamChatPos - i) * fontHeight)) + (float)(fontHeight - 1.0);
-        color[0] = FLOAT_1_0;
-        color[1] = FLOAT_1_0;
-        color[2] = FLOAT_1_0;
+        color[0] = 1.0f;
+        color[1] = 1.0f;
+        color[2] = 1.0f;
         UI_DrawText(scrPlace, msg, 0x7FFFFFFF, font, (float)hudChatX, ya, 1, 1, fontScale, color, 3);
       }
     }
@@ -879,9 +879,9 @@ void __cdecl CG_DrawVote(int localClientNum)
       __debugbreak();
     }
     if ( cgs->viewHeight <= 600 )
-      fontHeight = FLOAT_16_0;
+      fontHeight = 16.0f;
     else
-      fontHeight = FLOAT_10_0;
+      fontHeight = 10.0f;
     fontScale = fontHeight / 48.0;
     halign = 1;
     font = UI_GetFontHandle(scrPlace, 0, fontHeight / 48.0);
@@ -1004,8 +1004,8 @@ char __cdecl CG_DrawGenericOverlay(int SortIndex, int localClientNum)
     ScrPlace_ApplyRect(&scrPlaceView[localClientNum], &x, &y, &w, &h, 2, 2);
     LODWORD(ca[0]) = dword_2D9E6C0[30 * localClientNum];
     LODWORD(ca[1]) = dword_2D9E6C4[30 * localClientNum];
-    ca[2] = *(float *)&FLOAT_0_0;
-    ca[3] = *(float *)&FLOAT_0_0;
+    ca[2] = 0.0f;
+    ca[3] = 0.0f;
     cb[0] = x / *(float *)&dword_2D9E6C0[30 * localClientNum];
     cb[1] = y / *(float *)&dword_2D9E6C4[30 * localClientNum];
     cb[2] = (float)(x + w) / *(float *)&dword_2D9E6C0[30 * localClientNum];
@@ -1020,11 +1020,11 @@ char __cdecl CG_DrawGenericOverlay(int SortIndex, int localClientNum)
     if ( weapVariantDef->fOverlayAlphaScale >= 1.0 )
       fOverlayAlphaScale = weapVariantDef->fOverlayAlphaScale;
     else
-      fOverlayAlphaScale = FLOAT_1_0;
+      fOverlayAlphaScale = 1.0f;
     alphaScale = fOverlayAlphaScale;
-    color[0] = FLOAT_1_0;
-    color[1] = FLOAT_1_0;
-    color[2] = FLOAT_1_0;
+    color[0] = 1.0f;
+    color[1] = 1.0f;
+    color[2] = 1.0f;
     color[3] = (float)(zoomFrac / fOverlayAlphaScale) * (float)(zoomFrac / fOverlayAlphaScale);
     CL_DrawStretchPicPhysical(x, y, w, h, 0.0, 0.0, 1.0, 1.0, color, cgameGlob->genericMaterialMap[1]);
   }
@@ -1042,8 +1042,8 @@ char __cdecl CG_DrawGenericOverlay(int SortIndex, int localClientNum)
     c2[3] = cgameGlob->genericOverlayParamADS[7];
     LODWORD(vec[0]) = dword_2D9E6C0[30 * localClientNum];
     LODWORD(vec[1]) = dword_2D9E6C4[30 * localClientNum];
-    vec[2] = *(float *)&FLOAT_0_0;
-    vec[3] = *(float *)&FLOAT_0_0;
+    vec[2] = 0.0f;
+    vec[3] = 0.0f;
     v27[0] = v31 / *(float *)&dword_2D9E6C0[30 * localClientNum];
     v27[1] = v32 / *(float *)&dword_2D9E6C4[30 * localClientNum];
     v27[2] = (float)(v31 + v34) / *(float *)&dword_2D9E6C0[30 * localClientNum];
@@ -1065,10 +1065,10 @@ char __cdecl CG_DrawGenericOverlay(int SortIndex, int localClientNum)
       && cgameGlob->genericOverlayMaterial[iOverlay]
       && SortIndex == cgameGlob->genericOverlaySortIndex[iOverlay] )
     {
-      v21 = *(float *)&FLOAT_0_0;
-      v22 = *(float *)&FLOAT_0_0;
-      v25 = FLOAT_640_0;
-      v23 = FLOAT_480_0;
+      v21 = 0.0f;
+      v22 = 0.0f;
+      v25 = 640.0f;
+      v23 = 480.0f;
       ScrPlace_ApplyRect(&scrPlaceView[localClientNum], &v21, &v22, &v25, &v23, 4, 4);
       c0[0] = cgameGlob->genericOverlayParam[iOverlay][0];
       c0[1] = cgameGlob->genericOverlayParam[iOverlay][1];
@@ -1088,8 +1088,8 @@ char __cdecl CG_DrawGenericOverlay(int SortIndex, int localClientNum)
       c3[3] = cgameGlob->genericOverlayParam[iOverlay][15];
       LODWORD(v17[0]) = dword_2D9E6C0[30 * localClientNum];
       LODWORD(v17[1]) = dword_2D9E6C4[30 * localClientNum];
-      v17[2] = *(float *)&FLOAT_0_0;
-      v17[3] = *(float *)&FLOAT_0_0;
+      v17[2] = 0.0f;
+      v17[3] = 0.0f;
       v16[0] = v21 / *(float *)&dword_2D9E6C0[30 * localClientNum];
       v16[1] = v22 / *(float *)&dword_2D9E6C4[30 * localClientNum];
       v16[2] = (float)(v21 + v25) / *(float *)&dword_2D9E6C0[30 * localClientNum];
@@ -1194,7 +1194,7 @@ void __cdecl CG_DrawSpectatorMessage(int localClientNum)
     ps = &cgameGlob->nextSnap->ps;
     if ( (ps->otherFlags & 0x18) != 0 )
     {
-      fontScale = FLOAT_0_20833333;
+      fontScale = 0.2f0833333;
       font = UI_GetFontHandle(&scrPlaceView[localClientNum], 0, 0.20833333);
       lineNum = 0;
       lineHeight = (float)UI_TextHeight(font, 0.20833333);
@@ -1226,7 +1226,7 @@ void __cdecl CG_DrawSpectatorMessage(int localClientNum)
         commands[lineNum] = v2;
         messages[lineNum++] = "PLATFORM_FOLLOWSTOP";
       }
-      x = FLOAT_240_0;
+      x = 240.0f;
       y = 470.0 - (float)((float)lineNum * lineHeight);
       if ( lineNum > 7
         && !Assert_MyHandler(

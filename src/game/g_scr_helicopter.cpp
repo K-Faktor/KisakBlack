@@ -129,12 +129,12 @@ void __cdecl G_SpawnHelicopter(gentity_s *ent, gentity_s *owner, char *vehicleIn
   {
     __debugbreak();
   }
-  LODWORD(veh->phys.mins[0]) = LODWORD(FLOAT_50_0) ^ _mask__NegFloat_;
-  LODWORD(veh->phys.mins[1]) = LODWORD(FLOAT_50_0) ^ _mask__NegFloat_;
-  LODWORD(veh->phys.mins[2]) = LODWORD(FLOAT_50_0) ^ _mask__NegFloat_;
-  veh->phys.maxs[0] = FLOAT_50_0;
-  veh->phys.maxs[1] = FLOAT_50_0;
-  veh->phys.maxs[2] = FLOAT_50_0;
+  LODWORD(veh->phys.mins[0]) = LODWORD(50.0f) ^ _mask__NegFloat_;
+  LODWORD(veh->phys.mins[1]) = LODWORD(50.0f) ^ _mask__NegFloat_;
+  LODWORD(veh->phys.mins[2]) = LODWORD(50.0f) ^ _mask__NegFloat_;
+  veh->phys.maxs[0] = 50.0f;
+  veh->phys.maxs[1] = 50.0f;
+  veh->phys.maxs[2] = 50.0f;
   if ( !owner->client
     && !Assert_MyHandler(
           "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_scr_helicopter.cpp",
@@ -296,18 +296,18 @@ void __cdecl Helicopter_Controller(const gentity_s *pSelf, int *partBits)
   else
   {
     bodyAngles[0] = (float)pSelf->s.lerp.u.vehicle.throttle * 0.0054931641;
-    bodyAngles[1] = *(float *)&FLOAT_0_0;
+    bodyAngles[1] = 0.0f;
     bodyAngles[2] = pSelf->s.lerp.u.turret.gunAngles[1];
   }
   if ( veh->boneIndex.body >= 0 )
     DObjSetLocalBoneIndex(obj, partBits, veh->boneIndex.body, vec3_origin, bodyAngles);
   v3 = (float)pSelf->s.lerp.u.vehicle.gunYaw * 0.0054931641;
-  turretAngles[0] = *(float *)&FLOAT_0_0;
+  turretAngles[0] = 0.0f;
   turretAngles[1] = v3;
-  turretAngles[2] = *(float *)&FLOAT_0_0;
+  turretAngles[2] = 0.0f;
   barrelAngles[0] = (float)pSelf->s.lerp.u.vehicle.gunPitch * 0.0054931641;
-  barrelAngles[1] = *(float *)&FLOAT_0_0;
-  barrelAngles[2] = *(float *)&FLOAT_0_0;
+  barrelAngles[1] = 0.0f;
+  barrelAngles[2] = 0.0f;
   if ( veh->boneIndex.turret >= 0 )
     DObjSetLocalBoneIndex(obj, partBits, veh->boneIndex.turret, vec3_origin, turretAngles);
   if ( veh->boneIndex.barrel >= 0 )
@@ -315,12 +315,12 @@ void __cdecl Helicopter_Controller(const gentity_s *pSelf, int *partBits)
   for ( i = 0; i < 4; ++i )
   {
     v2 = (float)pSelf->s.lerp.u.vehicle.gunnerAngles[i].yaw * 0.0054931641;
-    turretAngles[0] = *(float *)&FLOAT_0_0;
+    turretAngles[0] = 0.0f;
     turretAngles[1] = v2;
-    turretAngles[2] = *(float *)&FLOAT_0_0;
+    turretAngles[2] = 0.0f;
     barrelAngles[0] = (float)pSelf->s.lerp.u.vehicle.gunnerAngles[i].pitch * 0.0054931641;
-    barrelAngles[1] = *(float *)&FLOAT_0_0;
-    barrelAngles[2] = *(float *)&FLOAT_0_0;
+    barrelAngles[1] = 0.0f;
+    barrelAngles[2] = 0.0f;
     if ( veh->boneIndex.gunnerTags[i].turret >= 0 )
       DObjSetLocalBoneIndex(obj, partBits, veh->boneIndex.gunnerTags[i].turret, vec3_origin, turretAngles);
     if ( veh->boneIndex.gunnerTags[i].barrel >= 0 )

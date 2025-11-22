@@ -221,27 +221,27 @@ void __cdecl GetTagMatrix(
       {
         Com_PrintWarning(14, "GetTagMatrix() unable to get vehicle DObj.\n");
         MatrixIdentity33(resultTagMat);
-        *resultOrigin = *(float *)&FLOAT_0_0;
-        resultOrigin[1] = *(float *)&FLOAT_0_0;
-        resultOrigin[2] = *(float *)&FLOAT_0_0;
+        *resultOrigin = 0.0f;
+        resultOrigin[1] = 0.0f;
+        resultOrigin[2] = 0.0f;
       }
     }
     else
     {
       Com_PrintWarning(14, "Vehicle being used by a player was not included in latest snapshot.\n");
       MatrixIdentity33(resultTagMat);
-      *resultOrigin = *(float *)&FLOAT_0_0;
-      resultOrigin[1] = *(float *)&FLOAT_0_0;
-      resultOrigin[2] = *(float *)&FLOAT_0_0;
+      *resultOrigin = 0.0f;
+      resultOrigin[1] = 0.0f;
+      resultOrigin[2] = 0.0f;
     }
   }
   else
   {
     Com_PrintWarning(14, "Calling GetTagMarix on an entity that is not a vehicle.\n");
     MatrixIdentity33(resultTagMat);
-    *resultOrigin = *(float *)&FLOAT_0_0;
-    resultOrigin[1] = *(float *)&FLOAT_0_0;
-    resultOrigin[2] = *(float *)&FLOAT_0_0;
+    *resultOrigin = 0.0f;
+    resultOrigin[1] = 0.0f;
+    resultOrigin[2] = 0.0f;
   }
 }
 

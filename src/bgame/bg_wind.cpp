@@ -182,10 +182,10 @@ void __cdecl DisplayWindDebug()
       }
       vertLineStart[0] = windDebugPos[0];
       LODWORD(vertLineStart[1]) = dword_E867B4;
-      vertLineStart[2] = FLOAT_10000_0;
+      vertLineStart[2] = 10000.0f;
       vertLineEnd[0] = windDebugPos[0];
       LODWORD(vertLineEnd[1]) = dword_E867B4;
-      vertLineEnd[2] = FLOAT_N10000_0;
+      vertLineEnd[2] = -10000.0f;
       loWindStart[0] = windDebugPos[0];
       LODWORD(loWindStart[1]) = dword_E867B4;
       loWindStart[2] = g_GlobalLowWindAltitude->current.value;
@@ -199,34 +199,34 @@ void __cdecl DisplayWindDebug()
       hiWindEnd[0] = windDebugPos[0] + g_GlobalWindVector->current.value;
       hiWindEnd[1] = *(float *)&dword_E867B4 + g_GlobalWindVector->current.vector[1];
       hiWindEnd[2] = hiWindStart[2] + g_GlobalWindVector->current.vector[2];
-      vertColor[0] = FLOAT_0_75;
-      vertColor[1] = FLOAT_0_75;
-      vertColor[2] = FLOAT_0_75;
-      vertColor[3] = FLOAT_1_0;
+      vertColor[0] = 0.75f;
+      vertColor[1] = 0.75f;
+      vertColor[2] = 0.75f;
+      vertColor[3] = 1.0f;
       CG_DebugLine(vertLineStart, vertLineEnd, vertColor, 0, 2);
       CG_DebugLine(loWindEnd, hiWindEnd, vertColor, 0, 2);
-      lineColor[0] = FLOAT_1_0;
-      lineColor[1] = *(float *)&FLOAT_0_0;
-      lineColor[2] = FLOAT_1_0;
-      lineColor[3] = FLOAT_1_0;
+      lineColor[0] = 1.0f;
+      lineColor[1] = 0.0f;
+      lineColor[2] = 1.0f;
+      lineColor[3] = 1.0f;
       CG_DebugLine(loWindStart, loWindEnd, lineColor, 0, 2);
       CG_DebugLine(hiWindStart, hiWindEnd, lineColor, 0, 2);
       for ( i = 0; i < 16; ++i )
       {
         pos[0] = g_GrassWind[0][i].pos[0];
         LODWORD(pos[1]) = dword_E8653C[7 * i];
-        pos[2] = *(float *)&FLOAT_0_0;
+        pos[2] = 0.0f;
         start[0] = pos[0];
         start[1] = pos[1];
         end[0] = pos[0];
         end[1] = pos[1];
-        end[2] = *(float *)&FLOAT_0_0;
-        start[2] = FLOAT_1000_0;
+        end[2] = 0.0f;
+        start[2] = 1000.0f;
         CM_TracePointDown(start, end, 2097, (int)&bg_vehicleInfos[11].rotorTailStartFx[20], pos, 0, 0);
         G_DebugStar(pos, lineColor, 3);
-        debugCircleDir[0] = *(float *)&FLOAT_0_0;
-        debugCircleDir[1] = *(float *)&FLOAT_0_0;
-        debugCircleDir[2] = FLOAT_1_0;
+        debugCircleDir[0] = 0.0f;
+        debugCircleDir[1] = 0.0f;
+        debugCircleDir[2] = 1.0f;
         G_DebugCircleEx(pos, g_GlobalWindGustRadius->current.value, debugCircleDir, colorWhite, 1, 1);
       }
     }
@@ -516,7 +516,7 @@ void  CG_UpdateWind(int a1@<ebp>, int a2@<esi>, int cur_time)
                     Vec3Normalize(&rot[1]);
                     LODWORD(v24) = LODWORD(rot[2]) ^ _mask__NegFloat_;
                     v25 = rot[1];
-                    v26 = *(float *)&FLOAT_0_0;
+                    v26 = 0.0f;
                     scalar = flrand(
                                COERCE_FLOAT(g_GlobalWindGustDistance->current.integer ^ _mask__NegFloat_),
                                g_GlobalWindGustDistance->current.value);
@@ -633,9 +633,9 @@ void __cdecl BG_GetGlobalWind(float *out)
   }
   else
   {
-    *out = *(float *)&FLOAT_0_0;
-    out[1] = *(float *)&FLOAT_0_0;
-    out[2] = *(float *)&FLOAT_0_0;
+    *out = 0.0f;
+    out[1] = 0.0f;
+    out[2] = 0.0f;
   }
 }
 

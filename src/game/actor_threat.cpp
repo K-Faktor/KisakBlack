@@ -420,7 +420,7 @@ int __fastcall Actor_UpdateSingleThreat(actor_s *self, sentient_s *enemy)
         }
         else
         {
-          scariness = *(float *)&FLOAT_0_0;
+          scariness = 0.0f;
         }
         DebugResetThreatStrings(self);
         DebugSetThreatString(TDS_THREATBIAS_GROUP, threatBiasScore);
@@ -506,16 +506,16 @@ void __cdecl DebugThreatStringAll(const actor_s *self, sentient_s *enemy, int th
     if ( (float)(fraction - 1.0) < 0.0 )
       v4 = fraction;
     else
-      v4 = FLOAT_1_0;
+      v4 = 1.0f;
     if ( (float)(0.0 - fraction) < 0.0 )
       v3 = v4;
     else
-      v3 = *(float *)&FLOAT_0_0;
+      v3 = 0.0f;
     fraction = v3;
     color[0] = (float)(v3 * 0.5) + 0.5;
     color[1] = color[0];
-    color[2] = *(float *)&FLOAT_0_0;
-    color[3] = FLOAT_1_0;
+    color[2] = 0.0f;
+    color[3] = 1.0f;
     Sentient_GetDebugEyePosition(self->ent->sentient, start);
     Sentient_GetDebugEyePosition(enemy, displayPos);
     CG_DebugLine(start, displayPos, color, 0, ai_threatUpdateInterval->current.integer / 50);

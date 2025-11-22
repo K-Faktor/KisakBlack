@@ -21,11 +21,11 @@ void __cdecl R_InitCmdBufSourceState(GfxCmdBufSourceState *source, const GfxCmdB
   {
     if ( input == &gfxCmdBufInput || s_codeConstUpdateFreq[constant] != 2 || constant < 0x2F )
     {
-      source->input.consts[constant][0] = FLOAT_3_4028235e38;
+      source->input.consts[constant][0] = FLT_MAX;
       v3 = source->input.consts[constant];
-      v3[1] = FLOAT_3_4028235e38;
-      v3[2] = FLOAT_3_4028235e38;
-      v3[3] = *(float *)&FLOAT_0_0;
+      v3[1] = FLT_MAX;
+      v3[2] = FLT_MAX;
+      v3[3] = 0.0f;
     }
     else
     {
@@ -42,8 +42,8 @@ void __cdecl R_InitCmdBufSourceState(GfxCmdBufSourceState *source, const GfxCmdB
   {
     __debugbreak();
   }
-  *(float *)&source->sceneViewport.x = FLOAT_1_0;
-  *(float *)&source->scissorViewport.x = FLOAT_1_0;
+  *(float *)&source->sceneViewport.x = 1.0f;
+  *(float *)&source->scissorViewport.x = 1.0f;
   source->scissorViewport.y = cameraView;
 }
 
@@ -62,8 +62,8 @@ void __cdecl R_InitCmdBufState(GfxCmdBufState *state)
   memset(state->refSamplerState, 0, sizeof(GfxCmdBufState));
   state->prim.device = device;
   state->depthRangeType = GFX_DEPTH_RANGE_FULL;
-  state->depthRangeNear = *(float *)&FLOAT_0_0;
-  state->depthRangeFar = FLOAT_1_0;
+  state->depthRangeNear = 0.0f;
+  state->depthRangeFar = 1.0f;
   state->renderTargetId = 0;
   R_SetDefaultStateBits(state->activeStateBits);
   R_SetDefaultStateBits(state->refStateBits);
@@ -370,10 +370,10 @@ void __cdecl R_Set2D(GfxCmdBufSourceState *source)
     //PIXBeginNamedEvent(-1, "R_Set2D");
     source->scissorViewport.width = 2;
     LOBYTE(source[1].matrices.matrix[0].m[2][2]) = 1;
-    source->skinnedPlacement.base.origin[0] = *(float *)&FLOAT_0_0;
-    source->skinnedPlacement.base.origin[1] = *(float *)&FLOAT_0_0;
-    source->skinnedPlacement.base.origin[2] = *(float *)&FLOAT_0_0;
-    source->skinnedPlacement.scale = FLOAT_1_0;
+    source->skinnedPlacement.base.origin[0] = 0.0f;
+    source->skinnedPlacement.base.origin[1] = 0.0f;
+    source->skinnedPlacement.base.origin[2] = 0.0f;
+    source->skinnedPlacement.scale = 1.0f;
     R_GetViewport(source, &viewport);
     R_CmdBufSet2D((GfxViewParms *)&savedregs, source, &viewport);
     if ( g_DXDeviceThread == GetCurrentThreadId() )
@@ -422,8 +422,8 @@ void  R_CmdBufSet2D(GfxViewParms *a1@<ebp>, GfxCmdBufSourceState *source, GfxVie
   *(float *)&v3[84] = -2.0 * *(float *)&v3[136];
   *(float *)&v3[112] = -1.0 - v4;
   *(float *)&v3[116] = *(float *)&v3[136] + 1.0;
-  *(float *)&v3[120] = FLOAT_1_0;
-  *(float *)&v3[124] = FLOAT_1_0;
+  *(float *)&v3[120] = 1.0f;
+  *(float *)&v3[124] = 1.0f;
   R_MatrixIdentity44((float (*)[4])v3);
   R_MatrixIdentity44(*(float (**)[4])&v3[132]);
   memcpy((void *)(*(unsigned int *)&v3[132] + 64), &v3[64], 0x40u);
@@ -478,9 +478,9 @@ void __cdecl R_Set3D(GfxCmdBufSourceState *source)
     memcpy(source->viewParms.viewMatrix.m[3], (const void *)source->sceneDef.time, 0x140u);
     if ( source->viewParms.zFar == 0.0 )
     {
-      source->skinnedPlacement.base.origin[0] = *(float *)&FLOAT_0_0;
-      source->skinnedPlacement.base.origin[1] = *(float *)&FLOAT_0_0;
-      source->skinnedPlacement.base.origin[2] = *(float *)&FLOAT_0_0;
+      source->skinnedPlacement.base.origin[0] = 0.0f;
+      source->skinnedPlacement.base.origin[1] = 0.0f;
+      source->skinnedPlacement.base.origin[2] = 0.0f;
     }
     else
     {
@@ -488,7 +488,7 @@ void __cdecl R_Set3D(GfxCmdBufSourceState *source)
       source->skinnedPlacement.base.origin[1] = source->viewParms.depthHackNearClip;
       source->skinnedPlacement.base.origin[2] = source->viewParms.zNear;
     }
-    source->skinnedPlacement.scale = FLOAT_1_0;
+    source->skinnedPlacement.scale = 1.0f;
     R_CmdBufSet3D(source);
     UpdateVPosToWorld(source);
     if ( g_DXDeviceThread == GetCurrentThreadId() )
@@ -505,10 +505,10 @@ void __cdecl R_BeginView(GfxCmdBufSourceState *source, const GfxSceneDef *sceneD
   *(float *)&source->sceneViewport.height = sceneDef->viewOffset[2];
   source->scissorViewport.width = 0;
   R_Set3D(source);
-  source[1].matrices.matrix[0].m[0][3] = *(float *)&FLOAT_0_0;
-  source[1].matrices.matrix[0].m[1][0] = *(float *)&FLOAT_0_0;
-  source[1].matrices.matrix[0].m[1][1] = *(float *)&FLOAT_0_0;
-  source[1].matrices.matrix[0].m[1][2] = *(float *)&FLOAT_0_0;
+  source[1].matrices.matrix[0].m[0][3] = 0.0f;
+  source[1].matrices.matrix[0].m[1][0] = 0.0f;
+  source[1].matrices.matrix[0].m[1][1] = 0.0f;
+  source[1].matrices.matrix[0].m[1][2] = 0.0f;
   R_SetGameTime(source, source->materialTime);
   R_DeriveNearPlaneConstantsForView(source);
 }
@@ -562,20 +562,20 @@ void __cdecl R_DeriveNearPlaneConstantsForView(GfxCmdBufSourceState *source)
   *((float *)&v3 + 1) = (float)(scale * source->viewParms.axis[2][0]) - source->viewParms.zNear;
   source->input.consts[16][0] = (float)(scale * source->viewParms.axis[1][1]) - source->viewParms.axis[2][2];
   *(_QWORD *)&source->gap0[260] = v3;
-  source->input.consts[16][3] = *(float *)&FLOAT_0_0;
+  source->input.consts[16][3] = 0.0f;
   R_DirtyCodeConstant(source, 0x10u);
   scalea = scale + scale;
   *(float *)&v2 = scalea * source->viewParms.inverseViewProjectionMatrix.m[3][1];
   *((float *)&v2 + 1) = scalea * source->viewParms.inverseViewProjectionMatrix.m[3][2];
   source->input.consts[17][0] = scalea * source->viewParms.inverseViewProjectionMatrix.m[3][0];
   *(_QWORD *)&source->gap0[276] = v2;
-  source->input.consts[17][3] = *(float *)&FLOAT_0_0;
+  source->input.consts[17][3] = 0.0f;
   R_DirtyCodeConstant(source, 0x11u);
   *(float *)&v1 = COERCE_FLOAT(LODWORD(scalea) ^ _mask__NegFloat_) * source->viewParms.origin[1];
   *((float *)&v1 + 1) = COERCE_FLOAT(LODWORD(scalea) ^ _mask__NegFloat_) * source->viewParms.origin[2];
   source->input.consts[18][0] = COERCE_FLOAT(LODWORD(scalea) ^ _mask__NegFloat_) * source->viewParms.origin[0];
   *(_QWORD *)&source->gap0[292] = v1;
-  source->input.consts[18][3] = *(float *)&FLOAT_0_0;
+  source->input.consts[18][3] = 0.0f;
   R_DirtyCodeConstant(source, 0x12u);
 }
 

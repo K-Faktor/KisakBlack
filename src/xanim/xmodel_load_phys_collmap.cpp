@@ -91,18 +91,18 @@ char __cdecl SnapAxialVector(float *normal)
   {
     if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(normal[axis] - 1.0) & _mask__AbsFloat_) < 0.0000001 )
     {
-      *normal = *(float *)&FLOAT_0_0;
-      normal[1] = *(float *)&FLOAT_0_0;
-      normal[2] = *(float *)&FLOAT_0_0;
-      normal[axis] = FLOAT_1_0;
+      *normal = 0.0f;
+      normal[1] = 0.0f;
+      normal[2] = 0.0f;
+      normal[axis] = 1.0f;
       return 1;
     }
     if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(normal[axis] - -1.0) & _mask__AbsFloat_) < 0.0000001 )
     {
-      *normal = *(float *)&FLOAT_0_0;
-      normal[1] = *(float *)&FLOAT_0_0;
-      normal[2] = *(float *)&FLOAT_0_0;
-      normal[axis] = FLOAT_N1_0;
+      *normal = 0.0f;
+      normal[1] = 0.0f;
+      normal[2] = 0.0f;
+      normal[axis] = -1.0f;
       return 1;
     }
   }
@@ -134,10 +134,10 @@ int __cdecl IsAxisAligned(float *normal)
   for ( axis = 0; axis < 3; ++axis )
   {
     memset(v, 0, sizeof(v));
-    v[axis] = FLOAT_1_0;
+    v[axis] = 1.0f;
     if ( VecNCompareCustomEpsilon(normal, v, 0.001, 3) )
       return 1;
-    v[axis] = FLOAT_N1_0;
+    v[axis] = -1.0f;
     if ( VecNCompareCustomEpsilon(normal, v, 0.001, 3) )
       return 1;
   }
@@ -708,12 +708,12 @@ PhysGeomList *__cdecl Xmodel_ParsePhysicsCollMap(
         {
           __debugbreak();
         }
-        mins = FLOAT_3_4028235e38;
-        mins_4 = FLOAT_3_4028235e38;
-        mins_8 = FLOAT_3_4028235e38;
-        maxs[0] = FLOAT_N3_4028235e38;
-        maxs[1] = FLOAT_N3_4028235e38;
-        maxs[2] = FLOAT_N3_4028235e38;
+        mins = FLT_MAX;
+        mins_4 = FLT_MAX;
+        mins_8 = FLT_MAX;
+        maxs[0] = -FLT_MAX;
+        maxs[1] = -FLT_MAX;
+        maxs[2] = -FLT_MAX;
         for ( geomIndex = 0; geomIndex < geomCount; ++geomIndex )
         {
           GetGeomAABB(&geomList->geoms[geomIndex], geomMins, geomMaxs);
@@ -1288,9 +1288,9 @@ void __cdecl GetGeomAABB(const PhysGeomInfo *geom, float *mins, float *maxs)
   }
   else
   {
-    range = *(float *)&FLOAT_0_0;
-    range_4 = *(float *)&FLOAT_0_0;
-    range_8 = *(float *)&FLOAT_0_0;
+    range = 0.0f;
+    range_4 = 0.0f;
+    range_8 = 0.0f;
     type = geom->type;
     if ( type == 1 )
     {

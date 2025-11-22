@@ -3127,9 +3127,9 @@ void __cdecl CG_CreateDObj(
       Ragdoll_RebindBody((const cpose_t *)ent->pose.ragdollHandle);
   }
   v6 = cg_entityOriginArray[localClientNum][ci->clientNum];
-  *v6 = FLOAT_131072_0;
-  v6[1] = FLOAT_131072_0;
-  v6[2] = FLOAT_131072_0;
+  *v6 = 131072.0f;
+  v6[1] = 131072.0f;
+  v6[2] = 131072.0f;
 }
 
 DObj *__cdecl CG_GetDObj(unsigned int handle, int localClientNum)
@@ -3205,12 +3205,12 @@ void __cdecl CG_InitViewDimensions(int localClientNum)
 
 void __cdecl CG_InitDof(GfxDepthOfField *dof)
 {
-  dof->nearStart = *(float *)&FLOAT_0_0;
-  dof->nearEnd = *(float *)&FLOAT_0_0;
-  dof->farStart = FLOAT_5000_0;
-  dof->farEnd = FLOAT_5000_0;
-  dof->nearBlur = FLOAT_6_0;
-  dof->farBlur = *(float *)&FLOAT_0_0;
+  dof->nearStart = 0.0f;
+  dof->nearEnd = 0.0f;
+  dof->farStart = 5000.0f;
+  dof->farEnd = 5000.0f;
+  dof->nearBlur = 6.0f;
+  dof->farBlur = 0.0f;
 }
 
 int CGScr_LoadScriptsAndAnims()

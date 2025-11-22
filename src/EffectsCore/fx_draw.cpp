@@ -8,8 +8,8 @@ int __cdecl FX_RegionForReflect(const FxReflectParams *reflect)
 void __cdecl FX_GetNullReflection(FxReflectParams *params)
 {
   params->enabled = 0;
-  params->zAdd = *(float *)&FLOAT_0_0;
-  params->zScale = FLOAT_1_0;
+  params->zAdd = 0.0f;
+  params->zScale = 1.0f;
 }
 
 void __cdecl FX_GetReflection(bool on, float height, FxReflectParams *params)
@@ -198,9 +198,9 @@ double __cdecl FX_LerpFloat(float grid, float tint, float fraction)
                  + (float)(fsqrt((float)(tint / 255.0) * (float)(grid / 255.0)) * fraction))
          * 255.0;
   if ( result > 255.0 )
-    result = FLOAT_255_0;
+    result = 255.0f;
   if ( result < 0.0 )
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
   return result;
 }
 
@@ -292,12 +292,12 @@ void __cdecl FX_DrawElem_BillboardSprite_NoCull(FxDrawState *draw)
       normal[1] = camera->origin[1] - draw->posWorld[1];
       normal[2] = camera->origin[2] - draw->posWorld[2];
       Vec3Normalize(normal);
-      binormal[0] = *(float *)&FLOAT_0_0;
-      binormal[1] = *(float *)&FLOAT_0_0;
-      binormal[2] = FLOAT_1_0;
+      binormal[0] = 0.0f;
+      binormal[1] = 0.0f;
+      binormal[2] = 1.0f;
       LODWORD(tangent[0]) = LODWORD(normal[1]) ^ _mask__NegFloat_;
       tangent[1] = normal[0];
-      tangent[2] = *(float *)&FLOAT_0_0;
+      tangent[2] = 0.0f;
       Vec3Normalize(tangent);
     }
   }
@@ -323,12 +323,12 @@ void __cdecl FX_DrawElem_BillboardSprite_NoCull(FxDrawState *draw)
       LODWORD(normal[0]) = LODWORD(v3->axis[0][0]) ^ _mask__NegFloat_;
       LODWORD(normal[1]) = LODWORD(v3->axis[0][1]) ^ _mask__NegFloat_;
       LODWORD(normal[2]) = LODWORD(v3->axis[0][2]) ^ _mask__NegFloat_;
-      binormal[0] = *(float *)&FLOAT_0_0;
-      binormal[1] = *(float *)&FLOAT_0_0;
-      binormal[2] = FLOAT_1_0;
+      binormal[0] = 0.0f;
+      binormal[1] = 0.0f;
+      binormal[2] = 1.0f;
       LODWORD(tangent[0]) = LODWORD(normal[1]) ^ _mask__NegFloat_;
       tangent[1] = normal[0];
-      tangent[2] = *(float *)&FLOAT_0_0;
+      tangent[2] = 0.0f;
       Vec3Normalize(tangent);
     }
   }
@@ -577,7 +577,7 @@ void __cdecl FX_GenSpriteVerts(FxDrawState *draw, const float *tangent, const fl
     verts = baseVerts;
     for ( i = 0; i < 4; ++i )
     {
-      verts[i].binormalSign = FLOAT_N1_0;
+      verts[i].binormalSign = -1.0f;
       verts[i].color.packed = *(unsigned int *)draw->visState.color;
       verts[i].normal = packedNormal;
       verts[i].tangent = packedTangent;
@@ -721,10 +721,10 @@ void __cdecl FX_GetSpriteTexCoords(const FxDrawState *draw, float *s0, float *ds
   atlasCount = elemDef->atlas.entryCountAndIndexRange & 0x1FF;
   if ( atlasCount == 1 )
   {
-    *s0 = *(float *)&FLOAT_0_0;
-    *ds = FLOAT_1_0;
-    *t0 = *(float *)&FLOAT_0_0;
-    *dt = FLOAT_1_0;
+    *s0 = 0.0f;
+    *ds = 1.0f;
+    *t0 = 0.0f;
+    *dt = 1.0f;
   }
   else
   {
@@ -1392,12 +1392,12 @@ void __cdecl FX_DrawElement(FxSystem *system, const FxElemDef *elemDef, FxElem *
            * 8208.0312;
         v8 = (float)(COERCE_FLOAT(((rotationAxis >> 19) & 0x3FF) + 1077936128 - 2 * ((rotationAxis >> 19) & 0x200)) - 3.0)
            * 8208.0312;
-        v9 = FLOAT_1_0;
+        v9 = 1.0f;
         v10 = Vec4Length(&v);
         if ( (rotationAxis & 0x80000000) == 0 )
-          v4 = FLOAT_1_0;
+          v4 = 1.0f;
         else
-          v4 = FLOAT_N1_0;
+          v4 = -1.0f;
         v = (float)(v4 / v10) * v;
         v7 = (float)(v4 / v10) * v7;
         v8 = (float)(v4 / v10) * v8;
@@ -1746,7 +1746,7 @@ void __cdecl FX_DrawTrail(FxSystem *system, FxDrawState *draw, FxTrail *trail)
       {
         reservedVerts = R_GetCodeMeshVerts(reservedBaseVertex);
         exactSegmentCount = 0;
-        lastSegmentNormTime = FLOAT_1_0;
+        lastSegmentNormTime = 1.0f;
         memset((unsigned __int8 *)&lastSegmentDrawState, 0, sizeof(lastSegmentDrawState));
         for ( trailElemHandle = trail->firstElemHandle;
               trailElemHandle != 0xFFFF;
@@ -2290,13 +2290,13 @@ void __cdecl FX_EvaluateDistanceFade(FxDrawState *draw)
   def = draw->elemDef;
   if ( def->fadeInRange.amplitude != 0.0 || def->fadeOutRange.amplitude != 0.0 )
   {
-    fadeInFrac = FLOAT_1_0;
-    fadeOutFrac = FLOAT_1_0;
+    fadeInFrac = 1.0f;
+    fadeOutFrac = 1.0f;
     dist = Vec3Distance(draw->camera->origin, draw->posWorld);
     if ( def->fadeInRange.amplitude != 0.0 )
     {
       v4 = dist - def->fadeInRange.base;
-      v5 = *(float *)&FLOAT_0_0;
+      v5 = 0.0f;
       if ( v4 >= 0.0 )
       {
         if ( def->fadeInRange.amplitude > v4 )
@@ -2304,14 +2304,14 @@ void __cdecl FX_EvaluateDistanceFade(FxDrawState *draw)
       }
       else
       {
-        v5 = FLOAT_1_0;
+        v5 = 1.0f;
       }
       fadeInFrac = v5;
     }
     if ( def->fadeOutRange.amplitude != 0.0 )
     {
       v2 = dist - def->fadeOutRange.base;
-      v3 = *(float *)&FLOAT_0_0;
+      v3 = 0.0f;
       if ( v2 >= 0.0 )
       {
         if ( def->fadeOutRange.amplitude > v2 )
@@ -2319,7 +2319,7 @@ void __cdecl FX_EvaluateDistanceFade(FxDrawState *draw)
       }
       else
       {
-        v3 = FLOAT_1_0;
+        v3 = 1.0f;
       }
       fadeOutFrac = 1.0 - v3;
     }

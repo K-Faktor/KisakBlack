@@ -688,10 +688,10 @@ char __cdecl Live_FileShareSearch_FeederColor(
   {
     if ( Live_FileShareSearch_FeederItemEnabled(index) )
     {
-      color->value = FLOAT_1_0;
-      color->vector[1] = FLOAT_1_0;
-      color->vector[2] = FLOAT_1_0;
-      color->vector[3] = FLOAT_1_0;
+      color->value = 1.0f;
+      color->vector[1] = 1.0f;
+      color->vector[2] = 1.0f;
+      color->vector[3] = 1.0f;
     }
     else
     {

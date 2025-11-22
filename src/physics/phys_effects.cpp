@@ -126,7 +126,7 @@ void __cdecl Phys_ReEvalPriority(PhysObjUserData *userData)
 
   if ( userData->m_time_since_last_reeval > phys_reeval_frequency->current.value )
   {
-    userData->m_time_since_last_reeval = *(float *)&FLOAT_0_0;
+    userData->m_time_since_last_reeval = 0.0f;
     play_effect = 0;
     for ( localClientNum = 0; localClientNum < 1; ++localClientNum )
     {

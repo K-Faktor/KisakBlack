@@ -925,7 +925,7 @@ void __cdecl LiveCombatRecord_BuildSortedItem(
           }
           else
           {
-            v96[index].sortKey = FLOAT_1_0;
+            v96[index].sortKey = 1.0f;
           }
           if ( v96[index].itemIndex )
             ++v96[10].itemIndex;
@@ -978,7 +978,7 @@ void __cdecl LiveCombatRecord_BuildSortedItem(
             }
             else
             {
-              v96[index].sortKey = *(float *)&FLOAT_0_0;
+              v96[index].sortKey = 0.0f;
             }
           }
           if ( criterion == WEAPON_ACCURACY )
@@ -986,7 +986,7 @@ void __cdecl LiveCombatRecord_BuildSortedItem(
             if ( (float)(v96[index].sortKey - 1.0) < 0.0 )
               sortKey = v96[index].sortKey;
             else
-              sortKey = FLOAT_1_0;
+              sortKey = 1.0f;
             v96[index].sortKey = sortKey;
           }
         }

@@ -10,7 +10,7 @@ void __cdecl CM_CalcTraceExtents(TraceExtents *extents)
   {
     diff = extents->start.vec.v[i] - extents->end.vec.v[i];
     if ( diff == 0.0 )
-      v1 = *(float *)&FLOAT_0_0;
+      v1 = 0.0f;
     else
       v1 = 1.0 / diff;
     extents->invDelta.vec.v[i] = v1;
@@ -29,8 +29,8 @@ int __cdecl intersect_extents_aabb(const TraceExtents *extents, const float *min
   float sign; // [esp+34h] [ebp-10h]
   float dist2; // [esp+3Ch] [ebp-8h]
 
-  enterFrac = *(float *)&FLOAT_0_0;
-  sign = FLOAT_N1_0;
+  enterFrac = 0.0f;
+  sign = -1.0f;
   while ( 1 )
   {
     if ( ((*(unsigned int *)mins & 0x7F800000) == 0x7F800000
@@ -79,7 +79,7 @@ int __cdecl intersect_extents_aabb(const TraceExtents *extents, const float *min
     }
     if ( sign == 1.0 )
       break;
-    sign = FLOAT_1_0;
+    sign = 1.0f;
     mins = maxs;
   }
   return 1;
@@ -101,7 +101,7 @@ int __cdecl intersect_extents_aabb(
   float sign; // [esp+38h] [ebp-Ch]
   float dist2; // [esp+40h] [ebp-4h]
 
-  sign = FLOAT_N1_0;
+  sign = -1.0f;
   while ( 1 )
   {
     if ( ((*(unsigned int *)mins & 0x7F800000) == 0x7F800000
@@ -150,7 +150,7 @@ int __cdecl intersect_extents_aabb(
     }
     if ( sign == 1.0 )
       break;
-    sign = FLOAT_1_0;
+    sign = 1.0f;
     mins = maxs;
   }
   return 1;
@@ -180,7 +180,7 @@ bool __cdecl intersect_extents_sphere(const TraceExtents *extents, const float *
        ^ _mask__NegFloat_) < 0.0 )
     v6 = (float)((float)(delta * delta) + (float)(delta_4 * delta_4)) + (float)(delta_8 * delta_8);
   else
-    v6 = FLOAT_1_0;
+    v6 = 1.0f;
   if ( v6 == 0.0
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\cm_tracebox.cpp", 151, 0, "%s", "lengthSq") )
   {
@@ -198,7 +198,7 @@ bool __cdecl intersect_extents_sphere(const TraceExtents *extents, const float *
   if ( (float)(0.0 - sphereFraction) < 0.0 )
     v5 = v7;
   else
-    v5 = *(float *)&FLOAT_0_0;
+    v5 = 0.0f;
   return (float)(radius * radius) > (float)((float)((float)((float)((float)(COERCE_FLOAT(LODWORD(v5) ^ _mask__NegFloat_)
                                                                           * delta)
                                                                   + startOffset)

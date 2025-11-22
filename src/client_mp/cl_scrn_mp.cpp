@@ -775,8 +775,8 @@ void SCR_DrawDemoRecording()
     pos = FS_FTell(clc->demofile);
     sprintf(string, "RECORDING %s: %ik", clc->demoName, pos / 1024);
     CL_LookupColor(0x37u, color);
-    x = FLOAT_5_0;
-    y = FLOAT_5_0;
+    x = 5.0f;
+    y = 5.0f;
     xScale = R_NormalizedTextScale(cls.consoleFont, 0.33333334);
     yScale = xScale;
     ScrPlace_ApplyRect(scrPlaceView, &x, &y, &xScale, &yScale, 1, 1);
@@ -867,8 +867,8 @@ void  CL_CubemapShot_f(int a1@<esi>)
     goto LABEL_23;
   memset(rgb, 0, sizeof(rgb));
   isLightingShot = 0;
-  n0 = FLOAT_1_0;
-  n1 = FLOAT_1_3329999;
+  n0 = 1.0f;
+  n1 = 1.3329999f;
   if ( Cmd_Argc() == 7 )
   {
     v2 = Cmd_Argv(3);
@@ -1023,8 +1023,8 @@ void  HiResScreenshot(int a1@<esi>, int tiles)
         SCR_UpdateScreen(a1);
       NET_Sleep(0xC8u);
       R_BeginHiResShot(tiles);
-      exif.gpsLat = FLOAT_34_021542;
-      exif.gpsLon = FLOAT_N118_44875;
+      exif.gpsLat = 34.021542f;
+      exif.gpsLon = -118.44875;
       exif.gpsOffsetLat = 0.0;
       exif.gpsOffsetLon = 0.0;
       exif.gpsOffsetLon = LocalClientGlobals->refdef.vieworg[0] * 0.0254;
@@ -1046,7 +1046,7 @@ void  HiResScreenshot(int a1@<esi>, int tiles)
             COERCE_VOID_((float)k),
             tileY,
             0,
-            SLODWORD(FLOAT_1_0),
+            SLODWORD(1.0f),
             COERCE_INT((float)v13++ / (float)v12));
           R_UpdateHiResShot((float)k, tileY);
           SCR_UpdateScreen(a1);

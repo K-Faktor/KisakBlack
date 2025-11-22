@@ -238,7 +238,7 @@ double __cdecl Vec2NormalizeTo(const float *v, float *out)
   if ( COERCE_FLOAT(LODWORD(length) ^ _mask__NegFloat_) < 0.0 )
     v3 = length;
   else
-    v3 = FLOAT_1_0;
+    v3 = 1.0f;
   *out = *v * (float)(1.0 / v3);
   out[1] = v[1] * (float)(1.0 / v3);
   return length;
@@ -328,9 +328,9 @@ int __cdecl CG_DrawBigDevString(const ScreenPlacement *scrPlace, float x, float 
 {
   float color[4]; // [esp+14h] [ebp-10h] BYREF
 
-  color[0] = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
+  color[0] = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
   color[3] = alpha;
   return CG_DrawBigDevStringColor(scrPlace, x, y, s, color, align);
 }
@@ -375,9 +375,9 @@ float *__cdecl CG_FadeColor(int timeNow, int startMsec, int totalMsec, int fadeM
   if ( timeNow - startMsec >= totalMsec )
     return 0;
   flt_EBD4E8 = CG_FadeAlpha(timeNow, startMsec, totalMsec, fadeMsec);
-  dword_EBD4E4 = LODWORD(FLOAT_1_0);
-  dword_EBD4E0 = LODWORD(FLOAT_1_0);
-  color_2[0] = FLOAT_1_0;
+  dword_EBD4E4 = LODWORD(1.0f);
+  dword_EBD4E0 = LODWORD(1.0f);
+  color_2[0] = 1.0f;
   return color_2;
 }
 
@@ -416,9 +416,9 @@ void __cdecl CG_MiniMapChanged(int localClientNum)
   cgameGlob->compassMapWorldSize[0] = (float)(toLR[0] * east[0]) + (float)(toLR[1] * east[1]);
   cgameGlob->compassMapWorldSize[1] = (float)(toLR[0] * south[0]) + (float)(toLR[1] * south[1]);
   if ( cgameGlob->compassMapWorldSize[0] == 0.0 )
-    cgameGlob->compassMapWorldSize[0] = FLOAT_1000_0;
+    cgameGlob->compassMapWorldSize[0] = 1000.0f;
   if ( cgameGlob->compassMapWorldSize[1] == 0.0 )
-    cgameGlob->compassMapWorldSize[1] = FLOAT_1000_0;
+    cgameGlob->compassMapWorldSize[1] = 1000.0f;
 }
 
 void __cdecl CG_NorthDirectionChanged(int localClientNum)
@@ -533,14 +533,14 @@ void __cdecl CG_ScoreboardTeamColor(int localClientNum, int team, float *color)
   float COLOR_ALLIES[4]; // [esp+14h] [ebp-20h]
   float COLOR_AXIS[4]; // [esp+24h] [ebp-10h]
 
-  COLOR_ALLIES[0] = FLOAT_0_384;
-  COLOR_ALLIES[1] = FLOAT_0_72500002;
-  COLOR_ALLIES[2] = FLOAT_0_72500002;
-  COLOR_ALLIES[3] = FLOAT_1_0;
-  COLOR_AXIS[0] = FLOAT_0_61900002;
-  COLOR_AXIS[1] = FLOAT_0_043000001;
-  COLOR_AXIS[2] = FLOAT_0_057999998;
-  COLOR_AXIS[3] = FLOAT_1_0;
+  COLOR_ALLIES[0] = 0.384f;
+  COLOR_ALLIES[1] = 0.725f;
+  COLOR_ALLIES[2] = 0.725f;
+  COLOR_ALLIES[3] = 1.0f;
+  COLOR_AXIS[0] = 0.619f;
+  COLOR_AXIS[1] = 0.043f;
+  COLOR_AXIS[2] = 0.058f;
+  COLOR_AXIS[3] = 1.0f;
   if ( useFastFile->current.enabled )
   {
     UIContextIndex = Com_LocalClient_GetUIContextIndex(localClientNum);

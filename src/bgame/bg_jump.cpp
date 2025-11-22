@@ -30,7 +30,7 @@ void __cdecl Jump_RegisterDvars()
 void __cdecl Jump_ClearState(playerState_s *ps)
 {
   ps->pm_flags &= ~0x4000u;
-  ps->jumpOriginZ = *(float *)&FLOAT_0_0;
+  ps->jumpOriginZ = 0.0f;
 }
 
 char __cdecl Jump_GetStepHeight(playerState_s *ps, const float *origin, float *stepSize)
@@ -95,7 +95,7 @@ void __cdecl Jump_ApplySlowdown(playerState_s *ps)
   {
     __debugbreak();
   }
-  scale = FLOAT_1_0;
+  scale = 1.0f;
   if ( ps->pm_time <= 1800 )
   {
     if ( !ps->pm_time )
@@ -103,19 +103,19 @@ void __cdecl Jump_ApplySlowdown(playerState_s *ps)
       if ( (float)(ps->jumpOriginZ + 18.0) <= ps->origin[2] )
       {
         ps->pm_time = 1200;
-        scale = FLOAT_0_5;
+        scale = 0.5f;
       }
       else
       {
         ps->pm_time = 1800;
-        scale = FLOAT_0_64999998;
+        scale = 0.65f;
       }
     }
   }
   else
   {
     Jump_ClearState(ps);
-    scale = FLOAT_0_64999998;
+    scale = 0.65f;
   }
   if ( jump_slowdownEnable->current.enabled )
   {
@@ -140,7 +140,7 @@ double __cdecl Jump_ReduceFriction(playerState_s *ps)
   if ( ps->pm_time > 1800 )
   {
     Jump_ClearState(ps);
-    return FLOAT_1_0;
+    return 1.0f;
   }
   else
   {
@@ -205,7 +205,7 @@ void __cdecl Jump_ClampVelocity(playerState_s *ps, const float *origin)
     }
     else
     {
-      ps->velocity[2] = *(float *)&FLOAT_0_0;
+      ps->velocity[2] = 0.0f;
     }
   }
 }
@@ -286,7 +286,7 @@ void __cdecl Jump_Start(pmove_t *pm, pml_t *pml, float height)
   ps->sprintState.sprintButtonUpRequired = 0;
   ps->aimSpreadScale = ps->aimSpreadScale + jump_spreadAdd->current.value;
   if ( ps->aimSpreadScale > 255.0 )
-    ps->aimSpreadScale = FLOAT_255_0;
+    ps->aimSpreadScale = 255.0f;
 }
 
 double __cdecl Jump_GetLandFactor(playerState_s *ps)
@@ -340,7 +340,7 @@ void __cdecl Jump_PushOffLadder(playerState_s *ps, pml_t *pml)
   v3 = pml->forward[1];
   flatForward[0] = pml->forward[0];
   flatForward[1] = v3;
-  flatForward[2] = *(float *)&FLOAT_0_0;
+  flatForward[2] = 0.0f;
   Vec3Normalize(flatForward);
   dot = (float)((float)(ps->vLadderVec[0] * pml->forward[0]) + (float)(ps->vLadderVec[1] * pml->forward[1]))
       + (float)(ps->vLadderVec[2] * pml->forward[2]);

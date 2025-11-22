@@ -51,14 +51,14 @@ void  R_SetDrawLitConstants(
   *(unsigned int *)&x[72] = source->input.consts[119];
   source->input.consts[119][0] = treeScatterIntensity;
   *(float *)(*(unsigned int *)&x[72] + 4) = treeScatterAmount;
-  *(unsigned int *)(*(unsigned int *)&x[72] + 8) = *(unsigned int *)&FLOAT_0_0;
-  *(unsigned int *)(*(unsigned int *)&x[72] + 12) = *(unsigned int *)&FLOAT_0_0;
+  *(unsigned int *)(*(unsigned int *)&x[72] + 8) = 0;
+  *(unsigned int *)(*(unsigned int *)&x[72] + 12) = 0;
   R_DirtyCodeConstant(source, 0x77u);
   colorTempMatrix((float (*)[4])x, r_skyColorTemp->current.value);
   integer = (float)r_treeScale->current.integer;
   v10 = r_testScale->current.integer;
   LODWORD(source->input.consts[68][0]) = r_skyTransition->current.integer;
-  source->input.consts[68][1] = *(float *)&FLOAT_0_0;
+  source->input.consts[68][1] = 0.0f;
   source->input.consts[68][2] = integer;
   LODWORD(source->input.consts[68][3]) = v10;
   R_DirtyCodeConstant(source, 0x44u);
@@ -112,8 +112,8 @@ void  R_DrawCloakHDR(int a1@<ebp>, const GfxViewInfo *viewInfo, GfxCmdBuf *cmdBu
   R_DirtyCodeConstant(&v10, 0x73u);
   treeScatterAmount = rgp.world->sunParse.treeScatterAmount;
   v10.input.consts[119][0] = rgp.world->sunParse.treeScatterIntensity;
-  *(_QWORD *)&v10.gap0[1908] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(treeScatterAmount));
-  v10.input.consts[119][3] = *(float *)&FLOAT_0_0;
+  *(_QWORD *)&v10.gap0[1908] = __PAIR64__(0, LODWORD(treeScatterAmount));
+  v10.input.consts[119][3] = 0.0f;
   R_DirtyCodeConstant(&v10, 0x77u);
   R_SetADSZScaleConstants(viewInfo->localClientNum, &v10);
   if ( phase )
@@ -329,8 +329,8 @@ void  R_DrawDecal(int a1@<ebp>, const GfxViewInfo *viewInfo, GfxCmdBuf *cmdBuf, 
   R_DirtyCodeConstant(&v10, 0x73u);
   treeScatterAmount = rgp.world->sunParse.treeScatterAmount;
   v10.input.consts[119][0] = rgp.world->sunParse.treeScatterIntensity;
-  *(_QWORD *)&v10.gap0[1908] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(treeScatterAmount));
-  v10.input.consts[119][3] = *(float *)&FLOAT_0_0;
+  *(_QWORD *)&v10.gap0[1908] = __PAIR64__(0, LODWORD(treeScatterAmount));
+  v10.input.consts[119][3] = 0.0f;
   R_DirtyCodeConstant(&v10, 0x77u);
   R_SetADSZScaleConstants(viewInfo->localClientNum, &v10);
   R_DrawCall(

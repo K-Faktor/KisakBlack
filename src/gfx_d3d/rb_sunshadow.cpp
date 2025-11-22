@@ -83,7 +83,7 @@ void __cdecl RB_DrawSunShadowOverlay()
   }
   viewInfo = backEndData->viewInfo;
   sunShadow = &backEndData->sunShadow;
-  y0 = FLOAT_4_0;
+  y0 = 4.0f;
   h = (double)vidConfig.displayHeight * 0.5;
   w = h;
   RB_SetSunShadowOverlayScaleAndBias();
@@ -150,7 +150,7 @@ void __cdecl RB_SunShadowOverlayPoint(const float *xy, float x0, float y0, float
 {
   *point = (float)((float)((float)(0.5 * *xy) + 0.5) * w) + x0;
   point[1] = (float)((float)(0.5 - (float)(0.5 * xy[1])) * h) + y0;
-  point[2] = *(float *)&FLOAT_0_0;
+  point[2] = 0.0f;
 }
 
 int RB_SetSunShadowOverlayScaleAndBias()

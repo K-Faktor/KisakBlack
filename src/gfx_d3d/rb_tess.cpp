@@ -12,7 +12,7 @@ void __cdecl RB_ShowTess(GfxCmdBufContext context, const float *center, const ch
   float TEXT_SIZE; // [esp+38h] [ebp-8h]
   const char *infoString; // [esp+3Ch] [ebp-4h]
 
-  TEXT_SIZE = FLOAT_0_60000002;
+  TEXT_SIZE = 0.6f;
   if ( !center && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\rb_tess.cpp", 94, 0, "%s", "center") )
     __debugbreak();
   if ( !tessName
@@ -545,9 +545,9 @@ unsigned int __cdecl R_TessMarkMeshList(const GfxDrawSurfListArgs *listArgs, Gfx
   context = listArgs->context;
   info = listArgs->info;
   needsMarksHitNormal = listArgs->context.state->technique->flags & 0x100;
-  curNormal = *(float *)&FLOAT_0_0;
-  curNormal_4 = *(float *)&FLOAT_0_0;
-  curNormal_8 = *(float *)&FLOAT_0_0;
+  curNormal = 0.0f;
+  curNormal_4 = 0.0f;
+  curNormal_8 = 0.0f;
   drawSurfCount = info->drawSurfCount - listArgs->firstDrawSurfIndex;
   drawSurfList = &info->drawSurfs[listArgs->firstDrawSurfIndex];
   R_SetupPassCriticalPixelShaderArgs(context);
@@ -909,8 +909,8 @@ void __cdecl R_SetParticleCloudConstants(GfxCmdBufSourceState *source, const Gfx
     || VecNCompareCustomEpsilon(cloud->placement.base.origin, cloud->endpos, 0.001, 3) )
   {
     viewAxis[0][0] = cloud->radius[0];
-    viewAxis[0][1] = *(float *)&FLOAT_0_0;
-    *(_QWORD *)&viewAxis[1][0] = __PAIR64__(LODWORD(cloud->radius[1]), *(unsigned int *)&FLOAT_0_0);
+    viewAxis[0][1] = 0.0f;
+    *(_QWORD *)&viewAxis[1][0] = __PAIR64__(LODWORD(cloud->radius[1]), 0);
   }
   else
   {
@@ -985,7 +985,7 @@ void __cdecl RB_CreateParticleCloud2dAxis(const GfxParticleCloud *cloud, const f
   if ( *viewUp >= 0.001 || viewUp[1] >= 0.001 )
   {
     viewRight_4 = -1.0 * *viewUp;
-    (*viewAxis)[0] = COERCE_FLOAT(LODWORD(FLOAT_N1_0) ^ _mask__NegFloat_) * viewUp[1];
+    (*viewAxis)[0] = COERCE_FLOAT(LODWORD(-1.0f) ^ _mask__NegFloat_) * viewUp[1];
     (*viewAxis)[1] = viewRight_4;
     v6 = viewUp[1];
     (*viewAxis)[2] = *viewUp;
@@ -1026,9 +1026,9 @@ void __cdecl RB_CreateParticleCloud2dAxis(const GfxParticleCloud *cloud, const f
   else
   {
     (*viewAxis)[0] = cloud->radius[0];
-    (*viewAxis)[1] = *(float *)&FLOAT_0_0;
+    (*viewAxis)[1] = 0.0f;
     v7 = cloud->radius[1];
-    (*viewAxis)[2] = *(float *)&FLOAT_0_0;
+    (*viewAxis)[2] = 0.0f;
     (*viewAxis)[3] = v7;
   }
 }
@@ -1238,11 +1238,11 @@ unsigned int __cdecl R_TessXModelSkinnedDrawSurfList(
     }
     else
     {
-      curDestructibleBurnAmount = *(float *)&FLOAT_0_0;
-      curDestructibleFadeAmount = *(float *)&FLOAT_0_0;
-      curWetness = *(float *)&FLOAT_0_0;
+      curDestructibleBurnAmount = 0.0f;
+      curDestructibleFadeAmount = 0.0f;
+      curWetness = 0.0f;
       depthHackFlags = 0;
-      materialTime = *(float *)&FLOAT_0_0;
+      materialTime = 0.0f;
       currTextureOverride = -1;
     }
     if ( RB_DrawSurf_Uses_ShaderConstantSet(&drawSurf) )
@@ -1263,9 +1263,9 @@ unsigned int __cdecl R_TessXModelSkinnedDrawSurfList(
       else
         LODWORD(value) = LODWORD(curWetness) & _mask__AbsFloat_;
       if ( curWetness >= 0.0 )
-        z = *(float *)&FLOAT_0_0;
+        z = 0.0f;
       else
-        z = FLOAT_1_0;
+        z = 1.0f;
       updated = R_UpdateCodeConstant(commonSource, 0x76u, curDestructibleBurnAmount, value, z, 0.0);
       updatedBurnFadeConstant |= updated;
     }
@@ -1423,7 +1423,7 @@ unsigned int __cdecl R_TessXModelSkinnedDrawSurfList(
     if ( modelSurf->info.gfxEntIndex )
       materialTime = data->gfxEnts[modelSurf->info.gfxEntIndex].materialTime;
     else
-      materialTime = *(float *)&FLOAT_0_0;
+      materialTime = 0.0f;
     setupVertexShader = R_UpdateMaterialTime(commonSource, materialTime, 0.0, 0.0, 0.0);
     R_SetupPassCriticalPixelShaderArgs(context);
     if ( setupVertexShader )
@@ -1542,10 +1542,10 @@ unsigned int __cdecl R_TessXModelRigidDrawSurfList(
     else
     {
       depthHackFlags = 0;
-      materialTime = *(float *)&FLOAT_0_0;
-      curDestructibleBurnAmount = *(float *)&FLOAT_0_0;
-      curDestructibleFadeAmount = *(float *)&FLOAT_0_0;
-      curWetness = *(float *)&FLOAT_0_0;
+      materialTime = 0.0f;
+      curDestructibleBurnAmount = 0.0f;
+      curDestructibleFadeAmount = 0.0f;
+      curWetness = 0.0f;
     }
     if ( RB_DrawSurf_Uses_ShaderConstantSet(&drawSurf) )
     {
@@ -1888,7 +1888,7 @@ unsigned int __cdecl R_TessXModelRigidSkinnedDrawSurfList(
         else
         {
           depthHackFlags = GFX_DEPTH_RANGE_SCENE;
-          materialTime = *(float *)&FLOAT_0_0;
+          materialTime = 0.0f;
         }
         setupVertexShader = R_UpdateMaterialTime(commonSource, materialTime, 0.0, 0.0, 0.0);
         if ( setupVertexShader | setupPixelShader )
@@ -2407,8 +2407,8 @@ unsigned int __cdecl R_TessBModel(const GfxDrawSurfListArgs *listArgs, GfxCmdBuf
     args.triCount = 0;
     args.vertexCount = 0;
     args.baseIndex = -1;
-    fade = FLOAT_N1_0;
-    burn = FLOAT_N1_0;
+    fade = -1.0f;
+    burn = -1.0f;
     constantSet = 0;
     do
     {

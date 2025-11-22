@@ -57,44 +57,44 @@ void __cdecl DevGui_UpdateScrollInputs(int localClientNum)
   float lya; // [esp+38h] [ebp-8h]
   float rtrig; // [esp+3Ch] [ebp-4h]
 
-  lx = *(float *)&FLOAT_0_0;
-  ly = *(float *)&FLOAT_0_0;
-  rtrig = *(float *)&FLOAT_0_0;
-  ltrig = *(float *)&FLOAT_0_0;
+  lx = 0.0f;
+  ly = 0.0f;
+  rtrig = 0.0f;
+  ltrig = 0.0f;
   if ( DevGui_IsButtonDown(INPUT_RIGHT) )
-    v7 = FLOAT_1_0;
+    v7 = 1.0f;
   else
-    v7 = *(float *)&FLOAT_0_0;
+    v7 = 0.0f;
   right = v7;
   if ( DevGui_IsButtonDown(INPUT_LEFT) )
-    v6 = FLOAT_1_0;
+    v6 = 1.0f;
   else
-    v6 = *(float *)&FLOAT_0_0;
+    v6 = 0.0f;
   left = v6;
   if ( DevGui_IsButtonDown(INPUT_UP) )
-    v5 = FLOAT_1_0;
+    v5 = 1.0f;
   else
-    v5 = *(float *)&FLOAT_0_0;
+    v5 = 0.0f;
   up = v5;
   if ( DevGui_IsButtonDown(INPUT_DOWN) )
-    v4 = FLOAT_1_0;
+    v4 = 1.0f;
   else
-    v4 = *(float *)&FLOAT_0_0;
+    v4 = 0.0f;
   down = v4;
   ControllerIndex = Com_LocalClient_GetControllerIndex(localClientNum);
   if ( GPad_IsActive(ControllerIndex) )
   {
     lxa = GPad_GetStick(s_input.gamePadIndex, GPAD_LX);
     if ( lxa < 0.0 )
-      v3 = FLOAT_N1_0;
+      v3 = -1.0f;
     else
-      v3 = FLOAT_1_0;
+      v3 = 1.0f;
     lx = (float)(lxa * lxa) * v3;
     lya = GPad_GetStick(s_input.gamePadIndex, GPAD_LY);
     if ( lya < 0.0 )
-      v2 = FLOAT_N1_0;
+      v2 = -1.0f;
     else
-      v2 = FLOAT_1_0;
+      v2 = 1.0f;
     ly = (float)(lya * lya) * v2;
     rtrig = GPad_GetButton(s_input.gamePadIndex, GPAD_R_TRIG);
     ltrig = GPad_GetButton(s_input.gamePadIndex, GPAD_L_TRIG);
@@ -104,14 +104,14 @@ void __cdecl DevGui_UpdateScrollInputs(int localClientNum)
     lx = s_input.mousePos[0];
     LODWORD(ly) = LODWORD(s_input.mousePos[1]) ^ _mask__NegFloat_;
   }
-  s_input.mousePos[0] = *(float *)&FLOAT_0_0;
-  s_input.mousePos[1] = *(float *)&FLOAT_0_0;
+  s_input.mousePos[0] = 0.0f;
+  s_input.mousePos[1] = 0.0f;
   if ( (v7 != 0.0 || v6 != 0.0) && (v5 != 0.0 || v4 != 0.0) )
   {
-    right = *(float *)&FLOAT_0_0;
-    left = *(float *)&FLOAT_0_0;
-    up = *(float *)&FLOAT_0_0;
-    down = *(float *)&FLOAT_0_0;
+    right = 0.0f;
+    left = 0.0f;
+    up = 0.0f;
+    down = 0.0f;
   }
   s_input.scrollScale = (float)((float)(ltrig * 1.0) + 1.0) * (float)((float)(rtrig * 4.0) + 1.0);
   s_input.digitalAxis[0] = right - left;
@@ -130,7 +130,7 @@ void __cdecl DevGui_UpdateScrollStates(float deltaTime, DevGuiInputState *states
     if ( axis[axisIndex] == 0.0 )
     {
       states[axisIndex] = SCROLL_NONE;
-      times[axisIndex] = *(float *)&FLOAT_0_0;
+      times[axisIndex] = 0.0f;
     }
     else
     {
@@ -140,7 +140,7 @@ void __cdecl DevGui_UpdateScrollStates(float deltaTime, DevGuiInputState *states
         if ( v4 == SCROLL_PRESSED )
         {
           states[axisIndex] = SCROLL_STALLED;
-          times[axisIndex] = *(float *)&FLOAT_0_0;
+          times[axisIndex] = 0.0f;
         }
         else if ( v4 == SCROLL_STALLED )
         {
@@ -148,7 +148,7 @@ void __cdecl DevGui_UpdateScrollStates(float deltaTime, DevGuiInputState *states
           if ( times[axisIndex] > 0.25 )
           {
             states[axisIndex] = SCROLL_HELD;
-            times[axisIndex] = *(float *)&FLOAT_0_0;
+            times[axisIndex] = 0.0f;
           }
         }
         else
@@ -180,13 +180,13 @@ void __cdecl DevGui_UpdateMenuScroll(float deltaTime)
                                                                             LODWORD(s_input.analogAxis[1])
                                                                           & _mask__AbsFloat_) )
   {
-    adjustedAnalogAxis[0] = *(float *)&FLOAT_0_0;
+    adjustedAnalogAxis[0] = 0.0f;
     adjustedAnalogAxis[1] = s_input.analogAxis[1];
   }
   else
   {
     adjustedAnalogAxis[0] = s_input.analogAxis[0];
-    adjustedAnalogAxis[1] = *(float *)&FLOAT_0_0;
+    adjustedAnalogAxis[1] = 0.0f;
   }
   for ( axisIndex = 0; axisIndex < 2; ++axisIndex )
   {
@@ -204,20 +204,20 @@ void __cdecl DevGui_UpdateMenuScroll(float deltaTime)
             s_input.menuScrollTime[axisIndex] = s_input.menuScrollTime[axisIndex] - 0.1 )
       {
         if ( axis < 0.0 )
-          v2 = FLOAT_N1_0;
+          v2 = -1.0f;
         else
-          v2 = FLOAT_1_0;
+          v2 = 1.0f;
         s_input.menuScroll[axisIndex] += (int)v2;
       }
     }
     else if ( pressed )
     {
       if ( axis < 0.0 )
-        v1 = FLOAT_N1_0;
+        v1 = -1.0f;
       else
-        v1 = FLOAT_1_0;
+        v1 = 1.0f;
       s_input.menuScroll[axisIndex] += (int)v1;
-      s_input.menuScrollTime[axisIndex] = *(float *)&FLOAT_0_0;
+      s_input.menuScrollTime[axisIndex] = 0.0f;
     }
   }
 }
@@ -227,8 +227,8 @@ char __cdecl DevGui_InputUpdateGamepad()
   s_input.gamePadIndex = s_input.selectedGamePadIndex;
   if ( s_input.selectedGamePadIndex >= 0 && GPad_IsActive(s_input.gamePadIndex) )
   {
-    s_input.sliderScrollTime = FLOAT_10_0;
-    s_input.sliderScrollMaxTimeStep = FLOAT_0_1;
+    s_input.sliderScrollTime = 10.0f;
+    s_input.sliderScrollMaxTimeStep = 0.1f;
     return 1;
   }
   else
@@ -240,8 +240,8 @@ char __cdecl DevGui_InputUpdateGamepad()
 
 void DevGui_InputUpdateMouse()
 {
-  s_input.sliderScrollTime = FLOAT_100_0;
-  s_input.sliderScrollMaxTimeStep = FLOAT_0_30000001;
+  s_input.sliderScrollTime = 100.0f;
+  s_input.sliderScrollMaxTimeStep = 0.3f;
 }
 
 void __cdecl DevGui_MouseEvent(int dx, int dy)
@@ -301,11 +301,11 @@ __int64 __cdecl DevGui_UpdateIntScroll(float deltaTime, __int64 value, __int64 m
   }
   else
   {
-    s_input.digitalSliderTime = *(float *)&FLOAT_0_0;
+    s_input.digitalSliderTime = 0.0f;
   }
   if ( s_input.analogAxis[axis] == 0.0 )
   {
-    s_input.analogSliderTime = *(float *)&FLOAT_0_0;
+    s_input.analogSliderTime = 0.0f;
   }
   else
   {
@@ -318,14 +318,14 @@ __int64 __cdecl DevGui_UpdateIntScroll(float deltaTime, __int64 value, __int64 m
     while ( s_input.analogSliderTime >= stepTimea )
     {
       if ( s_input.analogAxis[axis] < 0.0 )
-        v6 = FLOAT_N1_0;
+        v6 = -1.0f;
       else
-        v6 = FLOAT_1_0;
+        v6 = 1.0f;
       scroll += (int)v6;
       s_input.analogSliderTime = s_input.analogSliderTime - stepTimea;
       if ( s_input.gamePadIndex < 0 && COERCE_FLOAT(LODWORD(s_input.analogAxis[axis]) & _mask__AbsFloat_) <= 2.0 )
       {
-        s_input.analogSliderTime = *(float *)&FLOAT_0_0;
+        s_input.analogSliderTime = 0.0f;
         break;
       }
     }

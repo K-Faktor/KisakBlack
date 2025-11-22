@@ -136,7 +136,7 @@ char __cdecl R_AddSpotShadowsForLight(
     spotShadow->pixelAdjust[0] = FLOAT_0_00048828125;
     spotShadow->pixelAdjust[1] = FLOAT_0_00024414062;
     spotShadow->pixelAdjust[2] = FLOAT_0_0009765625;
-    spotShadow->pixelAdjust[3] = FLOAT_N0_00012207031;
+    spotShadow->pixelAdjust[3] = -0.0f0012207031;
     if ( v7 )
       spotShadow->clearScreen = spotShadowIndex == 2;
     else
@@ -145,7 +145,7 @@ char __cdecl R_AddSpotShadowsForLight(
     tileCount = 4;
   }
   if ( R_IsPrimaryLight(shadowableLightIndex) )
-    nearPlaneBias = *(float *)&FLOAT_0_0;
+    nearPlaneBias = 0.0f;
   else
     nearPlaneBias = scene.dynamicSpotLightNearPlaneOffset;
   R_SetViewParmsForLight((int)&savedregs, light, &spotShadow->shadowViewParms, nearPlaneBias);
@@ -190,7 +190,7 @@ void  R_SetViewParmsForLight(
   viewParms->origin[0] = light->origin[0];
   *(float *)(*(unsigned int *)&v12[132] + 4) = *(float *)(*(unsigned int *)&v12[128] + 4);
   *(float *)(*(unsigned int *)&v12[132] + 8) = *(float *)(*(unsigned int *)&v12[128] + 8);
-  viewParms->origin[3] = FLOAT_1_0;
+  viewParms->origin[3] = 1.0f;
   MatrixForViewer(viewParms->origin, viewParms->axis, (float (*)[4])&v12[64]);
   memset(v12, 0, 0x40u);
   v4 = light->angles[2];
@@ -204,8 +204,8 @@ void  R_SetViewParmsForLight(
   *(unsigned int *)&v12[4] = COS_HALF_CLAMP_EPSILON ^ _mask__NegFloat_;
   *(unsigned int *)&v12[16] = COS_HALF_CLAMP_EPSILON;
   *(unsigned int *)&v12[20] = LODWORD(v5);
-  *(float *)&v12[40] = FLOAT_1_0;
-  *(float *)&v12[60] = FLOAT_1_0;
+  *(float *)&v12[40] = 1.0f;
+  *(float *)&v12[60] = 1.0f;
   MatrixMultiply44((const float (*)[4])&v12[64], (const float (*)[4])v12, viewParms->viewMatrix.m);
   if ( sm_showSpotAxis->current.enabled )
     R_AddDebugAxis(&frontEndDataOut->debugGlobals, viewParms->origin, viewParms->axis, 100.0, 1);
@@ -236,7 +236,7 @@ void  R_SetViewParmsForLight(
   else
     v6 = 1.0 - 0.001;
   if ( (float)(0.001 - cosHalfFovOuter) >= 0.0 )
-    v6 = FLOAT_0_001;
+    v6 = 0.001f;
   tanHalfFovX = fsqrt(1.0 - (float)(v6 * v6)) / v6;
   FinitePerspectiveMatrix(tanHalfFovX, tanHalfFovX, nearPlaneBias + 1.0, light->radius, viewParms->projectionMatrix.m);
   R_SetupViewProjectionMatrices(viewParms, 0);
@@ -269,10 +269,10 @@ void __cdecl R_GetSpotShadowLookupMatrix(
   {
     if ( usingFullShadowBuffer )
     {
-      x0 = *(float *)&FLOAT_0_0;
-      x1 = FLOAT_1_0;
-      y1 = *(float *)&FLOAT_0_0;
-      y0 = FLOAT_1_0;
+      x0 = 0.0f;
+      x1 = 1.0f;
+      y1 = 0.0f;
+      y0 = 1.0f;
     }
     else
     {
@@ -284,8 +284,8 @@ void __cdecl R_GetSpotShadowLookupMatrix(
   }
   else
   {
-    x0 = *(float *)&FLOAT_0_0;
-    x1 = FLOAT_1_0;
+    x0 = 0.0f;
+    x1 = 1.0f;
     y1 = (double)spotShadowIndex * (1.0 / (double)tileCount);
     y0 = 1.0 / (double)tileCount + y1;
   }
@@ -438,7 +438,7 @@ void __cdecl R_EmitSpotShadowMapSurfs(GfxViewInfo *viewInfo)
     info->viewOrigin[0] = *origin;
     info->viewOrigin[1] = origin[1];
     info->viewOrigin[2] = origin[2];
-    info->viewOrigin[3] = FLOAT_1_0;
+    info->viewOrigin[3] = 1.0f;
     if ( viewInfo->drawList[spotShadowIndex + 10].cameraView
       && !Assert_MyHandler(
             "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_spotshadow.cpp",

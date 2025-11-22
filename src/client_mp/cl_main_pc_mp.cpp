@@ -2019,13 +2019,13 @@ void __cdecl CL_QuickMatch_PingResponse(bdSecurityID *secID, msg_t *msg)
       Com_DPrintf(14, "Server %s has pingscore of %f, fullness of %f\n", server->hostName, pingscore, fullness);
       if ( fullness >= 100.0 )
       {
-        fullness = *(float *)&FLOAT_0_0;
-        pingscore = *(float *)&FLOAT_0_0;
+        fullness = 0.0f;
+        pingscore = 0.0f;
       }
       if ( s_quickmatch_params.isWager && server->wagerBet > s_quickmatch_params.codpoints )
       {
-        fullness = FLOAT_N1_0;
-        pingscore = FLOAT_1_0;
+        fullness = -1.0f;
+        pingscore = 1.0f;
       }
       fullscore = (float)cl_quickmatch_fullnessweight->current.integer * fullness;
       Com_IntToGametype(server->gameType, serverinfo->m_memberGAME_TYPE);

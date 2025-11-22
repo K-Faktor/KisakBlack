@@ -455,7 +455,7 @@ double __cdecl Actor_BadPlace_GetMaximumFleeRadius()
   unsigned int badPlaceIndex; // [esp+4h] [ebp-8h]
   float maxRadius; // [esp+8h] [ebp-4h]
 
-  maxRadius = FLOAT_N1_0;
+  maxRadius = -1.0f;
   for ( badPlaceIndex = 0; badPlaceIndex < 0x100; ++badPlaceIndex )
   {
     if ( byte_A071A32[44 * badPlaceIndex] )

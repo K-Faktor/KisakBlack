@@ -156,9 +156,9 @@ void __cdecl Dtp_Interrupt(pmove_t *pm)
   pm->ps->pm_flags &= ~0x400000u;
   pm->ps->jumpTime = 0;
   velocity = pm->ps->velocity;
-  *velocity = *(float *)&FLOAT_0_0;
-  velocity[1] = *(float *)&FLOAT_0_0;
-  velocity[2] = *(float *)&FLOAT_0_0;
+  *velocity = 0.0f;
+  velocity[1] = 0.0f;
+  velocity[2] = 0.0f;
   pm->ps->lastDtpEnd = pm->cmd.serverTime - (int)dtp_post_move_pause->current.value - 1;
   if ( pm->ps->lastDtpEnd < 0 )
     pm->ps->lastDtpEnd = 0;
@@ -186,9 +186,9 @@ void __cdecl Dtp_End(pmove_t *pm)
   pm->ps->pm_flags &= ~0x400000u;
   pm->ps->jumpTime = 0;
   velocity = pm->ps->velocity;
-  *velocity = *(float *)&FLOAT_0_0;
-  velocity[1] = *(float *)&FLOAT_0_0;
-  velocity[2] = *(float *)&FLOAT_0_0;
+  *velocity = 0.0f;
+  velocity[1] = 0.0f;
+  velocity[2] = 0.0f;
   pm->ps->lastDtpEnd = pm->cmd.serverTime;
   pm->ps->sprintState.sprintButtonUpRequired = 0;
 }
@@ -266,14 +266,14 @@ void __cdecl Dtp_AirMove(playerState_s *ps, const pmove_t *pm)
     if ( pm->cmd.serverTime - ps->jumpTime >= dtp_max_apex_duration->current.integer )
     {
       if ( (float)(0.0 - ps->velocity[2]) < 0.0 )
-        v2 = *(float *)&FLOAT_0_0;
+        v2 = 0.0f;
       else
         v2 = ps->velocity[2];
       ps->velocity[2] = v2;
     }
     else
     {
-      ps->velocity[2] = *(float *)&FLOAT_0_0;
+      ps->velocity[2] = 0.0f;
     }
   }
 }

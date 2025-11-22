@@ -148,7 +148,7 @@ unsigned int __cdecl R_AddSModelListStats(
   for ( drawInstIter = 0; drawInstIter < drawInstCount; ++drawInstIter )
     AddPointToBounds2D(drawInstArray[drawInstIter]->placement.origin, mins, maxs);
   lodIter = 0;
-  prevLodDist = *(float *)&FLOAT_0_0;
+  prevLodDist = 0.0f;
   while ( lodIter < lodCount )
   {
     lodDist = XModelGetLodDist(model, lodIter);

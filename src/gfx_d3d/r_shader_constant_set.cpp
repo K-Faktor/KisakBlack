@@ -381,9 +381,9 @@ void __cdecl R_ShaderConstantShowDebug(
       obj2eye = Vec3DistanceSq(eyePos, objOrigin);
       if ( obj2eye <= debugRangeSq )
       {
-        up[0] = *(float *)&FLOAT_0_0;
-        up[1] = *(float *)&FLOAT_0_0;
-        up[2] = FLOAT_1_0;
+        up[0] = 0.0f;
+        up[1] = 0.0f;
+        up[2] = 1.0f;
         textOrigin[0] = (float)((float)(objRad + my_height_offset) * 0.0) + *objOrigin;
         textOrigin[1] = (float)((float)(objRad + my_height_offset) * 0.0) + objOrigin[1];
         textOrigin[2] = (float)((float)(objRad + my_height_offset) * 1.0) + objOrigin[2];

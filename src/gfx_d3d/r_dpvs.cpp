@@ -126,7 +126,7 @@ unsigned int __cdecl R_FindNearestReflectionProbeInCell(
     __debugbreak();
   }
   bestProbe = 0;
-  bestProbeDist = FLOAT_3_4028235e38;
+  bestProbeDist = FLT_MAX;
   if ( !cell->reflectionProbeCount
     && !Assert_MyHandler(
           "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_dpvs.cpp",
@@ -197,7 +197,7 @@ unsigned int __cdecl R_FindNearestReflectionProbe(const GfxWorldDraw *worldDraw,
     __debugbreak();
   }
   bestProbe = 0;
-  bestProbeDist = FLOAT_3_4028235e38;
+  bestProbeDist = FLT_MAX;
   for ( probeIndex = 1; probeIndex < worldDraw->reflectionProbeCount; ++probeIndex )
   {
     if ( !worldDraw->reflectionProbes[probeIndex].probeVolumeCount )
@@ -892,7 +892,7 @@ void __cdecl FinishDynEntLighting(
         {
           fadeVar = DynEntCl_GetFadeTime(dynEntId, DYNENT_DRAW_MODEL);
           gfxEnt = &frontEndDataOut->gfxEnts[gfxEntIndex];
-          frontEndDataOut->gfxEnts[gfxEntIndex].materialTime = *(float *)&FLOAT_0_0;
+          frontEndDataOut->gfxEnts[gfxEntIndex].materialTime = 0.0f;
           gfxEnt->renderFxFlags = 0;
           if ( r_swrk_override_enable->current.enabled )
             integer = r_swrk_override_characterCharredAmount->current.integer;
@@ -900,7 +900,7 @@ void __cdecl FinishDynEntLighting(
             integer = LODWORD(burnVar);
           LODWORD(gfxEnt->destructibleBurnAmount) = integer;
           gfxEnt->destructibleFadeAmount = fadeVar;
-          gfxEnt->wetness = *(float *)&FLOAT_0_0;
+          gfxEnt->wetness = 0.0f;
           gfxEnt->textureOverrideIndex = -1;
         }
         else
@@ -1623,7 +1623,7 @@ int __cdecl R_DrawBModel(
     }
     newPlacement = (GfxScaledPlacement *)&frontEndDataOut->surfsBuffer[startSurfPos];
     memcpy(&frontEndDataOut->surfsBuffer[startSurfPos], placement, 0x1Cu);
-    newPlacement->scale = FLOAT_1_0;
+    newPlacement->scale = 1.0f;
     bmodelSurf = (BModelSurface *)&newPlacement[1];
     surfId = (char *)&newPlacement[1] - (char *)frontEndDataOut;
     if ( (((_BYTE)newPlacement + 32 - (_BYTE)frontEndDataOut) & 3) != 0
@@ -2300,11 +2300,11 @@ void __cdecl R_FilterXModelIntoScene(
         return;
       }
       gfxEnt = &frontEndDataOut->gfxEnts[gfxEntIndex];
-      frontEndDataOut->gfxEnts[gfxEntIndex].materialTime = *(float *)&FLOAT_0_0;
+      frontEndDataOut->gfxEnts[gfxEntIndex].materialTime = 0.0f;
       gfxEnt->renderFxFlags = renderFxFlags;
-      gfxEnt->destructibleBurnAmount = *(float *)&FLOAT_0_0;
-      gfxEnt->destructibleFadeAmount = *(float *)&FLOAT_0_0;
-      gfxEnt->wetness = *(float *)&FLOAT_0_0;
+      gfxEnt->destructibleBurnAmount = 0.0f;
+      gfxEnt->destructibleFadeAmount = 0.0f;
+      gfxEnt->wetness = 0.0f;
       gfxEnt->textureOverrideIndex = -1;
     }
     else
@@ -2780,13 +2780,13 @@ void __cdecl R_GenerateShadowMapCasterCells()
     LODWORD(dpvsGlob.viewOrg[0]) = *(unsigned int *)dir ^ _mask__NegFloat_;
     LODWORD(dpvsGlob.viewOrg[1]) = *((unsigned int *)dir + 1) ^ _mask__NegFloat_;
     LODWORD(dpvsGlob.viewOrg[2]) = *((unsigned int *)dir + 2) ^ _mask__NegFloat_;
-    dpvsGlob.viewOrg[3] = *(float *)&FLOAT_0_0;
+    dpvsGlob.viewOrg[3] = 0.0f;
     dpvsGlob.viewOrgIsDir = 1;
     sunLight = rgp.world->sunLight;
     dpvsGlob.nearPlane.coeffs[0] = sunLight->dir[0];
     dpvsGlob.nearPlane.coeffs[1] = sunLight->dir[1];
     dpvsGlob.nearPlane.coeffs[2] = sunLight->dir[2];
-    dpvsGlob.nearPlane.coeffs[3] = *(float *)&FLOAT_0_0;
+    dpvsGlob.nearPlane.coeffs[3] = 0.0f;
     dpvsGlob.farPlaneEnabled = 0;
     for ( cellIndex = 0; cellIndex < rgp.world->dpvsPlanes.cellCount; ++cellIndex )
     {
@@ -4245,7 +4245,7 @@ void __cdecl R_SetupWorldSurfacesDpvs(const GfxViewParms *viewParms, unsigned in
   dpvsGlob.viewOrg[0] = viewParms->origin[0];
   dpvsGlob.viewOrg[1] = viewParms->origin[1];
   dpvsGlob.viewOrg[2] = viewParms->origin[2];
-  dpvsGlob.viewOrg[3] = FLOAT_1_0;
+  dpvsGlob.viewOrg[3] = 1.0f;
   dpvsGlob.viewOrgIsDir = 0;
   *(_QWORD *)dpvsGlob.sunShadow.viewDir = *(_QWORD *)&viewParms->axis[0][0];
   dpvsGlob.sunShadow.viewDir[2] = viewParms->axis[0][2];
@@ -5126,10 +5126,10 @@ void __cdecl R_ProjectPortal(
   {
     __debugbreak();
   }
-  *mins = FLOAT_1_0;
-  mins[1] = FLOAT_1_0;
-  *maxs = FLOAT_N1_0;
-  maxs[1] = FLOAT_N1_0;
+  *mins = 1.0f;
+  mins[1] = 1.0f;
+  *maxs = -1.0f;
+  maxs[1] = -1.0f;
   for ( windingVertIndex = 0; windingVertIndex < vertexCount; ++windingVertIndex )
   {
     xyz = &(*winding)[3 * windingVertIndex];
@@ -5138,10 +5138,10 @@ void __cdecl R_ProjectPortal(
       + dpvsGlob.viewProjMtx->m[3][3];
     if ( w < 0.125 )
     {
-      *mins = FLOAT_N1_0;
-      mins[1] = FLOAT_N1_0;
-      *maxs = FLOAT_1_0;
-      maxs[1] = FLOAT_1_0;
+      *mins = -1.0f;
+      mins[1] = -1.0f;
+      *maxs = 1.0f;
+      maxs[1] = 1.0f;
       *clipChildren = DPVS_CLIP_CHILDREN;
       return;
     }
@@ -5182,7 +5182,7 @@ void __cdecl R_ProjectPortal(
     *(_QWORD *)&screenSpaceWinding[vertexCount][0] = *(_QWORD *)&screenSpaceWinding[0][0];
     screenSpaceWinding[vertexCount + 1][0] = screenSpaceWinding[1][0];
     screenSpaceWinding[vertexCount + 1][1] = screenSpaceWinding[1][1];
-    areaa = *(float *)&FLOAT_0_0;
+    areaa = 0.0f;
     for ( windingVertIndexa = 1; windingVertIndexa <= vertexCount; ++windingVertIndexa )
       areaa = (float)((float)(screenSpaceWinding[windingVertIndexa + 1][1] - *(&y + 2 * windingVertIndexa))
                     * screenSpaceWinding[windingVertIndexa][0])
@@ -5743,7 +5743,7 @@ void __cdecl R_SetCullDist(float dist)
   if ( dist > 0.0 )
     dpvsGlob.cullDist = dist;
   else
-    dpvsGlob.cullDist = *(float *)&FLOAT_0_0;
+    dpvsGlob.cullDist = 0.0f;
 }
 
 int __cdecl R_CullBoxCurDpvs_SceneSelect(const float *minmax, unsigned int viewIndex, unsigned int sceneIndex)
@@ -5914,7 +5914,7 @@ void __cdecl R_ExtraCam_RestoreDpvsData(int localClientNum, unsigned __int8 *buf
 void __cdecl R_PerMap_DpvsGlobInit()
 {
   memset((unsigned __int8 *)dpvsGlob.cellForceInvisibleBits, 0, sizeof(dpvsGlob.cellForceInvisibleBits));
-  dpvsGlob.cullDist = *(float *)&FLOAT_0_0;
+  dpvsGlob.cullDist = 0.0f;
 }
 
 unsigned int __cdecl R_CalcReflectionProbeIndex(const GfxWorld *world, const float *origin)

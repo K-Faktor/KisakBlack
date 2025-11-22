@@ -358,10 +358,10 @@ void __cdecl R_ComputeSpotLightCrossDirs(const GfxLight *light, float (*crossDir
                                                                                & _mask__AbsFloat_) )
       bestCrossAxis = axisIndex;
   }
-  (*crossDirs)[0] = *(float *)&FLOAT_0_0;
-  (*crossDirs)[1] = *(float *)&FLOAT_0_0;
-  (*crossDirs)[2] = *(float *)&FLOAT_0_0;
-  (*crossDirs)[bestCrossAxis] = FLOAT_1_0;
+  (*crossDirs)[0] = 0.0f;
+  (*crossDirs)[1] = 0.0f;
+  (*crossDirs)[2] = 0.0f;
+  (*crossDirs)[bestCrossAxis] = 1.0f;
   Vec3Cross(light->dir, (const float *)crossDirs, &(*crossDirs)[3]);
   Vec3Normalize(&(*crossDirs)[3]);
   Vec3Cross(&(*crossDirs)[3], light->dir, (float *)crossDirs);

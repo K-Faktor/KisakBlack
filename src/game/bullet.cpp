@@ -372,7 +372,7 @@ void __cdecl Bullet_Fire(
     v9.ignoreEntIndex = number;
     if ( vehicle_selfCollision->current.enabled && weaponEnt && weaponEnt->scr_vehicle )
       v9.ignoreEntIndex = 1022;
-    v9.damageMultiplier = FLOAT_1_0;
+    v9.damageMultiplier = 1.0f;
     v9.methodOfDeath = wp->weapDef->bRifleBullet + 1;
     v9.origStart[0] = wp->muzzleTrace[0];
     v9.origStart[1] = wp->muzzleTrace[1];
@@ -605,10 +605,10 @@ void __cdecl Bullet_Process(
   *outImpactFlags = 0;
   if ( attacker->sentient )
     Bullet_NofifyActor(bp, attacker, bp->start, br->hitPos, br->hitEnt, weapVariantDef);
-  color[0] = FLOAT_1_0;
-  color[1] = *(float *)&FLOAT_0_0;
-  color[2] = *(float *)&FLOAT_0_0;
-  color[3] = FLOAT_1_0;
+  color[0] = 1.0f;
+  color[1] = 0.0f;
+  color[2] = 0.0f;
+  color[3] = 1.0f;
   if ( g_debugBullets->current.integer == 2 )
   {
     CG_DebugLine(bp->start, br->hitPos, color, 1, 1000);
@@ -634,7 +634,7 @@ void __cdecl Bullet_Process(
     if ( (float)(weapDef->damageConeAngle - 180.0) < 0.0 )
       v17 = v9;
     else
-      v17 = FLOAT_N1_0;
+      v17 = -1.0f;
     coneCos = v17;
     weapon = BG_GetWeaponIndex(weapVariantDef);
     inflictorEnt = attacker;
@@ -1024,7 +1024,7 @@ void __cdecl Bullet_FirePenetrate(
       {
         maxDepth = BG_GetSurfacePenetrationDepth(weapDef, br.depthSurfaceType);
         if ( (br.trace.sflags & 4) != 0 )
-          maxDepth = FLOAT_100_0;
+          maxDepth = 100.0f;
         if ( attacker->client && (attacker->client->ps.perks[0] & 0x20) != 0 )
           maxDepth = maxDepth * perk_bulletPenetrationMultiplier->current.value;
         if ( maxDepth <= 0.0 )
@@ -1064,7 +1064,7 @@ void __cdecl Bullet_FirePenetrate(
             v6 = Vec3Distance(revBr.hitPos, lastHitPos);
           depth = v6;
           if ( v6 < 1.0 )
-            depth = FLOAT_1_0;
+            depth = 1.0f;
           if ( revTraceHit )
           {
             if ( attacker->client && (attacker->client->ps.perks[0] & 0x20) != 0 )
@@ -1087,7 +1087,7 @@ void __cdecl Bullet_FirePenetrate(
               maxDepth = v4;
             }
             if ( (revBr.trace.sflags & 4) != 0 )
-              maxDepth = FLOAT_100_0;
+              maxDepth = 100.0f;
             if ( maxDepth <= 0.0 )
               return;
           }

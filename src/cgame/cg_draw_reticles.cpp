@@ -19,8 +19,8 @@ void __cdecl CG_CalcCrosshairPosition(const cg_s *cgameGlob, float *x, float *y)
       + (float)(cgameGlob->refdef.viewaxis[0][2] * gunDir[2]);
   if ( dot <= 0.0 || cgameGlob->refdef.tanHalfFovX <= 0.0 )
   {
-    *x = *(float *)&FLOAT_0_0;
-    *y = *(float *)&FLOAT_0_0;
+    *x = 0.0f;
+    *y = 0.0f;
   }
   else
   {
@@ -48,7 +48,7 @@ char __cdecl CG_GetWeapReticleZoom(const cg_s *cgameGlob, float *zoom)
   weapVariantDef = BG_GetWeaponVariantDef(weapIndex);
   weapDef = BG_GetWeaponDef(weapIndex);
   fPosLerp = cgameGlob->predictedPlayerState.fWeaponPosFrac;
-  *zoom = *(float *)&FLOAT_0_0;
+  *zoom = 0.0f;
   if ( !weapVariantDef
     && !Assert_MyHandler(
           "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_draw_reticles.cpp",
@@ -83,7 +83,7 @@ char __cdecl CG_GetWeapReticleZoom(const cg_s *cgameGlob, float *zoom)
   if ( *zoom <= 0.0099999998 )
     return 0;
   if ( *zoom > 1.0 )
-    *zoom = FLOAT_1_0;
+    *zoom = 1.0f;
   return 1;
 }
 
@@ -202,8 +202,8 @@ void __cdecl CG_DrawCrosshair(int localClientNum)
   }
   drawHud = CG_ShouldDrawHud(localClientNum);
   posLerp = ps->fWeaponPosFrac;
-  transScale = FLOAT_1_0;
-  transShift = *(float *)&FLOAT_0_0;
+  transScale = 1.0f;
+  transShift = 0.0f;
   if ( (ps->eFlags & 0x300) == 0 )
   {
     if ( (ps->eFlags & 0x4000) != 0 )
@@ -262,10 +262,10 @@ void __cdecl CG_DrawCrosshair(int localClientNum)
                 {
                   if ( !cg_crosshairDynamic->current.enabled )
                   {
-                    centerX = *(float *)&FLOAT_0_0;
+                    centerX = 0.0f;
                     centerY = transShift;
                   }
-                  centerW = FLOAT_1_0;
+                  centerW = 1.0f;
                   if ( !IsHardcoreMode(localClientNum) )
                   {
                     if ( R_StereoActivated() )
@@ -288,7 +288,7 @@ void __cdecl CG_DrawCrosshair(int localClientNum)
                       Vec3Lerp(start, end, trace.fraction, contact);
                       centerW = Vec3Distance(start, contact);
                       if ( centerW >= 10000.0 )
-                        v1 = FLOAT_10000_0;
+                        v1 = 10000.0f;
                       else
                         v1 = centerW;
                       centerW = v1;
@@ -470,7 +470,7 @@ void __cdecl CG_DrawAdsOverlay(int localClientNum, int weaponIndex, const float 
     }
     else
     {
-      centerW = FLOAT_1_0;
+      centerW = 1.0f;
       if ( R_StereoActivated() )
       {
         memset(&trace, 0, 16);
@@ -491,7 +491,7 @@ void __cdecl CG_DrawAdsOverlay(int localClientNum, int weaponIndex, const float 
         Vec3Lerp(start, end, trace.fraction, contact);
         centerW = Vec3Distance(start, contact);
         if ( centerW >= 10000.0 )
-          v4 = FLOAT_10000_0;
+          v4 = 10000.0f;
         else
           v4 = centerW;
         centerW = v4;
@@ -569,9 +569,9 @@ void __cdecl CG_DrawFrameOverlay(
   }
   else
   {
-    screenLeft = *(float *)&FLOAT_0_0;
+    screenLeft = 0.0f;
     screenRight = screenWidth;
-    screenTop = *(float *)&FLOAT_0_0;
+    screenTop = 0.0f;
     screenBottom = screenHeight;
   }
   if ( innerLeft > screenLeft )
@@ -647,10 +647,10 @@ double __cdecl CG_DrawWeapReticle(int localClientNum)
     if ( weapVariantDef->fOverlayAlphaScale >= 1.0 )
       fOverlayAlphaScale = weapVariantDef->fOverlayAlphaScale;
     else
-      fOverlayAlphaScale = FLOAT_1_0;
-    color[0] = FLOAT_1_0;
-    color[1] = FLOAT_1_0;
-    color[2] = FLOAT_1_0;
+      fOverlayAlphaScale = 1.0f;
+    color[0] = 1.0f;
+    color[1] = 1.0f;
+    color[2] = 1.0f;
     color[3] = zoomFrac / fOverlayAlphaScale;
     CG_CalcCrosshairPosition(cgameGlob, crosshairPos, &crosshairPos[1]);
     CG_DrawAdsOverlay(localClientNum, weapIndex, color, crosshairPos);
@@ -658,7 +658,7 @@ double __cdecl CG_DrawWeapReticle(int localClientNum)
   }
   else
   {
-    crossHairAlpha = FLOAT_1_0;
+    crossHairAlpha = 1.0f;
   }
   if ( R_StereoActivated() )
     Dvar_SetFloat(
@@ -933,7 +933,7 @@ void __cdecl CG_DrawVehicleCrossHair(int localClientNum)
       material = weapDef->reticleCenter;
       horzAlign = 2;
       vertAlign = 2;
-      centerW = FLOAT_1_0;
+      centerW = 1.0f;
       if ( R_StereoActivated() )
       {
         memset(&trace, 0, 16);
@@ -954,7 +954,7 @@ void __cdecl CG_DrawVehicleCrossHair(int localClientNum)
         Vec3Lerp(start, end, trace.fraction, contact);
         centerW = Vec3Distance(start, contact);
         if ( centerW >= 10000.0 )
-          v1 = FLOAT_10000_0;
+          v1 = 10000.0f;
         else
           v1 = centerW;
         centerW = v1;
@@ -1329,12 +1329,12 @@ void __cdecl CG_DrawReticleSides(
       if ( weapVariantDef->fOverlayAlphaScale >= 1.0 )
         fOverlayAlphaScale = weapVariantDef->fOverlayAlphaScale;
       else
-        fOverlayAlphaScale = FLOAT_1_0;
+        fOverlayAlphaScale = 1.0f;
       reticleAlpha = 1.0 - (float)(zoomFrac / fOverlayAlphaScale);
     }
     else
     {
-      reticleAlpha = FLOAT_1_0;
+      reticleAlpha = 1.0f;
     }
     CG_CalcReticleColor(baseColor, reticleAlpha, cgameGlob->predictedPlayerState.aimSpreadScale, reticleColor);
     if ( reticleColor[3] >= 0.0099999998 )

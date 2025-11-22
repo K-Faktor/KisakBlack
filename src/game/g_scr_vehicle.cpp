@@ -359,11 +359,11 @@ void __cdecl VEH_InitEntity(gentity_s *ent, scr_vehicle_s *veh, int infoIdx)
     AssignToSmallerType<unsigned short>(&ent->s.weapon, WeaponIndexForName);
   }
   ent->s.weaponModel = 0;
-  ent->s.lerp.u.actor.index.actorNum = *(unsigned int *)&FLOAT_0_0;
+  ent->s.lerp.u.actor.index.actorNum = 0;
   ent->s.lerp.u.vehicle.drawOnCompass = 0;
   v8 = floor(0.0 * 182.04445 + 0.5);
   ent->s.lerp.u.vehicle.throttle = (int)v8;
-  ent->s.lerp.u.loopFx.period = *(unsigned int *)&FLOAT_0_0;
+  ent->s.lerp.u.loopFx.period = 0;
   v7 = floor(0.0 * 182.04445 + 0.5);
   ent->s.lerp.u.vehicle.gunPitch = (int)v7;
   v6 = floor(0.0 * 182.04445 + 0.5);
@@ -399,25 +399,25 @@ void __cdecl VEH_InitVehicle(gentity_s *ent, scr_vehicle_s *veh, int infoIdx)
   veh->moveState = VEH_MOVESTATE_STOP;
   veh->flags = 0;
   veh->waitNode = -1;
-  veh->waitSpeed = FLOAT_N1_0;
+  veh->waitSpeed = -1.0f;
   veh->turret.fireTime = 0;
   veh->turret.fireBarrel = 0;
   veh->turret.turretState = VEH_TURRET_STOPPED;
-  veh->turret.barrelOffset = *(float *)&FLOAT_0_0;
+  veh->turret.barrelOffset = 0.0f;
   veh->turret.flags = 0;
-  veh->turret.heatVal = *(float *)&FLOAT_0_0;
+  veh->turret.heatVal = 0.0f;
   veh->turret.overheating = 0;
-  veh->turretRotScale = FLOAT_1_0;
+  veh->turretRotScale = 1.0f;
   Com_Memset((unsigned int *)&veh->jitter, 0, 60);
   veh->lookAtText0 = 0;
   veh->lookAtText1 = 0;
   veh->manualMode = 0;
-  veh->manualTime = *(float *)&FLOAT_0_0;
-  veh->speed = *(float *)&FLOAT_0_0;
-  veh->maxSpeedOverride = *(float *)&FLOAT_0_0;
+  veh->manualTime = 0.0f;
+  veh->speed = 0.0f;
+  veh->maxSpeedOverride = 0.0f;
   veh->maxDragSpeed = 60.0 * 17.6;
-  veh->turningAbility = FLOAT_0_5;
-  veh->pathTransitionTime = *(float *)&FLOAT_0_0;
+  veh->turningAbility = 0.5f;
+  veh->pathTransitionTime = 0.0f;
   veh->hasTarget = 0;
   veh->targetEnt = 1023;
   if ( EntHandle::isDefined(&veh->lookAtEnt)
@@ -430,27 +430,27 @@ void __cdecl VEH_InitVehicle(gentity_s *ent, scr_vehicle_s *veh, int infoIdx)
   {
     __debugbreak();
   }
-  veh->targetOrigin[0] = *(float *)&FLOAT_0_0;
-  veh->targetOrigin[1] = *(float *)&FLOAT_0_0;
-  veh->targetOrigin[2] = *(float *)&FLOAT_0_0;
-  veh->targetOffset[0] = *(float *)&FLOAT_0_0;
-  veh->targetOffset[1] = *(float *)&FLOAT_0_0;
-  veh->targetOffset[2] = *(float *)&FLOAT_0_0;
-  veh->joltDir[0] = *(float *)&FLOAT_0_0;
-  veh->joltDir[1] = *(float *)&FLOAT_0_0;
-  veh->joltTime = *(float *)&FLOAT_0_0;
-  veh->joltWave = *(float *)&FLOAT_0_0;
-  veh->joltSpeed = *(float *)&FLOAT_0_0;
-  veh->joltDecel = *(float *)&FLOAT_0_0;
+  veh->targetOrigin[0] = 0.0f;
+  veh->targetOrigin[1] = 0.0f;
+  veh->targetOrigin[2] = 0.0f;
+  veh->targetOffset[0] = 0.0f;
+  veh->targetOffset[1] = 0.0f;
+  veh->targetOffset[2] = 0.0f;
+  veh->joltDir[0] = 0.0f;
+  veh->joltDir[1] = 0.0f;
+  veh->joltTime = 0.0f;
+  veh->joltWave = 0.0f;
+  veh->joltSpeed = 0.0f;
+  veh->joltDecel = 0.0f;
   veh->turretHitNum = 0;
-  veh->hover.hoverRadius = FLOAT_30_0;
+  veh->hover.hoverRadius = 30.0f;
   veh->hover.hoverSpeed = 10.0 * 17.6;
   veh->hover.hoverAccel = 5.0 * 17.6;
   veh->hover.useHoverAccelForAngles = 0;
   veh->yawSlowDown = 0;
-  veh->yawOverShoot = FLOAT_0_1;
-  veh->prevGoalYaw = FLOAT_N1_0;
-  veh->nearGoalNotifyDist = *(float *)&FLOAT_0_0;
+  veh->yawOverShoot = 0.1f;
+  veh->prevGoalYaw = -1.0f;
+  veh->nearGoalNotifyDist = 0.0f;
   veh->modelSwapDelay = info->modelSwapDelay;
   veh->oneExhaust = info->oneExhaust;
   veh->deathQuakeScale = info->deathQuakeScale;
@@ -473,7 +473,7 @@ void __cdecl VEH_InitVehicle(gentity_s *ent, scr_vehicle_s *veh, int infoIdx)
       AssignToSmallerType<unsigned short>(&bg_vehicleInfos[infoIdx].gunnerWeaponIndex[k], WeaponIndexForName);
     }
     veh->gunnerTargets[k].targetEnt = 1023;
-    veh->gunnerTurrets[k].heatVal = *(float *)&FLOAT_0_0;
+    veh->gunnerTurrets[k].heatVal = 0.0f;
     veh->gunnerTurrets[k].overheating = 0;
   }
   VEH_SetPosition(ent, ent->r.currentOrigin, (float *)vec3_origin, ent->r.currentAngles);
@@ -526,33 +526,33 @@ void __cdecl VEH_InitPhysics(gentity_s *ent, int infoIdx)
   veh->phys.prevAngles[0] = ent->r.currentAngles[0];
   veh->phys.prevAngles[1] = ent->r.currentAngles[1];
   veh->phys.prevAngles[2] = ent->r.currentAngles[2];
-  veh->phys.mins[0] = *(float *)&FLOAT_0_0;
-  veh->phys.mins[1] = *(float *)&FLOAT_0_0;
-  veh->phys.mins[2] = *(float *)&FLOAT_0_0;
-  veh->phys.maxs[0] = *(float *)&FLOAT_0_0;
-  veh->phys.maxs[1] = *(float *)&FLOAT_0_0;
-  veh->phys.maxs[2] = *(float *)&FLOAT_0_0;
-  veh->phys.vel[0] = *(float *)&FLOAT_0_0;
-  veh->phys.vel[1] = *(float *)&FLOAT_0_0;
-  veh->phys.vel[2] = *(float *)&FLOAT_0_0;
-  veh->phys.bodyVel[0] = *(float *)&FLOAT_0_0;
-  veh->phys.bodyVel[1] = *(float *)&FLOAT_0_0;
-  veh->phys.bodyVel[2] = *(float *)&FLOAT_0_0;
-  veh->phys.rotVel[0] = *(float *)&FLOAT_0_0;
-  veh->phys.rotVel[1] = *(float *)&FLOAT_0_0;
-  veh->phys.rotVel[2] = *(float *)&FLOAT_0_0;
+  veh->phys.mins[0] = 0.0f;
+  veh->phys.mins[1] = 0.0f;
+  veh->phys.mins[2] = 0.0f;
+  veh->phys.maxs[0] = 0.0f;
+  veh->phys.maxs[1] = 0.0f;
+  veh->phys.maxs[2] = 0.0f;
+  veh->phys.vel[0] = 0.0f;
+  veh->phys.vel[1] = 0.0f;
+  veh->phys.vel[2] = 0.0f;
+  veh->phys.bodyVel[0] = 0.0f;
+  veh->phys.bodyVel[1] = 0.0f;
+  veh->phys.bodyVel[2] = 0.0f;
+  veh->phys.rotVel[0] = 0.0f;
+  veh->phys.rotVel[1] = 0.0f;
+  veh->phys.rotVel[2] = 0.0f;
   for ( i = 0; i < 6; ++i )
   {
-    phys->wheelZVel[i] = *(float *)&FLOAT_0_0;
-    phys->wheelZPos[i] = *(float *)&FLOAT_0_0;
+    phys->wheelZVel[i] = 0.0f;
+    phys->wheelZPos[i] = 0.0f;
     phys->wheelSurfType[i] = 0;
   }
-  veh->phys.worldTilt[0] = *(float *)&FLOAT_0_0;
-  veh->phys.worldTilt[1] = *(float *)&FLOAT_0_0;
-  veh->phys.worldTilt[2] = *(float *)&FLOAT_0_0;
-  veh->phys.worldTiltVel[0] = *(float *)&FLOAT_0_0;
-  veh->phys.worldTiltVel[1] = *(float *)&FLOAT_0_0;
-  veh->phys.worldTiltVel[2] = *(float *)&FLOAT_0_0;
+  veh->phys.worldTilt[0] = 0.0f;
+  veh->phys.worldTilt[1] = 0.0f;
+  veh->phys.worldTilt[2] = 0.0f;
+  veh->phys.worldTiltVel[0] = 0.0f;
+  veh->phys.worldTiltVel[1] = 0.0f;
+  veh->phys.worldTiltVel[2] = 0.0f;
   info = BG_GetVehicleInfo(infoIdx);
   if ( info->isNitrous )
   {
@@ -591,11 +591,11 @@ void __cdecl VEH_JoltBody(gentity_s *ent, const float *dir, float intensity, flo
     if ( (float)(intensity - 1.0) < 0.0 )
       v6 = intensity;
     else
-      v6 = FLOAT_1_0;
+      v6 = 1.0f;
     if ( (float)(0.0 - intensity) < 0.0 )
       v5 = v6;
     else
-      v5 = *(float *)&FLOAT_0_0;
+      v5 = 0.0f;
     AnglesToAxis(veh->phys.angles, axis);
     veh->joltDir[0] = (float)((float)(*dir * axis[0][0]) + (float)(dir[1] * axis[0][1])) + (float)(dir[2] * axis[0][2]);
     LODWORD(veh->joltDir[1]) = COERCE_UNSIGNED_INT(
@@ -603,7 +603,7 @@ void __cdecl VEH_JoltBody(gentity_s *ent, const float *dir, float intensity, flo
                                + (float)(dir[2] * axis[1][2]))
                              ^ _mask__NegFloat_;
     veh->joltTime = FLOAT_1_3;
-    veh->joltWave = *(float *)&FLOAT_0_0;
+    veh->joltWave = 0.0f;
     Vec2Normalize(veh->joltDir);
     veh->joltDir[0] = (float)(info->maxBodyPitch * v5) * veh->joltDir[0];
     veh->joltDir[1] = (float)(info->maxBodyRoll * v5) * veh->joltDir[1];
@@ -663,7 +663,7 @@ void __cdecl VEH_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float *
   if ( *move <= 0 )
   {
     if ( *move >= 0 )
-      tgtVel[0] = *(float *)&FLOAT_0_0;
+      tgtVel[0] = 0.0f;
     else
       tgtVel[0] = (float)(veh->phys.bodyVel[0] - (float)(accel * 0.050000001)) * xAccel;
   }
@@ -671,7 +671,7 @@ void __cdecl VEH_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float *
   {
     tgtVel[0] = (float)((float)(accel * 0.050000001) + veh->phys.bodyVel[0]) * xAccel;
   }
-  tgtVel[1] = *(float *)&FLOAT_0_0;
+  tgtVel[1] = 0.0f;
   tgtVel[2] = veh->phys.bodyVel[2];
   for ( i = 0; i < 3; ++i )
   {
@@ -702,7 +702,7 @@ void __cdecl VEH_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float *
     if ( move[1] >= 0 )
     {
       if ( move[1] <= 0 )
-        tgtRotVel[1] = *(float *)&FLOAT_0_0;
+        tgtRotVel[1] = 0.0f;
       else
         tgtRotVel[1] = (float)(veh->phys.rotVel[1] - (float)(info->rotAccel * 0.050000001)) * yAccel;
     }
@@ -766,7 +766,7 @@ void __cdecl VEH_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float *
     tgtRotVel[1] = v8;
     rotAccel[1] = (float)(v8 - veh->phys.rotVel[1]) / 0.050000001;
   }
-  tgtRotVel[0] = *(float *)&FLOAT_0_0;
+  tgtRotVel[0] = 0.0f;
   *rotAccel = (float)(0.0 - veh->phys.rotVel[0]) / 0.050000001;
   if ( (float)(*rotAccel - info->rotAccel) < 0.0 )
     v13 = *rotAccel;
@@ -777,7 +777,7 @@ void __cdecl VEH_CalcAccel(gentity_s *ent, char *move, float *bodyAccel, float *
   else
     LODWORD(v5) = LODWORD(info->rotAccel) ^ _mask__NegFloat_;
   *rotAccel = v5;
-  tgtRotVel[2] = *(float *)&FLOAT_0_0;
+  tgtRotVel[2] = 0.0f;
   rotAccel[2] = (float)(0.0 - veh->phys.rotVel[2]) / 0.050000001;
   v11 = rotAccel[2];
   if ( (float)(v11 - info->rotAccel) < 0.0 )
@@ -860,7 +860,7 @@ bool __cdecl VEH_SlideMove(gentity_s *ent, int gravity)
   veh = ent->scr_vehicle;
   phys = &veh->phys;
   memset(&trace, 0, 16);
-  timeLeft = FLOAT_0_050000001;
+  timeLeft = 0.05f;
   endVel[0] = veh->phys.vel[0];
   endVel[1] = veh->phys.vel[1];
   endVel[2] = veh->phys.vel[2];
@@ -891,7 +891,7 @@ bool __cdecl VEH_SlideMove(gentity_s *ent, int gravity)
     G_TraceCapsule(&trace, phys->origin, phys->mins, phys->maxs, end, ent->s.number, ent->clipmask, &context);
     if ( trace.startsolid )
     {
-      phys->vel[2] = *(float *)&FLOAT_0_0;
+      phys->vel[2] = 0.0f;
       return 1;
     }
     if ( trace.fraction > 0.0 )
@@ -902,9 +902,9 @@ bool __cdecl VEH_SlideMove(gentity_s *ent, int gravity)
     if ( numPlanes >= 5 )
     {
       vel = phys->vel;
-      phys->vel[0] = *(float *)&FLOAT_0_0;
-      vel[1] = *(float *)&FLOAT_0_0;
-      vel[2] = *(float *)&FLOAT_0_0;
+      phys->vel[0] = 0.0f;
+      vel[1] = 0.0f;
+      vel[2] = 0.0f;
       return 1;
     }
     for ( i = 0; i < numPlanes; ++i )
@@ -963,9 +963,9 @@ bool __cdecl VEH_SlideMove(gentity_s *ent, int gravity)
                              + (float)(clipVel[2] * planes[k][2])) < 0.1 )
                   {
                     v5 = phys->vel;
-                    phys->vel[0] = *(float *)&FLOAT_0_0;
-                    v5[1] = *(float *)&FLOAT_0_0;
-                    v5[2] = *(float *)&FLOAT_0_0;
+                    phys->vel[0] = 0.0f;
+                    v5[1] = 0.0f;
+                    v5[2] = 0.0f;
                     return 1;
                   }
                 }
@@ -1167,7 +1167,7 @@ bool __cdecl VEH_ClampPointToBoundingBox(gentity_s *vehicle, const float *point,
   if ( clampedLocalOrigin[0] == localPlayerOrigin[0] && clampedLocalOrigin[1] == localPlayerOrigin[1] )
   {
     wasOutside = 0;
-    smallestDistance = FLOAT_3_4028235e38;
+    smallestDistance = FLT_MAX;
     index = 0;
     isMax = 1;
     for ( i = 0; i < 2; ++i )
@@ -1239,12 +1239,12 @@ void __cdecl VEH_GetBoundingBoxFromCollmap(gentity_s *vehicle, float *bbMins, fl
     __debugbreak();
   }
   baseModel = DObjGetModel(obj, 0);
-  *bbMins = FLOAT_3_4028235e38;
-  bbMins[1] = FLOAT_3_4028235e38;
-  bbMins[2] = FLOAT_3_4028235e38;
-  *bbMaxs = FLOAT_N3_4028235e38;
-  bbMaxs[1] = FLOAT_N3_4028235e38;
-  bbMaxs[2] = FLOAT_N3_4028235e38;
+  *bbMins = FLT_MAX;
+  bbMins[1] = FLT_MAX;
+  bbMins[2] = FLT_MAX;
+  *bbMaxs = -FLT_MAX;
+  bbMaxs[1] = -FLT_MAX;
+  bbMaxs[2] = -FLT_MAX;
   if ( XModelHasCollmap(baseModel) )
   {
     collmap = XModelGetCollmap(baseModel, 0);
@@ -1477,10 +1477,10 @@ void __cdecl VEH_SetLinkAngleClamps(
     __debugbreak();
   }
   client = player->client;
-  client->linkAnglesMinClamp[1] = FLOAT_N180_0;
-  client->linkAnglesMaxClamp[1] = FLOAT_180_0;
-  client->linkAnglesMinClamp[0] = FLOAT_N180_0;
-  client->linkAnglesMaxClamp[0] = FLOAT_180_0;
+  client->linkAnglesMinClamp[1] = -180.0f;
+  client->linkAnglesMaxClamp[1] = 180.0f;
+  client->linkAnglesMinClamp[0] = -180.0f;
+  client->linkAnglesMaxClamp[0] = 180.0f;
   G_UpdateViewAngleClamp(player->client, playerAngles);
   if ( seatIndex < 1 || seatIndex > 4 )
   {
@@ -1677,7 +1677,7 @@ LABEL_29:
       client->ps.linkAngles[1] = client->ps.viewangles[1];
       client->ps.linkAngles[2] = client->ps.viewangles[2];
     }
-    playerAngles[2] = *(float *)&FLOAT_0_0;
+    playerAngles[2] = 0.0f;
     playerAngles[0] = AngleNormalize180(playerAngles[0]);
     SetClientViewAngle(player, playerAngles);
     client->ps.linkFlags &= ~1u;
@@ -1693,7 +1693,7 @@ LABEL_29:
       }
     }
     if ( info->type == 6 && seatIndex >= 5 && seatIndex <= 10 )
-      client->linkAnglesFrac = FLOAT_1_0;
+      client->linkAnglesFrac = 1.0f;
     if ( veh->targetEnt == player->s.number )
     {
       veh->hasTarget = 0;
@@ -1787,7 +1787,7 @@ double  Scr_Vehicle_DamageScale@<st0>(
     return 0.0;
   LODWORD(axis[2][2]) = mod;
   LODWORD(axis[2][1]) = mod == 4 || LODWORD(axis[2][2]) == 6;
-  axis[2][0] = FLOAT_1_0;
+  axis[2][0] = 1.0f;
   AnglesToAxis((const float *)(radius_damage + 24), (float (*)[3])vdir);
   if ( point )
   {
@@ -1797,13 +1797,13 @@ double  Scr_Vehicle_DamageScale@<st0>(
   }
   else
   {
-    *(float *)&a = FLOAT_1_0;
-    bestAxis = *(int *)&FLOAT_0_0;
-    bestDot = *(float *)&FLOAT_0_0;
+    *(float *)&a = 1.0f;
+    bestAxis = 0;
+    bestDot = 0.0f;
   }
-  bestDot = *(float *)&FLOAT_0_0;
+  bestDot = 0.0f;
   Vec3Normalize((float *)&a);
-  v19 = *(float *)&FLOAT_0_0;
+  v19 = 0.0f;
   dot = -1;
   for ( i = 0; i < 2; ++i )
   {
@@ -1831,8 +1831,8 @@ double  Scr_Vehicle_DamageScale@<st0>(
   }
   if ( LODWORD(axis[2][1]) )
   {
-    height = FLOAT_1_0;
-    pointAdjusted_8 = FLOAT_1_0;
+    height = 1.0f;
+    pointAdjusted_8 = 1.0f;
     pointAdjusted_4 = pSelf->r.maxs[1] * 0.80000001;
     pointAdjusted = pSelf->r.maxs[2] * 0.5;
     v12 = Vec3DistanceSq(point, (const float *)radius_damage);
@@ -2021,7 +2021,7 @@ void __cdecl VEH_UnlinkPlayer(gentity_s *player, bool changingSeats, char *error
       angles[1] = client->ps.viewangles[1];
       angles[2] = client->ps.viewangles[2];
     }
-    angles[2] = *(float *)&FLOAT_0_0;
+    angles[2] = 0.0f;
     TeleportPlayer(player, origin, angles);
     client->ps.eFlags &= 0xFFFEBFFF;
     if ( !error_msg )
@@ -2061,7 +2061,7 @@ void __cdecl VEH_UnlinkPlayer(gentity_s *player, bool changingSeats, char *error
           {
             G_DObjGetWorldBoneIndexMatrix(ent, veh->boneIndex.gunnerTags[gunnerIndex].barrel, barrelMtx);
             AxisToAngles(barrelMtx, playerAngles);
-            playerAngles[2] = *(float *)&FLOAT_0_0;
+            playerAngles[2] = 0.0f;
             SetClientViewAngle(player, playerAngles);
           }
         }
@@ -2136,7 +2136,7 @@ char __cdecl VEH_ExitPosOkay(gentity_s *vehEnt, gentity_s *player, int exitIndex
     {
       pushOutVec[0] = clampedExitPoint[0] - exitPoint[0];
       pushOutVec[1] = clampedExitPoint[1] - exitPoint[1];
-      pushOutVec[2] = *(float *)&FLOAT_0_0;
+      pushOutVec[2] = 0.0f;
       Vec3NormalizeFast(pushOutVec);
       exitPoint[0] = (float)(100.0 * pushOutVec[0]) + exitPoint[0];
       exitPoint[1] = (float)(100.0 * pushOutVec[1]) + exitPoint[1];
@@ -2453,8 +2453,8 @@ void __cdecl G_InitScrVehicles()
   }
   for ( ia = 0; ia < 1; ++ia )
   {
-    s_pitches[ia] = *(float *)&FLOAT_0_0;
-    s_rolls[ia] = *(float *)&FLOAT_0_0;
+    s_pitches[ia] = 0.0f;
+    s_rolls[ia] = 0.0f;
   }
   level.vehicles = s_vehicles;
 }
@@ -2582,12 +2582,12 @@ void __cdecl G_SpawnVehicle(gentity_s *ent, char *typeName, int load)
   for ( i = 0; i < 6; ++i )
   {
     veh->vehicle_cache.hit_indices[i] = -1;
-    veh->vehicle_cache.lastOrigin[0] = FLOAT_3_4028235e38;
-    veh->vehicle_cache.lastOrigin[1] = FLOAT_3_4028235e38;
-    veh->vehicle_cache.lastOrigin[2] = FLOAT_3_4028235e38;
-    veh->vehicle_cache.lastAngles[0] = FLOAT_3_4028235e38;
-    veh->vehicle_cache.lastAngles[1] = FLOAT_3_4028235e38;
-    veh->vehicle_cache.lastAngles[2] = FLOAT_3_4028235e38;
+    veh->vehicle_cache.lastOrigin[0] = FLT_MAX;
+    veh->vehicle_cache.lastOrigin[1] = FLT_MAX;
+    veh->vehicle_cache.lastOrigin[2] = FLT_MAX;
+    veh->vehicle_cache.lastAngles[0] = FLT_MAX;
+    veh->vehicle_cache.lastAngles[1] = FLT_MAX;
+    veh->vehicle_cache.lastAngles[2] = FLT_MAX;
   }
   veh->targetEnt = 1023;
   if ( EntHandle::isDefined(&veh->lookAtEnt)
@@ -2874,8 +2874,8 @@ void __cdecl G_FreeVehicle(gentity_s *ent)
   {
     cCurveManager::FreeCurve(ent->scr_vehicle->phys.curveID);
     ent->scr_vehicle->phys.curveID = -1;
-    ent->scr_vehicle->phys.curveLength = *(float *)&FLOAT_0_0;
-    ent->scr_vehicle->phys.curveTime = *(float *)&FLOAT_0_0;
+    ent->scr_vehicle->phys.curveLength = 0.0f;
+    ent->scr_vehicle->phys.curveTime = 0.0f;
     ent->scr_vehicle->moveState = VEH_MOVESTATE_PLANE_FREE;
   }
   if ( ent->scr_vehicle->pathPos.customPath )
@@ -3266,20 +3266,20 @@ int __cdecl G_GetPlayerVehicleMantlePoint(gentity_s *ent, gentity_s *player)
   if ( (float)(forwardDot - 1.0) < 0.0 )
     v6 = forwardDot;
   else
-    v6 = FLOAT_1_0;
+    v6 = 1.0f;
   if ( (float)(-1.0 - forwardDot) < 0.0 )
     v4 = v6;
   else
-    v4 = FLOAT_N1_0;
+    v4 = -1.0f;
   forwardDot = v4;
   if ( (float)(leftDot - 1.0) < 0.0 )
     v5 = leftDot;
   else
-    v5 = FLOAT_1_0;
+    v5 = 1.0f;
   if ( (float)(-1.0 - leftDot) < 0.0 )
     v3 = v5;
   else
-    v3 = FLOAT_N1_0;
+    v3 = -1.0f;
   leftDot = v3;
   if ( forwardDot > info->mantleAngles[0] )
     return 0;
@@ -3571,13 +3571,13 @@ void  VEH_Teleport(NitrousVehicle *a1@<ebp>, gentity_s *pSelf, float *origin, fl
       }
       else
       {
-        *(unsigned int *)v11 = *(unsigned int *)&FLOAT_0_0;
-        *(unsigned int *)(v11 + 4) = *(unsigned int *)&FLOAT_0_0;
-        *(unsigned int *)(v11 + 8) = *(unsigned int *)&FLOAT_0_0;
+        *(unsigned int *)v11 = 0;
+        *(unsigned int *)(v11 + 4) = 0;
+        *(unsigned int *)(v11 + 8) = 0;
       }
-      *v10 = *(unsigned int *)&FLOAT_0_0;
-      v10[1] = *(unsigned int *)&FLOAT_0_0;
-      v10[2] = *(unsigned int *)&FLOAT_0_0;
+      *v10 = 0;
+      v10[1] = 0;
+      v10[2] = 0;
     }
   }
   Sys_LeaveCriticalSection(CRITSECT_PHYSICS);
@@ -3599,7 +3599,7 @@ void  VEH_Teleport(NitrousVehicle *a1@<ebp>, gentity_s *pSelf, float *origin, fl
   else
   {
     v5 = p_phys->vel;
-    p_phys->vel[0] = *(float *)&FLOAT_0_0;
+    p_phys->vel[0] = 0.0f;
     v5[1] = *(const float *)&FLOAT_0_0;
     v5[2] = *(const float *)&FLOAT_0_0;
   }
@@ -3648,10 +3648,10 @@ void __cdecl VEH_UpdateDebug(gentity_s *pSelf)
   {
     phys = &pSelf->scr_vehicle->phys;
     info = BG_GetVehicleInfo(pSelf->scr_vehicle->infoIdx);
-    color[0] = FLOAT_1_0;
-    color[1] = FLOAT_1_0;
-    color[2] = *(float *)&FLOAT_0_0;
-    color[3] = FLOAT_1_0;
+    color[0] = 1.0f;
+    color[1] = 1.0f;
+    color[2] = 0.0f;
+    color[3] = 1.0f;
     CG_DebugBox(phys->origin, phys->mins, phys->maxs, phys->angles[1], color, 1, 1);
     org[0] = phys->origin[0];
     org[1] = phys->origin[1];
@@ -3667,10 +3667,10 @@ void __cdecl VEH_UpdateDebug(gentity_s *pSelf)
            pSelf->r.currentAngles[1],
            pSelf->r.currentAngles[2]);
     CL_AddDebugString(org, colorWhite, 0.69999999, v1, 0);
-    color[0] = *(float *)&FLOAT_0_0;
-    color[1] = FLOAT_1_0;
-    color[2] = *(float *)&FLOAT_0_0;
-    color[3] = FLOAT_1_0;
+    color[0] = 0.0f;
+    color[1] = 1.0f;
+    color[2] = 0.0f;
+    color[3] = 1.0f;
     for ( seatIndex = 0; seatIndex < 5; ++seatIndex )
     {
       boneIndex = pSelf->scr_vehicle->boneIndex.entryPoints[seatIndex];
@@ -3756,18 +3756,18 @@ void __cdecl Scr_Vehicle_Controller(const gentity_s *pSelf, int *partBits)
   else
   {
     bodyAngles[0] = (float)pSelf->s.lerp.u.vehicle.throttle * 0.0054931641;
-    bodyAngles[1] = *(float *)&FLOAT_0_0;
+    bodyAngles[1] = 0.0f;
     bodyAngles[2] = pSelf->s.lerp.u.turret.gunAngles[1];
   }
   if ( veh->boneIndex.body >= 0 )
     DObjSetLocalBoneIndex(obj, partBits, veh->boneIndex.body, vec3_origin, bodyAngles);
   v3 = (float)pSelf->s.lerp.u.vehicle.gunYaw * 0.0054931641;
-  turretAngles[0] = *(float *)&FLOAT_0_0;
+  turretAngles[0] = 0.0f;
   turretAngles[1] = v3;
-  turretAngles[2] = *(float *)&FLOAT_0_0;
+  turretAngles[2] = 0.0f;
   barrelAngles[0] = (float)pSelf->s.lerp.u.vehicle.gunPitch * 0.0054931641;
-  barrelAngles[1] = *(float *)&FLOAT_0_0;
-  barrelAngles[2] = *(float *)&FLOAT_0_0;
+  barrelAngles[1] = 0.0f;
+  barrelAngles[2] = 0.0f;
   if ( veh->boneIndex.turret >= 0 )
     DObjSetLocalBoneIndex(obj, partBits, veh->boneIndex.turret, vec3_origin, turretAngles);
   if ( veh->boneIndex.barrel >= 0 )
@@ -3775,12 +3775,12 @@ void __cdecl Scr_Vehicle_Controller(const gentity_s *pSelf, int *partBits)
   for ( i = 0; i < 4; ++i )
   {
     v2 = (float)pSelf->s.lerp.u.vehicle.gunnerAngles[i].yaw * 0.0054931641;
-    turretAngles[0] = *(float *)&FLOAT_0_0;
+    turretAngles[0] = 0.0f;
     turretAngles[1] = v2;
-    turretAngles[2] = *(float *)&FLOAT_0_0;
+    turretAngles[2] = 0.0f;
     barrelAngles[0] = (float)pSelf->s.lerp.u.vehicle.gunnerAngles[i].pitch * 0.0054931641;
-    barrelAngles[1] = *(float *)&FLOAT_0_0;
-    barrelAngles[2] = *(float *)&FLOAT_0_0;
+    barrelAngles[1] = 0.0f;
+    barrelAngles[2] = 0.0f;
     if ( veh->boneIndex.gunnerTags[i].turret >= 0 )
       DObjSetLocalBoneIndex(obj, partBits, veh->boneIndex.gunnerTags[i].turret, vec3_origin, turretAngles);
     if ( veh->boneIndex.gunnerTags[i].barrel >= 0 )
@@ -3819,9 +3819,9 @@ void __cdecl Scr_Vehicle_Init(gentity_s *pSelf)
   {
     if ( info->type == 6 )
     {
-      radius = *(float *)&FLOAT_0_0;
-      minHeight = *(float *)&FLOAT_0_0;
-      maxHeight = *(float *)&FLOAT_0_0;
+      radius = 0.0f;
+      minHeight = 0.0f;
+      maxHeight = 0.0f;
       for ( wheelIndex = 0; wheelIndex < 6; ++wheelIndex )
       {
         if ( veh->boneIndex.wheel[wheelIndex] >= 0 )
@@ -3859,7 +3859,7 @@ void __cdecl Scr_Vehicle_Init(gentity_s *pSelf)
   else
   {
     wheelCount = info->type != 0 ? 6 : 4;
-    radius = *(float *)&FLOAT_0_0;
+    radius = 0.0f;
     for ( wheelIndex = 0; wheelIndex < wheelCount; ++wheelIndex )
     {
       VEH_GetWheelOrigin(pSelf, wheelIndex, origin, 0);
@@ -3877,7 +3877,7 @@ void __cdecl Scr_Vehicle_Init(gentity_s *pSelf)
     phys_mins = phys->mins;
     LODWORD(phys->mins[0]) = LODWORD(radius) ^ _mask__NegFloat_;
     *((unsigned int *)phys_mins + 1) = LODWORD(radius) ^ _mask__NegFloat_;
-    phys_mins[2] = *(float *)&FLOAT_0_0;
+    phys_mins[2] = 0.0f;
     phys_maxs = phys->maxs;
     phys->maxs[0] = radius;
     phys_maxs[1] = radius;
@@ -4064,12 +4064,12 @@ void __cdecl VEH_GroundPlant(gentity_s *ent, vehicle_physic_t *phys, int gravity
   *(_QWORD *)&axis[3][0] = *(_QWORD *)phys->origin;
   axis[3][2] = v14;
   AnglesToAxis(phys->angles, axis);
-  mn[0] = FLOAT_3_4028235e38;
-  mn[1] = FLOAT_3_4028235e38;
-  mn[2] = FLOAT_3_4028235e38;
-  mx[0] = FLOAT_N3_4028235e38;
-  mx[1] = FLOAT_N3_4028235e38;
-  mx[2] = FLOAT_N3_4028235e38;
+  mn[0] = FLT_MAX;
+  mn[1] = FLT_MAX;
+  mn[2] = FLT_MAX;
+  mx[0] = -FLT_MAX;
+  mx[1] = -FLT_MAX;
+  mx[2] = -FLT_MAX;
   for ( i = 0; i < numWheels; ++i )
   {
     VEH_GetWheelOrigin(ent, i, temp, 0);
@@ -4096,9 +4096,9 @@ void __cdecl VEH_GroundPlant(gentity_s *ent, vehicle_physic_t *phys, int gravity
   }
   vehicle_cache = &veh->vehicle_cache;
   contents_mask = contents;
-  expand_vec[0] = FLOAT_30_0;
-  expand_vec[1] = FLOAT_30_0;
-  expand_vec[2] = FLOAT_30_0;
+  expand_vec[0] = 30.0f;
+  expand_vec[1] = 30.0f;
+  expand_vec[2] = 30.0f;
   veh->vehicle_cache.proximity_data.update(&veh->vehicle_cache.proximity_data, mn, mx, contents, expand_vec);
   context.prims = vehicle_cache->proximity_data.prims;
   context.nprims = vehicle_cache->proximity_data.nprims;
@@ -4137,7 +4137,7 @@ void __cdecl VEH_GroundPlant(gentity_s *ent, vehicle_physic_t *phys, int gravity
       if ( hitPos[2] > phys->wheelZPos[i] )
       {
         phys->wheelZPos[i] = hitPos[2];
-        phys->wheelZVel[i] = *(float *)&FLOAT_0_0;
+        phys->wheelZVel[i] = 0.0f;
         memcpy(wheelMatrix, axis, 0x24u);
         *(_QWORD *)&wheelMatrix[3][0] = *(_QWORD *)hitPos;
         wheelMatrix[3][2] = hitPos[2];
@@ -4146,7 +4146,7 @@ void __cdecl VEH_GroundPlant(gentity_s *ent, vehicle_physic_t *phys, int gravity
     else
     {
       phys->wheelZPos[i] = hitPos[2];
-      phys->wheelZVel[i] = *(float *)&FLOAT_0_0;
+      phys->wheelZVel[i] = 0.0f;
     }
     wheelPos[i][0] = hitPos[0];
     wheelPos[i][1] = hitPos[1];
@@ -4198,7 +4198,7 @@ void __cdecl VEH_GroundPlant(gentity_s *ent, vehicle_physic_t *phys, int gravity
   if ( (float)(v9 - 60.0) < 0.0 )
     v10 = phys->angles[0];
   else
-    v10 = FLOAT_60_0;
+    v10 = 60.0f;
   if ( (float)(-60.0 - v9) < 0.0 )
     v4 = v10;
   else
@@ -4208,7 +4208,7 @@ void __cdecl VEH_GroundPlant(gentity_s *ent, vehicle_physic_t *phys, int gravity
   if ( (float)(v7 - 60.0) < 0.0 )
     v8 = phys->angles[2];
   else
-    v8 = FLOAT_60_0;
+    v8 = 60.0f;
   if ( (float)(-60.0 - v7) < 0.0 )
     v3 = v8;
   else
@@ -4252,7 +4252,7 @@ void __cdecl VEH_DebugLine(const float *start, const float *end, float r, float 
   color[0] = r;
   color[1] = g;
   color[2] = b;
-  color[3] = FLOAT_1_0;
+  color[3] = 1.0f;
   G_DebugLine(start, end, color, 1);
 }
 
@@ -4265,7 +4265,7 @@ void __cdecl VEH_DebugBox(float *pos, float width, float r, float g, float b)
   color[0] = r;
   color[1] = g;
   color[2] = b;
-  color[3] = FLOAT_1_0;
+  color[3] = 1.0f;
   LODWORD(mins[0]) = COERCE_UNSIGNED_INT(width * 0.5) ^ _mask__NegFloat_;
   mins[1] = mins[0];
   mins[2] = mins[0];
@@ -4704,7 +4704,7 @@ void __cdecl VEH_UpdateNitrousPosition(gentity_s *pSelf)
   }
   else if ( info->type && info->type != 1 )
   {
-    pSelf->s.lerp.u.actor.index.actorNum = *(unsigned int *)&FLOAT_0_0;
+    pSelf->s.lerp.u.actor.index.actorNum = 0;
   }
   else
   {
@@ -4726,9 +4726,9 @@ void __cdecl VEH_UpdateNitrousPosition(gentity_s *pSelf)
   }
   else
   {
-    pSelf->s.lerp.apos.trDelta[0] = *(float *)&FLOAT_0_0;
-    pSelf->s.lerp.apos.trDelta[1] = *(float *)&FLOAT_0_0;
-    pSelf->s.lerp.apos.trDelta[2] = *(float *)&FLOAT_0_0;
+    pSelf->s.lerp.apos.trDelta[0] = 0.0f;
+    pSelf->s.lerp.apos.trDelta[1] = 0.0f;
+    pSelf->s.lerp.apos.trDelta[2] = 0.0f;
   }
   pSelf->s.lerp.pos.trTime = Phys_GetCurrentTime();
   if ( notifyFlags )
@@ -4828,7 +4828,7 @@ void __cdecl Scr_Vehicle_Think(gentity_s *pSelf)
     if ( info->type == 6 && (veh->flags & 0x100) != 0 )
       VEH_UpdateChopperPathDrive(pSelf);
   }
-  defaultPitch = *(float *)&FLOAT_0_0;
+  defaultPitch = 0.0f;
   if ( info->type == 6 )
   {
     if ( veh->hasDefaultPitch )
@@ -5004,7 +5004,7 @@ void __cdecl VEH_UpdateAim(gentity_s *ent)
           CL_AddDebugLine(veh->targetOrigin, barrelPos, colorRed, 1, 1);
         if ( info->type != 6 )
           tgtAngles[1] = player->client->ps.viewangles[1];
-        tgtAngles[2] = *(float *)&FLOAT_0_0;
+        tgtAngles[2] = 0.0f;
       }
       else
       {
@@ -5026,7 +5026,7 @@ void __cdecl VEH_UpdateAim(gentity_s *ent)
       decompressedGunYaw = (float)(decompressedGunYaw - phys->angles[1]) + veh->phys.prevAngles[1];
       prevAngles[0] = decompressedGunPitch;
       prevAngles[1] = decompressedGunYaw;
-      prevAngles[2] = *(float *)&FLOAT_0_0;
+      prevAngles[2] = 0.0f;
       AnglesSubtract(tgtAngles, prevAngles, deltaAngles);
       LODWORD(deltaAngles[0]) &= _mask__AbsFloat_;
       LODWORD(deltaAngles[1]) &= _mask__AbsFloat_;
@@ -5044,7 +5044,7 @@ void __cdecl VEH_UpdateAim(gentity_s *ent)
         decompressedGunYaw = AngleNormalize180(tgtAngles[1]);
       stopAngles[0] = decompressedGunPitch;
       stopAngles[1] = decompressedGunYaw;
-      stopAngles[2] = *(float *)&FLOAT_0_0;
+      stopAngles[2] = 0.0f;
       stopAngles[0] = AngleNormalize180(decompressedGunPitch - decompressedGunPitch);
       stopAngles[1] = AngleNormalize180(stopAngles[1] - decompressedGunYaw);
       v2 = floor(decompressedGunYaw * 182.04445 + 0.5);
@@ -5160,7 +5160,7 @@ void __cdecl VEH_UpdateGunnerAim(gentity_s *ent, int gunnerIndex)
       yaw = (float)ent->s.lerp.u.vehicle.gunnerAngles[gunnerIndex].yaw * 0.0054931641;
       prevAngles[0] = pitch;
       prevAngles[1] = yaw;
-      prevAngles[2] = *(float *)&FLOAT_0_0;
+      prevAngles[2] = 0.0f;
       if ( veh->gunnerTargets[gunnerIndex].targetEnt == 1023 )
       {
         tgtEnt = 0;
@@ -5197,14 +5197,14 @@ void __cdecl VEH_UpdateGunnerAim(gentity_s *ent, int gunnerIndex)
           {
             tgtAngles[1] = info->gunnerRestAngles[gunnerIndex][1];
             tgtAngles[0] = info->gunnerRestAngles[gunnerIndex][0];
-            tgtAngles[2] = *(float *)&FLOAT_0_0;
+            tgtAngles[2] = 0.0f;
             worldTargetAngles = 0;
           }
           else
           {
             tgtAngles[0] = player->client->ps.viewangles[0];
             tgtAngles[1] = player->client->ps.viewangles[1];
-            tgtAngles[2] = *(float *)&FLOAT_0_0;
+            tgtAngles[2] = 0.0f;
             worldTargetAngles = 1;
           }
         }
@@ -5265,7 +5265,7 @@ void __cdecl VEH_UpdateGunnerAim(gentity_s *ent, int gunnerIndex)
         }
         stopAngles[0] = pitch;
         stopAngles[1] = yaw;
-        stopAngles[2] = *(float *)&FLOAT_0_0;
+        stopAngles[2] = 0.0f;
         if ( gunnerIndex == info->driverControlledGunPos )
         {
           pitch = AngleNormalize180(pitch - info->gunnerRestAngles[gunnerIndex][0]);
@@ -5386,7 +5386,7 @@ void __cdecl VEH_UpdateGunnerWeapon(gentity_s *ent, int gunnerIndex, int msec)
         veh->gunnerTurrets[gunnerIndex].heatVal = veh->gunnerTurrets[gunnerIndex].heatVal
                                                 - (float)((float)((float)frametime * weapDef->cooldownRate) / 1000.0);
         if ( veh->gunnerTurrets[gunnerIndex].heatVal < 0.0 )
-          veh->gunnerTurrets[gunnerIndex].heatVal = *(float *)&FLOAT_0_0;
+          veh->gunnerTurrets[gunnerIndex].heatVal = 0.0f;
         if ( weapDef->overheatEndVal >= veh->gunnerTurrets[gunnerIndex].heatVal )
           veh->gunnerTurrets[gunnerIndex].overheating = 0;
       }
@@ -5401,7 +5401,7 @@ void __cdecl VEH_UpdateGunnerWeapon(gentity_s *ent, int gunnerIndex, int msec)
             if ( veh->gunnerTurrets[gunnerIndex].heatVal >= 100.0 )
             {
               veh->gunnerTurrets[gunnerIndex].overheating = 1;
-              veh->gunnerTurrets[gunnerIndex].heatVal = FLOAT_100_0;
+              veh->gunnerTurrets[gunnerIndex].heatVal = 100.0f;
             }
           }
         }
@@ -5701,14 +5701,14 @@ void __cdecl VEH_UpdateSteering(gentity_s *ent)
     }
     deltaYaw = AngleNormalize180(veh->phys.angles[1] - veh->phys.prevAngles[1]);
     if ( isReverse )
-      v2 = FLOAT_N10_0;
+      v2 = -10.0f;
     else
-      v2 = FLOAT_10_0;
+      v2 = 10.0f;
     deltaYaw = deltaYaw * v2;
     if ( (float)(deltaYaw - 45.0) < 0.0 )
       v3 = deltaYaw;
     else
-      v3 = FLOAT_45_0;
+      v3 = 45.0f;
     if ( (float)(-45.0 - deltaYaw) < 0.0 )
       v1.actorNum = (int)LODWORD(v3);
     else
@@ -5717,7 +5717,7 @@ void __cdecl VEH_UpdateSteering(gentity_s *ent)
   }
   else
   {
-    ent->s.lerp.u.actor.index.actorNum = *(unsigned int *)&FLOAT_0_0;
+    ent->s.lerp.u.actor.index.actorNum = 0;
   }
 }
 
@@ -5858,9 +5858,9 @@ void __cdecl VEH_UpdateDriverWeapons(gentity_s *ent)
             v4[2] = v5[2];
           }
           targetOffset = veh->gunnerTargets[driverControlledGunPos].targetOffset;
-          *targetOffset = *(float *)&FLOAT_0_0;
-          targetOffset[1] = *(float *)&FLOAT_0_0;
-          targetOffset[2] = *(float *)&FLOAT_0_0;
+          *targetOffset = 0.0f;
+          targetOffset[1] = 0.0f;
+          targetOffset[2] = 0.0f;
           veh->gunnerTargets[driverControlledGunPos].valid = 1;
         }
       }
@@ -6027,8 +6027,8 @@ void __cdecl VEH_UpdateClient(gentity_s *ent)
     veh->phys.rotVel[1] = (float)(0.050000001 * rotAccel[1]) + veh->phys.rotVel[1];
     veh->phys.rotVel[2] = (float)(0.050000001 * rotAccel[2]) + veh->phys.rotVel[2];
     veh->phys.angles[1] = AngleNormalize180((float)(veh->phys.rotVel[1] * 0.050000001) + veh->phys.prevAngles[1]);
-    veh->phys.angles[0] = *(float *)&FLOAT_0_0;
-    veh->phys.angles[2] = *(float *)&FLOAT_0_0;
+    veh->phys.angles[0] = 0.0f;
+    veh->phys.angles[2] = 0.0f;
     AnglesToAxis(veh->phys.angles, axis);
     memset(axis[3], 0, sizeof(float[3]));
     MatrixTransformVector(bodyAccel, axis, worldAccel);
@@ -6368,7 +6368,7 @@ void  VEH_UpdatePath(const vehicle_info_t *a1@<ebp>, gentity_s *ent)
       scr_vehicle->speed = scr_vehicle->pathPos.speed;
     }
     if ( scr_vehicle->pathPos.speed <= 0.0 )
-      scr_vehicle->manualTime = *(float *)&FLOAT_0_0;
+      scr_vehicle->manualTime = 0.0f;
     else
       scr_vehicle->manualTime = (float)(scr_vehicle->speed / scr_vehicle->pathPos.speed) + scr_vehicle->manualTime;
     v30 = *(__int16 *)v36;
@@ -6404,7 +6404,7 @@ void  VEH_UpdatePath(const vehicle_info_t *a1@<ebp>, gentity_s *ent)
     if ( *(_BYTE *)g_vehicleDrawPath->current.integer && *(_BYTE *)g_vehicleDrawPath->current.integer == 49 )
       VP_DrawPath((const vehicle_pathpos_t *)v36);
     if ( scr_vehicle->pathPos.endOfPath && (scr_vehicle->flags & 0x100) == 0 )
-      scr_vehicle->speed = *(float *)&FLOAT_0_0;
+      scr_vehicle->speed = 0.0f;
     p_phys->origin[0] = (float)((float)(*(float *)&v36[24] - scr_vehicle->pathPos.origin[0]) * scr_vehicle->manualTime)
                       + scr_vehicle->pathPos.origin[0];
     p_phys->origin[1] = (float)((float)(*(float *)&v36[28] - scr_vehicle->pathPos.origin[1]) * scr_vehicle->manualTime)
@@ -6464,9 +6464,9 @@ void  VEH_UpdatePath(const vehicle_info_t *a1@<ebp>, gentity_s *ent)
       v17[1] = 20.0 * v16[1];
       v17[2] = 20.0 * v16[2];
       bodyVel = p_phys->bodyVel;
-      p_phys->bodyVel[0] = *(float *)&FLOAT_0_0;
-      bodyVel[1] = *(float *)&FLOAT_0_0;
-      bodyVel[2] = *(float *)&FLOAT_0_0;
+      p_phys->bodyVel[0] = 0.0f;
+      bodyVel[1] = 0.0f;
+      bodyVel[2] = 0.0f;
       p_phys->bodyVel[0] = scr_vehicle->speed;
       AnglesSubtract(p_phys->angles, p_phys->prevAngles, p_phys->rotVel);
       goalSpeed = p_phys->rotVel;
@@ -6625,7 +6625,7 @@ void __cdecl VEH_UpdateMoveToGoal(gentity_s *ent, const float *goalPos)
   realGoalPos[2] = goalPos[2];
   if ( (veh->flags & 0x200) != 0 )
   {
-    lookAheadTime = FLOAT_1_0;
+    lookAheadTime = 1.0f;
     testPoint[0] = (float)(1.0 * veh->phys.vel[0]) + veh->phys.origin[0];
     testPoint[1] = (float)(1.0 * veh->phys.vel[1]) + veh->phys.origin[1];
     testPoint[2] = (float)(1.0 * veh->phys.vel[2]) + veh->phys.origin[2];
@@ -6640,7 +6640,7 @@ void __cdecl VEH_UpdateMoveToGoal(gentity_s *ent, const float *goalPos)
   if ( g_vehicleDebug->current.enabled )
     VEH_DebugLine(phys->origin, realGoalPos, 0.5, 1.0, 0.5);
   if ( info->type != 6 )
-    vecToGoal[2] = *(float *)&FLOAT_0_0;
+    vecToGoal[2] = 0.0f;
   distToGoal = Abs(vecToGoal);
   desiredDir[0] = (float)(1.0 / distToGoal) * vecToGoal[0];
   desiredDir[1] = (float)(1.0 / distToGoal) * vecToGoal[1];
@@ -6650,16 +6650,16 @@ void __cdecl VEH_UpdateMoveToGoal(gentity_s *ent, const float *goalPos)
   if ( distToGoal <= 0.0 )
   {
     vel = phys->vel;
-    phys->vel[0] = *(float *)&FLOAT_0_0;
-    vel[1] = *(float *)&FLOAT_0_0;
-    vel[2] = *(float *)&FLOAT_0_0;
+    phys->vel[0] = 0.0f;
+    vel[1] = 0.0f;
+    vel[2] = 0.0f;
     if ( info->type == 2 )
       VEH_GroundPlant(ent, phys, 1);
   }
   else
   {
-    dt = FLOAT_0_050000001;
-    startMoveAngle = FLOAT_30_0;
+    dt = 0.05f;
+    startMoveAngle = 30.0f;
     if ( info->type == 2 )
       VEH_UpdateYawAngularVel(ent, desiredYaw);
     prevVel[0] = phys->vel[0];
@@ -6668,10 +6668,10 @@ void __cdecl VEH_UpdateMoveToGoal(gentity_s *ent, const float *goalPos)
     if ( veh->stopAtGoal )
       dt = VEH_UpdateMove_CheckStop(veh, distToGoal);
     if ( (veh->flags & 0x100) != 0 || info->type != 2 )
-      startMoveAngle = FLOAT_90_0;
+      startMoveAngle = 90.0f;
     angleDiff = AngleNormalize180(desiredYaw - phys->angles[1]);
     if ( startMoveAngle <= COERCE_FLOAT(LODWORD(angleDiff) & _mask__AbsFloat_) )
-      speedScale = *(float *)&FLOAT_0_0;
+      speedScale = 0.0f;
     else
       speedScale = 1.0 - (float)(angleDiff / startMoveAngle);
     VEH_GetNewSpeedAndAccel(veh, dt, hovering, speedScale, &newSpeed, &accelMax);
@@ -6911,7 +6911,7 @@ void __cdecl VEH_UpdateMoveOrientation(gentity_s *ent, float *desiredDir)
   bodyDir = cos(angle);
   bodyDir_4 = sin(angle);
   accelFraction = VEH_CalcAccelFraction(horizontalAccel, veh->infoIdx);
-  stoppingFactor = FLOAT_1_0;
+  stoppingFactor = 1.0f;
   if ( veh->stopping && horizontalAccel > 0.0 )
   {
     if ( horizontalAccel == 0.0
@@ -7006,7 +7006,7 @@ void __cdecl VEH_UpdateAngleAndAngularVel(
       }
       else
       {
-        targetAngleVel = *(float *)&FLOAT_0_0;
+        targetAngleVel = 0.0f;
         effectiveAccel = decel;
       }
     }
@@ -7022,12 +7022,12 @@ void __cdecl VEH_UpdateAngleAndAngularVel(
     else
     {
       phys->angles[index] = desiredAngle;
-      phys->rotVel[index] = *(float *)&FLOAT_0_0;
+      phys->rotVel[index] = 0.0f;
     }
   }
   else
   {
-    phys->rotVel[index] = *(float *)&FLOAT_0_0;
+    phys->rotVel[index] = 0.0f;
     phys->angles[index] = desiredAngle;
   }
 }
@@ -7083,7 +7083,7 @@ void __cdecl VEH_UpdateYawAndNotify(gentity_s *ent, float desiredYaw)
   float yawAccel; // [esp+34h] [ebp-10h]
   float initalVel; // [esp+38h] [ebp-Ch]
 
-  initialYawDiff = *(float *)&FLOAT_0_0;
+  initialYawDiff = 0.0f;
   veh = ent->scr_vehicle;
   if ( veh->hasGoalYaw )
   {
@@ -7110,7 +7110,7 @@ void __cdecl VEH_UpdateYawAndNotify(gentity_s *ent, float desiredYaw)
   if ( veh->hasGoalYaw || veh->hasTargetYaw )
     overshoot = veh->yawOverShoot;
   else
-    overshoot = *(float *)&FLOAT_0_0;
+    overshoot = 0.0f;
   VEH_UpdateAngleAndAngularVel(1, desiredYaw, yawAccel, yawDecel, overshoot, &veh->phys);
   if ( veh->hasGoalYaw && (float)(veh->phys.rotVel[1] * initalVel) < 0.0 )
     veh->yawSlowDown = 1;
@@ -7257,7 +7257,7 @@ void __cdecl VEH_CheckHorizontalVelocityToGoal(
           if ( breakingAccel > horizontalSpeed )
             breakingAccel = horizontalSpeed;
           if ( veh->stopAtGoal )
-            turningAbility = FLOAT_1_0;
+            turningAbility = 1.0f;
           else
             turningAbility = veh->turningAbility;
           breakVec = (float)((float)((float)(COERCE_FLOAT(LODWORD(turningAbility) ^ _mask__NegFloat_) * breakingAccel)
@@ -7358,12 +7358,12 @@ int __cdecl VEH_UpdateMove_CheckGoalReached(gentity_s *ent, float distToGoal)
         veh->moveState = VEH_MOVESTATE_STOP;
       if ( veh->hover.hoverRadius == 0.0 )
       {
-        veh->phys.accel[0] = *(float *)&FLOAT_0_0;
-        veh->phys.accel[1] = *(float *)&FLOAT_0_0;
-        veh->phys.accel[2] = *(float *)&FLOAT_0_0;
-        veh->phys.vel[0] = *(float *)&FLOAT_0_0;
-        veh->phys.vel[1] = *(float *)&FLOAT_0_0;
-        veh->phys.vel[2] = *(float *)&FLOAT_0_0;
+        veh->phys.accel[0] = 0.0f;
+        veh->phys.accel[1] = 0.0f;
+        veh->phys.accel[2] = 0.0f;
+        veh->phys.vel[0] = 0.0f;
+        veh->phys.vel[1] = 0.0f;
+        veh->phys.vel[2] = 0.0f;
       }
 LABEL_20:
       Scr_Notify(ent, scr_const.goal, 0);
@@ -7388,7 +7388,7 @@ double __cdecl VEH_UpdateMove_CheckStop(scr_vehicle_s *veh, float distToGoal)
   float newSpeed; // [esp+20h] [ebp-Ch]
   float stopDist; // [esp+28h] [ebp-4h]
 
-  dt = FLOAT_0_050000001;
+  dt = 0.05f;
   newSpeed = VEH_AccelerateSpeed(veh->speed, veh->manualSpeed, veh->manualAccel, 0.050000001);
   if ( veh->manualDecel == 0.0
     && !Assert_MyHandler(
@@ -7418,11 +7418,11 @@ double __cdecl VEH_UpdateMove_CheckStop(scr_vehicle_s *veh, float distToGoal)
       if ( (float)(dta - 0.050000001) < 0.0 )
         v4 = 0.050000001 - (float)((float)(distToGoal - stopDist) / veh->speed);
       else
-        v4 = FLOAT_0_050000001;
+        v4 = 0.05f;
       if ( (float)(0.0 - dta) < 0.0 )
         v3 = v4;
       else
-        v3 = *(float *)&FLOAT_0_0;
+        v3 = 0.0f;
       dt = v3;
     }
     veh->stopping = 1;
@@ -7465,9 +7465,9 @@ void __cdecl VEH_UpdateYawAngularVel(gentity_s *ent, float desiredYaw)
   if ( veh->hasGoalYaw || veh->hasTargetYaw )
     overshoot = veh->yawOverShoot;
   else
-    overshoot = *(float *)&FLOAT_0_0;
+    overshoot = 0.0f;
   if ( BG_GetVehicleInfo(veh->infoIdx)->type == 2 )
-    overshoot = *(float *)&FLOAT_0_0;
+    overshoot = 0.0f;
   VEH_UpdateAngleAndAngularVel(1, desiredYaw, yawAccel, yawDecel, overshoot, &veh->phys);
 }
 
@@ -7519,9 +7519,9 @@ void __cdecl VEH_SetHoverGoal(gentity_s *ent)
   veh = ent->scr_vehicle;
   if ( veh->hover.hoverRadius == 0.0 )
   {
-    veh->hover.hoverGoalPos[0] = *(float *)&FLOAT_0_0;
-    veh->hover.hoverGoalPos[1] = *(float *)&FLOAT_0_0;
-    veh->hover.hoverGoalPos[2] = *(float *)&FLOAT_0_0;
+    veh->hover.hoverGoalPos[0] = 0.0f;
+    veh->hover.hoverGoalPos[1] = 0.0f;
+    veh->hover.hoverGoalPos[2] = 0.0f;
   }
   else
   {
@@ -7570,7 +7570,7 @@ void __cdecl VEH_UpdatePlaneOnCurve(gentity_s *ent)
   {
     __debugbreak();
   }
-  length = *(float *)&FLOAT_0_0;
+  length = 0.0f;
   veh = ent->scr_vehicle;
   phys = &veh->phys;
   VEH_GetNewSpeedAndAccel(veh, 0.050000001, 0, 1.0, &newSpeed, &accelMax);
@@ -7586,7 +7586,7 @@ void __cdecl VEH_UpdatePlaneOnCurve(gentity_s *ent)
     if ( curveTime > 1.0 )
     {
       curveDone = 1;
-      curveTime = FLOAT_1_0;
+      curveTime = 1.0f;
     }
     cCurveManager::GetPos(phys->curveID, curveTime, pos);
     diff[0] = pos[0] - prevPos[0];
@@ -7675,7 +7675,7 @@ void __cdecl VEH_UpdatePlaneOnCurve(gentity_s *ent)
     }
     veh->moveState = VEH_MOVESTATE_PLANE_FREE;
     cCurveManager::FreeCurve(phys->curveID);
-    phys->curveTime = *(float *)&FLOAT_0_0;
+    phys->curveTime = 0.0f;
     phys->curveID = -1;
     Scr_Notify(ent, scr_const.curve_end, 0);
   }
@@ -7692,10 +7692,10 @@ void __cdecl VEH_DebugPlaneOnCurve(gentity_s *ent)
   float y; // [esp+40h] [ebp-10h]
   float right1[3]; // [esp+44h] [ebp-Ch] BYREF
 
-  color[0] = FLOAT_1_0;
-  color[1] = *(float *)&FLOAT_0_0;
-  color[2] = *(float *)&FLOAT_0_0;
-  color[3] = FLOAT_1_0;
+  color[0] = 1.0f;
+  color[1] = 0.0f;
+  color[2] = 0.0f;
+  color[3] = 1.0f;
   if ( !ent && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\g_scr_vehicle.cpp", 5550, 0, "%s", "ent") )
     __debugbreak();
   if ( !ent->scr_vehicle
@@ -7713,16 +7713,16 @@ void __cdecl VEH_DebugPlaneOnCurve(gentity_s *ent)
   y = veh->phys.origin[1];
   left1[0] = x + 1000.0;
   left1[1] = y + 1000.0;
-  left1[2] = *(float *)&FLOAT_0_0;
+  left1[2] = 0.0f;
   right1[0] = x - 1000.0;
   right1[1] = y - 1000.0;
-  right1[2] = *(float *)&FLOAT_0_0;
+  right1[2] = 0.0f;
   left2[0] = x + 1000.0;
   left2[1] = y - 1000.0;
-  left2[2] = *(float *)&FLOAT_0_0;
+  left2[2] = 0.0f;
   right2[0] = x - 1000.0;
   right2[1] = y + 1000.0;
-  right2[2] = *(float *)&FLOAT_0_0;
+  right2[2] = 0.0f;
   CG_DebugLine(left1, left2, color, 0, 5);
   CG_DebugLine(right1, right2, color, 0, 5);
   CG_DebugLine(left1, right2, color, 0, 5);
@@ -7764,7 +7764,7 @@ void __cdecl VEH_UpdatePlaneRoll(gentity_s *ent)
   phys->angles[2] = veh->goalRoll * *(float *)&v1;
   phys->angles[2] = AngleNormalize360(phys->angles[2]);
   if ( veh->currentRollTime >= veh->goalRollTime )
-    veh->hasGoalRoll = *(float *)&FLOAT_0_0;
+    veh->hasGoalRoll = 0.0f;
 }
 
 void __cdecl VEH_UpdatePlaneFree(gentity_s *ent)
@@ -8014,7 +8014,7 @@ LABEL_28:
               {
                 damageScale = (float)(speed - minDamageIPS) / info->collisionSpeed;
                 if ( damageScale > 1.0 )
-                  damageScale = FLOAT_1_0;
+                  damageScale = 1.0f;
                 damageScale = (float)((float)(dot - 0.80000001) / 0.19999999) * damageScale;
                 damage = (int)(float)(damageScale * info->collisionDamage);
                 if ( damage > 0 )
@@ -8372,7 +8372,7 @@ void __cdecl CMD_VEH_SetDrivePathPhysicsScale(scr_entref_t entref)
 
   veh = GScr_GetVehicle(entref)->scr_vehicle;
   info = BG_GetVehicleInfo(veh->infoIdx);
-  scale = FLOAT_3_0;
+  scale = 3.0f;
   if ( Scr_GetNumParam(SCRIPTINSTANCE_SERVER) == 1 )
     scale = Scr_GetFloat(0, SCRIPTINSTANCE_SERVER);
   if ( info->isNitrous && !veh->nitrousVehicle )
@@ -8441,7 +8441,7 @@ void __cdecl CMD_VEH_Script_SetSpeed(gentity_s *ent)
   if ( veh->manualSpeed < 0.0 )
   {
     Scr_ParamError(0, "Cannot set negative speed on vehicle", SCRIPTINSTANCE_SERVER);
-    veh->manualSpeed = *(float *)&FLOAT_0_0;
+    veh->manualSpeed = 0.0f;
   }
   if ( (unsigned int)Scr_GetNumParam(SCRIPTINSTANCE_SERVER) > 1 )
     veh->manualAccel = Scr_GetFloat(1u, SCRIPTINSTANCE_SERVER) * 17.6;
@@ -8570,7 +8570,7 @@ void __cdecl CMD_VEH_ResumeSpeed(scr_entref_t entref)
   {
     goalSpeed = NitrousVehicle::get_max_speed(veh->nitrousVehicle, 1);
     veh->nitrousVehicle->mVehicleController.m_script_goal_speed = goalSpeed;
-    veh->nitrousVehicle->m_speed_scale = FLOAT_1_0;
+    veh->nitrousVehicle->m_speed_scale = 1.0f;
   }
   if ( veh->manualAccel < 0.0 )
     Scr_ParamError(0, "Cannot set negative acceleration on vehicle", SCRIPTINSTANCE_SERVER);
@@ -8657,12 +8657,12 @@ void __cdecl CMD_VEH_SetJitterParams(scr_entref_t entref)
   veh = GScr_GetVehicle(entref)->scr_vehicle;
   Scr_GetVector(0, veh->jitter.jitterOffsetRange, SCRIPTINSTANCE_SERVER);
   if ( (unsigned int)Scr_GetNumParam(SCRIPTINSTANCE_SERVER) <= 1 )
-    Float = FLOAT_0_5;
+    Float = 0.5f;
   else
     Float = Scr_GetFloat(1u, SCRIPTINSTANCE_SERVER);
   veh->jitter.jitterPeriodMin = (int)(float)(Float * 1000.0);
   if ( (unsigned int)Scr_GetNumParam(SCRIPTINSTANCE_SERVER) <= 2 )
-    v1 = FLOAT_1_0;
+    v1 = 1.0f;
   else
     v1 = Scr_GetFloat(2u, SCRIPTINSTANCE_SERVER);
   veh->jitter.jitterPeriodMax = (int)(float)(v1 * 1000.0);
@@ -8699,8 +8699,8 @@ void __cdecl CMD_VEH_JoltBody(scr_entref_t entref)
   intensity = Scr_GetFloat(1u, SCRIPTINSTANCE_SERVER);
   if ( numParams <= 2 )
   {
-    speedFrac = *(float *)&FLOAT_0_0;
-    decel = *(float *)&FLOAT_0_0;
+    speedFrac = 0.0f;
+    decel = 0.0f;
   }
   else
   {
@@ -8905,11 +8905,11 @@ void __cdecl CMD_VEH_SetViewClamp()
     if ( (float)(Float - 180.0) < 0.0 )
       v12 = Float;
     else
-      v12 = FLOAT_180_0;
+      v12 = 180.0f;
     if ( (float)(0.0 - Float) < 0.0 )
       v4 = v12;
     else
-      v4 = *(float *)&FLOAT_0_0;
+      v4 = 0.0f;
     LODWORD(user->client->linkAnglesMinClamp[1]) = LODWORD(v4) ^ _mask__NegFloat_;
     if ( numParam <= 2 )
       v9 = user->client->linkAnglesMaxClamp[1];
@@ -8918,11 +8918,11 @@ void __cdecl CMD_VEH_SetViewClamp()
     if ( (float)(v9 - 180.0) < 0.0 )
       v10 = v9;
     else
-      v10 = FLOAT_180_0;
+      v10 = 180.0f;
     if ( (float)(0.0 - v9) < 0.0 )
       v3 = v10;
     else
-      v3 = *(float *)&FLOAT_0_0;
+      v3 = 0.0f;
     user->client->linkAnglesMaxClamp[1] = v3;
     if ( numParam <= 3 )
       v7 = user->client->linkAnglesMinClamp[0];
@@ -8931,11 +8931,11 @@ void __cdecl CMD_VEH_SetViewClamp()
     if ( (float)(v7 - 180.0) < 0.0 )
       v8 = v7;
     else
-      v8 = FLOAT_180_0;
+      v8 = 180.0f;
     if ( (float)(0.0 - v7) < 0.0 )
       v2 = v8;
     else
-      v2 = *(float *)&FLOAT_0_0;
+      v2 = 0.0f;
     LODWORD(user->client->linkAnglesMinClamp[0]) = LODWORD(v2) ^ _mask__NegFloat_;
     if ( numParam <= 4 )
       v5 = user->client->linkAnglesMaxClamp[0];
@@ -8944,11 +8944,11 @@ void __cdecl CMD_VEH_SetViewClamp()
     if ( (float)(v5 - 180.0) < 0.0 )
       v6 = v5;
     else
-      v6 = FLOAT_180_0;
+      v6 = 180.0f;
     if ( (float)(0.0 - v5) < 0.0 )
       v1 = v6;
     else
-      v1 = *(float *)&FLOAT_0_0;
+      v1 = 0.0f;
     user->client->linkAnglesMaxClamp[0] = v1;
   }
 }
@@ -9162,8 +9162,8 @@ void __cdecl CMD_VEH_SetPlaneGoalPos(scr_entref_t entref)
   {
     cCurveManager::FreeCurve(veh->phys.curveID);
     veh->phys.curveID = -1;
-    veh->phys.curveLength = *(float *)&FLOAT_0_0;
-    veh->phys.curveTime = *(float *)&FLOAT_0_0;
+    veh->phys.curveLength = 0.0f;
+    veh->phys.curveTime = 0.0f;
   }
   VEH_GenerateCurveForPlane(ent, goals, numGoals, goalAngles);
   veh->manualMode = 1;
@@ -9292,12 +9292,12 @@ void __cdecl CMD_VEH_SetPlaneBarrelRoll(scr_entref_t entref)
   veh = (VariableUnion *)GScr_GetVehicle(entref)->scr_vehicle;
   Scr_GetNumParam(SCRIPTINSTANCE_SERVER);
   veh[297].intValue = Scr_GetInt(0, SCRIPTINSTANCE_SERVER).intValue;
-  veh[293].floatValue = FLOAT_1_0;
+  veh[293].floatValue = 1.0f;
   if ( (unsigned int)Scr_GetNumParam(SCRIPTINSTANCE_SERVER) <= 1 )
-    veh[295].floatValue = FLOAT_2_0;
+    veh[295].floatValue = 2.0f;
   else
     veh[295].floatValue = Scr_GetFloat(1u, SCRIPTINSTANCE_SERVER);
-  veh[296].intValue = *(int *)&FLOAT_0_0;
+  veh[296].intValue = 0;
   yawDiff = veh[65].floatValue - veh[62].floatValue;
   if ( yawDiff >= 0.0 )
   {
@@ -9334,7 +9334,7 @@ void __cdecl CMD_VEH_ClearGoalYaw(scr_entref_t entref)
   scr_vehicle_s *scr_vehicle; // edx
 
   scr_vehicle = GScr_GetVehicle(entref)->scr_vehicle;
-  scr_vehicle->goalYaw = *(float *)&FLOAT_0_0;
+  scr_vehicle->goalYaw = 0.0f;
   scr_vehicle->hasGoalYaw = 0;
 }
 
@@ -9352,7 +9352,7 @@ void __cdecl CMD_VEH_ClearTargetYaw(scr_entref_t entref)
   scr_vehicle_s *scr_vehicle; // edx
 
   scr_vehicle = GScr_GetVehicle(entref)->scr_vehicle;
-  scr_vehicle->targetYaw = *(float *)&FLOAT_0_0;
+  scr_vehicle->targetYaw = 0.0f;
   scr_vehicle->hasTargetYaw = 0;
 }
 
@@ -9370,7 +9370,7 @@ void __cdecl CMD_VEH_ClearDefaultPitch(scr_entref_t entref)
   scr_vehicle_s *scr_vehicle; // edx
 
   scr_vehicle = GScr_GetVehicle(entref)->scr_vehicle;
-  scr_vehicle->defaultPitch = *(float *)&FLOAT_0_0;
+  scr_vehicle->defaultPitch = 0.0f;
   scr_vehicle->hasDefaultPitch = 0;
 }
 
@@ -9432,9 +9432,9 @@ void __cdecl CMD_VEH_SetTurretTargetVec(scr_entref_t entref)
     veh->targetOrigin[0] = tgtPos[0];
     veh->targetOrigin[1] = tgtPos[1];
     veh->targetOrigin[2] = tgtPos[2];
-    veh->targetOffset[0] = *(float *)&FLOAT_0_0;
-    veh->targetOffset[1] = *(float *)&FLOAT_0_0;
-    veh->targetOffset[2] = *(float *)&FLOAT_0_0;
+    veh->targetOffset[0] = 0.0f;
+    veh->targetOffset[1] = 0.0f;
+    veh->targetOffset[2] = 0.0f;
   }
 }
 
@@ -9466,17 +9466,17 @@ void __cdecl CMD_VEH_SetTurretTargetEnt(scr_entref_t entref)
       tgtEnt->flags |= 0x80000u;
     if ( (unsigned int)Scr_GetNumParam(SCRIPTINSTANCE_SERVER) <= 1 )
     {
-      veh->targetOffset[0] = *(float *)&FLOAT_0_0;
-      veh->targetOffset[1] = *(float *)&FLOAT_0_0;
-      veh->targetOffset[2] = *(float *)&FLOAT_0_0;
+      veh->targetOffset[0] = 0.0f;
+      veh->targetOffset[1] = 0.0f;
+      veh->targetOffset[2] = 0.0f;
     }
     else
     {
       Scr_GetVector(1u, veh->targetOffset, SCRIPTINSTANCE_SERVER);
     }
-    veh->targetOrigin[0] = *(float *)&FLOAT_0_0;
-    veh->targetOrigin[1] = *(float *)&FLOAT_0_0;
-    veh->targetOrigin[2] = *(float *)&FLOAT_0_0;
+    veh->targetOrigin[0] = 0.0f;
+    veh->targetOrigin[1] = 0.0f;
+    veh->targetOrigin[2] = 0.0f;
   }
 }
 
@@ -9490,12 +9490,12 @@ void __cdecl CMD_VEH_ClearTurretTarget(scr_entref_t entref)
     if ( (veh->flags & 1) == 0 )
       veh->hasTarget = 0;
     veh->targetEnt = 1023;
-    veh->targetOrigin[0] = *(float *)&FLOAT_0_0;
-    veh->targetOrigin[1] = *(float *)&FLOAT_0_0;
-    veh->targetOrigin[2] = *(float *)&FLOAT_0_0;
-    veh->targetOffset[0] = *(float *)&FLOAT_0_0;
-    veh->targetOffset[1] = *(float *)&FLOAT_0_0;
-    veh->targetOffset[2] = *(float *)&FLOAT_0_0;
+    veh->targetOrigin[0] = 0.0f;
+    veh->targetOrigin[1] = 0.0f;
+    veh->targetOrigin[2] = 0.0f;
+    veh->targetOffset[0] = 0.0f;
+    veh->targetOffset[1] = 0.0f;
+    veh->targetOffset[2] = 0.0f;
   }
 }
 
@@ -9519,9 +9519,9 @@ void __cdecl CMD_VEH_SetGunnerTargetVec(scr_entref_t entref)
   targetOrigin[1] = tgtPos[1];
   targetOrigin[2] = tgtPos[2];
   targetOffset = (unsigned int *)veh->gunnerTargets[gunnerIndex].targetOffset;
-  *targetOffset = *(unsigned int *)&FLOAT_0_0;
-  targetOffset[1] = *(unsigned int *)&FLOAT_0_0;
-  targetOffset[2] = *(unsigned int *)&FLOAT_0_0;
+  *targetOffset = 0;
+  targetOffset[1] = 0;
+  targetOffset[2] = 0;
   veh->gunnerTargets[gunnerIndex].valid = 1;
   veh->gunnerTargets[gunnerIndex].targetEnt = 1023;
 }
@@ -9571,10 +9571,10 @@ void __cdecl CMD_VEH_SetGunnerTargetEnt(scr_entref_t entref)
   *v3 = targetOffset[0];
   v3[1] = targetOffset[1];
   v3[2] = targetOffset[2];
-  veh->gunnerTargets[gunnerIndex].targetOrigin[0] = *(float *)&FLOAT_0_0;
+  veh->gunnerTargets[gunnerIndex].targetOrigin[0] = 0.0f;
   targetOrigin = (int)veh->gunnerTargets[gunnerIndex].targetOrigin;
-  *(unsigned int *)(targetOrigin + 4) = *(unsigned int *)&FLOAT_0_0;
-  *(unsigned int *)(targetOrigin + 8) = *(unsigned int *)&FLOAT_0_0;
+  *(unsigned int *)(targetOrigin + 4) = 0;
+  *(unsigned int *)(targetOrigin + 8) = 0;
 }
 
 void __cdecl CMD_VEH_ClearGunnerTarget(scr_entref_t entref)
@@ -9593,13 +9593,13 @@ void __cdecl CMD_VEH_ClearGunnerTarget(scr_entref_t entref)
   veh->gunnerTargets[gunnerIndex].valid = 0;
   veh->gunnerTargets[gunnerIndex].targetEnt = 1023;
   targetOffset = (unsigned int *)veh->gunnerTargets[gunnerIndex].targetOffset;
-  *targetOffset = *(unsigned int *)&FLOAT_0_0;
-  targetOffset[1] = *(unsigned int *)&FLOAT_0_0;
-  targetOffset[2] = *(unsigned int *)&FLOAT_0_0;
+  *targetOffset = 0;
+  targetOffset[1] = 0;
+  targetOffset[2] = 0;
   targetOrigin = (unsigned int *)veh->gunnerTargets[gunnerIndex].targetOrigin;
-  *targetOrigin = *(unsigned int *)&FLOAT_0_0;
-  targetOrigin[1] = *(unsigned int *)&FLOAT_0_0;
-  targetOrigin[2] = *(unsigned int *)&FLOAT_0_0;
+  *targetOrigin = 0;
+  targetOrigin[1] = 0;
+  targetOrigin[2] = 0;
 }
 
 void __cdecl CMD_VEH_SetGunnerTurretOnTargetRange(scr_entref_t entref)
@@ -9609,7 +9609,7 @@ void __cdecl CMD_VEH_SetGunnerTurretOnTargetRange(scr_entref_t entref)
   int gunnerIndex; // [esp+8h] [ebp-8h]
 
   veh = GScr_GetVehicle(entref)->scr_vehicle;
-  range = *(float *)&FLOAT_0_0;
+  range = 0.0f;
   gunnerIndex = Scr_GetInt(0, SCRIPTINSTANCE_SERVER).intValue;
   if ( (unsigned int)Scr_GetNumParam(SCRIPTINSTANCE_SERVER) > 1 )
     range = Scr_GetFloat(1u, SCRIPTINSTANCE_SERVER);
@@ -9918,7 +9918,7 @@ void __cdecl CMD_VEH_FireWeapon(scr_entref_t entref)
       else
         LODWORD(v11) = LODWORD(wp.weapDef->aimPadding) ^ _mask__NegFloat_;
       diffAngles[1] = v11;
-      diffAngles[2] = *(float *)&FLOAT_0_0;
+      diffAngles[2] = 0.0f;
       AnglesSubtract(gunAngles, diffAngles, gunAngles);
       AngleVectors(gunAngles, wp.gunForward, 0, 0);
     }
@@ -10167,7 +10167,7 @@ void __cdecl CMD_VEH_SetMaxSpeed(scr_entref_t entref)
       Scr_Error("Can not use SetVehMaxSpeed in online games for physics vehicles.", 0);
     if ( speed <= 0.0 )
     {
-      veh->nitrousVehicle->m_speed_scale = FLOAT_1_0;
+      veh->nitrousVehicle->m_speed_scale = 1.0f;
     }
     else
     {
@@ -10632,7 +10632,7 @@ void __cdecl CMD_VEH_GetBoost(scr_entref_t entref)
   float boost; // [esp+10h] [ebp-8h]
   gentity_s *self; // [esp+14h] [ebp-4h]
 
-  boost = *(float *)&FLOAT_0_0;
+  boost = 0.0f;
   self = GScr_GetVehicle(entref);
   if ( self )
   {
@@ -10660,11 +10660,11 @@ void __cdecl VehSetClientSideHealth(gentity_s *const ent, float percentage, int 
   if ( (float)(percentage - 1.0) < 0.0 )
     v5 = percentage;
   else
-    v5 = FLOAT_1_0;
+    v5 = 1.0f;
   if ( (float)(0.0 - percentage) < 0.0 )
     v4 = v5;
   else
-    v4 = *(float *)&FLOAT_0_0;
+    v4 = 0.0f;
   VehSetClientSideTime2Val(ent, (int)(float)(v4 * 63.0), mask, shift);
 }
 

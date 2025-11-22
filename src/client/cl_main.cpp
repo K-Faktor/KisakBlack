@@ -225,7 +225,7 @@ void __cdecl CL_DrawSpinnerPhysical(float x, float y, float w, float h, const fl
   float fadedColor[4]; // [esp+48h] [ebp-14h] BYREF
   float maxSize; // [esp+58h] [ebp-4h]
 
-  maxSize = FLOAT_64_0;
+  maxSize = 64.0f;
   if ( color )
   {
     fadedColor[0] = *color;
@@ -299,7 +299,7 @@ void __cdecl CL_DrawSpinnerLoadbarPhysical(float x, float y, float w, float h, c
   float maxSize; // [esp+64h] [ebp-4h]
   float percentDonea; // [esp+84h] [ebp+1Ch]
 
-  maxSize = FLOAT_64_0;
+  maxSize = 64.0f;
   ms = (int)Sys_Milliseconds() % 60000;
   if ( (float)(w - 64.0) < 0.0 )
     v7 = w;
@@ -322,28 +322,28 @@ void __cdecl CL_DrawSpinnerLoadbarPhysical(float x, float y, float w, float h, c
     h = maxSize;
   }
   angle = (float)((float)ms / 857.14288) * 360.0;
-  done_angle = *(float *)&FLOAT_0_0;
+  done_angle = 0.0f;
   percentDonea = percentDone * 360.0;
   for ( wedge = 0; wedge < 8; ++wedge )
   {
     if ( (float)(0.0 - (float)((float)(percentDonea - done_angle) / 45.0)) < 0.0 )
       v9 = (float)(percentDonea - done_angle) / 45.0;
     else
-      v9 = *(float *)&FLOAT_0_0;
+      v9 = 0.0f;
     if ( (float)(v9 - 1.0) < 0.0 )
       v8 = v9;
     else
-      v8 = FLOAT_1_0;
+      v8 = 1.0f;
     memset(fadedColor, 0, 12);
     fadedColor[3] = v8;
     if ( percentDonea >= 180.0 )
       fadedColor[0] = 1.0 - (float)((float)(percentDonea - 180.0) / 180.0);
     else
-      fadedColor[0] = FLOAT_1_0;
+      fadedColor[0] = 1.0f;
     if ( percentDonea < 240.0 )
       fadedColor[1] = percentDonea / 240.0;
     else
-      fadedColor[1] = FLOAT_1_0;
+      fadedColor[1] = 1.0f;
     R_AddCmdDrawStretchPicRotateXY(x, y, w, h, 0.0, 0.0, 1.0, 1.0, angle, fadedColor, cls.spinnerMaterial);
     done_angle = done_angle + 45.0;
     angle = angle + 45.0;

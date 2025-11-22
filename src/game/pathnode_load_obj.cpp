@@ -74,11 +74,11 @@ void __cdecl G_ParsePathnodeFields(SpawnVar *spawnVar, pathnode_t *node, nodeTyp
   {
     __debugbreak();
   }
-  node->constant.fAngle = FLOAT_N1_0;
+  node->constant.fAngle = -1.0f;
   for ( i = 0; i < spawnVar->numSpawnVars; ++i )
     G_ParsePathnodeField(spawnVar->spawnVars[i][0], spawnVar->spawnVars[i][1], node);
   if ( node->constant.fAngle == -1.0 )
-    node->constant.fAngle = *(float *)&FLOAT_0_0;
+    node->constant.fAngle = 0.0f;
   else
     node->constant.spawnflags |= 0x8000u;
   YawVectors(node->constant.fAngle, forward, 0);
@@ -1205,7 +1205,7 @@ char __cdecl Path_AttemptLink1(pathnode_t *pNodeFrom, pathnode_t *pNodeTo, pathl
   pathlink_s *pLink; // [esp+4h] [ebp-8h]
   int bNegotiationLink; // [esp+8h] [ebp-4h] BYREF
 
-  fDist = *(float *)&FLOAT_0_0;
+  fDist = 0.0f;
   bNegotiationLink = 0;
   if ( !pNodeFrom
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\pathnode_load_obj.cpp", 1303, 0, "%s", "pNodeFrom") )
@@ -1284,7 +1284,7 @@ bool __cdecl Path_CanLinkNodes(pathnode_t *pNodeFrom, pathnode_t *pNodeTo, float
   if ( Path_IsNegotiationLink(pNodeFrom, pNodeTo) )
   {
     *pbNegotiationLink = 1;
-    *pfDist = FLOAT_15_0;
+    *pfDist = 15.0f;
     phys.proximity_data.__vftable = (colgeom_visitor_inlined_t<200>_vtbl *)&visitor_base_t::`vftable';
     return 1;
   }
@@ -1308,7 +1308,7 @@ bool __cdecl Path_CanLinkNodes(pathnode_t *pNodeFrom, pathnode_t *pNodeTo, float
         phys.groundEntNum = 1022;
         phys.vWishDelta[0] = 4.0 * vMoveDir[0];
         phys.vWishDelta[1] = 4.0 * vMoveDir[1];
-        phys.vWishDelta[2] = *(float *)&FLOAT_0_0;
+        phys.vWishDelta[2] = 0.0f;
         phys.bIsAlive = 1;
         phys.iEntNum = 1023;
         phys.ePhysicsType = AIPHYS_NORMAL_ABSOLUTE;
@@ -1321,7 +1321,7 @@ bool __cdecl Path_CanLinkNodes(pathnode_t *pNodeFrom, pathnode_t *pNodeTo, float
         phys.vMaxs[0] = 15.0 + 0.5;
         phys.vMaxs[1] = 15.0 + 0.5;
         phys.iTraceMask = (int)&cls.recentServers[7734].game[12];
-        fLastGroundPlaneAltitude = FLOAT_N3_4028235e38;
+        fLastGroundPlaneAltitude = -FLT_MAX;
         for ( i = 0; ; ++i )
         {
           if ( i >= 96 )

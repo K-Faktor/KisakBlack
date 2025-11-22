@@ -267,7 +267,7 @@ void __cdecl Ragdoll_ExplosionEvent(
   {
     outerRadiusSqr = outerRadius * outerRadius;
     innerRadiusSqr = innerRadius * innerRadius;
-    invRange = *(float *)&FLOAT_0_0;
+    invRange = 0.0f;
     if ( (float)(outerRadius * outerRadius) > (float)(innerRadius * innerRadius) )
       invRange = 1.0 / (float)(outerRadiusSqr - innerRadiusSqr);
     hitCount = 0;
@@ -320,7 +320,7 @@ void __cdecl Ragdoll_ExplosionEvent(
           {
             delta = *origin - torsoPos[0];
             delta_4 = origin[1] - torsoPos[1];
-            delta_8 = *(float *)&FLOAT_0_0;
+            delta_8 = 0.0f;
           }
           else
           {
@@ -373,7 +373,7 @@ void __cdecl Ragdoll_ExplosionEvent(
                     hitForce[1] = delta_4a;
                     hitForce[2] = delta_8a;
                     if ( isCylinder )
-                      hitForce[2] = *(float *)&FLOAT_0_0;
+                      hitForce[2] = 0.0f;
                     Vec3Normalize(hitForce);
                   }
                   else
@@ -641,13 +641,13 @@ void __cdecl Ragdoll_SnapshotBaseLerpBones(RagdollBody *body, BoneOrientation *s
         goalMsec = def->baseLerpBoneDefs[i].lerpTime;
         if ( goalMsec <= 0 )
         {
-          lerp = FLOAT_1_0;
+          lerp = 1.0f;
         }
         else
         {
           lerp = (float)body->stateMsec / (float)goalMsec;
-          v3 = (float)(lerp - 1.0) < 0.0 ? lerp : FLOAT_1_0;
-          v2 = (float)(0.0 - lerp) < 0.0 ? v3 : *(float *)&FLOAT_0_0;
+          v3 = (float)(lerp - 1.0) < 0.0 ? lerp : 1.0f;
+          v2 = (float)(0.0 - lerp) < 0.0 ? v3 : 0.0f;
           lerp = v2;
         }
         boneIdx = lerpBone->animBone;
@@ -767,12 +767,12 @@ void __cdecl Ragdoll_SetCurrentPoseFromSnapshot(RagdollBody *body, BoneOrientati
     ++boneDef;
     ++snapshot;
   }
-  max_error_sq = FLOAT_100_0;
+  max_error_sq = 100.0f;
   iters = 0;
   while ( max_error_sq > 0.0000099999997 && iters < 100 )
   {
     ++iters;
-    max_error_sq = *(float *)&FLOAT_0_0;
+    max_error_sq = 0.0f;
     for ( j = 0; j < body->numJoints; ++j )
     {
       id = (rigid_body_constraint_ragdoll *)body->joints[j].joint;
@@ -904,12 +904,12 @@ char __cdecl Ragdoll_CreatePhysJoint(RagdollBody *body, JointDef *jointDef, Join
   AxisTranspose(tAxis, axis);
   if ( !jointDef->numLimitAxes )
   {
-    jointDef->limitAxes[0][0] = *(float *)&FLOAT_0_0;
-    jointDef->limitAxes[0][1] = *(float *)&FLOAT_0_0;
-    jointDef->limitAxes[0][2] = FLOAT_1_0;
-    jointDef->axisFriction[0] = *(float *)&FLOAT_0_0;
+    jointDef->limitAxes[0][0] = 0.0f;
+    jointDef->limitAxes[0][1] = 0.0f;
+    jointDef->limitAxes[0][2] = 1.0f;
+    jointDef->axisFriction[0] = 0.0f;
     jointDef->minAngles[0] = FLOAT_N1_5707964;
-    jointDef->maxAngles[0] = FLOAT_1_5707964;
+    jointDef->maxAngles[0] = 1.5f707964;
     ++jointDef->numLimitAxes;
   }
   for ( i = 0; i < jointDef->numLimitAxes; ++i )
@@ -1158,9 +1158,9 @@ char __cdecl Ragdoll_CreatePhysObj(RagdollBody *body, BoneDef *boneDef, Bone *bo
     b1Origin[2] = b0Origin[2];
   }
   boneIdx = bone - body->bones;
-  preset.bounce = *(float *)&FLOAT_0_0;
-  preset.bulletForceScale = FLOAT_1_0;
-  preset.explosiveForceScale = FLOAT_1_0;
+  preset.bounce = 0.0f;
+  preset.bulletForceScale = 1.0f;
+  preset.explosiveForceScale = 1.0f;
   preset.friction = boneDef->friction;
   preset.mass = boneDef->mass;
   preset.name = "ragdoll_bone";
@@ -1169,15 +1169,15 @@ char __cdecl Ragdoll_CreatePhysObj(RagdollBody *body, BoneDef *boneDef, Bone *bo
   memset(preset.centerOfMassOffset, 0, 36);
   bone->parentBone = boneDef->parentBone;
   bone->length = Vec3Distance(b0Origin, b1Origin);
-  bone->center[0] = *(float *)&FLOAT_0_0;
-  bone->center[1] = *(float *)&FLOAT_0_0;
-  bone->center[2] = *(float *)&FLOAT_0_0;
+  bone->center[0] = 0.0f;
+  bone->center[1] = 0.0f;
+  bone->center[2] = 0.0f;
   hlength = bone->length * 0.5;
   dir = boneIdx != 0 ? 0 : 2;
   bone->center[dir] = bone->length * 0.5;
-  offset = *(float *)&FLOAT_0_0;
+  offset = 0.0f;
   if ( boneIdx == 3 )
-    offset = FLOAT_2_0;
+    offset = 2.0f;
   bone->center[dir] = bone->center[dir] + offset;
   hlength = hlength + offset;
   gjk_geom_list.m_first_geom = 0;
@@ -1440,12 +1440,12 @@ char  Ragdoll_TunnelTest@<al>(cStaticModel_s *a1@<ebp>, RagdollBody *body)
   trace.staticModel = a1;
   trace.hitPartition = retaddr;
   memset(&context.locational, 0, 12);
-  trace.normal.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
+  trace.normal.vec.u[0] = 0;
   col_context_t::col_context_t((col_context_t *)&revTrace.walkable);
   boneDef = *(BoneDef **)&FLOAT_0_0;
   bone = *(Bone **)&FLOAT_0_0;
   def = *(RagdollDef **)&FLOAT_0_0;
-  revTrace.normal.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
+  revTrace.normal.vec.u[0] = 0;
   if ( !body
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\ragdoll\\ragdoll_update.cpp", 1447, 0, "%s", "body") )
   {
@@ -1531,13 +1531,13 @@ char  Ragdoll_TunnelTest@<al>(cStaticModel_s *a1@<ebp>, RagdollBody *body)
   }
   LODWORD(sphere_center.z) = Ragdoll_BodyPose(body);
   Phys_Vec3ToNitrousVec((float *)(LODWORD(sphere_center.z) + 48), (phys_vec3 *)&v19);
-  v16 = *(unsigned int *)&FLOAT_0_0;
+  v16 = 0;
   userData = *(PhysObjUserData **)&FLOAT_0_0;
-  sphere_radius = FLOAT_15_0;
+  sphere_radius = 15.0f;
   v19 = v19 + 0.0;
   v20 = v20 + 0.0;
   v21 = v21 + 15.0;
-  v15 = FLOAT_10_0;
+  v15 = 10.0f;
   boneOrientations = (BoneOrientation *)body->bones;
   LODWORD(orientation[3]) = 1;
   while ( SLODWORD(orientation[3]) < body->numBones )
@@ -2030,11 +2030,11 @@ void __cdecl Ragdoll_UpdateFriction(RagdollBody *body)
   if ( (float)(v3 - 1.0) < 0.0 )
     v4 = (float)body->stateMsec / (float)ragdoll_jointlerp_time->current.integer;
   else
-    v4 = FLOAT_1_0;
+    v4 = 1.0f;
   if ( (float)(0.0 - v3) < 0.0 )
     v2 = v4;
   else
-    v2 = *(float *)&FLOAT_0_0;
+    v2 = 0.0f;
   lerpScale = v2 + 1.0;
   if ( (body->flags & 2) != 0 )
     lerpScale = waterFrictionScale;
@@ -2150,7 +2150,7 @@ bool __cdecl Ragdoll_CheckIdle(RagdollBody *body, int msec)
     return 0;
   if ( body->rope_id )
     return 0;
-  zvel = *(float *)&FLOAT_0_0;
+  zvel = 0.0f;
   totalBoneCount = 0;
   for ( i = 0; i < body->numBones; ++i )
   {

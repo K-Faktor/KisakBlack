@@ -10,14 +10,14 @@ void __cdecl G_ParseHitLocDmgTable()
 
   for ( i = 0; i < 19; ++i )
   {
-    g_fHitLocDamageMult[i] = FLOAT_1_0;
+    g_fHitLocDamageMult[i] = 1.0f;
     pFieldList[i].szName = g_HitLocNames[i];
     pFieldList[i].iOffset = 4 * i;
     pFieldList[i].iFieldType = 7;
     v0 = Scr_AllocString((char *)g_HitLocNames[i], 1, SCRIPTINSTANCE_SERVER);
     g_HitLocConstNames[i] = v0;
   }
-  dword_3CD1630 = *(unsigned int *)&FLOAT_0_0;
+  dword_3CD1630 = 0;
   pszBuffer = Com_LoadInfoString("info/mp_lochit_dmgtable", "hitloc damage table", "LOCDMGTABLE", loadBuffer);
   if ( !ParseConfigStringToStruct(
           (unsigned __int8 *)g_fHitLocDamageMult,
@@ -108,8 +108,8 @@ void __cdecl player_die(
   if ( (self->client->ps.pm_flags & 0x20000) != 0 )
   {
     velocity = self->client->ps.velocity;
-    *velocity = *(float *)&FLOAT_0_0;
-    velocity[1] = *(float *)&FLOAT_0_0;
+    *velocity = 0.0f;
+    velocity[1] = 0.0f;
   }
   weaponName = "none";
   weapDef = BG_GetWeaponDef(iWeapon);
@@ -236,7 +236,7 @@ void __cdecl player_die(
     self->r.contents = 0x4000000;
     if ( (self->client->ps.eFlags2 & 0x10000000) == 0 )
     {
-      self->r.currentAngles[2] = *(float *)&FLOAT_0_0;
+      self->r.currentAngles[2] = 0.0f;
       LookAtKiller(self, inflictor, attacker);
       viewangles = self->client->ps.viewangles;
       *viewangles = self->r.currentAngles[0];
@@ -248,7 +248,7 @@ void __cdecl player_die(
       if ( (self->client->ps.eFlags & 0x4000) != 0 )
         VEH_UnlinkPlayer(self, 0, "player_die");
       SV_UnlinkEntity(self);
-      self->r.maxs[2] = FLOAT_30_0;
+      self->r.maxs[2] = 30.0f;
       if ( self->r.maxs[2] < self->r.mins[2]
         && !Assert_MyHandler(
               "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_combat_mp.cpp",
@@ -879,14 +879,14 @@ double __cdecl CanDamage(
   hitnum = -1;
   if ( targ->client )
   {
-    halfWidth = FLOAT_15_0;
+    halfWidth = 15.0f;
     G_GetPlayerBodyViewOrigin(&targ->client->ps, eyeOrigin);
 
     halfHeight = (float)(eyeOrigin[2] - targ->r.currentOrigin[2]) * 0.5;
 
     forward[0] = *centerPos - targ->r.currentOrigin[0];
     forward[1] = centerPos[1] - targ->r.currentOrigin[1];
-    forward[2] = *(float *)&FLOAT_0_0;
+    forward[2] = 0.0f;
 
     Vec3Normalize(forward);
     LODWORD(right[0]) = LODWORD(forward[1]) ^ _mask__NegFloat_;
@@ -912,16 +912,16 @@ double __cdecl CanDamage(
     dest[2][2] = (float)(15.0 * forward[2]) + dest[0][2];
     dest[2][2] = dest[2][2] - halfHeight;
 
-    dest[3][0] = (float)(COERCE_FLOAT(LODWORD(FLOAT_15_0) ^ _mask__NegFloat_)
+    dest[3][0] = (float)(COERCE_FLOAT(LODWORD(15.0f) ^ _mask__NegFloat_)
                        * COERCE_FLOAT(LODWORD(forward[1]) ^ _mask__NegFloat_))
                + dest[0][0];
-    dest[3][1] = (float)(COERCE_FLOAT(LODWORD(FLOAT_15_0) ^ _mask__NegFloat_) * forward[0]) + dest[0][1];
-    dest[3][2] = (float)(COERCE_FLOAT(LODWORD(FLOAT_15_0) ^ _mask__NegFloat_) * forward[2]) + dest[0][2];
+    dest[3][1] = (float)(COERCE_FLOAT(LODWORD(15.0f) ^ _mask__NegFloat_) * forward[0]) + dest[0][1];
+    dest[3][2] = (float)(COERCE_FLOAT(LODWORD(15.0f) ^ _mask__NegFloat_) * forward[2]) + dest[0][2];
     dest[3][2] = dest[3][2] + halfHeight;
 
     dest[4][0] = dest[3][0];
     dest[4][1] = dest[3][1];
-    dest[4][2] = (float)(COERCE_FLOAT(LODWORD(FLOAT_15_0) ^ _mask__NegFloat_) * forward[2]) + dest[0][2];
+    dest[4][2] = (float)(COERCE_FLOAT(LODWORD(15.0f) ^ _mask__NegFloat_) * forward[2]) + dest[0][2];
     dest[4][2] = dest[4][2] - halfHeight;
     if ( radius_damage_debug->current.enabled )
     {
@@ -1012,13 +1012,13 @@ double __cdecl CanDamage(
     Vec3Normalize(v0);
     if ( (float)((float)(v0[0] * v0[0]) + (float)(v0[1] * v0[1])) < 0.001 )
     {
-      v0[0] = FLOAT_1_0;
-      v0[1] = *(float *)&FLOAT_0_0;
-      v0[2] = *(float *)&FLOAT_0_0;
+      v0[0] = 1.0f;
+      v0[1] = 0.0f;
+      v0[2] = 0.0f;
     }
     LODWORD(v1[0]) = LODWORD(v0[1]) ^ _mask__NegFloat_;
     v1[1] = v0[0];
-    v1[2] = *(float *)&FLOAT_0_0;
+    v1[2] = 0.0f;
     Vec3Normalize(v1);
     Vec3Cross(v0, v1, up);
     centerToCorner[0] = absMaxs[0] - dest[0][0];
@@ -1110,7 +1110,7 @@ void __cdecl G_FlashbangBlast(float *origin, float radius_max, float radius_min,
   int entListCount; // [esp+10B4h] [ebp-4h] BYREF
 
   if ( radius_min < 1.0 )
-    radius_min = FLOAT_1_0;
+    radius_min = 1.0f;
   if ( radius_min > radius_max )
     radius_max = radius_min;
   GetEntListForRadius(origin, radius_max, radius_min, entList, &entListCount);
@@ -1178,7 +1178,7 @@ void __cdecl FlashbangBlastEnt(
           if ( radius_min < dist )
             percent_distance = 1.0 - (float)((float)(dist - radius_min) / (float)(radius_max - radius_min));
           else
-            percent_distance = FLOAT_1_0;
+            percent_distance = 1.0f;
           GetFlashbangViewDirection(ent, forward);
           toBlast[0] = *blastOrigin - playerEyes[0];
           toBlast[1] = blastOrigin[1] - playerEyes[1];
@@ -1214,7 +1214,7 @@ double __cdecl EntDistToPoint(const float *origin, gentity_s *ent)
       if ( ent->r.absmin[i] <= origin[i] )
       {
         if ( origin[i] <= ent->r.absmax[i] )
-          v[i] = *(float *)&FLOAT_0_0;
+          v[i] = 0.0f;
         else
           v[i] = origin[i] - ent->r.absmax[i];
       }
@@ -1328,7 +1328,7 @@ double __cdecl G_GetRadiusDamageDistanceSquared(const float *damageOrigin, genti
       if ( ent->r.absmin[i] <= damageOrigin[i] )
       {
         if ( damageOrigin[i] <= ent->r.absmax[i] )
-          v[i] = *(float *)&FLOAT_0_0;
+          v[i] = 0.0f;
         else
           v[i] = damageOrigin[i] - ent->r.absmax[i];
       }
@@ -1383,7 +1383,7 @@ int __cdecl G_RadiusDamage(
   if ( !attacker )
     return 0;
   if ( radius < 1.0 )
-    radius = FLOAT_1_0;
+    radius = 1.0f;
   v18 = radius * radius;
   v19 = 1.4142135 * radius;
   for ( i = 0; i < 3; ++i )

@@ -25,8 +25,8 @@ void __cdecl CG_StartShakeCamera(int localClientNum, float p, int duration, floa
     __debugbreak();
   }
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
-  buildShake.size = *(float *)&FLOAT_0_0;
-  buildShake.rumbleScale = *(float *)&FLOAT_0_0;
+  buildShake.size = 0.0f;
+  buildShake.rumbleScale = 0.0f;
   buildShake.scale = p;
   buildShake.length = (float)duration;
   buildShake.time = cgameGlob->time;
@@ -189,8 +189,8 @@ void __cdecl CG_ShakeCamera(int localClientNum)
 
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
   camShakeSet = &s_cameraShakeSet[localClientNum];
-  scale = *(float *)&FLOAT_0_0;
-  rumbleScale = *(float *)&FLOAT_0_0;
+  scale = 0.0f;
+  rumbleScale = 0.0f;
   sx = (float)cgameGlob->time / 600.0;
   for ( i = 0; i < 4; ++i )
   {
@@ -212,7 +212,7 @@ void __cdecl CG_ShakeCamera(int localClientNum)
   if ( scale > 0.0 )
   {
     if ( scale > 1.0 )
-      scale = FLOAT_1_0;
+      scale = 1.0f;
     v1 = (float)((float)(25.132742 * sx) + camShakeSet->phase);
     __libm_sse2_sin(v4);
     *(float *)&v1 = v1;

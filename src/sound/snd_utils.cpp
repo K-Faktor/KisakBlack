@@ -98,21 +98,21 @@ void __cdecl Snd_PanStereo(float angle, float boost, float *left, float *right)
   if ( (float)(v9 - 1.0) < 0.0 )
     v10 = (float)(*left * A) + boost;
   else
-    v10 = FLOAT_1_0;
+    v10 = 1.0f;
   if ( (float)(0.0 - v9) < 0.0 )
     v5 = v10;
   else
-    v5 = *(float *)&FLOAT_0_0;
+    v5 = 0.0f;
   *left = v5;
   v7 = (float)(*right * A) + boost;
   if ( (float)(v7 - 1.0) < 0.0 )
     v8 = (float)(*right * A) + boost;
   else
-    v8 = FLOAT_1_0;
+    v8 = 1.0f;
   if ( (float)(0.0 - v7) < 0.0 )
     v4 = v8;
   else
-    v4 = *(float *)&FLOAT_0_0;
+    v4 = 0.0f;
   *right = v4;
 }
 
@@ -145,7 +145,7 @@ void __cdecl Snd_Pan(unsigned int speakerCount, const float *angles, float toSou
     {
       __debugbreak();
     }
-    levels[i] = *(float *)&FLOAT_0_0;
+    levels[i] = 0.0f;
   }
   for ( j = 0; j < speakerCount; ++j )
   {
@@ -358,16 +358,16 @@ void __cdecl Snd_Pan3d(
   to[2] = position[2] - listener[2];
   d2 = (float)(to[0] * to[0]) + (float)(to[1] * to[1]);
   d = fsqrt(d2);
-  angle = *(float *)&FLOAT_0_0;
-  omni = *(float *)&FLOAT_0_0;
+  angle = 0.0f;
+  omni = 0.0f;
   for ( i = 0; i < config->angleCount; ++i )
   {
-    levels[i] = *(float *)&FLOAT_0_0;
+    levels[i] = 0.0f;
     angles[i] = config->angles[i].angle;
   }
   if ( d2 <= 0.0000152879 )
   {
-    omni = FLOAT_1_0;
+    omni = 1.0f;
   }
   else
   {
@@ -382,11 +382,11 @@ void __cdecl Snd_Pan3d(
     if ( (float)((float)(d / 10.0) - 1.0) < 0.0 )
       v21 = d / 10.0;
     else
-      v21 = FLOAT_1_0;
+      v21 = 1.0f;
     if ( (float)(0.0 - (float)(d / 10.0)) < 0.0 )
       v17 = v21;
     else
-      v17 = *(float *)&FLOAT_0_0;
+      v17 = 0.0f;
     omni = 1.0 - v17;
   }
   v20 = 1.0 / (double)config->speakerCount;
@@ -406,7 +406,7 @@ void __cdecl Snd_Pan3d(
       Snd_Pan(config->angleCount, angles, angle, levels);
     }
   }
-  totalVolume = *(float *)&FLOAT_0_0;
+  totalVolume = 0.0f;
   for ( k = 0; k < config->angleCount; ++k )
   {
     levels[k] = (float)((float)(1.0 - omni) * levels[k]) + (float)(omniBaseVolume * omni);
@@ -416,11 +416,11 @@ void __cdecl Snd_Pan3d(
   if ( (float)(v19 - 1.0) < 0.0 )
     v18 = v19;
   else
-    v18 = FLOAT_1_0;
+    v18 = 1.0f;
   if ( (float)(0.0 - v19) < 0.0 )
     v14 = v18;
   else
-    v14 = *(float *)&FLOAT_0_0;
+    v14 = 0.0f;
   totalVolume = v14;
   for ( m = 0; m < config->angleCount; ++m )
     levels[m] = (float)((float)(1.0 - aliasOmni) * levels[m]) + (float)(totalVolume * aliasOmni);
@@ -436,7 +436,7 @@ void __cdecl Snd_Pan3d(
   }
   for ( out = 0; out < (signed int)config->speakerCount; ++out )
   {
-    scale = *(float *)&FLOAT_0_0;
+    scale = 0.0f;
     if ( (config->outputFormat & (1 << out)) != 0 )
     {
       for ( j = 0; j < config->angleCount; ++j )
@@ -497,30 +497,30 @@ void __cdecl SND_EqualPowerFadeCoefs(float t, float *a, float *b)
   if ( (float)(t - 1.0) < 0.0 )
     v9 = t;
   else
-    v9 = FLOAT_1_0;
+    v9 = 1.0f;
   if ( (float)(0.0 - t) < 0.0 )
     v6 = v9;
   else
-    v6 = *(float *)&FLOAT_0_0;
+    v6 = 0.0f;
   __libm_sse2_cos(v3);
   if ( (float)((float)(1.5707964 * v6) - 1.0) < 0.0 )
     v8 = 1.5707964 * v6;
   else
-    v8 = FLOAT_1_0;
+    v8 = 1.0f;
   if ( (float)(0.0 - (float)(1.5707964 * v6)) < 0.0 )
     *((float *)&v4 + 1) = v8;
   else
-    HIDWORD(v4) = *(unsigned int *)&FLOAT_0_0;
+    HIDWORD(v4) = 0;
   *a = *((float *)&v4 + 1);
   __libm_sse2_sin(v4);
   if ( (float)((float)(1.5707964 * v6) - 1.0) < 0.0 )
     v7 = 1.5707964 * v6;
   else
-    v7 = FLOAT_1_0;
+    v7 = 1.0f;
   if ( (float)(0.0 - (float)(1.5707964 * v6)) < 0.0 )
     v5 = v7;
   else
-    v5 = *(float *)&FLOAT_0_0;
+    v5 = 0.0f;
   *b = v5;
   if ( (*(unsigned int *)a & 0x7F800000) == 0x7F800000
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_utils.cpp", 341, 0, "%s", "!IS_NAN(*a)") )
@@ -582,9 +582,9 @@ void __cdecl SND_GetNearestPointOnSegment(
   {
     __debugbreak();
   }
-  *nearPoint = *(float *)&FLOAT_0_0;
-  nearPoint[1] = *(float *)&FLOAT_0_0;
-  nearPoint[2] = *(float *)&FLOAT_0_0;
+  *nearPoint = 0.0f;
+  nearPoint[1] = 0.0f;
+  nearPoint[2] = 0.0f;
   BA = *segmentB - *segmentA;
   BA_4 = segmentB[1] - segmentA[1];
   BA_8 = segmentB[2] - segmentA[2];
@@ -648,7 +648,7 @@ void __cdecl SND_GetNearestPointOnStrip(
   float nearestDistance; // [esp+18h] [ebp-10h]
   float nearestOnSegment[3]; // [esp+1Ch] [ebp-Ch] BYREF
 
-  nearestDistance = FLOAT_3_4028235e38;
+  nearestDistance = FLT_MAX;
   copied = 0;
   for ( i = 0; i < count - 1; ++i )
   {
@@ -690,15 +690,15 @@ double __cdecl SND_dBToLinear()
   __libm_sse2_pow(v1, x);
   xa = 10.0;
   if ( (float)10.0 < 0.0000152879 )
-    xa = *(float *)&FLOAT_0_0;
+    xa = 0.0f;
   if ( (float)(xa - 1.0) < 0.0 )
     v3 = xa;
   else
-    v3 = FLOAT_1_0;
+    v3 = 1.0f;
   if ( (float)(0.0 - xa) < 0.0 )
     return v3;
   else
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
 }
 
 double __cdecl SND_LinearToDb(float linear)
@@ -719,7 +719,7 @@ double __cdecl SND_LinearToDbSpl(float linear)
   if ( db > -95.0 )
     return (float)(db + 100.0);
   else
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
 }
 
 double __cdecl SND_dBSPLToLinear()
@@ -765,7 +765,7 @@ void __cdecl Snd_SpeakerMapZero(snd_speaker_map *map)
   int i; // [esp+0h] [ebp-4h]
 
   for ( i = 0; i < 16; ++i )
-    map->volumes[i] = *(float *)&FLOAT_0_0;
+    map->volumes[i] = 0.0f;
 }
 
 int __cdecl Snd_SpeakerMapGetIndex(const snd_speaker_map *map, int in, int out)
@@ -962,11 +962,11 @@ void __cdecl SND_PanToSpeakermap11(const snd_pan *pan, snd_speaker_map *map)
   if ( (float)(v3 - 1.0) < 0.0 )
     v4 = pan->front + pan->back;
   else
-    v4 = FLOAT_1_0;
+    v4 = 1.0f;
   if ( (float)(0.0 - v3) < 0.0 )
     volume = v4;
   else
-    volume = *(float *)&FLOAT_0_0;
+    volume = 0.0f;
   Snd_SpeakerMapSetVolume(map, 0, 0, volume);
 }
 
@@ -1004,21 +1004,21 @@ void __cdecl SND_PanToSpeakermap12(const snd_pan *pan, snd_speaker_map *map)
   if ( (float)(v6 - 1.0) < 0.0 )
     v7 = pan->front + pan->back;
   else
-    v7 = FLOAT_1_0;
+    v7 = 1.0f;
   if ( (float)(0.0 - v6) < 0.0 )
     v3 = v7;
   else
-    v3 = *(float *)&FLOAT_0_0;
+    v3 = 0.0f;
   Snd_SpeakerMapSetVolume(map, 0, 0, v3 * pan->left);
   v4 = pan->front + pan->back;
   if ( (float)(v4 - 1.0) < 0.0 )
     v5 = pan->front + pan->back;
   else
-    v5 = FLOAT_1_0;
+    v5 = 1.0f;
   if ( (float)(0.0 - v4) < 0.0 )
     v2 = v5;
   else
-    v2 = *(float *)&FLOAT_0_0;
+    v2 = 0.0f;
   Snd_SpeakerMapSetVolume(map, 0, 1, v2 * pan->right);
 }
 

@@ -37,11 +37,11 @@ int __cdecl G_GetFreeActorCorpseIndex(int reuse)
   int farthestBehindIndex; // [esp+60h] [ebp-8h]
   int found; // [esp+64h] [ebp-4h]
 
-  farthestBehindDistSq = FLOAT_N1_0;
+  farthestBehindDistSq = -1.0f;
   farthestBehindIndex = 0;
-  farthest90DegreeDistSq = FLOAT_N1_0;
+  farthest90DegreeDistSq = -1.0f;
   farthest90DegreeIndex = 0;
-  farthestDistSq = FLOAT_N1_0;
+  farthestDistSq = -1.0f;
   farthestIndex = 0;
   ent = G_Find(0, 356, scr_const.player);
   if ( ent )
@@ -49,7 +49,7 @@ int __cdecl G_GetFreeActorCorpseIndex(int reuse)
     Sentient_GetEyePosition(ent->sentient, vRefPos);
     G_GetPlayerViewDirection(ent, vRefDir, 0, 0);
     use2DDist = 1;
-    vRefDir[2] = *(float *)&FLOAT_0_0;
+    vRefDir[2] = 0.0f;
     if ( Vec3Normalize(vRefDir) == 0.0 )
     {
       use2DDist = 0;
@@ -59,9 +59,9 @@ int __cdecl G_GetFreeActorCorpseIndex(int reuse)
   else
   {
     use2DDist = 1;
-    vRefDir[2] = *(float *)&FLOAT_0_0;
-    vRefDir[0] = *(float *)&FLOAT_0_0;
-    vRefDir[1] = FLOAT_1_0;
+    vRefDir[2] = 0.0f;
+    vRefDir[0] = 0.0f;
+    vRefDir[1] = 1.0f;
     memset(vRefPos, 0, sizeof(vRefPos));
   }
   found = 0;
@@ -80,7 +80,7 @@ int __cdecl G_GetFreeActorCorpseIndex(int reuse)
       vDelta[1] = ent->r.currentOrigin[1] - vRefPos[1];
       vDelta[2] = ent->r.currentOrigin[2] - vRefPos[2];
       if ( use2DDist )
-        vDelta[2] = *(float *)&FLOAT_0_0;
+        vDelta[2] = 0.0f;
       distSq = (float)((float)(vDelta[0] * vDelta[0]) + (float)(vDelta[1] * vDelta[1])) + (float)(vDelta[2] * vDelta[2]);
       dot = (float)((float)(vDelta[0] * vRefDir[0]) + (float)(vDelta[1] * vRefDir[1])) + (float)(vDelta[2] * vRefDir[2]);
       if ( dot < 0.0 && distSq > farthestBehindDistSq )
@@ -255,8 +255,8 @@ void __cdecl Actor_GetBodyPlantAngles(
   float vStart[3]; // [esp+68h] [ebp-10h] BYREF
   float fStartUp; // [esp+74h] [ebp-4h]
 
-  fStartUp = FLOAT_30_0;
-  fEndDown = FLOAT_30_0;
+  fStartUp = 30.0f;
+  fEndDown = 30.0f;
   if ( !pfPitch
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_corpse.cpp", 529, 0, "%s", "pfPitch") )
   {
@@ -275,7 +275,7 @@ void __cdecl Actor_GetBodyPlantAngles(
   {
     if ( COERCE_FLOAT(*(unsigned int *)pfPitch & _mask__AbsFloat_) >= 30.0 )
     {
-      *pfRoll = *(float *)&FLOAT_0_0;
+      *pfRoll = 0.0f;
     }
     else
     {
@@ -300,7 +300,7 @@ void __cdecl Actor_GetBodyPlantAngles(
       context.passEntityNum0 = iEntNum;
       hitnum = -1;
       if ( SV_SightTraceCapsule(&hitnum, vStart, actorMins, actorMaxs, vEnd, &context) )
-        fHeight = *(float *)&FLOAT_0_0;
+        fHeight = 0.0f;
     }
     *pfHeight = fHeight;
   }
@@ -329,21 +329,21 @@ double __cdecl Actor_SetBodyPlantAngle(
   float vMaxs[3]; // [esp+D0h] [ebp-Ch] BYREF
 
   memset(&trace, 0, 16);
-  fStartUp = FLOAT_30_0;
-  fEndDown = FLOAT_30_0;
-  fSize = FLOAT_4_0999999;
+  fStartUp = 30.0f;
+  fEndDown = 30.0f;
+  fSize = 4.0f999999;
 
-  vMins[0] = FLOAT_N4_0;
-  vMins[1] = FLOAT_N4_0;
-  vMins[2] = *(float *)&FLOAT_0_0;
+  vMins[0] = -4.0f;
+  vMins[1] = -4.0f;
+  vMins[2] = 0.0f;
 
-  vMaxs[0] = FLOAT_4_0;
-  vMaxs[1] = FLOAT_4_0;
-  vMaxs[2] = FLOAT_8_0;
+  vMaxs[0] = 4.0f;
+  vMaxs[1] = 4.0f;
+  vMaxs[2] = 8.0f;
 
   col_context_t::col_context_t(&context);
   if ( g_entities[iEntNum].actor && Flame_GetLocalClientSourceRange() )
-    fEndDown = FLOAT_45_0;
+    fEndDown = 45.0f;
   vStart[0] = *vOrigin;
   vStart[1] = vOrigin[1];
   vStart[2] = vOrigin[2];
@@ -354,7 +354,7 @@ double __cdecl Actor_SetBodyPlantAngle(
   G_TraceCapsule(&trace, vStart, vMins, vMaxs, vEnd, iEntNum, iClipMask, &context);
   if ( trace.fraction == 0.0 )
   {
-    *pfAngle = *(float *)&FLOAT_0_0;
+    *pfAngle = 0.0f;
     return vCenter[2];
   }
   else
@@ -385,7 +385,7 @@ double __cdecl Actor_SetBodyPlantAngle(
     G_TraceCapsule(&trace, vStart, vMins, vMaxs, vEnd, iEntNum, iClipMask, &context);
     if ( trace.fraction == 0.0 )
     {
-      *pfAngle = *(float *)&FLOAT_0_0;
+      *pfAngle = 0.0f;
       return vCenter[2];
     }
     else
@@ -408,7 +408,7 @@ double __cdecl Actor_SetBodyPlantAngle(
       }
       if ( vPointA[0] == vPointB[0] && vPointA[1] == vPointB[1] && vPointA[2] == vPointB[2] )
       {
-        *pfAngle = *(float *)&FLOAT_0_0;
+        *pfAngle = 0.0f;
       }
       else
       {
@@ -473,9 +473,9 @@ void __cdecl Actor_OrientCorpseToGround(gentity_s *self, int bLerp)
       else
       {
         if ( v10 < 0.0 )
-          v4 = FLOAT_N1_0;
+          v4 = -1.0f;
         else
-          v4 = FLOAT_1_0;
+          v4 = 1.0f;
         v9 = (float)(v4 * 12.0) + pProneInfo->fTorsoPitch;
       }
       pProneInfo->fTorsoPitch = v9;
@@ -487,9 +487,9 @@ void __cdecl Actor_OrientCorpseToGround(gentity_s *self, int bLerp)
       else
       {
         if ( v8 < 0.0 )
-          v3 = FLOAT_N1_0;
+          v3 = -1.0f;
         else
-          v3 = FLOAT_1_0;
+          v3 = 1.0f;
         v7 = (float)(v3 * 12.0) + pProneInfo->fWaistPitch;
       }
       pProneInfo->fWaistPitch = v7;
@@ -501,9 +501,9 @@ void __cdecl Actor_OrientCorpseToGround(gentity_s *self, int bLerp)
       else
       {
         if ( v6 < 0.0 )
-          v2 = FLOAT_N1_0;
+          v2 = -1.0f;
         else
-          v2 = FLOAT_1_0;
+          v2 = 1.0f;
         v5 = (float)(v2 * 0.60000002) + pProneInfo->fBodyHeight;
       }
       pProneInfo->fBodyHeight = v5;
@@ -568,9 +568,9 @@ void __cdecl Actor_OrientPitchToGround(gentity_s *self, int bLerp)
       else
       {
         if ( v8 < 0.0 )
-          v4 = FLOAT_N1_0;
+          v4 = -1.0f;
         else
-          v4 = FLOAT_1_0;
+          v4 = 1.0f;
         v7 = (float)(v4 * 12.0) + pProneInfo->fTorsoPitch;
       }
       pProneInfo->fTorsoPitch = v7;
@@ -582,9 +582,9 @@ void __cdecl Actor_OrientPitchToGround(gentity_s *self, int bLerp)
       else
       {
         if ( v6 < 0.0 )
-          v3 = FLOAT_N1_0;
+          v3 = -1.0f;
         else
-          v3 = FLOAT_1_0;
+          v3 = 1.0f;
         v5 = (float)(v3 * 0.60000002) + pProneInfo->fBodyHeight;
       }
       pProneInfo->fBodyHeight = v5;

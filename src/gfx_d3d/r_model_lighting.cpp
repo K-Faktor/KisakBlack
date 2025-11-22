@@ -25,8 +25,8 @@ void __cdecl R_SetModelLightingCoords(unsigned __int16 handle, float *out)
   yCoord = ((double)((entryIndex >> 4) & 0xFFFFFFFC) + 2.0) * modelLightGlob.invImageHeight;
   *out = xCoord;
   out[1] = yCoord;
-  out[2] = FLOAT_0_5;
-  out[3] = FLOAT_1_0;
+  out[2] = 0.5f;
+  out[3] = 1.0f;
 }
 
 unsigned int __cdecl R_ModelLightingIndexFromHandle(unsigned __int16 handle)
@@ -752,7 +752,7 @@ void __cdecl R_SetModelLightingLookupScale(GfxCmdBufInput *input)
   lookupScale[0] = FLOAT_0_005859375;
   lookupScale[1] = 1.5 * modelLightGlob.invImageHeight;
   lookupScale[2] = FLOAT_0_375;
-  lookupScale[3] = *(float *)&FLOAT_0_0;
+  lookupScale[3] = 0.0f;
   R_SetInputCodeConstantFromVec4(input, 0x35u, lookupScale);
 }
 
@@ -769,10 +769,10 @@ void __cdecl R_SetupDynamicModelLighting(GfxCmdBufInput *input)
 
 void __cdecl R_SetupCachedStaticModelLighting(GfxCmdBufSourceState *source)
 {
-  source->input.consts[78][0] = *(float *)&FLOAT_0_0;
-  source->input.consts[78][1] = *(float *)&FLOAT_0_0;
-  source->input.consts[78][2] = FLOAT_0_5;
-  source->input.consts[78][3] = FLOAT_1_0;
+  source->input.consts[78][0] = 0.0f;
+  source->input.consts[78][1] = 0.0f;
+  source->input.consts[78][2] = 0.5f;
+  source->input.consts[78][3] = 1.0f;
   ++source->constVersions[102];
 }
 
@@ -856,9 +856,9 @@ void __cdecl R_ResetModelLighting()
   for ( usedIndex = 0; usedIndex < modelLightGlob.xmodelEntryLimit; ++usedIndex )
   {
     v1 = modelLightGlob.lightingOrigins[usedIndex];
-    *v1 = FLOAT_3_4028235e38;
-    v1[1] = FLOAT_3_4028235e38;
-    v1[2] = FLOAT_3_4028235e38;
+    *v1 = FLT_MAX;
+    v1[1] = FLT_MAX;
+    v1[2] = FLT_MAX;
   }
   if ( smodelLightGlob.local.assignedCount
     && !rgp.world

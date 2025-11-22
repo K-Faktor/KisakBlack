@@ -1321,9 +1321,9 @@ double __cdecl MSG_ReadRangedFloat(
     if ( oftenZeroOrOne && MSG_ReadBit(msg) )
     {
       if ( MSG_ReadBit(msg) )
-        v8 = FLOAT_1_0;
+        v8 = 1.0f;
       else
-        v8 = *(float *)&FLOAT_0_0;
+        v8 = 0.0f;
       *(float *)&f = v8;
     }
     else

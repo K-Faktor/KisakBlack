@@ -157,9 +157,9 @@ IXAudio2SubmixVoice *__cdecl SD_CreateBus(
     for ( j = 0; j < outputChannelCount; ++j )
     {
       if ( i == j )
-        v7 = FLOAT_1_0;
+        v7 = 1.0f;
       else
-        v7 = *(float *)&FLOAT_0_0;
+        v7 = 0.0f;
       matrix[i + j * inputChannelCount] = v7;
     }
   }
@@ -1001,7 +1001,7 @@ void SND_InitMasterVoice()
       __debugbreak();
     }
     for ( i = 0; i < 64; ++i )
-      matrix[i] = *(float *)&FLOAT_0_0;
+      matrix[i] = 0.0f;
     switch ( g_sd.masterVoiceDetails.InputChannels )
     {
       case 1u:
@@ -1016,39 +1016,39 @@ void SND_InitMasterVoice()
       case 5u:
       case 7u:
         memset(matrix, 0, 12);
-        matrix[3] = FLOAT_1_0;
-        matrix[4] = *(float *)&FLOAT_0_0;
-        matrix[5] = FLOAT_1_0;
-        matrix[6] = *(float *)&FLOAT_0_0;
-        matrix[7] = *(float *)&FLOAT_0_0;
+        matrix[3] = 1.0f;
+        matrix[4] = 0.0f;
+        matrix[5] = 1.0f;
+        matrix[6] = 0.0f;
+        matrix[7] = 0.0f;
         break;
       case 6u:
         memset(matrix, 0, 12);
-        matrix[3] = FLOAT_1_0;
-        matrix[4] = *(float *)&FLOAT_0_0;
-        matrix[5] = FLOAT_1_0;
-        matrix[6] = *(float *)&FLOAT_0_0;
-        matrix[7] = *(float *)&FLOAT_0_0;
-        matrix[16] = FLOAT_1_0;
+        matrix[3] = 1.0f;
+        matrix[4] = 0.0f;
+        matrix[5] = 1.0f;
+        matrix[6] = 0.0f;
+        matrix[7] = 0.0f;
+        matrix[16] = 1.0f;
         memset(&matrix[17], 0, 20);
-        matrix[22] = FLOAT_1_0;
-        matrix[23] = *(float *)&FLOAT_0_0;
+        matrix[22] = 1.0f;
+        matrix[23] = 0.0f;
         break;
       case 8u:
         memset(matrix, 0, 12);
-        matrix[3] = FLOAT_1_0;
-        matrix[4] = *(float *)&FLOAT_0_0;
-        matrix[5] = FLOAT_1_0;
-        matrix[6] = *(float *)&FLOAT_0_0;
-        matrix[7] = *(float *)&FLOAT_0_0;
+        matrix[3] = 1.0f;
+        matrix[4] = 0.0f;
+        matrix[5] = 1.0f;
+        matrix[6] = 0.0f;
+        matrix[7] = 0.0f;
         matrix[16] = fsqrt(0.5);
         memset(&matrix[17], 0, 20);
         matrix[22] = matrix[16];
-        matrix[23] = *(float *)&FLOAT_0_0;
+        matrix[23] = 0.0f;
         matrix[24] = matrix[16];
         memset(&matrix[25], 0, 20);
         matrix[30] = matrix[16];
-        matrix[31] = *(float *)&FLOAT_0_0;
+        matrix[31] = 0.0f;
         break;
       default:
         break;
@@ -1165,16 +1165,16 @@ void __cdecl SD_PreUpdate()
       if ( (float)((float)(v2 + 3.1415927) - 6.2831855) < 0.0 )
         v6 = v2 + 3.1415927;
       else
-        v6 = FLOAT_6_2831855;
+        v6 = 6.2831855f;
       if ( (float)(0.0 - (float)(v2 + 3.1415927)) < 0.0 )
         v4 = v6;
       else
-        v4 = *(float *)&FLOAT_0_0;
+        v4 = 0.0f;
       g_sd.radverbParams.angle = v4;
     }
     else
     {
-      g_sd.radverbParams.angle = *(float *)&FLOAT_0_0;
+      g_sd.radverbParams.angle = 0.0f;
     }
   }
   if ( g_sd.radverbParams.frameRate <= 1000.0
@@ -1360,7 +1360,7 @@ void __cdecl SDXA2_UpdateVoiceSends(int voiceIndex)
   xvoice = g_sd.voices[voiceIndex];
   params = &g_sd.voiceInfos[voiceIndex];
   params->params.lpfAttenuation = SND_GetLpfLevel(voice);
-  params->params.lpfRatio = FLOAT_0_25;
+  params->params.lpfRatio = 0.25f;
   params->params.frameRate = FLOAT_48000_0;
   params->params.futz.blend = voice->futzBlend;
   params->params.futz.bpfF = snd_futz_bpf_f->current.value;
@@ -1379,7 +1379,7 @@ void __cdecl SDXA2_UpdateVoiceSends(int voiceIndex)
   inputChannels = voice->pan.input_channel_count;
   outputChannels = voice->pan.output_channel_count;
   for ( i = 0; i < 0x40; ++i )
-    volumes[i] = *(float *)&FLOAT_0_0;
+    volumes[i] = 0.0f;
   switch ( outputChannels )
   {
     case 1u:

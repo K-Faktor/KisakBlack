@@ -71,14 +71,14 @@ void __cdecl CG_Actor_DoControllers(const cpose_t *pose, const DObj *obj, int *p
     if ( DObjSetRotTransIndex(obj, partBits, 0) )
     {
       v5 = pose->turret.$251974A72D8ACF7EC8C19B3B5F3F224B::angles.yaw * 0.0087266462;
-      mat->quat[0] = *(float *)&FLOAT_0_0;
-      mat->quat[2] = *(float *)&FLOAT_0_0;
+      mat->quat[0] = 0.0f;
+      mat->quat[2] = 0.0f;
       v3 = &mat->quat[1];
       mat->quat[3] = cos(v5);
       *v3 = sin(v5);
       nextWaterHeightCheck = pose->player.nextWaterHeightCheck;
-      offset[0] = *(float *)&FLOAT_0_0;
-      offset[1] = *(float *)&FLOAT_0_0;
+      offset[0] = 0.0f;
+      offset[1] = 0.0f;
       LODWORD(offset[2]) = nextWaterHeightCheck;
       DObjSetTrans(mat, offset);
     }
@@ -238,13 +238,13 @@ void  CG_Vehicle_DoControllers(void *a1@<ebp>, const cpose_t *pose, const DObj *
   for ( i = 0; i < 4; ++i )
   {
     v55 = gunnerBarrelAngles[i];
-    *v55 = *(unsigned int *)&FLOAT_0_0;
-    v55[1] = *(unsigned int *)&FLOAT_0_0;
-    v55[2] = *(unsigned int *)&FLOAT_0_0;
+    *v55 = 0;
+    v55[1] = 0;
+    v55[2] = 0;
     LODWORD(barrelOffset[4]) = gunnerTurretAngles[i];
-    *(unsigned int *)LODWORD(barrelOffset[4]) = *(unsigned int *)&FLOAT_0_0;
-    *(unsigned int *)(LODWORD(barrelOffset[4]) + 4) = *(unsigned int *)&FLOAT_0_0;
-    *(unsigned int *)(LODWORD(barrelOffset[4]) + 8) = *(unsigned int *)&FLOAT_0_0;
+    *(unsigned int *)LODWORD(barrelOffset[4]) = 0;
+    *(unsigned int *)(LODWORD(barrelOffset[4]) + 4) = 0;
+    *(unsigned int *)(LODWORD(barrelOffset[4]) + 8) = 0;
     gunnerBarrelAngles[i][0] = (float)pose->vehicle.gunnerPitch[i] * 0.0054931641;
     gunnerTurretAngles[i][1] = (float)pose->vehicle.gunnerYaw[i] * 0.0054931641;
   }
@@ -266,8 +266,8 @@ void  CG_Vehicle_DoControllers(void *a1@<ebp>, const cpose_t *pose, const DObj *
   }
   if ( pose->vehicle.tag_minigun_spin != 254 )
   {
-    minigunAngles[0] = *(float *)&FLOAT_0_0;
-    minigunAngles[1] = *(float *)&FLOAT_0_0;
+    minigunAngles[0] = 0.0f;
+    minigunAngles[1] = 0.0f;
     minigunAngles[2] = (float)pose->vehicle.minigun_rotation * 0.0054931641;
     DObjSetLocalTag(obj, partBits, pose->vehicle.tag_minigun_spin, vec3_origin, minigunAngles);
   }
@@ -280,25 +280,25 @@ void  CG_Vehicle_DoControllers(void *a1@<ebp>, const cpose_t *pose, const DObj *
   tempAxis[3][2] = pose->origin[2];
   v49[0] = tempAxis;
   *(_QWORD *)axis.x.v = *(_QWORD *)&tempAxis[0][0];
-  *(_QWORD *)&axis.x.unitVec[2].packed = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(tempAxis[0][2]));
+  *(_QWORD *)&axis.x.unitVec[2].packed = __PAIR64__(0, LODWORD(tempAxis[0][2]));
   *(_QWORD *)axis.y.v = *(_QWORD *)&tempAxis[1][0];
-  *(_QWORD *)&axis.y.unitVec[2].packed = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(tempAxis[1][2]));
+  *(_QWORD *)&axis.y.unitVec[2].packed = __PAIR64__(0, LODWORD(tempAxis[1][2]));
   *(_QWORD *)axis.z.v = *(_QWORD *)&tempAxis[2][0];
-  *(_QWORD *)&axis.z.unitVec[2].packed = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(tempAxis[2][2]));
+  *(_QWORD *)&axis.z.unitVec[2].packed = __PAIR64__(0, LODWORD(tempAxis[2][2]));
   *(_QWORD *)axis.w.v = *(_QWORD *)&tempAxis[3][0];
-  *(_QWORD *)&axis.w.unitVec[2].packed = __PAIR64__(LODWORD(FLOAT_1_0), LODWORD(tempAxis[3][2]));
+  *(_QWORD *)&axis.w.unitVec[2].packed = __PAIR64__(LODWORD(1.0f), LODWORD(tempAxis[3][2]));
   v47 = tempAxis[2];
   *(_QWORD *)axisZ.v = *(_QWORD *)&tempAxis[2][0];
-  *(_QWORD *)&axisZ.unitVec[2].packed = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(tempAxis[2][2]));
+  *(_QWORD *)&axisZ.unitVec[2].packed = __PAIR64__(0, LODWORD(tempAxis[2][2]));
   v45 = tempAxis[3];
   *(_QWORD *)axisW.v = *(_QWORD *)&tempAxis[3][0];
-  *(_QWORD *)&axisW.unitVec[2].packed = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(tempAxis[3][2]));
+  *(_QWORD *)&axisW.unitVec[2].packed = __PAIR64__(0, LODWORD(tempAxis[3][2]));
   *(_QWORD *)invAxis.x.v = __PAIR64__(LODWORD(tempAxis[1][0]), LODWORD(tempAxis[0][0]));
-  *(_QWORD *)&invAxis.x.unitVec[2].packed = __PAIR64__(LODWORD(FLOAT_1_0), LODWORD(tempAxis[2][0]));
+  *(_QWORD *)&invAxis.x.unitVec[2].packed = __PAIR64__(LODWORD(1.0f), LODWORD(tempAxis[2][0]));
   *(_QWORD *)invAxis.y.v = __PAIR64__(LODWORD(tempAxis[1][1]), LODWORD(tempAxis[0][1]));
-  *(_QWORD *)&invAxis.y.unitVec[2].packed = __PAIR64__(LODWORD(FLOAT_1_0), LODWORD(tempAxis[2][1]));
+  *(_QWORD *)&invAxis.y.unitVec[2].packed = __PAIR64__(LODWORD(1.0f), LODWORD(tempAxis[2][1]));
   *(_QWORD *)invAxis.z.v = __PAIR64__(LODWORD(tempAxis[1][2]), LODWORD(tempAxis[0][2]));
-  *(_QWORD *)&invAxis.z.unitVec[2].packed = __PAIR64__(LODWORD(FLOAT_1_0), LODWORD(tempAxis[2][2]));
+  *(_QWORD *)&invAxis.z.unitVec[2].packed = __PAIR64__(LODWORD(1.0f), LODWORD(tempAxis[2][2]));
   model = DObjGetModel(obj, 0);
   boneCount = XModelNumBones((const cpose_t *)model);
   remote_boneMtxList = XModelGetBasePose(model);
@@ -315,18 +315,18 @@ void  CG_Vehicle_DoControllers(void *a1@<ebp>, const cpose_t *pose, const DObj *
         if ( boneIndex < 0xFE && DObjSetRotTransIndex(obj, partBits, boneIndex) )
         {
           v14 = pose->vehicle.wheelHeight[k];
-          v13[0] = *(float *)&FLOAT_0_0;
-          v13[1] = *(float *)&FLOAT_0_0;
+          v13[0] = 0.0f;
+          v13[1] = 0.0f;
           v13[2] = v14;
           v12 = pose->vehicle.nitrousWheelYaw[k];
-          v11[0] = *(float *)&FLOAT_0_0;
+          v11[0] = 0.0f;
           v11[1] = v12;
-          v11[2] = *(float *)&FLOAT_0_0;
+          v11[2] = 0.0f;
           DObjSetLocalTagInternal(obj, v13, v11, boneIndex);
           v10 = pose->vehicle.nitrousWheelRotation[k];
           v11[0] = v10;
-          v11[1] = *(float *)&FLOAT_0_0;
-          v11[2] = *(float *)&FLOAT_0_0;
+          v11[1] = 0.0f;
+          v11[2] = 0.0f;
           ChildBones = DObjGetChildBones(obj, boneIndex, v9, 4);
           for ( angles[2] = 0.0; SLODWORD(angles[2]) < ChildBones; ++LODWORD(angles[2]) )
           {
@@ -342,8 +342,8 @@ void  CG_Vehicle_DoControllers(void *a1@<ebp>, const cpose_t *pose, const DObj *
         {
           angles[0] = pose->vehicle.nitrousWheelRotation[LODWORD(angles[1])] * pose->vehicle.extra_wheel_rot_scale;
           v6[0] = angles[0];
-          v6[1] = *(float *)&FLOAT_0_0;
-          v6[2] = *(float *)&FLOAT_0_0;
+          v6[1] = 0.0f;
+          v6[2] = 0.0f;
           if ( DObjSetRotTransIndex(obj, partBits, boneIndex) )
             DObjSetLocalTagInternal(obj, vec3_origin, v6, boneIndex);
         }
@@ -361,7 +361,7 @@ void  CG_Vehicle_DoControllers(void *a1@<ebp>, const cpose_t *pose, const DObj *
         v35 = mtx->trans;
         *(_QWORD *)trans.v = *(_QWORD *)mtx->trans;
         trans.u[2] = LODWORD(mtx->trans[2]);
-        trans.u[3] = *(unsigned int *)&FLOAT_0_0;
+        trans.u[3] = 0;
         v32.v[0] = (float)((float)((float)(trans.v[0] * axis.x.v[0]) + (float)(trans.v[1] * axis.y.v[0]))
                          + (float)(trans.v[2] * axis.z.v[0]))
                  + axis.w.v[0];
@@ -406,7 +406,7 @@ void  CG_Vehicle_DoControllers(void *a1@<ebp>, const cpose_t *pose, const DObj *
         *(float *)&numChildren = offset[3] - trans.v[1];
         *(float *)children = v25 - trans.v[2];
         offset[0] = v26 - trans.v[3];
-        steerAnglesYaw[1] = (unsigned int)i > 1 ? *(float *)&FLOAT_0_0 : steerYaw;
+        steerAnglesYaw[1] = (unsigned int)i > 1 ? 0.0f : steerYaw;
         DObjSetLocalTagInternal(obj, (const float *)&j, steerAnglesYaw, boneIndex);
         if ( steerAnglesPitch[0] != 0.0 )
         {
@@ -460,7 +460,7 @@ void __cdecl CG_mg42_DoControllers(const cpose_t *pose, const DObj *obj, int *pa
     turretPitch = pose->turret.$251974A72D8ACF7EC8C19B3B5F3F224B::angles.pitch;
     turretYaw = pose->turret.$251974A72D8ACF7EC8C19B3B5F3F224B::angles.yaw;
   }
-  angles[2] = *(float *)&FLOAT_0_0;
+  angles[2] = 0.0f;
   ofsDist = pose->player.waterHeight;
   memset(totOfs, 0, sizeof(totOfs));
   if ( pose->turret.tag_aim_pivot == 255 )
@@ -477,7 +477,7 @@ void __cdecl CG_mg42_DoControllers(const cpose_t *pose, const DObj *obj, int *pa
            + (float)((float)((float)((float)(1.0 - pc) * ofsDist) * pcFwdScale) * (float)(yc - 1.0));
     ofs[1] = (float)((float)(ys * ofsDist) * ysScale)
            + (float)((float)((float)((float)(pc - 1.0) * ofsDist) * pcScale) * ys);
-    ofs[2] = *(float *)&FLOAT_0_0;
+    ofs[2] = 0.0f;
     totOfs[0] = (float)(totOfs[0] + (float)(pc * ofsDist)) + ofs[0];
     totOfs[1] = (float)(totOfs[1] + 0.0) + ofs[1];
     totOfs[2] = (float)(totOfs[2] + (float)(COERCE_FLOAT(LODWORD(ps) ^ _mask__NegFloat_) * ofsDist)) + 0.0;
@@ -500,13 +500,13 @@ void __cdecl CG_mg42_DoControllers(const cpose_t *pose, const DObj *obj, int *pa
   {
     angles[0] = turretPitch;
     DObjSetLocalTag(obj, partBits, pose->turret.tag_aim_pivot, vec3_origin, angles);
-    angles[0] = *(float *)&FLOAT_0_0;
+    angles[0] = 0.0f;
     angles[1] = turretYaw;
     DObjSetLocalTag(obj, partBits, pose->turret.tag_aim, totOfs, angles);
     DObjSetLocalTag(obj, partBits, pose->turret.tag_aim_animated, totOfs, angles);
   }
   angles[0] = pose->turret.barrelPitch;
-  angles[1] = *(float *)&FLOAT_0_0;
+  angles[1] = 0.0f;
   DObjSetControlTagAngles(obj, partBits, pose->turret.tag_flash, angles);
 }
 
@@ -571,8 +571,8 @@ notSet:
           v3 = Vec4LengthSq(animMat.quat);
           if ( v3 == 0.0 )
           {
-            animMat.quat[3] = FLOAT_1_0;
-            animMat.transWeight = FLOAT_2_0;
+            animMat.quat[3] = 1.0f;
+            animMat.transWeight = 2.0f;
           }
           else
           {

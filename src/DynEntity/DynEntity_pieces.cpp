@@ -40,7 +40,7 @@ void __cdecl DynEntPieces_AddDrawSurfs()
     {
       Sys_EnterCriticalSection(CRITSECT_PHYSICS);
       Phys_ObjGetInterpolatedState(g_breakablePieces[i].physObjId, placement.base.origin, placement.base.quat);
-      placement.scale = FLOAT_1_0;
+      placement.scale = 1.0f;
       Sys_LeaveCriticalSection(CRITSECT_PHYSICS);
       R_FilterXModelIntoScene(g_breakablePieces[i].model, &placement, 0, &g_breakablePieces[i].lightingHandle, 0.0);
     }

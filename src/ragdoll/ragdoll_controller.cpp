@@ -103,8 +103,8 @@ void __cdecl Ragdoll_DoControllers(const cpose_t *pose, const DObj *obj, int *pa
             v5 = Vec4LengthSq(boneMat->quat);
             if ( v5 == 0.0 )
             {
-              boneMat->quat[3] = FLOAT_1_0;
-              boneMat->transWeight = FLOAT_2_0;
+              boneMat->quat[3] = 1.0f;
+              boneMat->transWeight = 2.0f;
             }
             else
             {
@@ -131,8 +131,8 @@ void __cdecl Ragdoll_DoControllers(const cpose_t *pose, const DObj *obj, int *pa
             v4 = Vec4LengthSq(boneMata->quat);
             if ( v4 == 0.0 )
             {
-              boneMata->quat[3] = FLOAT_1_0;
-              boneMata->transWeight = FLOAT_2_0;
+              boneMata->quat[3] = 1.0f;
+              boneMata->transWeight = 2.0f;
             }
             else
             {

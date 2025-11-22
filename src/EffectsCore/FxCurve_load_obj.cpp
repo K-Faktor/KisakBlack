@@ -74,7 +74,7 @@ const FxCurve *__cdecl FxCurve_AllocAndCreateWithKeys(float *keyArray, int dimen
   keyIndex = 0;
   if ( v5 )
   {
-    *((unsigned int *)newCurve + 2) = *(unsigned int *)&FLOAT_0_0;
+    *((unsigned int *)newCurve + 2) = 0;
     for ( elementIndex = 0; elementIndex != dimensionCount; ++elementIndex )
       *(float *)&newCurve[4 * elementIndex + 12] = keyArray[elementIndex + 1];
     keyIndex = 1;
@@ -83,7 +83,7 @@ const FxCurve *__cdecl FxCurve_AllocAndCreateWithKeys(float *keyArray, int dimen
   keyIndexa = keyCount + keyIndex;
   if ( v4 )
   {
-    *(float *)&newCurve[4 * keySize * keyIndexa + 8] = FLOAT_1_0;
+    *(float *)&newCurve[4 * keySize * keyIndexa + 8] = 1.0f;
     for ( elementIndexa = 0; elementIndexa != dimensionCount; ++elementIndexa )
       *(float *)&newCurve[4 * keySize * keyIndexa + 12 + 4 * elementIndexa] = keyArray[elementIndexa + 1];
     ++keyIndexa;

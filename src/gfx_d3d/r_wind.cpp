@@ -5,24 +5,24 @@ void __cdecl R_InitWind()
   float *v0; // ecx
   unsigned int n; // [esp+Ch] [ebp-4h]
 
-  frontendWind.windDirection[0] = FLOAT_1_0;
-  frontendWind.windDirection[1] = *(float *)&FLOAT_0_0;
-  frontendWind.windDirection[2] = *(float *)&FLOAT_0_0;
+  frontendWind.windDirection[0] = 1.0f;
+  frontendWind.windDirection[1] = 0.0f;
+  frontendWind.windDirection[2] = 0.0f;
   for ( n = 0; n < 0x10; ++n )
   {
-    frontendWind.windSpringAngle[n] = *(float *)&FLOAT_0_0;
-    frontendWind.windRustleAngle[n][0] = *(float *)&FLOAT_0_0;
+    frontendWind.windSpringAngle[n] = 0.0f;
+    frontendWind.windRustleAngle[n][0] = 0.0f;
     v0 = frontendWind.windRustleAngle[n];
-    v0[1] = *(float *)&FLOAT_0_0;
-    v0[2] = *(float *)&FLOAT_0_0;
+    v0[1] = 0.0f;
+    v0[2] = 0.0f;
   }
-  frontendWind.customWind.location[0] = *(float *)&FLOAT_0_0;
-  frontendWind.customWind.location[1] = *(float *)&FLOAT_0_0;
-  frontendWind.customWind.location[2] = *(float *)&FLOAT_0_0;
-  frontendWind.customWind.rustleAngle[0] = *(float *)&FLOAT_0_0;
-  frontendWind.customWind.rustleAngle[1] = *(float *)&FLOAT_0_0;
-  frontendWind.customWind.rustleAngle[2] = *(float *)&FLOAT_0_0;
-  frontendWind.customWind.radius = *(float *)&FLOAT_0_0;
+  frontendWind.customWind.location[0] = 0.0f;
+  frontendWind.customWind.location[1] = 0.0f;
+  frontendWind.customWind.location[2] = 0.0f;
+  frontendWind.customWind.rustleAngle[0] = 0.0f;
+  frontendWind.customWind.rustleAngle[1] = 0.0f;
+  frontendWind.customWind.rustleAngle[2] = 0.0f;
+  frontendWind.customWind.radius = 0.0f;
   memcpy(&backendWind, &frontendWind, sizeof(backendWind));
 }
 
@@ -31,7 +31,7 @@ void __cdecl R_SetWindDirection(float *dir, float speed)
   frontendWind.speed = speed;
   frontendWind.windDirection[0] = *dir;
   frontendWind.windDirection[1] = dir[1];
-  frontendWind.windDirection[2] = *(float *)&FLOAT_0_0;
+  frontendWind.windDirection[2] = 0.0f;
   Vec3NormalizeFast(frontendWind.windDirection);
 }
 
@@ -107,9 +107,9 @@ void __cdecl RB_SetCustomWindConstants(GfxCmdBufSourceState *source, float *draw
 
   if ( drawSurfListViewOrigin[3] == 0.0 )
   {
-    eyeOffset = *(float *)&FLOAT_0_0;
-    eyeOffset_4 = *(float *)&FLOAT_0_0;
-    eyeOffset_8 = *(float *)&FLOAT_0_0;
+    eyeOffset = 0.0f;
+    eyeOffset_4 = 0.0f;
+    eyeOffset_8 = 0.0f;
   }
   else
   {
@@ -125,7 +125,7 @@ void __cdecl RB_SetCustomWindConstants(GfxCmdBufSourceState *source, float *draw
   wind4[0] = backendWind.customWind.rustleAngle[0];
   wind4[1] = backendWind.customWind.rustleAngle[1];
   wind4[2] = backendWind.customWind.rustleAngle[2];
-  wind4[3] = *(float *)&FLOAT_0_0;
+  wind4[3] = 0.0f;
   R_UpdateCodeConstantFromVec4(source, 0xC1u, wind4);
 }
 

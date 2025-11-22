@@ -36,10 +36,10 @@ void __cdecl RB_SetIdentity()
       RB_EndTessSurface();
     gfxCmdBufSourceState.scissorViewport.width = 3;
     memcpy(gfxCmdBufSourceState.viewParms.viewMatrix.m[3], &rg, 0x140u);
-    gfxCmdBufSourceState.skinnedPlacement.base.origin[0] = *(float *)&FLOAT_0_0;
-    gfxCmdBufSourceState.skinnedPlacement.base.origin[1] = *(float *)&FLOAT_0_0;
-    gfxCmdBufSourceState.skinnedPlacement.base.origin[2] = *(float *)&FLOAT_0_0;
-    gfxCmdBufSourceState.skinnedPlacement.scale = FLOAT_1_0;
+    gfxCmdBufSourceState.skinnedPlacement.base.origin[0] = 0.0f;
+    gfxCmdBufSourceState.skinnedPlacement.base.origin[1] = 0.0f;
+    gfxCmdBufSourceState.skinnedPlacement.base.origin[2] = 0.0f;
+    gfxCmdBufSourceState.skinnedPlacement.scale = 1.0f;
     R_CmdBufSet3D(&gfxCmdBufSourceState);
   }
 }
@@ -48,8 +48,8 @@ void __cdecl R_SetVertex2d(GfxVertex *vert, float x, float y, float s, float t, 
 {
   vert->xyzw[0] = x;
   vert->xyzw[1] = y;
-  vert->xyzw[2] = *(float *)&FLOAT_0_0;
-  vert->xyzw[3] = FLOAT_1_0;
+  vert->xyzw[2] = 0.0f;
+  vert->xyzw[3] = 1.0f;
   vert->normal.packed = 1073643391;
   vert->color.packed = color;
   vert->texCoord[0] = s;
@@ -276,7 +276,7 @@ void __cdecl R_SetVertex3d(GfxVertex *vert, float x, float y, float z, float s, 
   vert->xyzw[0] = x;
   vert->xyzw[1] = y;
   vert->xyzw[2] = z;
-  vert->xyzw[3] = FLOAT_1_0;
+  vert->xyzw[3] = 1.0f;
   vert->normal.packed = 1073643391;
   vert->color.packed = *(unsigned int *)color;
   vert->texCoord[0] = s;
@@ -579,11 +579,11 @@ void __cdecl R_Resolve(GfxCmdBufContext context, GfxImage *image)
         LODWORD(gf) = ((g & 0x3FF) << 13) | (((g & 0x7C00) + 114688) << 13) | ((g & 0x8000) << 16);
         LODWORD(bf) = ((b & 0x3FF) << 13) | (((b & 0x7C00) + 114688) << 13) | ((b & 0x8000) << 16);
         if ( rf > 1.0 )
-          rf = FLOAT_1_0;
+          rf = 1.0f;
         if ( gf > 1.0 )
-          gf = FLOAT_1_0;
+          gf = 1.0f;
         if ( bf > 1.0 )
-          bf = FLOAT_1_0;
+          bf = 1.0f;
         *bitsd = (int)(float)(rf * 255.0);
         bitsd[1] = (int)(float)(gf * 255.0);
         bitsd[2] = (int)(float)(bf * 255.0);
@@ -1327,12 +1327,12 @@ void __cdecl RB_DrawFramedCmd(GfxRenderCommandExecState *execState)
   else
     v2 = cmd->y + cmd->h;
   y[2] = v2;
-  s[0] = *(float *)&FLOAT_0_0;
-  s[3] = FLOAT_1_0;
+  s[0] = 0.0f;
+  s[3] = 1.0f;
   s[1] = cmd->thicknessTex;
   s[2] = 1.0 - cmd->thicknessTex;
-  t[0] = *(float *)&FLOAT_0_0;
-  t[3] = FLOAT_1_0;
+  t[0] = 0.0f;
+  t[3] = 1.0f;
   t[1] = cmd->thicknessTex;
   t[2] = 1.0 - cmd->thicknessTex;
   for ( row = 0; row < 4; ++row )
@@ -1449,25 +1449,25 @@ void __cdecl R_DrawSurfs(GfxCmdBufContext context, GfxCmdBufState *prepassState,
     R_BeginPixMaterials(prepassContext.state);
   drawSurfCount = info->drawSurfCount;
   R_SetWaterSimulationConstants(context.source, 0.0);
-  context.source->input.consts[114][0] = *(float *)&FLOAT_0_0;
-  context.source->input.consts[114][1] = *(float *)&FLOAT_0_0;
-  context.source->input.consts[114][2] = *(float *)&FLOAT_0_0;
-  context.source->input.consts[114][3] = *(float *)&FLOAT_0_0;
+  context.source->input.consts[114][0] = 0.0f;
+  context.source->input.consts[114][1] = 0.0f;
+  context.source->input.consts[114][2] = 0.0f;
+  context.source->input.consts[114][3] = 0.0f;
   R_DirtyCodeConstant(context.source, 0x72u);
-  context.source->input.consts[118][0] = *(float *)&FLOAT_0_0;
-  context.source->input.consts[118][1] = *(float *)&FLOAT_0_0;
-  context.source->input.consts[118][2] = *(float *)&FLOAT_0_0;
-  context.source->input.consts[118][3] = *(float *)&FLOAT_0_0;
+  context.source->input.consts[118][0] = 0.0f;
+  context.source->input.consts[118][1] = 0.0f;
+  context.source->input.consts[118][2] = 0.0f;
+  context.source->input.consts[118][3] = 0.0f;
   R_DirtyCodeConstant(context.source, 0x76u);
-  context.source->input.consts[117][0] = FLOAT_1_0;
-  context.source->input.consts[117][1] = FLOAT_1_0;
-  context.source->input.consts[117][2] = FLOAT_1_0;
-  context.source->input.consts[117][3] = FLOAT_1_0;
+  context.source->input.consts[117][0] = 1.0f;
+  context.source->input.consts[117][1] = 1.0f;
+  context.source->input.consts[117][2] = 1.0f;
+  context.source->input.consts[117][3] = 1.0f;
   R_DirtyCodeConstant(context.source, 0x75u);
-  context.source->input.consts[179][0] = *(float *)&FLOAT_0_0;
-  context.source->input.consts[179][1] = *(float *)&FLOAT_0_0;
-  context.source->input.consts[179][2] = *(float *)&FLOAT_0_0;
-  context.source->input.consts[179][3] = *(float *)&FLOAT_0_0;
+  context.source->input.consts[179][0] = 0.0f;
+  context.source->input.consts[179][1] = 0.0f;
+  context.source->input.consts[179][2] = 0.0f;
+  context.source->input.consts[179][3] = 0.0f;
   R_DirtyCodeConstant(context.source, 0xB3u);
   R_FoliageSetDefaultShaderConstants(context.source);
   v3 = r_swrk_override_characterDissolveColor->current.vector[1];
@@ -2724,14 +2724,14 @@ void __cdecl DrawText2D(
   float xa; // [esp+2E0h] [ebp+Ch]
   float ya; // [esp+2E4h] [ebp+10h]
 
-  sizeIncrease = FLOAT_1_0;
+  sizeIncrease = 1.0f;
   redactLeftOn = 0;
   redactOn = 0;
   redactLeftCount = 0;
   redactCount = 0;
   MAX_REDACT_RECT = 4;
-  minY = FLOAT_3_4028235e38;
-  maxY = FLOAT_N3_4028235e38;
+  minY = FLT_MAX;
+  maxY = -FLT_MAX;
   shiftColorOn = 0;
   shiftColorTarget = 0;
   redactAlpha = 255;
@@ -2955,10 +2955,10 @@ void __cdecl DrawText2D(
     }
     startX = x - (float)(0.5 * xScale);
     startY = y - (float)(0.5 * yScale);
-    total_rect[0] = FLOAT_3_4028235e38;
-    total_rect[1] = FLOAT_3_4028235e38;
-    total_rect[2] = FLOAT_N3_4028235e38;
-    total_rect[3] = FLOAT_N3_4028235e38;
+    total_rect[0] = FLT_MAX;
+    total_rect[1] = FLT_MAX;
+    total_rect[2] = -FLT_MAX;
+    total_rect[3] = -FLT_MAX;
     for ( passIdx = 0; passIdx < passCount; ++passIdx )
     {
       maxLengthRemaining = maxLength;
@@ -3042,10 +3042,10 @@ void __cdecl DrawText2D(
             else if ( redactLeftCount < 4 )
             {
               v36 = &redactLeftRect[4 * redactLeftCount];
-              *v36 = FLOAT_3_4028235e38;
-              v36[1] = FLOAT_3_4028235e38;
-              v36[2] = FLOAT_N3_4028235e38;
-              v36[3] = FLOAT_N3_4028235e38;
+              *v36 = FLT_MAX;
+              v36[1] = FLT_MAX;
+              v36[2] = -FLT_MAX;
+              v36[3] = -FLT_MAX;
               redactLeftOn = 1;
               ++curText;
               count += 2;
@@ -3063,10 +3063,10 @@ void __cdecl DrawText2D(
             else if ( redactCount < 4 )
             {
               v35 = redactRect[redactCount];
-              *v35 = FLOAT_3_4028235e38;
-              v35[1] = FLOAT_3_4028235e38;
-              v35[2] = FLOAT_N3_4028235e38;
-              v35[3] = FLOAT_N3_4028235e38;
+              *v35 = FLT_MAX;
+              v35[1] = FLT_MAX;
+              v35[2] = -FLT_MAX;
+              v35[3] = -FLT_MAX;
               redactOn = 1;
               ++curText;
               count += 2;
@@ -3184,7 +3184,7 @@ void __cdecl DrawText2D(
             glyph = R_GetCharacterGlyph(font, letter);
             if ( letter == origLetter )
             {
-              decayOffset = *(float *)&FLOAT_0_0;
+              decayOffset = 0.0f;
               deltaX = (float)glyph->dx;
             }
             else
@@ -3231,11 +3231,11 @@ void __cdecl DrawText2D(
                 {
                   GlowColor(&finalColor, finalColor, glowForcedColor, renderFlags);
                   resizeOffsX = (float)((float)((float)glyph->pixelWidth
-                                              * COERCE_FLOAT(LODWORD(FLOAT_0_75) ^ _mask__NegFloat_))
+                                              * COERCE_FLOAT(LODWORD(0.75f) ^ _mask__NegFloat_))
                                       * 0.5)
                               * xScale;
                   resizeOffsY = (float)((float)((float)glyph->pixelHeight
-                                              * COERCE_FLOAT(LODWORD(FLOAT_0_125) ^ _mask__NegFloat_))
+                                              * COERCE_FLOAT(LODWORD(0.1f25) ^ _mask__NegFloat_))
                                       * 0.5)
                               * yScale;
                   for ( offIdx = 0; offIdx < 4; ++offIdx )
@@ -3292,7 +3292,7 @@ void __cdecl DrawText2D(
               {
                 if ( (renderFlags & 4) != 0 )
                 {
-                  ofs = FLOAT_1_0;
+                  ofs = 1.0f;
                   if ( (renderFlags & 8) != 0 )
                     ofs = ofs + 1.0;
                   xRot = (float)(xa + xAdj) + (float)(ofs * xScale);
@@ -3584,8 +3584,8 @@ double __cdecl RB_DrawHudIcon(
     __debugbreak();
   if ( *text == 1 )
   {
-    s0 = *(float *)&FLOAT_0_0;
-    s1 = FLOAT_1_0;
+    s0 = 0.0f;
+    s1 = 1.0f;
   }
   else
   {
@@ -3600,8 +3600,8 @@ double __cdecl RB_DrawHudIcon(
     {
       __debugbreak();
     }
-    s0 = FLOAT_1_0;
-    s1 = *(float *)&FLOAT_0_0;
+    s0 = 1.0f;
+    s1 = 0.0f;
   }
   w = (float)((font->pixelHeight * (text[1] - 16) + 16) / 32) * xScale;
   h = (float)((font->pixelHeight * (text[2] - 16) + 16) / 32) * yScale;
@@ -3955,7 +3955,7 @@ char __cdecl SetupPopInFXVars(
       decaying = 1;
       decayTimeElapsed = timeElapsed - fxDecayStartTime;
     }
-    *sizeIncrease = FLOAT_2_0;
+    *sizeIncrease = 2.0f;
     *resultRandSeed = 0;
     *resultMaxLength = maxLength;
     *resultDecaying = decaying;
@@ -4174,7 +4174,7 @@ void __cdecl SetupRedactFXVars(
   {
     *mat = rgp.redactMaterial1;
   }
-  *u = *(float *)&FLOAT_0_0;
+  *u = 0.0f;
   if ( timeElapsed >= fxRedactDecayStartTime )
   {
     if ( mode == 1 )
@@ -4228,7 +4228,7 @@ void __cdecl GetDecayingStringAlphaInfo(
   int v7; // [esp+28h] [ebp-2Ch]
   float fade; // [esp+48h] [ebp-Ch]
 
-  fade = FLOAT_1_0;
+  fade = 1.0f;
   if ( (int)(float)(30.0 * (float)((float)fxDecayDuration / 1000.0)) > 0 )
   {
     if ( decayTimeElapsed <= fxDecayDuration )
@@ -5015,15 +5015,15 @@ void __cdecl RB_CallExecuteRenderCommands()
     R_SetRenderTargetSize(&gfxCmdBufSourceState, 2u);
     R_SetRenderTarget(gfxCmdBufContext, 2u);
     RB_InitSceneViewport();
-    gfxCmdBufSourceState.input.consts[170][0] = *(float *)&FLOAT_0_0;
-    gfxCmdBufSourceState.input.consts[170][1] = *(float *)&FLOAT_0_0;
-    gfxCmdBufSourceState.input.consts[170][2] = *(float *)&FLOAT_0_0;
-    gfxCmdBufSourceState.input.consts[170][3] = *(float *)&FLOAT_0_0;
+    gfxCmdBufSourceState.input.consts[170][0] = 0.0f;
+    gfxCmdBufSourceState.input.consts[170][1] = 0.0f;
+    gfxCmdBufSourceState.input.consts[170][2] = 0.0f;
+    gfxCmdBufSourceState.input.consts[170][3] = 0.0f;
     R_DirtyCodeConstant(&gfxCmdBufSourceState, 0xAAu);
-    gfxCmdBufSourceState.input.consts[171][0] = *(float *)&FLOAT_0_0;
-    gfxCmdBufSourceState.input.consts[171][1] = *(float *)&FLOAT_0_0;
-    gfxCmdBufSourceState.input.consts[171][2] = *(float *)&FLOAT_0_0;
-    gfxCmdBufSourceState.input.consts[171][3] = *(float *)&FLOAT_0_0;
+    gfxCmdBufSourceState.input.consts[171][0] = 0.0f;
+    gfxCmdBufSourceState.input.consts[171][1] = 0.0f;
+    gfxCmdBufSourceState.input.consts[171][2] = 0.0f;
+    gfxCmdBufSourceState.input.consts[171][3] = 0.0f;
     R_DirtyCodeConstant(&gfxCmdBufSourceState, 0xABu);
     if ( rgp.heatMapImage )
       R_SetCodeImageTexture(&gfxCmdBufSourceState, 0x2Au, rgp.heatMapImage);
@@ -5715,10 +5715,10 @@ void __cdecl RB_SaveScreen(const GfxSaveScreenParam *p, const GfxViewInfo *viewI
     ssParams = &rgp.savedScreenParams[p->screenTimerId];
     if ( (viewInfo->sceneComposition.renderingMode & 7) != 0 )
     {
-      ssParams->s0 = *(float *)&FLOAT_0_0;
-      ssParams->t0 = *(float *)&FLOAT_0_0;
-      ssParams->ds = FLOAT_1_0;
-      ssParams->dt = FLOAT_1_0;
+      ssParams->s0 = 0.0f;
+      ssParams->t0 = 0.0f;
+      ssParams->ds = 1.0f;
+      ssParams->dt = 1.0f;
       rgp.savedScreenTimes[p->screenTimerId] = gfxCmdBufSourceState.scissorViewport.height;
       ssParams->isSet = 1;
     }
@@ -5726,10 +5726,10 @@ void __cdecl RB_SaveScreen(const GfxSaveScreenParam *p, const GfxViewInfo *viewI
     {
       R_Resolve(gfxCmdBufContext, stru_B50E844.image);
       rgp.savedScreenTimes[p->screenTimerId] = gfxCmdBufSourceState.scissorViewport.height;
-      ssParams->s0 = *(float *)&FLOAT_0_0;
-      ssParams->t0 = *(float *)&FLOAT_0_0;
-      ssParams->ds = FLOAT_1_0;
-      ssParams->dt = FLOAT_1_0;
+      ssParams->s0 = 0.0f;
+      ssParams->t0 = 0.0f;
+      ssParams->ds = 1.0f;
+      ssParams->dt = 1.0f;
       ssParams->isSet = 1;
     }
     else if ( p->mode == 2 )

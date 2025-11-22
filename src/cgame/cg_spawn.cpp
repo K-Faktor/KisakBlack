@@ -432,7 +432,7 @@ void __cdecl CG_SP_trigger_radius(int localClientNum, centity_s *ent, char spawn
   {
     LODWORD(ent->pose.turret.barrelPitch) = LODWORD(radius) ^ _mask__NegFloat_;
     LODWORD(ent->pose.player.waterHeight) = LODWORD(radius) ^ _mask__NegFloat_;
-    ent->pose.player.nextWaterHeightCheck = *(unsigned int *)&FLOAT_0_0;
+    ent->pose.player.nextWaterHeightCheck = 0;
     ent->pose.turret.firingOffset = radius;
     ent->pose.general.maxs[1] = radius;
     ent->pose.general.maxs[2] = height;
@@ -637,17 +637,17 @@ LABEL_55:
             }
             out[1] = (char *)(unsigned __int16)v15;
             undertow_volumes[num_undertow_volumes] = (unsigned __int16)v15;
-            v8 = *(unsigned int *)&FLOAT_0_0;
-            v9 = *(unsigned int *)&FLOAT_0_0;
-            v10 = *(unsigned int *)&FLOAT_0_0;
+            v8 = 0;
+            v9 = 0;
+            v10 = 0;
             sscanf(out[0], "%f %f %f", &v8, &v9, &v10);
             v4 = undertow_origins[num_undertow_volumes];
             *v4 = v8;
             v4[1] = v9;
             v4[2] = v10;
-            force[0] = *(float *)&FLOAT_0_0;
-            force[1] = *(float *)&FLOAT_0_0;
-            force[2] = FLOAT_N200_0;
+            force[0] = 0.0f;
+            force[1] = 0.0f;
+            force[2] = -200.0f;
             if ( forceString )
             {
               if ( *forceString )

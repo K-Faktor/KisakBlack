@@ -67,7 +67,7 @@ void __userpurge NitrousVehicle::_update_wheel_effect_states(NitrousVehicle *thi
       if ( v48 )
       {
         v47 = *((unsigned int *)&rbc_wheel->b2 + 4 * j);
-        *((unsigned int *)&rbc_wheel->rigid_body_constraint + 4 * j + 3) = *(unsigned int *)&FLOAT_0_0;
+        *((unsigned int *)&rbc_wheel->rigid_body_constraint + 4 * j + 3) = 0;
         if ( (*(unsigned int *)(v48 + 176) & 1) != 0 )
         {
           if ( (LODWORD(rbc_wheel[5].m_b2_hitn_loc.y) & 2) != 0
@@ -76,7 +76,7 @@ void __userpurge NitrousVehicle::_update_wheel_effect_states(NitrousVehicle *thi
                 COERCE_FLOAT(LODWORD(t_vel_loc.w) & _mask__AbsFloat_) > s_ableToSkidSpeed) )
           {
             *((unsigned int *)&rbc_wheel->b1 + 4 * j) = 2;
-            *((float *)&rbc_wheel->rigid_body_constraint + 4 * j + 3) = FLOAT_1_0;
+            *((float *)&rbc_wheel->rigid_body_constraint + 4 * j + 3) = 1.0f;
           }
           else if ( (*(unsigned int *)(v48 + 176) & 4) != 0 )
           {
@@ -165,7 +165,7 @@ void __userpurge NitrousVehicle::_update_wheel_effect_states(NitrousVehicle *thi
         else
         {
           *((unsigned int *)&rbc_wheel->b1 + 4 * j) = 1;
-          *((unsigned int *)&rbc_wheel->rigid_body_constraint + 4 * j + 3) = *(unsigned int *)&FLOAT_0_0;
+          *((unsigned int *)&rbc_wheel->rigid_body_constraint + 4 * j + 3) = 0;
         }
         if ( v47 == *((unsigned int *)&rbc_wheel->b1 + 4 * j) )
         {
@@ -174,7 +174,7 @@ void __userpurge NitrousVehicle::_update_wheel_effect_states(NitrousVehicle *thi
         else
         {
           *((unsigned int *)&rbc_wheel->b2 + 4 * j) = v47;
-          *((unsigned int *)&rbc_wheel->m_next + 4 * j) = *(unsigned int *)&FLOAT_0_0;
+          *((unsigned int *)&rbc_wheel->m_next + 4 * j) = 0;
         }
       }
     }
@@ -391,7 +391,7 @@ double __userpurge NitrousVehicle::debug_render_wheel_effects@<st0>(
   if ( (float)(0.0 - v12) < 0.0 )
     end.z = end.w;
   else
-    end.z = *(float *)&FLOAT_0_0;
+    end.z = 0.0f;
   operator*((phys_vec3 *)&v8, (const phys_vec3 *)v11, end.z);
   if ( NitrousVehicle::is_peeling_out(rate) )
     Phys_DebugPoint((const phys_vec3 *)&v70, color[2], colorMagenta);

@@ -272,8 +272,8 @@ void __cdecl UI_EmblemUpdate(int localClientNum)
   menuDef_t *emblemMenu; // [esp+94h] [ebp-4h]
 
   ANGULAR_VELOCITY = FLOAT_72_0;
-  MOVEMENT_VELOCITY = FLOAT_0_40000001;
-  SCALE_VELOCITY = FLOAT_0_80000001;
+  MOVEMENT_VELOCITY = 0.4f;
+  SCALE_VELOCITY = 0.8f;
   uiInfo = UI_GetInfo(localClientNum);
   controllerIndex = Com_LocalClient_GetControllerIndex(localClientNum);
   timeScale = 1.0 / uiInfo->uiDC.FPS;
@@ -503,41 +503,41 @@ void __cdecl UI_EmblemClampLayer(CompositeEmblemLayer *layer)
   if ( (float)(v11 - 1.0) < 0.0 )
     v12 = layer->pos[0];
   else
-    v12 = FLOAT_1_0;
+    v12 = 1.0f;
   if ( (float)(-1.0 - v11) < 0.0 )
     v4 = v12;
   else
-    v4 = FLOAT_N1_0;
+    v4 = -1.0f;
   layer->pos[0] = v4;
   v9 = layer->pos[1];
   if ( (float)(v9 - 1.0) < 0.0 )
     v10 = layer->pos[1];
   else
-    v10 = FLOAT_1_0;
+    v10 = 1.0f;
   if ( (float)(-1.0 - v9) < 0.0 )
     v3 = v10;
   else
-    v3 = FLOAT_N1_0;
+    v3 = -1.0f;
   layer->pos[1] = v3;
   v7 = layer->scale[0];
   if ( (float)(v7 - 4.0) < 0.0 )
     v8 = layer->scale[0];
   else
-    v8 = FLOAT_4_0;
+    v8 = 4.0f;
   if ( (float)(-4.0 - v7) < 0.0 )
     v2 = v8;
   else
-    v2 = FLOAT_N4_0;
+    v2 = -4.0f;
   layer->scale[0] = v2;
   v5 = layer->scale[1];
   if ( (float)(v5 - 4.0) < 0.0 )
     v6 = layer->scale[1];
   else
-    v6 = FLOAT_4_0;
+    v6 = 4.0f;
   if ( (float)(-4.0 - v5) < 0.0 )
     v1 = v6;
   else
-    v1 = FLOAT_N4_0;
+    v1 = -4.0f;
   layer->scale[1] = v1;
   if ( layer->angle >= 360.0 )
     layer->angle = layer->angle - 360.0;

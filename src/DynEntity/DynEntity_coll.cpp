@@ -699,7 +699,7 @@ double __cdecl DynEnt_GetRadiusDistSqr(const DynEntityColl *dynEntColl, const fl
     if ( absMins[vecIndex] <= origin[vecIndex] )
     {
       if ( origin[vecIndex] <= absMaxs[vecIndex] )
-        offset[vecIndex] = *(float *)&FLOAT_0_0;
+        offset[vecIndex] = 0.0f;
       else
         offset[vecIndex] = origin[vecIndex] - absMaxs[vecIndex];
     }
@@ -757,7 +757,7 @@ double __cdecl DynEnt_GetCylindricalRadiusDistSqr(const DynEntityColl *dynEntCol
     if ( absMins[vecIndex] <= origin[vecIndex] )
     {
       if ( origin[vecIndex] <= absMaxs[vecIndex] )
-        offset[vecIndex] = *(float *)&FLOAT_0_0;
+        offset[vecIndex] = 0.0f;
       else
         offset[vecIndex] = origin[vecIndex] - absMaxs[vecIndex];
     }

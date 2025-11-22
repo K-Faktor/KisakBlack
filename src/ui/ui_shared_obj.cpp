@@ -1171,11 +1171,11 @@ void __cdecl Item_Init(itemDef_s *item, int imageTrack)
 void __cdecl Window_Init(windowDef_t *w)
 {
   memset((unsigned __int8 *)w, 0, sizeof(windowDef_t));
-  w->borderSize = FLOAT_1_0;
-  w->foreColor[3] = FLOAT_1_0;
-  w->foreColor[2] = FLOAT_1_0;
-  w->foreColor[1] = FLOAT_1_0;
-  w->foreColor[0] = FLOAT_1_0;
+  w->borderSize = 1.0f;
+  w->foreColor[3] = 1.0f;
+  w->foreColor[2] = 1.0f;
+  w->foreColor[1] = 1.0f;
+  w->foreColor[0] = 1.0f;
 }
 
 int __cdecl Item_Parse(int handle, itemDef_s *item)
@@ -1275,7 +1275,7 @@ void __cdecl Item_ValidateTypeData(itemDef_s *item, int handle)
         item->typeData.textDef = (textDef_s *)UI_Alloc(0x44u, 4);
         item->typeData.textDef->textTypeData.focusItemDef = (focusItemDef_s *)UI_Alloc(0x18u, 4);
         item->typeData.textDef->textTypeData.focusItemDef->focusTypeData.listBox = (listBoxDef_s *)UI_Alloc(0x24u, 4);
-        item->typeData.textDef->textscale = FLOAT_0_55000001;
+        item->typeData.textDef->textscale = 0.5f5000001;
         if ( item->type == 5
           || item->type == 13
           || item->type == 7
@@ -1297,13 +1297,13 @@ void __cdecl Item_ValidateTypeData(itemDef_s *item, int handle)
         item->typeData.textDef = (textDef_s *)UI_Alloc(0x44u, 4);
         item->typeData.textDef->textTypeData.focusItemDef = (focusItemDef_s *)UI_Alloc(0x18u, 4);
         item->typeData.textDef->textTypeData.focusItemDef->focusTypeData.listBox = (listBoxDef_s *)UI_Alloc(4u, 4);
-        item->typeData.textDef->textscale = FLOAT_0_55000001;
+        item->typeData.textDef->textscale = 0.5f5000001;
         break;
       case 0xA:
         item->typeData.textDef = (textDef_s *)UI_Alloc(0x44u, 4);
         item->typeData.textDef->textTypeData.focusItemDef = (focusItemDef_s *)UI_Alloc(0x18u, 4);
         item->typeData.textDef->textTypeData.focusItemDef->focusTypeData.listBox = (listBoxDef_s *)UI_Alloc(0x18Cu, 4);
-        item->typeData.textDef->textscale = FLOAT_0_55000001;
+        item->typeData.textDef->textscale = 0.5f5000001;
         break;
       case 2:
       case 6:
@@ -1317,13 +1317,13 @@ void __cdecl Item_ValidateTypeData(itemDef_s *item, int handle)
       case 1:
       case 0x12:
         item->typeData.textDef = (textDef_s *)UI_Alloc(0x44u, 4);
-        item->typeData.textDef->textscale = FLOAT_0_55000001;
+        item->typeData.textDef->textscale = 0.5f5000001;
         break;
       case 3:
       case 0x14:
         item->typeData.textDef = (textDef_s *)UI_Alloc(0x44u, 4);
         item->typeData.textDef->textTypeData.focusItemDef = (focusItemDef_s *)UI_Alloc(0x18u, 4);
-        item->typeData.textDef->textscale = FLOAT_0_55000001;
+        item->typeData.textDef->textscale = 0.5f5000001;
         break;
       case 0x15:
       case 0x13:
@@ -1333,12 +1333,12 @@ void __cdecl Item_ValidateTypeData(itemDef_s *item, int handle)
         item->typeData.textDef = (textDef_s *)UI_Alloc(0x44u, 4);
         item->typeData.textDef->textTypeData.focusItemDef = (focusItemDef_s *)UI_Alloc(0x18u, 4);
         item->typeData.textDef->textTypeData.focusItemDef->focusTypeData.listBox = (listBoxDef_s *)UI_Alloc(0x29Cu, 4);
-        item->typeData.textDef->textscale = FLOAT_0_55000001;
+        item->typeData.textDef->textscale = 0.5f5000001;
         break;
       case 0xF:
         item->typeData.textDef = (textDef_s *)UI_Alloc(0x44u, 4);
         item->typeData.textDef->textTypeData.focusItemDef = (focusItemDef_s *)UI_Alloc(8u, 4);
-        item->typeData.textDef->textscale = FLOAT_0_55000001;
+        item->typeData.textDef->textscale = 0.5f5000001;
         break;
     }
   }
@@ -1577,8 +1577,8 @@ int  WindowParse_frame@<eax>(long double a1@<esi:edi>, windowDef_t *window, int 
 {
   int bits; // [esp+0h] [ebp-4h] BYREF
 
-  window->frameTexSize = FLOAT_0_5;
-  window->frameSize = *(float *)&FLOAT_0_0;
+  window->frameTexSize = 0.5f;
+  window->frameSize = 0.0f;
   if ( !PC_Float_Parse(a1, handle, &window->frameSize) )
     return 0;
   if ( !PC_Float_Parse(a1, handle, &window->frameTexSize) )
@@ -2636,9 +2636,9 @@ int __cdecl ItemParse_dvar(itemDef_s *item, int handle)
     {
       __debugbreak();
     }
-    editPtr->minVal = FLOAT_N1_0;
-    editPtr->maxVal = FLOAT_N1_0;
-    editPtr->defVal = FLOAT_N1_0;
+    editPtr->minVal = -1.0f;
+    editPtr->maxVal = -1.0f;
+    editPtr->defVal = -1.0f;
   }
   return 1;
 }
@@ -3440,10 +3440,10 @@ void __cdecl Menu_PostParse(menuDef_t *menu)
   memcpy((unsigned __int8 *)menu->items, (unsigned __int8 *)g_load_0.items, size);
   if ( menu->fullScreen )
   {
-    menu->window.rect.x = *(float *)&FLOAT_0_0;
-    menu->window.rect.y = *(float *)&FLOAT_0_0;
-    menu->window.rect.w = FLOAT_640_0;
-    menu->window.rect.h = FLOAT_480_0;
+    menu->window.rect.x = 0.0f;
+    menu->window.rect.y = 0.0f;
+    menu->window.rect.w = 640.0f;
+    menu->window.rect.h = 480.0f;
   }
   Menu_UpdatePosition(0, menu);
 }

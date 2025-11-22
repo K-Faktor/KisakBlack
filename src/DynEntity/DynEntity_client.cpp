@@ -109,12 +109,12 @@ void __cdecl DynEntCl_LinkModel(unsigned __int16 dynEntId)
   XModelGetBounds(model, modelBoundsVec3[0], modelBoundsVec3[1]);
   *(_QWORD *)modelBoundsFloat4[0].v = *(_QWORD *)&modelBoundsVec3[0][0];
   *(_QWORD *)&modelBoundsFloat4[0].unitVec[2].packed = __PAIR64__(
-                                                         *(unsigned int *)&FLOAT_0_0,
+                                                         0,
                                                          LODWORD(modelBoundsVec3[0][2]));
   modelBoundsFloat4[1].v[0] = modelBoundsVec3[1][0];
   modelBoundsFloat4[1].v[1] = modelBoundsVec3[1][1];
   modelBoundsFloat4[1].v[2] = modelBoundsVec3[1][2];
-  modelBoundsFloat4[1].u[3] = *(unsigned int *)&FLOAT_0_0;
+  modelBoundsFloat4[1].u[3] = 0;
   UnitQuatToAxis(dynEntPose->pose.quat, modelAxis);
   v10 = dynEntPose->pose.origin[0];
   v11 = dynEntPose->pose.origin[1];
@@ -853,7 +853,7 @@ void __cdecl DynEnt_UpdateConstraints(int localClientNum, DynEntityClient *dynEn
                   {
                     light = CG_GetEntity(clientindex, entnum);
                     if ( light )
-                      light->nextState.lerp.u.loopFx.period = *(unsigned int *)&FLOAT_0_0;
+                      light->nextState.lerp.u.loopFx.period = 0;
                   }
                 }
               }
@@ -1496,12 +1496,12 @@ void DynEntCl_CleanUpOldModels()
       ++numPlayers;
     }
   }
-  furthestDistSq = *(float *)&FLOAT_0_0;
+  furthestDistSq = 0.0f;
   furthestId = -1;
   for ( id = cm.originalDynEntCount; id < (int)cm.dynEntCount[0]; ++id )
   {
     dynEntPose = DynEnt_GetClientPose(id, DYNENT_DRAW_MODEL);
-    distSq = FLOAT_3_4028235e38;
+    distSq = FLT_MAX;
     for ( i = 0; i < numPlayers; ++i )
     {
       v1 = Vec3DistanceSq(dynEntPose->pose.origin, &playerPositions[3 * i]);
@@ -1554,7 +1554,7 @@ void __cdecl DynEntCl_PointTrace(const pointtrace_t *clip, trace_t *results)
     LODWORD(start[1]) = clip->extents.start.vec.u[2];
     end[0] = *(_QWORD *)clip->extents.end.vec.v;
     LODWORD(end[1]) = clip->extents.end.vec.u[2];
-    HIDWORD(start[1]) = *(unsigned int *)&FLOAT_0_0;
+    HIDWORD(start[1]) = 0;
     HIDWORD(end[1]) = LODWORD(results->fraction);
     DynEntCl_PointTrace_r(DYNENT_COLL_CLIENT_BRUSH, clip, 1u, (float *)start, (float *)end, results);
     if ( results->fraction == 0.0 )
@@ -1860,7 +1860,7 @@ void __cdecl DynEntCl_TurnOffLight(const DynEntityDef *dynEntDef)
           {
             light = CG_GetEntity(clientindex, entnum);
             if ( light )
-              light->nextState.lerp.u.loopFx.period = *(unsigned int *)&FLOAT_0_0;
+              light->nextState.lerp.u.loopFx.period = 0;
           }
         }
       }
@@ -2124,11 +2124,11 @@ double __cdecl DynEntCl_GetFadeTime(unsigned __int16 dynEntId, DynEntityDrawType
   if ( (float)(v4 - 1.0) < 0.0 )
     v5 = v4;
   else
-    v5 = FLOAT_1_0;
+    v5 = 1.0f;
   if ( (float)(0.0 - v4) < 0.0 )
     return v5;
   else
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
 }
 
 void __cdecl DynEntCl_SetBurning(unsigned __int16 dynEntId, DynEntityDrawType drawType, bool burning)
@@ -2357,11 +2357,11 @@ double __cdecl DynEntCl_GetBurnTime(unsigned __int16 dynEntId, DynEntityDrawType
   if ( (float)(v4 - 1.0) < 0.0 )
     v5 = v4;
   else
-    v5 = FLOAT_1_0;
+    v5 = 1.0f;
   if ( (float)(0.0 - v4) < 0.0 )
     return v5;
   else
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
 }
 
 void __cdecl DynEntCl_MeleeEvent(int localClientNum, int attackerEntNum)
@@ -2524,7 +2524,7 @@ void __cdecl DynEntCl_EntityImpactEvent(
       if ( obj )
       {
         physPreset = DObjGetPhysPreset(obj);
-        presetBulletForceScale = FLOAT_1_0;
+        presetBulletForceScale = 1.0f;
         if ( physPreset )
           presetBulletForceScale = physPreset->bulletForceScale;
         Phys_ObjBulletImpact(
@@ -2714,7 +2714,7 @@ char __cdecl DynEntCl_DynEntImpactEvent(
   {
 LABEL_24:
     memset((unsigned __int8 *)&trace, 0, sizeof(trace));
-    trace.fraction = FLOAT_1_0;
+    trace.fraction = 1.0f;
     *(_QWORD *)clip.extents.start.vec.v = *(_QWORD *)start;
     clip.extents.start.vec.v[2] = start[2];
     *(_QWORD *)clip.extents.end.vec.v = *(_QWORD *)end;
@@ -2893,7 +2893,7 @@ void __cdecl DynEntCl_ExplosionEvent(
     Rope_ExplosionEvent(origin, innerRadius, outerRadius, innerDamage, outerDamage);
     v40 = outerRadius * outerRadius;
     v37 = innerRadius * innerRadius;
-    v28 = *(float *)&FLOAT_0_0;
+    v28 = 0.0f;
     if ( (float)(outerRadius * outerRadius) > (float)(innerRadius * innerRadius) )
       v28 = 1.0 / (float)(innerRadius - outerRadius);
     LODWORD(v14) = COERCE_UNSIGNED_INT(1.4142135 * outerRadius) ^ _mask__NegFloat_;
@@ -2905,8 +2905,8 @@ void __cdecl DynEntCl_ExplosionEvent(
     v20 = origin[2] + (float)(1.4142135 * outerRadius);
     if ( isCylinder )
     {
-      v36 = FLOAT_N3_4028235e38;
-      v20 = FLOAT_3_4028235e38;
+      v36 = -FLT_MAX;
+      v20 = FLT_MAX;
     }
     for ( drawType = DYNENT_DRAW_MODEL; (unsigned int)drawType < DYNENT_DRAW_COUNT; ++drawType )
     {
@@ -2975,7 +2975,7 @@ void __cdecl DynEntCl_ExplosionEvent(
             if ( 0.0 == *impulse && impulse[1] == 0.0 && impulse[2] == 0.0 )
             {
               if ( isCylinder )
-                v23 = *(float *)&FLOAT_0_0;
+                v23 = 0.0f;
               Vec3Normalize(&v);
               v23 = v23 + dynEnt_explodeUpbias->current.value;
               Vec3Normalize(&v);
@@ -3192,10 +3192,10 @@ void __cdecl CreateRopes(int localClientNum)
         {
           rope_width = constraint->minAngle;
           if ( rope_width <= 0.0 )
-            rope_width = FLOAT_1_8;
+            rope_width = 1.8f;
           force_scale = constraint->scale[0];
           if ( force_scale <= 0.0 )
-            force_scale = FLOAT_1_0;
+            force_scale = 1.0f;
           Rope_Create(
             rope_index,
             constraint->pos,

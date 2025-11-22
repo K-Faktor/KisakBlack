@@ -477,10 +477,10 @@ char  CL_CompositeDrawEmblemPhysical@<al>(
   verts[2].st[1] = verts[1].st[1];
   for ( widthMin = 0.0; SLODWORD(widthMin) < 4; ++LODWORD(widthMin) )
     R_ConvertColorToBytes(color, (unsigned __int8 *)&verts[LODWORD(widthMin)].xy[1]);
-  widthMax = FLOAT_0_47999999;
-  smoothRange = FLOAT_0_1;
-  widthRange = FLOAT_314_0;
-  smooth = FLOAT_64_0;
+  widthMax = 0.48f;
+  smoothRange = 0.1f;
+  widthRange = 314.0f;
+  smooth = 64.0f;
   v28 = 0.47999999 - 0.1;
   v27 = 64.0 - 314.0;
   *(float *)&layerIdx = (float)((float)((float)(w - 314.0) / (float)(64.0 - 314.0)) * (float)(0.47999999 - 0.1)) + 0.1;
@@ -498,23 +498,23 @@ char  CL_CompositeDrawEmblemPhysical@<al>(
   LODWORD(coords[2][1]) = layerCount - 1;
   while ( coords[2][1] >= 0.0 )
   {
-    outlineSize = FLOAT_N0_5;
-    image = (GfxImage *)LODWORD(FLOAT_N0_5);
-    layer = (const CompositeEmblemLayer *)LODWORD(FLOAT_0_5);
-    *(_QWORD *)&coords[0][0] = __PAIR64__(LODWORD(FLOAT_0_5), LODWORD(FLOAT_N0_5));
-    *(_QWORD *)&coords[1][0] = __PAIR64__(LODWORD(FLOAT_N0_5), LODWORD(FLOAT_0_5));
-    coords[2][0] = FLOAT_0_5;
+    outlineSize = -0.5f;
+    image = (GfxImage *)LODWORD(-0.5f);
+    layer = (const CompositeEmblemLayer *)LODWORD(0.5f);
+    *(_QWORD *)&coords[0][0] = __PAIR64__(LODWORD(0.5f), LODWORD(-0.5f));
+    *(_QWORD *)&coords[1][0] = __PAIR64__(LODWORD(-0.5f), LODWORD(0.5f));
+    coords[2][0] = 0.5f;
     LODWORD(matResult[2][2]) = &layers[LODWORD(coords[2][1])];
     LODWORD(matResult[2][1]) = BG_EmblemsGetIconImage(*(_WORD *)LODWORD(matResult[2][2]));
     if ( *(_BYTE *)(LODWORD(matResult[2][2]) + 28) )
       matResult[2][0] = BG_EmblemsGetIconOutlineSize(*(_WORD *)LODWORD(matResult[2][2]));
     else
-      matResult[2][0] = *(float *)&FLOAT_0_0;
+      matResult[2][0] = 0.0f;
     if ( LODWORD(matResult[2][1]) && R_StreamTouchImageAndCheck((GfxImage *)LODWORD(matResult[2][1]), 0) )
     {
       MatrixIdentity33((float (*)[3])matRotate[2]);
-      matResult[1][0] = FLOAT_0_5;
-      matResult[1][1] = FLOAT_0_5;
+      matResult[1][0] = 0.5f;
+      matResult[1][1] = 0.5f;
       MatrixRotationZ((float (*)[3])matScale[2], *(float *)(LODWORD(matResult[2][2]) + 24));
       MatrixIdentity33((float (*)[3])&matPlacement_12[20]);
       *(unsigned int *)&matPlacement_12[16] = *(unsigned int *)(LODWORD(matResult[2][2]) + 16);
@@ -546,7 +546,7 @@ char  CL_CompositeDrawEmblemPhysical@<al>(
       if ( (float)(0.1 - (float)(v26 - matResult[2][0])) < 0.0 )
         *((float *)&smoothSize + 1) = v26 - matResult[2][0];
       else
-        *((float *)&smoothSize + 1) = FLOAT_0_1;
+        *((float *)&smoothSize + 1) = 0.1f;
       R_AddCmdDrawEmblemLayer(
         (Material *)LODWORD(verts[3].st[0]),
         (const GfxImage *)LODWORD(matResult[2][1]),
@@ -586,11 +586,11 @@ void __cdecl CL_CompositeResetLayer(CompositeEmblemLayer *layer)
   {
     __debugbreak();
   }
-  layer->pos[0] = *(float *)&FLOAT_0_0;
-  layer->pos[1] = *(float *)&FLOAT_0_0;
-  layer->scale[0] = *(float *)&FLOAT_0_0;
-  layer->scale[1] = *(float *)&FLOAT_0_0;
-  layer->angle = *(float *)&FLOAT_0_0;
+  layer->pos[0] = 0.0f;
+  layer->pos[1] = 0.0f;
+  layer->scale[0] = 0.0f;
+  layer->scale[1] = 0.0f;
+  layer->angle = 0.0f;
   layer->outline = 0;
   layer->flip = 0;
 }
@@ -602,11 +602,11 @@ void __cdecl CL_CompositeClearLayer(CompositeEmblemLayer *layer)
   {
     __debugbreak();
   }
-  layer->pos[0] = *(float *)&FLOAT_0_0;
-  layer->pos[1] = *(float *)&FLOAT_0_0;
-  layer->scale[0] = *(float *)&FLOAT_0_0;
-  layer->scale[1] = *(float *)&FLOAT_0_0;
-  layer->angle = *(float *)&FLOAT_0_0;
+  layer->pos[0] = 0.0f;
+  layer->pos[1] = 0.0f;
+  layer->scale[0] = 0.0f;
+  layer->scale[1] = 0.0f;
+  layer->angle = 0.0f;
   layer->outline = 0;
   layer->flip = 0;
   layer->colorIdx = 0;

@@ -700,9 +700,9 @@ void __cdecl Scr_GetGenericField(
       Scr_AddVector((float *)&b[ofs], inst);
       break;
     case F_VECTORHACK:
-      vec[0] = *(float *)&FLOAT_0_0;
+      vec[0] = 0.0f;
       vec[1] = *(float *)&b[ofs];
-      vec[2] = *(float *)&FLOAT_0_0;
+      vec[2] = 0.0f;
       Scr_AddVector(vec, inst);
       break;
     case F_BITFLAG:

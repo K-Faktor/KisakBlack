@@ -115,7 +115,7 @@ void __cdecl R_PixelCost_SetConstant(GfxCmdBufSourceState *source, int cost)
   {
     weights[0] = FLOAT_0_094156861;
     weights[1] = FLOAT_0_031411767;
-    weights[2] = *(float *)&FLOAT_0_0;
+    weights[2] = 0.0f;
     weights[3] = FLOAT_0_0039607841;
   }
   R_SetCodeConstantFromVec4(source, 0x22u, weights);

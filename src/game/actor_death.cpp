@@ -31,8 +31,8 @@ char __fastcall Actor_Death_Start(actor_s *self, ai_state_t ePrevState)
     self->ProneInfo.prone = 1;
     self->ProneInfo.bCorpseOrientation = 1;
     self->ProneInfo.iProneTrans = 500;
-    self->ProneInfo.fTorsoPitch = *(float *)&FLOAT_0_0;
-    self->ProneInfo.fWaistPitch = *(float *)&FLOAT_0_0;
+    self->ProneInfo.fTorsoPitch = 0.0f;
+    self->ProneInfo.fWaistPitch = 0.0f;
     Actor_OrientCorpseToGround(self->ent, 0);
   }
   Actor_SetSubState(self, STATE_DEATH_PRECLEANUP);

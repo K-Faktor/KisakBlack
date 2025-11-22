@@ -112,7 +112,7 @@ char __cdecl EvaluateHeroLightForGrid(
   *dirToLight = (float)(1.0 / dist) * delta;
   dirToLight[1] = (float)(1.0 / dist) * delta_4;
   dirToLight[2] = (float)(1.0 / dist) * delta_8;
-  spotFactor = FLOAT_1_0;
+  spotFactor = 1.0f;
   if ( light->type == 2 )
   {
     spotDot = (float)((float)(*dirToLight * light->dir[0]) + (float)(dirToLight[1] * light->dir[1]))
@@ -133,11 +133,11 @@ char __cdecl EvaluateHeroLightForGrid(
   if ( (float)(v7 - 1.0) < 0.0 )
     v8 = dist / light->radius;
   else
-    v8 = FLOAT_1_0;
+    v8 = 1.0f;
   if ( (float)(0.0 - v7) < 0.0 )
     v5 = v8;
   else
-    v5 = *(float *)&FLOAT_0_0;
+    v5 = 0.0f;
   v6 = (float)(1.0 - v5) * spotFactor;
   *attenuatedColor = v6 * light->color[0];
   attenuatedColor[1] = v6 * light->color[1];
@@ -166,7 +166,7 @@ void __cdecl R_AdjustLightColorSamples(GfxDecodedLightGridColors *colors)
   float intensity; // [esp+20h] [ebp-Ch]
 
   intensity = r_lightGridIntensity->current.value;
-  meanSample = *(float *)&FLOAT_0_0;
+  meanSample = 0.0f;
   for ( sampleIter = 0; sampleIter < 0x38; ++sampleIter )
   {
     dest = colors->rgb[sampleIter];

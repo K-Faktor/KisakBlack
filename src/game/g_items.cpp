@@ -692,8 +692,8 @@ gentity_s *__cdecl Drop_Item(gentity_s *ent, const gitem_s *item, float angle, i
 
   angles[0] = ent->r.currentAngles[0];
   angles[1] = ent->r.currentAngles[1] + angle;
-  angles[0] = *(float *)&FLOAT_0_0;
-  angles[2] = *(float *)&FLOAT_0_0;
+  angles[0] = 0.0f;
+  angles[2] = 0.0f;
   if ( novelocity )
   {
     memset(velocity, 0, sizeof(velocity));
@@ -790,13 +790,13 @@ gentity_s *__cdecl LaunchItem(const gitem_s *item, float *origin, float *angles,
     __debugbreak();
   }
   mins = dropped->r.mins;
-  dropped->r.mins[0] = FLOAT_N1_0;
-  mins[1] = FLOAT_N1_0;
-  mins[2] = FLOAT_N1_0;
+  dropped->r.mins[0] = -1.0f;
+  mins[1] = -1.0f;
+  mins[2] = -1.0f;
   maxs = dropped->r.maxs;
-  dropped->r.maxs[0] = FLOAT_1_0;
-  maxs[1] = FLOAT_1_0;
-  maxs[2] = FLOAT_1_0;
+  dropped->r.maxs[0] = 1.0f;
+  maxs[1] = 1.0f;
+  maxs[2] = 1.0f;
   dropped->r.contents = 1079771400;
   dropped->r.contents |= 0x200000u;
   if ( ownerNum < level.maxclients )
@@ -891,7 +891,7 @@ int __cdecl GetFreeDropCueIdx()
     __debugbreak();
   }
   iBest = -1;
-  fBestDistSqrd = FLOAT_N1_0;
+  fBestDistSqrd = -1.0f;
   for ( i = 0; i < maxDroppedWeapon; ++i )
   {
     if ( !EntHandle::isDefined((EntHandle *)(4 * i + 65348584)) )
@@ -911,7 +911,7 @@ int __cdecl GetFreeDropCueIdx()
       }
       if ( !BG_GetWeaponDef(ent->item[0].index % 2048)->avoidDropCleanup )
       {
-        fDistSqrd = FLOAT_3_4028235e38;
+        fDistSqrd = FLT_MAX;
         for ( j = 0; j < level.maxclients; ++j )
         {
           if ( level.clients[j].sess.connected == CON_CONNECTED
@@ -955,8 +955,8 @@ gentity_s *__cdecl ThrowClientWeapon(gentity_s *ent, const gitem_s *item, float 
   float angles[3]; // [esp+24h] [ebp-18h] BYREF
   float vPos[3]; // [esp+30h] [ebp-Ch] BYREF
 
-  angles[0] = *(float *)&FLOAT_0_0;
-  angles[2] = *(float *)&FLOAT_0_0;
+  angles[0] = 0.0f;
+  angles[2] = 0.0f;
   if ( ent->client )
   {
     angles[1] = ent->client->fGunYaw;
@@ -970,7 +970,7 @@ gentity_s *__cdecl ThrowClientWeapon(gentity_s *ent, const gitem_s *item, float 
   }
   else
   {
-    angles[1] = *(float *)&FLOAT_0_0;
+    angles[1] = 0.0f;
     memset(velocity, 0, sizeof(velocity));
   }
   vPos[0] = ent->r.currentOrigin[0];
@@ -1304,12 +1304,12 @@ void __cdecl FinishSpawningItem(gentity_s *ent)
     {
       __debugbreak();
     }
-    mins[0] = FLOAT_N1_0;
-    mins[1] = FLOAT_N1_0;
-    mins[2] = FLOAT_N1_0;
-    maxs[0] = FLOAT_1_0;
-    maxs[1] = FLOAT_1_0;
-    maxs[2] = FLOAT_1_0;
+    mins[0] = -1.0f;
+    mins[1] = -1.0f;
+    mins[2] = -1.0f;
+    maxs[0] = 1.0f;
+    maxs[1] = 1.0f;
+    maxs[2] = 1.0f;
     clipMask = G_ItemClipMask(ent);
     start[0] = ent->r.currentOrigin[0];
     start[1] = ent->r.currentOrigin[1];
@@ -1563,12 +1563,12 @@ void __cdecl G_SpawnItem(gentity_s *ent, const gitem_s *item)
   {
     __debugbreak();
   }
-  ent->r.mins[0] = FLOAT_N1_0;
-  ent->r.mins[1] = FLOAT_N1_0;
-  ent->r.mins[2] = FLOAT_N1_0;
-  ent->r.maxs[0] = FLOAT_1_0;
-  ent->r.maxs[1] = FLOAT_1_0;
-  ent->r.maxs[2] = FLOAT_1_0;
+  ent->r.mins[0] = -1.0f;
+  ent->r.mins[1] = -1.0f;
+  ent->r.mins[2] = -1.0f;
+  ent->r.maxs[0] = 1.0f;
+  ent->r.maxs[1] = 1.0f;
+  ent->r.maxs[2] = 1.0f;
   ent->r.contents = 1079771400;
   ent->r.contents |= 0x200000u;
   ent->s.eType = 3;
@@ -1735,9 +1735,9 @@ void __cdecl G_RunItem(gentity_s *ent)
       ent->s.lerp.pos.trBase[0] = ent->r.currentOrigin[0];
       ent->s.lerp.pos.trBase[1] = ent->r.currentOrigin[1];
       ent->s.lerp.pos.trBase[2] = ent->r.currentOrigin[2];
-      ent->s.lerp.pos.trDelta[0] = *(float *)&FLOAT_0_0;
-      ent->s.lerp.pos.trDelta[1] = *(float *)&FLOAT_0_0;
-      ent->s.lerp.pos.trDelta[2] = *(float *)&FLOAT_0_0;
+      ent->s.lerp.pos.trDelta[0] = 0.0f;
+      ent->s.lerp.pos.trDelta[1] = 0.0f;
+      ent->s.lerp.pos.trDelta[2] = 0.0f;
     }
   }
   if ( ((LODWORD(ent->s.lerp.pos.trBase[0]) & 0x7F800000) == 0x7F800000

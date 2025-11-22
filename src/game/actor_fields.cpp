@@ -81,14 +81,14 @@ void __cdecl ActorScr_Clamp_0_1(actor_s *pSelf, const actor_fields_s *pField)
     {
       v3 = va("actor field %s clamped from %g to 0\n", pField->name, fValue);
       Scr_Error(v3, 0);
-      fValue = *(float *)&FLOAT_0_0;
+      fValue = 0.0f;
     }
   }
   else
   {
     v2 = va("actor field %s clamped from %g to 1\n", pField->name, fValue);
     Scr_Error(v2, 0);
-    fValue = FLOAT_1_0;
+    fValue = 1.0f;
   }
   *(float *)((char *)&pSelf->ent + pField->ofs) = fValue;
 }
@@ -107,7 +107,7 @@ void __cdecl ActorScr_Clamp_0_Positive(actor_s *pSelf, const actor_fields_s *pFi
   {
     v2 = va("actor field %s clamped from %g to 0\n", pField->name, value);
     Scr_Error(v2, 0);
-    value = *(float *)&FLOAT_0_0;
+    value = 0.0f;
   }
   *(float *)((char *)&pSelf->ent + pField->ofs) = value;
 }

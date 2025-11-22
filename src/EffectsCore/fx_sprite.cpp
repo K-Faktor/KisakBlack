@@ -48,7 +48,7 @@ void __cdecl FX_GenerateSpriteCodeMeshVertsFixedScreenSize(
 {
   float worldRadius; // [esp+Ch] [ebp-8h] BYREF
 
-  worldRadius = *(float *)&FLOAT_0_0;
+  worldRadius = 0.0f;
   if ( FX_HeightScreenToWorld(pos, radius, &worldRadius, cmd) )
     FX_BuildSpriteCodeMeshVerts(material, pos, worldRadius, rgbaColor, spriteFlags);
 }
@@ -189,7 +189,7 @@ void __cdecl FX_BuildQuadStampCodeMeshVerts(
     baseVerts->xyz[0] = *origin + leftUp[0];
     verts->xyz[1] = origin[1] + leftUp[1];
     verts->xyz[2] = origin[2] + leftUp[2];
-    verts->binormalSign = FLOAT_1_0;
+    verts->binormalSign = 1.0f;
     verts->normal = v30;
     verts->color = nativeColor;
     if ( (int)((2 * s0) ^ 0x80000000) >> 14 < 0x3FFF )
@@ -214,7 +214,7 @@ void __cdecl FX_BuildQuadStampCodeMeshVerts(
     verts[1].xyz[0] = *origin - leftDown[0];
     v26->xyz[1] = origin[1] - leftDown[1];
     v26->xyz[2] = origin[2] - leftDown[2];
-    verts[1].binormalSign = FLOAT_1_0;
+    verts[1].binormalSign = 1.0f;
     verts[1].normal = v30;
     verts[1].color = nativeColor;
     if ( (int)((2 * s1) ^ 0x80000000) >> 14 < 0x3FFF )
@@ -239,7 +239,7 @@ void __cdecl FX_BuildQuadStampCodeMeshVerts(
     verts[2].xyz[0] = *origin - leftUp[0];
     v23->xyz[1] = origin[1] - leftUp[1];
     v23->xyz[2] = origin[2] - leftUp[2];
-    verts[2].binormalSign = FLOAT_1_0;
+    verts[2].binormalSign = 1.0f;
     verts[2].normal = v30;
     verts[2].color = nativeColor;
     if ( (int)((2 * s1) ^ 0x80000000) >> 14 < 0x3FFF )
@@ -264,7 +264,7 @@ void __cdecl FX_BuildQuadStampCodeMeshVerts(
     verts[3].xyz[0] = *origin + leftDown[0];
     v20->xyz[1] = origin[1] + leftDown[1];
     v20->xyz[2] = origin[2] + leftDown[2];
-    verts[3].binormalSign = FLOAT_1_0;
+    verts[3].binormalSign = 1.0f;
     verts[3].normal = v30;
     verts[3].color = nativeColor;
     if ( (int)((2 * s0) ^ 0x80000000) >> 14 < 0x3FFF )
@@ -355,7 +355,7 @@ void __cdecl FX_GenerateSpriteCodeMeshVertsFixedWorldSize(
   float screenRadius; // [esp+14h] [ebp-8h] BYREF
   float screenScale; // [esp+18h] [ebp-4h]
 
-  screenRadius = *(float *)&FLOAT_0_0;
+  screenRadius = 0.0f;
   worldRadius = radius;
   if ( minScreenRadius > 0.0 )
   {

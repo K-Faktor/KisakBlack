@@ -1113,7 +1113,7 @@ char __cdecl R_MarkFragments_BrushSurface(
       if ( markInfo->isSeeThruDecal )
         v7 = SEETHRU_DECAL_EPSISON;
       else
-        v7 = FLOAT_0_5;
+        v7 = 0.5f;
       planeTestEpsilon = v7;
       triIndex = 0;
       while ( triIndex < triSurf->triCount )
@@ -1182,7 +1182,7 @@ char __cdecl R_MarkFragments_BrushSurface(
           v19.packed = v17.packed;
           in.packed = v17.packed;
           Vec3UnpackUnitVec(v17, (float *)&out);
-          in.packed = *(unsigned int *)&FLOAT_0_0;
+          in.packed = 0;
           *(_QWORD *)&normal[0][0] = out;
           LODWORD(normal[0][2]) = (PackedUnitVec)v19.packed;
           v11 = normal[1];
@@ -1192,7 +1192,7 @@ char __cdecl R_MarkFragments_BrushSurface(
           v15.packed = v12.packed;
           v16.packed = v12.packed;
           Vec3UnpackUnitVec(v12, (float *)&v13.packed);
-          v16.packed = *(unsigned int *)&FLOAT_0_0;
+          v16.packed = 0;
           *v11 = *(float *)&v13.packed;
           v11[1] = *(float *)&v14.packed;
           v11[2] = *(float *)&v15.packed;
@@ -1201,7 +1201,7 @@ char __cdecl R_MarkFragments_BrushSurface(
           v9 = *(float *)&v8;
           v10.packed = v8;
           Vec3UnpackUnitVec((const PackedUnitVec)v8, (float *)&v8);
-          v10.packed = *(unsigned int *)&FLOAT_0_0;
+          v10.packed = 0;
           *(_QWORD *)&normal[2][0] = v8;
           normal[2][2] = v9;
           points = &markInfo->points[markInfo->usedPointCount];
@@ -1476,10 +1476,10 @@ void __cdecl R_MarkFragment_SetupWorldClipPoints(
     v3->xyz[0] = v4->xyz[0];
     v3->xyz[1] = v4->xyz[1];
     v3->xyz[2] = v4->xyz[2];
-    v3->vertWeights[0] = *(float *)&FLOAT_0_0;
-    v3->vertWeights[1] = *(float *)&FLOAT_0_0;
-    v3->vertWeights[2] = *(float *)&FLOAT_0_0;
-    v3->vertWeights[pointIndex] = FLOAT_1_0;
+    v3->vertWeights[0] = 0.0f;
+    v3->vertWeights[1] = 0.0f;
+    v3->vertWeights[2] = 0.0f;
+    v3->vertWeights[pointIndex] = 1.0f;
   }
 }
 

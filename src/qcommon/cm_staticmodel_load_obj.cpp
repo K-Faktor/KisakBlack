@@ -72,7 +72,7 @@ void __cdecl CM_LoadStaticModels()
       modelName[0] = 0;
       memset(origin, 0, sizeof(origin));
       memset(angles, 0, sizeof(angles));
-      scale = FLOAT_1_0;
+      scale = 1.0f;
       bMiscModel = 0;
       while ( 1 )
       {

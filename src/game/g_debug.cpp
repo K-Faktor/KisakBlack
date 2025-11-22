@@ -64,9 +64,9 @@ void __cdecl G_DebugCircle(
 
   if ( onGround )
   {
-    dir[0] = *(float *)&FLOAT_0_0;
-    dir[1] = *(float *)&FLOAT_0_0;
-    dir[2] = FLOAT_1_0;
+    dir[0] = 0.0f;
+    dir[1] = 0.0f;
+    dir[2] = 1.0f;
   }
   else
   {

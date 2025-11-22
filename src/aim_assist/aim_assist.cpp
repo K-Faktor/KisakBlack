@@ -301,8 +301,8 @@ void __cdecl AimAssist_Setup(int localClientNum, const playerState_s *ps)
   aaGlob = &aaGlobArray[localClientNum];
   memset((unsigned __int8 *)aaGlob, 0, sizeof(AimAssistGlobals));
   aaGlob->initialized = 1;
-  aaGlob->fovTurnRateScale = FLOAT_1_0;
-  aaGlob->fovScaleInv = FLOAT_1_0;
+  aaGlob->fovTurnRateScale = 1.0f;
+  aaGlob->fovScaleInv = 1.0f;
   aaGlob->screenWidth = *(float *)&dword_2D9E6C0[30 * localClientNum];
   aaGlob->screenHeight = *(float *)&dword_2D9E6C4[30 * localClientNum];
   aaGlob->autoAimTargetEnt = 1023;
@@ -519,7 +519,7 @@ void __cdecl AimAssist_FovScale(AimAssistGlobals *aaGlob, float tanHalfFovY)
   {
     __debugbreak();
   }
-  *((float *)&var8 + 1) = FLOAT_0_47780272;
+  *((float *)&var8 + 1) = 0.47780272f;
   aaGlob->fovTurnRateScale = tanHalfFovY / 0.47780272;
   *(float *)&var8 = (float)(cg_fov->current.value * 0.017453292) * 0.5;
   v2 = *(float *)&var8;
@@ -621,61 +621,61 @@ char __cdecl AimAssist_ConvertToClipBounds(
   if ( (float)((*clipBounds)[0] - 1.0) < 0.0 )
     v21 = (*clipBounds)[0];
   else
-    v21 = FLOAT_1_0;
+    v21 = 1.0f;
   if ( (float)(-1.0 - (*clipBounds)[0]) < 0.0 )
     v10 = v21;
   else
-    v10 = FLOAT_N1_0;
+    v10 = -1.0f;
   (*clipBounds)[0] = v10;
   v19 = (*clipBounds)[1];
   if ( (float)(v19 - 1.0) < 0.0 )
     v20 = (*clipBounds)[1];
   else
-    v20 = FLOAT_1_0;
+    v20 = 1.0f;
   if ( (float)(-1.0 - v19) < 0.0 )
     v9 = v20;
   else
-    v9 = FLOAT_N1_0;
+    v9 = -1.0f;
   (*clipBounds)[1] = v9;
   v17 = (*clipBounds)[2];
   if ( (float)(v17 - 1.0) < 0.0 )
     v18 = (*clipBounds)[2];
   else
-    v18 = FLOAT_1_0;
+    v18 = 1.0f;
   if ( (float)(0.0 - v17) < 0.0 )
     v8 = v18;
   else
-    v8 = *(float *)&FLOAT_0_0;
+    v8 = 0.0f;
   (*clipBounds)[2] = v8;
   v15 = (*clipBounds)[3];
   if ( (float)(v15 - 1.0) < 0.0 )
     v16 = (*clipBounds)[3];
   else
-    v16 = FLOAT_1_0;
+    v16 = 1.0f;
   if ( (float)(-1.0 - v15) < 0.0 )
     v7 = v16;
   else
-    v7 = FLOAT_N1_0;
+    v7 = -1.0f;
   (*clipBounds)[3] = v7;
   v13 = (*clipBounds)[4];
   if ( (float)(v13 - 1.0) < 0.0 )
     v14 = (*clipBounds)[4];
   else
-    v14 = FLOAT_1_0;
+    v14 = 1.0f;
   if ( (float)(-1.0 - v13) < 0.0 )
     v6 = v14;
   else
-    v6 = FLOAT_N1_0;
+    v6 = -1.0f;
   (*clipBounds)[4] = v6;
   v11 = (*clipBounds)[5];
   if ( (float)(v11 - 1.0) < 0.0 )
     v12 = (*clipBounds)[5];
   else
-    v12 = FLOAT_1_0;
+    v12 = 1.0f;
   if ( (float)(0.0 - v11) < 0.0 )
     v5 = v12;
   else
-    v5 = *(float *)&FLOAT_0_0;
+    v5 = 0.0f;
   (*clipBounds)[5] = v5;
   return 1;
 }
@@ -922,7 +922,7 @@ double __cdecl Vec3Normalize(float *v)
   if ( COERCE_FLOAT(LODWORD(length) ^ _mask__NegFloat_) < 0.0 )
     v2 = length;
   else
-    v2 = FLOAT_1_0;
+    v2 = 1.0f;
   *v = *v * (float)(1.0 / v2);
   v[1] = v[1] * (float)(1.0 / v2);
   v[2] = v[2] * (float)(1.0 / v2);
@@ -938,7 +938,7 @@ double __cdecl Vec2Normalize(float *v)
   if ( COERCE_FLOAT(LODWORD(length) ^ _mask__NegFloat_) < 0.0 )
     v2 = length;
   else
-    v2 = FLOAT_1_0;
+    v2 = 1.0f;
   *v = *v * (float)(1.0 / v2);
   v[1] = v[1] * (float)(1.0 / v2);
   return length;
@@ -1101,7 +1101,7 @@ void __cdecl AimAssist_UpdateAdsLerp(const AimInput *input)
   aaGlob = &aaGlobArray[input->localClientNum];
   if ( Demo_IsPlaying() )
   {
-    aaGlob->adsLerp = *(float *)&FLOAT_0_0;
+    aaGlob->adsLerp = 0.0f;
   }
   else
   {
@@ -1109,7 +1109,7 @@ void __cdecl AimAssist_UpdateAdsLerp(const AimInput *input)
     if ( (aaGlob->ps.eFlags & 0x300) != 0 )
     {
       if ( bitarray<51>::testBit(&input->button_bits, 0xBu) )
-        aaGlob->adsLerp = FLOAT_1_0;
+        aaGlob->adsLerp = 1.0f;
     }
   }
 }
@@ -1134,8 +1134,8 @@ void __cdecl AimAssist_ApplyTurnRates(const AimInput *input, AimOutput *output)
   float yawSign; // [esp+4Ch] [ebp-8h]
   float accel; // [esp+50h] [ebp-4h]
 
-  slowdownPitchScale = *(float *)&FLOAT_0_0;
-  slowdownYawScale = *(float *)&FLOAT_0_0;
+  slowdownPitchScale = 0.0f;
+  slowdownYawScale = 0.0f;
   if ( !input
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\aim_assist\\aim_assist.cpp", 1429, 0, "%s", "input") )
   {
@@ -1149,10 +1149,10 @@ void __cdecl AimAssist_ApplyTurnRates(const AimInput *input, AimOutput *output)
   aaGlob = &aaGlobArray[input->localClientNum];
   if ( aaGlob->autoMeleeState == AMS_TARGETING )
   {
-    adjustedPitchAxis = *(float *)&FLOAT_0_0;
-    adjustedYawAxis = *(float *)&FLOAT_0_0;
-    slowdownPitchScale = FLOAT_1_0;
-    slowdownYawScale = FLOAT_1_0;
+    adjustedPitchAxis = 0.0f;
+    adjustedYawAxis = 0.0f;
+    slowdownPitchScale = 1.0f;
+    slowdownYawScale = 1.0f;
   }
   else
   {
@@ -1169,14 +1169,14 @@ void __cdecl AimAssist_ApplyTurnRates(const AimInput *input, AimOutput *output)
   if ( input->yawMax != 0.0 && yawTurnRate > input->yawMax )
     yawTurnRate = input->yawMax;
   if ( adjustedPitchAxis >= 0.0 )
-    v5 = FLOAT_1_0;
+    v5 = 1.0f;
   else
-    v5 = FLOAT_N1_0;
+    v5 = -1.0f;
   pitchSign = v5;
   if ( adjustedYawAxis >= 0.0 )
-    v4 = FLOAT_1_0;
+    v4 = 1.0f;
   else
-    v4 = FLOAT_N1_0;
+    v4 = -1.0f;
   yawSign = v4;
   pitchDelta = COERCE_FLOAT(LODWORD(adjustedPitchAxis) & _mask__AbsFloat_) * pitchTurnRate;
   yawDelta = COERCE_FLOAT(LODWORD(adjustedYawAxis) & _mask__AbsFloat_) * yawTurnRate;
@@ -1265,11 +1265,11 @@ void __cdecl AimAssist_CalcAdjustedAxis(const AimInput *input, float *pitchAxis,
     if ( (float)(deflection - 1.0) < 0.0 )
       v4 = deflection;
     else
-      v4 = FLOAT_1_0;
+      v4 = 1.0f;
     if ( (float)(0.0 - deflection) < 0.0 )
       fraction = v4;
     else
-      fraction = *(float *)&FLOAT_0_0;
+      fraction = 0.0f;
     if ( aim_input_graph_index->current.integer >= 4u
       && !Assert_MyHandler(
             "C:\\projects_pc\\cod\\codsrc\\src\\aim_assist\\aim_assist.cpp",
@@ -1348,8 +1348,8 @@ void __cdecl AimAssist_CalcSlowdown(const AimInput *input, float *pitchScale, fl
     __debugbreak();
   }
   aaGlob = &aaGlobArray[input->localClientNum];
-  *pitchScale = FLOAT_1_0;
-  *yawScale = FLOAT_1_0;
+  *pitchScale = 1.0f;
+  *yawScale = 1.0f;
   aaGlob->aimSlowdownActive = 0;
   aaGlob->aimSlowdownTargetEnt = 1023;
   if ( AimAssist_IsSlowdownActive(&aaGlob->ps) && (aaGlob->ps.weaponstate < 47 || aaGlob->ps.weaponstate > 49) )
@@ -1378,7 +1378,7 @@ void __cdecl AimAssist_CalcSlowdown(const AimInput *input, float *pitchScale, fl
       aaGlob->aimSlowdownTargetEnt = screenTarget->entIndex;
     }
     if ( AimAssist_IsPlayerUsingOffhand(&aaGlob->ps) )
-      *pitchScale = FLOAT_1_0;
+      *pitchScale = 1.0f;
     if ( aim_slowdown_debug->current.enabled )
     {
       Com_Printf(17, "Target slowdown pitch scale = %f\n", *pitchScale);
@@ -1527,7 +1527,7 @@ double __cdecl AimAssist_GetProfileSensitivity()
   else
     sensitivity = Dvar_GetFloat("input_viewSensitivity");
   if ( sensitivity < 0.001 )
-    return FLOAT_1_0;
+    return 1.0f;
   return sensitivity;
 }
 
@@ -1659,10 +1659,10 @@ void __cdecl AimAssist_ClearAutoAimTarget(AimAssistGlobals *aaGlob)
   }
   aaGlob->autoAimTargetEnt = 1023;
   aaGlob->autoAimActive = 0;
-  aaGlob->autoAimPitch = *(float *)&FLOAT_0_0;
-  aaGlob->autoAimPitchTarget = *(float *)&FLOAT_0_0;
-  aaGlob->autoAimYaw = *(float *)&FLOAT_0_0;
-  aaGlob->autoAimYawTarget = *(float *)&FLOAT_0_0;
+  aaGlob->autoAimPitch = 0.0f;
+  aaGlob->autoAimPitchTarget = 0.0f;
+  aaGlob->autoAimYaw = 0.0f;
+  aaGlob->autoAimYawTarget = 0.0f;
   aaGlob->autoAimJustGotTarget = 0;
   aaGlob->autoAimHasRealTarget = 0;
 }
@@ -1904,7 +1904,7 @@ void __cdecl AimAssist_ApplyAutoMelee(const AimInput *input, AimOutput *output)
   {
     __debugbreak();
   }
-  output->meleeChargeYaw = *(float *)&FLOAT_0_0;
+  output->meleeChargeYaw = 0.0f;
   output->meleeChargeDist = 0;
   aaGlob = &aaGlobArray[input->localClientNum];
   tweaks = &aaGlob->tweakables;
@@ -1945,7 +1945,7 @@ LABEL_24:
       if ( dist > 0.0 )
       {
         if ( dist > 255.0 )
-          dist = FLOAT_255_0;
+          dist = 255.0f;
         targetDir[0] = screenTarget->aimPos[0] - aaGlob->viewOrigin[0];
         targetDir[1] = screenTarget->aimPos[1] - aaGlob->viewOrigin[1];
         output->meleeChargeYaw = vectoyaw(targetDir);
@@ -1994,10 +1994,10 @@ void __cdecl AimAssist_ClearAutoMeleeTarget(AimAssistGlobals *aaGlob)
   }
   aaGlob->autoMeleeState = AMS_NOT_ACTIVE;
   aaGlob->autoMeleeTargetEnt = 1023;
-  aaGlob->autoMeleePitch = *(float *)&FLOAT_0_0;
-  aaGlob->autoMeleePitchTarget = *(float *)&FLOAT_0_0;
-  aaGlob->autoMeleeYaw = *(float *)&FLOAT_0_0;
-  aaGlob->autoMeleeYawTarget = *(float *)&FLOAT_0_0;
+  aaGlob->autoMeleePitch = 0.0f;
+  aaGlob->autoMeleePitchTarget = 0.0f;
+  aaGlob->autoMeleeYaw = 0.0f;
+  aaGlob->autoMeleeYawTarget = 0.0f;
 }
 
 char __cdecl AimAssist_UpdateAutoMeleeTarget(AimAssistGlobals *aaGlob, int localClientNum)
@@ -2064,9 +2064,9 @@ void __cdecl AimAssist_SetAutoMeleeTarget(AimAssistGlobals *aaGlob, const AimScr
   aaGlob->autoMeleeTargetEnt = screenTarget->entIndex;
   aaGlob->autoMeleeState = AMS_TARGET_AQUIRED;
   aaGlob->autoMeleePitch = aaGlob->viewAngles[0];
-  aaGlob->autoMeleePitchTarget = *(float *)&FLOAT_0_0;
+  aaGlob->autoMeleePitchTarget = 0.0f;
   aaGlob->autoMeleeYaw = aaGlob->viewAngles[1];
-  aaGlob->autoMeleeYawTarget = *(float *)&FLOAT_0_0;
+  aaGlob->autoMeleeYawTarget = 0.0f;
 }
 
 void __cdecl AimAssist_UpdateMouseInput(const AimInput *input, AimOutput *output)
@@ -2105,14 +2105,14 @@ void __cdecl AimAssist_DrawDebugOverlay(int localClientNum)
   const playerState_s *ps; // [esp+34h] [ebp-8h]
   const AimTweakables *tweaks; // [esp+38h] [ebp-4h]
 
-  red[0] = FLOAT_1_0;
-  red[1] = *(float *)&FLOAT_0_0;
-  red[2] = *(float *)&FLOAT_0_0;
-  red[3] = FLOAT_0_25;
-  green[0] = *(float *)&FLOAT_0_0;
-  green[1] = FLOAT_1_0;
-  green[2] = *(float *)&FLOAT_0_0;
-  green[3] = FLOAT_0_25;
+  red[0] = 1.0f;
+  red[1] = 0.0f;
+  red[2] = 0.0f;
+  red[3] = 0.25f;
+  green[0] = 0.0f;
+  green[1] = 1.0f;
+  green[2] = 0.0f;
+  green[3] = 0.25f;
   aaGlob = &aaGlobArray[localClientNum];
   if ( aaGlob->initialized )
   {

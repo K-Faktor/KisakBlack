@@ -239,7 +239,7 @@ void __cdecl GPad_UpdateAnalogs(int portIndex, const _XINPUT_GAMEPAD *xpad)
     v3 = (float)((float)((float)xpad->bLeftTrigger / 255.0) - gpad_button_deadzone->current.value)
        / (float)(1.0 - gpad_button_deadzone->current.value);
   else
-    v3 = *(float *)&FLOAT_0_0;
+    v3 = 0.0f;
   gPad->analogs[0] = v3;
   gPad->lastAnalogs[1] = gPad->analogs[1];
   if ( (float)(0.0
@@ -248,7 +248,7 @@ void __cdecl GPad_UpdateAnalogs(int portIndex, const _XINPUT_GAMEPAD *xpad)
     v2 = (float)((float)((float)xpad->bRightTrigger / 255.0) - gpad_button_deadzone->current.value)
        / (float)(1.0 - gpad_button_deadzone->current.value);
   else
-    v2 = *(float *)&FLOAT_0_0;
+    v2 = 0.0f;
   gPad->analogs[1] = v2;
 }
 
@@ -304,11 +304,11 @@ void __cdecl GPad_ConvertStickToFloat(__int16 inX, __int16 inY, float *outX, flo
     if ( len <= (float)(1.0 - gpad_stick_deadzone_max->current.value) )
       len = (float)(len - gpad_stick_deadzone_min->current.value) / (float)(1.0 - deadZoneTotal);
     else
-      len = FLOAT_1_0;
+      len = 1.0f;
   }
   else
   {
-    len = *(float *)&FLOAT_0_0;
+    len = 0.0f;
   }
   *outX = stickVec[0] * len;
   *outY = stickVec[1] * len;
@@ -383,7 +383,7 @@ double __cdecl GPad_GetButton(int portIndex, GamePadButton button)
   GamePad *gPad; // [esp+4h] [ebp-Ch]
   float value; // [esp+Ch] [ebp-4h]
 
-  value = *(float *)&FLOAT_0_0;
+  value = 0.0f;
   if ( portIndex
     && !Assert_MyHandler(
           "C:\\projects_pc\\cod\\codsrc\\src\\win32\\win_gamepad.cpp",
@@ -408,9 +408,9 @@ double __cdecl GPad_GetButton(int portIndex, GamePadButton button)
   if ( (button & 0x10000000) != 0 )
   {
     if ( (button & 0xEFFFFFFF & gPad->digitals) != 0 )
-      return FLOAT_1_0;
+      return 1.0f;
     else
-      return *(float *)&FLOAT_0_0;
+      return 0.0f;
   }
   else if ( (button & 0x20000000) != 0 )
   {

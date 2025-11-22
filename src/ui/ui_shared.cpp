@@ -20,11 +20,11 @@ void __cdecl LerpColor(float *a, float *b, float *c, float t)
     if ( c[i] >= 0.0 )
     {
       if ( c[i] > 1.0 )
-        c[i] = FLOAT_1_0;
+        c[i] = 1.0f;
     }
     else
     {
-      c[i] = *(float *)&FLOAT_0_0;
+      c[i] = 0.0f;
     }
   }
 }
@@ -365,7 +365,7 @@ void __cdecl Item_SnapRectClientToMouse(UiContext *dc, itemDef_s *item, float x,
     }
     else
     {
-      compareX = *(float *)&FLOAT_0_0;
+      compareX = 0.0f;
     }
     v4 = scrPlace->realViewportSize[1] - compareH;
     if ( v4 <= 0.0
@@ -380,7 +380,7 @@ void __cdecl Item_SnapRectClientToMouse(UiContext *dc, itemDef_s *item, float x,
     }
     else
     {
-      compareY = *(float *)&FLOAT_0_0;
+      compareY = 0.0f;
     }
   }
   item->window.rectClient.x = ScrPlace_ApplyXinverse(scrPlace, compareX, item->window.rectClient.horzAlign);
@@ -609,16 +609,16 @@ void __cdecl Item_UpdateAnimation(int localClientNum, UiContext *dc, itemDef_s *
       if ( (float)(v4 - 1.0) < 0.0 )
         v5 = (float)msElapsed / (float)item->animInfo->animDuration;
       else
-        v5 = FLOAT_1_0;
+        v5 = 1.0f;
       if ( (float)(0.0 - v4) < 0.0 )
         v3 = v5;
       else
-        v3 = *(float *)&FLOAT_0_0;
+        v3 = 0.0f;
       lerpValue = v3;
     }
     else
     {
-      lerpValue = FLOAT_1_0;
+      lerpValue = 1.0f;
     }
     Item_LerpAnimationParameters(localClientNum, dc->contextIndex, item, lerpValue);
     if ( msElapsed >= item->animInfo->animDuration )
@@ -3931,7 +3931,7 @@ int __cdecl Item_ListBox_Viewmax(int localClientNum, int contextIndex, itemDef_s
     if ( (float)(0.0 - (float)(rect->w - 2.0)) < 0.0 )
       v5 = rect->w - 2.0;
     else
-      v5 = *(float *)&FLOAT_0_0;
+      v5 = 0.0f;
     totalSize = v5;
     unitSize = listPtr->elementWidth;
   }
@@ -3940,7 +3940,7 @@ int __cdecl Item_ListBox_Viewmax(int localClientNum, int contextIndex, itemDef_s
     if ( (float)(0.0 - (float)(rect->h - 2.0)) < 0.0 )
       v4 = rect->h - 2.0;
     else
-      v4 = *(float *)&FLOAT_0_0;
+      v4 = 0.0f;
     totalSize = v4;
     unitSize = listPtr->elementHeight;
   }
@@ -5913,8 +5913,8 @@ int __cdecl Item_Slider_OverSlider(int contextIndex, itemDef_s *item, float x, f
   rect = Window_GetRect(&item->window);
   r.x = Item_Slider_ThumbPosition(item) - 5.0;
   r.y = rect->y - 2.0;
-  r.w = FLOAT_10_0;
-  r.h = FLOAT_20_0;
+  r.w = 10.0f;
+  r.h = 20.0f;
   r.horzAlign = rect->horzAlign;
   r.vertAlign = rect->vertAlign;
   if ( Rect_ContainsPoint(contextIndex, &r, x, y) )
@@ -5996,8 +5996,8 @@ int __cdecl Item_ListBox_OverLB(int localClientNum, int contextIndex, itemDef_s 
   {
     r.x = rect->x;
     r.y = (float)(rect->y + rect->h) - 16.0;
-    r.w = FLOAT_16_0;
-    r.h = FLOAT_16_0;
+    r.w = 16.0f;
+    r.h = 16.0f;
     if ( Rect_ContainsPoint(contextIndex, &r, x, y) )
       return 256;
     r.x = (float)(rect->x + rect->w) - 16.0;
@@ -6021,8 +6021,8 @@ int __cdecl Item_ListBox_OverLB(int localClientNum, int contextIndex, itemDef_s 
     listHeight = Item_ListBox_ScrollHeight(localClientNum, contextIndex, item);
     r.x = (float)(rect->x + rect->w) - 16.0;
     r.y = rect->y + 3.0;
-    r.w = FLOAT_16_0;
-    r.h = FLOAT_16_0;
+    r.w = 16.0f;
+    r.h = 16.0f;
     if ( Rect_ContainsPoint(contextIndex, &r, x, y) )
       return 256;
     r.y = (float)((float)(rect->y + 3.0) + listHeight) - 16.0;
@@ -6071,7 +6071,7 @@ double __cdecl Item_ListBox_ThumbPosition(int localClientNum, int contextIndex, 
   if ( Window_IsHorizontal(&item->window) )
   {
     if ( (int)max <= 0 )
-      pos = *(float *)&FLOAT_0_0;
+      pos = 0.0f;
     else
       pos = (float)((float)((float)(rect->w - 32.0) - 2.0) - 16.0) / (float)(int)max;
     return rect->x + 1.0 + 16.0 + (float)((float)listPtr->startPos[contextIndex] * pos);
@@ -6080,7 +6080,7 @@ double __cdecl Item_ListBox_ThumbPosition(int localClientNum, int contextIndex, 
   {
     scrollHeight = Item_ListBox_ScrollHeight(localClientNum, contextIndex, item);
     if ( (int)max <= 0 )
-      posa = *(float *)&FLOAT_0_0;
+      posa = 0.0f;
     else
       posa = (float)((float)(scrollHeight - 32.0) - 16.0) / (float)(int)max;
     return rect->y + 3.0 + 16.0 + (float)((float)listPtr->startPos[contextIndex] * posa);
@@ -6135,7 +6135,7 @@ void __cdecl Scroll_ListBox_ThumbFunc(int localClientNum, UiContext *dc, scrollI
         ScrPlace_ApplyRect(&scrPlaceView[localClientNum], &r.x, &r.y, &r.w, &r.h, rect->horzAlign, rect->vertAlign);
         r.x = (float)(r.x + 16.0) + 1.0;
         r.y = (float)((float)(r.y + r.h) - 16.0) - 1.0;
-        r.h = FLOAT_16_0;
+        r.h = 16.0f;
         r.w = (float)(r.w - 32.0) - 2.0;
         max = Item_ListBox_MaxScroll(localClientNum, dc->contextIndex, v8->item);
         pos = (int)(float)((float)((float)(x - r.x) / r.w) * (float)(int)max);
@@ -6164,7 +6164,7 @@ void __cdecl Scroll_ListBox_ThumbFunc(int localClientNum, UiContext *dc, scrollI
         r.x = (float)((float)(r.x + r.w) - 16.0) - 1.0;
         r.y = (float)(r.y + 16.0) + 1.0;
         r.h = (float)(r.h - 32.0) - 2.0;
-        r.w = FLOAT_16_0;
+        r.w = 16.0f;
         maxa = Item_ListBox_MaxScroll(localClientNum, dc->contextIndex, v8->item);
         posa = (int)(float)((float)((float)(y - r.y) / r.h) * (float)(int)maxa);
         if ( posa >= 0 )
@@ -6226,8 +6226,8 @@ void __cdecl Scroll_Slider_SetThumbPos(UiContext *dc, itemDef_s *item)
     cursorx = ScrPlace_ApplyX(scrPlace, dc->cursor.x, 4);
     usableStart = (float)(x + 5.0) + 1.0;
     usableWidth = FLOAT_88_0;
-    yIgnored = *(float *)&FLOAT_0_0;
-    hIgnored = *(float *)&FLOAT_0_0;
+    yIgnored = 0.0f;
+    hIgnored = 0.0f;
     ScrPlace_ApplyRect(scrPlace, &usableStart, &yIgnored, &usableWidth, &hIgnored, rect->horzAlign, rect->vertAlign);
     if ( (float)((float)(cursorx - usableStart) + 5.0) >= 0.0 )
     {
@@ -6238,7 +6238,7 @@ void __cdecl Scroll_Slider_SetThumbPos(UiContext *dc, itemDef_s *item)
       if ( (float)(0.0 - (float)(cursorx - usableStart)) < 0.0 )
         v3 = v4;
       else
-        v3 = *(float *)&FLOAT_0_0;
+        v3 = 0.0f;
       value = v3 / usableWidth;
       value = (float)(editDef->maxVal - editDef->minVal) * (float)(v3 / usableWidth);
       value = value + editDef->minVal;
@@ -6285,7 +6285,7 @@ int __cdecl Item_Slider_HandleKey(UiContext *dc, itemDef_s *item, int key)
       VariantString = Dvar_GetVariantString(item->dvar);
       value = atof(VariantString);
       if ( (dvar->type == DVAR_TYPE_INT || dvar->type == DVAR_TYPE_INT64) && step < 1.0 )
-        step = FLOAT_1_0;
+        step = 1.0f;
       if ( key == 22 || key == 30 )
       {
         v12 = 1;
@@ -6736,8 +6736,8 @@ void __cdecl DrawWrappedText(
   }
   textRect->x = x + rect->w;
   textRect->y = y;
-  textRect->w = *(float *)&FLOAT_0_0;
-  textRect->h = *(float *)&FLOAT_0_0;
+  textRect->w = 0.0f;
+  textRect->h = 0.0f;
   normalizedScale = R_NormalizedTextScale(font, scale);
   height = (float)UI_TextHeight(font, scale);
   textWidth = (float)UI_TextWidth(text, 0, font, scale);
@@ -7787,8 +7787,8 @@ void __cdecl Menu_PerformTransitionEffects(int localClientNum, UiContext *dc, me
 
   direction = 0;
   timeElapsed = -1;
-  openSlideSpeed = *(float *)&FLOAT_0_0;
-  openFadingTime = *(float *)&FLOAT_0_0;
+  openSlideSpeed = 0.0f;
+  openFadingTime = 0.0f;
   if ( (Window_GetDynamicFlags(dc->contextIndex, &menu->window) & 0x20000) != 0 )
   {
     HIBYTE(direction) = 1;
@@ -7827,7 +7827,7 @@ void __cdecl Menu_PerformTransitionEffects(int localClientNum, UiContext *dc, me
     __libm_sse2_sin(v7);
     v3 = (double)v10 * (1.5707 / v16) * 1.5707;
     if ( cls.vidConfig.aspectRatioWindow == 0.0 )
-      fadeTime = FLOAT_480_0;
+      fadeTime = 480.0f;
     else
       fadeTime = 480.0 * cls.vidConfig.aspectRatioWindow;
     switch ( timeElapsed )
@@ -9217,7 +9217,7 @@ void __cdecl Item_YesNo_Paint(int localClientNum, UiContext *dc, itemDef_s *item
   }
   else
   {
-    v4 = *(float *)&FLOAT_0_0;
+    v4 = 0.0f;
   }
   if ( v4 == 0.0 )
     textDefPtr->text = UI_SafeTranslateString("EXE_NO");
@@ -9343,17 +9343,17 @@ void __cdecl Item_Slider_Paint(UiContext *dc, itemDef_s *item)
   float value; // [esp+84h] [ebp-14h]
   float newColor[4]; // [esp+88h] [ebp-10h] BYREF
 
-  sliderColorFilled[0] = FLOAT_0_95999998;
-  sliderColorFilled[1] = FLOAT_0_57999998;
-  sliderColorFilled[2] = FLOAT_0_11;
-  sliderColorFilled[3] = FLOAT_1_0;
-  sliderColorEmpty[0] = FLOAT_0_95999998;
-  sliderColorEmpty[1] = FLOAT_0_57999998;
-  sliderColorEmpty[2] = FLOAT_0_11;
-  sliderColorEmpty[3] = FLOAT_0_2;
+  sliderColorFilled[0] = 0.96f;
+  sliderColorFilled[1] = 0.5f7999998;
+  sliderColorFilled[2] = 0.1f1;
+  sliderColorFilled[3] = 1.0f;
+  sliderColorEmpty[0] = 0.96f;
+  sliderColorEmpty[1] = 0.5f7999998;
+  sliderColorEmpty[2] = 0.1f1;
+  sliderColorEmpty[3] = 0.2f;
   parent = item->parent;
   textDefPtr = Item_GetTextDef(item);
-  BLOCK_EPSILON = FLOAT_2_0;
+  BLOCK_EPSILON = 2.0f;
   if ( item->dvar )
   {
     VariantString = Dvar_GetVariantString(item->dvar);
@@ -9361,7 +9361,7 @@ void __cdecl Item_Slider_Paint(UiContext *dc, itemDef_s *item)
   }
   else
   {
-    LODWORD(v4) = *(unsigned int *)&FLOAT_0_0;
+    LODWORD(v4) = 0;
   }
   value = *(float *)&v4;
   if ( Window_HasFocus(dc->contextIndex, &item->window) )
@@ -9894,10 +9894,10 @@ void __cdecl Item_ListBox_PaintTextElem(
   textDefPtr = Item_GetTextDef(item);
   listPtr = Item_GetListBoxDef(item);
   language = SEH_GetCurrentLanguage();
-  languageMultiplier = FLOAT_1_0;
+  languageMultiplier = 1.0f;
   rect = Window_GetRect(&item->window);
   scrPlace = &scrPlaceView[contextIndex];
-  imageAngle = *(float *)&FLOAT_0_0;
+  imageAngle = 0.0f;
   optionalOwnerDraw = 0;
   color.integer64 = LODWORD(colorWhite[0]) | 0x3F80000000000000LL;
   color.vector[2] = 1.0;
@@ -9976,14 +9976,14 @@ double __cdecl Item_GetTextAlignAdj(int alignment, float width, float textWidth)
     if ( (float)(0.0 - (float)((float)(width - textWidth) * 0.5)) < 0.0 )
       return (float)((float)(width - textWidth) * 0.5);
     else
-      return *(float *)&FLOAT_0_0;
+      return 0.0f;
   }
   else if ( alignment == 2 )
   {
     if ( (float)(0.0 - (float)(width - textWidth)) < 0.0 )
       return (float)(width - textWidth);
     else
-      return *(float *)&FLOAT_0_0;
+      return 0.0f;
   }
   else
   {
@@ -10006,7 +10006,7 @@ double __cdecl Item_ListBox_LanguageScale(language_t language, int feederID, int
 {
   float languageMultiplier; // [esp+4h] [ebp-4h]
 
-  languageMultiplier = FLOAT_1_0;
+  languageMultiplier = 1.0f;
   if ( language == LANGUAGE_RUSSIAN || language == LANGUAGE_POLISH || language == LANGUAGE_JAPANESE )
   {
     switch ( feederID )
@@ -10175,9 +10175,9 @@ void __cdecl Item_ListBox_PaintHighlight(int localClientNum, int contextIndex, i
   {
     if ( !listPtr->notselectable )
     {
-      *(float *)&v6[4] = FLOAT_1_0;
-      *(float *)&v6[8] = FLOAT_1_0;
-      *(float *)&v6[12] = FLOAT_1_0;
+      *(float *)&v6[4] = 1.0f;
+      *(float *)&v6[8] = 1.0f;
+      *(float *)&v6[12] = 1.0f;
       *(float *)&v6[16] = item->window.foreColor[3];
       UI_DrawHandlePic(
         scrPlace,
@@ -10521,11 +10521,11 @@ void __cdecl Menu_PaintAll_DrawVisibleList(char *stringBegin, UiContext *dc)
   float y; // [esp+38h] [ebp-8h]
   float MESSAGE_SCALE; // [esp+3Ch] [ebp-4h]
 
-  MESSAGE_SCALE = FLOAT_0_2;
-  color[0] = FLOAT_0_75;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_0_5;
-  color[3] = FLOAT_1_0;
+  MESSAGE_SCALE = 0.2f;
+  color[0] = 0.75f;
+  color[1] = 1.0f;
+  color[2] = 0.5f;
+  color[3] = 1.0f;
   if ( dc->FPS == 0.0 )
     y = FLOAT_320_0;
   else
@@ -10596,7 +10596,7 @@ void __cdecl Menu_PaintAll(int localClientNum, UiContext *dc)
     Menu_PaintAll_BeginVisibleList(visibleList, 0x400u);
   if ( GetCurrentThreadId() == g_DXDeviceThread )
     D3DPERF_EndEvent();
-  dc->blurRadiusOut = *(float *)&FLOAT_0_0;
+  dc->blurRadiusOut = 0.0f;
   if ( captureFunc )
     captureFunc(localClientNum, dc, captureData);
   toastPopupMenu = Menus_FindByName(dc, "menu_toast_popup");

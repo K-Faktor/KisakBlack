@@ -6,8 +6,8 @@ char __fastcall Actor_Negotiation_Start(actor_s *pSelf, ai_state_t ePrevState)
     return 0;
   Actor_SetOrientMode(pSelf, AI_ORIENT_DONT_CHANGE);
   pSelf->eTraverseMode = AI_TRAVERSE_NOGRAVITY;
-  pSelf->prevMoveDir[0] = *(float *)&FLOAT_0_0;
-  pSelf->prevMoveDir[1] = *(float *)&FLOAT_0_0;
+  pSelf->prevMoveDir[0] = 0.0f;
+  pSelf->prevMoveDir[1] = 0.0f;
   return 1;
 }
 
@@ -88,12 +88,12 @@ int __fastcall Actor_Negotiation_Think(actor_s *pSelf)
       pSelf->sentient->bNearestNodeBad = 0;
       pSelf->sentient->bNearestNodeValid = 1;
     }
-    pSelf->Physics.vWishDelta[0] = *(float *)&FLOAT_0_0;
-    pSelf->Physics.vWishDelta[1] = *(float *)&FLOAT_0_0;
-    pSelf->Physics.vWishDelta[2] = *(float *)&FLOAT_0_0;
-    pSelf->Physics.vVelocity[0] = *(float *)&FLOAT_0_0;
-    pSelf->Physics.vVelocity[1] = *(float *)&FLOAT_0_0;
-    pSelf->Physics.vVelocity[2] = *(float *)&FLOAT_0_0;
+    pSelf->Physics.vWishDelta[0] = 0.0f;
+    pSelf->Physics.vWishDelta[1] = 0.0f;
+    pSelf->Physics.vWishDelta[2] = 0.0f;
+    pSelf->Physics.vVelocity[0] = 0.0f;
+    pSelf->Physics.vVelocity[1] = 0.0f;
+    pSelf->Physics.vVelocity[2] = 0.0f;
     YawVectors2D(pSelf->fDesiredBodyYaw, pSelf->prevMoveDir, 0);
     Actor_RecalcPath(pSelf);
     Actor_PopState(pSelf);

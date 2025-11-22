@@ -230,7 +230,7 @@ unsigned int __cdecl Demo_ThrottleStream(unsigned int dataSize)
   {
     if ( s_uploadStreamData.overflow )
     {
-      howScrewedAreWe = FLOAT_0_75;
+      howScrewedAreWe = 0.75f;
     }
     else
     {
@@ -238,11 +238,11 @@ unsigned int __cdecl Demo_ThrottleStream(unsigned int dataSize)
       if ( (float)(howScrewedAreWea - 1.0) < 0.0 )
         v4 = howScrewedAreWea;
       else
-        v4 = FLOAT_1_0;
+        v4 = 1.0f;
       if ( (float)(0.0 - howScrewedAreWea) < 0.0 )
         v3 = v4;
       else
-        v3 = *(float *)&FLOAT_0_0;
+        v3 = 0.0f;
       howScrewedAreWe = v3;
     }
     packetsPerSecond = (float)((float)(demo_packetsPerSecondMax->current.integer
@@ -256,7 +256,7 @@ unsigned int __cdecl Demo_ThrottleStream(unsigned int dataSize)
   }
   else
   {
-    packetsPerSecond = FLOAT_99_0;
+    packetsPerSecond = 99.0f;
     bytesPerSecond = Live_GetUploadSpeed() / 16;
   }
   minInterval = (int)(float)(1000.0 / packetsPerSecond);

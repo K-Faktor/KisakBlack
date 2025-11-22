@@ -78,7 +78,7 @@ void __cdecl StartWeaponAnim(
   signed int i; // [esp+80h] [ebp-Ch]
   const WeaponDef *weapDef; // [esp+84h] [ebp-8h]
 
-  timeFrac = *(float *)&FLOAT_0_0;
+  timeFrac = 0.0f;
   if ( (animIndex <= 0 || animIndex >= 64)
     && !Assert_MyHandler(
           "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",
@@ -116,7 +116,7 @@ void __cdecl StartWeaponAnim(
     && (cgameGlob->predictedPlayerState.perks[0] & 0x40000) != 0 )
   {
     if ( perk_weapReloadMultiplier->current.value == 0.0 )
-      rate = FLOAT_1000_0;
+      rate = 1000.0f;
     else
       rate = (float)((float)(1.0 - 1.0) * rate)
            + (float)((float)(rate / perk_weapReloadMultiplier->current.value) * 1.0);
@@ -124,7 +124,7 @@ void __cdecl StartWeaponAnim(
   else if ( cgameGlob->predictedPlayerState.weaponstate == 7 && weapVariantDef->bRapidFire )
   {
     if ( 0.0 == perk_weapRateMultiplier->current.value )
-      rate = FLOAT_1000_0;
+      rate = 1000.0f;
     else
       rate = rate / perk_weapRateMultiplier->current.value;
   }
@@ -164,7 +164,7 @@ void __cdecl StartWeaponAnim(
          && (cgameGlob->predictedPlayerState.perks[1] & 0x4000) != 0 )
   {
     if ( 0.0 == perk_sprintRecoveryMultiplier->current.value )
-      rate = FLOAT_1000_0;
+      rate = 1000.0f;
     else
       rate = rate / perk_sprintRecoveryMultiplier->current.value;
   }
@@ -1091,7 +1091,7 @@ void __cdecl CG_HoldBreathInit(cg_s *cgameGlob)
   cgameGlob->holdBreathTime = -1;
   cgameGlob->holdBreathInTime = 0;
   cgameGlob->holdBreathDelay = 0;
-  cgameGlob->holdBreathFrac = *(float *)&FLOAT_0_0;
+  cgameGlob->holdBreathFrac = 0.0f;
 }
 
 void __cdecl CG_UpdateViewModelPose(const DObj *obj, int localClientNum)
@@ -1145,7 +1145,7 @@ void __cdecl CG_UpdateMinigunSpin(int localClientNum, cg_s *cgameGlob, centity_s
         if ( weaponDef->iSpinUpTime )
           v8 = 1.0 / (float)weaponDef->iSpinUpTime;
         else
-          v8 = FLOAT_1_0;
+          v8 = 1.0f;
         lerpRate = v8;
       }
       else
@@ -1153,7 +1153,7 @@ void __cdecl CG_UpdateMinigunSpin(int localClientNum, cg_s *cgameGlob, centity_s
         if ( weaponDef->iSpinDownTime )
           v7 = 1.0 / (float)weaponDef->iSpinDownTime;
         else
-          v7 = FLOAT_1_0;
+          v7 = 1.0f;
         LODWORD(lerpRate) = LODWORD(v7) ^ _mask__NegFloat_;
       }
       if ( (LODWORD(lerpRate) & 0x7F800000) == 0x7F800000
@@ -1171,11 +1171,11 @@ void __cdecl CG_UpdateMinigunSpin(int localClientNum, cg_s *cgameGlob, centity_s
       if ( (float)(v10 - 1.0) < 0.0 )
         v11 = (float)((float)cgameGlob->frametime * lerpRate) + ci->weaponSpinLerp;
       else
-        v11 = FLOAT_1_0;
+        v11 = 1.0f;
       if ( (float)(0.0 - v10) < 0.0 )
         v6 = v11;
       else
-        v6 = *(float *)&FLOAT_0_0;
+        v6 = 0.0f;
       ci->weaponSpinLerp = v6;
       if ( (LODWORD(ci->weaponSpinLerp) & 0x7F800000) == 0x7F800000
         && !Assert_MyHandler(
@@ -1189,15 +1189,15 @@ void __cdecl CG_UpdateMinigunSpin(int localClientNum, cg_s *cgameGlob, centity_s
       }
       inc = ci->weaponSpinLerp * weaponDef->spinRate;
       if ( inc < 5.0 && ci->weaponSpinLerp > 0.0099999998 )
-        inc = FLOAT_5_0;
+        inc = 5.0f;
       if ( inc > 0.0 )
         ci->weaponSpin = I_fmodulus(ci->weaponSpin + inc, 360.0);
       CG_UpdateMinigunSounds(localClientNum, cgameGlob, cent, weaponDef);
     }
     else if ( (cent->nextState.lerp.eFlags & 0x4000) == 0 || cent->nextState.lerp.u.player.vehicleSeat )
     {
-      ci->lastWeaponSpinLerp = *(float *)&FLOAT_0_0;
-      ci->weaponSpinLerp = *(float *)&FLOAT_0_0;
+      ci->lastWeaponSpinLerp = 0.0f;
+      ci->weaponSpinLerp = 0.0f;
     }
     else
     {
@@ -1344,11 +1344,11 @@ void __cdecl CG_UpdateMinigunSounds(int localClientNum, cg_s *cgameGlob, centity
       if ( (float)(spinPitch - 2.0) < 0.0 )
         v11 = spinPitch;
       else
-        v11 = FLOAT_2_0;
+        v11 = 2.0f;
       if ( (float)(0.1 - spinPitch) < 0.0 )
         pitch = v11;
       else
-        pitch = FLOAT_0_1;
+        pitch = 0.1f;
       SND_SetPlaybackPitch(spinLoopId, pitch);
     }
     if ( (float)(ci->weaponSpinLerp - ci->lastWeaponSpinLerp) > 0.0 && ci->weaponSpinLerp < 0.2 )
@@ -1468,7 +1468,7 @@ void __cdecl CG_UpdateViewModelStackCounter(
       else
         v7 = 0;
       desiredAngle = (float)v7 * 30.0;
-      inc = *(float *)&FLOAT_0_0;
+      inc = 0.0f;
       if ( desiredAngle != cgameGlob->counterSpinTarget )
       {
         cgameGlob->counterSpinTime = Sys_Milliseconds();
@@ -1485,8 +1485,8 @@ void __cdecl CG_UpdateViewModelStackCounter(
           * (float)((float)((float)(*(float *)&v4 / (float)2.356194496154785) + 1.0) / 2.0);
     }
     angles[0] = cgameGlob->counterSpinAngle + inc;
-    angles[1] = *(float *)&FLOAT_0_0;
-    angles[2] = *(float *)&FLOAT_0_0;
+    angles[1] = 0.0f;
+    angles[2] = 0.0f;
     DObjSetControlTagAngles(obj, partBits, counterBone, angles);
   }
 }
@@ -1801,7 +1801,7 @@ void __cdecl FireBulletPenetrate(
         v10 = Vec3Distance(revBr.hitPos, lastHitPos);
       depth = v10;
       if ( v10 < 1.0 )
-        depth = FLOAT_1_0;
+        depth = 1.0f;
       if ( revTraceHit )
       {
         if ( attacker->nextState.eType == 1
@@ -2560,7 +2560,7 @@ void __cdecl HoldBreathUpdate(int localClientNum)
     }
     cgameGlob->holdBreathTime = -1;
     cgameGlob->holdBreathInTime = 0;
-    cgameGlob->holdBreathFrac = *(float *)&FLOAT_0_0;
+    cgameGlob->holdBreathFrac = 0.0f;
   }
   HoldBreathSoundLerp(localClientNum, cgameGlob->holdBreathFrac);
 }
@@ -2721,7 +2721,7 @@ void __cdecl Anim_DrawTags(int localClientNum, int entityNum, int weaponNum, cpo
     dobjHandle = entityNum;
     cgameGlob = CG_GetLocalClientGlobals(localClientNum);
     boneIndex = -2;
-    colorScale = FLOAT_1_0;
+    colorScale = 1.0f;
     if ( CG_GetBoneIndex(localClientNum, entityNum, scr_const.tag_weapon_left, &boneIndex)
       && FX_GetBoneOrientation(localClientNum, dobjHandle, boneIndex, &v14) )
     {
@@ -2759,30 +2759,30 @@ void __cdecl Anim_DrawTags(int localClientNum, int entityNum, int weaponNum, cpo
     }
     if ( (flags & 4) != 0 )
     {
-      crouchOffset[0] = *(float *)&FLOAT_0_0;
-      crouchOffset[1] = *(float *)&FLOAT_0_0;
-      crouchOffset[2] = FLOAT_39_0;
-      originOffset[0] = *(float *)&FLOAT_0_0;
-      originOffset[1] = *(float *)&FLOAT_0_0;
-      originOffset[2] = FLOAT_39_0;
+      crouchOffset[0] = 0.0f;
+      crouchOffset[1] = 0.0f;
+      crouchOffset[2] = 39.0f;
+      originOffset[0] = 0.0f;
+      originOffset[1] = 0.0f;
+      originOffset[2] = 39.0f;
     }
     else if ( (flags & 8) != 0 )
     {
-      proneOffset[0] = *(float *)&FLOAT_0_0;
-      proneOffset[1] = *(float *)&FLOAT_0_0;
-      proneOffset[2] = FLOAT_11_0;
-      originOffset[0] = *(float *)&FLOAT_0_0;
-      originOffset[1] = *(float *)&FLOAT_0_0;
-      originOffset[2] = FLOAT_11_0;
+      proneOffset[0] = 0.0f;
+      proneOffset[1] = 0.0f;
+      proneOffset[2] = 11.0f;
+      originOffset[0] = 0.0f;
+      originOffset[1] = 0.0f;
+      originOffset[2] = 11.0f;
     }
     else
     {
-      standOffset[0] = *(float *)&FLOAT_0_0;
-      standOffset[1] = *(float *)&FLOAT_0_0;
-      standOffset[2] = FLOAT_60_0;
-      originOffset[0] = *(float *)&FLOAT_0_0;
-      originOffset[1] = *(float *)&FLOAT_0_0;
-      originOffset[2] = FLOAT_60_0;
+      standOffset[0] = 0.0f;
+      standOffset[1] = 0.0f;
+      standOffset[2] = 60.0f;
+      originOffset[0] = 0.0f;
+      originOffset[1] = 0.0f;
+      originOffset[2] = 60.0f;
     }
     origin = pose->origin;
     fireOrigin[0] = pose->origin[0] + originOffset[0];
@@ -2928,7 +2928,7 @@ void __cdecl WeaponRunXModelAnims(
      || weaponIndex != cgameGlob->prevViewmodelWeapon
      || newPlayerstate) )
   {
-    transitionTime = *(float *)&FLOAT_0_0;
+    transitionTime = 0.0f;
     switch ( ps->weapAnimLeft & 0xFFFFFBFF )
     {
       case 0u:
@@ -2946,7 +2946,7 @@ void __cdecl WeaponRunXModelAnims(
               break;
             }
             if ( !newPlayerstate )
-              transitionTime = FLOAT_0_5;
+              transitionTime = 0.5f;
           }
         }
         if ( playedAnim )
@@ -2990,7 +2990,7 @@ void __cdecl WeaponRunXModelAnims(
     || weaponIndex != cgameGlob->prevViewmodelWeapon
     || newPlayerstate )
   {
-    transitionTimea = *(float *)&FLOAT_0_0;
+    transitionTimea = 0.0f;
     switch ( ps->weapAnim & 0xFFFFFBFF )
     {
       case 0u:
@@ -3007,7 +3007,7 @@ void __cdecl WeaponRunXModelAnims(
               break;
             }
             if ( !newPlayerstate )
-              transitionTimea = FLOAT_0_5;
+              transitionTimea = 0.5f;
             if ( (ps->perks[0] & 0x80000) != 0 && (ps->weapAnim & 1) != 0 )
               transitionTimea = transitionTimea * perk_weapSwitchMultiplier->current.value;
           }
@@ -3695,8 +3695,8 @@ void __cdecl CG_AddViewWeapon(int localClientNum)
   drawgun = 1;
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
   ps = &cgameGlob->predictedPlayerState;
-  cgameGlob->refdef.dof.viewModelStart = *(float *)&FLOAT_0_0;
-  cgameGlob->refdef.dof.viewModelEnd = *(float *)&FLOAT_0_0;
+  cgameGlob->refdef.dof.viewModelStart = 0.0f;
+  cgameGlob->refdef.dof.viewModelEnd = 0.0f;
   CG_TouchViewModels(localClientNum, ps);
   if ( ps->pm_type != 4
     && ps->pm_type != 5
@@ -3713,9 +3713,9 @@ void __cdecl CG_AddViewWeapon(int localClientNum)
     {
       cgameGlob->gunPitch = cgameGlob->refdefViewAngles[0];
       cgameGlob->gunYaw = cgameGlob->refdefViewAngles[1];
-      cgameGlob->gunXOfs = *(float *)&FLOAT_0_0;
-      cgameGlob->gunYOfs = *(float *)&FLOAT_0_0;
-      cgameGlob->gunZOfs = *(float *)&FLOAT_0_0;
+      cgameGlob->gunXOfs = 0.0f;
+      cgameGlob->gunYOfs = 0.0f;
+      cgameGlob->gunZOfs = 0.0f;
     }
     else
     {
@@ -3760,7 +3760,7 @@ void __cdecl CG_CalculateWeaponMovement_ClientSpecific(cg_s *cgameGlob, GfxScale
   CG_CalculateWeaponMovement_SaveOrigin(cgameGlob, placement->base.origin);
   CG_CalculateWeaponMovement_Debug(cgameGlob, placement->base.origin);
   CG_CalculateWeaponMovement_SaveAngles(cgameGlob, angles, placement);
-  placement->scale = FLOAT_1_0;
+  placement->scale = 1.0f;
 }
 
 void __cdecl CG_CalculateWeaponMovement_LocalToWorld(const cg_s *cgameGlob, float *origin)
@@ -3798,9 +3798,9 @@ void __cdecl CG_CalculateWeaponMovement_SaveOrigin(cg_s *cgameGlob, float *origi
   if ( !BG_IsAimDownSightWeapon(weapIndex)
     || (fPosLerp = cgameGlob->predictedPlayerState.fWeaponPosFrac, fPosLerp == 0.0) )
   {
-    cgameGlob->gunXOfs = *(float *)&FLOAT_0_0;
-    cgameGlob->gunYOfs = *(float *)&FLOAT_0_0;
-    cgameGlob->gunZOfs = *(float *)&FLOAT_0_0;
+    cgameGlob->gunXOfs = 0.0f;
+    cgameGlob->gunYOfs = 0.0f;
+    cgameGlob->gunZOfs = 0.0f;
   }
   else
   {
@@ -3828,11 +3828,11 @@ void __cdecl CG_CalculateWeaponMovement_Debug(const cg_s *cgameGlob, float *orig
     v7 = (float)(cg_fov->current.value - cg_fov_default->current.value)
        * (float)(1.0 / (float)(cg_fovCompMax->current.value - cg_fov_default->current.value));
   else
-    v7 = FLOAT_1_0;
+    v7 = 1.0f;
   if ( (float)(0.0 - v6) < 0.0 )
     v2 = v7;
   else
-    v2 = *(float *)&FLOAT_0_0;
+    v2 = 0.0f;
   fovCoeff = (float)(1.0 - cgameGlob->predictedPlayerState.fWeaponPosFrac) * v2;
   fovcomp_y = cg_gun_fovcomp_y->current.value * fovCoeff;
   fovcomp_z = cg_gun_fovcomp_z->current.value * fovCoeff;
@@ -3891,7 +3891,7 @@ void __cdecl CG_BuildWeaponState(cg_s *cgameGlob, weaponState_t *ws)
   ws->xyspeed = cgameGlob->xyspeed;
   if ( cgameGlob->resetWeaponStateFlag )
   {
-    ws->frametime = FLOAT_1_0;
+    ws->frametime = 1.0f;
     cgameGlob->swayViewAngles[0] = cgameGlob->predictedPlayerState.viewangles[0];
     cgameGlob->swayViewAngles[1] = cgameGlob->predictedPlayerState.viewangles[1];
     cgameGlob->swayViewAngles[2] = cgameGlob->predictedPlayerState.viewangles[2];
@@ -5084,7 +5084,7 @@ void __cdecl DrawBulletImpacts(
     }
     viewang[0] = cgameGlob->gunPitch;
     viewang[1] = cgameGlob->gunYaw;
-    viewang[2] = *(float *)&FLOAT_0_0;
+    viewang[2] = 0.0f;
     if ( zombietron->current.enabled )
     {
       dobjNumber = cgameGlob->nextSnap->ps.clientNum;
@@ -5161,7 +5161,7 @@ LABEL_66:
       if ( (float)(v14 - 255.0) < 0.0 )
         v8 = v14;
       else
-        v8 = FLOAT_255_0;
+        v8 = 255.0f;
       dist = v8;
       aimSpreadScale = v8 / 255.0;
       dobjNumber = ent->nextState.number;
@@ -5203,7 +5203,7 @@ LABEL_94:
       v41.ignoreEntIndex = ent->nextState.number;
       if ( vehicle_selfCollision->current.enabled && ent->nextState.eType == 14 )
         v41.ignoreEntIndex = 1022;
-      v41.damageMultiplier = FLOAT_1_0;
+      v41.damageMultiplier = 1.0f;
       v41.methodOfDeath = weaponDef->bRifleBullet + 1;
       if ( weaponDef->weapClass == WEAPCLASS_SPREAD )
       {
@@ -5235,7 +5235,7 @@ LABEL_94:
           orient.axis[1],
           orient.axis[2],
           range);
-        v41.damageMultiplier = FLOAT_1_0;
+        v41.damageMultiplier = 1.0f;
         BulletTrace_Start(localClientNum, &v41, weapon, ent, tracerStart, drawTracers, isPlayer);
       }
       if ( GetCurrentThreadId() == g_DXDeviceThread )
@@ -5244,7 +5244,7 @@ LABEL_94:
     case 0xB:
       minSpread = weaponDef->playerSpread;
       maxSpread = weaponDef->playerSpread;
-      aimSpreadScale = FLOAT_1_0;
+      aimSpreadScale = 1.0f;
       ads = 0;
       dobjNumber = ent->nextState.number;
       boneIndex = 0;
@@ -5283,7 +5283,7 @@ LABEL_52:
       if ( event >= 178 && event <= 181 )
         secondBarrel = 1;
       ads = 0;
-      aimSpreadScale = *(float *)&FLOAT_0_0;
+      aimSpreadScale = 0.0f;
       dobjNumber = ent->nextState.number;
       boneIndex = 0;
       if ( !CG_GetBoneIndex(localClientNum, dobjNumber, boneName, &boneIndex) )
@@ -5322,8 +5322,8 @@ LABEL_52:
       }
       goto LABEL_94;
     case 0x11:
-      maxSpread = *(float *)&FLOAT_0_0;
-      minSpread = *(float *)&FLOAT_0_0;
+      maxSpread = 0.0f;
+      minSpread = 0.0f;
       ads = 0;
       velocity[0] = ent->nextState.lerp.pos.trBase[0] - ent->currentState.pos.trBase[0];
       velocity[1] = ent->nextState.lerp.pos.trBase[1] - ent->currentState.pos.trBase[1];
@@ -5339,7 +5339,7 @@ LABEL_52:
       if ( (float)(v10 - 255.0) < 0.0 )
         v7 = v10;
       else
-        v7 = FLOAT_255_0;
+        v7 = 255.0f;
       dist = v7;
       aimSpreadScale = v7 / 255.0;
       dobjNumber = ent->nextState.number;
@@ -5358,9 +5358,9 @@ LABEL_52:
       }
       goto LABEL_52;
     case 0x32:
-      minSpread = *(float *)&FLOAT_0_0;
-      maxSpread = *(float *)&FLOAT_0_0;
-      aimSpreadScale = *(float *)&FLOAT_0_0;
+      minSpread = 0.0f;
+      maxSpread = 0.0f;
+      aimSpreadScale = 0.0f;
       ads = 0;
       if ( weaponDef->weapClass == WEAPCLASS_SPREAD )
       {
@@ -5379,9 +5379,9 @@ LABEL_52:
       tracerStart[2] = orient.origin[2];
       goto LABEL_94;
     case 6:
-      minSpread = *(float *)&FLOAT_0_0;
-      maxSpread = *(float *)&FLOAT_0_0;
-      aimSpreadScale = *(float *)&FLOAT_0_0;
+      minSpread = 0.0f;
+      maxSpread = 0.0f;
+      aimSpreadScale = 0.0f;
       ads = 0;
       if ( weaponDef->weapClass == WEAPCLASS_SPREAD )
       {
@@ -5576,8 +5576,8 @@ void __cdecl CG_FakeFireWeapon(
         __debugbreak();
       }
       CG_GetLocalClientGlobals(localClientNum);
-      angles[0] = *(float *)&FLOAT_0_0;
-      angles[2] = *(float *)&FLOAT_0_0;
+      angles[0] = 0.0f;
+      angles[2] = 0.0f;
       angles[1] = (float)irand(0, 360);
       AngleVectors(angles, direction, 0, 0);
       v5.field = CG_SndEntHandle(localClientNum, ent->number).field;
@@ -6326,7 +6326,7 @@ double __cdecl CalcTracerFinalScale(float tracerScaleDistRange, float dist, floa
     }
     else
     {
-      return FLOAT_1_0;
+      return 1.0f;
     }
   }
 }

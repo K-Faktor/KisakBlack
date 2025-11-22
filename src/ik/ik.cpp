@@ -150,19 +150,19 @@ void __cdecl IK_InitializeIKState(IKState *ikState)
     }
   }
   ikState->isIKModel = 1;
-  ikState->lastFootTraceNormals[0][0] = *(float *)&FLOAT_0_0;
-  ikState->lastFootTraceNormals[0][1] = *(float *)&FLOAT_0_0;
-  ikState->lastFootTraceNormals[0][2] = FLOAT_1_0;
-  ikState->lastFootTraceNormals[1][0] = *(float *)&FLOAT_0_0;
-  ikState->lastFootTraceNormals[1][1] = *(float *)&FLOAT_0_0;
-  ikState->lastFootTraceNormals[1][2] = FLOAT_1_0;
-  ikState->lastFootTraceGoalNormals[0][0] = *(float *)&FLOAT_0_0;
-  ikState->lastFootTraceGoalNormals[0][1] = *(float *)&FLOAT_0_0;
-  ikState->lastFootTraceGoalNormals[0][2] = FLOAT_1_0;
-  ikState->lastFootTraceGoalNormals[1][0] = *(float *)&FLOAT_0_0;
-  ikState->lastFootTraceGoalNormals[1][1] = *(float *)&FLOAT_0_0;
-  ikState->lastFootTraceGoalNormals[1][2] = FLOAT_1_0;
-  ikState->leftHandLastProximityLerp = *(float *)&FLOAT_0_0;
+  ikState->lastFootTraceNormals[0][0] = 0.0f;
+  ikState->lastFootTraceNormals[0][1] = 0.0f;
+  ikState->lastFootTraceNormals[0][2] = 1.0f;
+  ikState->lastFootTraceNormals[1][0] = 0.0f;
+  ikState->lastFootTraceNormals[1][1] = 0.0f;
+  ikState->lastFootTraceNormals[1][2] = 1.0f;
+  ikState->lastFootTraceGoalNormals[0][0] = 0.0f;
+  ikState->lastFootTraceGoalNormals[0][1] = 0.0f;
+  ikState->lastFootTraceGoalNormals[0][2] = 1.0f;
+  ikState->lastFootTraceGoalNormals[1][0] = 0.0f;
+  ikState->lastFootTraceGoalNormals[1][1] = 0.0f;
+  ikState->lastFootTraceGoalNormals[1][2] = 1.0f;
+  ikState->leftHandLastProximityLerp = 0.0f;
   IKImport_InitCollisionCache(ikState);
 }
 

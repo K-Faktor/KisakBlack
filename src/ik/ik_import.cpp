@@ -357,8 +357,8 @@ void __cdecl IKImport_AccumulateParentObjBones(
       v8 = Vec4LengthSq(localMat->quat);
       if ( v8 == 0.0 )
       {
-        localMat->quat[3] = FLOAT_1_0;
-        localMat->transWeight = FLOAT_2_0;
+        localMat->quat[3] = 1.0f;
+        localMat->transWeight = 2.0f;
       }
       else
       {
@@ -383,8 +383,8 @@ void __cdecl IKImport_AccumulateParentObjBones(
       v9 = Vec4LengthSq(localMat->quat);
       if ( v9 == 0.0 )
       {
-        localMat->quat[3] = FLOAT_1_0;
-        localMat->transWeight = FLOAT_2_0;
+        localMat->quat[3] = 1.0f;
+        localMat->transWeight = 2.0f;
       }
       else
       {
@@ -426,17 +426,17 @@ void __cdecl IKImport_GetBoneMatrixArrayLocalBones(IKState *ikState)
   ikState->rootOffset[0] = matArray->trans[0];
   ikState->rootOffset[1] = matArray->trans[1];
   ikState->rootOffset[2] = matArray->trans[2];
-  matArray->trans[0] = *(float *)&FLOAT_0_0;
-  matArray->trans[1] = *(float *)&FLOAT_0_0;
-  matArray->trans[2] = *(float *)&FLOAT_0_0;
+  matArray->trans[0] = 0.0f;
+  matArray->trans[1] = 0.0f;
+  matArray->trans[2] = 0.0f;
   ikState->rootQuat[0] = matArray->quat[0];
   ikState->rootQuat[1] = matArray->quat[1];
   ikState->rootQuat[2] = matArray->quat[2];
   ikState->rootQuat[3] = matArray->quat[3];
-  matArray->quat[0] = *(float *)&FLOAT_0_0;
-  matArray->quat[1] = *(float *)&FLOAT_0_0;
-  matArray->quat[2] = *(float *)&FLOAT_0_0;
-  matArray->quat[3] = FLOAT_1_0;
+  matArray->quat[0] = 0.0f;
+  matArray->quat[1] = 0.0f;
+  matArray->quat[2] = 0.0f;
+  matArray->quat[3] = 1.0f;
   thisMat = matArray;
   for ( objBoneIndex = 0; objBoneIndex < *(unsigned __int8 *)(**((unsigned int **)obj + 30) + 4); ++objBoneIndex )
   {
@@ -445,8 +445,8 @@ void __cdecl IKImport_GetBoneMatrixArrayLocalBones(IKState *ikState)
       v1 = Vec4LengthSq(thisMat->quat);
       if ( v1 == 0.0 )
       {
-        thisMat->quat[3] = FLOAT_1_0;
-        thisMat->transWeight = FLOAT_2_0;
+        thisMat->quat[3] = 1.0f;
+        thisMat->transWeight = 2.0f;
       }
       else
       {
@@ -637,8 +637,8 @@ void  IKImport_ApplyIKToSkeletonLocalBones(DObjAnimMat *a1@<ebp>, IKState *ikSta
           v48 = Vec4LengthSq((const float *)&thisIKMat);
           if ( v48 == 0.0 )
           {
-            animMatXform.quat[0] = FLOAT_1_0;
-            animMatXform.trans[0] = FLOAT_2_0;
+            animMatXform.quat[0] = 1.0f;
+            animMatXform.trans[0] = 2.0f;
           }
           else
           {
@@ -652,8 +652,8 @@ void  IKImport_ApplyIKToSkeletonLocalBones(DObjAnimMat *a1@<ebp>, IKState *ikSta
           v47 = Vec4LengthSq((const float *)LODWORD(axis[2][0]));
           if ( v47 == 0.0 )
           {
-            *(float *)(LODWORD(axis[2][0]) + 12) = FLOAT_1_0;
-            *(float *)(LODWORD(axis[2][0]) + 28) = FLOAT_2_0;
+            *(float *)(LODWORD(axis[2][0]) + 12) = 1.0f;
+            *(float *)(LODWORD(axis[2][0]) + 28) = 2.0f;
           }
           else
           {
@@ -1220,7 +1220,7 @@ LABEL_16:
     *(float *)(LODWORD(axis[2][1]) + 4) = *(float *)(LODWORD(axis[2][0]) + 4);
     *(float *)(LODWORD(axis[2][1]) + 8) = *(float *)(LODWORD(axis[2][0]) + 8);
     cgameGlob = *(cg_s **)&FLOAT_0_0;
-    v48 = *(float *)&FLOAT_0_0;
+    v48 = 0.0f;
     AnglesToAxis((const float *)&cgameGlob, (float (*)[3])v30);
     v29 = ikState->entityXform[0];
     ikState->entityXform[0][0] = v30[0];
@@ -1237,10 +1237,10 @@ LABEL_16:
     v26[1] = v25[1];
     v26[2] = v25[2];
     v24 = ikState->entityXform[0];
-    ikState->entityXform[0][3] = *(float *)&FLOAT_0_0;
-    v24[7] = *(float *)&FLOAT_0_0;
-    v24[11] = *(float *)&FLOAT_0_0;
-    v24[15] = FLOAT_1_0;
+    ikState->entityXform[0][3] = 0.0f;
+    v24[7] = 0.0f;
+    v24[11] = 0.0f;
+    v24[15] = 1.0f;
     AnglesToAxis(ikState->controller_origin_angles, (float (*)[3])v30);
     ikMatrixSet44((float (*)[4])v23, vec3_origin, (const float (*)[3])v30, 1.0);
     v15 = *(_QWORD *)&ikState->entityXform[0][0];
@@ -1375,15 +1375,15 @@ void __cdecl IKImport_UpdateCollisionCache(IKState *ikState)
   contents_mask_no_playerclip = (int)&loc_82000C + 5;
   contents_mask_playerclip = (int)&loc_830011;
   collCache = &ikState->collisionCache;
-  expandRange = FLOAT_32_0;
-  expand_vec[0] = FLOAT_32_0;
-  expand_vec[1] = FLOAT_32_0;
-  expand_vec[2] = FLOAT_32_0;
+  expandRange = 32.0f;
+  expand_vec[0] = 32.0f;
+  expand_vec[1] = 32.0f;
+  expand_vec[2] = 32.0f;
   entityBoundsMin[0] = FLOAT_N20_0;
   entityBoundsMin[1] = FLOAT_N20_0;
-  entityBoundsMin[2] = FLOAT_N10_0;
-  entityBoundsMax[0] = FLOAT_20_0;
-  entityBoundsMax[1] = FLOAT_20_0;
+  entityBoundsMin[2] = -10.0f;
+  entityBoundsMax[0] = 20.0f;
+  entityBoundsMax[1] = 20.0f;
   entityBoundsMax[2] = FLOAT_40_0;
   absmin[0] = ikState->origin[0] + -20.0;
   absmin[1] = ikState->origin[1] + -20.0;
@@ -1896,7 +1896,7 @@ double __cdecl IKImport_GetLayerLerp(IKState *ikState, IKLayerNames layerName, f
   const WeaponDef *weapDef; // [esp+1B8h] [ebp-Ch]
   IKLayerNames vehicleIKLayers[2]; // [esp+1BCh] [ebp-8h] BYREF
 
-  lerpScale = FLOAT_1_0;
+  lerpScale = 1.0f;
   if ( layerLerpTime < 0.0
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\ik\\ik_import.cpp", 2328, 0, "%s", "layerLerpTime >= 0.f") )
   {
@@ -1923,11 +1923,11 @@ double __cdecl IKImport_GetLayerLerp(IKState *ikState, IKLayerNames layerName, f
         if ( (float)(v44 - 1.0) < 0.0 )
           v47 = v44;
         else
-          v47 = FLOAT_1_0;
+          v47 = 1.0f;
         if ( (float)(0.0 - v44) < 0.0 )
           v43 = v47;
         else
-          v43 = *(float *)&FLOAT_0_0;
+          v43 = 0.0f;
         lerpScale = (float)(1.0 - v43) * lerpScale;
         break;
     }
@@ -1936,7 +1936,7 @@ double __cdecl IKImport_GetLayerLerp(IKState *ikState, IKLayerNames layerName, f
     return IKImport_SmoothLerpAdjust(li->lerp * lerpScale);
   frameTime = (float)(ikState->timeMS - li->lastUpdateTime) * 0.001;
   if ( frameTime < 0.0 )
-    frameTime = *(float *)&FLOAT_0_0;
+    frameTime = 0.0f;
   li->lastUpdateTime = ikState->timeMS;
   lerpEntity = IKImport_GetLerpEntityState(ikState, -1);
   weapVariantDef = 0;
@@ -2126,7 +2126,7 @@ double __cdecl IKImport_GetLayerLerp(IKState *ikState, IKLayerNames layerName, f
       if ( ikSystem.inViewer )
       {
         bOn = 1;
-        layerLerpTime = *(float *)&FLOAT_0_0;
+        layerLerpTime = 0.0f;
       }
       else
       {
@@ -2263,7 +2263,7 @@ double __cdecl IKImport_GetLayerLerp(IKState *ikState, IKLayerNames layerName, f
       {
         BG_EvalVehicleName();
         bOn = ikState->actorLookAtEntityScale > 0.0;
-        layerLerpTime = FLOAT_N1_0;
+        layerLerpTime = -1.0f;
         li->lerp = ikState->actorLookAtEntityScale;
       }
       break;
@@ -2272,7 +2272,7 @@ double __cdecl IKImport_GetLayerLerp(IKState *ikState, IKLayerNames layerName, f
   }
   if ( Com_IsRagdollTrajectory(&lerpEntity->pos) )
   {
-    layerLerpTime = FLOAT_0_1;
+    layerLerpTime = 0.1f;
     bOn = 0;
   }
   if ( layerName == offLayer )
@@ -2284,9 +2284,9 @@ double __cdecl IKImport_GetLayerLerp(IKState *ikState, IKLayerNames layerName, f
     if ( layerLerpTime == 0.0 )
     {
       if ( bOn )
-        v7 = FLOAT_1_0;
+        v7 = 1.0f;
       else
-        v7 = *(float *)&FLOAT_0_0;
+        v7 = 0.0f;
       li->lerp = v7;
     }
   }
@@ -2300,11 +2300,11 @@ double __cdecl IKImport_GetLayerLerp(IKState *ikState, IKLayerNames layerName, f
     if ( (float)(lerp - 1.0) < 0.0 )
       v46 = li->lerp;
     else
-      v46 = FLOAT_1_0;
+      v46 = 1.0f;
     if ( (float)(0.0 - lerp) < 0.0 )
       v8 = v46;
     else
-      v8 = *(float *)&FLOAT_0_0;
+      v8 = 0.0f;
     li->lerp = v8;
   }
   li->goalState = bOn;
@@ -2434,9 +2434,9 @@ void __cdecl IKImport_GetVelocity(IKState *ikState, float *velocity)
   int snapTime; // [esp+20h] [ebp-8h]
   gentity_s *ent; // [esp+24h] [ebp-4h]
 
-  *velocity = *(float *)&FLOAT_0_0;
-  velocity[1] = *(float *)&FLOAT_0_0;
-  velocity[2] = *(float *)&FLOAT_0_0;
+  *velocity = 0.0f;
+  velocity[1] = 0.0f;
+  velocity[2] = 0.0f;
   if ( ikState->isServer )
   {
     ent = &g_entities[ikState->entityNum];
@@ -2655,45 +2655,45 @@ void __cdecl IKImport_GetPitchWeaponOffset(IKState *ikState, bool bIsPitchDirect
   float weapOfsUpIdle[5][2][3]; // [esp+188h] [ebp-80h] BYREF
   IKWeaponOffsetType offsetType; // [esp+204h] [ebp-4h]
 
-  *(_QWORD *)&weapOfsDnIdle[0][0][0] = __PAIR64__(LODWORD(FLOAT_N3_0), *(unsigned int *)&FLOAT_0_0);
-  *(_QWORD *)&weapOfsDnIdle[0][0][2] = __PAIR64__(LODWORD(FLOAT_N2_0), LODWORD(FLOAT_7_0));
-  *(_QWORD *)&weapOfsDnIdle[0][1][1] = __PAIR64__(LODWORD(FLOAT_10_0), LODWORD(FLOAT_N5_0));
-  weapOfsDnIdle[1][0][0] = *(float *)&FLOAT_0_0;
-  weapOfsDnIdle[1][0][1] = *(float *)&FLOAT_0_0;
-  *(_QWORD *)&weapOfsDnIdle[1][0][2] = __PAIR64__(LODWORD(FLOAT_N5_0), *(unsigned int *)&FLOAT_0_0);
-  *(_QWORD *)&weapOfsDnIdle[1][1][1] = __PAIR64__(LODWORD(FLOAT_5_0), LODWORD(FLOAT_N5_0));
+  *(_QWORD *)&weapOfsDnIdle[0][0][0] = __PAIR64__(LODWORD(FLOAT_N3_0), 0);
+  *(_QWORD *)&weapOfsDnIdle[0][0][2] = __PAIR64__(LODWORD(FLOAT_N2_0), LODWORD(7.0f));
+  *(_QWORD *)&weapOfsDnIdle[0][1][1] = __PAIR64__(LODWORD(10.0f), LODWORD(FLOAT_N5_0));
+  weapOfsDnIdle[1][0][0] = 0.0f;
+  weapOfsDnIdle[1][0][1] = 0.0f;
+  *(_QWORD *)&weapOfsDnIdle[1][0][2] = __PAIR64__(LODWORD(FLOAT_N5_0), 0);
+  *(_QWORD *)&weapOfsDnIdle[1][1][1] = __PAIR64__(LODWORD(5.0f), LODWORD(FLOAT_N5_0));
   memset((void *)weapOfsDnIdle[2], 0, sizeof(const float[2][3]));
-  *(_QWORD *)&weapOfsDnIdle[3][0][0] = __PAIR64__(LODWORD(FLOAT_N6_0), LODWORD(FLOAT_6_0));
-  *(_QWORD *)&weapOfsDnIdle[3][0][2] = __PAIR64__(LODWORD(FLOAT_4_0), LODWORD(FLOAT_10_0));
-  *(_QWORD *)&weapOfsDnIdle[3][1][1] = __PAIR64__(LODWORD(FLOAT_4_0), LODWORD(FLOAT_N8_0));
+  *(_QWORD *)&weapOfsDnIdle[3][0][0] = __PAIR64__(LODWORD(-6.0f), LODWORD(6.0f));
+  *(_QWORD *)&weapOfsDnIdle[3][0][2] = __PAIR64__(LODWORD(4.0f), LODWORD(10.0f));
+  *(_QWORD *)&weapOfsDnIdle[3][1][1] = __PAIR64__(LODWORD(4.0f), LODWORD(-8.0f));
   memset((void *)weapOfsDnIdle[4], 0, sizeof(const float[2][3]));
-  *(_QWORD *)&weapOfsUpIdle[0][0][0] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_N4_0));
-  *(_QWORD *)&weapOfsUpIdle[0][0][2] = __PAIR64__(LODWORD(FLOAT_N7_0), LODWORD(FLOAT_N2_0));
-  *(_QWORD *)&weapOfsUpIdle[0][1][1] = __PAIR64__(LODWORD(FLOAT_N4_0), *(unsigned int *)&FLOAT_0_0);
-  *(_QWORD *)&weapOfsUpIdle[1][0][0] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_N3_0));
-  *(_QWORD *)&weapOfsUpIdle[1][0][2] = __PAIR64__(LODWORD(FLOAT_N7_0), LODWORD(FLOAT_N2_0));
-  *(_QWORD *)&weapOfsUpIdle[1][1][1] = __PAIR64__(LODWORD(FLOAT_N4_0), *(unsigned int *)&FLOAT_0_0);
+  *(_QWORD *)&weapOfsUpIdle[0][0][0] = __PAIR64__(0, LODWORD(-4.0f));
+  *(_QWORD *)&weapOfsUpIdle[0][0][2] = __PAIR64__(LODWORD(-7.0f), LODWORD(FLOAT_N2_0));
+  *(_QWORD *)&weapOfsUpIdle[0][1][1] = __PAIR64__(LODWORD(-4.0f), 0);
+  *(_QWORD *)&weapOfsUpIdle[1][0][0] = __PAIR64__(0, LODWORD(FLOAT_N3_0));
+  *(_QWORD *)&weapOfsUpIdle[1][0][2] = __PAIR64__(LODWORD(-7.0f), LODWORD(FLOAT_N2_0));
+  *(_QWORD *)&weapOfsUpIdle[1][1][1] = __PAIR64__(LODWORD(-4.0f), 0);
   memset((void *)weapOfsUpIdle[2], 0, 72);
   memset((void *)weapOfsDnMoving, 0, 16);
-  *(_QWORD *)&weapOfsDnMoving[0][1][1] = __PAIR64__(LODWORD(FLOAT_8_0), *(unsigned int *)&FLOAT_0_0);
+  *(_QWORD *)&weapOfsDnMoving[0][1][1] = __PAIR64__(LODWORD(8.0f), 0);
   memset((void *)weapOfsDnMoving[1], 0, sizeof(const float[2][3]));
-  *(_QWORD *)&weapOfsDnMoving[2][0][0] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_4_0));
-  *(_QWORD *)&weapOfsDnMoving[2][0][2] = __PAIR64__(LODWORD(FLOAT_4_0), *(unsigned int *)&FLOAT_0_0);
-  weapOfsDnMoving[2][1][1] = *(float *)&FLOAT_0_0;
-  weapOfsDnMoving[2][1][2] = *(float *)&FLOAT_0_0;
-  *(_QWORD *)&weapOfsDnMoving[3][0][0] = __PAIR64__(LODWORD(FLOAT_N2_0), *(unsigned int *)&FLOAT_0_0);
-  *(_QWORD *)&weapOfsDnMoving[3][0][2] = __PAIR64__(LODWORD(FLOAT_8_0), *(unsigned int *)&FLOAT_0_0);
-  *(_QWORD *)&weapOfsDnMoving[3][1][1] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_N4_0));
+  *(_QWORD *)&weapOfsDnMoving[2][0][0] = __PAIR64__(0, LODWORD(4.0f));
+  *(_QWORD *)&weapOfsDnMoving[2][0][2] = __PAIR64__(LODWORD(4.0f), 0);
+  weapOfsDnMoving[2][1][1] = 0.0f;
+  weapOfsDnMoving[2][1][2] = 0.0f;
+  *(_QWORD *)&weapOfsDnMoving[3][0][0] = __PAIR64__(LODWORD(FLOAT_N2_0), 0);
+  *(_QWORD *)&weapOfsDnMoving[3][0][2] = __PAIR64__(LODWORD(8.0f), 0);
+  *(_QWORD *)&weapOfsDnMoving[3][1][1] = __PAIR64__(0, LODWORD(-4.0f));
   memset((void *)weapOfsDnMoving[4], 0, sizeof(const float[2][3]));
   memset((void *)weapOfsUpMoving, 0, 24);
-  *(_QWORD *)&weapOfsUpMoving[1][0][0] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_N3_0));
-  *(_QWORD *)&weapOfsUpMoving[1][0][2] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_N2_0));
-  weapOfsUpMoving[1][1][1] = *(float *)&FLOAT_0_0;
-  weapOfsUpMoving[1][1][2] = *(float *)&FLOAT_0_0;
-  *(_QWORD *)&weapOfsUpMoving[2][0][0] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_4_0));
-  *(_QWORD *)&weapOfsUpMoving[2][0][2] = __PAIR64__(LODWORD(FLOAT_4_0), *(unsigned int *)&FLOAT_0_0);
-  weapOfsUpMoving[2][1][1] = *(float *)&FLOAT_0_0;
-  weapOfsUpMoving[2][1][2] = *(float *)&FLOAT_0_0;
+  *(_QWORD *)&weapOfsUpMoving[1][0][0] = __PAIR64__(0, LODWORD(FLOAT_N3_0));
+  *(_QWORD *)&weapOfsUpMoving[1][0][2] = __PAIR64__(0, LODWORD(FLOAT_N2_0));
+  weapOfsUpMoving[1][1][1] = 0.0f;
+  weapOfsUpMoving[1][1][2] = 0.0f;
+  *(_QWORD *)&weapOfsUpMoving[2][0][0] = __PAIR64__(0, LODWORD(4.0f));
+  *(_QWORD *)&weapOfsUpMoving[2][0][2] = __PAIR64__(LODWORD(4.0f), 0);
+  weapOfsUpMoving[2][1][1] = 0.0f;
+  weapOfsUpMoving[2][1][2] = 0.0f;
   memset((void *)weapOfsUpMoving[3], 0, 48);
   offsetType = ikState->weaponOffsetType;
   fraction = IKImport_GetLayerLerp(ikState, IKLAYER_CROUCH_ACTIVE);
@@ -2777,34 +2777,34 @@ void  IKImport_Profiler(int a1@<ebp>, IKState *ikState)
         out[13] = *v20;
         out[14] = v20[4];
         out[15] = v20[8];
-        out[16] = *(float *)&FLOAT_0_0;
+        out[16] = 0.0f;
         v11 = v20[1];
         v12 = v20[5];
         v13 = v20[9];
-        v14 = *(unsigned int *)&FLOAT_0_0;
+        v14 = 0;
         v15 = v20[2];
         v16 = v20[6];
         v17 = v20[10];
-        v18 = *(unsigned int *)&FLOAT_0_0;
+        v18 = 0;
         v7 = (float)((float)(*v19 * out[13]) + (float)(v19[1] * v11)) + (float)(v19[2] * v15);
         v8 = (float)((float)(*v19 * out[14]) + (float)(v19[1] * v12)) + (float)(v19[2] * v16);
         v9 = (float)((float)(*v19 * out[15]) + (float)(v19[1] * v13)) + (float)(v19[2] * v17);
-        out[0] = *(float *)&FLOAT_0_0;
+        out[0] = 0.0f;
         out[1] = (float)((float)(v19[4] * out[13]) + (float)(v19[5] * v11)) + (float)(v19[6] * v15);
         out[2] = (float)((float)(v19[4] * out[14]) + (float)(v19[5] * v12)) + (float)(v19[6] * v16);
         out[3] = (float)((float)(v19[4] * out[15]) + (float)(v19[5] * v13)) + (float)(v19[6] * v17);
-        out[4] = *(float *)&FLOAT_0_0;
+        out[4] = 0.0f;
         out[5] = (float)((float)(v19[8] * out[13]) + (float)(v19[9] * v11)) + (float)(v19[10] * v15);
         out[6] = (float)((float)(v19[8] * out[14]) + (float)(v19[9] * v12)) + (float)(v19[10] * v16);
         out[7] = (float)((float)(v19[8] * out[15]) + (float)(v19[9] * v13)) + (float)(v19[10] * v17);
-        out[8] = *(float *)&FLOAT_0_0;
+        out[8] = 0.0f;
         v6 = v20 + 12;
         v5 = v19 + 12;
         v2 = v19[12] - v20[12];
         *(float *)&timed = v19[13] - v20[13];
         *(float *)&time2 = v19[14] - v20[14];
         ikMatrixTransformVector34(&v2, (const float (*)[4])&out[13], &out[9]);
-        out[12] = FLOAT_1_0;
+        out[12] = 1.0f;
       }
     }
     Sys_Milliseconds();
@@ -2816,7 +2816,7 @@ double __cdecl IKImport_GetMaxLayerLerp(IKState *ikState)
   float max; // [esp+0h] [ebp-8h]
   IKLayerNames i; // [esp+4h] [ebp-4h]
 
-  max = *(float *)&FLOAT_0_0;
+  max = 0.0f;
   for ( i = IKLAYER_CROUCH_ACTIVE; i < IKLAYER_COUNT; ++i )
   {
     if ( ikLayerRealLayers[i] )

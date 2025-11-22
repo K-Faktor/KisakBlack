@@ -52,7 +52,7 @@ XAnimClientNotify *__thiscall XAnimClientNotify::XAnimClientNotify(
   this->clNotetrackName = 0;
   this->notifyType = 0;
   this->clNotifyName = 0;
-  this->timeFrac = *(float *)&FLOAT_0_0;
+  this->timeFrac = 0.0f;
   this->svNotetrackName = notifyData->notetrackName;
   this->notifyType = notifyData->notifyType;
   this->clNotifyName = notifyData->notifyName;

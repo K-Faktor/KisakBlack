@@ -3145,10 +3145,10 @@ char __cdecl Material_ParseLiteral(const char **text, const char *token, float *
   {
     __debugbreak();
   }
-  *literal = *(float *)&FLOAT_0_0;
-  literal[1] = *(float *)&FLOAT_0_0;
-  literal[2] = *(float *)&FLOAT_0_0;
-  literal[3] = FLOAT_1_0;
+  *literal = 0.0f;
+  literal[1] = 0.0f;
+  literal[2] = 0.0f;
+  literal[3] = 1.0f;
   if ( !strcmp(token, "float1") )
   {
     Material_ParseVector(text, 1, literal);

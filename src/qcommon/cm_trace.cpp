@@ -512,7 +512,7 @@ void __cdecl CM_Trace(
     else
     {
       start_[0] = *(_QWORD *)tw.extents.start.vec.v;
-      start_[1] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, tw.extents.start.vec.u[2]);
+      start_[1] = __PAIR64__(0, tw.extents.start.vec.u[2]);
       end_[0] = *(_QWORD *)tw.extents.end.vec.v;
       LODWORD(end_[1]) = tw.extents.end.vec.u[2];
       HIDWORD(end_[1]) = LODWORD(results->fraction);
@@ -749,7 +749,7 @@ void __cdecl CM_TestBoxInBrush(const traceWork_t *tw, const cbrush_t *brush, tra
     }
     trace->startsolid = 1;
     trace->allsolid = 1;
-    trace->fraction = *(float *)&FLOAT_0_0;
+    trace->fraction = 0.0f;
     trace->cflags = brush->contents;
     trace->sflags = 0;
   }
@@ -831,7 +831,7 @@ void __cdecl CM_TestCapsuleInCapsule(const traceWork_t *tw, trace_t *trace)
 LABEL_8:
       trace->startsolid = 1;
       trace->allsolid = 1;
-      trace->fraction = *(float *)&FLOAT_0_0;
+      trace->fraction = 0.0f;
       trace->sflags = 0;
       return;
     }
@@ -859,7 +859,7 @@ LABEL_8:
 LABEL_18:
         trace->startsolid = 1;
         trace->allsolid = 1;
-        trace->fraction = *(float *)&FLOAT_0_0;
+        trace->fraction = 0.0f;
         trace->sflags = 0;
       }
     }
@@ -868,7 +868,7 @@ LABEL_18:
   {
     trace->startsolid = 1;
     trace->allsolid = 1;
-    trace->fraction = *(float *)&FLOAT_0_0;
+    trace->fraction = 0.0f;
     trace->sflags = 0;
   }
 }
@@ -988,7 +988,7 @@ bool __cdecl CM_TraceThroughLeafBrushNode(const traceWork_t *tw, cLeaf_s *leaf, 
   LODWORD(start[1]) = tw->extents.start.vec.u[2];
   end[0] = *(_QWORD *)tw->extents.end.vec.v;
   LODWORD(end[1]) = tw->extents.end.vec.u[2];
-  HIDWORD(start[1]) = *(unsigned int *)&FLOAT_0_0;
+  HIDWORD(start[1]) = 0;
   HIDWORD(end[1]) = LODWORD(trace->fraction);
   CM_TraceThroughLeafBrushNode_r(
     tw,
@@ -1075,8 +1075,8 @@ void __cdecl CM_TraceThroughLeafBrushNode_r(
         if ( absDiff <= 0.00000047683716 )
         {
           side = 0;
-          frac = FLOAT_1_0;
-          frac2 = *(float *)&FLOAT_0_0;
+          frac = 1.0f;
+          frac2 = 0.0f;
         }
         else
         {
@@ -1101,7 +1101,7 @@ void __cdecl CM_TraceThroughLeafBrushNode_r(
           __debugbreak();
         }
         if ( (float)(1.0 - frac) < 0.0 )
-          v6 = FLOAT_1_0;
+          v6 = 1.0f;
         else
           v6 = frac;
         mid[0] = (float)((float)(*p2 - p1[0]) * v6) + p1[0];
@@ -1121,7 +1121,7 @@ void __cdecl CM_TraceThroughLeafBrushNode_r(
           __debugbreak();
         }
         if ( (float)(frac2 - 0.0) < 0.0 )
-          v5 = *(float *)&FLOAT_0_0;
+          v5 = 0.0f;
         else
           v5 = frac2;
         frac2 = v5;
@@ -1199,11 +1199,11 @@ void __cdecl CM_TraceThroughBrush(const traceWork_t *tw, const cbrush_t *brush, 
   {
     __debugbreak();
   }
-  enterFrac = *(float *)&FLOAT_0_0;
+  enterFrac = 0.0f;
   leaveFrac = trace->fraction;
   allsolid = 1;
   leadside = 0;
-  sign = FLOAT_N1_0;
+  sign = -1.0f;
   bounds = (const float *)brush;
   index = 0;
   while ( 2 )
@@ -1264,7 +1264,7 @@ void __cdecl CM_TraceThroughBrush(const traceWork_t *tw, const cbrush_t *brush, 
       else
       {
         if ( (float)(0.125 - d1) < 0.0 )
-          v5 = FLOAT_0_125;
+          v5 = 0.1f25;
         else
           v5 = d1;
         if ( d2 >= v5 )
@@ -1293,7 +1293,7 @@ void __cdecl CM_TraceThroughBrush(const traceWork_t *tw, const cbrush_t *brush, 
     }
     if ( !index )
     {
-      sign = FLOAT_1_0;
+      sign = 1.0f;
       bounds = brush->maxs;
       index = 1;
       continue;
@@ -1396,7 +1396,7 @@ void __cdecl CM_TraceThroughBrush(const traceWork_t *tw, const cbrush_t *brush, 
       else
       {
         if ( (float)(0.125 - d1a) < 0.0 )
-          v3 = FLOAT_0_125;
+          v3 = 0.1f25;
         else
           v3 = d1a;
         if ( d2 >= v3 )
@@ -1466,7 +1466,7 @@ LABEL_54:
     if ( allsolid )
     {
       trace->allsolid = 1;
-      trace->fraction = *(float *)&FLOAT_0_0;
+      trace->fraction = 0.0f;
     }
     trace->sflags = brush->axial_sflags[1][2];
     trace->cflags = brush->axial_cflags[1][2];
@@ -1655,7 +1655,7 @@ int __cdecl CM_TraceSphereThroughSphere(
         else
         {
           if ( (float)(fEntry - 0.0) < 0.0 )
-            v7 = *(float *)&FLOAT_0_0;
+            v7 = 0.0f;
           else
             v7 = fEntry;
           trace->fraction = v7;
@@ -1690,7 +1690,7 @@ int __cdecl CM_TraceSphereThroughSphere(
   }
   else
   {
-    trace->fraction = *(float *)&FLOAT_0_0;
+    trace->fraction = 0.0f;
     trace->startsolid = 1;
     trace->walkable = 0;
     Vec3NormalizeTo(vDelta, trace->normal.vec.v);
@@ -1752,7 +1752,7 @@ int __cdecl CM_TraceCylinderThroughCylinder(
       fDiscriminant = (float)(fB * fB) - (float)(fA * fC);
       if ( fDiscriminant >= 0.0 )
       {
-        vDelta[2] = *(float *)&FLOAT_0_0;
+        vDelta[2] = 0.0f;
         fDeltaLen = Vec3NormalizeTo(vDelta, vNormal);
         fEpsilon = (float)(fDeltaLen * 0.125) / fB;
         fEntry = (float)((float)(COERCE_FLOAT(LODWORD(fB) ^ _mask__NegFloat_) - fsqrt(fDiscriminant)) / fA) + fEpsilon;
@@ -1778,7 +1778,7 @@ int __cdecl CM_TraceCylinderThroughCylinder(
           if ( COERCE_FLOAT(LODWORD(fHitHeight) & _mask__AbsFloat_) <= fTotalHeighta )
           {
             if ( (float)(fEntry - 0.0) < 0.0 )
-              v6 = *(float *)&FLOAT_0_0;
+              v6 = 0.0f;
             else
               v6 = fEntry;
             trace->fraction = v6;
@@ -1831,10 +1831,10 @@ int __cdecl CM_TraceCylinderThroughCylinder(
     }
     if ( COERCE_FLOAT(LODWORD(vDelta[2]) & _mask__AbsFloat_) <= fTotalHeight )
     {
-      trace->fraction = *(float *)&FLOAT_0_0;
+      trace->fraction = 0.0f;
       trace->startsolid = 1;
       trace->walkable = 0;
-      vDelta[2] = *(float *)&FLOAT_0_0;
+      vDelta[2] = 0.0f;
       Vec3NormalizeTo(vDelta, trace->normal.vec.v);
       trace->cflags = tw->threadInfo.box_brush->contents;
       trace->sflags = 0;
@@ -1900,7 +1900,7 @@ void __cdecl CM_TraceThroughTree(const traceWork_t *tw, int num, const float *p1
                  + (float)(plane->normal[2] * p2[2]))
          - plane->dist;
       if ( tw->isPoint )
-        offset = FLOAT_0_125;
+        offset = 0.1f25;
       else
         offset = tw->boundingRadius + 0.125;
     }
@@ -1929,8 +1929,8 @@ void __cdecl CM_TraceThroughTree(const traceWork_t *tw, int num, const float *p1
         if ( absDiff <= 0.00000047683716 )
         {
           side = 0;
-          frac = FLOAT_1_0;
-          frac2 = *(float *)&FLOAT_0_0;
+          frac = 1.0f;
+          frac2 = 0.0f;
         }
         else
         {
@@ -1949,7 +1949,7 @@ void __cdecl CM_TraceThroughTree(const traceWork_t *tw, int num, const float *p1
           __debugbreak();
         }
         if ( (float)(1.0 - frac) < 0.0 )
-          v6 = FLOAT_1_0;
+          v6 = 1.0f;
         else
           v6 = frac;
         mid[0] = (float)((float)(*p2 - p1[0]) * v6) + p1[0];
@@ -1969,7 +1969,7 @@ void __cdecl CM_TraceThroughTree(const traceWork_t *tw, int num, const float *p1
           __debugbreak();
         }
         if ( (float)(frac2 - 0.0) < 0.0 )
-          v5 = *(float *)&FLOAT_0_0;
+          v5 = 0.0f;
         else
           v5 = frac2;
         frac2 = v5;
@@ -2084,12 +2084,12 @@ void __cdecl CM_TraceThroughPrimitives(
           v10 = tree->halfSize[0];
           v11 = tree->halfSize[1];
           v12 = tree->halfSize[2];
-          v13 = *(unsigned int *)&FLOAT_0_0;
+          v13 = 0;
           v47 = &v6;
           v6 = tree->origin[0];
           v7 = tree->origin[1];
           v8 = tree->origin[2];
-          v9 = *(unsigned int *)&FLOAT_0_0;
+          v9 = 0;
           p_midpoint = &tw->midpoint;
           v41 = tw->midpoint.vec.v[0] - v6;
           v42 = tw->midpoint.vec.v[1] - v7;
@@ -2206,7 +2206,7 @@ void __cdecl CM_BoxTrace(
         col_context_t *context)
 {
   memset((unsigned __int8 *)results, 0, sizeof(trace_t));
-  results->fraction = FLOAT_1_0;
+  results->fraction = 1.0f;
   results->boneIndex = 254;
   CM_Trace(results, start, end, mins, maxs, 0, brushmask, context);
 }
@@ -2359,7 +2359,7 @@ void __cdecl CM_TransformedBoxTraceExternal(
         const float *angles)
 {
   memset((unsigned __int8 *)results, 0, sizeof(trace_t));
-  results->fraction = FLOAT_1_0;
+  results->fraction = 1.0f;
   CM_TransformedBoxTrace(results, start, end, mins, maxs, model, brushmask, origin, angles);
 }
 
@@ -2411,9 +2411,9 @@ int __cdecl CM_SightTraceThroughBrush(const traceWork_t *tw, const cbrush_t *bru
   {
     __debugbreak();
   }
-  enterFrac = *(float *)&FLOAT_0_0;
-  leaveFrac = FLOAT_1_0;
-  sign = FLOAT_N1_0;
+  enterFrac = 0.0f;
+  leaveFrac = 1.0f;
+  sign = -1.0f;
   bounds = brush;
   for ( index = 0; ; index = 1 )
   {
@@ -2485,7 +2485,7 @@ int __cdecl CM_SightTraceThroughBrush(const traceWork_t *tw, const cbrush_t *bru
     }
     if ( index )
       break;
-    sign = FLOAT_1_0;
+    sign = 1.0f;
     bounds = (const cbrush_t *)brush->maxs;
   }
   i = brush->numsides;
@@ -2665,9 +2665,9 @@ int __cdecl CM_SightTracePointThroughBrush(const TraceExtents *extents, const cb
   {
     __debugbreak();
   }
-  enterFrac = *(float *)&FLOAT_0_0;
-  leaveFrac = FLOAT_1_0;
-  sign = FLOAT_N1_0;
+  enterFrac = 0.0f;
+  leaveFrac = 1.0f;
+  sign = -1.0f;
   bounds = brush;
   for ( index = 0; ; index = 1 )
   {
@@ -2727,7 +2727,7 @@ int __cdecl CM_SightTracePointThroughBrush(const TraceExtents *extents, const cb
     }
     if ( index )
       break;
-    sign = FLOAT_1_0;
+    sign = 1.0f;
     bounds = (const cbrush_t *)brush->maxs;
   }
   i = brush->numsides;
@@ -2878,7 +2878,7 @@ int __cdecl CM_SightTraceThroughTree(const traceWork_t *tw, int num, const float
           t2 = (float)((float)((float)(plane->normal[0] * *p2) + (float)(plane->normal[1] * p2[1]))
                      + (float)(plane->normal[2] * p2[2]))
              - plane->dist;
-          offset = tw->isPoint ? FLOAT_0_125 : tw->boundingRadius + 0.125;
+          offset = tw->isPoint ? 0.1f25 : tw->boundingRadius + 0.125;
         }
         else
         {
@@ -2901,8 +2901,8 @@ int __cdecl CM_SightTraceThroughTree(const traceWork_t *tw, int num, const float
     if ( absDiff <= 0.00000047683716 )
     {
       side = 0;
-      frac = FLOAT_1_0;
-      frac2 = *(float *)&FLOAT_0_0;
+      frac = 1.0f;
+      frac2 = 0.0f;
     }
     else
     {
@@ -2920,7 +2920,7 @@ int __cdecl CM_SightTraceThroughTree(const traceWork_t *tw, int num, const float
     {
       __debugbreak();
     }
-    v7 = (float)(1.0 - frac) < 0.0 ? FLOAT_1_0 : frac;
+    v7 = (float)(1.0 - frac) < 0.0 ? 1.0f : frac;
     mid[0] = (float)((float)(*p2 - p1[0]) * v7) + p1[0];
     mid[1] = (float)((float)(p2[1] - p1[1]) * v7) + p1[1];
     mid[2] = (float)((float)(p2[2] - p1[2]) * v7) + p1[2];
@@ -2939,7 +2939,7 @@ int __cdecl CM_SightTraceThroughTree(const traceWork_t *tw, int num, const float
       __debugbreak();
     }
     if ( (float)(frac2 - 0.0) < 0.0 )
-      v6 = *(float *)&FLOAT_0_0;
+      v6 = 0.0f;
     else
       v6 = frac2;
     frac2 = v6;
@@ -3086,8 +3086,8 @@ LABEL_19:
         if ( absDiff <= 0.00000047683716 )
         {
           side = 0;
-          frac = FLOAT_1_0;
-          frac2 = *(float *)&FLOAT_0_0;
+          frac = 1.0f;
+          frac2 = 0.0f;
         }
         else
         {
@@ -3106,7 +3106,7 @@ LABEL_19:
           __debugbreak();
         }
         if ( (float)(1.0 - frac) < 0.0 )
-          v7 = FLOAT_1_0;
+          v7 = 1.0f;
         else
           v7 = frac;
         mid[0] = (float)((float)(*p2 - p1[0]) * v7) + p1[0];
@@ -3132,7 +3132,7 @@ LABEL_19:
           __debugbreak();
         }
         if ( (float)(frac2 - 0.0) < 0.0 )
-          v6 = *(float *)&FLOAT_0_0;
+          v6 = 0.0f;
         else
           v6 = frac2;
         frac2 = v6;
@@ -3205,7 +3205,7 @@ int __cdecl CM_BoxSightTrace(
   if ( !maxs && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\cm_trace.cpp", 2689, 0, "%s", "maxs") )
     __debugbreak();
   cmod = CM_ClipHandleToModel(model);
-  trace.fraction = FLOAT_1_0;
+  trace.fraction = 1.0f;
   trace.startsolid = 0;
   trace.allsolid = 0;
   tw.contents = brushmask;
@@ -3506,7 +3506,7 @@ bool __cdecl CM_SightTraceCylinderThroughCylinder(
       fDiscriminant = (float)(fB * fB) - (float)(fA * fC);
       if ( fDiscriminant >= 0.0 )
       {
-        vDelta[2] = *(float *)&FLOAT_0_0;
+        vDelta[2] = 0.0f;
         fDeltaLen = Vec3NormalizeTo(vDelta, vNormal);
         fEpsilon = (float)(fB * 0.125) / fDeltaLen;
         fEntry = (float)((float)(COERCE_FLOAT(LODWORD(fB) ^ _mask__NegFloat_) - fsqrt(fDiscriminant)) / fA) + fEpsilon;
@@ -3591,12 +3591,12 @@ int __cdecl CM_SightTracePoint(int oldHitNum, const float *start, const float *e
         return oldHitNuma + 1;
     }
   }
-  trace.fraction = FLOAT_1_0;
+  trace.fraction = 1.0f;
   trace.startsolid = 0;
   trace.allsolid = 0;
   for ( i = 0; i < 3; ++i )
   {
-    tw.size.vec.u[i] = *(unsigned int *)&FLOAT_0_0;
+    tw.size.vec.u[i] = 0;
     tw.midpoint.vec.v[i] = (float)(tw.extents.start.vec.v[i] + tw.extents.end.vec.v[i]) * 0.5;
     tw.delta.vec.v[i] = tw.extents.end.vec.v[i] - tw.extents.start.vec.v[i];
     tw.halfDelta.vec.v[i] = 0.5 * tw.delta.vec.v[i];
@@ -3767,7 +3767,7 @@ int __cdecl CM_TracePointDown(
     __debugbreak();
   }
   memset((unsigned __int8 *)&results, 0, sizeof(results));
-  results.fraction = FLOAT_1_0;
+  results.fraction = 1.0f;
   if ( !cm.numNodes
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\cm_trace.cpp", 2998, 0, "%s", "cm.numNodes") )
   {
@@ -3776,7 +3776,7 @@ int __cdecl CM_TracePointDown(
   tw.contents = contentmask;
   for ( i = 0; i < 3; ++i )
   {
-    tw.size.vec.u[i] = *(unsigned int *)&FLOAT_0_0;
+    tw.size.vec.u[i] = 0;
     tw.extents.start.vec.v[i] = start[i];
     tw.extents.end.vec.v[i] = end[i];
     tw.midpoint.vec.v[i] = (float)(tw.extents.start.vec.v[i] + tw.extents.end.vec.v[i]) * 0.5;
@@ -3809,7 +3809,7 @@ int __cdecl CM_TracePointDown(
   tw.doublesided = 0;
   memset(&tw.radiusOffset, 0, 12);
   start_[0] = *(_QWORD *)tw.extents.start.vec.v;
-  start_[1] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, tw.extents.start.vec.u[2]);
+  start_[1] = __PAIR64__(0, tw.extents.start.vec.u[2]);
   end_[0] = *(_QWORD *)tw.extents.end.vec.v;
   end_[1] = __PAIR64__(LODWORD(results.fraction), tw.extents.end.vec.u[2]);
   CM_TraceThroughTree(&tw, 0, (const float *)start_, (const float *)end_, &results);
@@ -3868,7 +3868,7 @@ double __cdecl CM_GetWaterHeight(const float *pos, float z_up, float z_down)
   {
     TraceExtents::TraceExtents(&clip.extents);
     memset((unsigned __int8 *)&trace, 0, sizeof(trace));
-    trace.fraction = FLOAT_1_0;
+    trace.fraction = 1.0f;
     check = (svEntity_s *)sv.svEntities[entnum].baseline.s.lerp.apos.trBase;
     clip.contentmask = -1;
     *(_QWORD *)clip.extents.start.vec.v = *(_QWORD *)start;
@@ -4166,7 +4166,7 @@ char __cdecl trace_sphere_through_triangle(
       proj[0] = (float)(COERCE_FLOAT(LODWORD(d0) ^ _mask__NegFloat_) * *n) + *c0;
       proj[1] = (float)(COERCE_FLOAT(LODWORD(d0) ^ _mask__NegFloat_) * n[1]) + c0[1];
       proj[2] = (float)(COERCE_FLOAT(LODWORD(d0) ^ _mask__NegFloat_) * n[2]) + c0[2];
-      _t = *(float *)&FLOAT_0_0;
+      _t = 0.0f;
     }
     else
     {
@@ -4226,7 +4226,7 @@ char __cdecl trace_sphere_through_triangle(
   }
   v12 = COERCE_FLOAT(LODWORD(root1) ^ _mask__NegFloat_) / ndir2;
   if ( v12 >= 0.0 )
-    *t = *(float *)&FLOAT_0_0;
+    *t = 0.0f;
   else
     *t = COERCE_FLOAT(LODWORD(v12) ^ _mask__NegFloat_) * *t;
   return 1;
@@ -4369,25 +4369,25 @@ void __cdecl trace_sphere_through_brush(
   LODWORD(neg_dir[1]) = *((unsigned int *)dir + 1) ^ _mask__NegFloat_;
   LODWORD(neg_dir[2]) = *((unsigned int *)dir + 2) ^ _mask__NegFloat_;
   if ( neg_dir[0] == 0.0 )
-    v12 = *(float *)&FLOAT_0_0;
+    v12 = 0.0f;
   else
     v12 = 1.0 / neg_dir[0];
   inv_neg_dir[0] = v12;
   if ( neg_dir[1] == 0.0 )
-    v11 = *(float *)&FLOAT_0_0;
+    v11 = 0.0f;
   else
     v11 = 1.0 / neg_dir[1];
   inv_neg_dir[1] = v11;
   if ( neg_dir[2] == 0.0 )
-    v10 = *(float *)&FLOAT_0_0;
+    v10 = 0.0f;
   else
     v10 = 1.0 / neg_dir[2];
   inv_neg_dir[2] = v10;
-  enterFrac = *(float *)&FLOAT_0_0;
+  enterFrac = 0.0f;
   leaveFrac = *t;
   allsolid = 1;
   leadside = 0;
-  sign = FLOAT_N1_0;
+  sign = -1.0f;
   bounds = (const float *)brush;
   index = 0;
   while ( 2 )
@@ -4436,7 +4436,7 @@ void __cdecl trace_sphere_through_brush(
       else
       {
         if ( (float)(0.125 - d1) < 0.0 )
-          v9 = FLOAT_0_125;
+          v9 = 0.1f25;
         else
           v9 = d1;
         if ( d2 >= v9 )
@@ -4465,7 +4465,7 @@ void __cdecl trace_sphere_through_brush(
     }
     if ( !index )
     {
-      sign = FLOAT_1_0;
+      sign = 1.0f;
       bounds = brush->maxs;
       index = 1;
       continue;
@@ -4550,7 +4550,7 @@ void __cdecl trace_sphere_through_brush(
       else
       {
         if ( (float)(0.125 - d1a) < 0.0 )
-          v7 = FLOAT_0_125;
+          v7 = 0.1f25;
         else
           v7 = d1a;
         if ( d2 >= v7 )
@@ -4606,7 +4606,7 @@ LABEL_99:
   else
   {
     if ( allsolid )
-      *t = *(float *)&FLOAT_0_0;
+      *t = 0.0f;
     *sflags = 0;
   }
 }
@@ -4934,7 +4934,7 @@ void __cdecl trace_point_vs_env(
     __debugbreak();
   }
   memset((unsigned __int8 *)trace, 0, sizeof(trace_t));
-  trace->fraction = FLOAT_1_0;
+  trace->fraction = 1.0f;
   trace->boneIndex = 254;
   bHintFound = 0;
   if ( *index_hint > 0 )
@@ -5154,7 +5154,7 @@ void __cdecl trace_sphere_vs_env(
   {
     __debugbreak();
   }
-  trace->fraction = FLOAT_1_0;
+  trace->fraction = 1.0f;
   bHintFound = 0;
   if ( *index_hint > 0 )
   {
@@ -5335,9 +5335,9 @@ int __cdecl collide_segment_brush(const float *p0, const float *p1, const cbrush
   float leaveFrac; // [esp+7Ch] [ebp-8h]
   signed int i; // [esp+80h] [ebp-4h]
 
-  enterFrac = *(float *)&FLOAT_0_0;
-  leaveFrac = FLOAT_1_0;
-  sign = FLOAT_N1_0;
+  enterFrac = 0.0f;
+  leaveFrac = 1.0f;
+  sign = -1.0f;
   bounds = brush;
   for ( index = 0; ; index = 1 )
   {
@@ -5369,7 +5369,7 @@ int __cdecl collide_segment_brush(const float *p0, const float *p1, const cbrush
       }
       diff = p0[j] - p1[j];
       if ( diff == 0.0 )
-        v6 = *(float *)&FLOAT_0_0;
+        v6 = 0.0f;
       else
         v6 = 1.0 / diff;
       if ( d1 <= 0.0 )
@@ -5402,7 +5402,7 @@ int __cdecl collide_segment_brush(const float *p0, const float *p1, const cbrush
     }
     if ( index )
       break;
-    sign = FLOAT_1_0;
+    sign = 1.0f;
     bounds = (const cbrush_t *)brush->maxs;
   }
   i = brush->numsides;
@@ -5723,7 +5723,7 @@ char __cdecl CM_GetHeliHeight(const float *pt, float checkdist, float *result)
     {
       brushmodel = heli_height_lock_patches[i].brushmodel;
       memset((unsigned __int8 *)&results, 0, sizeof(results));
-      results.fraction = FLOAT_1_0;
+      results.fraction = 1.0f;
       results.boneIndex = 254;
       CM_TransformedBoxTrace(
         &results,

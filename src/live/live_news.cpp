@@ -730,7 +730,7 @@ bool __cdecl LiveNews_EvaluateExpression(const char *expr, char *outputString, i
   if ( !stringLength )
     return 0;
   validNumber = 0;
-  floatValue = *(float *)&FLOAT_0_0;
+  floatValue = 0.0f;
   Expression_Parse(&expr, &statement, compileBuffer, 1024);
   expressionResult = GetExpressionResultString(0, 0, &statement);
   value = I_atoi64(expressionResult);

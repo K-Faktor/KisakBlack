@@ -65,7 +65,7 @@ void __cdecl R_SetupSunShadowMaps(const GfxViewParms *viewParms, GfxSunShadow *s
     LODWORD(shadowViewParms->origin[0]) = LODWORD(sunAxis[0][0]) ^ _mask__NegFloat_;
     *((unsigned int *)origin + 1) = LODWORD(sunAxis[0][1]) ^ _mask__NegFloat_;
     *((unsigned int *)origin + 2) = LODWORD(sunAxis[0][2]) ^ _mask__NegFloat_;
-    shadowViewParms->origin[3] = *(float *)&FLOAT_0_0;
+    shadowViewParms->origin[3] = 0.0f;
     AxisCopy(sunAxis, shadowViewParms->axis);
     memcpy(shadowViewParms, sunProj, 0x40u);
     R_SunShadowMapProjectionMatrix(
@@ -157,12 +157,12 @@ void __cdecl R_CalcBoxVsCylinderRayMinBox(
   int points; // [esp+38h] [ebp-4h]
 
   points = 0;
-  outBox[2] = FLOAT_3_4028235e38;
-  outBox[1] = FLOAT_3_4028235e38;
-  *outBox = FLOAT_3_4028235e38;
-  outBox[5] = FLOAT_N3_4028235e38;
-  outBox[4] = FLOAT_N3_4028235e38;
-  outBox[3] = FLOAT_N3_4028235e38;
+  outBox[2] = FLT_MAX;
+  outBox[1] = FLT_MAX;
+  *outBox = FLT_MAX;
+  outBox[5] = -FLT_MAX;
+  outBox[4] = -FLT_MAX;
+  outBox[3] = -FLT_MAX;
   for ( side = 0; side < 6; side += 3 )
   {
     for ( axis = 0; axis < 3; ++axis )
@@ -233,15 +233,15 @@ void __cdecl R_GetSunAxes(float (*sunAxis)[3][3])
   LODWORD((*sunAxis)[0][2]) = *((unsigned int *)dir + 2) ^ _mask__NegFloat_;
   if ( (float)((float)((*sunAxis)[0][0] * (*sunAxis)[0][0]) + (float)((*sunAxis)[0][1] * (*sunAxis)[0][1])) >= 0.1 )
   {
-    (*sunAxis)[2][0] = *(float *)&FLOAT_0_0;
-    (*sunAxis)[2][1] = *(float *)&FLOAT_0_0;
-    (*sunAxis)[2][2] = FLOAT_1_0;
+    (*sunAxis)[2][0] = 0.0f;
+    (*sunAxis)[2][1] = 0.0f;
+    (*sunAxis)[2][2] = 1.0f;
   }
   else
   {
-    (*sunAxis)[2][0] = FLOAT_1_0;
-    (*sunAxis)[2][1] = *(float *)&FLOAT_0_0;
-    (*sunAxis)[2][2] = *(float *)&FLOAT_0_0;
+    (*sunAxis)[2][0] = 1.0f;
+    (*sunAxis)[2][1] = 0.0f;
+    (*sunAxis)[2][2] = 0.0f;
   }
   Vec3Cross((*sunAxis)[2], (const float *)sunAxis, (*sunAxis)[1]);
   Vec3Normalize((*sunAxis)[1]);
@@ -272,7 +272,7 @@ unsigned int __cdecl R_SunShadowMapClipSpaceClipPlanes(
                                                     - frustumBoundPolyInClipSpace[pointIndex][1];
       (*boundingPolyClipSpacePlanes)[planeCount][1] = frustumBoundPolyInClipSpace[pointIndex][0]
                                                     - frustumBoundPolyInClipSpace[pointIndex + 1][0];
-      (*boundingPolyClipSpacePlanes)[planeCount][2] = *(float *)&FLOAT_0_0;
+      (*boundingPolyClipSpacePlanes)[planeCount][2] = 0.0f;
       LODWORD((*boundingPolyClipSpacePlanes)[planeCount][3]) = COERCE_UNSIGNED_INT(
                                                                  (float)(frustumBoundPolyInClipSpace[pointIndex][0]
                                                                        * (*boundingPolyClipSpacePlanes)[planeCount][0])
@@ -303,7 +303,7 @@ unsigned int __cdecl R_SunShadowMapClipSpaceClipPlanes(
       (*boundingPolyClipSpacePlanes)[planeCount][1] = (float)((float)g_shadowFrustumBound[pointIndex][0]
                                                             - (float)g_shadowFrustumBound[pointIndex + 1][0])
                                                     * rg.sunShadowmapScale;
-      (*boundingPolyClipSpacePlanes)[planeCount][2] = *(float *)&FLOAT_0_0;
+      (*boundingPolyClipSpacePlanes)[planeCount][2] = 0.0f;
       (*boundingPolyClipSpacePlanes)[planeCount][3] = COERCE_FLOAT(
                                                         COERCE_UNSIGNED_INT(
                                                           (float)((float)g_shadowFrustumBound[pointIndex][0]
@@ -347,7 +347,7 @@ void __cdecl R_SunShadowMapProjectionMatrix(
   shadowViewParms->projectionMatrix.m[2][2] = 1.0 / (float)((float)(farClip - nearClip) + 2.0);
   shadowViewParms->projectionMatrix.m[3][2] = COERCE_FLOAT(COERCE_UNSIGNED_INT(nearClip - 1.0) ^ _mask__NegFloat_)
                                             * shadowViewParms->projectionMatrix.m[2][2];
-  shadowViewParms->projectionMatrix.m[3][3] = FLOAT_1_0;
+  shadowViewParms->projectionMatrix.m[3][3] = 1.0f;
   shadowViewParms->depthHackNearClip = shadowViewParms->projectionMatrix.m[3][2];
   R_SetupViewProjectionMatrices(shadowViewParms, 0);
 }
@@ -422,11 +422,11 @@ void __cdecl R_SetupSunShadowMapProjection(
                               + (float)(viewParms->origin[1] * (float)(*sunAxis)[2][1]))
                       + (float)(viewParms->origin[2] * (float)(*sunAxis)[2][2]);
 
-  minsInSunProj[0][0] = FLOAT_3_4028235e38;
-  minsInSunProj[0][1] = FLOAT_3_4028235e38;
+  minsInSunProj[0][0] = FLT_MAX;
+  minsInSunProj[0][1] = FLT_MAX;
 
-  maxsInSunProj[0][0] = FLOAT_N3_4028235e38;
-  maxsInSunProj[0][1] = FLOAT_N3_4028235e38;
+  maxsInSunProj[0][0] = -FLT_MAX;
+  maxsInSunProj[0][1] = -FLT_MAX;
 
   R_GetFrustumNearClipPoints(&viewParms->inverseViewProjectionMatrix, frustumPoints);
 
@@ -630,14 +630,14 @@ void __cdecl R_SetupSunShadowMapProjection(
                                               - (float)(viewOrgInTexSpace[0][1] * sunProj->switchPartition[3]))
                                       + 1.0)
                               * 0.5;
-  sunProj->switchPartition[2] = *(float *)&FLOAT_0_0;
+  sunProj->switchPartition[2] = 0.0f;
 
   shadowmapScale = sunProj->shadowmapScale;
   v21 = 32.0 / rg.sunShadowmapScale;
   sunProj->shadowmapScale[0] = 16.0 / rg.sunShadowmapScale;
   shadowmapScale[1] = v21;
-  shadowmapScale[2] = *(float *)&FLOAT_0_0;
-  shadowmapScale[3] = *(float *)&FLOAT_0_0;
+  shadowmapScale[2] = 0.0f;
+  shadowmapScale[3] = 0.0f;
   (*snappedViewOrgInClipSpace)[0][0] = (float)(viewOrgInTexSpace[0][0] * 2.0) - 1.0;
   (*snappedViewOrgInClipSpace)[0][1] = 1.0 - (float)(viewOrgInTexSpace[0][1] * 2.0);
   (*snappedViewOrgInClipSpace)[1][0] = (float)(viewOrgInTexSpace[1][0] * 2.0) - 1.0;
@@ -781,11 +781,11 @@ void __cdecl R_SetupSunShadowMapViewMatrix(
   sunProj->viewMatrix[0][2] = (*sunAxis)[0];
   sunProj->viewMatrix[1][2] = (*sunAxis)[1];
   sunProj->viewMatrix[2][2] = (*sunAxis)[2];
-  sunProj->viewMatrix[3][2] = *(float *)&FLOAT_0_0;
-  sunProj->viewMatrix[0][3] = *(float *)&FLOAT_0_0;
-  sunProj->viewMatrix[1][3] = *(float *)&FLOAT_0_0;
-  sunProj->viewMatrix[2][3] = *(float *)&FLOAT_0_0;
-  sunProj->viewMatrix[3][3] = FLOAT_1_0;
+  sunProj->viewMatrix[3][2] = 0.0f;
+  sunProj->viewMatrix[0][3] = 0.0f;
+  sunProj->viewMatrix[1][3] = 0.0f;
+  sunProj->viewMatrix[2][3] = 0.0f;
+  sunProj->viewMatrix[3][3] = 1.0f;
 }
 
 void __cdecl R_SetupSunShadowMapPartitionFraction(
@@ -875,7 +875,7 @@ void __cdecl R_SetupNearRegionPlane(const float *partitionFraction)
   scene.shadowNearPlane[1].coeffs[2] = (float)(1.0 / lengtha) * scene.shadowNearPlane[1].coeffs[2];
   scene.shadowNearPlane[1].coeffs[3] = (float)(1.0 / lengtha) * scene.shadowNearPlane[1].coeffs[3];
   R_SetDpvsPlaneSides(&scene.shadowNearPlane[1]);
-  size = FLOAT_1_0;
+  size = 1.0f;
   for ( partitionIndex = 0; partitionIndex < 2; ++partitionIndex )
   {
     shadowFarPlane = &scene.shadowFarPlane[partitionIndex];
@@ -1008,7 +1008,7 @@ void __cdecl R_MergeAndEmitSunShadowMapsSurfs(GfxViewInfo *viewInfo)
     info->viewOrigin[0] = frontEndDataOut->sunLight.dir[0];
     info->viewOrigin[1] = dir[1];
     info->viewOrigin[2] = dir[2];
-    info->viewOrigin[3] = *(float *)&FLOAT_0_0;
+    info->viewOrigin[3] = 0.0f;
     if ( viewInfo->drawList[partitionIndex + 8].cameraView )
     {
       if ( !Assert_MyHandler(

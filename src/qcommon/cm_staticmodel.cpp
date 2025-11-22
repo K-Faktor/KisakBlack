@@ -68,7 +68,7 @@ bool __cdecl CM_TraceStaticModelComplete(cStaticModel_s *sm, const float *start,
   delta[1] = end[1] - sm->origin[1];
   delta[2] = end[2] - sm->origin[2];
   MatrixTransformVector(delta, sm->invScaledAxis, localEnd);
-  results.fraction = FLOAT_1_0;
+  results.fraction = 1.0f;
   return XModelTraceLine(sm->xmodel, &results, localStart, localEnd, contentmask) < 0;
 }
 

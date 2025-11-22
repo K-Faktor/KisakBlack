@@ -487,7 +487,7 @@ void __cdecl FindNemesisForPlayer(unsigned int attackingPlayerSlot)
     }
   }
   playerNemesis = -1;
-  maxNemesisScore = *(float *)&FLOAT_0_0;
+  maxNemesisScore = 0.0f;
   for ( i = 0; i < playerCount; ++i )
   {
     if ( i != attackingPlayerSlot && nemesisScore[i] > maxNemesisScore )
@@ -614,7 +614,7 @@ void __cdecl MatchRecord_GenerateHeatMapData(
       __debugbreak();
     }
     memset(buffer, 0, buffSize);
-    maxKills = *(float *)&FLOAT_0_0;
+    maxKills = 0.0f;
     arrayIndex = 0;
     newX = 0;
     newY = 0;
@@ -1216,17 +1216,17 @@ void __cdecl GetWorldLocation(
                * 255.0)
        + 127.0;
   else
-    v8 = FLOAT_255_0;
+    v8 = 255.0f;
   *xWorld = (int)v8;
   if ( outTemp_4 <= 255.0 )
     v7 = outTemp_4;
   else
-    v7 = FLOAT_255_0;
+    v7 = 255.0f;
   *yWorld = (int)v7;
   if ( outTemp_8 <= 255.0 )
     v6 = outTemp_8;
   else
-    v6 = FLOAT_255_0;
+    v6 = 255.0f;
   *zWorld = (int)v6;
 }
 

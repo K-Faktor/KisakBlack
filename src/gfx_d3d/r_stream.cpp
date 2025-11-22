@@ -1301,7 +1301,7 @@ char __cdecl R_StreamUpdate_FindImageAndOptimize(const float *viewPos)
       updateCmd.viewPos[1] = viewPos[1];
       updateCmd.viewPos[2] = viewPos[2];
       updateCmd.maxDistSq = maxDistSq;
-      updateCmd.distanceScale[1] = FLOAT_1_0;
+      updateCmd.distanceScale[1] = 1.0f;
       LODWORD(updateCmd.distanceScale[0]) = r_streamHiddenPush->current.integer;
       Sys_AddWorkerCmdInternal(&r_stream_updateWorkerCmd, (unsigned __int8 *)&updateCmd, 0);
       for ( hint = 0; hint < 4; ++hint )
@@ -1461,9 +1461,9 @@ void R_CheckHighmipAabbs()
   float mins[3]; // [esp+0h] [ebp-18h] BYREF
   float maxs[3]; // [esp+Ch] [ebp-Ch] BYREF
 
-  maxs[0] = FLOAT_131072_0;
-  maxs[1] = FLOAT_131072_0;
-  maxs[2] = FLOAT_131072_0;
+  maxs[0] = 131072.0f;
+  maxs[1] = 131072.0f;
+  maxs[2] = 131072.0f;
   mins[0] = FLOAT_N131072_0;
   mins[1] = FLOAT_N131072_0;
   mins[2] = FLOAT_N131072_0;
@@ -1741,11 +1741,11 @@ void __cdecl R_StreamUpdatePerClient(const float *viewPos)
         updateCmd.viewPos[1] = viewPos[1];
         updateCmd.viewPos[2] = viewPos[2];
         updateCmd.maxDistSq = maxDistSq;
-        updateCmd.distanceScale[1] = FLOAT_1_0;
+        updateCmd.distanceScale[1] = 1.0f;
         LODWORD(updateCmd.distanceScale[0]) = r_streamHiddenPush->current.integer;
         Sys_AddWorkerCmdInternal(&r_stream_updateWorkerCmd, (unsigned __int8 *)&updateCmd, 0);
       }
-      distanceScale[1] = FLOAT_1_0;
+      distanceScale[1] = 1.0f;
       distanceScale[0] = r_streamHiddenPush->current.value;
       R_StreamUpdateDynamicModels(viewPos, maxDistSq, streamFrontendGlob.frame, distanceScale);
       ++dword_ADD700C;
@@ -1950,27 +1950,27 @@ double __cdecl PointDistSqFromBounds(const float *v, const float *mins, const fl
   float v10; // [esp+18h] [ebp-24h]
 
   if ( (float)(*mins - *v) < 0.0 )
-    v10 = *(float *)&FLOAT_0_0;
+    v10 = 0.0f;
   else
     v10 = *mins - *v;
   if ( (float)(*v - *maxs) < 0.0 )
-    v9 = *(float *)&FLOAT_0_0;
+    v9 = 0.0f;
   else
     v9 = *v - *maxs;
   if ( (float)(mins[1] - v[1]) < 0.0 )
-    v8 = *(float *)&FLOAT_0_0;
+    v8 = 0.0f;
   else
     v8 = mins[1] - v[1];
   if ( (float)(v[1] - maxs[1]) < 0.0 )
-    v7 = *(float *)&FLOAT_0_0;
+    v7 = 0.0f;
   else
     v7 = v[1] - maxs[1];
   if ( (float)(mins[2] - v[2]) < 0.0 )
-    v6 = *(float *)&FLOAT_0_0;
+    v6 = 0.0f;
   else
     v6 = mins[2] - v[2];
   if ( (float)(v[2] - maxs[2]) < 0.0 )
-    v5 = *(float *)&FLOAT_0_0;
+    v5 = 0.0f;
   else
     v5 = v[2] - maxs[2];
   return (float)((float)(v10 + v9) * (float)(v10 + v9)
@@ -2396,7 +2396,7 @@ void __cdecl R_StreamUpdateForXModel(const XModel *remoteModel, float distSq)
       {
         v4 = distNotSq - Abs(bounds->center);
         if ( (float)((float)(v4 * v4) - 0.0) < 0.0 )
-          v3 = *(float *)&FLOAT_0_0;
+          v3 = 0.0f;
         else
           v3 = v4 * v4;
         importance = bounds->himipRadiusSq / (float)(v3 + 100.0);

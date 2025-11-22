@@ -215,8 +215,8 @@ void  CG_Vehicle_PreControllers(
   LODWORD(v7) = a2;
   cgameGlob = *(cg_s **)&FLOAT_0_0;
   v183 = *(cg_s **)&FLOAT_0_0;
-  ignoreGunner = *(unsigned int *)&FLOAT_0_0;
-  trace.normal.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
+  ignoreGunner = 0;
+  trace.normal.vec.u[0] = 0;
   if ( !obj && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_vehicle.cpp", 339, 0, "%s", "obj") )
     __debugbreak();
   v181 = (const LerpEntityState *)-1;
@@ -287,13 +287,13 @@ void  CG_Vehicle_PreControllers(
     {
       cent->vehicle->vehicle_cache->hit_indices[(int)gunnerViewTags[3]] = -1;
       gunnerViewTags[2] = (unsigned __int16 *)cent->vehicle->vehicle_cache;
-      *(float *)gunnerViewTags[2] = FLOAT_3_4028235e38;
-      *((float *)gunnerViewTags[2] + 1) = FLOAT_3_4028235e38;
-      *((float *)gunnerViewTags[2] + 2) = FLOAT_3_4028235e38;
+      *(float *)gunnerViewTags[2] = FLT_MAX;
+      *((float *)gunnerViewTags[2] + 1) = FLT_MAX;
+      *((float *)gunnerViewTags[2] + 2) = FLT_MAX;
       gunnerViewTags[1] = (unsigned __int16 *)cent->vehicle->vehicle_cache->lastAngles;
-      *(float *)gunnerViewTags[1] = FLOAT_3_4028235e38;
-      *((float *)gunnerViewTags[1] + 1) = FLOAT_3_4028235e38;
-      *((float *)gunnerViewTags[1] + 2) = FLOAT_3_4028235e38;
+      *(float *)gunnerViewTags[1] = FLT_MAX;
+      *((float *)gunnerViewTags[1] + 1) = FLT_MAX;
+      *((float *)gunnerViewTags[1] + 2) = FLT_MAX;
     }
   }
   if ( (*(unsigned int *)(LODWORD(forward[0]) + 224) & 0x4000) != 0
@@ -347,7 +347,7 @@ void  CG_Vehicle_PreControllers(
       ofsPitch = AngleNormalize180(v140 - absYaw) * *(float *)&localYaw.rgba + absYaw;
       v137 = cent->pose.angles[1];
       v136 = AngleNormalize180(ofsPitch - v137);
-      vehAngles[2] = *(float *)&FLOAT_0_0;
+      vehAngles[2] = 0.0f;
       vehAngles[1] = floor(v136 * 182.04445 + 0.5);
       cent->pose.vehicle.yaw = (int)vehAngles[1];
       if ( *(int *)(LODWORD(forward[0]) + 1092) >= 1 && *(int *)(LODWORD(forward[0]) + 1092) <= 4 )
@@ -356,12 +356,12 @@ void  CG_Vehicle_PreControllers(
         *(_QWORD *)&vehAxis[2][1] = *(_QWORD *)cent->pose.angles;
         vehYaw = cent->pose.angles[2];
         vehAxis[2][0] = vehAxis[2][2];
-        vehAxis[2][2] = *(float *)&FLOAT_0_0;
+        vehAxis[2][2] = 0.0f;
         AnglesToAxis(&vehAxis[2][1], (float (*)[3])&yawAngles[2]);
         yawAngles[1] = *(unsigned int *)(LODWORD(forward[0]) + 388);
         *(float *)yawAngles = AngleNormalize180(*(float *)&yawAngles[1] - vehAxis[2][0]);
-        *(_QWORD *)&yawAxis[2][0] = __PAIR64__(yawAngles[0], *(unsigned int *)&FLOAT_0_0);
-        yawAxis[2][2] = *(float *)&FLOAT_0_0;
+        *(_QWORD *)&yawAxis[2][0] = __PAIR64__(yawAngles[0], 0);
+        yawAxis[2][2] = 0.0f;
         AnglesToAxis(yawAxis[2], (float (*)[3])newViewAxis[2]);
         MatrixMultiply(
           (const float (*)[3])newViewAxis[2],
@@ -505,11 +505,11 @@ void  CG_Vehicle_PreControllers(
     if ( (float)(fc - 1.0) < 0.0 )
       v78 = fc;
     else
-      v78 = FLOAT_1_0;
+      v78 = 1.0f;
     if ( (float)(0.0 - fc) < 0.0 )
       v77 = v78;
     else
-      v77 = *(float *)&FLOAT_0_0;
+      v77 = 0.0f;
     LODWORD(v75[1]) = &v76;
     v74 = v75;
     v73 = (float)(v77 * 3.1415927) - 1.5707964;
@@ -520,7 +520,7 @@ void  CG_Vehicle_PreControllers(
   }
   else
   {
-    cent->pose.vehicle.barrelRecoil = *(float *)&FLOAT_0_0;
+    cent->pose.vehicle.barrelRecoil = 0.0f;
   }
   for ( gunnerViewTags[3] = 0; (int)gunnerViewTags[3] < 4; ++gunnerViewTags[3] )
   {
@@ -673,16 +673,16 @@ void  CG_Vehicle_PreControllers(
           }
           else
           {
-            v37 = FLOAT_30_0;
+            v37 = 30.0f;
             lerp = (float)((float)ps[26].hud.current[28].fadeStartTime * 0.001) * 30.0;
             if ( (float)(lerp - 1.0) < 0.0 )
               v35 = lerp;
             else
-              v35 = FLOAT_1_0;
+              v35 = 1.0f;
             if ( (float)(0.0 - lerp) < 0.0 )
               v34 = v35;
             else
-              v34 = *(float *)&FLOAT_0_0;
+              v34 = 0.0f;
             v33 = v34;
             cent->pose.vehicle.wheelHeight[j] = (float)((float)(v46 - cent->pose.vehicle.wheelHeight[j]) * v34)
                                               + cent->pose.vehicle.wheelHeight[j];
@@ -699,7 +699,7 @@ void  CG_Vehicle_PreControllers(
           cent->pose.vehicle.nitrousWheelRotation[j] = m_wheel_pos * 57.295776;
           if ( cent->nitrousVeh->m_vehicle_info->type == 2 || (unsigned int)j > 1 )
           {
-            cent->pose.vehicle.nitrousWheelYaw[j] = *(float *)&FLOAT_0_0;
+            cent->pose.vehicle.nitrousWheelYaw[j] = 0.0f;
           }
           else
           {
@@ -728,8 +728,8 @@ void  CG_Vehicle_PreControllers(
         else
         {
           cent->pose.vehicle.nitrousWheelYaw[1] = cent->pose.vehicle.nitrousWheelYaw[0];
-          cent->pose.vehicle.nitrousWheelRotation[1] = *(float *)&FLOAT_0_0;
-          cent->pose.vehicle.wheelHeight[1] = *(float *)&FLOAT_0_0;
+          cent->pose.vehicle.nitrousWheelRotation[1] = 0.0f;
+          cent->pose.vehicle.wheelHeight[1] = 0.0f;
         }
       }
       if ( cent->nitrousVeh->m_vehicle_info->type == 2 )
@@ -761,12 +761,12 @@ void  CG_Vehicle_PreControllers(
         }
         else
         {
-          mx[0] = FLOAT_3_4028235e38;
-          mx[1] = FLOAT_3_4028235e38;
-          mx[2] = FLOAT_3_4028235e38;
-          mtx = (const DObjAnimMat *)LODWORD(FLOAT_N3_4028235e38);
-          boneIndex = LODWORD(FLOAT_N3_4028235e38);
-          presence_mask = LODWORD(FLOAT_N3_4028235e38);
+          mx[0] = FLT_MAX;
+          mx[1] = FLT_MAX;
+          mx[2] = FLT_MAX;
+          mtx = (const DObjAnimMat *)LODWORD(-FLT_MAX);
+          boneIndex = LODWORD(-FLT_MAX);
+          presence_mask = LODWORD(-FLT_MAX);
           wheelPos[2] = 0.0;
           LODWORD(mn[0]) = 1;
           gunnerViewTags[3] = 0;
@@ -808,9 +808,9 @@ void  CG_Vehicle_PreControllers(
             LODWORD(mn[0]) *= 2;
           }
           LODWORD(expand_vec[0]) = 529;
-          *(float *)&context.locational = FLOAT_30_0;
-          *(float *)&context.priorityMap = FLOAT_30_0;
-          *(float *)&context.collide_entity_func = FLOAT_30_0;
+          *(float *)&context.locational = 30.0f;
+          *(float *)&context.priorityMap = 30.0f;
+          *(float *)&context.collide_entity_func = 30.0f;
           (*(void (__thiscall **)(int, float *, const DObjAnimMat **, int, int *))(*(unsigned int *)(LODWORD(mn[1]) + 204) + 20))(
             LODWORD(mn[1]) + 204,
             mx,
@@ -841,7 +841,7 @@ void  CG_Vehicle_PreControllers(
                 (int *)(LODWORD(mn[1]) + 4 * (int)gunnerViewTags[3] + 24));
               if ( *(int *)(LODWORD(mn[1]) + 4 * (int)gunnerViewTags[3] + 24) <= 0 )
               {
-                *(float *)(LODWORD(mn[1]) + 4 * (int)gunnerViewTags[3] + 144) = FLOAT_1_0;
+                *(float *)(LODWORD(mn[1]) + 4 * (int)gunnerViewTags[3] + 144) = 1.0f;
                 *(unsigned int *)(LODWORD(mn[1]) + 4 * (int)gunnerViewTags[3] + 48) = 0;
               }
               else
@@ -894,7 +894,7 @@ void  VEH_UpdateMaterialTime(float a1@<ebp>, centity_s *cent, int dt, float spee
   VehicleInfo = CG_GetVehicleInfo(cent->nextState.un2.vehicleState.vehicleInfoIndex);
   if ( VehicleInfo->texScroll )
   {
-    v6 = FLOAT_1_0;
+    v6 = 1.0f;
     v5 = (float)((float)dt * (float)((float)(speed * 1.0) / 176.0)) * VehicleInfo->texScrollScale;
     cent->vehicle->materialTime = (float)(v5 * 0.001) + cent->vehicle->materialTime;
     cent->vehicle->materialTime2 = (float)(v5 * 0.001) + cent->vehicle->materialTime2;
@@ -910,8 +910,8 @@ void  VEH_UpdateMaterialTime(float a1@<ebp>, centity_s *cent, int dt, float spee
   }
   else
   {
-    cent->vehicle->materialTime = *(float *)&FLOAT_0_0;
-    cent->vehicle->materialTime2 = *(float *)&FLOAT_0_0;
+    cent->vehicle->materialTime = 0.0f;
+    cent->vehicle->materialTime2 = 0.0f;
   }
 }
 
@@ -927,7 +927,7 @@ int __cdecl GetSoundInfoForVehicle(int localClientNum, const centity_s *cent, fl
   int hardness; // [esp+1Ch] [ebp-Ch]
   int surfType; // [esp+24h] [ebp-4h]
 
-  *slideRate = *(float *)&FLOAT_0_0;
+  *slideRate = 0.0f;
   surfType = -1;
   if ( cent->nitrousVeh )
   {
@@ -1034,7 +1034,7 @@ void __cdecl CG_CrossFadeVehicleMaterialEffects(
   }
   wheelEffect = &cent->vehicle->wheelEffects[groundEffectIndex];
   if ( ratio < 0.0000152879 )
-    ratio = *(float *)&FLOAT_0_0;
+    ratio = 0.0f;
   soundAlias = info->sndMaterialNames[groundEffectIndex];
   if ( *soundAlias )
   {
@@ -1186,7 +1186,7 @@ void  CG_UpdateWheeledSurfaceSounds(
   v17 = a1;
   slideRate = retaddr;
   velocity_forward = 0;
-  v15 = *(float *)&FLOAT_0_0;
+  v15 = 0.0f;
   velocity_forward = GetSoundInfoForVehicle(localClientNum, cent, &v15);
   LODWORD(v14) = LODWORD(cent->nitrousVeh->m_forward_vel) & _mask__AbsFloat_;
   v13 = v14 / NitrousVehicle::get_max_speed(cent->nitrousVeh, 0) * 1.5707964;
@@ -1194,11 +1194,11 @@ void  CG_UpdateWheeledSurfaceSounds(
   if ( (float)(v13 - 1.0) < 0.0 )
     v12 = v13;
   else
-    v12 = FLOAT_1_0;
+    v12 = 1.0f;
   if ( (float)(0.0 - v13) < 0.0 )
     ratio = v12;
   else
-    ratio = *(float *)&FLOAT_0_0;
+    ratio = 0.0f;
   CG_CrossFadeVehicleMaterialEffects(localClientNum, cent, info, 0, velocity_forward, ratio, fadetime);
   v4 = (float)(1.5707964 * v15);
   __libm_sse2_sin(v7);
@@ -1206,17 +1206,17 @@ void  CG_UpdateWheeledSurfaceSounds(
   if ( (float)(v5 - 1.0) < 0.0 )
     v10 = v5;
   else
-    v10 = FLOAT_1_0;
+    v10 = 1.0f;
   if ( (float)(0.0 - v5) < 0.0 )
     v9 = v10;
   else
-    v9 = *(float *)&FLOAT_0_0;
+    v9 = 0.0f;
   v15 = v9;
   CG_CrossFadeVehicleMaterialEffects(localClientNum, cent, info, 1u, velocity_forward, v9, fadetime);
   if ( NitrousVehicle::is_peeling_out(cent->nitrousVeh) )
-    v8 = FLOAT_1_0;
+    v8 = 1.0f;
   else
-    v8 = *(float *)&FLOAT_0_0;
+    v8 = 0.0f;
   CG_CrossFadeVehicleMaterialEffects(localClientNum, cent, info, 2u, velocity_forward, v8, fadetime);
 }
 
@@ -1297,11 +1297,11 @@ void  CG_UpdateTankSurfaceSounds(
   if ( (float)(speedRatio - 1.0) < 0.0 )
     healthRatio = speedRatio;
   else
-    healthRatio = FLOAT_1_0;
+    healthRatio = 1.0f;
   if ( (float)(0.0 - speedRatio) < 0.0 )
     damageRatio = healthRatio;
   else
-    damageRatio = *(float *)&FLOAT_0_0;
+    damageRatio = 0.0f;
   attenuation = damageRatio;
   currLeftTreadHealthRatio = CG_VehGetHealthPercentageEntity(cent);
   currRightTreadHealthRatio = 1.0 - currLeftTreadHealthRatio;
@@ -1437,7 +1437,7 @@ void  CG_UpdateTankSurfaceSounds(
                 }
                 else
                 {
-                  v8 = *(float *)&FLOAT_0_0;
+                  v8 = 0.0f;
                 }
                 if ( (float)((float)(rand() % 101) / 100.0) >= v8 )
                 {
@@ -1556,11 +1556,11 @@ void  CG_UpdateVehicleEngineSounds(
   if ( (float)(speedRatio - 1.0) < 0.0 )
     healthRatio = speedRatio;
   else
-    healthRatio = FLOAT_1_0;
+    healthRatio = 1.0f;
   if ( (float)(0.0 - speedRatio) < 0.0 )
     damageRatio = healthRatio;
   else
-    damageRatio = *(float *)&FLOAT_0_0;
+    damageRatio = 0.0f;
   speedMPH = damageRatio;
   *(float *)&wheelEffect = CG_VehGetHealthPercentageEntity(cent);
   engineRPMs = 1.0 - *(float *)&wheelEffect;
@@ -1591,29 +1591,29 @@ void  CG_UpdateVehicleEngineSounds(
   soundOrigin[1] = idleLoopModulation / info->idleRPMs;
   soundOrigin[0] = info->idleRPMsMax - info->idleRPMs;
   if ( soundOrigin[0] <= 0.0 )
-    soundOrigin[0] = FLOAT_1_0;
+    soundOrigin[0] = 1.0f;
   GetSoundOriginForVehicle(cent, v23);
   v22 = isLocalPlayersVehicle;
   idle_attenuation = (float)(idleLoopModulation - info->idleRPMs) / soundOrigin[0];
   if ( (float)(idle_attenuation - 1.0) < 0.0 )
     v20 = idle_attenuation;
   else
-    v20 = FLOAT_1_0;
+    v20 = 1.0f;
   if ( (float)(0.0 - idle_attenuation) < 0.0 )
     v19 = v20;
   else
-    v19 = *(float *)&FLOAT_0_0;
+    v19 = 0.0f;
   v18 = v19;
   __libm_sse2_cos(v6);
   *(float *)&attenuation = 1.5707964 * v19;
   if ( (float)((float)(1.5707964 * v19) - 1.0) < 0.0 )
     sid = attenuation;
   else
-    sid = LODWORD(FLOAT_1_0);
+    sid = LODWORD(1.0f);
   if ( (float)(0.0 - *(float *)&attenuation) < 0.0 )
     engineLoopModulation = *(float *)&sid;
   else
-    engineLoopModulation = *(float *)&FLOAT_0_0;
+    engineLoopModulation = 0.0f;
   engineLoopLoadFactor = engineLoopModulation;
   v13 = CG_PlaySoundWithHandle(
           localClientNum,
@@ -1629,11 +1629,11 @@ void  CG_UpdateVehicleEngineSounds(
   if ( (float)(loadLevel - 1.0) < 0.0 )
     noLoadLevel = loadLevel;
   else
-    noLoadLevel = FLOAT_1_0;
+    noLoadLevel = 1.0f;
   if ( (float)(0.0 - loadLevel) < 0.0 )
     sndNoLoadNameIndex = LODWORD(noLoadLevel);
   else
-    sndNoLoadNameIndex = *(unsigned int *)&FLOAT_0_0;
+    sndNoLoadNameIndex = 0;
   SND_EqualPowerFadeCoefs(*(float *)&sndNoLoadNameIndex, &v7, (float *)&sndLoadNameIndex);
   engineLoopLoadFactor = v7 * v18;
   v13 = CG_PlaySoundWithHandle(
@@ -1782,8 +1782,8 @@ void __cdecl CG_UpdateTurretAndOverheatSounds(
             LODWORD(pitchMin) = LODWORD(info->turretViewLimits.vertSpanUp) ^ _mask__NegFloat_;
             pitchMax = info->turretViewLimits.vertSpanDown;
           }
-          yawLockFade = FLOAT_1_0;
-          pitchLockFade = FLOAT_1_0;
+          yawLockFade = 1.0f;
+          pitchLockFade = 1.0f;
           if ( (float)(yawMin + 3.0) <= gunYaw )
           {
             if ( gunYaw > (float)(yawMax - 3.0) )
@@ -1803,17 +1803,17 @@ void __cdecl CG_UpdateTurretAndOverheatSounds(
             pitchLockFade = (float)(gunPitch - pitchMin) / 3.0;
           }
           if ( gun_turning_yaw )
-            v12 = FLOAT_1_0;
+            v12 = 1.0f;
           else
-            v12 = *(float *)&FLOAT_0_0;
+            v12 = 0.0f;
           if ( (float)(yawLockFade - v12) < 0.0 )
             v9 = yawLockFade;
           else
             v9 = v12;
           if ( gun_turning_pitch )
-            v11 = FLOAT_1_0;
+            v11 = 1.0f;
           else
-            v11 = *(float *)&FLOAT_0_0;
+            v11 = 0.0f;
           if ( (float)(pitchLockFade - v11) < 0.0 )
             v8 = pitchLockFade;
           else

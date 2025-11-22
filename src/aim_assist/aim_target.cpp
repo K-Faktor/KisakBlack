@@ -9,6 +9,8 @@
 #include <qcommon/common.h>
 #include <qcommon/cmd.h>
 #include <universal/dvar.h>
+#include <cgame_mp/cg_local_mp.h>
+#include <demo/demo_common.h>
 
 AimTargetGlob atGlobArray[1];
 
@@ -448,7 +450,7 @@ void __cdecl AimTarget_GetTargetBounds(const centity_s *targetEnt, float *mins, 
     AimTarget_GetTagPos_0(targetEnt, scr_const.aim_highest_bone, highBonePos);
     *(unsigned int *)mins = aim_target_sentient_radius->current.integer ^ _mask__NegFloat_;
     *((unsigned int *)mins + 1) = aim_target_sentient_radius->current.integer ^ _mask__NegFloat_;
-    mins[2] = *(float *)&FLOAT_0_0;
+    mins[2] = 0.0f;
     *maxs = aim_target_sentient_radius->current.value;
     maxs[1] = aim_target_sentient_radius->current.value;
     maxs[2] = highBonePos[2] - targetEnt->pose.origin[2];
@@ -466,12 +468,12 @@ void __cdecl AimTarget_GetTargetBounds(const centity_s *targetEnt, float *mins, 
     }
     else
     {
-      *mins = FLOAT_N1_0;
-      mins[1] = FLOAT_N1_0;
-      mins[2] = FLOAT_N1_0;
-      *maxs = FLOAT_1_0;
-      maxs[1] = FLOAT_1_0;
-      maxs[2] = FLOAT_1_0;
+      *mins = -1.0f;
+      mins[1] = -1.0f;
+      mins[2] = -1.0f;
+      *maxs = 1.0f;
+      maxs[1] = 1.0f;
+      maxs[2] = 1.0f;
     }
   }
 }
@@ -627,10 +629,10 @@ void __cdecl AimTarget_CreateTarget(int localClientNum, const centity_s *targetE
   deltaTime = (float)(nextSnapServerTime - snapServerTime) * 0.001;
   if ( deltaTime <= 0.0 )
   {
-    target->velocity[0] = *(float *)&FLOAT_0_0;
-    target->velocity[1] = *(float *)&FLOAT_0_0;
-    target->velocity[2] = *(float *)&FLOAT_0_0;
-    target->heightChange = *(float *)&FLOAT_0_0;
+    target->velocity[0] = 0.0f;
+    target->velocity[1] = 0.0f;
+    target->velocity[2] = 0.0f;
+    target->heightChange = 0.0f;
   }
   else
   {

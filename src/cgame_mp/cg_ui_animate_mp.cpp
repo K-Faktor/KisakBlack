@@ -231,7 +231,7 @@ void __cdecl CG_DisplayRankUp(int localClientNum)
   {
     cgameGlob = CG_GetLocalClientGlobals(localClientNum);
     cgameGlob->popUpSwayStartTime = cgameGlob->time;
-    cgameGlob->popupRotationAngle = FLOAT_7_0;
+    cgameGlob->popupRotationAngle = 7.0f;
     rankIndex = atoi(rank) - 1;
     rankImage = (char *)CL_GetRankIconName(rankIndex, prestige);
     if ( !rankImage
@@ -1171,7 +1171,7 @@ void __cdecl CG_DisplayContract(int localClientNum)
   passed = atoi(v2);
   if ( !Demo_IsThirdPersonCamera() && !Demo_IsMovieCamera() )
   {
-    CG_GetLocalClientGlobals(localClientNum)->popUpAngleDelta = FLOAT_0_5;
+    CG_GetLocalClientGlobals(localClientNum)->popUpAngleDelta = 0.5f;
     UI_SafeTranslateString("MP_CONTRACT_COMPLETE_DESC");
     localizedPopUpName = LiveContracts_GetContractName(contractIndex);
     if ( !localizedPopUpName
@@ -1256,7 +1256,7 @@ void __cdecl CG_DisplayKillstreak(int localClientNum)
 
   streakCount = Cmd_Argv(2);
   killstreakTableNumber = Cmd_Argv(3);
-  CG_GetLocalClientGlobals(localClientNum)->popUpAngleDelta = *(float *)&FLOAT_0_0;
+  CG_GetLocalClientGlobals(localClientNum)->popUpAngleDelta = 0.0f;
   StringTable_GetAsset("mp/statstable.csv", (XAssetHeader *)&tablePtr);
   if ( !tablePtr
     && !Assert_MyHandler(

@@ -140,7 +140,7 @@ void __thiscall GlassesServer::Update(GlassesServer *this)
             v4 = G_flrand(-90.0, 90.0);
             angles[0] = v3;
             angles[1] = v4;
-            angles[2] = *(float *)&FLOAT_0_0;
+            angles[2] = 0.0f;
             AnglesToAxis(angles, axis);
             if ( G_flrand(0.0, 1.0) <= 0.5 )
               GlassSv_Damage(glassId, 1, 2, this->glasses[glassId].glass->origin, axis[0]);
@@ -187,7 +187,7 @@ void __thiscall GlassesServer::ShatterAll(GlassesServer *this)
         v5 = G_flrand(-90.0, 90.0);
         angles[0] = v4;
         angles[1] = v5;
-        angles[2] = *(float *)&FLOAT_0_0;
+        angles[2] = 0.0f;
         AnglesToAxis(angles, axis);
         GlassSv_Damage(i, 1, 3, g_entities[i].s.lerp.pos.trBase, axis[0]);
         if ( ++nShatters == 100 )
@@ -445,7 +445,7 @@ void __cdecl GlassSv_Damage(unsigned int glassId, int damage, int mod, float *po
     goto LABEL_32;
   }
   if ( mod == 3 || mod == 5 || mod == 7 || mod == 8 || mod == 17 || mod == 16 )
-    glass->health = *(float *)&FLOAT_0_0;
+    glass->health = 0.0f;
   else
     glass->health = glass->health - (float)(int)(float)((float)damage * svGlasses.damageMultiplier->current.value);
   if ( glass->health <= 0.0 )
@@ -513,9 +513,9 @@ void __cdecl GlassSv_RadiusDamage(
         }
         else
         {
-          dir[0] = *(float *)&FLOAT_0_0;
-          dir[1] = *(float *)&FLOAT_0_0;
-          dir[2] = FLOAT_1_0;
+          dir[0] = 0.0f;
+          dir[1] = 0.0f;
+          dir[2] = 1.0f;
         }
         if ( !coneDirection
           || dist <= 0.0099999998

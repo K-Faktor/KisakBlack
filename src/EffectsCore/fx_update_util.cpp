@@ -254,18 +254,18 @@ void __cdecl FX_GetOrientation(
         __debugbreak();
       }
       FX_GetSpawnOrigin(frameAtSpawn, elemDef, randomSeed, orient->origin);
-      orient->axis[0][0] = *(float *)&FLOAT_0_0;
-      orient->axis[0][1] = *(float *)&FLOAT_0_0;
-      orient->axis[0][2] = *(float *)&FLOAT_0_0;
+      orient->axis[0][0] = 0.0f;
+      orient->axis[0][1] = 0.0f;
+      orient->axis[0][2] = 0.0f;
       FX_OffsetSpawnOrigin(frameAtSpawn, elemDef, randomSeed, orient->axis[0]);
       orient->origin[0] = orient->axis[0][0] + orient->origin[0];
       orient->origin[1] = orient->axis[0][1] + orient->origin[1];
       orient->origin[2] = orient->axis[0][2] + orient->origin[2];
       if ( Vec3Normalize(orient->axis[0]) == 0.0 )
       {
-        orient->axis[0][0] = FLOAT_1_0;
-        orient->axis[0][1] = *(float *)&FLOAT_0_0;
-        orient->axis[0][2] = *(float *)&FLOAT_0_0;
+        orient->axis[0][0] = 1.0f;
+        orient->axis[0][1] = 0.0f;
+        orient->axis[0][2] = 0.0f;
       }
       if ( (elemDef->flags & 0x30) == 0x10 )
       {
@@ -286,23 +286,23 @@ void __cdecl FX_GetOrientation(
         }
         if ( (elemDef->flags & 2) != 0 )
         {
-          up[0] = *(float *)&FLOAT_0_0;
-          up[1] = *(float *)&FLOAT_0_0;
-          up[2] = FLOAT_1_0;
+          up[0] = 0.0f;
+          up[1] = 0.0f;
+          up[2] = 1.0f;
           v7 = elemDef->flags & 0x1C000;
           if ( v7 > 0xC000 )
           {
             if ( v7 == 0x10000 )
             {
-              up[0] = FLOAT_N1_0;
-              up[1] = *(float *)&FLOAT_0_0;
-              up[2] = *(float *)&FLOAT_0_0;
+              up[0] = -1.0f;
+              up[1] = 0.0f;
+              up[2] = 0.0f;
             }
             else if ( v7 == 81920 )
             {
-              up[0] = *(float *)&FLOAT_0_0;
-              up[1] = *(float *)&FLOAT_0_0;
-              up[2] = FLOAT_N1_0;
+              up[0] = 0.0f;
+              up[1] = 0.0f;
+              up[2] = -1.0f;
             }
           }
           else
@@ -310,19 +310,19 @@ void __cdecl FX_GetOrientation(
             switch ( v7 )
             {
               case 0xC000u:
-                up[0] = *(float *)&FLOAT_0_0;
-                up[1] = FLOAT_N1_0;
-                up[2] = *(float *)&FLOAT_0_0;
+                up[0] = 0.0f;
+                up[1] = -1.0f;
+                up[2] = 0.0f;
                 break;
               case 0x4000u:
-                up[0] = FLOAT_1_0;
-                up[1] = *(float *)&FLOAT_0_0;
-                up[2] = *(float *)&FLOAT_0_0;
+                up[0] = 1.0f;
+                up[1] = 0.0f;
+                up[2] = 0.0f;
                 break;
               case 0x8000u:
-                up[0] = *(float *)&FLOAT_0_0;
-                up[1] = FLOAT_1_0;
-                up[2] = *(float *)&FLOAT_0_0;
+                up[0] = 0.0f;
+                up[1] = 1.0f;
+                up[2] = 0.0f;
                 break;
             }
           }
@@ -330,16 +330,16 @@ void __cdecl FX_GetOrientation(
         else
         {
           v8 = orient->axis[0][2];
-          up[0] = *(float *)&FLOAT_0_0;
+          up[0] = 0.0f;
           if ( COERCE_FLOAT(LODWORD(v8) & _mask__AbsFloat_) < 0.99900001 )
           {
-            up[1] = *(float *)&FLOAT_0_0;
-            up[2] = FLOAT_1_0;
+            up[1] = 0.0f;
+            up[2] = 1.0f;
           }
           else
           {
-            up[1] = FLOAT_1_0;
-            up[2] = *(float *)&FLOAT_0_0;
+            up[1] = 1.0f;
+            up[2] = 0.0f;
           }
         }
         Vec3Cross(up, orient->axis[0], orient->axis[1]);
@@ -350,18 +350,18 @@ void __cdecl FX_GetOrientation(
   }
   else
   {
-    orient->origin[0] = *(float *)&FLOAT_0_0;
-    orient->origin[1] = *(float *)&FLOAT_0_0;
-    orient->origin[2] = *(float *)&FLOAT_0_0;
-    orient->axis[0][0] = FLOAT_1_0;
-    orient->axis[0][1] = *(float *)&FLOAT_0_0;
-    orient->axis[0][2] = *(float *)&FLOAT_0_0;
-    orient->axis[1][0] = *(float *)&FLOAT_0_0;
-    orient->axis[1][1] = FLOAT_1_0;
-    orient->axis[1][2] = *(float *)&FLOAT_0_0;
-    orient->axis[2][0] = *(float *)&FLOAT_0_0;
-    orient->axis[2][1] = *(float *)&FLOAT_0_0;
-    orient->axis[2][2] = FLOAT_1_0;
+    orient->origin[0] = 0.0f;
+    orient->origin[1] = 0.0f;
+    orient->origin[2] = 0.0f;
+    orient->axis[0][0] = 1.0f;
+    orient->axis[0][1] = 0.0f;
+    orient->axis[0][2] = 0.0f;
+    orient->axis[1][0] = 0.0f;
+    orient->axis[1][1] = 1.0f;
+    orient->axis[1][2] = 0.0f;
+    orient->axis[2][0] = 0.0f;
+    orient->axis[2][1] = 0.0f;
+    orient->axis[2][2] = 1.0f;
   }
 }
 
@@ -472,7 +472,7 @@ void __cdecl FX_GetVelocityAtTime(
   *velocity = *baseVel;
   velocity[1] = baseVel[1];
   velocity[2] = baseVel[2];
-  velocityScale = FLOAT_1000_0;
+  velocityScale = 1000.0f;
   if ( ((unsigned int)&cls.wagerServers[5331].basictraining & elemDef->flags) != 0 )
   {
     FX_GetVelocityAtTimeInFrame(&samples->world, &samples[1].world, rangeLerp, weight, velocityWorld);

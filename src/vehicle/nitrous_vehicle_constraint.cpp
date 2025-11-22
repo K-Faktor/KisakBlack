@@ -44,13 +44,13 @@ void  path_constraint_update(int a1@<ebp>, rigid_body_constraint_custom_path *vp
     }
     if ( phys_drawNitrousVehicle->current.enabled )
       CG_DebugSphere(scr_vehicle->pathPos.origin, 15.0, colorGreen, 10, 0, 1);
-    vpc->b1_r_loc.x = *(float *)&FLOAT_0_0;
-    vpc->b1_r_loc.y = *(float *)&FLOAT_0_0;
-    vpc->b1_r_loc.z = *(float *)&FLOAT_0_0;
+    vpc->b1_r_loc.x = 0.0f;
+    vpc->b1_r_loc.y = 0.0f;
+    vpc->b1_r_loc.z = 0.0f;
     if ( veh->scr_vehicle->nitrousVehicle->m_num_colliding_wheels >= 3
       || veh->scr_vehicle->nitrousVehicle->m_vehicle_info->type == 4 )
     {
-      vpc->b1_r_loc.z = FLOAT_N6_0;
+      vpc->b1_r_loc.z = -6.0f;
     }
   }
 }
@@ -136,11 +136,11 @@ rigid_body_constraint_custom_path * path_constraint_create@<eax>(int a1@<ebp>, g
   {
     __debugbreak();
   }
-  v6 = *(unsigned int *)&FLOAT_0_0;
-  v7 = *(float *)&FLOAT_0_0;
-  v8 = *(float *)&FLOAT_0_0;
+  v6 = 0;
+  v7 = 0.0f;
+  v8 = 0.0f;
   p_b1_r_loc = &v9->b1_r_loc;
-  v9->b1_r_loc.x = *(float *)&FLOAT_0_0;
+  v9->b1_r_loc.x = 0.0f;
   p_b1_r_loc->y = v7;
   p_b1_r_loc->z = v8;
   p_m_path_mat = &v9->m_path_mat;

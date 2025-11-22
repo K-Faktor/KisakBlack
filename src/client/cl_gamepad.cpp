@@ -417,7 +417,7 @@ double __cdecl CL_GamepadAxisValue(int localClientNum, unsigned int virtualAxis)
     return 0.0;
   if ( physicalAxis == GPAD_PHYSAXIS_NONE )
   {
-    axisDeflection = *(float *)&FLOAT_0_0;
+    axisDeflection = 0.0f;
   }
   else
   {
@@ -426,7 +426,7 @@ double __cdecl CL_GamepadAxisValue(int localClientNum, unsigned int virtualAxis)
     {
       otherSameStickAxis = axisSameStick[physicalAxis];
       if ( otherSameStickAxis == GPAD_PHYSAXIS_NONE )
-        otherAxisDeflection = *(float *)&FLOAT_0_0;
+        otherAxisDeflection = 0.0f;
       else
         otherAxisDeflection = (float)gaGlob->axesValues[otherSameStickAxis] * 0.000015259022;
       axisDeflection = fsqrt((float)(axisDeflection * axisDeflection) + (float)(otherAxisDeflection * otherAxisDeflection))
@@ -689,7 +689,7 @@ void __cdecl CL_GamepadButtonEvent(
                         }
                         else if ( *kba == 43 )
                         {
-                          Button = *(float *)&FLOAT_0_0;
+                          Button = 0.0f;
                           if ( gamePadButton )
                           {
                             v10 = Com_LocalClient_GetControllerIndex(localClientNum);
@@ -722,7 +722,7 @@ void __cdecl CL_GamepadButtonEvent(
                 {
                   if ( kba && *kba == 43 )
                   {
-                    keyDown = *(float *)&FLOAT_0_0;
+                    keyDown = 0.0f;
                     if ( gamePadButton )
                     {
                       tempControllerIndex = Com_LocalClient_GetControllerIndex(localClientNum);

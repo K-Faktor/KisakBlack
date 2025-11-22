@@ -159,7 +159,7 @@ void __cdecl init_trigger_radius(gentity_s *ent, float radius, float height)
 {
   LODWORD(ent->r.mins[0]) = LODWORD(radius) ^ _mask__NegFloat_;
   LODWORD(ent->r.mins[1]) = LODWORD(radius) ^ _mask__NegFloat_;
-  ent->r.mins[2] = *(float *)&FLOAT_0_0;
+  ent->r.mins[2] = 0.0f;
   ent->r.maxs[0] = radius;
   ent->r.maxs[1] = radius;
   ent->r.maxs[2] = height;

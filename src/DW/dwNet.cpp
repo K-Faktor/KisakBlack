@@ -142,7 +142,7 @@ void __cdecl dwNetStart(bool online)
       bdArray<bdString>::pushBack(&startParams.m_natTravHosts, &v2);
       bdString::~bdString(&v2);
       startParams.m_onlineGame = online;
-      startParams.m_UPnPConfig.m_discoveryTimeout = FLOAT_1_0;
+      startParams.m_UPnPConfig.m_discoveryTimeout = 1.0f;
       if ( bdNetImpl::start(net, &startParams) )
       {
         if ( online )

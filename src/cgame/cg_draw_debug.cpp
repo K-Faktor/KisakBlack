@@ -532,8 +532,8 @@ void __cdecl CG_DrawPerformanceWarnings()
 
   time = Sys_Milliseconds();
   StatMon_GetStatsArray(&stats, &statCount);
-  x = FLOAT_2_0;
-  y = FLOAT_200_0;
+  x = 2.0f;
+  y = 200.0f;
   for ( i = 0; i < statCount; ++i )
   {
     if ( stats[i].endtime >= time )
@@ -541,7 +541,7 @@ void __cdecl CG_DrawPerformanceWarnings()
     x = x + 34.0;
     if ( (float)(x + 32.0) > 68.0 )
     {
-      x = FLOAT_2_0;
+      x = 2.0f;
       y = y + 34.0;
     }
   }
@@ -573,8 +573,8 @@ void __cdecl CG_DrawModelBoneAxis(int localClientNum)
          cg_drawModelAxis->current.integer,
          (char **)&boneName) )
   {
-    x = FLOAT_24_0;
-    y = FLOAT_240_0;
+    x = 24.0f;
+    y = 240.0f;
     CG_DrawSmallDevStringColor(&scrPlaceView[localClientNum], 24.0, 240.0, (char *)boneName, colorWhite, 5);
   }
 }
@@ -605,19 +605,19 @@ void __cdecl CG_DrawDebugPlayerHealth(int localClientNum)
     if ( (float)(health - 1.0) < 0.0 )
       v2 = (float)cgameGlob->predictedPlayerState.stats[0] / (float)cgameGlob->predictedPlayerState.stats[2];
     else
-      v2 = FLOAT_1_0;
+      v2 = 1.0f;
     if ( (float)(0.0 - health) < 0.0 )
       v1 = v2;
     else
-      v1 = *(float *)&FLOAT_0_0;
+      v1 = 0.0f;
     healtha = v1;
   }
   else
   {
-    healtha = *(float *)&FLOAT_0_0;
+    healtha = 0.0f;
   }
   memset(color, 0, 12);
-  color[3] = FLOAT_1_0;
+  color[3] = 1.0f;
   CL_DrawStretchPic(
     &scrPlaceView[localClientNum],
     10.0,
@@ -632,10 +632,10 @@ void __cdecl CG_DrawDebugPlayerHealth(int localClientNum)
     1.0,
     color,
     cgMedia.whiteMaterial);
-  color[0] = *(float *)&FLOAT_0_0;
-  color[1] = FLOAT_1_0;
-  color[2] = *(float *)&FLOAT_0_0;
-  color[3] = FLOAT_1_0;
+  color[0] = 0.0f;
+  color[1] = 1.0f;
+  color[2] = 0.0f;
+  color[3] = 1.0f;
   CL_DrawStretchPic(
     &scrPlaceView[localClientNum],
     10.0,
@@ -682,7 +682,7 @@ void __cdecl CG_DrawDebugPlayerSprint(int localClientNum)
     lerp = timeRemaina / timeMax;
     Vec4Lerp(colorYellow, colorGreen, timeRemaina / timeMax, color);
   }
-  color[3] = FLOAT_0_75;
+  color[3] = 0.75f;
   CL_DrawStretchPic(
     &scrPlaceView[localClientNum],
     0.0,
@@ -818,8 +818,8 @@ void __cdecl CG_DrawSoundOverlay(const ScreenPlacement *scrPlace)
     if ( info[i].pszSampleName[0] )
       ++v6;
   }
-  x = FLOAT_2_0;
-  y = FLOAT_82_0;
+  x = 2.0f;
+  y = 82.0f;
   string = va(
              "%s sounds  reverb: %s  channels in use %d  sort by %s",
              *(const char **)(snd_drawInfo->domain.integer.max + 4 * type),
@@ -863,8 +863,8 @@ void __cdecl CG_DrawFxProfile(int localClientNum)
 {
   float profilePos[2]; // [esp+0h] [ebp-8h] BYREF
 
-  profilePos[0] = *(float *)&FLOAT_0_0;
-  profilePos[1] = FLOAT_9_0;
+  profilePos[0] = 0.0f;
+  profilePos[1] = 9.0f;
   FX_DrawProfile(localClientNum, (void (__cdecl *)(char *))CG_DrawFxText, profilePos);
 }
 
@@ -892,8 +892,8 @@ void __cdecl CG_DrawFxMarkProfile(unsigned int localClientNum)
 {
   float profilePos[2]; // [esp+0h] [ebp-8h] BYREF
 
-  profilePos[0] = *(float *)&FLOAT_0_0;
-  profilePos[1] = FLOAT_9_0;
+  profilePos[0] = 0.0f;
+  profilePos[1] = 9.0f;
   FX_DrawMarkProfile(localClientNum, (void (__cdecl *)(char *))CG_DrawFxText, profilePos);
 }
 
@@ -901,8 +901,8 @@ void __cdecl CG_DrawFxPriorityDebug(int localClientNum)
 {
   float profilePos[2]; // [esp+0h] [ebp-8h] BYREF
 
-  profilePos[0] = *(float *)&FLOAT_0_0;
-  profilePos[1] = FLOAT_9_0;
+  profilePos[0] = 0.0f;
+  profilePos[1] = 9.0f;
   FX_DrawPriorityDebug(localClientNum, (void (__cdecl *)(char *))CG_DrawFxPriorityText, profilePos);
 }
 
@@ -1001,11 +1001,11 @@ double __cdecl CG_DrawFPS(int localClientNum, const ScreenPlacement *scrPlace, f
                 + 20.0)
         / 20.0;
   else
-    v13 = FLOAT_1_0;
+    v13 = 1.0f;
   if ( (float)(0.0 - v12) < 0.0 )
     frac = v13;
   else
-    frac = *(float *)&FLOAT_0_0;
+    frac = 0.0f;
   lerp = frac;
   Vec4Lerp(colorRed, colorWhite, frac, varColor);
   color = varColor;
@@ -1326,13 +1326,13 @@ void __cdecl CG_DrawVersion()
   float h; // [esp+44h] [ebp-8h]
   float w; // [esp+48h] [ebp-4h]
 
-  fontScale = FLOAT_0_25;
-  color[0] = FLOAT_0_40000001;
-  color[1] = FLOAT_0_69999999;
-  color[2] = FLOAT_1_0;
-  color[3] = FLOAT_0_69999999;
+  fontScale = 0.25f;
+  color[0] = 0.4f;
+  color[1] = 0.7f;
+  color[2] = 1.0f;
+  color[3] = 0.7f;
   memset(shadowColor, 0, 12);
-  shadowColor[3] = FLOAT_0_69999999;
+  shadowColor[3] = 0.7f;
   font = UI_GetFontHandle(&scrPlaceFullUnsafe, 0, 0.5);
   if ( font )
   {

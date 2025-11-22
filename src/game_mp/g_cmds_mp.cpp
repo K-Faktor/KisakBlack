@@ -83,8 +83,8 @@ void __cdecl G_setfog(char *fogstring)
   float fogMaxOpacity; // [esp+3Ch] [ebp-4h] BYREF
 
   SV_SetConfigstring(10, fogstring);
-  level.fFogOpaqueDist = FLOAT_3_4028235e38;
-  level.fFogOpaqueDistSqrd = FLOAT_3_4028235e38;
+  level.fFogOpaqueDist = FLT_MAX;
+  level.fFogOpaqueDistSqrd = FLT_MAX;
   if ( sscanf(
          fogstring,
          "%f %f %f %f %f %f %i %f %f %f %f %f %f %f %f %f",
@@ -539,26 +539,26 @@ void __cdecl StopFollowing(gentity_s *ent)
     vEnd[0] = (float)(10.0 * vUp[0]) + vEnd[0];
     vEnd[1] = (float)(10.0 * vUp[1]) + vEnd[1];
     vEnd[2] = (float)(10.0 * vUp[2]) + vEnd[2];
-    vMins[0] = FLOAT_N8_0;
-    vMins[1] = FLOAT_N8_0;
-    vMins[2] = FLOAT_N8_0;
-    vMaxs[0] = FLOAT_8_0;
-    vMaxs[1] = FLOAT_8_0;
-    vMaxs[2] = FLOAT_8_0;
+    vMins[0] = -8.0f;
+    vMins[1] = -8.0f;
+    vMins[2] = -8.0f;
+    vMaxs[0] = 8.0f;
+    vMaxs[1] = 8.0f;
+    vMaxs[2] = 8.0f;
     G_TraceCapsule(&trace, vPos, vMins, vMaxs, vEnd, 1023, (int)&loc_810011, &context);
     Vec3Lerp(vPos, vEnd, trace.fraction, vPos);
     AssignToSmallerType<unsigned char>(&client->ps.clientNum, ent - g_entities);
     client->ps.pm_flags &= 0xFFFEFFEF;
     client->ps.weapFlags &= ~0x40u;
     client->ps.otherFlags &= ~2u;
-    client->ps.fWeaponPosFrac = *(float *)&FLOAT_0_0;
+    client->ps.fWeaponPosFrac = 0.0f;
     G_SetOrigin(ent, vPos);
     client->ps.origin[0] = vPos[0];
     client->ps.origin[1] = vPos[1];
     client->ps.origin[2] = vPos[2];
     SetClientViewAngle(ent, vAngles);
     if ( !ent->tagInfo )
-      ent->r.currentAngles[0] = *(float *)&FLOAT_0_0;
+      ent->r.currentAngles[0] = 0.0f;
     client->ps.shellshockIndex = 0;
     client->ps.shellshockTime = 0;
     client->ps.shellshockDuration = 0;

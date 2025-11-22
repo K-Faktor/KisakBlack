@@ -19,30 +19,30 @@ colgeom_visitor_t *__thiscall colgeom_visitor_t::colgeom_visitor_t(colgeom_visit
 {
   this->__vftable = (colgeom_visitor_t_vtbl *)&visitor_base_t::`vftable';
   this->__vftable = (colgeom_visitor_t_vtbl *)&colgeom_visitor_t::`vftable';
-  this->m_mn.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->m_mn.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->m_mn.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->m_mn.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
-  this->m_mx.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->m_mx.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->m_mx.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->m_mx.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
-  this->m_p0.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->m_p0.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->m_p0.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->m_p0.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
-  this->m_p1.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->m_p1.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->m_p1.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->m_p1.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
-  this->m_delta.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->m_delta.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->m_delta.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->m_delta.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
-  this->m_rvec.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->m_rvec.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->m_rvec.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->m_rvec.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
+  this->m_mn.vec.u[0] = 0;
+  this->m_mn.vec.u[1] = 0;
+  this->m_mn.vec.u[2] = 0;
+  this->m_mn.vec.u[3] = 0;
+  this->m_mx.vec.u[0] = 0;
+  this->m_mx.vec.u[1] = 0;
+  this->m_mx.vec.u[2] = 0;
+  this->m_mx.vec.u[3] = 0;
+  this->m_p0.vec.u[0] = 0;
+  this->m_p0.vec.u[1] = 0;
+  this->m_p0.vec.u[2] = 0;
+  this->m_p0.vec.u[3] = 0;
+  this->m_p1.vec.u[0] = 0;
+  this->m_p1.vec.u[1] = 0;
+  this->m_p1.vec.u[2] = 0;
+  this->m_p1.vec.u[3] = 0;
+  this->m_delta.vec.u[0] = 0;
+  this->m_delta.vec.u[1] = 0;
+  this->m_delta.vec.u[2] = 0;
+  this->m_delta.vec.u[3] = 0;
+  this->m_rvec.vec.u[0] = 0;
+  this->m_rvec.vec.u[1] = 0;
+  this->m_rvec.vec.u[2] = 0;
+  this->m_rvec.vec.u[3] = 0;
   return this;
 }
 
@@ -2054,7 +2054,7 @@ void __cdecl PlayerCmd_setAngles(scr_entref_t entref)
   Scr_GetVector(0, angles, SCRIPTINSTANCE_SERVER);
   SetClientViewAngle(pSelf, angles);
   if ( !pSelf->tagInfo )
-    pSelf->r.currentAngles[0] = *(float *)&FLOAT_0_0;
+    pSelf->r.currentAngles[0] = 0.0f;
 }
 
 void __cdecl PlayerCmd_getAngles(scr_entref_t entref)
@@ -3726,7 +3726,7 @@ void __cdecl PlayerCmd_finishPlayerDamage(scr_entref_t entref)
       }
       else
       {
-        flinchYawDir = *(float *)&FLOAT_0_0;
+        flinchYawDir = 0.0f;
       }
       if ( flinchYawDir < 315.0 && flinchYawDir >= 45.0 )
       {
@@ -3917,14 +3917,14 @@ void __cdecl ApplyKnockBack(gentity_s *pSelf, int damage, float *localdir, char 
     && (dflags & 4) == 0
     && (allow_in_air || (pSelf->client->ps.pm_flags & 0x4000) == 0 && pSelf->s.groundEntityNum != 1023) )
   {
-    knockbackMod = FLOAT_0_30000001;
+    knockbackMod = 0.3f;
     if ( (pSelf->client->ps.pm_flags & 1) != 0 )
     {
       knockbackMod = FLOAT_0_02;
     }
     else if ( (pSelf->client->ps.pm_flags & 2) != 0 )
     {
-      knockbackMod = FLOAT_0_15000001;
+      knockbackMod = 0.1f5000001;
     }
     knockback = (int)(float)((float)damage * knockbackMod);
     if ( knockback > 60 )
@@ -5489,9 +5489,9 @@ void __cdecl PlayerCmd_DisableWeapons(scr_entref_t entref)
   {
     ps->pm_flags &= ~0x400000u;
     ps->jumpTime = 0;
-    ps->velocity[0] = *(float *)&FLOAT_0_0;
-    ps->velocity[1] = *(float *)&FLOAT_0_0;
-    ps->velocity[2] = *(float *)&FLOAT_0_0;
+    ps->velocity[0] = 0.0f;
+    ps->velocity[1] = 0.0f;
+    ps->velocity[2] = 0.0f;
     ps->lastDtpEnd = ps->commandTime;
     ps->sprintState.sprintButtonUpRequired = 0;
   }
@@ -6219,7 +6219,7 @@ void __cdecl PlayerCmd_ResetSpreadOverride(scr_entref_t entref)
     }
   }
   pSelf->client->ps.spreadOverrideState = 1;
-  pSelf->client->ps.aimSpreadScale = FLOAT_255_0;
+  pSelf->client->ps.aimSpreadScale = 255.0f;
   if ( Scr_GetNumParam(SCRIPTINSTANCE_SERVER) )
     Scr_Error("USAGE: <player> resetspreadoverride()\n", 0);
 }
@@ -6523,7 +6523,7 @@ void __cdecl PlayerCmd_BeginLocationTypeSelection(scr_entref_t entref, locSel_t 
   }
   if ( (unsigned int)Scr_GetNumParam(SCRIPTINSTANCE_SERVER) < 2 )
   {
-    radiusa = FLOAT_0_15000001;
+    radiusa = 0.1f5000001;
   }
   else
   {
@@ -6542,11 +6542,11 @@ void __cdecl PlayerCmd_BeginLocationTypeSelection(scr_entref_t entref, locSel_t 
     if ( radiusa >= 0.0 )
     {
       if ( radiusa > 1.0 )
-        radiusa = FLOAT_1_0;
+        radiusa = 1.0f;
     }
     else
     {
-      radiusa = *(float *)&FLOAT_0_0;
+      radiusa = 0.0f;
     }
   }
   pSelf->client->ps.locationSelectionType = selectionType;

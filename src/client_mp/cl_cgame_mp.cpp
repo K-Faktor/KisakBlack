@@ -1541,10 +1541,10 @@ void __cdecl CL_LookupColor(unsigned __int8 c, float *color)
     v2 = ColorIndex(c);
     if ( v2 >= 0x11u )
     {
-      *color = FLOAT_1_0;
-      color[1] = FLOAT_1_0;
-      color[2] = FLOAT_1_0;
-      color[3] = FLOAT_1_0;
+      *color = 1.0f;
+      color[1] = 1.0f;
+      color[2] = 1.0f;
+      color[3] = 1.0f;
     }
     else
     {
@@ -1561,8 +1561,8 @@ void __cdecl CL_UpdateColor()
 {
   Dvar_GetUnpackedColor(cg_TeamColor_Allies, color_allies);
   Dvar_GetUnpackedColor(cg_TeamColor_Axis, color_axis);
-  color_allies[3] = FLOAT_1_0;
-  color_axis[3] = FLOAT_1_0;
+  color_allies[3] = 1.0f;
+  color_axis[3] = 1.0f;
   R_UpdateTeamColors(color_allies, color_axis);
 }
 

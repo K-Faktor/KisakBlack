@@ -145,8 +145,8 @@ void __cdecl RB_ResetCorona(Corona *corona)
   corona->info = 0;
   corona->hitNum = 0;
   corona->timeSinceSpawned = 0;
-  corona->currentVisibility = *(float *)&FLOAT_0_0;
-  corona->targetVisibility = *(float *)&FLOAT_0_0;
+  corona->currentVisibility = 0.0f;
+  corona->targetVisibility = 0.0f;
   corona->wasEverVisible = 0;
   for ( queryIndex = 0; queryIndex < 5; ++queryIndex )
     corona->queryIssued[queryIndex] = 0;
@@ -363,7 +363,7 @@ void __cdecl Vec4DivideByW(const float *in, float *out)
     *out = *in * invW;
     out[1] = in[1] * invW;
     out[2] = in[2] * invW;
-    out[3] = FLOAT_1_0;
+    out[3] = 1.0f;
   }
 }
 
@@ -401,20 +401,20 @@ GfxVertex *__cdecl RB_SetTessQuad(GfxColor color)
   tess.indices[tess.indexCount + 5] = vertCount + 1;
   vert = &tess.verts[vertCount];
   vert->normal.packed = 1073643391;
-  vert->texCoord[0] = *(float *)&FLOAT_0_0;
-  vert->texCoord[1] = *(float *)&FLOAT_0_0;
+  vert->texCoord[0] = 0.0f;
+  vert->texCoord[1] = 0.0f;
   vert->color = color;
   vert[1].normal.packed = 1073643391;
-  vert[1].texCoord[0] = FLOAT_1_0;
-  vert[1].texCoord[1] = *(float *)&FLOAT_0_0;
+  vert[1].texCoord[0] = 1.0f;
+  vert[1].texCoord[1] = 0.0f;
   vert[1].color = color;
   vert[2].normal.packed = 1073643391;
-  vert[2].texCoord[0] = FLOAT_1_0;
-  vert[2].texCoord[1] = FLOAT_1_0;
+  vert[2].texCoord[0] = 1.0f;
+  vert[2].texCoord[1] = 1.0f;
   vert[2].color = color;
   vert[3].normal.packed = 1073643391;
-  vert[3].texCoord[0] = *(float *)&FLOAT_0_0;
-  vert[3].texCoord[1] = FLOAT_1_0;
+  vert[3].texCoord[0] = 0.0f;
+  vert[3].texCoord[1] = 1.0f;
   vert[3].color = color;
   tess.vertexCount += 4;
   tess.indexCount += 6;
@@ -484,22 +484,22 @@ void __cdecl RB_DrawCoronaQuerySprite(Corona *corona)
           if ( (float)(v2 - 1.0) < 0.0 )
             v3 = (double)numVisible / (double)totalPixels;
           else
-            v3 = FLOAT_1_0;
+            v3 = 1.0f;
           if ( (float)(0.0 - v2) < 0.0 )
             v1 = v3;
           else
-            v1 = *(float *)&FLOAT_0_0;
+            v1 = 0.0f;
           targetVisibility = v1;
         }
         else
         {
-          targetVisibility = *(float *)&FLOAT_0_0;
+          targetVisibility = 0.0f;
         }
       }
       else
       {
         error = 1;
-        targetVisibility = *(float *)&FLOAT_0_0;
+        targetVisibility = 0.0f;
       }
       if ( !error )
         corona->targetVisibility = targetVisibility;
@@ -516,7 +516,7 @@ void __cdecl RB_DrawCoronaQuerySprite(Corona *corona)
     }
     else
     {
-      corona->targetVisibility = *(float *)&FLOAT_0_0;
+      corona->targetVisibility = 0.0f;
     }
   }
 }
@@ -755,10 +755,10 @@ void __cdecl RB_DrawWaypoint(
     Vec4DivideByW(vert[3].xyzw, vert[3].xyzw);
     if ( forceNear && vert->xyzw[2] > 0.0 )
     {
-      vert->xyzw[2] = *(float *)&FLOAT_0_0;
-      vert[1].xyzw[2] = *(float *)&FLOAT_0_0;
-      vert[2].xyzw[2] = *(float *)&FLOAT_0_0;
-      vert[3].xyzw[2] = *(float *)&FLOAT_0_0;
+      vert->xyzw[2] = 0.0f;
+      vert[1].xyzw[2] = 0.0f;
+      vert[2].xyzw[2] = 0.0f;
+      vert[3].xyzw[2] = 0.0f;
     }
     RB_EndTessSurface();
     if ( tess.indexCount )

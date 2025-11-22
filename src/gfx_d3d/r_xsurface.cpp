@@ -88,8 +88,8 @@ void __cdecl XSurfaceTransferGetTexCoordRange(const XVertexInfo_s *v, int vertCo
   char texCoordUnitRange; // [esp+20h] [ebp-4h]
   char texCoordUnitRange_1; // [esp+21h] [ebp-3h]
 
-  *texCoordAv = *(float *)&FLOAT_0_0;
-  texCoordAv[1] = *(float *)&FLOAT_0_0;
+  *texCoordAv = 0.0f;
+  texCoordAv[1] = 0.0f;
   texCoordUnitRange = 1;
   texCoordUnitRange_1 = 1;
   for ( vertIndex = 0; vertIndex < vertCount; ++vertIndex )
@@ -105,7 +105,7 @@ void __cdecl XSurfaceTransferGetTexCoordRange(const XVertexInfo_s *v, int vertCo
   texCoordAv[1] = (float)(1.0 / (float)vertCount) * texCoordAv[1];
   if ( texCoordUnitRange )
   {
-    *texCoordAv = *(float *)&FLOAT_0_0;
+    *texCoordAv = 0.0f;
   }
   else
   {
@@ -114,7 +114,7 @@ void __cdecl XSurfaceTransferGetTexCoordRange(const XVertexInfo_s *v, int vertCo
   }
   if ( texCoordUnitRange_1 )
   {
-    texCoordAv[1] = *(float *)&FLOAT_0_0;
+    texCoordAv[1] = 0.0f;
   }
   else
   {

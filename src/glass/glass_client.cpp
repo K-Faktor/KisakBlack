@@ -248,7 +248,7 @@ void __thiscall GlassClient::Init(GlassClient *this, const Glass *gls)
   {
     __debugbreak();
   }
-  bmodel->writable.mip1radiusSq = FLOAT_1000000_0;
+  bmodel->writable.mip1radiusSq = 1000000.0f;
   absmin = this->glass->absmin;
   bmodel->writable.mins[0] = *absmin;
   bmodel->writable.mins[1] = absmin[1];

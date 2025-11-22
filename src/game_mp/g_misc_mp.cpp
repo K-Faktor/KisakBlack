@@ -37,11 +37,11 @@ void __cdecl misc_EntInfo(gentity_s *self, float *source)
   }
   if ( I_stristr(classname, "_spawn") || I_stristr(classname, "_uspawn") )
   {
-    mins[0] = FLOAT_N16_0;
-    mins[1] = FLOAT_N16_0;
-    mins[2] = *(float *)&FLOAT_0_0;
-    maxs[0] = FLOAT_16_0;
-    maxs[1] = FLOAT_16_0;
+    mins[0] = -16.0f;
+    mins[1] = -16.0f;
+    mins[2] = 0.0f;
+    maxs[0] = 16.0f;
+    maxs[1] = 16.0f;
     maxs[2] = FLOAT_72_0;
   }
   else
@@ -124,7 +124,7 @@ void __cdecl EntInfo_Item(gentity_s *self, float *source)
     if ( MY_MAX_DIST_HALF <= dist )
       color[3] = 1.0 - (float)((float)(dist - MY_MAX_DIST_HALF) / MY_MAX_DIST_HALF);
     else
-      color[3] = FLOAT_1_0;
+      color[3] = 1.0f;
     pos[2] = pos[2] - (float)(MY_NEXTLINE * 0.5);
     for ( idx = 0; idx < 2; ++idx )
     {
@@ -146,7 +146,7 @@ double __cdecl G_GetEntInfoScale()
 {
   long double fov_x; // [esp+0h] [ebp-10h]
 
-  *(float *)&fov_x = FLOAT_80_0;
+  *(float *)&fov_x = 80.0f;
   __libm_sse2_tan(fov_x);
   return g_entinfo_scale->current.value
        * (float)((float)((float)((float)(80.0 * 0.017453292) * 0.5) * 0.75) * 1.5890048);
@@ -270,7 +270,7 @@ void __cdecl TeleportPlayer(gentity_s *player, float *origin, float *angles)
   player->client->ps.eFlags ^= 2u;
   SetClientViewAngle(player, angles);
   if ( !player->tagInfo )
-    player->r.currentAngles[0] = *(float *)&FLOAT_0_0;
+    player->r.currentAngles[0] = 0.0f;
   BG_PlayerStateToEntityState(&player->client->ps, &player->s, 1, 1u);
   v3 = player->client->ps.origin;
   player->r.currentOrigin[0] = *v3;

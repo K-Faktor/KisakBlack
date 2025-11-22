@@ -71,7 +71,7 @@ void __cdecl Ragdoll_QuatPointRotate(const float *p, const float *q, float *dest
   qp[0] = *p;
   qp[1] = p[1];
   qp[2] = p[2];
-  qp[3] = *(float *)&FLOAT_0_0;
+  qp[3] = 0.0f;
   Ragdoll_QuatInverse(q, qInv);
   Ragdoll_QuatMul(q, qInv, tmp0);
   Ragdoll_QuatMul(tmp0, qp, tmp1);
@@ -141,9 +141,9 @@ void __cdecl Ragdoll_QuatToAxisAngle(const float *quat, float *axisAngle)
   __libm_sse2_sin(v2);
   if ( COERCE_FLOAT(LODWORD(v4) & _mask__AbsFloat_) <= 0.000001 )
   {
-    *axisAngle = *(float *)&FLOAT_0_0;
-    axisAngle[1] = *(float *)&FLOAT_0_0;
-    axisAngle[2] = *(float *)&FLOAT_0_0;
+    *axisAngle = 0.0f;
+    axisAngle[1] = 0.0f;
+    axisAngle[2] = 0.0f;
   }
   else
   {

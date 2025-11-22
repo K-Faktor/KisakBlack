@@ -140,7 +140,7 @@ int __cdecl RB_GenerateGaussianFilterChain(
       else
       {
         passRadius = radiusY;
-        radiusY = *(float *)&FLOAT_0_0;
+        radiusY = 0.0f;
       }
       passAxis = 1;
       passRes = dstHeight;
@@ -155,7 +155,7 @@ int __cdecl RB_GenerateGaussianFilterChain(
       else
       {
         passRadius = radiusX;
-        radiusX = *(float *)&FLOAT_0_0;
+        radiusX = 0.0f;
       }
       passAxis = 0;
       passRes = dstWidth;
@@ -197,12 +197,12 @@ void __cdecl RB_GenerateGaussianFilter1D(float radius, int *res, int axis, GfxIm
   for ( tapIndex = 0; tapIndex < 8; ++tapIndex )
   {
     filterPass->tapOffsetsAndWeights[tapIndex][axis] = tapOffsets[tapIndex];
-    filterPass->tapOffsetsAndWeights[tapIndex][1 - axis] = *(float *)&FLOAT_0_0;
-    filterPass->tapOffsetsAndWeights[tapIndex][2] = *(float *)&FLOAT_0_0;
+    filterPass->tapOffsetsAndWeights[tapIndex][1 - axis] = 0.0f;
+    filterPass->tapOffsetsAndWeights[tapIndex][2] = 0.0f;
     filterPass->tapOffsetsAndWeights[tapIndex][3] = tapWeights[tapIndex];
   }
-  filterPass->srcWidth = FLOAT_1_0;
-  filterPass->srcHeight = FLOAT_1_0;
+  filterPass->srcWidth = 1.0f;
+  filterPass->srcHeight = 1.0f;
   filterPass->dstWidth = *res;
   filterPass->dstHeight = res[1];
 }
@@ -281,12 +281,12 @@ int __cdecl RB_GaussianFilterPoints1D(
   }
   *((float *)&v8 + 1) = (float)srcRes / (float)dstRes;
   if ( ((int)(*((float *)&v8 + 1) + 9.313225746154785e-10) & 1) != 0 )
-    LODWORD(v8) = *(unsigned int *)&FLOAT_0_0;
+    LODWORD(v8) = 0;
   else
-    *(float *)&v8 = FLOAT_0_5;
+    *(float *)&v8 = 0.5f;
   offset = *(float *)&v8;
   gaussianExponent = -0.5 / (float)(pixels * pixels);
-  totalWeight = *(float *)&FLOAT_0_0;
+  totalWeight = 0.0f;
   for ( tapIndex = 0; tapIndex < tapLimit; ++tapIndex )
   {
     sample = (float)(2 * tapIndex) + offset;
@@ -329,7 +329,7 @@ int __cdecl RB_GaussianFilterPoints1D(
   }
   else
   {
-    *tapWeights = FLOAT_0_5;
+    *tapWeights = 0.5f;
     return 1;
   }
   return tapHalfCount;
@@ -360,11 +360,11 @@ void __cdecl RB_GenerateGaussianFilter2D(
     {
       LODWORD(filterPass->tapOffsetsAndWeights[2 * tapIndex][0]) = LODWORD(tapOffsetsX[x]) ^ _mask__NegFloat_;
       filterPass->tapOffsetsAndWeights[2 * tapIndex][1] = tapOffsetsY[y];
-      filterPass->tapOffsetsAndWeights[2 * tapIndex][2] = *(float *)&FLOAT_0_0;
+      filterPass->tapOffsetsAndWeights[2 * tapIndex][2] = 0.0f;
       filterPass->tapOffsetsAndWeights[2 * tapIndex][3] = tapWeightsX[x] * tapWeightsY[y];
       filterPass->tapOffsetsAndWeights[2 * tapIndex + 1][0] = tapOffsetsX[x];
       filterPass->tapOffsetsAndWeights[2 * tapIndex + 1][1] = tapOffsetsY[y];
-      filterPass->tapOffsetsAndWeights[2 * tapIndex + 1][2] = *(float *)&FLOAT_0_0;
+      filterPass->tapOffsetsAndWeights[2 * tapIndex + 1][2] = 0.0f;
       filterPass->tapOffsetsAndWeights[2 * tapIndex++ + 1][3] = tapWeightsX[x] * tapWeightsY[y];
     }
   }
@@ -380,8 +380,8 @@ void __cdecl RB_GenerateGaussianFilter2D(
     __debugbreak();
   }
   filterPass->tapHalfCount = RB_PickSymmetricFilterMaterial(2 * tapIndex, &filterPass->material);
-  filterPass->srcWidth = FLOAT_1_0;
-  filterPass->srcHeight = FLOAT_1_0;
+  filterPass->srcWidth = 1.0f;
+  filterPass->srcHeight = 1.0f;
   filterPass->dstWidth = dstWidth;
   filterPass->dstHeight = dstHeight;
 }

@@ -276,8 +276,8 @@ void __cdecl UI_DrawHighlightRect(
   float dy; // [esp+DCh] [ebp-4h] BYREF
 
   ScrPlace_ApplyRect(scrPlace, &x, &y, &w, &h, horzAlign, vertAlign);
-  dummyX = *(float *)&FLOAT_0_0;
-  dummyY = *(float *)&FLOAT_0_0;
+  dummyX = 0.0f;
+  dummyY = 0.0f;
   v10 = size;
   dy = size;
   ScrPlace_ApplyRect(scrPlace, &dummyX, &dummyY, &v10, &dy, horzAlign, vertAlign);
@@ -1935,8 +1935,8 @@ int __cdecl UI_PopupScriptMenu(int localClientNum, const char *menuName, bool us
     uiInfo->currentMenuType = UIMENU_SCRIPT_POPUP;
     if ( !useMouse )
     {
-      uiInfo->uiDC.cursor.x = FLOAT_639_0;
-      uiInfo->uiDC.cursor.y = FLOAT_479_0;
+      uiInfo->uiDC.cursor.x = 639.0f;
+      uiInfo->uiDC.cursor.y = 479.0f;
       UI_SetSystemCursorPos(&uiInfo->uiDC, 639.0, 479.0);
     }
     Menus_CloseAll(localClientNum, &uiInfo->uiDC);
@@ -2139,9 +2139,9 @@ void __cdecl UI_DrawPrettyLine(
   float scriptVector0[4]; // [esp+70h] [ebp-10h] BYREF
 
   scrPlace = &scrPlaceView[contextIndex];
-  capWidth = FLOAT_1_0;
-  tempW = FLOAT_1_0;
-  tempH = FLOAT_1_0;
+  capWidth = 1.0f;
+  tempW = 1.0f;
+  tempH = 1.0f;
   for ( i = 0; i < 2; ++i )
   {
     if ( p2[i] <= p1[i] )
@@ -2742,14 +2742,14 @@ double __cdecl UI_GetTextAlignAdj(int alignment, float width, float textWidth)
     if ( (float)(0.0 - (float)((float)(width - textWidth) * 0.5)) < 0.0 )
       return (float)((float)(width - textWidth) * 0.5);
     else
-      return *(float *)&FLOAT_0_0;
+      return 0.0f;
   }
   else if ( alignment == 2 )
   {
     if ( (float)(0.0 - (float)(width - textWidth)) < 0.0 )
       return (float)(width - textWidth);
     else
-      return *(float *)&FLOAT_0_0;
+      return 0.0f;
   }
   else
   {
@@ -3022,7 +3022,7 @@ void __cdecl UI_DrawScrollingText(
   baseX = rect->x;
   scrX = ScrPlace_ApplyX(&scrPlaceView[contextIndex], baseX, rect->horzAlign);
   text = LiveTicker_GetCurrentMessage(scrX, baseX, baseY, baseAlpha, font, scale, &outXCoord, &outYCoord, &outAlpha);
-  color[3] = FLOAT_1_0;
+  color[3] = 1.0f;
   scissorRect = *rect;
   ScrPlace_ApplyRect(
     &scrPlaceView[contextIndex],
@@ -3449,7 +3449,7 @@ void UI_InitUIInfos()
     Menu_Setup(&uiInfo->uiDC);
     CL_GetScreenDimensions(&uiInfo->uiDC.screenWidth, &uiInfo->uiDC.screenHeight, &uiInfo->uiDC.screenAspect);
     if ( 480 * uiInfo->uiDC.screenWidth <= 640 * uiInfo->uiDC.screenHeight )
-      uiInfo->uiDC.bias = *(float *)&FLOAT_0_0;
+      uiInfo->uiDC.bias = 0.0f;
     else
       uiInfo->uiDC.bias = (float)((float)uiInfo->uiDC.screenWidth - (float)((float)uiInfo->uiDC.screenHeight * 1.3333334))
                         * 0.5;
@@ -3703,7 +3703,7 @@ void __cdecl UI_DrawMapLevelshot(int localClientNum)
     {
       if ( !Menus_MenuIsInStack(&uiInfo->uiDC, menua) )
         Menus_Open(localClientNum, &uiInfo->uiDC, menua);
-      uiInfo->uiDC.blurRadiusOut = *(float *)&FLOAT_0_0;
+      uiInfo->uiDC.blurRadiusOut = 0.0f;
       Window_SetDynamicFlags(contextIndex, &menua->window, 16388);
       Menu_Paint(
         (GenericEventHandler *)&savedregs,

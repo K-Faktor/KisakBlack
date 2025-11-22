@@ -1437,13 +1437,13 @@ char __cdecl Live_FileShare_HasSummary(
 {
   if ( descriptors[index].m_summaryFileSize )
   {
-    *floatResult = FLOAT_1_0;
+    *floatResult = 1.0f;
     if ( stringResult && *stringResult )
       *stringResult = va("%d", 1);
   }
   else
   {
-    *floatResult = *(float *)&FLOAT_0_0;
+    *floatResult = 0.0f;
     if ( stringResult && *stringResult )
       *stringResult = va("%d", 0);
   }
@@ -1458,7 +1458,7 @@ char __cdecl Live_FileShare_IsSummaryCached(
         const char **stringResult,
         float *floatResult)
 {
-  *floatResult = *(float *)&FLOAT_0_0;
+  *floatResult = 0.0f;
   return 1;
 }
 
@@ -1471,9 +1471,9 @@ char __cdecl Live_FileShare_IsSummaryLoaded(
         float *floatResult)
 {
   if ( Live_FileShareSearch_IsSummaryLoaded() )
-    *floatResult = FLOAT_1_0;
+    *floatResult = 1.0f;
   else
-    *floatResult = *(float *)&FLOAT_0_0;
+    *floatResult = 0.0f;
   return 1;
 }
 
@@ -1568,7 +1568,7 @@ char __cdecl Live_FileShare_GetUserTagIndex(
     }
     Com_PrintError(16, "User tag index out range or tag value invalid.\n");
   }
-  *floatResult = *(float *)&FLOAT_0_0;
+  *floatResult = 0.0f;
   *stringResult = va("0");
   return 1;
 }
@@ -1669,7 +1669,7 @@ char __cdecl Live_FileShare_GetRating(
     if ( Live_FileShare_LookupRating(descriptors[index].m_fileID, ratings, numRatings, floatResult) )
       return 1;
   }
-  *floatResult = *(float *)&FLOAT_0_0;
+  *floatResult = 0.0f;
   return 0;
 }
 
@@ -1692,7 +1692,7 @@ char __cdecl Live_FileShare_GetTotalVotes(
   }
   else
   {
-    *floatResult = *(float *)&FLOAT_0_0;
+    *floatResult = 0.0f;
     return 0;
   }
 }
@@ -1809,13 +1809,13 @@ char __cdecl Live_FileShare_IsSlotOccupied(
 {
   if ( descriptors[index].m_fileSlot && descriptors[index].m_fileSize )
   {
-    *floatResult = FLOAT_1_0;
+    *floatResult = 1.0f;
     *stringResult = va("1");
     return 1;
   }
   else
   {
-    *floatResult = *(float *)&FLOAT_0_0;
+    *floatResult = 0.0f;
     *stringResult = va("0");
     return 1;
   }
@@ -2385,7 +2385,7 @@ LABEL_36:
   {
 LABEL_25:
     *stringResult = &toastPopupTitle;
-    *floatResult = *(float *)&FLOAT_0_0;
+    *floatResult = 0.0f;
     bdFileMetaData::~bdFileMetaData(&descriptor);
     return 0;
   }
@@ -2422,7 +2422,7 @@ char __cdecl Live_FileShare_GetMySlotInfo(
   int index; // [esp+10h] [ebp-4h]
 
   *stringResult = &toastPopupTitle;
-  *floatResult = *(float *)&FLOAT_0_0;
+  *floatResult = 0.0f;
   for ( i = 0; i < 30; ++i )
   {
     if ( !I_stricmp(field, fileShareKeyNames[i]) )
@@ -2540,7 +2540,7 @@ void __cdecl Live_FileShare_RatingOwnerdraw(
   mtl = Material_RegisterHandle("menu_mp_star_rating", 3);
   starWidth = 12;
   startHeight = 12;
-  rating = *(float *)&FLOAT_0_0;
+  rating = 0.0f;
   if ( fsDebugRatingValue && fsDebugRatingValue->current.value > 0.0 )
   {
     rating = fsDebugRatingValue->current.value;
@@ -2657,7 +2657,7 @@ void __cdecl Live_FileShare_PrivateRatingOwnerdraw(
   Material *mtl; // [esp+38h] [ebp-4h]
 
   mtl = Material_RegisterHandle("menu_mp_star_rating", 3);
-  rating = *(float *)&FLOAT_0_0;
+  rating = 0.0f;
   if ( fsDebugRatingValue && fsDebugRatingValue->current.value > 0.0 )
   {
     rating = fsDebugRatingValue->current.value;
@@ -2809,7 +2809,7 @@ void __cdecl Live_FileShare_AvgSubmitRatingOwnerdraw(
   mtl = Material_RegisterHandle("menu_mp_star_rating", 3);
   starWidth = 12;
   startHeight = 12;
-  rating = *(float *)&FLOAT_0_0;
+  rating = 0.0f;
   if ( fsDebugRatingValue && fsDebugRatingValue->current.value > 0.0 )
   {
     rating = fsDebugRatingValue->current.value;

@@ -473,9 +473,9 @@ void __cdecl Con_OneTimeInit()
       __debugbreak();
     }
     if ( gameWindowIndex == 2 )
-      v1 = FLOAT_0_75;
+      v1 = 0.75f;
     else
-      v1 = FLOAT_0_25;
+      v1 = 0.25f;
     con_gameMsgWindowNFadeInTime[gameWindowIndex] = _Dvar_RegisterFloat(
                                                       con_gameMsgWindowNFadeInTime_Names[gameWindowIndex],
                                                       v1,
@@ -507,9 +507,9 @@ void __cdecl Con_OneTimeInit()
       __debugbreak();
     }
     if ( gameWindowIndex == 1 )
-      v0 = FLOAT_0_0099999998;
+      v0 = 0.01f;
     else
-      v0 = FLOAT_0_5;
+      v0 = 0.5f;
     con_gameMsgWindowNFadeOutTime[gameWindowIndex] = _Dvar_RegisterFloat(
                                                        con_gameMsgWindowNFadeOutTime_Names[gameWindowIndex],
                                                        v0,
@@ -782,9 +782,9 @@ void __cdecl SetupChatField(int localClientNum, int teamChat, int widthInPixels)
   chatField->chatField.widthInPixels = widthInPixels;
   chatField->chatField.fixedSize = 0;
   if ( height <= 768 )
-    chatField->chatField.charHeight = FLOAT_16_0;
+    chatField->chatField.charHeight = 16.0f;
   else
-    chatField->chatField.charHeight = FLOAT_10_0;
+    chatField->chatField.charHeight = 10.0f;
   LocalClientUIGlobals = CL_GetLocalClientUIGlobals(localClientNum);
   LocalClientUIGlobals->keyCatchers ^= 0x20u;
 }
@@ -934,7 +934,7 @@ char __cdecl CL_ConsolePrint_AddLine(
   else
   {
     font = cls.consoleFont;
-    xScale = FLOAT_1_0;
+    xScale = 1.0f;
   }
   if ( !pixelWidth )
     pixelWidth = con.visiblePixelWidth;
@@ -2398,11 +2398,11 @@ void __cdecl Con_DrawMessageWindowNewToOld(
         if ( (float)(lerpFactor - 1.0) < 0.0 )
           v14 = lerpFactor;
         else
-          v14 = FLOAT_1_0;
+          v14 = 1.0f;
         if ( (float)(0.0 - lerpFactor) < 0.0 )
           v13 = v14;
         else
-          v13 = *(float *)&FLOAT_0_0;
+          v13 = 0.0f;
         lerpFactor = v13;
         if ( up )
           y += (int)((float)((float)charHeight * lerpFactor) + 9.313225746154785e-10);
@@ -2565,7 +2565,7 @@ void __cdecl Con_DrawMessageLineOnHUD(
         typewriterColor[0] = con_typewriterColorBase->current.value;
         typewriterColor[1] = con_typewriterColorBase->current.vector[1];
         typewriterColor[2] = con_typewriterColorBase->current.vector[2];
-        typewriterColor[3] = FLOAT_1_0;
+        typewriterColor[3] = 1.0f;
         if ( (line->flags & 0x10) != 0 )
         {
           glowColor = &con_typewriterColorGlowCheckpoint->current;
@@ -2742,7 +2742,7 @@ double __cdecl Con_GetMessageAlpha(Message *message, MessageWindow *msgwnd, int 
 {
   float curalpha; // [esp+4h] [ebp-4h]
 
-  curalpha = FLOAT_1_0;
+  curalpha = 1.0f;
   if ( !message
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\client\\cl_console.cpp", 2812, 0, "%s", "message") )
   {
@@ -2797,7 +2797,7 @@ double __cdecl Con_GetMessageAlpha(Message *message, MessageWindow *msgwnd, int 
   if ( (float)(0.0 - curalpha) < 0.0 )
     return curalpha;
   else
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
 }
 
 void __cdecl Con_DrawMessageWindowOldToNew(
@@ -2958,9 +2958,9 @@ void __cdecl Con_DrawMiniConsole(int localClientNum, int xPos, int yPos, float a
     con.messageBuffer[0].miniconWindow.lineCount = con_miniconlines->current.integer;
     Con_ClearMiniConsole(localClientNum);
   }
-  color[0] = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
+  color[0] = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
   color[3] = alpha;
   Con_DrawMessageWindow(
     localClientNum,
@@ -2989,9 +2989,9 @@ void __cdecl Con_DrawErrors(int localClientNum, int xPos, int yPos, float alpha)
   float color[4]; // [esp+10h] [ebp-10h] BYREF
 
   font = UI_GetFontHandle(&scrPlaceView[localClientNum], 0, 1.0);
-  color[0] = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
+  color[0] = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
   color[3] = alpha;
   Con_DrawMessageWindow(
     localClientNum,
@@ -3839,11 +3839,11 @@ void __cdecl Con_DrawOutputScrollBar(float x, float y, float width, float height
     if ( (float)(v7 - 1.0) < 0.0 )
       v8 = (float)(con.displayLineOffset - con.visibleLineCount) * scale;
     else
-      v8 = FLOAT_1_0;
+      v8 = 1.0f;
     if ( (float)(0.0 - v7) < 0.0 )
       v6 = v8;
     else
-      v6 = *(float *)&FLOAT_0_0;
+      v6 = 0.0f;
     v5 = ceil((float)((float)((float)con.visibleLineCount * scale) * height));
     if ( (float)(10.0 - v5) < 0.0 )
       h = v5;

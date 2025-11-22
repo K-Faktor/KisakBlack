@@ -25,12 +25,12 @@ void __cdecl R_AddSkyboxModel(const float *eyePos)
 
   if ( g_skyboxModel )
   {
-    placement.scale = FLOAT_1_0;
+    placement.scale = 1.0f;
     placement.base.origin[0] = *eyePos;
     placement.base.origin[1] = eyePos[1];
     placement.base.origin[2] = eyePos[2];
     memset(&placement, 0, 12);
-    placement.base.quat[3] = FLOAT_1_0;
+    placement.base.quat[3] = 1.0f;
     R_FilterXModelIntoScene(g_skyboxModel, &placement, 0, &myhandle, 0.0);
   }
 }

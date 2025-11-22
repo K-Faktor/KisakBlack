@@ -43,11 +43,11 @@ double __cdecl R_UpdateFrameRate()
         if ( frameTime >= 0 )
           frameRate = 1000.0 / (float)frameTime;
         else
-          frameRate = *(float *)&FLOAT_0_0;
+          frameRate = 0.0f;
       }
       else
       {
-        frameRate = *(float *)&FLOAT_0_0;
+        frameRate = 0.0f;
       }
     }
     else

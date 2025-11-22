@@ -131,11 +131,11 @@ double __cdecl CalculateFlareRatio(float flareRatio, float flareRatioLastFrame)
   if ( (float)(flareRatio - 1.0) < 0.0 )
     v4 = flareRatio;
   else
-    v4 = FLOAT_1_0;
+    v4 = 1.0f;
   if ( (float)(0.0 - flareRatio) < 0.0 )
     return v4;
   else
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
 }
 
 void __cdecl CG_VisionSetsUpdate(int localClientNum)
@@ -152,7 +152,7 @@ void __cdecl CG_VisionSetsUpdate(int localClientNum)
   {
     if ( idx == 2 )
     {
-      flareRatio = *(float *)&FLOAT_0_0;
+      flareRatio = 0.0f;
       if ( (cgameGlob->snap->ps.perks[1] & 0x400) == 0 )
         flareRatio = cgameGlob->snap->ps.visionSetLerpRatio;
       CG_VisionSetStartLerp_To(
@@ -414,11 +414,11 @@ void __cdecl UpdateVarsLerp(
       if ( (float)(fraction - 1.0) < 0.0 )
         v7 = (float)(time - lerpData->timeStart) / (float)lerpData->timeDuration;
       else
-        v7 = FLOAT_1_0;
+        v7 = 1.0f;
       if ( (float)(0.0 - fraction) < 0.0 )
         v5 = v7;
       else
-        v5 = *(float *)&FLOAT_0_0;
+        v5 = 0.0f;
       for ( fieldNum = 0; fieldNum < 68; ++fieldNum )
       {
         voidFrom = &from->filmEnable + visionDefFields[fieldNum].offset;
@@ -1248,7 +1248,7 @@ void __cdecl DrawVisionSetDebug(int localClientNum, visionSetMode_t curChannel)
       if ( modeIndex == curChannel )
         v2 = curChannelScaleMult;
       else
-        v2 = FLOAT_1_0;
+        v2 = 1.0f;
       R_AddCmdDrawText(text, 256, font, textX, textY, textScaleX * v2, textScaleY * v2, 0.0, v3, 0);
       textY = textY + textVertSpacing;
     }
@@ -1459,8 +1459,8 @@ void __cdecl CG_VisionSetApplyToRefdef(int localClientNum, bool isExtracam)
     }
     else
     {
-      charLightScale->diffuseScale = FLOAT_1_0;
-      cgameGlob->refdef.visionset.charPrimaryLightScale.specularScale = FLOAT_1_0;
+      charLightScale->diffuseScale = 1.0f;
+      cgameGlob->refdef.visionset.charPrimaryLightScale.specularScale = 1.0f;
     }
     cgameGlob->refdef.postEmissiveBrightening = cgameGlob->visionSetCurrent[visionChannel].postEmissiveBrightening;
   }
@@ -1468,7 +1468,7 @@ void __cdecl CG_VisionSetApplyToRefdef(int localClientNum, bool isExtracam)
   {
     cgameGlob->refdef.visionset.film.enabled = 0;
     reviveFx->enabled = 0;
-    cgameGlob->refdef.postEmissiveBrightening = *(float *)&FLOAT_0_0;
+    cgameGlob->refdef.postEmissiveBrightening = 0.0f;
   }
 }
 

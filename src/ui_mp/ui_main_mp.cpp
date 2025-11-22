@@ -250,12 +250,12 @@ void __cdecl UI_DrawLineGraphSegment(int contextIndex, float *p1, float *p2, rec
   quad[1].xy[0] = p1x;
   quad[1].xy[1] = y + h;
   quad[1].st[0] = (float)(p1x - x) / w;
-  quad[1].st[1] = FLOAT_1_0;
+  quad[1].st[1] = 1.0f;
   quad[1].color.packed = -1;
   quad[2].xy[0] = p2x;
   quad[2].xy[1] = y + h;
   quad[2].st[0] = (float)(p2x - x) / w;
-  quad[2].st[1] = FLOAT_1_0;
+  quad[2].st[1] = 1.0f;
   quad[2].color.packed = -1;
 }
 
@@ -463,14 +463,14 @@ void __cdecl UI_DrawStatsMilestonesFeederProgressBar(
   float attributeValue; // [esp+7Ch] [ebp-14h]
   float barColorEmpty[4]; // [esp+80h] [ebp-10h] BYREF
 
-  barColorEmpty[0] = FLOAT_0_95999998;
-  barColorEmpty[1] = FLOAT_0_57999998;
-  barColorEmpty[2] = FLOAT_0_11;
-  barColorEmpty[3] = FLOAT_0_2;
-  barColorFilled[0] = FLOAT_0_95999998;
-  barColorFilled[1] = FLOAT_0_57999998;
-  barColorFilled[2] = FLOAT_0_11;
-  barColorFilled[3] = FLOAT_1_0;
+  barColorEmpty[0] = 0.96f;
+  barColorEmpty[1] = 0.5f7999998;
+  barColorEmpty[2] = 0.1f1;
+  barColorEmpty[3] = 0.2f;
+  barColorFilled[0] = 0.96f;
+  barColorFilled[1] = 0.5f7999998;
+  barColorFilled[2] = 0.1f1;
+  barColorFilled[3] = 1.0f;
   if ( LiveStats_GetChallengeInfo(&challenge, index, type) )
   {
     attributeValue = (float)(6 * challenge->currentValue) / (float)challenge->targetValue;
@@ -573,8 +573,8 @@ void __cdecl UI_Project_OwnerDraw(
   rectDef_s rect; // [esp+10h] [ebp-20h] BYREF
   float histSamples[2]; // [esp+28h] [ebp-8h] BYREF
 
-  histSamples[0] = *(float *)&FLOAT_0_0;
-  histSamples[1] = *(float *)&FLOAT_0_0;
+  histSamples[0] = 0.0f;
+  histSamples[1] = 0.0f;
   rect.x = x;
   rect.y = y;
   rect.w = w;
@@ -678,12 +678,12 @@ void __cdecl UI_DrawBlurMaterial(int contextIndex, rectDef_s *rect, float *color
   {
     shaderConstants[0] = intensity;
     shaderConstants[1] = ui_blurDarkenAmount->current.value;
-    shaderConstants[2] = *(float *)&FLOAT_0_0;
-    shaderConstants[3] = *(float *)&FLOAT_0_0;
+    shaderConstants[2] = 0.0f;
+    shaderConstants[3] = 0.0f;
     CodeConst_GenericParam0 = GetCodeConst_GenericParam0();
     CL_SetCustomConstant(CodeConst_GenericParam0, shaderConstants);
     R_UI3D_SetBlurRadius(intensity * ui_blurAmount->current.value);
-    color[3] = FLOAT_1_0;
+    color[3] = 1.0f;
     UI_DrawHandlePic(
       &scrPlaceView[contextIndex],
       rect->x,
@@ -758,24 +758,24 @@ LABEL_4:
     ++startIndex;
     ++currIndex;
   }
-  pt1[0] = *(float *)&FLOAT_0_0;
-  pt1[1] = *(float *)&FLOAT_0_0;
-  pt2[0] = *(float *)&FLOAT_0_0;
-  pt2[1] = *(float *)&FLOAT_0_0;
-  param[2] = *(float *)&FLOAT_0_0;
-  param[3] = *(float *)&FLOAT_0_0;
-  *(_QWORD *)&pieColors[0][0] = __PAIR64__(LODWORD(FLOAT_0_57999998), LODWORD(FLOAT_0_95999998));
-  *(_QWORD *)&pieColors[0][2] = __PAIR64__(LODWORD(FLOAT_1_0), LODWORD(FLOAT_0_11));
-  pieColors[1][0] = FLOAT_0_17;
-  pieColors[1][1] = FLOAT_0_17;
-  *(_QWORD *)&pieColors[1][2] = __PAIR64__(LODWORD(FLOAT_1_0), LODWORD(FLOAT_0_17));
-  pieColors[2][0] = FLOAT_0_56999999;
-  pieColors[2][1] = FLOAT_0_56999999;
-  *(_QWORD *)&pieColors[2][2] = __PAIR64__(LODWORD(FLOAT_1_0), LODWORD(FLOAT_0_56999999));
-  param[0] = *(float *)&FLOAT_0_0;
-  param[1] = FLOAT_6_2831855;
+  pt1[0] = 0.0f;
+  pt1[1] = 0.0f;
+  pt2[0] = 0.0f;
+  pt2[1] = 0.0f;
+  param[2] = 0.0f;
+  param[3] = 0.0f;
+  *(_QWORD *)&pieColors[0][0] = __PAIR64__(LODWORD(0.5f7999998), LODWORD(0.96f));
+  *(_QWORD *)&pieColors[0][2] = __PAIR64__(LODWORD(1.0f), LODWORD(0.1f1));
+  pieColors[1][0] = 0.1f7;
+  pieColors[1][1] = 0.1f7;
+  *(_QWORD *)&pieColors[1][2] = __PAIR64__(LODWORD(1.0f), LODWORD(0.1f7));
+  pieColors[2][0] = 0.5f6999999;
+  pieColors[2][1] = 0.5f6999999;
+  *(_QWORD *)&pieColors[2][2] = __PAIR64__(LODWORD(1.0f), LODWORD(0.5f6999999));
+  param[0] = 0.0f;
+  param[1] = 6.2831855f;
   memset(lineColor, 0, 12);
-  lineColor[3] = FLOAT_0_80000001;
+  lineColor[3] = 0.8f;
   CodeConst_GenericParam0 = GetCodeConst_GenericParam0();
   CL_SetCustomConstant(CodeConst_GenericParam0, param);
   v6 = Material_RegisterHandle("piechart", 3);
@@ -881,7 +881,7 @@ void __cdecl UI_DrawCombatRecordLineGraph(int contextIndex, rectDef_s *rect, flo
     startIndex = 1;
   }
   numRecentValues = 0;
-  maxKDRatioValue = *(float *)&FLOAT_0_0;
+  maxKDRatioValue = 0.0f;
   for ( currIndex = 0;
         currIndex < maxValues && (int)LiveCombatRecord_GetSortedItemData(startIndex, forFriend, ITEM_INDEX);
         ++currIndex )
@@ -898,33 +898,33 @@ void __cdecl UI_DrawCombatRecordLineGraph(int contextIndex, rectDef_s *rect, flo
     midpoint = (float)(rect->h / 2.0) + startpoint;
     halfHeight = rect->h / 2.0;
     currY = midpoint;
-    nextY = *(float *)&FLOAT_0_0;
+    nextY = 0.0f;
     dotDimension = rect->h / 11.5;
     separation = rect->w / (float)(maxValues - 1);
-    gray[0] = FLOAT_1_0;
-    gray[1] = FLOAT_1_0;
-    gray[2] = FLOAT_1_0;
-    gray[3] = FLOAT_0_1;
-    white[0] = FLOAT_1_0;
-    white[1] = FLOAT_1_0;
-    white[2] = FLOAT_1_0;
-    white[3] = FLOAT_1_0;
-    red[0] = FLOAT_0_73000002;
-    red[1] = FLOAT_0_19;
-    red[2] = FLOAT_0_19;
-    red[3] = FLOAT_1_0;
-    green[0] = FLOAT_0_41999999;
-    green[1] = FLOAT_0_68000001;
-    green[2] = FLOAT_0_46000001;
-    green[3] = FLOAT_1_0;
-    dotColor[0] = FLOAT_0_41999999;
-    dotColor[1] = FLOAT_0_68000001;
-    dotColor[2] = FLOAT_0_46000001;
-    dotColor[3] = FLOAT_1_0;
-    pt1[0] = *(float *)&FLOAT_0_0;
-    pt1[1] = *(float *)&FLOAT_0_0;
-    pt2[0] = *(float *)&FLOAT_0_0;
-    pt2[1] = *(float *)&FLOAT_0_0;
+    gray[0] = 1.0f;
+    gray[1] = 1.0f;
+    gray[2] = 1.0f;
+    gray[3] = 0.1f;
+    white[0] = 1.0f;
+    white[1] = 1.0f;
+    white[2] = 1.0f;
+    white[3] = 1.0f;
+    red[0] = 0.73f;
+    red[1] = 0.1f9;
+    red[2] = 0.1f9;
+    red[3] = 1.0f;
+    green[0] = 0.42f;
+    green[1] = 0.68f;
+    green[2] = 0.46f;
+    green[3] = 1.0f;
+    dotColor[0] = 0.42f;
+    dotColor[1] = 0.68f;
+    dotColor[2] = 0.46f;
+    dotColor[3] = 1.0f;
+    pt1[0] = 0.0f;
+    pt1[1] = 0.0f;
+    pt2[0] = 0.0f;
+    pt2[1] = 0.0f;
     for ( startIndex = 0; startIndex < maxValues; ++startIndex )
     {
       v4 = Material_RegisterHandle("white", 3);
@@ -1018,14 +1018,14 @@ void __cdecl UI_DrawCombatRecordHistogram(
   float lineColor[4]; // [esp+1Ch] [ebp-18h] BYREF
   float pt2[2]; // [esp+2Ch] [ebp-8h] BYREF
 
-  pt1[0] = *(float *)&FLOAT_0_0;
-  pt1[1] = *(float *)&FLOAT_0_0;
-  pt2[0] = *(float *)&FLOAT_0_0;
-  pt2[1] = *(float *)&FLOAT_0_0;
-  lineColor[0] = FLOAT_1_0;
-  lineColor[1] = FLOAT_1_0;
-  lineColor[2] = FLOAT_1_0;
-  lineColor[3] = FLOAT_0_2;
+  pt1[0] = 0.0f;
+  pt1[1] = 0.0f;
+  pt2[0] = 0.0f;
+  pt2[1] = 0.0f;
+  lineColor[0] = 1.0f;
+  lineColor[1] = 1.0f;
+  lineColor[2] = 1.0f;
+  lineColor[3] = 0.2f;
   separation = rect->w / 10.0;
   if ( rect->w != 0.0 && rect->h != 0.0 )
   {
@@ -1073,17 +1073,17 @@ void __cdecl UI_DrawCombatRecordBarGraph(int contextIndex, rectDef_s *rect)
   }
   if ( maxEarnings )
   {
-    barColorRed[0] = FLOAT_0_73000002;
-    barColorRed[1] = FLOAT_0_19;
-    barColorRed[2] = FLOAT_0_19;
-    barColorRed[3] = FLOAT_1_0;
-    barColorGreen[0] = FLOAT_0_41999999;
-    barColorGreen[1] = FLOAT_0_68000001;
-    barColorGreen[2] = FLOAT_0_46000001;
-    barColorGreen[3] = FLOAT_1_0;
-    currY = *(float *)&FLOAT_0_0;
+    barColorRed[0] = 0.73f;
+    barColorRed[1] = 0.1f9;
+    barColorRed[2] = 0.1f9;
+    barColorRed[3] = 1.0f;
+    barColorGreen[0] = 0.42f;
+    barColorGreen[1] = 0.68f;
+    barColorGreen[2] = 0.46f;
+    barColorGreen[3] = 1.0f;
+    currY = 0.0f;
     midPoint = (float)(rect->h / 2.0) + rect->y;
-    barHeight = *(float *)&FLOAT_0_0;
+    barHeight = 0.0f;
     barWidth = (float)(rect->w / 10.0) * 0.66666669;
     separation = rect->w / 10.0;
     currIndex = numRecentValues - 1;
@@ -1152,14 +1152,14 @@ void __cdecl UI_DrawCombatRecordHorizontalBarGraph(
 
   graphType = Dvar_GetInt(dvarName);
   controllerIndex = Com_LocalClient_GetControllerIndex(localClientNum);
-  greenBarWidth = *(float *)&FLOAT_0_0;
-  redBarWidth = *(float *)&FLOAT_0_0;
+  greenBarWidth = 0.0f;
+  redBarWidth = 0.0f;
   barHeight = rect->h / 10.0;
   greenBarValue = 0;
   redBarValue = 0;
   firstDigit = 0;
   power = 1;
-  maxValue = *(float *)&FLOAT_0_0;
+  maxValue = 0.0f;
   forFriend = Dvar_GetBool("ui_showFriendsCombatRecord");
   if ( graphType == 16 )
   {
@@ -1202,18 +1202,18 @@ void __cdecl UI_DrawCombatRecordHorizontalBarGraph(
   maxValue = (float)(power * (firstDigit + 1));
   greenBarWidth = (float)((float)((float)greenBarValue / maxValue) * rect->w) / 2.0;
   redBarWidth = (float)((float)((float)redBarValue / maxValue) * rect->w) / 2.0;
-  green[0] = FLOAT_0_41999999;
-  green[1] = FLOAT_0_68000001;
-  green[2] = FLOAT_0_46000001;
-  green[3] = FLOAT_1_0;
-  red[0] = FLOAT_0_73000002;
-  red[1] = FLOAT_0_19;
-  red[2] = FLOAT_0_19;
-  red[3] = FLOAT_1_0;
-  white[0] = FLOAT_1_0;
-  white[1] = FLOAT_1_0;
-  white[2] = FLOAT_1_0;
-  white[3] = FLOAT_0_2;
+  green[0] = 0.42f;
+  green[1] = 0.68f;
+  green[2] = 0.46f;
+  green[3] = 1.0f;
+  red[0] = 0.73f;
+  red[1] = 0.1f9;
+  red[2] = 0.1f9;
+  red[3] = 1.0f;
+  white[0] = 1.0f;
+  white[1] = 1.0f;
+  white[2] = 1.0f;
+  white[3] = 0.2f;
   numGridLines = 17;
   for ( i = 0; i < 17; ++i )
   {
@@ -1269,8 +1269,8 @@ void __cdecl UI_DrawCombatRecordHitLocHeatMap(int contextIndex, rectDef_s *rect)
   const char *hitlocImage; // [esp+E0h] [ebp-14h]
   float yellow[4]; // [esp+E4h] [ebp-10h] BYREF
 
-  maxhitCount = *(float *)&FLOAT_0_0;
-  maxCriticalHitCount = *(float *)&FLOAT_0_0;
+  maxhitCount = 0.0f;
+  maxCriticalHitCount = 0.0f;
   forFriend = Dvar_GetBool("ui_showFriendsCombatRecord");
   for ( currIndex = 0; currIndex < 19; ++currIndex )
   {
@@ -1288,14 +1288,14 @@ void __cdecl UI_DrawCombatRecordHitLocHeatMap(int contextIndex, rectDef_s *rect)
     criticalHitLocCount[currIndex] = criticalHitLocCount[currIndex] / maxCriticalHitCount;
     hitLocCount[currIndex] = hitLocCount[currIndex] / maxhitCount;
   }
-  red[0] = FLOAT_0_73000002;
-  red[1] = FLOAT_0_19;
-  red[2] = FLOAT_0_19;
-  red[3] = FLOAT_1_0;
-  yellow[0] = FLOAT_0_95999998;
-  yellow[1] = FLOAT_0_57999998;
-  yellow[2] = FLOAT_0_11;
-  yellow[3] = FLOAT_1_0;
+  red[0] = 0.73f;
+  red[1] = 0.1f9;
+  red[2] = 0.1f9;
+  red[3] = 1.0f;
+  yellow[0] = 0.96f;
+  yellow[1] = 0.5f7999998;
+  yellow[2] = 0.1f1;
+  yellow[3] = 1.0f;
   hitlocImage = 0;
   for ( currIndex = 1; currIndex < 18; ++currIndex )
   {
@@ -1425,26 +1425,26 @@ void __cdecl UI_DrawAttributeBar(
   float arrowColor[4]; // [esp+98h] [ebp-20h] BYREF
   float barColorEmpty[4]; // [esp+A8h] [ebp-10h] BYREF
 
-  attributeValue = *(float *)&FLOAT_0_0;
-  attachmentEffectOnAttribute = *(float *)&FLOAT_0_0;
-  attachmentEffectXpos = *(float *)&FLOAT_0_0;
-  remainingPartOfLastBlock = *(float *)&FLOAT_0_0;
-  barColorFilled[0] = FLOAT_0_95999998;
-  barColorFilled[1] = FLOAT_0_57999998;
-  barColorFilled[2] = FLOAT_0_11;
-  barColorFilled[3] = FLOAT_1_0;
-  attachmentEffectColor[0] = FLOAT_0_95999998;
-  attachmentEffectColor[1] = FLOAT_0_57999998;
-  attachmentEffectColor[2] = FLOAT_0_11;
-  attachmentEffectColor[3] = FLOAT_1_0;
-  arrowColor[0] = FLOAT_0_95999998;
-  arrowColor[1] = FLOAT_0_57999998;
-  arrowColor[2] = FLOAT_0_11;
-  arrowColor[3] = FLOAT_1_0;
-  barColorEmpty[0] = FLOAT_0_95999998;
-  barColorEmpty[1] = FLOAT_0_57999998;
-  barColorEmpty[2] = FLOAT_0_11;
-  barColorEmpty[3] = FLOAT_0_2;
+  attributeValue = 0.0f;
+  attachmentEffectOnAttribute = 0.0f;
+  attachmentEffectXpos = 0.0f;
+  remainingPartOfLastBlock = 0.0f;
+  barColorFilled[0] = 0.96f;
+  barColorFilled[1] = 0.5f7999998;
+  barColorFilled[2] = 0.1f1;
+  barColorFilled[3] = 1.0f;
+  attachmentEffectColor[0] = 0.96f;
+  attachmentEffectColor[1] = 0.5f7999998;
+  attachmentEffectColor[2] = 0.1f1;
+  attachmentEffectColor[3] = 1.0f;
+  arrowColor[0] = 0.96f;
+  arrowColor[1] = 0.5f7999998;
+  arrowColor[2] = 0.1f1;
+  arrowColor[3] = 1.0f;
+  barColorEmpty[0] = 0.96f;
+  barColorEmpty[1] = 0.5f7999998;
+  barColorEmpty[2] = 0.1f1;
+  barColorEmpty[3] = 0.2f;
   StringTable_GetAsset("mp/attributesTable.csv", (XAssetHeader *)&attributesTable);
   controllerIndex = Com_LocalClient_GetControllerIndex(localClientNum);
   ownerDraw = Item_GetOwnerDrawDef(item);
@@ -1616,7 +1616,7 @@ void __cdecl UI_DrawAttributeBar(
           arrowDrawn = 1;
         }
         remainingPartOfLastBlock = 1.0 - attributeValue;
-        attributeValue = *(float *)&FLOAT_0_0;
+        attributeValue = 0.0f;
       }
     }
     if ( attachmentEffectOnAttribute != 0.0 && attachmentEffectXpos != 0.0 && remainingPartOfLastBlock != 0.0 )
@@ -1698,7 +1698,7 @@ void __cdecl UI_DrawAttributeBar(
                 arrowColor,
                 -90.0,
                 sharedUiInfo.assets.sliderThumb);
-            attachmentEffectOnAttribute = *(float *)&FLOAT_0_0;
+            attachmentEffectOnAttribute = 0.0f;
           }
         }
       }
@@ -1750,7 +1750,7 @@ void __cdecl UI_DrawReticlePreview(int localClientNum, int contextIndex, itemDef
   {
     if ( CG_GetWeaponOptionReticleColor(reticleColorIndex, reticleColor) )
     {
-      reticleColor[3] = FLOAT_1_0;
+      reticleColor[3] = 1.0f;
       v4 = Material_RegisterHandle((char *)reticleMaterial, 3);
       UI_DrawHandlePic(
         &scrPlaceView[contextIndex],
@@ -2570,8 +2570,8 @@ int __cdecl UI_SetActiveMenu(int localClientNum, uiMenuCommand_t menu)
     case UIMENU_WM_QUICKMESSAGE:
       if ( Menus_FindByName(&uiInfo->uiDC, "quickmessage") )
       {
-        uiInfo->uiDC.cursor.x = FLOAT_639_0;
-        uiInfo->uiDC.cursor.y = FLOAT_479_0;
+        uiInfo->uiDC.cursor.x = 639.0f;
+        uiInfo->uiDC.cursor.y = 479.0f;
         UI_SetSystemCursorPos(&uiInfo->uiDC, 639.0, 479.0);
         Key_SetCatcher(localClientNum, 16);
         CL_LocalClient_SetCUIFlag(localClientNum, 64);

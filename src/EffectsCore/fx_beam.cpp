@@ -181,19 +181,19 @@ void __cdecl FX_Beam_GenerateVerts(FxGenerateVertsCmd *cmd)
   v75 = cmd->viewaxis[0];
   *(_QWORD *)viewAxis.v = *(_QWORD *)&cmd->viewaxis[0][0];
   viewAxis.u[2] = LODWORD(cmd->viewaxis[0][2]);
-  viewAxis.u[3] = *(unsigned int *)&FLOAT_0_0;
+  viewAxis.u[3] = 0;
   for ( beamIter = 0; beamIter != beamInfo->beamCount; ++beamIter )
   {
     perp_indexCount = 0;
     perp_vertexCount = 0;
-    sMin = *(int *)&FLOAT_0_0;
-    sLen = FLOAT_1_0;
-    tMin = *(int *)&FLOAT_0_0;
-    tLen = FLOAT_1_0;
-    perp_sMin = *(int *)&FLOAT_0_0;
-    perp_sLen = FLOAT_1_0;
-    perp_tMin = *(int *)&FLOAT_0_0;
-    perp_tLen = FLOAT_1_0;
+    sMin = 0;
+    sLen = 1.0f;
+    tMin = 0;
+    tLen = 1.0f;
+    perp_sMin = 0;
+    perp_sLen = 1.0f;
+    perp_tMin = 0;
+    perp_tLen = 1.0f;
     perp_indices = 0;
     perp_baseVertex = 0;
     beam = &beamInfo->beams[beamIter];
@@ -204,11 +204,11 @@ void __cdecl FX_Beam_GenerateVerts(FxGenerateVertsCmd *cmd)
     flatDelta = g_zero;
     *(_QWORD *)beamWorldBegin.v = *(_QWORD *)beam->begin;
     beamWorldBegin.u[2] = LODWORD(beam->begin[2]);
-    beamWorldBegin.u[3] = *(unsigned int *)&FLOAT_0_0;
+    beamWorldBegin.u[3] = 0;
     end = beam->end;
     *(_QWORD *)beamWorldEnd.v = *(_QWORD *)beam->end;
     beamWorldEnd.u[2] = LODWORD(beam->end[2]);
-    beamWorldEnd.u[3] = *(unsigned int *)&FLOAT_0_0;
+    beamWorldEnd.u[3] = 0;
     indexCount = 3 * (2 * segCount + 2);
     vertexCount = 2 * segCount + 4;
     if ( beam->segmentVerts )
@@ -222,11 +222,11 @@ void __cdecl FX_Beam_GenerateVerts(FxGenerateVertsCmd *cmd)
       }
       *(_QWORD *)beamWorldBegin.v = *(_QWORD *)segVerts;
       beamWorldBegin.v[2] = segVerts[2];
-      beamWorldBegin.u[3] = *(unsigned int *)&FLOAT_0_0;
+      beamWorldBegin.u[3] = 0;
       v73 = &segVerts[3 * (segCount / 3)];
       *(_QWORD *)beamWorldEnd.v = *(_QWORD *)v73;
       beamWorldEnd.v[2] = v73[2];
-      beamWorldEnd.u[3] = *(unsigned int *)&FLOAT_0_0;
+      beamWorldEnd.u[3] = 0;
       if ( !FX_GenerateBeam_GetFlatDelta(
               (unsigned int)&savedregs,
               &clipMtx,
@@ -237,11 +237,11 @@ void __cdecl FX_Beam_GenerateVerts(FxGenerateVertsCmd *cmd)
         continue;
       *(_QWORD *)beamWorldBegin.v = *(_QWORD *)beam->begin;
       beamWorldBegin.u[2] = LODWORD(beam->begin[2]);
-      beamWorldBegin.u[3] = *(unsigned int *)&FLOAT_0_0;
+      beamWorldBegin.u[3] = 0;
       v72 = beam->end;
       *(_QWORD *)beamWorldEnd.v = *(_QWORD *)beam->end;
       beamWorldEnd.u[2] = LODWORD(beam->end[2]);
-      beamWorldEnd.u[3] = *(unsigned int *)&FLOAT_0_0;
+      beamWorldEnd.u[3] = 0;
     }
     else if ( !FX_GenerateBeam_GetFlatDelta(
                  (unsigned int)&savedregs,
@@ -324,15 +324,15 @@ void __cdecl FX_Beam_GenerateVerts(FxGenerateVertsCmd *cmd)
     baseArgs = (float4 *)R_GetCodeMeshArgs(argOffset);
     baseVerts = R_GetCodeMeshVerts(baseVertex);
     Vec3Cross(flatDelta.v, viewAxis.v, perpFlatDelta.v);
-    perpFlatDelta.u[3] = *(unsigned int *)&FLOAT_0_0;
+    perpFlatDelta.u[3] = 0;
     Vec3NormalizeTo(perpFlatDelta.v, perpFlatDelta.v);
-    perpFlatDelta.u[3] = *(unsigned int *)&FLOAT_0_0;
+    perpFlatDelta.u[3] = 0;
     normDelta.v[0] = beamWorldEnd.v[0] - beamWorldBegin.v[0];
     normDelta.v[1] = beamWorldEnd.v[1] - beamWorldBegin.v[1];
     normDelta.v[2] = beamWorldEnd.v[2] - beamWorldBegin.v[2];
     normDelta.v[3] = beamWorldEnd.v[3] - beamWorldBegin.v[3];
     Vec3NormalizeTo(normDelta.v, normDelta.v);
-    normDelta.u[3] = *(unsigned int *)&FLOAT_0_0;
+    normDelta.u[3] = 0;
     v70 = (float)((float)(beamWorldBegin.v[0] * normDelta.v[0]) + (float)(beamWorldBegin.v[1] * normDelta.v[1]))
         + (float)(beamWorldBegin.v[2] * normDelta.v[2]);
     beamDot.u[0] = LODWORD(v70) ^ _mask__NegFloat_;
@@ -342,7 +342,7 @@ void __cdecl FX_Beam_GenerateVerts(FxGenerateVertsCmd *cmd)
     args = baseArgs;
     v61 = *(_QWORD *)normDelta.v;
     v62 = normDelta.u[2];
-    v63 = *(unsigned int *)&FLOAT_0_0;
+    v63 = 0;
     v64 = LODWORD(v70) ^ _mask__NegFloat_;
     v65 = LODWORD(v70) ^ _mask__NegFloat_;
     v66 = LODWORD(v70) ^ _mask__NegFloat_;
@@ -382,7 +382,7 @@ void __cdecl FX_Beam_GenerateVerts(FxGenerateVertsCmd *cmd)
     baseVerts->xyz[0] = vertPos.v[0];
     *(_QWORD *)&verts->xyz[1] = *(_QWORD *)&vertPos.unitVec[1].packed;
     verts->color = beginColor;
-    verts->binormalSign = FLOAT_1_0;
+    verts->binormalSign = 1.0f;
     verts->normal.packed = 1073643391;
     verts->tangent.packed = 1065320446;
     verts->texCoord.packed = 0;
@@ -479,7 +479,7 @@ void __cdecl FX_Beam_GenerateVerts(FxGenerateVertsCmd *cmd)
       {
         *(_QWORD *)basePos.v = *(_QWORD *)segVerts;
         basePos.v[2] = segVerts[2];
-        basePos.u[3] = *(unsigned int *)&FLOAT_0_0;
+        basePos.u[3] = 0;
         segVerts += 3;
       }
       else
@@ -509,7 +509,7 @@ void __cdecl FX_Beam_GenerateVerts(FxGenerateVertsCmd *cmd)
       verts->xyz[0] = tpos0.v[0];
       *(_QWORD *)&verts->xyz[1] = *(_QWORD *)&tpos0.unitVec[1].packed;
       verts->color = lerpedColor;
-      verts->binormalSign = FLOAT_1_0;
+      verts->binormalSign = 1.0f;
       verts->normal.packed = 1073643391;
       verts->tangent.packed = 1065320446;
       verts->texCoord.packed = 15360;
@@ -518,7 +518,7 @@ void __cdecl FX_Beam_GenerateVerts(FxGenerateVertsCmd *cmd)
       LODWORD(verts->xyz[2]) = tpos1.u[2];
       vert2 = verts;
       verts->color = lerpedColor;
-      verts->binormalSign = FLOAT_1_0;
+      verts->binormalSign = 1.0f;
       verts->normal.packed = 1073643391;
       verts->tangent.packed = 1065320446;
       verts->texCoord.packed = 1006632960;
@@ -626,7 +626,7 @@ void __cdecl FX_Beam_GenerateVerts(FxGenerateVertsCmd *cmd)
     verts->xyz[0] = tpos0.v[0];
     *(_QWORD *)&verts->xyz[1] = *(_QWORD *)&tpos0.unitVec[1].packed;
     verts->color = endColor;
-    verts->binormalSign = FLOAT_1_0;
+    verts->binormalSign = 1.0f;
     verts->normal.packed = 1073643391;
     verts->tangent.packed = 1065320446;
     verts->texCoord.packed = 1006648320;
@@ -765,16 +765,16 @@ void __cdecl FX_Beam_GenerateVerts(FxGenerateVertsCmd *cmd)
       perp_verts[1].color = beginColor;
       perp_verts[2].color = beginColor;
       perp_verts[3].color = beginColor;
-      perp_verts->binormalSign = FLOAT_1_0;
+      perp_verts->binormalSign = 1.0f;
       perp_verts->normal.packed = 1073643391;
       perp_verts->tangent.packed = 1065320446;
-      perp_verts[1].binormalSign = FLOAT_1_0;
+      perp_verts[1].binormalSign = 1.0f;
       perp_verts[1].normal.packed = 1073643391;
       perp_verts[1].tangent.packed = 1065320446;
-      perp_verts[2].binormalSign = FLOAT_1_0;
+      perp_verts[2].binormalSign = 1.0f;
       perp_verts[2].normal.packed = 1073643391;
       perp_verts[2].tangent.packed = 1065320446;
-      perp_verts[3].binormalSign = FLOAT_1_0;
+      perp_verts[3].binormalSign = 1.0f;
       perp_verts[3].normal.packed = 1073643391;
       perp_verts[3].tangent.packed = 1065320446;
       s1 = perp_sMin;
@@ -945,40 +945,40 @@ void __cdecl Float4x4ForViewer(vector4 *mtx, const float *origin3, const float (
 
   *(_QWORD *)origin.v = *(_QWORD *)origin3;
   origin.v[2] = origin3[2];
-  origin.u[3] = *(unsigned int *)&FLOAT_0_0;
+  origin.u[3] = 0;
   v15[19] = axis3;
   *(_QWORD *)tAxis.x.v = *(_QWORD *)&(*axis3)[0];
   tAxis.x.u[2] = LODWORD((*axis3)[2]);
-  tAxis.x.u[3] = *(unsigned int *)&FLOAT_0_0;
+  tAxis.x.u[3] = 0;
   *(_QWORD *)tAxis.y.v = *(_QWORD *)&(*axis3)[3];
   tAxis.y.u[2] = LODWORD((*axis3)[5]);
-  tAxis.y.u[3] = *(unsigned int *)&FLOAT_0_0;
+  tAxis.y.u[3] = 0;
   *(_QWORD *)tAxis.z.v = *(_QWORD *)&(*axis3)[6];
   tAxis.z.u[2] = LODWORD((*axis3)[8]);
   memset(&tAxis.z.unitVec[3], 0, 12);
-  *(_QWORD *)&tAxis.w.unitVec[2].packed = __PAIR64__(LODWORD(FLOAT_1_0), *(unsigned int *)&FLOAT_0_0);
+  *(_QWORD *)&tAxis.w.unitVec[2].packed = __PAIR64__(LODWORD(1.0f), 0);
   v15[17] = &tAxis.y;
   v15[18] = &tAxis.y;
   tAxis.y.u[0] ^= _mask__NegFloat_;
   tAxis.y.u[1] ^= _mask__NegFloat_;
   tAxis.y.u[2] ^= _mask__NegFloat_;
-  tAxis.y.u[3] = *(unsigned int *)&FLOAT_0_0 ^ _mask__NegFloat_;
+  tAxis.y.u[3] = 0 ^ _mask__NegFloat_;
   v15[0] = tAxis.x.u[0];
   v15[1] = tAxis.y.u[0];
   v15[2] = tAxis.z.u[0];
-  v15[3] = *(unsigned int *)&FLOAT_0_0;
+  v15[3] = 0;
   v15[4] = tAxis.x.u[1];
   v15[5] = tAxis.y.u[1];
   v15[6] = tAxis.z.u[1];
-  v15[7] = *(unsigned int *)&FLOAT_0_0;
+  v15[7] = 0;
   v15[8] = tAxis.x.u[2];
   v15[9] = tAxis.y.u[2];
   v15[10] = tAxis.z.u[2];
-  v15[11] = *(unsigned int *)&FLOAT_0_0;
-  v15[12] = *(unsigned int *)&FLOAT_0_0;
-  v15[13] = *(unsigned int *)&FLOAT_0_0 ^ _mask__NegFloat_;
-  v15[14] = *(unsigned int *)&FLOAT_0_0;
-  *(float *)&v15[15] = FLOAT_1_0;
+  v15[11] = 0;
+  v15[12] = 0;
+  v15[13] = 0 ^ _mask__NegFloat_;
+  v15[14] = 0;
+  *(float *)&v15[15] = 1.0f;
   memcpy(&axis, v15, sizeof(axis));
   v12[0] = *(_QWORD *)axis.x.v;
   v12[1] = *(_QWORD *)&axis.x.unitVec[2].packed;
@@ -1070,23 +1070,23 @@ void __cdecl Float4x4InfinitePerspectiveMatrix(vector4 *mtx, float tanHalfFovX, 
   __int64 M1_4; // [esp+10h] [ebp-44h]
   __int64 M0_4; // [esp+44h] [ebp-10h]
 
-  LODWORD(M0_4) = *(unsigned int *)&FLOAT_0_0;
-  HIDWORD(M0_4) = *(unsigned int *)&FLOAT_0_0;
+  LODWORD(M0_4) = 0;
+  HIDWORD(M0_4) = 0;
   *(float *)&M1_4 = 0.99951172 / tanHalfFovY;
-  HIDWORD(M1_4) = *(unsigned int *)&FLOAT_0_0;
+  HIDWORD(M1_4) = 0;
   mtx->x.v[0] = 0.99951172 / tanHalfFovX;
   *(_QWORD *)&mtx->x.unitVec[1].packed = M0_4;
-  mtx->x.u[3] = *(unsigned int *)&FLOAT_0_0;
-  mtx->y.u[0] = *(unsigned int *)&FLOAT_0_0;
+  mtx->x.u[3] = 0;
+  mtx->y.u[0] = 0;
   *(_QWORD *)&mtx->y.unitVec[1].packed = M1_4;
-  mtx->y.u[3] = *(unsigned int *)&FLOAT_0_0;
-  mtx->z.u[0] = *(unsigned int *)&FLOAT_0_0;
-  *(_QWORD *)&mtx->z.unitVec[1].packed = __PAIR64__(LODWORD(FLOAT_0_99951172), *(unsigned int *)&FLOAT_0_0);
-  mtx->z.v[3] = FLOAT_1_0;
-  mtx->w.u[0] = *(unsigned int *)&FLOAT_0_0;
-  mtx->w.u[1] = *(unsigned int *)&FLOAT_0_0;
+  mtx->y.u[3] = 0;
+  mtx->z.u[0] = 0;
+  *(_QWORD *)&mtx->z.unitVec[1].packed = __PAIR64__(LODWORD(FLOAT_0_99951172), 0);
+  mtx->z.v[3] = 1.0f;
+  mtx->w.u[0] = 0;
+  mtx->w.u[1] = 0;
   mtx->w.v[2] = COERCE_FLOAT(LODWORD(zNear) ^ _mask__NegFloat_) * 0.99951172;
-  mtx->w.u[3] = *(unsigned int *)&FLOAT_0_0;
+  mtx->w.u[3] = 0;
 }
 
 // local variable allocation has failed, the output may be wrong!
@@ -1174,7 +1174,7 @@ char  FX_GenerateBeam_GetFlatDelta@<al>(
   clipSpaceBeamEndDivided.v[2] = *(float *)&v19 * (float)(1.0 / clipSpaceBeamBegin.v[0]);
   clipSpaceBeamEndDivided.v[3] = *((float *)&v19 + 1) * (float)(1.0 / clipSpaceBeamBegin.v[0]);
   v14 = v20 * (float)(1.0 / clipSpaceBeamBegin.v[0]);
-  clipSpaceBeamBeginDivided.v[0] = FLOAT_1_0;
+  clipSpaceBeamBeginDivided.v[0] = 1.0f;
   if ( clipSpaceBeamEnd.v[0] == 0.0
     && !Assert_MyHandler("c:\\projects_pc\\cod\\codsrc\\src\\universal\\com_vector4_novec.h", 645, 0, "%s", "in.v[3]") )
   {
@@ -1184,7 +1184,7 @@ char  FX_GenerateBeam_GetFlatDelta@<al>(
   *(float *)&v12[8] = clipSpaceBeamBeginDivided.v[2] * (float)(1.0 / clipSpaceBeamEnd.v[0]);
   *(float *)&v12[12] = clipSpaceBeamBeginDivided.v[3] * (float)(1.0 / clipSpaceBeamEnd.v[0]);
   *(float *)&v12[16] = v16 * (float)(1.0 / clipSpaceBeamEnd.v[0]);
-  clipSpaceBeamEndDivided.v[0] = FLOAT_1_0;
+  clipSpaceBeamEndDivided.v[0] = 1.0f;
   *(float *)&v11 = *(float *)&v12[8] - clipSpaceBeamEndDivided.v[2];
   *((float *)&v11 + 1) = *(float *)&v12[12] - clipSpaceBeamEndDivided.v[3];
   *(float *)v12 = *(float *)&v12[16] - v14;
@@ -1233,12 +1233,12 @@ bool __cdecl Vec4HomogenousClipBothZ(float4 *pt0, float4 *pt1)
   float4 coeffZGtW; // [esp+140h] [ebp-24h] BYREF
   float4 coeffZLt0; // [esp+150h] [ebp-14h] BYREF
 
-  coeffZLt0.u[0] = *(unsigned int *)&FLOAT_0_0;
-  *(_QWORD *)&coeffZLt0.unitVec[1].packed = __PAIR64__(LODWORD(FLOAT_1_0), *(unsigned int *)&FLOAT_0_0);
-  coeffZLt0.u[3] = *(unsigned int *)&FLOAT_0_0;
-  coeffZGtW.u[0] = *(unsigned int *)&FLOAT_0_0;
-  *(_QWORD *)&coeffZGtW.unitVec[1].packed = __PAIR64__(LODWORD(FLOAT_N1_0), *(unsigned int *)&FLOAT_0_0);
-  coeffZGtW.v[3] = FLOAT_1_0;
+  coeffZLt0.u[0] = 0;
+  *(_QWORD *)&coeffZLt0.unitVec[1].packed = __PAIR64__(LODWORD(1.0f), 0);
+  coeffZLt0.u[3] = 0;
+  coeffZGtW.u[0] = 0;
+  *(_QWORD *)&coeffZGtW.unitVec[1].packed = __PAIR64__(LODWORD(-1.0f), 0);
+  coeffZGtW.v[3] = 1.0f;
   return Vec4HomogenousClipZW(pt0, pt1, &coeffZLt0) && Vec4HomogenousClipZW(pt0, pt1, &coeffZGtW);
 }
 
@@ -1323,19 +1323,19 @@ bool __cdecl Vec4HomogenousClipZW(float4 *pt0, float4 *pt1, const float4 *coeffZ
     v8 = -1;
   HIDWORD(dist1Cmp_8) = v8;
   if ( alpha == 0.0 )
-    v7 = FLOAT_3_4028235e38;
+    v7 = FLT_MAX;
   else
     v7 = I_fres(alpha);
   if ( alpha_4 == 0.0 )
-    v6 = FLOAT_3_4028235e38;
+    v6 = FLT_MAX;
   else
     v6 = I_fres(alpha_4);
   if ( alpha_8 == 0.0 )
-    v5 = FLOAT_3_4028235e38;
+    v5 = FLT_MAX;
   else
     v5 = I_fres(alpha_8);
   if ( alpha_12 == 0.0 )
-    v4 = FLOAT_3_4028235e38;
+    v4 = FLT_MAX;
   else
     v4 = I_fres(alpha_12);
   *(float *)&clipped = (float)((float)(dist0_12 * v7) * (float)(pt1->v[0] - pt0->v[0])) + pt0->v[0];

@@ -57,7 +57,7 @@ void __cdecl trace_sphere(trace_t *trace, const float *start, const float *end, 
   dir[0] = *end - *start;
   dir[1] = end[1] - start[1];
   dir[2] = end[2] - start[2];
-  trace->fraction = FLOAT_1_0;
+  trace->fraction = 1.0f;
   prim = context->prims;
   for ( i = 0; i < context->nprims; ++i )
   {
@@ -135,11 +135,11 @@ void __cdecl trace_sphere(trace_t *trace, const float *start, const float *end, 
   if ( trace->fraction > 0.0 )
   {
     if ( trace->fraction > 1.0 )
-      trace->fraction = FLOAT_1_0;
+      trace->fraction = 1.0f;
   }
   else
   {
-    trace->fraction = *(float *)&FLOAT_0_0;
+    trace->fraction = 0.0f;
   }
 }
 
@@ -508,11 +508,11 @@ void __cdecl Flame_Client_Trace(
           character_collision = ((unsigned int)&cls.wagerServers[5418].city[54] & contents) != 0;
           if ( ((unsigned int)&cls.wagerServers[5418].city[54] & contents) != 0 )
           {
-            actorMins[0] = FLOAT_N15_0;
-            actorMins[1] = FLOAT_N15_0;
-            actorMins[2] = *(float *)&FLOAT_0_0;
-            actorMaxs[0] = FLOAT_15_0;
-            actorMaxs[1] = FLOAT_15_0;
+            actorMins[0] = -15.0f;
+            actorMins[1] = -15.0f;
+            actorMins[2] = 0.0f;
+            actorMaxs[0] = 15.0f;
+            actorMaxs[1] = 15.0f;
             actorMaxs[2] = FLOAT_48_0;
             absMin[0] = ent->pose.origin[0] + -15.0;
             absMin[1] = ent->pose.origin[1] + -15.0;
@@ -694,16 +694,16 @@ void __cdecl Flame_Impact_Process(bool is_server, flameGeneric_s *gen, trace_t *
         DynEntHitId = Trace_GetDynEntHitId(trace, &drawType);
         if ( DynEntHitId != 0xFFFF )
         {
-          dir[0] = *(float *)&FLOAT_0_0;
-          dir[1] = FLOAT_1_0;
-          dir[2] = *(float *)&FLOAT_0_0;
+          dir[0] = 0.0f;
+          dir[1] = 1.0f;
+          dir[2] = 0.0f;
           DynEntSv_Damage(DynEntHitId, drawType, gen->phys.origin, dir, flameDamage, 0);
         }
         if ( hitEnt )
         {
-          v21[0] = *(float *)&FLOAT_0_0;
-          v21[1] = FLOAT_1_0;
-          v21[2] = *(float *)&FLOAT_0_0;
+          v21[0] = 0.0f;
+          v21[1] = 1.0f;
+          v21[2] = 0.0f;
           dflags = 0;
           targetWasAlive = hitEnt->health > 0;
           hitLoc = trace->partGroup;
@@ -776,9 +776,9 @@ void __cdecl Flame_Impact_Process(bool is_server, flameGeneric_s *gen, trace_t *
       cent = CG_GetEntity(0, EntityHitId);
       if ( cent->destructible )
       {
-        v14[0] = *(float *)&FLOAT_0_0;
-        v14[1] = FLOAT_1_0;
-        v14[2] = *(float *)&FLOAT_0_0;
+        v14[0] = 0.0f;
+        v14[1] = 1.0f;
+        v14[2] = 0.0f;
         CG_DestructibleDamage(cent, 0, v14, gen->phys.origin, gen->stream->damage, 17, 0, 0, 1);
       }
     }
@@ -896,12 +896,12 @@ void __cdecl Flame_Phys_Update_Items_PerStream(bool is_server, int nitems, flame
   float center[3]; // [esp+824h] [ebp-1A4h] BYREF
   unsigned __int16 dynEnts[2][100]; // [esp+830h] [ebp-198h] BYREF
 
-  mn[0] = FLOAT_3_4028235e38;
-  mn[1] = FLOAT_3_4028235e38;
-  mn[2] = FLOAT_3_4028235e38;
-  LODWORD(mx[0]) = LODWORD(FLOAT_3_4028235e38) ^ _mask__NegFloat_;
-  LODWORD(mx[1]) = LODWORD(FLOAT_3_4028235e38) ^ _mask__NegFloat_;
-  LODWORD(mx[2]) = LODWORD(FLOAT_3_4028235e38) ^ _mask__NegFloat_;
+  mn[0] = FLT_MAX;
+  mn[1] = FLT_MAX;
+  mn[2] = FLT_MAX;
+  LODWORD(mx[0]) = LODWORD(FLT_MAX) ^ _mask__NegFloat_;
+  LODWORD(mx[1]) = LODWORD(FLT_MAX) ^ _mask__NegFloat_;
+  LODWORD(mx[2]) = LODWORD(FLT_MAX) ^ _mask__NegFloat_;
   if ( nitems <= 0
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\flame\\flame_physics.cpp", 711, 0, "%s", "nitems > 0") )
   {
@@ -924,7 +924,7 @@ void __cdecl Flame_Phys_Update_Items_PerStream(bool is_server, int nitems, flame
     mx[1] = mx[1] + *(float *)&dword_E12A80;
     mx[2] = mx[2] + *(float *)&dword_E12A84;
     Vec3Lerp(mn, mx, 0.5, center);
-    nearestClientDist = FLOAT_3_4028235e38;
+    nearestClientDist = FLT_MAX;
     numLocalClients = CL_LocalClient_GetActiveCount();
     for ( j = 0; j < numLocalClients; ++j )
     {
@@ -939,19 +939,19 @@ void __cdecl Flame_Phys_Update_Items_PerStream(bool is_server, int nitems, flame
     if ( (float)((float)(nearestClientDist / 1000.0) - 1.0) < 0.0 )
       v8 = nearestClientDist / 1000.0;
     else
-      v8 = FLOAT_1_0;
+      v8 = 1.0f;
     if ( (float)(0.0 - (float)(nearestClientDist / 1000.0)) < 0.0 )
       v4 = v8;
     else
-      v4 = *(float *)&FLOAT_0_0;
+      v4 = 0.0f;
     lod = v4;
     if ( flame_debug_render && flame_debug_render->current.integer > 1 )
     {
       memset(origin, 0, sizeof(origin));
-      clr[0] = FLOAT_1_0;
-      clr[1] = FLOAT_1_0;
-      clr[2] = FLOAT_1_0;
-      clr[3] = FLOAT_1_0;
+      clr[0] = 1.0f;
+      clr[1] = 1.0f;
+      clr[2] = 1.0f;
+      clr[3] = 1.0f;
       CG_DebugBox(origin, mn, mx, 0.0, clr, 1, 3);
     }
     if ( is_server )
@@ -960,9 +960,9 @@ void __cdecl Flame_Phys_Update_Items_PerStream(bool is_server, int nitems, flame
       v3 = &cl_flame_chunks_proximity_cache;
     proximity_cache = v3;
     colgeom_visitor_inlined_t<500>::reset((colgeom_visitor_inlined_t<200> *)v3);
-    expand_vec[0] = FLOAT_1_0;
-    expand_vec[1] = FLOAT_1_0;
-    expand_vec[2] = FLOAT_1_0;
+    expand_vec[0] = 1.0f;
+    expand_vec[1] = 1.0f;
+    expand_vec[2] = 1.0f;
     proximity_cache->update(proximity_cache, mn, mx, (int)&cls.recentServers[18701].score + 3, expand_vec);
     col_context_t::col_context_t(&context);
     context.prims = proximity_cache->prims;
@@ -995,17 +995,17 @@ void __cdecl Flame_Phys_Update_Items_PerStream(bool is_server, int nitems, flame
       {
         if ( is_server )
         {
-          genClr[0] = *(float *)&FLOAT_0_0;
-          genClr[1] = *(float *)&FLOAT_0_0;
-          genClr[2] = FLOAT_1_0;
+          genClr[0] = 0.0f;
+          genClr[1] = 0.0f;
+          genClr[2] = 1.0f;
         }
         else
         {
-          genClr[0] = FLOAT_1_0;
-          genClr[1] = *(float *)&FLOAT_0_0;
-          genClr[2] = *(float *)&FLOAT_0_0;
+          genClr[0] = 1.0f;
+          genClr[1] = 0.0f;
+          genClr[2] = 0.0f;
         }
-        genClr[3] = FLOAT_1_0;
+        genClr[3] = 1.0f;
         G_DebugStar(point, genClr, 3);
       }
       --skipcounter;
@@ -1045,7 +1045,7 @@ void __cdecl Flame_Phys_Update_Items_PerStream(bool is_server, int nitems, flame
         }
         trace2.hitType = TRACE_HITTYPE_ENTITY;
         trace2.hitId = v7;
-        trace2.fraction = *(float *)&FLOAT_0_0;
+        trace2.fraction = 0.0f;
         trace2.cflags = 0x8000;
         trace2.modelIndex = 0;
         trace2.partName = 0;
@@ -1067,7 +1067,7 @@ void __cdecl Flame_Phys_Update_Items_PerStream(bool is_server, int nitems, flame
         }
         trace2.hitType = TRACE_HITTYPE_ENTITY;
         trace2.hitId = v6;
-        trace2.fraction = *(float *)&FLOAT_0_0;
+        trace2.fraction = 0.0f;
         trace2.cflags = 0x8000;
         trace2.modelIndex = 0;
         trace2.partName = 0;
@@ -1187,7 +1187,7 @@ void __cdecl Flame_Phys_Update_Item_Chunk(
         __debugbreak();
       }
       if ( (float)((float)(1.0 - (float)(frametime * friction)) - 0.0) < 0.0 )
-        v3 = *(float *)&FLOAT_0_0;
+        v3 = 0.0f;
       else
         v3 = 1.0 - (float)(frametime * friction);
       gen->phys.velocity[0] = v3 * gen->phys.velocity[0];
@@ -1264,7 +1264,7 @@ void __cdecl Flame_Phys_Update_Item_Fire(flameGeneric_s *gen, int time)
         __debugbreak();
       }
       if ( (float)((float)(1.0 - (float)(frametime * friction)) - 0.0) < 0.0 )
-        v2 = *(float *)&FLOAT_0_0;
+        v2 = 0.0f;
       else
         v2 = 1.0 - (float)(frametime * friction);
       gen->phys.velocity[0] = v2 * gen->phys.velocity[0];
@@ -1330,7 +1330,7 @@ void __cdecl Flame_Phys_Update_Item_Smoke(flameGeneric_s *gen, int time)
         __debugbreak();
       }
       if ( (float)((float)(1.0 - (float)(frametime * friction)) - 0.0) < 0.0 )
-        v2 = *(float *)&FLOAT_0_0;
+        v2 = 0.0f;
       else
         v2 = 1.0 - (float)(frametime * friction);
       gen->phys.velocity[0] = v2 * gen->phys.velocity[0];
@@ -1401,7 +1401,7 @@ void __cdecl Flame_Phys_Update_Item_Drip(
         __debugbreak();
       }
       if ( (float)((float)(1.0 - (float)(frametime * friction)) - 0.0) < 0.0 )
-        v3 = *(float *)&FLOAT_0_0;
+        v3 = 0.0f;
       else
         v3 = 1.0 - (float)(frametime * friction);
       gen->phys.velocity[0] = v3 * gen->phys.velocity[0];

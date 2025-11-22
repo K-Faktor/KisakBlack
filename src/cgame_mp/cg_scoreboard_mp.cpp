@@ -122,7 +122,7 @@ void __cdecl CG_UpdateMatchScoreboard(int localClientNum)
     __debugbreak();
   }
   if ( currentScoreboardWidthUseda > 1.0 )
-    currentScoreboardWidthUseda = FLOAT_1_0;
+    currentScoreboardWidthUseda = 1.0f;
   for ( columnNumber = 0; columnNumber < 4; ++columnNumber )
   {
     if ( dword_F55AE8[964 * localClientNum + columnNumber] > 1 && dword_F55AE8[964 * localClientNum + columnNumber] < 18 )
@@ -314,7 +314,7 @@ char *__cdecl CG_GetColumnValueString(int localClientNum, const score_s *score, 
   {
     deaths = (float)CG_GetDeaths(localClientNum, score) * 1.0;
     if ( deaths == 0.0 )
-      deaths = FLOAT_1_0;
+      deaths = 1.0f;
     v3 = (float)((float)CG_GetKills(localClientNum, score) / deaths);
     return va("%.2f", v3);
   }
@@ -710,7 +710,7 @@ int __cdecl CG_DrawScoreboard(int localClientNum)
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
   if ( CG_IsScoreboardDisplayed(localClientNum) )
   {
-    fade = FLOAT_1_0;
+    fade = 1.0f;
     fadeColor = colorWhite;
     menuNames[0] = "error_popmenu_party";
     menuNames[1] = "error_popmenu_lobby";
@@ -782,7 +782,7 @@ double __cdecl CG_BackdropLeft(int localClientNum)
   if ( (float)(0.0 - v3) < 0.0 )
     return v3;
   else
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
 }
 
 double __cdecl CG_BackdropTop()
@@ -790,7 +790,7 @@ double __cdecl CG_BackdropTop()
   if ( (float)(0.0 - (float)((float)((float)(480.0 - cg_scoreboardHeight->current.value) / 2.0) - 15.0)) < 0.0 )
     return (float)((float)((float)(480.0 - cg_scoreboardHeight->current.value) / 2.0) - 15.0);
   else
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
 }
 
 void __cdecl CG_DrawBackdropServerInfo(int localClientNum, float alpha)
@@ -823,7 +823,7 @@ void __cdecl CG_DrawBackdropServerInfo(int localClientNum, float alpha)
   serverIP = CL_GetServerIPAddress();
   if ( !I_stricmp(serverIP, "0.0.0.0:0") )
     serverIP = &toastPopupTitle;
-  fontScale = FLOAT_0_2;
+  fontScale = 0.2f;
   scrPlace = &scrPlaceView[localClientNum];
   do
   {
@@ -889,9 +889,9 @@ void __cdecl CG_DrawScoreboard_ScoresList(int localClientNum, float alpha)
     }
     cgameGlob->scoresOffBottom = 0;
     yb = CG_BackdropTop() + 3.0 + 2.0 + 36.0 + 1.0;
-    color[0] = FLOAT_1_0;
-    color[1] = FLOAT_1_0;
-    color[2] = FLOAT_1_0;
+    color[0] = 1.0f;
+    color[1] = 1.0f;
+    color[2] = 1.0f;
     color[3] = alpha;
     listWidth = CG_BackdropWidth() - 6.0 - 4.0 - 8.0;
     y = yb + 15.900001;
@@ -956,7 +956,7 @@ double __cdecl CG_DrawScoreboard_ListColumnHeaders(
   float x; // [esp+3Ch] [ebp-8h]
   int fieldCount; // [esp+40h] [ebp-4h] BYREF
 
-  scale = FLOAT_0_315;
+  scale = 0.315f;
   if ( CG_IsShowingZombieMap() )
   {
     v5 = scale * 1.5;
@@ -1141,7 +1141,7 @@ double __cdecl CG_DrawScoreboard_ListBanner(
   char teamScore[12]; // [esp+58h] [ebp-10h] BYREF
 
   memset(teamScore, 0, sizeof(teamScore));
-  bannerFontScale = FLOAT_0_31999999;
+  bannerFontScale = 0.32f;
   if ( !CG_CheckDrawScoreboardLine(localClientNum, piDrawLine, y, h) )
     return y;
   if ( CG_IsShowingZombieMap() )
@@ -1307,16 +1307,16 @@ double __cdecl CG_DrawClientScore(
   scrPlace = &scrPlaceView[localClientNum];
   CG_GetScoreboardInfo(localClientNum, &info, &fieldCount);
   x = CG_BackdropLeft(localClientNum) + 3.0 + 2.0 + 4.0;
-  h = FLOAT_12_0;
+  h = 12.0f;
   material = Material_RegisterHandle("white", 7);
   backColor[0] = *color;
   backColor[1] = color[1];
   backColor[2] = color[2];
   backColor[3] = 0.5 * color[3];
-  backing[0] = FLOAT_0_5;
-  backing[1] = FLOAT_0_5;
-  backing[2] = FLOAT_0_5;
-  backing[3] = FLOAT_0_5;
+  backing[0] = 0.5f;
+  backing[1] = 0.5f;
+  backing[2] = 0.5f;
+  backing[3] = 0.5f;
   UI_DrawHandlePic(scrPlace, x, y, listWidth, h, 1, 0, backing, material);
   UI_DrawHandlePic(scrPlace, x, y, listWidth, h, 1, 0, backColor, material);
   listFont = UI_GetFontHandle(scrPlace, cg_scoreboardFont->current.integer, 0.22);
@@ -1327,9 +1327,9 @@ double __cdecl CG_DrawClientScore(
   }
   else
   {
-    textColor[0] = FLOAT_1_0;
-    textColor[1] = FLOAT_1_0;
-    textColor[2] = FLOAT_1_0;
+    textColor[0] = 1.0f;
+    textColor[1] = 1.0f;
+    textColor[2] = 1.0f;
   }
   textColor[3] = color[3];
   for ( i = 0; i < fieldCount; ++i )
@@ -1355,9 +1355,9 @@ double __cdecl CG_DrawClientScore(
             0.22,
             3,
             colorWhite);
-          backColor[0] = FLOAT_1_0;
-          backColor[1] = FLOAT_1_0;
-          backColor[2] = FLOAT_1_0;
+          backColor[0] = 1.0f;
+          backColor[1] = 1.0f;
+          backColor[2] = 1.0f;
           backColor[3] = color[3];
           UI_DrawHandlePic(scrPlace, x + 13.0, y, 13.0, 13.0, 1, 0, backColor, ci->hRankIcon);
         }
@@ -1366,9 +1366,9 @@ double __cdecl CG_DrawClientScore(
         if ( ci->hStatusIcon )
         {
           xAdj = CalcXAdj(info[i].iAlignment, w, 13.0);
-          backColor[0] = FLOAT_1_0;
-          backColor[1] = FLOAT_1_0;
-          backColor[2] = FLOAT_1_0;
+          backColor[0] = 1.0f;
+          backColor[1] = 1.0f;
+          backColor[2] = 1.0f;
           backColor[3] = color[3];
           UI_DrawHandlePic(scrPlace, x + xAdj, y, 13.0 - 0.0, 13.0 - 0.0, 1, 0, backColor, ci->hStatusIcon);
         }
@@ -1397,9 +1397,9 @@ double __cdecl CG_DrawClientScore(
           material = 0;
         if ( material )
         {
-          backColor[0] = FLOAT_1_0;
-          backColor[1] = FLOAT_1_0;
-          backColor[2] = FLOAT_1_0;
+          backColor[0] = 1.0f;
+          backColor[1] = 1.0f;
+          backColor[2] = 1.0f;
           backColor[3] = color[3];
           UI_DrawHandlePic(scrPlace, x, y, 13.0, 13.0, 1, 0, backColor, material);
         }
@@ -1561,7 +1561,7 @@ void __cdecl CG_DrawClientPing(int localClientNum, int ping, float x, float y, f
   xa = x + 2.0;
   w = (float)(maxWidth - (float)(maxBars - 1)) / (float)maxBars;
   if ( w < 1.0 )
-    w = FLOAT_1_0;
+    w = 1.0f;
   for ( bar = 1; bar <= v6; ++bar )
   {
     h = (float)((float)(maxHeight * cg_scoreboardPingHeight->current.value) * (float)bar) / (float)maxBars;
@@ -1594,15 +1594,15 @@ void __cdecl CG_DrawScrollbar(int localClientNum, float top)
   float w; // [esp+90h] [ebp-4h]
 
   memset(color, 0, 12);
-  color[3] = FLOAT_1_0;
-  handleColor[0] = FLOAT_1_0;
-  handleColor[1] = FLOAT_1_0;
-  handleColor[2] = FLOAT_1_0;
-  handleColor[3] = FLOAT_1_0;
-  arrowColor[0] = FLOAT_0_97000003;
-  arrowColor[1] = FLOAT_0_57999998;
-  arrowColor[2] = FLOAT_0_11;
-  arrowColor[3] = FLOAT_1_0;
+  color[3] = 1.0f;
+  handleColor[0] = 1.0f;
+  handleColor[1] = 1.0f;
+  handleColor[2] = 1.0f;
+  handleColor[3] = 1.0f;
+  arrowColor[0] = 0.97f;
+  arrowColor[1] = 0.5f7999998;
+  arrowColor[2] = 0.1f1;
+  arrowColor[3] = 1.0f;
   value = cg_scoreboardHeight->current.value;
   scrollbarHeight = CG_BackdropTop() + value - 3.0 - 2.0 - 14.0 - 1.0 - top - 0.0 - 15.0;
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
@@ -1618,7 +1618,7 @@ void __cdecl CG_DrawScrollbar(int localClientNum, float top)
     v6 = CG_BackdropLeft(localClientNum) + 3.0 + 2.0 + 4.0;
     x = (CG_BackdropWidth() - 6.0 - 4.0 - 8.0) * (cg_scoreboardPingWidth->current.value + 1.0) + v6 + 2.0 + 4.0 + 2.0;
     y = top;
-    w = FLOAT_4_0;
+    w = 4.0f;
     h = scrollbarHeight;
     UI_DrawHandlePic(scrPlace, x, top, 4.0, scrollbarHeight, 1, 0, barColor, material);
     x = x + 0.0;
@@ -1643,25 +1643,25 @@ void __cdecl CG_DrawScrollbar(int localClientNum, float top)
     v3 = Material_RegisterHandle("ui_arrow_right", 7);
     x = (float)(x - 7.0) + 1.0;
     y = (float)(top - 15.0) + 2.0;
-    w = FLOAT_15_0;
-    h = FLOAT_15_0;
+    w = 15.0f;
+    h = 15.0f;
     UI_DrawHandlePicRotated(scrPlace, x, y, 15.0, 15.0, 1, 0, barColor, 270.0, v3);
     v4 = Material_RegisterHandle("hudscoreboardscroll_upkey", 7);
     x = x - 0.0;
     y = y + 17.0;
-    w = FLOAT_16_0;
-    h = FLOAT_16_0;
+    w = 16.0f;
+    h = 16.0f;
     UI_DrawHandlePic(scrPlace, x, y, 16.0, 16.0, 1, 0, barColor, v4);
     v5 = Material_RegisterHandle("ui_arrow_right", 7);
     y = (float)(top + scrollbarHeight) - 2.0;
-    w = FLOAT_15_0;
-    h = FLOAT_15_0;
+    w = 15.0f;
+    h = 15.0f;
     UI_DrawHandlePicRotated(scrPlace, x, y, 15.0, 15.0, 1, 0, barColor, 90.0, v5);
     materiala = Material_RegisterHandle("hudscoreboardscroll_downkey", 7);
     x = x - 0.0;
     y = y - 18.0;
-    w = FLOAT_16_0;
-    h = FLOAT_16_0;
+    w = 16.0f;
+    h = 16.0f;
     UI_DrawHandlePic(scrPlace, x, y, 16.0, 16.0, 1, 0, barColor, materiala);
   }
 }

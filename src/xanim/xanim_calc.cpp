@@ -54,11 +54,11 @@ void __cdecl XAnimSetTime(XAnimTree_s *tree, unsigned int animIndex, float time,
       if ( (float)(time - 1.0) < 0.0 )
         v11 = time;
       else
-        v11 = FLOAT_1_0;
+        v11 = 1.0f;
       if ( (float)(0.0 - time) < 0.0 )
         v10 = v11;
       else
-        v10 = *(float *)&FLOAT_0_0;
+        v10 = 0.0f;
       time = v10;
     }
     if ( (time < 0.0 || time > 1.0)
@@ -294,14 +294,14 @@ LABEL_22:
         }
         else
         {
-          v21->quat[0] = *(float *)&FLOAT_0_0;
-          v21->quat[1] = *(float *)&FLOAT_0_0;
-          v21->quat[2] = *(float *)&FLOAT_0_0;
-          v21->quat[3] = FLOAT_1_0;
-          v21->trans[0] = *(float *)&FLOAT_0_0;
-          v21->trans[1] = *(float *)&FLOAT_0_0;
-          v21->trans[2] = *(float *)&FLOAT_0_0;
-          v21->transWeight = *(float *)&FLOAT_0_0;
+          v21->quat[0] = 0.0f;
+          v21->quat[1] = 0.0f;
+          v21->quat[2] = 0.0f;
+          v21->quat[3] = 1.0f;
+          v21->trans[0] = 0.0f;
+          v21->trans[1] = 0.0f;
+          v21->trans[2] = 0.0f;
+          v21->transWeight = 0.0f;
         }
         ++v21;
         ++v15;
@@ -350,10 +350,10 @@ LABEL_22:
           v21->quat[1] = v6;
           v21->quat[2] = v7;
           v21->quat[3] = v8;
-          v21->trans[0] = *(float *)&FLOAT_0_0;
-          v21->trans[1] = *(float *)&FLOAT_0_0;
-          v21->trans[2] = *(float *)&FLOAT_0_0;
-          v21->transWeight = *(float *)&FLOAT_0_0;
+          v21->trans[0] = 0.0f;
+          v21->trans[1] = 0.0f;
+          v21->trans[2] = 0.0f;
+          v21->transWeight = 0.0f;
         }
         --v11;
         ++v21;
@@ -407,7 +407,7 @@ void __cdecl XAnimCalc(
   }
   else
   {
-    firstWeight = *(float *)&FLOAT_0_0;
+    firstWeight = 0.0f;
     firstInfo = 0;
     for ( firstInfoIndex = info->children; firstInfoIndex; firstInfoIndex = firstInfo->next )
     {
@@ -550,14 +550,14 @@ void __cdecl XAnimClearRotTransArray(const DObj *obj, DObjAnimMat *rotTransArray
   {
     if ( !bitarray<160>::testBit(&info->ignorePartBits, modelPartIndex) )
     {
-      rotTransArray->quat[0] = *(float *)&FLOAT_0_0;
-      rotTransArray->quat[1] = *(float *)&FLOAT_0_0;
-      rotTransArray->quat[2] = *(float *)&FLOAT_0_0;
-      rotTransArray->quat[3] = *(float *)&FLOAT_0_0;
-      rotTransArray->transWeight = *(float *)&FLOAT_0_0;
-      rotTransArray->trans[0] = *(float *)&FLOAT_0_0;
-      rotTransArray->trans[1] = *(float *)&FLOAT_0_0;
-      rotTransArray->trans[2] = *(float *)&FLOAT_0_0;
+      rotTransArray->quat[0] = 0.0f;
+      rotTransArray->quat[1] = 0.0f;
+      rotTransArray->quat[2] = 0.0f;
+      rotTransArray->quat[3] = 0.0f;
+      rotTransArray->transWeight = 0.0f;
+      rotTransArray->trans[0] = 0.0f;
+      rotTransArray->trans[1] = 0.0f;
+      rotTransArray->trans[2] = 0.0f;
     }
     ++rotTransArray;
   }
@@ -771,8 +771,8 @@ void __cdecl XAnimCalcNonLoopEnd(
     if ( !bitarray<160>::testBit(ignorePartBits, modelPartIndex) )
     {
       rotLastFrame = &randomDataShort[2 * tableSize];
-      frameVec.u[0] = *(unsigned int *)&FLOAT_0_0;
-      frameVec.u[1] = *(unsigned int *)&FLOAT_0_0;
+      frameVec.u[0] = 0;
+      frameVec.u[1] = 0;
       frameVec.v[2] = (float)*rotLastFrame * 0.000030518509;
       frameVec.v[3] = (float)rotLastFrame[1] * 0.000030518509;
       scale = weightScale;
@@ -849,8 +849,8 @@ void __cdecl XAnimCalcNonLoopEnd(
     }
     if ( !bitarray<160>::testBit(ignorePartBits, modelPartIndex) )
     {
-      v28[0] = *(float *)&FLOAT_0_0;
-      v28[1] = *(float *)&FLOAT_0_0;
+      v28[0] = 0.0f;
+      v28[1] = 0.0f;
       v29 = (float)*dataShort * 0.000030518509;
       v30 = (float)dataShort[1] * 0.000030518509;
       v12 = weightScale;
@@ -1329,8 +1329,8 @@ void __cdecl XAnim_CalcRotDeltaEntire(const XAnimDeltaPart *animDelta, float *ro
   }
   else
   {
-    *rotDelta = *(float *)&FLOAT_0_0;
-    rotDelta[1] = FLOAT_32767_0;
+    *rotDelta = 0.0f;
+    rotDelta[1] = 32767.0f;
   }
 }
 
@@ -1378,15 +1378,15 @@ void __cdecl XAnim_CalcPosDeltaEntire(const XAnimDeltaPart *animDelta, float4 *p
       posDelta->v[0] = posFrameDeltas->u.frames.mins[0];
       posDelta->v[1] = posFrameDeltas->u.frames.mins[1];
       posDelta->v[2] = posFrameDeltas->u.frames.mins[2];
-      posDelta->u[3] = *(unsigned int *)&FLOAT_0_0;
+      posDelta->u[3] = 0;
     }
   }
   else
   {
-    posDelta->u[0] = *(unsigned int *)&FLOAT_0_0;
-    posDelta->u[1] = *(unsigned int *)&FLOAT_0_0;
-    posDelta->u[2] = *(unsigned int *)&FLOAT_0_0;
-    posDelta->u[3] = *(unsigned int *)&FLOAT_0_0;
+    posDelta->u[0] = 0;
+    posDelta->u[1] = 0;
+    posDelta->u[2] = 0;
+    posDelta->u[3] = 0;
   }
 }
 

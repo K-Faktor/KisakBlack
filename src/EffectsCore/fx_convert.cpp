@@ -221,14 +221,14 @@ const FxEffectDef *__cdecl FX_Convert(const FxEditorEffectDef *editorEffect, voi
   else
   {
     v18 = effect->boundingBoxDim;
-    effect->boundingBoxDim[0] = *(float *)&FLOAT_0_0;
-    v18[1] = *(float *)&FLOAT_0_0;
-    v18[2] = *(float *)&FLOAT_0_0;
+    effect->boundingBoxDim[0] = 0.0f;
+    v18[1] = 0.0f;
+    v18[2] = 0.0f;
     v17 = effect->boundingSphere;
-    effect->boundingSphere[0] = *(float *)&FLOAT_0_0;
-    v17[1] = *(float *)&FLOAT_0_0;
-    v17[2] = *(float *)&FLOAT_0_0;
-    v17[3] = *(float *)&FLOAT_0_0;
+    effect->boundingSphere[0] = 0.0f;
+    v17[1] = 0.0f;
+    v17[2] = 0.0f;
+    v17[3] = 0.0f;
   }
   return effect;
 }
@@ -255,11 +255,11 @@ int __cdecl FX_DecideSampleCount(int curveCount, const FxCurve **curves, int int
   int curveIndex; // [esp+14h] [ebp-8h]
   float errorCumulative; // [esp+18h] [ebp-4h]
 
-  errorBest = FLOAT_3_4028235e38;
+  errorBest = FLT_MAX;
   intervalCountBest = 1;
   for ( intervalCount = 1; intervalCount <= intervalLimit; ++intervalCount )
   {
-    errorCumulative = *(float *)&FLOAT_0_0;
+    errorCumulative = 0.0f;
     for ( curveIndex = 0; curveIndex < curveCount; ++curveIndex )
     {
       error = FX_MaxErrorForIntervalCount(
@@ -337,8 +337,8 @@ double __cdecl FX_MaxErrorForIntervalCount(
     __debugbreak();
   }
   componentCount = dimensions + 1;
-  errorMax = *(float *)&FLOAT_0_0;
-  timePrev = *(float *)&FLOAT_0_0;
+  errorMax = 0.0f;
+  timePrev = 0.0f;
   sampleIndexPrev = 1;
   for ( componentIndex = 1; componentIndex != componentCount; ++componentIndex )
     lerpedValuePrev[componentIndex - 1] = samples[componentIndex];
@@ -853,7 +853,7 @@ void __cdecl FX_ConvertElemDef(
   if ( notApplyRotationAxis )
   {
     memset(ident, 0, 12);
-    ident[3] = FLOAT_1_0;
+    ident[3] = 1.0f;
     elemDef->rotationAxis = Vec4PackQuat(ident);
   }
   else
@@ -865,7 +865,7 @@ void __cdecl FX_ConvertElemDef(
     else
     {
       memset(in, 0, 12);
-      in[3] = FLOAT_1_0;
+      in[3] = 1.0f;
       v8 = Vec4PackQuat(in);
     }
     elemDef->rotationAxis = v8;
@@ -950,12 +950,12 @@ void __cdecl FX_ConvertElemDef(
   }
   else
   {
-    elemDef->collMins[0] = *(float *)&FLOAT_0_0;
-    elemDef->collMins[1] = *(float *)&FLOAT_0_0;
-    elemDef->collMins[2] = *(float *)&FLOAT_0_0;
-    elemDef->collMaxs[0] = *(float *)&FLOAT_0_0;
-    elemDef->collMaxs[1] = *(float *)&FLOAT_0_0;
-    elemDef->collMaxs[2] = *(float *)&FLOAT_0_0;
+    elemDef->collMins[0] = 0.0f;
+    elemDef->collMins[1] = 0.0f;
+    elemDef->collMins[2] = 0.0f;
+    elemDef->collMaxs[0] = 0.0f;
+    elemDef->collMaxs[1] = 0.0f;
+    elemDef->collMaxs[2] = 0.0f;
   }
   if ( (edElemDef->editorFlags & 0x2000) != 0 )
     FX_ConvertEffectDefRef(&elemDef->effectOnImpact, edElemDef->effectOnImpact);
@@ -1011,21 +1011,21 @@ void __cdecl FX_ConvertElemDef(
     if ( (float)(billboardTopWidth - 1.0) < 0.0 )
       v16 = edElemDef->billboardTopWidth;
     else
-      v16 = FLOAT_1_0;
+      v16 = 1.0f;
     if ( (float)(0.0 - billboardTopWidth) < 0.0 )
       v10 = LODWORD(v16);
     else
-      v10 = *(unsigned int *)&FLOAT_0_0;
+      v10 = 0;
     elemDef->u.cloudDensityRange.base = v10;
     billboardBottomWidth = edElemDef->billboardBottomWidth;
     if ( (float)(billboardBottomWidth - 1.0) < 0.0 )
       v14 = edElemDef->billboardBottomWidth;
     else
-      v14 = FLOAT_1_0;
+      v14 = 1.0f;
     if ( (float)(0.0 - billboardBottomWidth) < 0.0 )
       v9 = LODWORD(v14);
     else
-      v9 = *(unsigned int *)&FLOAT_0_0;
+      v9 = 0;
     elemDef->u.cloudDensityRange.amplitude = v9;
   }
   FX_ConvertElemSpawnSound(&elemDef->spawnSound, &edElemDef->spawnSound, memPool);
@@ -1036,8 +1036,8 @@ void __cdecl FX_ConvertElemDef(
   }
   else
   {
-    elemDef->billboardPivot[0] = *(float *)&FLOAT_0_0;
-    elemDef->billboardPivot[1] = *(float *)&FLOAT_0_0;
+    elemDef->billboardPivot[0] = 0.0f;
+    elemDef->billboardPivot[1] = 0.0f;
   }
 }
 
@@ -1110,7 +1110,7 @@ void __cdecl FX_SampleVelocityInFrame(
   v6 = useVelocity[1] && (edElemDef->editorFlags & 0x200) != 0;
   useVelocityRand[1] = v6;
   brokenCompatibilityMode = (edElemDef->editorFlags & 0x400) != 0;
-  velEpsilonSq = *(float *)&FLOAT_0_0;
+  velEpsilonSq = 0.0f;
   if ( useVelocity[0] )
     velEpsilonSq = (float)((float)((float)((*velScale)[0] * (*velScale)[0])
                                  + (float)((float)(*velScale)[1] * (float)(*velScale)[1]))
@@ -1127,12 +1127,12 @@ void __cdecl FX_SampleVelocityInFrame(
   for ( sampleIndex = 0; sampleIndex <= elemDef->velIntervalCount; ++sampleIndex )
   {
     sampleTime = (float)sampleIndex / (float)elemDef->velIntervalCount;
-    velState->velocity.base[0] = *(float *)&FLOAT_0_0;
-    velState->velocity.base[1] = *(float *)&FLOAT_0_0;
-    velState->velocity.base[2] = *(float *)&FLOAT_0_0;
-    velState->velocity.amplitude[0] = *(float *)&FLOAT_0_0;
-    velState->velocity.amplitude[1] = *(float *)&FLOAT_0_0;
-    velState->velocity.amplitude[2] = *(float *)&FLOAT_0_0;
+    velState->velocity.base[0] = 0.0f;
+    velState->velocity.base[1] = 0.0f;
+    velState->velocity.base[2] = 0.0f;
+    velState->velocity.amplitude[0] = 0.0f;
+    velState->velocity.amplitude[1] = 0.0f;
+    velState->velocity.amplitude[2] = 0.0f;
     if ( useVelocity[0] )
     {
       velocitySample[0] = FX_SampleCurve1D(edElemDef->velShape[0][0][0], (*velScale)[0], sampleTime);
@@ -1179,9 +1179,9 @@ void __cdecl FX_SampleVelocityInFrame(
     }
     else
     {
-      velState->totalDelta.base[0] = *(float *)&FLOAT_0_0;
-      velState->totalDelta.base[1] = *(float *)&FLOAT_0_0;
-      velState->totalDelta.base[2] = *(float *)&FLOAT_0_0;
+      velState->totalDelta.base[0] = 0.0f;
+      velState->totalDelta.base[1] = 0.0f;
+      velState->totalDelta.base[2] = 0.0f;
     }
     if ( useVelocityRand[0] )
     {
@@ -1217,9 +1217,9 @@ void __cdecl FX_SampleVelocityInFrame(
     }
     else
     {
-      velState->totalDelta.amplitude[0] = *(float *)&FLOAT_0_0;
-      velState->totalDelta.amplitude[1] = *(float *)&FLOAT_0_0;
-      velState->totalDelta.amplitude[2] = *(float *)&FLOAT_0_0;
+      velState->totalDelta.amplitude[0] = 0.0f;
+      velState->totalDelta.amplitude[1] = 0.0f;
+      velState->totalDelta.amplitude[2] = 0.0f;
     }
     velStatePrev = velState;
     velState += velStateStride;
@@ -1433,7 +1433,7 @@ void __cdecl FX_SampleVisualState(FxElemDef *elemDef, const FxEditorElemDef *edE
         rgba[0] = rgba[3] * rgba[0];
         rgba[1] = rgba[3] * rgba[1];
         rgba[2] = rgba[3] * rgba[2];
-        rgba[3] = FLOAT_1_0;
+        rgba[3] = 1.0f;
       }
       Byte4PackVertexColor(rgba, visStateRange->base.color);
       FX_SampleCurve3D(edElemDef->color[secondColorSrc], 1.0, sampleTime, rgba);
@@ -1443,7 +1443,7 @@ void __cdecl FX_SampleVisualState(FxElemDef *elemDef, const FxEditorElemDef *edE
         rgba[0] = rgba[3] * rgba[0];
         rgba[1] = rgba[3] * rgba[1];
         rgba[2] = rgba[3] * rgba[2];
-        rgba[3] = FLOAT_1_0;
+        rgba[3] = 1.0f;
       }
       Byte4PackVertexColor(rgba, visStateRange->amplitude.color);
     }
@@ -1457,7 +1457,7 @@ void __cdecl FX_SampleVisualState(FxElemDef *elemDef, const FxEditorElemDef *edE
                                                   * 0.5)
                                           + visStateRange[-1].base.rotationTotal;
       else
-        visStateRange->base.rotationTotal = *(float *)&FLOAT_0_0;
+        visStateRange->base.rotationTotal = 0.0f;
       if ( (edElemDef->editorFlags & 0x40) != 0 )
       {
         v3 = FX_SampleCurve1D(edElemDef->rotationShape[1], rotationScale, sampleTime);
@@ -1468,12 +1468,12 @@ void __cdecl FX_SampleVisualState(FxElemDef *elemDef, const FxEditorElemDef *edE
                                                          * 0.5)
                                                  + visStateRange[-1].amplitude.rotationTotal;
         else
-          visStateRange->amplitude.rotationTotal = *(float *)&FLOAT_0_0;
+          visStateRange->amplitude.rotationTotal = 0.0f;
       }
       else
       {
-        visStateRange->amplitude.rotationDelta = *(float *)&FLOAT_0_0;
-        visStateRange->amplitude.rotationTotal = *(float *)&FLOAT_0_0;
+        visStateRange->amplitude.rotationDelta = 0.0f;
+        visStateRange->amplitude.rotationTotal = 0.0f;
       }
     }
     else
@@ -1488,10 +1488,10 @@ void __cdecl FX_SampleVisualState(FxElemDef *elemDef, const FxEditorElemDef *edE
       {
         __debugbreak();
       }
-      visStateRange->base.rotationDelta = *(float *)&FLOAT_0_0;
-      visStateRange->base.rotationTotal = *(float *)&FLOAT_0_0;
-      visStateRange->amplitude.rotationDelta = *(float *)&FLOAT_0_0;
-      visStateRange->amplitude.rotationTotal = *(float *)&FLOAT_0_0;
+      visStateRange->base.rotationDelta = 0.0f;
+      visStateRange->base.rotationTotal = 0.0f;
+      visStateRange->amplitude.rotationDelta = 0.0f;
+      visStateRange->amplitude.rotationTotal = 0.0f;
     }
     FX_SampleVisualStateScalar(
       edElemDef,
@@ -1559,10 +1559,10 @@ void __cdecl Byte4PackVertexColor(const float *from, unsigned __int8 *to)
   float4 floored; // [esp+168h] [ebp-24h]
   float4 scale; // [esp+178h] [ebp-14h]
 
-  scale.v[0] = FLOAT_255_0;
-  scale.v[1] = FLOAT_255_0;
-  scale.v[2] = FLOAT_255_0;
-  scale.v[3] = FLOAT_255_0;
+  scale.v[0] = 255.0f;
+  scale.v[1] = 255.0f;
+  scale.v[2] = 255.0f;
+  scale.v[3] = 255.0f;
   *(_QWORD *)v35.v = *(_QWORD *)from;
   *(_QWORD *)&v35.unitVec[2].packed = *((_QWORD *)from + 1);
   scaled.v[0] = v35.v[0] * 255.0;
@@ -1720,7 +1720,7 @@ void __cdecl FX_SampleVisualStateScalar(
         *amplitude = FX_SampleCurve1D(edElemDef->sizeShape[0][1], edElemDef->sizeScale[0] * scaleFactor, sampleTime)
                    - *base;
       else
-        *amplitude = *(float *)&FLOAT_0_0;
+        *amplitude = 0.0f;
       break;
     case FX_CHAN_SIZE_1:
       *base = FX_SampleCurve1D(edElemDef->sizeShape[1][0], edElemDef->sizeScale[1] * scaleFactor, sampleTime);
@@ -1728,14 +1728,14 @@ void __cdecl FX_SampleVisualStateScalar(
         *amplitude = FX_SampleCurve1D(edElemDef->sizeShape[1][1], edElemDef->sizeScale[1] * scaleFactor, sampleTime)
                    - *base;
       else
-        *amplitude = *(float *)&FLOAT_0_0;
+        *amplitude = 0.0f;
       break;
     case FX_CHAN_SCALE:
       *base = FX_SampleCurve1D(edElemDef->scaleShape[0], edElemDef->scaleScale * scaleFactor, sampleTime);
       if ( (edElemDef->editorFlags & 0x20) != 0 )
         *amplitude = FX_SampleCurve1D(edElemDef->scaleShape[1], edElemDef->scaleScale * scaleFactor, sampleTime) - *base;
       else
-        *amplitude = *(float *)&FLOAT_0_0;
+        *amplitude = 0.0f;
       break;
     default:
       if ( routing != FX_CHAN_NONE
@@ -1748,8 +1748,8 @@ void __cdecl FX_SampleVisualStateScalar(
       {
         __debugbreak();
       }
-      *base = *(float *)&FLOAT_0_0;
-      *amplitude = *(float *)&FLOAT_0_0;
+      *base = 0.0f;
+      *amplitude = 0.0f;
       break;
   }
 }
@@ -2011,10 +2011,10 @@ void __cdecl FX_ConvertTrail_CompileVertices(
   int indBytes; // [esp+BCh] [ebp-8h]
   FxTrailVertex *outVertPtrEnd; // [esp+C0h] [ebp-4h]
 
-  SNAP_TOLERANCE_POS = FLOAT_0_0099999998;
-  SNAP_TOLERANCE_TEXCOORD = FLOAT_0_0099999998;
-  SNAP_TOLERANCE_NORM = FLOAT_0_94999999;
-  SMOOTH_THRESHOLD = *(float *)&FLOAT_0_0;
+  SNAP_TOLERANCE_POS = 0.01f;
+  SNAP_TOLERANCE_TEXCOORD = 0.01f;
+  SNAP_TOLERANCE_NORM = 0.95f;
+  SMOOTH_THRESHOLD = 0.0f;
   trailDef = &edElemDef->trailDef;
   if ( edElemDef != (const FxEditorElemDef *)-832 )
   {
@@ -2048,8 +2048,8 @@ void __cdecl FX_ConvertTrail_CompileVertices(
         primaryEdgeNorm);
       for ( edgeIter = 0; edgeIter != 2; ++edgeIter )
       {
-        accumNorm[0] = *(float *)&FLOAT_0_0;
-        accumNorm[1] = *(float *)&FLOAT_0_0;
+        accumNorm[0] = 0.0f;
+        accumNorm[1] = 0.0f;
         for ( secondaryEdgeIndPtr = trailDef->inds; secondaryEdgeIndPtr != indPtrEnd; secondaryEdgeIndPtr += 2 )
         {
           pos = trailDef->verts[primaryEdgeIndPtr[edgeIter]].pos;
@@ -2545,12 +2545,12 @@ char __cdecl FX_ValidatePhysics(const FxEditorEffectDef *editorEffect, const FxE
   if ( (float)(edElemDef->elasticity.amplitude - 0.0) < 0.0 )
     amplitude = edElemDef->elasticity.amplitude;
   else
-    amplitude = *(float *)&FLOAT_0_0;
+    amplitude = 0.0f;
   elasticityMin = edElemDef->elasticity.base + amplitude;
   if ( (float)(0.0 - edElemDef->elasticity.amplitude) < 0.0 )
     v3 = edElemDef->elasticity.amplitude;
   else
-    v3 = *(float *)&FLOAT_0_0;
+    v3 = 0.0f;
   elasticityMax = edElemDef->elasticity.base + v3;
   if ( elasticityMin >= -0.001 && elasticityMax <= 1.001 )
     return 1;

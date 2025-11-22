@@ -333,42 +333,42 @@ void  IK_Layer_TerrainMapping(float a1@<ebp>, IKState *ikState)
               if ( IK_TERRAIN_MAPPING_LERP_DOWN_MIN_RATE <= 0.0 )
               {
                 if ( Demo_IsPlaying() )
-                  IK_TERRAIN_MAPPING_LERP_DOWN_MIN_RATE = FLOAT_0_1;
+                  IK_TERRAIN_MAPPING_LERP_DOWN_MIN_RATE = 0.1f;
                 else
-                  IK_TERRAIN_MAPPING_LERP_DOWN_MIN_RATE = *(float *)&FLOAT_0_0;
+                  IK_TERRAIN_MAPPING_LERP_DOWN_MIN_RATE = 0.0f;
               }
               ikState->lastFrameMS[9] = ikState->timeMS;
               IK_TERRAIN_MAPPING_LERP_SCALE = IK_TERRAIN_MAPPING_LERP_DOWN_MIN_RATE;
-              IK_TERRAIN_MAPPING_CLAMP = FLOAT_30_0;
-              IK_TERRAIN_MAPPING_VELOCITY_MAX = FLOAT_30_0;
-              IK_TERRAIN_MAPPING_VELOCITY_SCALAR[1] = FLOAT_6_0;
-              IK_TERRAIN_MAPPING_VELOCITY_SCALAR[0] = FLOAT_32_0;
-              IK_TERRAIN_MAPPING_FRAMETIME_SCALAR_MAX = FLOAT_300_0;
-              footTraceOffsetFromAnkle[1] = FLOAT_7_0;
-              IK_TERRAIN_MAPPING_FRAMETIME_SCALAR_MIN = FLOAT_7_0;
-              footTraceOffsetFromAnkle[0] = FLOAT_8_0;
-              footTraceLiftNormal = FLOAT_1_0;
-              entityBoundsMinZ = *(float *)&FLOAT_0_0;
-              footTraceLiftTurret = FLOAT_8_0;
-              footTraceEndOffsetZMoving = FLOAT_24_0;
-              footTraceEndOffsetZIdle[1] = FLOAT_30_0;
-              footTraceEndOffsetZIdle[0] = *(float *)&FLOAT_0_0;
+              IK_TERRAIN_MAPPING_CLAMP = 30.0f;
+              IK_TERRAIN_MAPPING_VELOCITY_MAX = 30.0f;
+              IK_TERRAIN_MAPPING_VELOCITY_SCALAR[1] = 6.0f;
+              IK_TERRAIN_MAPPING_VELOCITY_SCALAR[0] = 32.0f;
+              IK_TERRAIN_MAPPING_FRAMETIME_SCALAR_MAX = 300.0f;
+              footTraceOffsetFromAnkle[1] = 7.0f;
+              IK_TERRAIN_MAPPING_FRAMETIME_SCALAR_MIN = 7.0f;
+              footTraceOffsetFromAnkle[0] = 8.0f;
+              footTraceLiftNormal = 1.0f;
+              entityBoundsMinZ = 0.0f;
+              footTraceLiftTurret = 8.0f;
+              footTraceEndOffsetZMoving = 24.0f;
+              footTraceEndOffsetZIdle[1] = 30.0f;
+              footTraceEndOffsetZIdle[0] = 0.0f;
               maxPelvisReachAdjust = FLOAT_40_0;
-              minPelvisHeightNormal = FLOAT_20_0;
-              footInAirLiftReductionMaxInAir = FLOAT_20_0;
-              minPelvisHeightCrouching = FLOAT_N0_5;
-              minPelvisHeightTurret = FLOAT_16_0;
-              maxFootSpan = FLOAT_6_0;
+              minPelvisHeightNormal = 20.0f;
+              footInAirLiftReductionMaxInAir = 20.0f;
+              minPelvisHeightCrouching = -0.5f;
+              minPelvisHeightTurret = 16.0f;
+              maxFootSpan = 6.0f;
               maxFootDropIdle = FLOAT_13_0;
-              maxFootDropIdleCr = FLOAT_16_0;
-              maxFootDropMoving = FLOAT_18_0;
-              maxFootRaiseStanding = FLOAT_12_0;
-              maxFootRaiseCrouching = FLOAT_15_0;
-              maxFootRaiseTurret = FLOAT_30_0;
+              maxFootDropIdleCr = 16.0f;
+              maxFootDropMoving = 18.0f;
+              maxFootRaiseStanding = 12.0f;
+              maxFootRaiseCrouching = 15.0f;
+              maxFootRaiseTurret = 30.0f;
               frametimeScalar = FLOAT_17_0;
               v248 = FLOAT_17_0;
               footTraceEndOffsetZ = FLOAT_27_0;
-              v246 = FLOAT_1_0;
+              v246 = 1.0f;
               v245 = 0;
               originChange[2] = *(&minPelvisHeightNormal + v280);
               ikCalcBoneModelMatrix(ikState, 1, (*ikState->matArrayPostIK)[0], (float (*)[4])v281);
@@ -388,8 +388,8 @@ void  IK_Layer_TerrainMapping(float a1@<ebp>, IKState *ikState)
                   ikState->lastTerrainMappingOrigin[0] = ikState->entityXform[3][0];
                   lastTerrainMappingOrigin[1] = v237[1];
                   lastTerrainMappingOrigin[2] = v237[2];
-                  ikState->lastTerrainMappingFootOffsetZ[0] = *(float *)&FLOAT_0_0;
-                  ikState->lastTerrainMappingFootOffsetZ[1] = *(float *)&FLOAT_0_0;
+                  ikState->lastTerrainMappingFootOffsetZ[0] = 0.0f;
+                  ikState->lastTerrainMappingFootOffsetZ[1] = 0.0f;
                   ikState->lastTerrainMappingPelvisZ = *(float *)&v281[56] + ikState->entityXform[3][2];
                 }
                 IK_TERRAIN_MAPPING_LERP_DOWN_MIN_RATE = frametimeCapTime;
@@ -399,11 +399,11 @@ void  IK_Layer_TerrainMapping(float a1@<ebp>, IKState *ikState)
               velSpeedScale = Abs(ikState->velocity);
               velTimeScalar = velSpeedScale / IK_TERRAIN_MAPPING_FRAMETIME_SCALAR_MAX;
               if ( (float)(1.0 - (float)(velSpeedScale / IK_TERRAIN_MAPPING_FRAMETIME_SCALAR_MAX)) < 0.0 )
-                v234 = FLOAT_1_0;
+                v234 = 1.0f;
               else
                 v234 = velTimeScalar;
               maxFootDrop = v234;
-              v232 = FLOAT_1_0;
+              v232 = 1.0f;
               v232 = (float)((float)(footTraceOffsetFromAnkle[v280 + 1] - footTraceLiftNormal) * v234)
                    + footTraceLiftNormal;
               originChange[2] = (float)((float)(1.0 - v234) * *(&minPelvisHeightNormal + v280))
@@ -586,20 +586,20 @@ void  IK_Layer_TerrainMapping(float a1@<ebp>, IKState *ikState)
               for ( j = 0; j < 2; ++j )
               {
                 IK_TERRAIN_MAPPING_LERP_DOWN_MIN_RATE = IK_TERRAIN_MAPPING_LERP_SCALE;
-                modifiedFeet = *(float *)&FLOAT_0_0;
-                endPos[j + 2] = *(float *)&FLOAT_0_0;
-                v246 = FLOAT_1_0;
+                modifiedFeet = 0.0f;
+                endPos[j + 2] = 0.0f;
+                v246 = 1.0f;
                 *((_BYTE *)&endPos[1] + j) = 0;
-                endPos[0] = FLOAT_3_0;
+                endPos[0] = 3.0f;
                 if ( IKImport_GetVar_IK_Debug() == 1 )
                   IKImport_DrawLine(&footTraceNormals[1][1], startPos, j);
                 footTraceNormals[1][0] = Abs(ikState->lastFootTraceGoalNormals[j]) - 1.0;
                 if ( COERCE_FLOAT(LODWORD(footTraceNormals[1][0]) & _mask__AbsFloat_) >= 0.1 )
                 {
                   LODWORD(footTraceCacheDistThreshold) = &v143[3 * j];
-                  *(unsigned int *)LODWORD(footTraceCacheDistThreshold) = *(unsigned int *)&FLOAT_0_0;
-                  *(unsigned int *)(LODWORD(footTraceCacheDistThreshold) + 4) = *(unsigned int *)&FLOAT_0_0;
-                  *(float *)(LODWORD(footTraceCacheDistThreshold) + 8) = FLOAT_1_0;
+                  *(unsigned int *)LODWORD(footTraceCacheDistThreshold) = 0;
+                  *(unsigned int *)(LODWORD(footTraceCacheDistThreshold) + 4) = 0;
+                  *(float *)(LODWORD(footTraceCacheDistThreshold) + 8) = 1.0f;
                   v139 = ikState->lastFootTraceGoalNormals[j];
                   v138 = (float *)&v143[3 * j];
                   *v139 = *v138;
@@ -614,7 +614,7 @@ void  IK_Layer_TerrainMapping(float a1@<ebp>, IKState *ikState)
                   v142[1] = v141[1];
                   v142[2] = v141[2];
                 }
-                v137 = FLOAT_0_2;
+                v137 = 0.2f;
                 v136 = &worldFootMats[j][2][1];
                 v135 = ikState->lastTerrainMappingTraceFootPos[j];
                 *(float *)&n = *v136 - *v135;
@@ -689,12 +689,12 @@ void  IK_Layer_TerrainMapping(float a1@<ebp>, IKState *ikState)
                   }
                   if ( v132 )
                   {
-                    lowerFootTerrainDotClampMin = *(float *)&FLOAT_0_0;
+                    lowerFootTerrainDotClampMin = 0.0f;
                     modifiedFeet = (float)(v126 - endPos[0]) + 0.0;
-                    lowerFootTerrainDotClampMax = FLOAT_N1_0;
-                    v118 = FLOAT_5_0;
-                    v117 = *(float *)&FLOAT_0_0;
-                    footDirectionToNormalDot = FLOAT_1_0;
+                    lowerFootTerrainDotClampMax = -1.0f;
+                    v118 = 5.0f;
+                    v117 = 0.0f;
+                    footDirectionToNormalDot = 1.0f;
                     v115 = &worldFootMats[j][0][1];
                     v114 = ikState->lastFootTraceNormals[j];
                     LODWORD(v113) = COERCE_UNSIGNED_INT((float)(*v114 * *v115) + (float)(ikState->lastFootTraceNormals[j][1]
@@ -723,7 +723,7 @@ void  IK_Layer_TerrainMapping(float a1@<ebp>, IKState *ikState)
                       if ( start[1] <= 1.0 )
                         start[0] = start[1];
                       else
-                        start[0] = FLOAT_1_0;
+                        start[0] = 1.0f;
                       modifiedFeet = modifiedFeet
                                    - (float)((float)(ikState->footMats[j][3][2] - ikState->footHeightFromGround)
                                            * start[0]);
@@ -759,9 +759,9 @@ void  IK_Layer_TerrainMapping(float a1@<ebp>, IKState *ikState)
                     modifiedFeet = ikState->entityXform[3][2];
                     ikState->lastTerrainMappingTraceZ[j] = modifiedFeet;
                     v104 = &v143[3 * j];
-                    *v104 = *(unsigned int *)&FLOAT_0_0;
-                    v104[1] = *(unsigned int *)&FLOAT_0_0;
-                    v104[2] = LODWORD(FLOAT_1_0);
+                    *v104 = 0;
+                    v104[1] = 0;
+                    v104[2] = LODWORD(1.0f);
                     v103 = ikState->lastFootTraceGoalNormals[j];
                     v102 = (float *)&v143[3 * j];
                     *v103 = *v102;
@@ -777,14 +777,14 @@ void  IK_Layer_TerrainMapping(float a1@<ebp>, IKState *ikState)
                 {
                   fastLerpScalar[1] = modifiedFeet;
                   fastLerpScalar[0] = modifiedFeet - ikState->lastTerrainMappingFootOffsetZ[j];
-                  *(float *)&v96[2] = FLOAT_128_0;
+                  *(float *)&v96[2] = 128.0f;
                   if ( COERCE_FLOAT(LODWORD(fastLerpScalar[0]) & _mask__AbsFloat_) < 128.0 )
                   {
                     v246 = v232;
                     if ( v245 )
                     {
-                      *(float *)v96 = FLOAT_5_0;
-                      *(float *)&v96[1] = FLOAT_10_0;
+                      *(float *)v96 = 5.0f;
+                      *(float *)&v96[1] = 10.0f;
                       v246 = v246 + *(float *)&v96[v280];
                     }
                     else if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(fastLerpScalar[1] - modifiedFeet) & _mask__AbsFloat_) > IK_TERRAIN_MAPPING_VELOCITY_SCALAR[0] )
@@ -838,13 +838,13 @@ void  IK_Layer_TerrainMapping(float a1@<ebp>, IKState *ikState)
                 v88 = v89;
                 if ( v89 < 0.0 )
                 {
-                  v87 = FLOAT_1_0;
+                  v87 = 1.0f;
                   v15 = IKImport_GetLayerLerp(ikState, IKLAYER_CROUCH_ACTIVE);
                   *(float *)&v86 = v15 + 1.0 - maxFootDrop;
                   if ( (float)(*(float *)&v86 - 1.0) < 0.0 )
                     lowerFoot = v86;
                   else
-                    *(float *)&lowerFoot = FLOAT_1_0;
+                    *(float *)&lowerFoot = 1.0f;
                   if ( (float)(v87 - *(float *)&v86) < 0.0 )
                     v16 = *(float *)&lowerFoot;
                   else
@@ -872,26 +872,26 @@ void  IK_Layer_TerrainMapping(float a1@<ebp>, IKState *ikState)
                                                                            + v81;
                 terrainZ = terrainZ + v81;
               }
-              v80 = *(float *)&FLOAT_0_0;
-              v79 = *(float *)&FLOAT_0_0;
-              v78 = FLOAT_0_75;
+              v80 = 0.0f;
+              v79 = 0.0f;
+              v78 = 0.75f;
               pelvisMovingZAdjust = IKImport_GetLayerLerp(ikState, IKLAYER_NOT_MOVING);
               if ( (float)(pelvisMovingZAdjust - 1.0) < 0.0 )
                 zOfs = pelvisMovingZAdjust;
               else
-                zOfs = FLOAT_1_0;
+                zOfs = 1.0f;
               if ( (float)(v78 - pelvisMovingZAdjust) < 0.0 )
                 v17 = zOfs;
               else
                 v17 = v78;
               PELVIS_ABS_SCALAR = v17;
               v80 = v17;
-              realPelvisZ = *(float *)&FLOAT_0_0;
+              realPelvisZ = 0.0f;
               v79 = (1.0 - IKImport_GetLayerLerp(ikState, IKLAYER_NOT_MOVING)) * 0.0;
               if ( IK_IsCalcBone(ikState, 1) )
               {
-                changeZ = *(float *)&FLOAT_0_0;
-                v72 = FLOAT_8_0;
+                changeZ = 0.0f;
+                v72 = 8.0f;
                 if ( *(float *)&v281[56] <= (float)((float)(terrainZ + groundOffsets[0]) - ikState->entityXform[3][2]) )
                 {
                   if ( (float)((float)(groundOffsets[1] + v224) - ikState->entityXform[3][2]) <= *(float *)&v281[56] )
@@ -909,7 +909,7 @@ void  IK_Layer_TerrainMapping(float a1@<ebp>, IKState *ikState)
                 {
                   v69 = (float)((float)(IK_TERRAIN_MAPPING_LERP_SCALE * v232) * v80) * v72;
                   if ( (float)(1.0 - v69) < 0.0 )
-                    v68 = FLOAT_1_0;
+                    v68 = 1.0f;
                   else
                     v68 = v69;
                   terrainLegExtendAdjust = terrainLegExtendAdjust * v68;
@@ -932,7 +932,7 @@ void  IK_Layer_TerrainMapping(float a1@<ebp>, IKState *ikState)
                 }
                 ikState->modifiedIKBones |= 2u;
               }
-              *(float *)&v67[72] = FLOAT_0_5;
+              *(float *)&v67[72] = 0.5f;
               if ( !ikState->lerpInfo[1].goalState )
               {
                 for ( j = 0; j < 2; ++j )
@@ -968,27 +968,27 @@ void  IK_Layer_TerrainMapping(float a1@<ebp>, IKState *ikState)
                   }
                 }
               }
-              v_up[2] = FLOAT_0_2;
-              v_up[1] = FLOAT_0_40000001;
-              v_up[0] = FLOAT_0_2;
+              v_up[2] = 0.2f;
+              v_up[1] = 0.4f;
+              v_up[0] = 0.2f;
               for ( j = 0; j < 2; ++j )
               {
-                v51 = *(float *)&FLOAT_0_0;
-                v52 = *(unsigned int *)&FLOAT_0_0;
-                angularMappingHeightOffsetMax = FLOAT_1_0;
-                v50 = FLOAT_4_0;
+                v51 = 0.0f;
+                v52 = 0;
+                angularMappingHeightOffsetMax = 1.0f;
+                v50 = 4.0f;
                 footOffsetAngularScale = (float)(ikState->footMats[j][3][2] - ikState->footHeightFromGround) / 4.0;
                 if ( (float)(footOffsetAngularScale - 1.0) < 0.0 )
                   v48 = footOffsetAngularScale;
                 else
-                  v48 = FLOAT_1_0;
+                  v48 = 1.0f;
                 if ( (float)(0.0 - footOffsetAngularScale) < 0.0 )
                   angularWeight = v48;
                 else
-                  angularWeight = *(float *)&FLOAT_0_0;
+                  angularWeight = 0.0f;
                 v46 = 1.0 - angularWeight;
                 if ( ikState->lerpInfo[3].goalState )
-                  fraction = FLOAT_1_0;
+                  fraction = 1.0f;
                 else
                   fraction = v46;
                 v44 = fraction;
@@ -1016,11 +1016,11 @@ void  IK_Layer_TerrainMapping(float a1@<ebp>, IKState *ikState)
                   if ( (float)((float)(IK_TERRAIN_MAPPING_LERP_DOWN_MIN_RATE / v_up[2]) - 1.0) < 0.0 )
                     v38 = XYdist;
                   else
-                    v38 = FLOAT_1_0;
+                    v38 = 1.0f;
                   if ( (float)(0.0 - XYdist) < 0.0 )
                     v37 = v38;
                   else
-                    v37 = *(float *)&FLOAT_0_0;
+                    v37 = 0.0f;
                   Vec3Lerp(
                     ikState->lastFootTraceNormals[j],
                     (const float *)&v143[3 * j],
@@ -1048,9 +1048,9 @@ void  IK_Layer_TerrainMapping(float a1@<ebp>, IKState *ikState)
                 }
                 else
                 {
-                  v32[0] = *(float *)&FLOAT_0_0;
-                  v32[1] = *(float *)&FLOAT_0_0;
-                  v32[2] = FLOAT_1_0;
+                  v32[0] = 0.0f;
+                  v32[1] = 0.0f;
+                  v32[2] = 1.0f;
                   Vec3Lerp(v32, ikState->lastFootTraceNormals[j], *(float *)&v281[68], (float *)&v29[72]);
                   Vec3Normalize((float *)&v29[72]);
                 }
@@ -1099,21 +1099,21 @@ void  IK_Layer_TerrainMapping(float a1@<ebp>, IKState *ikState)
                        + (float)(v22 * *(float *)&v29[36]);
                 v19[2] = (float)((float)(v20 * *(float *)&v29[8]) + (float)(v21 * *(float *)&v29[24]))
                        + (float)(v22 * *(float *)&v29[40]);
-                v19[3] = *(float *)&FLOAT_0_0;
+                v19[3] = 0.0f;
                 v19[4] = (float)((float)(v25 * *(float *)v29) + (float)(*(float *)&curFoot_8 * *(float *)&v29[16]))
                        + (float)(*((float *)&curFoot_8 + 1) * *(float *)&v29[32]);
                 v19[5] = (float)((float)(v25 * *(float *)&v29[4]) + (float)(*(float *)&curFoot_8 * *(float *)&v29[20]))
                        + (float)(*((float *)&curFoot_8 + 1) * *(float *)&v29[36]);
                 v19[6] = (float)((float)(v25 * *(float *)&v29[8]) + (float)(*(float *)&curFoot_8 * *(float *)&v29[24]))
                        + (float)(*((float *)&curFoot_8 + 1) * *(float *)&v29[40]);
-                v19[7] = *(float *)&FLOAT_0_0;
+                v19[7] = 0.0f;
                 v19[8] = (float)((float)(v26 * *(float *)v29) + (float)(*(float *)&curFoot_24 * *(float *)&v29[16]))
                        + (float)(*((float *)&curFoot_24 + 1) * *(float *)&v29[32]);
                 v19[9] = (float)((float)(v26 * *(float *)&v29[4]) + (float)(*(float *)&curFoot_24 * *(float *)&v29[20]))
                        + (float)(*((float *)&curFoot_24 + 1) * *(float *)&v29[36]);
                 v19[10] = (float)((float)(v26 * *(float *)&v29[8]) + (float)(*(float *)&curFoot_24 * *(float *)&v29[24]))
                         + (float)(*((float *)&curFoot_24 + 1) * *(float *)&v29[40]);
-                v19[11] = *(float *)&FLOAT_0_0;
+                v19[11] = 0.0f;
               }
             }
           }
@@ -1207,43 +1207,43 @@ void  IK_Layer_ApplyFootIK(
         v31[0] = *(float *)v41;
         v31[1] = *(float *)&v41[16];
         v31[2] = *(float *)&v41[32];
-        v31[3] = *(float *)&FLOAT_0_0;
+        v31[3] = 0.0f;
         v32 = *(float *)&v41[4];
         v33 = *(float *)&v41[20];
         v34 = *(float *)&v41[36];
-        v35 = *(unsigned int *)&FLOAT_0_0;
+        v35 = 0;
         v36 = *(float *)&v41[8];
         v37 = *(float *)&v41[24];
         v38 = *(float *)&v41[40];
-        v39 = *(unsigned int *)&FLOAT_0_0;
+        v39 = 0;
         *v40 = (float)((float)(*(float *)&v41[64] * *(float *)v41) + (float)(*(float *)&v41[68] * *(float *)&v41[4]))
              + (float)(*(float *)&v41[72] * *(float *)&v41[8]);
         v40[1] = (float)((float)(*(float *)&v41[64] * v31[1]) + (float)(*(float *)&v41[68] * v33))
                + (float)(*(float *)&v41[72] * v37);
         v40[2] = (float)((float)(*(float *)&v41[64] * v31[2]) + (float)(*(float *)&v41[68] * v34))
                + (float)(*(float *)&v41[72] * v38);
-        v40[3] = *(float *)&FLOAT_0_0;
+        v40[3] = 0.0f;
         v40[4] = (float)((float)(*(float *)&v41[80] * v31[0]) + (float)(*(float *)&v41[84] * v32))
                + (float)(*(float *)&v41[88] * v36);
         v40[5] = (float)((float)(*(float *)&v41[80] * v31[1]) + (float)(*(float *)&v41[84] * v33))
                + (float)(*(float *)&v41[88] * v37);
         v40[6] = (float)((float)(*(float *)&v41[80] * v31[2]) + (float)(*(float *)&v41[84] * v34))
                + (float)(*(float *)&v41[88] * v38);
-        v40[7] = *(float *)&FLOAT_0_0;
+        v40[7] = 0.0f;
         v40[8] = (float)((float)(*(float *)&v41[96] * v31[0]) + (float)(*(float *)&v41[100] * v32))
                + (float)(*(float *)&v41[104] * v36);
         v40[9] = (float)((float)(*(float *)&v41[96] * v31[1]) + (float)(*(float *)&v41[100] * v33))
                + (float)(*(float *)&v41[104] * v37);
         v40[10] = (float)((float)(*(float *)&v41[96] * v31[2]) + (float)(*(float *)&v41[100] * v34))
                 + (float)(*(float *)&v41[104] * v38);
-        v40[11] = *(float *)&FLOAT_0_0;
+        v40[11] = 0.0f;
         LODWORD(v30[4]) = &v41[48];
         LODWORD(v30[3]) = &v41[112];
         v30[0] = *(float *)&v41[112] - *(float *)&v41[48];
         v30[1] = *(float *)&v41[116] - *(float *)&v41[52];
         v30[2] = *(float *)&v41[120] - *(float *)&v41[56];
         ikMatrixTransformVector34(v30, (const float (*)[4])v31, v40 + 12);
-        v40[15] = FLOAT_1_0;
+        v40[15] = 1.0f;
         ikNormalizedMatrixAssert_func(ikState->matArrayPostIK[jointBones->parentBone]);
         parentBone = jointBones->parentBone;
         ikState->bHasActiveLayers = 1;
@@ -1263,15 +1263,15 @@ void  IK_Layer_ApplyFootIK(
         v19[0] = *(float *)&v41[64];
         v19[1] = *(float *)&v41[80];
         v19[2] = *(float *)&v41[96];
-        v19[3] = *(float *)&FLOAT_0_0;
+        v19[3] = 0.0f;
         v20 = *(float *)&v41[68];
         v21 = *(float *)&v41[84];
         v22 = *(float *)&v41[100];
-        v23 = *(unsigned int *)&FLOAT_0_0;
+        v23 = 0;
         v24 = *(float *)&v41[72];
         v25 = *(float *)&v41[88];
         v26 = *(float *)&v41[104];
-        v27 = *(unsigned int *)&FLOAT_0_0;
+        v27 = 0;
         *v28 = (float)((float)(*(float *)&v41[128] * *(float *)&v41[64])
                      + (float)(*(float *)&v41[132] * *(float *)&v41[68]))
              + (float)(*(float *)&v41[136] * *(float *)&v41[72]);
@@ -1279,28 +1279,28 @@ void  IK_Layer_ApplyFootIK(
                + (float)(*(float *)&v41[136] * v25);
         v28[2] = (float)((float)(*(float *)&v41[128] * v19[2]) + (float)(*(float *)&v41[132] * v22))
                + (float)(*(float *)&v41[136] * v26);
-        v28[3] = *(float *)&FLOAT_0_0;
+        v28[3] = 0.0f;
         v28[4] = (float)((float)(*(float *)&v41[144] * v19[0]) + (float)(*(float *)&v41[148] * v20))
                + (float)(*(float *)&v41[152] * v24);
         v28[5] = (float)((float)(*(float *)&v41[144] * v19[1]) + (float)(*(float *)&v41[148] * v21))
                + (float)(*(float *)&v41[152] * v25);
         v28[6] = (float)((float)(*(float *)&v41[144] * v19[2]) + (float)(*(float *)&v41[148] * v22))
                + (float)(*(float *)&v41[152] * v26);
-        v28[7] = *(float *)&FLOAT_0_0;
+        v28[7] = 0.0f;
         v28[8] = (float)((float)(*(float *)&v41[160] * v19[0]) + (float)(*(float *)&v41[164] * v20))
                + (float)(*(float *)&v41[168] * v24);
         v28[9] = (float)((float)(*(float *)&v41[160] * v19[1]) + (float)(*(float *)&v41[164] * v21))
                + (float)(*(float *)&v41[168] * v25);
         v28[10] = (float)((float)(*(float *)&v41[160] * v19[2]) + (float)(*(float *)&v41[164] * v22))
                 + (float)(*(float *)&v41[168] * v26);
-        v28[11] = *(float *)&FLOAT_0_0;
+        v28[11] = 0.0f;
         LODWORD(v18[4]) = &v41[112];
         LODWORD(v18[3]) = &v41[176];
         v18[0] = *(float *)&v41[176] - *(float *)&v41[112];
         v18[1] = *(float *)&v41[180] - *(float *)&v41[116];
         v18[2] = *(float *)&v41[184] - *(float *)&v41[120];
         ikMatrixTransformVector34(v18, (const float (*)[4])v19, v28 + 12);
-        v28[15] = FLOAT_1_0;
+        v28[15] = 1.0f;
         ikNormalizedMatrixAssert_func(ikState->matArrayPostIK[jointBones->jointBone]);
         jointBone = jointBones->jointBone;
         ikState->bHasActiveLayers = 1;
@@ -1342,40 +1342,40 @@ void  IK_Layer_ApplyFootIK(
         v7[0] = *(float *)&v41[128];
         v7[1] = *(float *)&v41[144];
         v7[2] = *(float *)&v41[160];
-        v7[3] = *(float *)&FLOAT_0_0;
+        v7[3] = 0.0f;
         v8 = *(float *)&v41[132];
         v9 = *(float *)&v41[148];
         v10 = *(float *)&v41[164];
-        v11 = *(unsigned int *)&FLOAT_0_0;
+        v11 = 0;
         v12 = *(float *)&v41[136];
         v13 = *(float *)&v41[152];
         v14 = *(float *)&v41[168];
-        v15 = *(unsigned int *)&FLOAT_0_0;
+        v15 = 0;
         *v16 = (float)((float)((*childMat)[0] * *(float *)&v41[128]) + (float)((*childMat)[1] * *(float *)&v41[132]))
              + (float)((*childMat)[2] * *(float *)&v41[136]);
         v16[1] = (float)((float)((*childMat)[0] * v7[1]) + (float)((*childMat)[1] * v9)) + (float)((*childMat)[2] * v13);
         v16[2] = (float)((float)((*childMat)[0] * v7[2]) + (float)((*childMat)[1] * v10))
                + (float)((*childMat)[2] * v14);
-        v16[3] = *(float *)&FLOAT_0_0;
+        v16[3] = 0.0f;
         v16[4] = (float)((float)((*childMat)[4] * v7[0]) + (float)((*childMat)[5] * v8)) + (float)((*childMat)[6] * v12);
         v16[5] = (float)((float)((*childMat)[4] * v7[1]) + (float)((*childMat)[5] * v9)) + (float)((*childMat)[6] * v13);
         v16[6] = (float)((float)((*childMat)[4] * v7[2]) + (float)((*childMat)[5] * v10))
                + (float)((*childMat)[6] * v14);
-        v16[7] = *(float *)&FLOAT_0_0;
+        v16[7] = 0.0f;
         v16[8] = (float)((float)((*childMat)[8] * v7[0]) + (float)((*childMat)[9] * v8))
                + (float)((*childMat)[10] * v12);
         v16[9] = (float)((float)((*childMat)[8] * v7[1]) + (float)((*childMat)[9] * v9))
                + (float)((*childMat)[10] * v13);
         v16[10] = (float)((float)((*childMat)[8] * v7[2]) + (float)((*childMat)[9] * v10))
                 + (float)((*childMat)[10] * v14);
-        v16[11] = *(float *)&FLOAT_0_0;
+        v16[11] = 0.0f;
         LODWORD(v6[4]) = &v41[176];
         LODWORD(v6[3]) = &(*childMat)[12];
         v6[0] = (*childMat)[12] - *(float *)&v41[176];
         v6[1] = (*childMat)[13] - *(float *)&v41[180];
         v6[2] = (*childMat)[14] - *(float *)&v41[184];
         ikMatrixTransformVector34(v6, (const float (*)[4])v7, v16 + 12);
-        v16[15] = FLOAT_1_0;
+        v16[15] = 1.0f;
         ikNormalizedMatrixAssert_func(ikState->matArrayPostIK[jointBones->childBone]);
         childBone = jointBones->childBone;
         ikState->bHasActiveLayers = 1;
@@ -1470,43 +1470,43 @@ void  IK_Layer_ApplyHandIK(
         v31[0] = *(float *)v41;
         v31[1] = *(float *)&v41[16];
         v31[2] = *(float *)&v41[32];
-        v31[3] = *(float *)&FLOAT_0_0;
+        v31[3] = 0.0f;
         v32 = *(float *)&v41[4];
         v33 = *(float *)&v41[20];
         v34 = *(float *)&v41[36];
-        v35 = *(unsigned int *)&FLOAT_0_0;
+        v35 = 0;
         v36 = *(float *)&v41[8];
         v37 = *(float *)&v41[24];
         v38 = *(float *)&v41[40];
-        v39 = *(unsigned int *)&FLOAT_0_0;
+        v39 = 0;
         *v40 = (float)((float)(*(float *)&v41[64] * *(float *)v41) + (float)(*(float *)&v41[68] * *(float *)&v41[4]))
              + (float)(*(float *)&v41[72] * *(float *)&v41[8]);
         v40[1] = (float)((float)(*(float *)&v41[64] * v31[1]) + (float)(*(float *)&v41[68] * v33))
                + (float)(*(float *)&v41[72] * v37);
         v40[2] = (float)((float)(*(float *)&v41[64] * v31[2]) + (float)(*(float *)&v41[68] * v34))
                + (float)(*(float *)&v41[72] * v38);
-        v40[3] = *(float *)&FLOAT_0_0;
+        v40[3] = 0.0f;
         v40[4] = (float)((float)(*(float *)&v41[80] * v31[0]) + (float)(*(float *)&v41[84] * v32))
                + (float)(*(float *)&v41[88] * v36);
         v40[5] = (float)((float)(*(float *)&v41[80] * v31[1]) + (float)(*(float *)&v41[84] * v33))
                + (float)(*(float *)&v41[88] * v37);
         v40[6] = (float)((float)(*(float *)&v41[80] * v31[2]) + (float)(*(float *)&v41[84] * v34))
                + (float)(*(float *)&v41[88] * v38);
-        v40[7] = *(float *)&FLOAT_0_0;
+        v40[7] = 0.0f;
         v40[8] = (float)((float)(*(float *)&v41[96] * v31[0]) + (float)(*(float *)&v41[100] * v32))
                + (float)(*(float *)&v41[104] * v36);
         v40[9] = (float)((float)(*(float *)&v41[96] * v31[1]) + (float)(*(float *)&v41[100] * v33))
                + (float)(*(float *)&v41[104] * v37);
         v40[10] = (float)((float)(*(float *)&v41[96] * v31[2]) + (float)(*(float *)&v41[100] * v34))
                 + (float)(*(float *)&v41[104] * v38);
-        v40[11] = *(float *)&FLOAT_0_0;
+        v40[11] = 0.0f;
         LODWORD(v30[4]) = &v41[48];
         LODWORD(v30[3]) = &v41[112];
         v30[0] = *(float *)&v41[112] - *(float *)&v41[48];
         v30[1] = *(float *)&v41[116] - *(float *)&v41[52];
         v30[2] = *(float *)&v41[120] - *(float *)&v41[56];
         ikMatrixTransformVector34(v30, (const float (*)[4])v31, v40 + 12);
-        v40[15] = FLOAT_1_0;
+        v40[15] = 1.0f;
         parentBone = jointBones->parentBone;
         ikState->bHasActiveLayers = 1;
         if ( ikState->cacheActive )
@@ -1525,15 +1525,15 @@ void  IK_Layer_ApplyHandIK(
         v19[0] = *(float *)&v41[64];
         v19[1] = *(float *)&v41[80];
         v19[2] = *(float *)&v41[96];
-        v19[3] = *(float *)&FLOAT_0_0;
+        v19[3] = 0.0f;
         v20 = *(float *)&v41[68];
         v21 = *(float *)&v41[84];
         v22 = *(float *)&v41[100];
-        v23 = *(unsigned int *)&FLOAT_0_0;
+        v23 = 0;
         v24 = *(float *)&v41[72];
         v25 = *(float *)&v41[88];
         v26 = *(float *)&v41[104];
-        v27 = *(unsigned int *)&FLOAT_0_0;
+        v27 = 0;
         *v28 = (float)((float)(*(float *)&v41[128] * *(float *)&v41[64])
                      + (float)(*(float *)&v41[132] * *(float *)&v41[68]))
              + (float)(*(float *)&v41[136] * *(float *)&v41[72]);
@@ -1541,28 +1541,28 @@ void  IK_Layer_ApplyHandIK(
                + (float)(*(float *)&v41[136] * v25);
         v28[2] = (float)((float)(*(float *)&v41[128] * v19[2]) + (float)(*(float *)&v41[132] * v22))
                + (float)(*(float *)&v41[136] * v26);
-        v28[3] = *(float *)&FLOAT_0_0;
+        v28[3] = 0.0f;
         v28[4] = (float)((float)(*(float *)&v41[144] * v19[0]) + (float)(*(float *)&v41[148] * v20))
                + (float)(*(float *)&v41[152] * v24);
         v28[5] = (float)((float)(*(float *)&v41[144] * v19[1]) + (float)(*(float *)&v41[148] * v21))
                + (float)(*(float *)&v41[152] * v25);
         v28[6] = (float)((float)(*(float *)&v41[144] * v19[2]) + (float)(*(float *)&v41[148] * v22))
                + (float)(*(float *)&v41[152] * v26);
-        v28[7] = *(float *)&FLOAT_0_0;
+        v28[7] = 0.0f;
         v28[8] = (float)((float)(*(float *)&v41[160] * v19[0]) + (float)(*(float *)&v41[164] * v20))
                + (float)(*(float *)&v41[168] * v24);
         v28[9] = (float)((float)(*(float *)&v41[160] * v19[1]) + (float)(*(float *)&v41[164] * v21))
                + (float)(*(float *)&v41[168] * v25);
         v28[10] = (float)((float)(*(float *)&v41[160] * v19[2]) + (float)(*(float *)&v41[164] * v22))
                 + (float)(*(float *)&v41[168] * v26);
-        v28[11] = *(float *)&FLOAT_0_0;
+        v28[11] = 0.0f;
         LODWORD(v18[4]) = &v41[112];
         LODWORD(v18[3]) = &v41[176];
         v18[0] = *(float *)&v41[176] - *(float *)&v41[112];
         v18[1] = *(float *)&v41[180] - *(float *)&v41[116];
         v18[2] = *(float *)&v41[184] - *(float *)&v41[120];
         ikMatrixTransformVector34(v18, (const float (*)[4])v19, v28 + 12);
-        v28[15] = FLOAT_1_0;
+        v28[15] = 1.0f;
         jointBone = jointBones->jointBone;
         ikState->bHasActiveLayers = 1;
         if ( ikState->cacheActive )
@@ -1583,40 +1583,40 @@ void  IK_Layer_ApplyHandIK(
         v7[0] = *(float *)&v41[128];
         v7[1] = *(float *)&v41[144];
         v7[2] = *(float *)&v41[160];
-        v7[3] = *(float *)&FLOAT_0_0;
+        v7[3] = 0.0f;
         v8 = *(float *)&v41[132];
         v9 = *(float *)&v41[148];
         v10 = *(float *)&v41[164];
-        v11 = *(unsigned int *)&FLOAT_0_0;
+        v11 = 0;
         v12 = *(float *)&v41[136];
         v13 = *(float *)&v41[152];
         v14 = *(float *)&v41[168];
-        v15 = *(unsigned int *)&FLOAT_0_0;
+        v15 = 0;
         *v16 = (float)((float)((*childMat)[0] * *(float *)&v41[128]) + (float)((*childMat)[1] * *(float *)&v41[132]))
              + (float)((*childMat)[2] * *(float *)&v41[136]);
         v16[1] = (float)((float)((*childMat)[0] * v7[1]) + (float)((*childMat)[1] * v9)) + (float)((*childMat)[2] * v13);
         v16[2] = (float)((float)((*childMat)[0] * v7[2]) + (float)((*childMat)[1] * v10))
                + (float)((*childMat)[2] * v14);
-        v16[3] = *(float *)&FLOAT_0_0;
+        v16[3] = 0.0f;
         v16[4] = (float)((float)((*childMat)[4] * v7[0]) + (float)((*childMat)[5] * v8)) + (float)((*childMat)[6] * v12);
         v16[5] = (float)((float)((*childMat)[4] * v7[1]) + (float)((*childMat)[5] * v9)) + (float)((*childMat)[6] * v13);
         v16[6] = (float)((float)((*childMat)[4] * v7[2]) + (float)((*childMat)[5] * v10))
                + (float)((*childMat)[6] * v14);
-        v16[7] = *(float *)&FLOAT_0_0;
+        v16[7] = 0.0f;
         v16[8] = (float)((float)((*childMat)[8] * v7[0]) + (float)((*childMat)[9] * v8))
                + (float)((*childMat)[10] * v12);
         v16[9] = (float)((float)((*childMat)[8] * v7[1]) + (float)((*childMat)[9] * v9))
                + (float)((*childMat)[10] * v13);
         v16[10] = (float)((float)((*childMat)[8] * v7[2]) + (float)((*childMat)[9] * v10))
                 + (float)((*childMat)[10] * v14);
-        v16[11] = *(float *)&FLOAT_0_0;
+        v16[11] = 0.0f;
         LODWORD(v6[4]) = &v41[176];
         LODWORD(v6[3]) = &(*childMat)[12];
         v6[0] = (*childMat)[12] - *(float *)&v41[176];
         v6[1] = (*childMat)[13] - *(float *)&v41[180];
         v6[2] = (*childMat)[14] - *(float *)&v41[184];
         ikMatrixTransformVector34(v6, (const float (*)[4])v7, v16 + 12);
-        v16[15] = FLOAT_1_0;
+        v16[15] = 1.0f;
         childBone = jointBones->childBone;
         ikState->bHasActiveLayers = 1;
         if ( ikState->cacheActive )
@@ -1839,7 +1839,7 @@ void  IK_Layer_LeftHandOnGun(float a1@<ebp>, IKState *ikState)
   ikLayerName = retaddr;
   *(unsigned int *)&leftHandOffsetLocal[72] = 11;
   *(float *)&leftHandOffsetLocal[68] = IKImport_GetLayerLerp(ikState, IKLAYER_LEFT_HAND_ON_GUN, flt_E1270C);
-  ikState->leftHandLastProximityLerp = *(float *)&FLOAT_0_0;
+  ikState->leftHandLastProximityLerp = 0.0f;
   if ( *(float *)&leftHandOffsetLocal[68] > 0.0 )
   {
     leftHandOffsetLocal[67] = ikState->ikBoneToObjBone[10] != 161;
@@ -1853,9 +1853,9 @@ void  IK_Layer_LeftHandOnGun(float a1@<ebp>, IKState *ikState)
           ikCalcBoneModelMatrix(ikState, 22, (*ikState->matArrayPostIK)[0], (float (*)[4])leftHandOffsetLocal);
           if ( bGetMat )
           {
-            leftHandOffsetStatic[0] = *(float *)&FLOAT_0_0;
-            dword_9C3DE68 = *(unsigned int *)&FLOAT_0_0;
-            dword_9C3DE6C = *(unsigned int *)&FLOAT_0_0;
+            leftHandOffsetStatic[0] = 0.0f;
+            dword_9C3DE68 = 0;
+            dword_9C3DE6C = 0;
             bGetMat = 0;
           }
           if ( IKImport_GetVar_IK_Hand_Tuning() || bHackUseDevGuiVars )
@@ -1889,11 +1889,11 @@ void  IK_Layer_LeftHandOnGun(float a1@<ebp>, IKState *ikState)
               if ( (float)(lerp - 1.0) < 0.0 )
                 v191 = lerp;
               else
-                v191 = FLOAT_1_0;
+                v191 = 1.0f;
               if ( (float)(0.0 - lerp) < 0.0 )
                 fraction = v191;
               else
-                fraction = *(float *)&FLOAT_0_0;
+                fraction = 0.0f;
               v189 = fraction;
               Vec3Lerp(ikState->leftHandOffsetPrev, ikState->leftHandOffset, fraction, leftHandRotationLocal);
               Vec3Lerp(ikState->leftHandRotationPrev, ikState->leftHandRotation, fraction, &v194);
@@ -1914,15 +1914,15 @@ void  IK_Layer_LeftHandOnGun(float a1@<ebp>, IKState *ikState)
           leftHandIKMat[13] = *(float *)leftHandOffsetLocal;
           leftHandIKMat[14] = *(float *)&leftHandOffsetLocal[16];
           leftHandIKMat[15] = *(float *)&leftHandOffsetLocal[32];
-          leftHandIKMat[16] = *(float *)&FLOAT_0_0;
+          leftHandIKMat[16] = 0.0f;
           v178 = *(unsigned int *)&leftHandOffsetLocal[4];
           v179 = *(unsigned int *)&leftHandOffsetLocal[20];
           v180 = *(unsigned int *)&leftHandOffsetLocal[36];
-          v181 = *(unsigned int *)&FLOAT_0_0;
+          v181 = 0;
           v182 = *(unsigned int *)&leftHandOffsetLocal[8];
           v183 = *(unsigned int *)&leftHandOffsetLocal[24];
           v184 = *(unsigned int *)&leftHandOffsetLocal[40];
-          v185 = *(unsigned int *)&FLOAT_0_0;
+          v185 = 0;
           v174 = (float)((float)(*v186 * *(float *)leftHandOffsetLocal)
                        + (float)(v186[1] * *(float *)&leftHandOffsetLocal[4]))
                + (float)(v186[2] * *(float *)&leftHandOffsetLocal[8]);
@@ -1932,7 +1932,7 @@ void  IK_Layer_LeftHandOnGun(float a1@<ebp>, IKState *ikState)
           v176 = (float)((float)(*v186 * *(float *)&leftHandOffsetLocal[32])
                        + (float)(v186[1] * *(float *)&leftHandOffsetLocal[36]))
                + (float)(v186[2] * *(float *)&leftHandOffsetLocal[40]);
-          leftHandIKMat[0] = *(float *)&FLOAT_0_0;
+          leftHandIKMat[0] = 0.0f;
           leftHandIKMat[1] = (float)((float)(v186[4] * *(float *)leftHandOffsetLocal)
                                    + (float)(v186[5] * *(float *)&leftHandOffsetLocal[4]))
                            + (float)(v186[6] * *(float *)&leftHandOffsetLocal[8]);
@@ -1942,7 +1942,7 @@ void  IK_Layer_LeftHandOnGun(float a1@<ebp>, IKState *ikState)
           leftHandIKMat[3] = (float)((float)(v186[4] * *(float *)&leftHandOffsetLocal[32])
                                    + (float)(v186[5] * *(float *)&leftHandOffsetLocal[36]))
                            + (float)(v186[6] * *(float *)&leftHandOffsetLocal[40]);
-          leftHandIKMat[4] = *(float *)&FLOAT_0_0;
+          leftHandIKMat[4] = 0.0f;
           leftHandIKMat[5] = (float)((float)(v186[8] * *(float *)leftHandOffsetLocal)
                                    + (float)(v186[9] * *(float *)&leftHandOffsetLocal[4]))
                            + (float)(v186[10] * *(float *)&leftHandOffsetLocal[8]);
@@ -1952,27 +1952,27 @@ void  IK_Layer_LeftHandOnGun(float a1@<ebp>, IKState *ikState)
           leftHandIKMat[7] = (float)((float)(v186[8] * *(float *)&leftHandOffsetLocal[32])
                                    + (float)(v186[9] * *(float *)&leftHandOffsetLocal[36]))
                            + (float)(v186[10] * *(float *)&leftHandOffsetLocal[40]);
-          leftHandIKMat[8] = *(float *)&FLOAT_0_0;
+          leftHandIKMat[8] = 0.0f;
           v173 = &leftHandOffsetLocal[48];
           v172 = v186 + 12;
           rangeShotgunAdd = v186[12] - *(float *)&leftHandOffsetLocal[48];
           maxRangeBase = v186[13] - *(float *)&leftHandOffsetLocal[52];
           minRangeBase = v186[14] - *(float *)&leftHandOffsetLocal[56];
           ikMatrixTransformVector34(&rangeShotgunAdd, (const float (*)[4])&leftHandIKMat[13], &leftHandIKMat[9]);
-          leftHandIKMat[12] = FLOAT_1_0;
-          gripOffsetFromHandBone = FLOAT_3_0;
-          gripPosCenter[2] = FLOAT_8_0;
-          gripPosCenter[1] = FLOAT_5_0;
-          gripPosCenter[0] = FLOAT_2_3;
-          gripPosCenterShoulder[0] = FLOAT_N4_0;
-          gripPosCenterShoulder[1] = FLOAT_0_1;
+          leftHandIKMat[12] = 1.0f;
+          gripOffsetFromHandBone = 3.0f;
+          gripPosCenter[2] = 8.0f;
+          gripPosCenter[1] = 5.0f;
+          gripPosCenter[0] = 2.3f;
+          gripPosCenterShoulder[0] = -4.0f;
+          gripPosCenterShoulder[1] = 0.1f;
           gripPosCenterShoulder[2] = FLOAT_N3_4000001;
           gripPosCenterEquipment[0] = FLOAT_N18_0;
           gripPosCenterEquipment[1] = FLOAT_1_6;
-          gripPosCenterEquipment[2] = *(float *)&FLOAT_0_0;
-          gripPos[1] = FLOAT_1_0;
-          gripPos[2] = FLOAT_7_0;
-          gripPos[3] = FLOAT_0_40000001;
+          gripPosCenterEquipment[2] = 0.0f;
+          gripPos[1] = 1.0f;
+          gripPos[2] = 7.0f;
+          gripPos[3] = 0.4f;
           LODWORD(gripPos[0]) = &leftHandIKMat[9];
           gunPlaneOffset = (float)(2.3 * v174) + leftHandIKMat[9];
           maxRange = (float)(2.3 * v175) + leftHandIKMat[10];
@@ -1994,13 +1994,13 @@ void  IK_Layer_LeftHandOnGun(float a1@<ebp>, IKState *ikState)
           if ( leftLerp <= v158 )
           {
             if ( v159 <= v158 )
-              axis[2][2] = *(float *)&FLOAT_0_0;
+              axis[2][2] = 0.0f;
             else
               axis[2][2] = 1.0 - (float)((float)(v158 - leftLerp) / (float)(v159 - leftLerp));
           }
           else
           {
-            axis[2][2] = FLOAT_1_0;
+            axis[2][2] = 1.0f;
           }
           if ( !ikSystem.inViewer )
             *(float *)&leftHandOffsetLocal[68] = *(float *)&leftHandOffsetLocal[68] * axis[2][2];
@@ -2048,7 +2048,7 @@ void  IK_Layer_LeftHandOnGun(float a1@<ebp>, IKState *ikState)
                  + (float)(v176 * *(float *)&v155[36]);
             v176 = (float)((float)(v137 * *(float *)&v155[8]) + (float)(v138 * *(float *)&v155[24]))
                  + (float)(v176 * *(float *)&v155[40]);
-            leftHandIKMat[0] = *(float *)&FLOAT_0_0;
+            leftHandIKMat[0] = 0.0f;
             leftHandIKMat[1] = (float)((float)(leftHandIKMat[1] * *(float *)v155)
                                      + (float)(leftHandIKMat[2] * *(float *)&v155[16]))
                              + (float)(leftHandIKMat[3] * *(float *)&v155[32]);
@@ -2058,7 +2058,7 @@ void  IK_Layer_LeftHandOnGun(float a1@<ebp>, IKState *ikState)
             leftHandIKMat[3] = (float)((float)(workMat[0][1] * *(float *)&v155[8])
                                      + (float)(workMat[0][2] * *(float *)&v155[24]))
                              + (float)(leftHandIKMat[3] * *(float *)&v155[40]);
-            leftHandIKMat[4] = *(float *)&FLOAT_0_0;
+            leftHandIKMat[4] = 0.0f;
             leftHandIKMat[5] = (float)((float)(leftHandIKMat[5] * *(float *)v155)
                                      + (float)(leftHandIKMat[6] * *(float *)&v155[16]))
                              + (float)(leftHandIKMat[7] * *(float *)&v155[32]);
@@ -2068,7 +2068,7 @@ void  IK_Layer_LeftHandOnGun(float a1@<ebp>, IKState *ikState)
             leftHandIKMat[7] = (float)((float)(workMat[1][1] * *(float *)&v155[8])
                                      + (float)(workMat[1][2] * *(float *)&v155[24]))
                              + (float)(leftHandIKMat[7] * *(float *)&v155[40]);
-            leftHandIKMat[8] = *(float *)&FLOAT_0_0;
+            leftHandIKMat[8] = 0.0f;
             if ( *(float *)&leftHandOffsetLocal[68] == 1.0 )
             {
               v132 = ikState->handMats[0][0];
@@ -2346,37 +2346,37 @@ void  IK_Layer_LeftHandOnGun(float a1@<ebp>, IKState *ikState)
             v10[0] = *v20;
             v10[1] = v20[4];
             v10[2] = v20[8];
-            v10[3] = *(float *)&FLOAT_0_0;
+            v10[3] = 0.0f;
             v11 = v20[1];
             v12 = v20[5];
             v13 = v20[9];
-            v14 = *(unsigned int *)&FLOAT_0_0;
+            v14 = 0;
             v15 = v20[2];
             v16 = v20[6];
             v17 = v20[10];
-            v18 = *(unsigned int *)&FLOAT_0_0;
+            v18 = 0;
             *v21 = (float)((float)(*v19 * v10[0]) + (float)(v19[1] * v11)) + (float)(v19[2] * v15);
             v21[1] = (float)((float)(*v19 * v10[1]) + (float)(v19[1] * v12)) + (float)(v19[2] * v16);
             v21[2] = (float)((float)(*v19 * v10[2]) + (float)(v19[1] * v13)) + (float)(v19[2] * v17);
-            v21[3] = *(float *)&FLOAT_0_0;
+            v21[3] = 0.0f;
             v21[4] = (float)((float)(v19[4] * v10[0]) + (float)(v19[5] * v11)) + (float)(v19[6] * v15);
             v21[5] = (float)((float)(v19[4] * v10[1]) + (float)(v19[5] * v12)) + (float)(v19[6] * v16);
             v21[6] = (float)((float)(v19[4] * v10[2]) + (float)(v19[5] * v13)) + (float)(v19[6] * v17);
-            v21[7] = *(float *)&FLOAT_0_0;
+            v21[7] = 0.0f;
             v21[8] = (float)((float)(v19[8] * v10[0]) + (float)(v19[9] * v11)) + (float)(v19[10] * v15);
             v21[9] = (float)((float)(v19[8] * v10[1]) + (float)(v19[9] * v12)) + (float)(v19[10] * v16);
             v21[10] = (float)((float)(v19[8] * v10[2]) + (float)(v19[9] * v13)) + (float)(v19[10] * v17);
-            v21[11] = *(float *)&FLOAT_0_0;
+            v21[11] = 0.0f;
             v9 = v20 + 12;
             v8 = v19 + 12;
             twistRot[1] = v19[12] - v20[12];
             twistRot[2] = v19[13] - v20[13];
             twistScale = v19[14] - v20[14];
             ikMatrixTransformVector34(&twistRot[1], (const float (*)[4])v10, v21 + 12);
-            v21[15] = FLOAT_1_0;
+            v21[15] = 1.0f;
             twistRot[0] = FLOAT_N0_89999998;
-            v5[0] = *(float *)&FLOAT_0_0;
-            v5[1] = *(float *)&FLOAT_0_0;
+            v5[0] = 0.0f;
+            v5[1] = 0.0f;
             v5[2] = (float)(*(float *)&leftHandOffsetLocal[68] * -0.89999998) * v194;
             ikRotateBone(&layerLerp, ikState, IKBONE_LWRIST_TWIST, v5, 1);
           }
@@ -2433,7 +2433,7 @@ void __cdecl IK_Layer_PlayerControllers(IKState *ikState)
           if ( (float)(v7 - 1.0) < 0.0 )
             v2 = v1 + v1;
           else
-            v2 = FLOAT_1_0;
+            v2 = 1.0f;
           rot[0] = (float)(1.0 - v2) * rot[0];
         }
         ikRotateBone((float *)&savedregs, ikState, ikControllerBones[i], rot, 0);
@@ -2443,7 +2443,7 @@ void __cdecl IK_Layer_PlayerControllers(IKState *ikState)
         rot[0] = ikState->controllers[j][0];
         rot[1] = ikState->controllers[j][1];
         rot[2] = ikState->controllers[j][2];
-        rot[0] = *(float *)&FLOAT_0_0;
+        rot[0] = 0.0f;
         if ( ikControllerBones[j] == IKBONE_PELVIS && IKImport_GetLayerLerp(ikState, IKLAYER_CROUCH_ACTIVE) > 0.0 )
         {
           v6 = IKImport_GetLayerLerp(ikState, IKLAYER_CROUCH_ACTIVE);
@@ -2465,10 +2465,10 @@ void __cdecl IK_Layer_PlayerControllers(IKState *ikState)
           ikRotateBone((float *)&savedregs, ikState, ikControllerBones[j], rot, 0);
         }
       }
-      pelvisYawFeetScaleLeft[0] = FLOAT_0_30000001;
-      pelvisYawFeetScaleLeft[1] = FLOAT_0_30000001;
-      pelvisYawFeetScaleRight[0] = FLOAT_0_60000002;
-      pelvisYawFeetScaleRight[1] = FLOAT_0_60000002;
+      pelvisYawFeetScaleLeft[0] = 0.3f;
+      pelvisYawFeetScaleLeft[1] = 0.3f;
+      pelvisYawFeetScaleRight[0] = 0.6f;
+      pelvisYawFeetScaleRight[1] = 0.6f;
       memset(rot, 0, sizeof(rot));
       v4 = IKImport_GetLayerLerp(ikState, IKLAYER_CROUCH_ACTIVE);
       rot[1] = (float)((float)((float)(1.0 - v4) * pelvisYawFeetScaleLeft[0]) + (float)(pelvisYawFeetScaleLeft[1] * v4))
@@ -2698,19 +2698,19 @@ void  IK_Layer_PlayerPitch(float a1@<ebp>, IKState *ikState, bool preControllers
   {
     LODWORD(playerAngles[0]) = ikState->angles;
     v200 = ikState->angles[0];
-    xySpeed = *(float *)&FLOAT_0_0;
-    crouchLerp = *(float *)&FLOAT_0_0;
+    xySpeed = 0.0f;
+    crouchLerp = 0.0f;
     fraction = IKImport_GetLayerLerp(ikState, IKLAYER_CROUCH_ACTIVE);
     v198 = Vec2Length(ikState->velocity);
     movingLerp = v198 / velIdleMax;
     if ( (float)((float)(v198 / velIdleMax) - 1.0) < 0.0 )
       v196 = movingLerp;
     else
-      v196 = FLOAT_1_0;
+      v196 = 1.0f;
     if ( (float)(0.0 - movingLerp) < 0.0 )
       v195 = v196;
     else
-      v195 = *(float *)&FLOAT_0_0;
+      v195 = 0.0f;
     v194 = v195;
     notMovingLerp = IKImport_GetLayerLerp(ikState, IKLAYER_NOT_MOVING);
     ofsVec[2] = IKImport_GetLayerLerp(ikState, IKLAYER_NOT_MOVING_FAST);
@@ -2733,20 +2733,20 @@ void  IK_Layer_PlayerPitch(float a1@<ebp>, IKState *ikState, bool preControllers
       if ( v200 >= 0.0 )
       {
         ofsDnCrouch[0] = FLOAT_N4_5;
-        ofsDnCrouch[1] = *(float *)&FLOAT_0_0;
+        ofsDnCrouch[1] = 0.0f;
         ofsDnCrouch[2] = FLOAT_N1_7;
         ofsTwist[0] = FLOAT_N6_5;
-        ofsTwist[1] = *(float *)&FLOAT_0_0;
+        ofsTwist[1] = 0.0f;
         ofsTwist[2] = FLOAT_8_5;
         Vec3Lerp(ofsDnCrouch, ofsTwist, fraction, axis[2]);
       }
       else
       {
-        ofsUpCrouch[0] = FLOAT_5_0999999;
-        ofsUpCrouch[1] = *(float *)&FLOAT_0_0;
+        ofsUpCrouch[0] = 5.0f999999;
+        ofsUpCrouch[1] = 0.0f;
         ofsUpCrouch[2] = FLOAT_N2_5;
-        ofsDn[1] = FLOAT_5_0999999;
-        ofsDn[2] = *(float *)&FLOAT_0_0;
+        ofsDn[1] = 5.0f999999;
+        ofsDn[2] = 0.0f;
         v187 = FLOAT_4_5;
         Vec3Lerp(ofsUpCrouch, &ofsDn[1], fraction, axis[2]);
         ofsDn[0] = 1.0 - IKImport_GetLayerLerp(ikState, IKLAYER_MINIGUN_ACTIVE);
@@ -2758,14 +2758,14 @@ void  IK_Layer_PlayerPitch(float a1@<ebp>, IKState *ikState, bool preControllers
       axis[2][0] = ofsUp[0] * axis[2][0];
       axis[2][1] = ofsUp[0] * axis[2][1];
       axis[2][2] = ofsUp[0] * axis[2][2];
-      ofsTwistCrouch[0] = FLOAT_6_0;
-      ofsTwistCrouch[1] = *(float *)&FLOAT_0_0;
-      ofsTwistCrouch[2] = FLOAT_N1_0;
-      v180 = FLOAT_4_0;
-      twistScaleCap = *(float *)&FLOAT_0_0;
-      maxTwist = FLOAT_N1_0;
-      v179 = FLOAT_90_0;
-      v178 = FLOAT_1_0;
+      ofsTwistCrouch[0] = 6.0f;
+      ofsTwistCrouch[1] = 0.0f;
+      ofsTwistCrouch[2] = -1.0f;
+      v180 = 4.0f;
+      twistScaleCap = 0.0f;
+      maxTwist = -1.0f;
+      v179 = 90.0f;
+      v178 = 1.0f;
       ofsTwistVec[2] = ikState->controller_origin_angles[1] / 90.0;
       LODWORD(ofsTwistVec[1]) = LODWORD(ofsTwistVec[2]) & _mask__AbsFloat_;
       __libm_sse2_pow(v15, v16);
@@ -2795,7 +2795,7 @@ void  IK_Layer_PlayerPitch(float a1@<ebp>, IKState *ikState, bool preControllers
       if ( v194 > 0.0 )
       {
         v174 = *(_QWORD *)&axis[2][0];
-        v175 = *(float *)&FLOAT_0_0;
+        v175 = 0.0f;
         v173 = ikState->footMats[0][3];
         LODWORD(pelvisPitchScaleUp) = ikState->footMats[0][3];
         ikState->footMats[0][3][0] = (float)(v194 * axis[2][0]) + ikState->footMats[0][3][0];
@@ -2810,8 +2810,8 @@ void  IK_Layer_PlayerPitch(float a1@<ebp>, IKState *ikState, bool preControllers
     }
     if ( preControllers )
     {
-      pelvisPitchScale = *(float *)&FLOAT_0_0;
-      v168 = *(float *)&FLOAT_0_0;
+      pelvisPitchScale = 0.0f;
+      v168 = 0.0f;
       if ( v200 > 0.0 )
         v6 = v168;
       else
@@ -2861,51 +2861,51 @@ void  IK_Layer_PlayerPitch(float a1@<ebp>, IKState *ikState, bool preControllers
         rightHandFromHead[13] = *(float *)v152;
         rightHandFromHead[14] = *(float *)&v152[16];
         rightHandFromHead[15] = *(float *)&v152[32];
-        rightHandFromHead[16] = *(float *)&FLOAT_0_0;
+        rightHandFromHead[16] = 0.0f;
         v143 = *(unsigned int *)&v152[4];
         v144 = *(unsigned int *)&v152[20];
         v145 = *(unsigned int *)&v152[36];
-        v146 = *(unsigned int *)&FLOAT_0_0;
+        v146 = 0;
         v147 = *(unsigned int *)&v152[8];
         v148 = *(unsigned int *)&v152[24];
         v149 = *(unsigned int *)&v152[40];
-        v150 = *(unsigned int *)&FLOAT_0_0;
+        v150 = 0;
         v139 = (float)((float)(*v151 * *(float *)v152) + (float)(v151[1] * *(float *)&v152[4]))
              + (float)(v151[2] * *(float *)&v152[8]);
         v140 = (float)((float)(*v151 * *(float *)&v152[16]) + (float)(v151[1] * *(float *)&v152[20]))
              + (float)(v151[2] * *(float *)&v152[24]);
         v141 = (float)((float)(*v151 * *(float *)&v152[32]) + (float)(v151[1] * *(float *)&v152[36]))
              + (float)(v151[2] * *(float *)&v152[40]);
-        rightHandFromHead[0] = *(float *)&FLOAT_0_0;
+        rightHandFromHead[0] = 0.0f;
         rightHandFromHead[1] = (float)((float)(v151[4] * *(float *)v152) + (float)(v151[5] * *(float *)&v152[4]))
                              + (float)(v151[6] * *(float *)&v152[8]);
         rightHandFromHead[2] = (float)((float)(v151[4] * *(float *)&v152[16]) + (float)(v151[5] * *(float *)&v152[20]))
                              + (float)(v151[6] * *(float *)&v152[24]);
         rightHandFromHead[3] = (float)((float)(v151[4] * *(float *)&v152[32]) + (float)(v151[5] * *(float *)&v152[36]))
                              + (float)(v151[6] * *(float *)&v152[40]);
-        rightHandFromHead[4] = *(float *)&FLOAT_0_0;
+        rightHandFromHead[4] = 0.0f;
         rightHandFromHead[5] = (float)((float)(v151[8] * *(float *)v152) + (float)(v151[9] * *(float *)&v152[4]))
                              + (float)(v151[10] * *(float *)&v152[8]);
         rightHandFromHead[6] = (float)((float)(v151[8] * *(float *)&v152[16]) + (float)(v151[9] * *(float *)&v152[20]))
                              + (float)(v151[10] * *(float *)&v152[24]);
         rightHandFromHead[7] = (float)((float)(v151[8] * *(float *)&v152[32]) + (float)(v151[9] * *(float *)&v152[36]))
                              + (float)(v151[10] * *(float *)&v152[40]);
-        rightHandFromHead[8] = *(float *)&FLOAT_0_0;
+        rightHandFromHead[8] = 0.0f;
         v138 = &v152[48];
         v137 = v151 + 12;
         v134 = v151[12] - *(float *)&v152[48];
         neckPitchFrac = v151[13] - *(float *)&v152[52];
         headAndNeckPitchScale = v151[14] - *(float *)&v152[56];
         ikMatrixTransformVector34(&v134, (const float (*)[4])&rightHandFromHead[13], &rightHandFromHead[9]);
-        rightHandFromHead[12] = FLOAT_1_0;
-        headPitchFrac = FLOAT_0_30000001;
-        v132 = FLOAT_0_69999999;
+        rightHandFromHead[12] = 1.0f;
+        headPitchFrac = 0.3f;
+        v132 = 0.7f;
         v131 = (float)(playerAngles[1] * 0.69999999) * 0.30000001;
         v164 = v131 * v200;
         v165 = v131 * xySpeed;
         fPitchPow = v131 * crouchLerp;
         ikRotateBone(&layerLerp, ikState, IKBONE_NECK, &v164, 0);
-        v130 = FLOAT_0_30000001;
+        v130 = 0.3f;
         v129 = (float)(playerAngles[1] * 0.30000001) * 0.30000001;
         v164 = v129 * v200;
         v165 = v129 * xySpeed;
@@ -3151,34 +3151,34 @@ void  IK_Layer_PlayerPitch(float a1@<ebp>, IKState *ikState, bool preControllers
     v21[0] = *v31;
     v21[1] = v31[4];
     v21[2] = v31[8];
-    v21[3] = *(float *)&FLOAT_0_0;
+    v21[3] = 0.0f;
     v22 = v31[1];
     v23 = v31[5];
     v24 = v31[9];
-    v25 = *(unsigned int *)&FLOAT_0_0;
+    v25 = 0;
     v26 = v31[2];
     v27 = v31[6];
     v28 = v31[10];
-    v29 = *(unsigned int *)&FLOAT_0_0;
+    v29 = 0;
     *v32 = (float)((float)(*v30 * v21[0]) + (float)(v30[1] * v22)) + (float)(v30[2] * v26);
     v32[1] = (float)((float)(*v30 * v21[1]) + (float)(v30[1] * v23)) + (float)(v30[2] * v27);
     v32[2] = (float)((float)(*v30 * v21[2]) + (float)(v30[1] * v24)) + (float)(v30[2] * v28);
-    v32[3] = *(float *)&FLOAT_0_0;
+    v32[3] = 0.0f;
     v32[4] = (float)((float)(v30[4] * v21[0]) + (float)(v30[5] * v22)) + (float)(v30[6] * v26);
     v32[5] = (float)((float)(v30[4] * v21[1]) + (float)(v30[5] * v23)) + (float)(v30[6] * v27);
     v32[6] = (float)((float)(v30[4] * v21[2]) + (float)(v30[5] * v24)) + (float)(v30[6] * v28);
-    v32[7] = *(float *)&FLOAT_0_0;
+    v32[7] = 0.0f;
     v32[8] = (float)((float)(v30[8] * v21[0]) + (float)(v30[9] * v22)) + (float)(v30[10] * v26);
     v32[9] = (float)((float)(v30[8] * v21[1]) + (float)(v30[9] * v23)) + (float)(v30[10] * v27);
     v32[10] = (float)((float)(v30[8] * v21[2]) + (float)(v30[9] * v24)) + (float)(v30[10] * v28);
-    v32[11] = *(float *)&FLOAT_0_0;
+    v32[11] = 0.0f;
     v20 = v31 + 12;
     v19 = v30 + 12;
     *((float *)&v16 + 1) = v30[12] - v31[12];
     v17 = v30[13] - v31[13];
     v18 = v30[14] - v31[14];
     ikMatrixTransformVector34((const float *)&v16 + 1, (const float (*)[4])v21, v32 + 12);
-    v32[15] = FLOAT_1_0;
+    v32[15] = 1.0f;
   }
 }
 
@@ -3278,8 +3278,8 @@ void  IK_Layer_PreventHeadClip(float a1@<ebp>, IKState *ikState)
   if ( *(float *)&headClipPlayerCollisionHullRadius[68] > 0.0 )
   {
     ikCalcBoneModelMatrix(ikState, 6, (*ikState->matArrayPostIK)[0], (float (*)[4])headClipPlayerCollisionHullRadius);
-    boxRadius = *(float *)&FLOAT_0_0;
-    v78 = FLOAT_12_0;
+    boxRadius = 0.0f;
+    v78 = 12.0f;
     v77 = FLOAT_14_0;
     if ( Vec2Length((const float *)&headClipPlayerCollisionHullRadius[48]) > 14.0 - 0.0 )
     {
@@ -3407,7 +3407,7 @@ void  IK_Layer_PreventHeadClip(float a1@<ebp>, IKState *ikState)
     fwd[1] = v43;
     fwd[2] = v44;
     traceHitFraction = v45;
-    fwd[0] = *(float *)&FLOAT_0_0;
+    fwd[0] = 0.0f;
     start[0] = headMatWorld[3][1];
     start[1] = headMatWorld[3][2];
     start[2] = headMatWorld[3][3];
@@ -3419,7 +3419,7 @@ void  IK_Layer_PreventHeadClip(float a1@<ebp>, IKState *ikState)
     traceHitNormal[2] = (float)(v78 * headMatWorld[3][3]) + v45;
     if ( IKImport_TraceBox(ikState, end, traceHitNormal, boxRadius, &v24, traceHitPos, -1, fwd, 0) )
     {
-      v23 = FLOAT_12_0;
+      v23 = 12.0f;
       v22 = ikState->entityLegsXform[0];
       v21 = ikState->entityXform[0];
       if ( (float *)ikState->entityLegsXform == &torsoFromLegsMat[13]
@@ -3430,40 +3430,40 @@ void  IK_Layer_PreventHeadClip(float a1@<ebp>, IKState *ikState)
       torsoFromLegsMat[13] = *v22;
       torsoFromLegsMat[14] = v22[4];
       torsoFromLegsMat[15] = v22[8];
-      torsoFromLegsMat[16] = *(float *)&FLOAT_0_0;
+      torsoFromLegsMat[16] = 0.0f;
       v13 = v22[1];
       v14 = v22[5];
       v15 = v22[9];
-      v16 = *(unsigned int *)&FLOAT_0_0;
+      v16 = 0;
       v17 = v22[2];
       v18 = v22[6];
       v19 = v22[10];
-      v20 = *(unsigned int *)&FLOAT_0_0;
+      v20 = 0;
       v9 = (float)((float)(*v21 * torsoFromLegsMat[13]) + (float)(v21[1] * v13)) + (float)(v21[2] * v17);
       v10 = (float)((float)(*v21 * torsoFromLegsMat[14]) + (float)(v21[1] * v14)) + (float)(v21[2] * v18);
       v11 = (float)((float)(*v21 * torsoFromLegsMat[15]) + (float)(v21[1] * v15)) + (float)(v21[2] * v19);
-      torsoFromLegsMat[0] = *(float *)&FLOAT_0_0;
+      torsoFromLegsMat[0] = 0.0f;
       torsoFromLegsMat[1] = (float)((float)(v21[4] * torsoFromLegsMat[13]) + (float)(v21[5] * v13))
                           + (float)(v21[6] * v17);
       torsoFromLegsMat[2] = (float)((float)(v21[4] * torsoFromLegsMat[14]) + (float)(v21[5] * v14))
                           + (float)(v21[6] * v18);
       torsoFromLegsMat[3] = (float)((float)(v21[4] * torsoFromLegsMat[15]) + (float)(v21[5] * v15))
                           + (float)(v21[6] * v19);
-      torsoFromLegsMat[4] = *(float *)&FLOAT_0_0;
+      torsoFromLegsMat[4] = 0.0f;
       torsoFromLegsMat[5] = (float)((float)(v21[8] * torsoFromLegsMat[13]) + (float)(v21[9] * v13))
                           + (float)(v21[10] * v17);
       torsoFromLegsMat[6] = (float)((float)(v21[8] * torsoFromLegsMat[14]) + (float)(v21[9] * v14))
                           + (float)(v21[10] * v18);
       torsoFromLegsMat[7] = (float)((float)(v21[8] * torsoFromLegsMat[15]) + (float)(v21[9] * v15))
                           + (float)(v21[10] * v19);
-      torsoFromLegsMat[8] = *(float *)&FLOAT_0_0;
+      torsoFromLegsMat[8] = 0.0f;
       LODWORD(v8[4]) = v22 + 12;
       LODWORD(v8[3]) = v21 + 12;
       v8[0] = v21[12] - v22[12];
       v8[1] = v21[13] - v22[13];
       v8[2] = v21[14] - v22[14];
       ikMatrixTransformVector34(v8, (const float (*)[4])&torsoFromLegsMat[13], &torsoFromLegsMat[9]);
-      torsoFromLegsMat[12] = FLOAT_1_0;
+      torsoFromLegsMat[12] = 1.0f;
       v7 = (*ikState->matArrayPostIK)[7];
       v6 = COERCE_FLOAT(COERCE_UNSIGNED_INT(1.0 - fwd[0]) ^ _mask__NegFloat_) * v23;
       *v7 = (float)(v6 * v9) + *v7;
@@ -3596,34 +3596,34 @@ void  IK_ProcessLayers(int a1@<ebp>, IKState *ikState)
     v42[0] = *v52;
     v42[1] = v52[4];
     v42[2] = v52[8];
-    v42[3] = *(float *)&FLOAT_0_0;
+    v42[3] = 0.0f;
     v43 = v52[1];
     v44 = v52[5];
     v45 = v52[9];
-    v46 = *(unsigned int *)&FLOAT_0_0;
+    v46 = 0;
     v47 = v52[2];
     v48 = v52[6];
     v49 = v52[10];
-    v50 = *(unsigned int *)&FLOAT_0_0;
+    v50 = 0;
     *v53 = (float)((float)(*v51 * v42[0]) + (float)(v51[1] * v43)) + (float)(v51[2] * v47);
     v53[1] = (float)((float)(*v51 * v42[1]) + (float)(v51[1] * v44)) + (float)(v51[2] * v48);
     v53[2] = (float)((float)(*v51 * v42[2]) + (float)(v51[1] * v45)) + (float)(v51[2] * v49);
-    v53[3] = *(float *)&FLOAT_0_0;
+    v53[3] = 0.0f;
     v53[4] = (float)((float)(v51[4] * v42[0]) + (float)(v51[5] * v43)) + (float)(v51[6] * v47);
     v53[5] = (float)((float)(v51[4] * v42[1]) + (float)(v51[5] * v44)) + (float)(v51[6] * v48);
     v53[6] = (float)((float)(v51[4] * v42[2]) + (float)(v51[5] * v45)) + (float)(v51[6] * v49);
-    v53[7] = *(float *)&FLOAT_0_0;
+    v53[7] = 0.0f;
     v53[8] = (float)((float)(v51[8] * v42[0]) + (float)(v51[9] * v43)) + (float)(v51[10] * v47);
     v53[9] = (float)((float)(v51[8] * v42[1]) + (float)(v51[9] * v44)) + (float)(v51[10] * v48);
     v53[10] = (float)((float)(v51[8] * v42[2]) + (float)(v51[9] * v45)) + (float)(v51[10] * v49);
-    v53[11] = *(float *)&FLOAT_0_0;
+    v53[11] = 0.0f;
     LODWORD(v41[4]) = v52 + 12;
     LODWORD(v41[3]) = v51 + 12;
     v41[0] = v51[12] - v52[12];
     v41[1] = v51[13] - v52[13];
     v41[2] = v51[14] - v52[14];
     ikMatrixTransformVector34(v41, (const float (*)[4])v42, v53 + 12);
-    v53[15] = FLOAT_1_0;
+    v53[15] = 1.0f;
     v40[75] = ikState->ikBoneToObjBone[18] != 161;
     if ( !v40[75]
       && !Assert_MyHandler(
@@ -3662,43 +3662,43 @@ void  IK_ProcessLayers(int a1@<ebp>, IKState *ikState)
       rightHandFromSpineMat[13] = *(float *)v40;
       rightHandFromSpineMat[14] = *(float *)&v40[16];
       rightHandFromSpineMat[15] = *(float *)&v40[32];
-      rightHandFromSpineMat[16] = *(float *)&FLOAT_0_0;
+      rightHandFromSpineMat[16] = 0.0f;
       v31 = *(unsigned int *)&v40[4];
       v32 = *(unsigned int *)&v40[20];
       v33 = *(unsigned int *)&v40[36];
-      v34 = *(unsigned int *)&FLOAT_0_0;
+      v34 = 0;
       v35 = *(unsigned int *)&v40[8];
       v36 = *(unsigned int *)&v40[24];
       v37 = *(unsigned int *)&v40[40];
-      v38 = *(unsigned int *)&FLOAT_0_0;
+      v38 = 0;
       v27 = (float)((float)(*v39 * *(float *)v40) + (float)(v39[1] * *(float *)&v40[4]))
           + (float)(v39[2] * *(float *)&v40[8]);
       v28 = (float)((float)(*v39 * *(float *)&v40[16]) + (float)(v39[1] * *(float *)&v40[20]))
           + (float)(v39[2] * *(float *)&v40[24]);
       v29 = (float)((float)(*v39 * *(float *)&v40[32]) + (float)(v39[1] * *(float *)&v40[36]))
           + (float)(v39[2] * *(float *)&v40[40]);
-      rightHandFromSpineMat[0] = *(float *)&FLOAT_0_0;
+      rightHandFromSpineMat[0] = 0.0f;
       rightHandFromSpineMat[1] = (float)((float)(v39[4] * *(float *)v40) + (float)(v39[5] * *(float *)&v40[4]))
                                + (float)(v39[6] * *(float *)&v40[8]);
       rightHandFromSpineMat[2] = (float)((float)(v39[4] * *(float *)&v40[16]) + (float)(v39[5] * *(float *)&v40[20]))
                                + (float)(v39[6] * *(float *)&v40[24]);
       rightHandFromSpineMat[3] = (float)((float)(v39[4] * *(float *)&v40[32]) + (float)(v39[5] * *(float *)&v40[36]))
                                + (float)(v39[6] * *(float *)&v40[40]);
-      rightHandFromSpineMat[4] = *(float *)&FLOAT_0_0;
+      rightHandFromSpineMat[4] = 0.0f;
       rightHandFromSpineMat[5] = (float)((float)(v39[8] * *(float *)v40) + (float)(v39[9] * *(float *)&v40[4]))
                                + (float)(v39[10] * *(float *)&v40[8]);
       rightHandFromSpineMat[6] = (float)((float)(v39[8] * *(float *)&v40[16]) + (float)(v39[9] * *(float *)&v40[20]))
                                + (float)(v39[10] * *(float *)&v40[24]);
       rightHandFromSpineMat[7] = (float)((float)(v39[8] * *(float *)&v40[32]) + (float)(v39[9] * *(float *)&v40[36]))
                                + (float)(v39[10] * *(float *)&v40[40]);
-      rightHandFromSpineMat[8] = *(float *)&FLOAT_0_0;
+      rightHandFromSpineMat[8] = 0.0f;
       LODWORD(v26[4]) = &v40[48];
       LODWORD(v26[3]) = v39 + 12;
       v26[0] = v39[12] - *(float *)&v40[48];
       v26[1] = v39[13] - *(float *)&v40[52];
       v26[2] = v39[14] - *(float *)&v40[56];
       ikMatrixTransformVector34(v26, (const float (*)[4])&rightHandFromSpineMat[13], &rightHandFromSpineMat[9]);
-      rightHandFromSpineMat[12] = FLOAT_1_0;
+      rightHandFromSpineMat[12] = 1.0f;
       IK_Layer_PlayerControllers(ikState);
       ikCalcBoneModelMatrix(ikState, 4, (*ikState->matArrayPostIK)[0], (float (*)[4])v40);
       *(float *)&v18 = (float)((float)((float)(v27 * *(float *)&v40[4]) + (float)(v28 * *(float *)&v40[20]))

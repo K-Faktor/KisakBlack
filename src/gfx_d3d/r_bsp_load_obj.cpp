@@ -128,33 +128,33 @@ char *__cdecl R_ParseSunLight(SunLightParseParams *params, char *text)
     __debugbreak();
   }
   v8 = 0;
-  v12 = FLOAT_8_0;
-  v16 = FLOAT_0_25;
-  v7 = FLOAT_1_0;
-  v37 = *(float *)&FLOAT_0_0;
-  v21 = *(float *)&FLOAT_0_0;
-  v22 = *(float *)&FLOAT_0_0;
-  v23 = *(float *)&FLOAT_0_0;
-  v26 = *(float *)&FLOAT_0_0;
-  v27 = *(float *)&FLOAT_0_0;
-  v28 = *(float *)&FLOAT_0_0;
-  v17 = *(float *)&FLOAT_0_0;
-  in = *(float *)&FLOAT_0_0;
-  v39 = *(float *)&FLOAT_0_0;
-  v40 = *(float *)&FLOAT_0_0;
-  v14 = *(float *)&FLOAT_0_0;
-  out = *(float *)&FLOAT_0_0;
-  v33 = *(float *)&FLOAT_0_0;
-  v34 = *(float *)&FLOAT_0_0;
-  v6 = *(float *)&FLOAT_0_0;
-  v9 = *(float *)&FLOAT_0_0;
-  v10 = *(float *)&FLOAT_0_0;
-  v11 = *(float *)&FLOAT_0_0;
+  v12 = 8.0f;
+  v16 = 0.25f;
+  v7 = 1.0f;
+  v37 = 0.0f;
+  v21 = 0.0f;
+  v22 = 0.0f;
+  v23 = 0.0f;
+  v26 = 0.0f;
+  v27 = 0.0f;
+  v28 = 0.0f;
+  v17 = 0.0f;
+  in = 0.0f;
+  v39 = 0.0f;
+  v40 = 0.0f;
+  v14 = 0.0f;
+  out = 0.0f;
+  v33 = 0.0f;
+  v34 = 0.0f;
+  v6 = 0.0f;
+  v9 = 0.0f;
+  v10 = 0.0f;
+  v11 = 0.0f;
   v13 = 0;
-  v18 = *(float *)&FLOAT_0_0;
-  v19 = *(float *)&FLOAT_0_0;
-  v20 = *(float *)&FLOAT_0_0;
-  v15 = *(float *)&FLOAT_0_0;
+  v18 = 0.0f;
+  v19 = 0.0f;
+  v20 = 0.0f;
+  v15 = 0.0f;
   while ( 1 )
   {
     src = (char *)Com_Parse((const char **)&text);
@@ -298,7 +298,7 @@ char *__cdecl R_ParseSunLight(SunLightParseParams *params, char *text)
           v12 = atof(&nptr);
           if ( v12 < 0.0 )
           {
-            v12 = *(float *)&FLOAT_0_0;
+            v12 = 0.0f;
             printf("WARNING: Negative exposure in worldspwan\n");
           }
         }
@@ -605,10 +605,10 @@ void __cdecl R_LoadLightmaps(GfxBspLoad *load)
     __debugbreak();
   }
   load->lmapMergeInfo[31].index = 31;
-  load->lmapMergeInfo[31].shift[0] = *(float *)&FLOAT_0_0;
-  load->lmapMergeInfo[31].shift[1] = *(float *)&FLOAT_0_0;
-  load->lmapMergeInfo[31].scale[0] = FLOAT_1_0;
-  load->lmapMergeInfo[31].scale[1] = FLOAT_1_0;
+  load->lmapMergeInfo[31].shift[0] = 0.0f;
+  load->lmapMergeInfo[31].shift[1] = 0.0f;
+  load->lmapMergeInfo[31].scale[0] = 1.0f;
+  load->lmapMergeInfo[31].scale[1] = 1.0f;
   oldLmapCount = R_BuildLightmapMergability(load, groupInfo, reorder, LUMP_LIGHTBYTES);
   if ( oldLmapCount )
   {
@@ -624,7 +624,7 @@ void __cdecl R_LoadLightmaps(GfxBspLoad *load)
       memset(primaryImage, 0xFFu, groupInfo[0].highCount * (groupInfo[0].wideCount << 20));
       src = (float *)secondaryImage;
       for ( i = 0; i < (unsigned int)(groupInfo[0].highCount * (groupInfo[0].wideCount << 23)) >> 2; ++i )
-        src[i] = FLOAT_1_0;
+        src[i] = 1.0f;
     }
     imageFlags = 56;
     s_world.draw.lightmaps = (GfxLightmapArray *)Hunk_Alloc(0xCCu, "R_LoadLightmaps", 21);
@@ -1251,9 +1251,9 @@ void __cdecl R_LoadLightGridPoints_Version15(unsigned int bspVersion)
       worldMins[0] = FLOAT_N131072_0;
       worldMins[1] = FLOAT_N131072_0;
       worldMins[2] = FLOAT_N131072_0;
-      worldMaxs[0] = FLOAT_131072_0;
-      worldMaxs[1] = FLOAT_131072_0;
-      worldMaxs[2] = FLOAT_131072_0;
+      worldMaxs[0] = 131072.0f;
+      worldMaxs[1] = 131072.0f;
+      worldMaxs[2] = 131072.0f;
     }
     s_world.lightGrid.sunPrimaryLightIndex = s_world.sunPrimaryLightIndex;
     s_world.lightGrid.mins[0] = -1;
@@ -1960,9 +1960,9 @@ void R_CreateDefaultProbes()
 
 void R_CreateDefaultProbe()
 {
-  defaultReflectionProbeRawData.origin[0] = *(float *)&FLOAT_0_0;
-  defaultReflectionProbeRawData.origin[1] = *(float *)&FLOAT_0_0;
-  defaultReflectionProbeRawData.origin[2] = *(float *)&FLOAT_0_0;
+  defaultReflectionProbeRawData.origin[0] = 0.0f;
+  defaultReflectionProbeRawData.origin[1] = 0.0f;
+  defaultReflectionProbeRawData.origin[2] = 0.0f;
   memset(
     (unsigned __int8 *)defaultReflectionProbeRawData.colorCorrectionFilename,
     0,
@@ -2140,12 +2140,12 @@ void __cdecl R_BuildHeroLightTree(
   float longestLen; // [esp+6Ch] [ebp-10h]
   float rightMins[3]; // [esp+70h] [ebp-Ch] BYREF
 
-  *mins = FLOAT_3_4028235e38;
-  mins[1] = FLOAT_3_4028235e38;
-  mins[2] = FLOAT_3_4028235e38;
-  *maxs = FLOAT_N3_4028235e38;
-  maxs[1] = FLOAT_N3_4028235e38;
-  maxs[2] = FLOAT_N3_4028235e38;
+  *mins = FLT_MAX;
+  mins[1] = FLT_MAX;
+  mins[2] = FLT_MAX;
+  *maxs = -FLT_MAX;
+  maxs[1] = -FLT_MAX;
+  maxs[2] = -FLT_MAX;
   if ( lightCount )
   {
     if ( nodeIndex < s_world.heroLightTreeCount )
@@ -2157,7 +2157,7 @@ void __cdecl R_BuildHeroLightTree(
         Vec3Max(maxs, v10->origin, maxs);
       }
       r_heroLightAxis = 0;
-      longestLen = *(float *)&FLOAT_0_0;
+      longestLen = 0.0f;
       for ( axis = 0; axis < 3; ++axis )
       {
         if ( (float)(maxs[axis] - mins[axis]) >= longestLen )
@@ -2964,9 +2964,9 @@ void __cdecl R_LoadSurfaces(GfxBspLoad *load)
     if ( (float)((float)((float)(binormal[0] * vertsDisk[vertIndex].binormal[0])
                        + (float)(binormal[1] * vertsDisk[vertIndex].binormal[1]))
                + (float)(binormal[2] * vertsDisk[vertIndex].binormal[2])) < 0.0 )
-      v1 = FLOAT_N1_0;
+      v1 = -1.0f;
     else
-      v1 = FLOAT_1_0;
+      v1 = 1.0f;
     vertsMem[vertIndex].binormalSign = v1;
     if ( vertIndex % 0xC350 )
       Monkey_KeepAlive();
@@ -3304,9 +3304,9 @@ void __cdecl R_CalculateStreamingVolume(const Material *material, srfTriangles_t
   {
     __debugbreak();
   }
-  tris->himipRadiusSq = *(float *)&FLOAT_0_0;
+  tris->himipRadiusSq = 0.0f;
   ClearBounds(surfBoundBoxMins, surfBoundBoxMaxs);
-  maxRadius = *(float *)&FLOAT_0_0;
+  maxRadius = 0.0f;
   for ( texIter = 0; texIter != material->textureCount; ++texIter )
   {
     if ( R_StreamGetMaterialTextureSize(material, texIter, texSize, &filterState) )
@@ -3422,10 +3422,10 @@ void __cdecl R_SurfCalculateMagicPortalVerts(
   {
     v26[i] = i;
     v9 = &v23[3 * i];
-    *v9 = *(float *)&FLOAT_0_0;
-    v9[1] = *(float *)&FLOAT_0_0;
-    v9[2] = *(float *)&FLOAT_0_0;
-    v23[i + 3072] = *(float *)&FLOAT_0_0;
+    *v9 = 0.0f;
+    v9[1] = 0.0f;
+    v9[2] = 0.0f;
+    v23[i + 3072] = 0.0f;
   }
   v22 = 0;
   while ( !v22 )
@@ -3489,7 +3489,7 @@ void __cdecl R_SurfCalculateMagicPortalVerts(
       vertsMem[v10].texCoord[0] = v23[3 * v12];
       vertsMem[v10].texCoord[1] = v23[3 * v12 + 1];
       vertsMem[v10].lmapCoord[0] = v23[3 * v12 + 2];
-      vertsMem[v10].lmapCoord[1] = FLOAT_1_0;
+      vertsMem[v10].lmapCoord[1] = 1.0f;
     }
   }
 }
@@ -3548,12 +3548,12 @@ void __cdecl R_CalculateWorldBounds(float *mins, float *maxs)
   }
   else
   {
-    *mins = *(float *)&FLOAT_0_0;
-    mins[1] = *(float *)&FLOAT_0_0;
-    mins[2] = *(float *)&FLOAT_0_0;
-    *maxs = *(float *)&FLOAT_0_0;
-    maxs[1] = *(float *)&FLOAT_0_0;
-    maxs[2] = *(float *)&FLOAT_0_0;
+    *mins = 0.0f;
+    mins[1] = 0.0f;
+    mins[2] = 0.0f;
+    *maxs = 0.0f;
+    maxs[1] = 0.0f;
+    maxs[2] = 0.0f;
   }
 }
 
@@ -3671,8 +3671,8 @@ void R_LoadSunSettings()
   unsigned int size; // [esp+0h] [ebp-8h] BYREF
   const char *text; // [esp+4h] [ebp-4h]
 
-  s_world.sunParse.treeScatterAmount = FLOAT_1_0;
-  s_world.sunParse.treeScatterIntensity = FLOAT_1_0;
+  s_world.sunParse.treeScatterAmount = 1.0f;
+  s_world.sunParse.treeScatterIntensity = 1.0f;
   text = Com_GetBspLump(LUMP_ENTITIES, 1u, &size);
   R_ParseSunLight(&s_world.sunParse, (char *)text);
   s_world.sunLight = (GfxLight *)Hunk_Alloc(0x170u, "R_LoadSunSettings", 21);
@@ -4296,9 +4296,9 @@ void __cdecl R_LoadMiscModel(char *(*spawnVars)[2], int spawnVarCount)
     }
     else
     {
-      angles[0] = *(float *)&FLOAT_0_0;
+      angles[0] = 0.0f;
       angles[1] = angle;
-      angles[2] = *(float *)&FLOAT_0_0;
+      angles[2] = 0.0f;
     }
     AnglesToAxis(angles, axis);
     scale = R_FloatForKey("modelscale", 1.0, spawnVars, spawnVarCount);
@@ -4328,32 +4328,32 @@ void __cdecl R_LoadMiscModel(char *(*spawnVars)[2], int spawnVarCount)
       if ( originWeights[0] >= 0.0 )
         v8 = originWeights[0];
       else
-        v8 = *(float *)&FLOAT_0_0;
+        v8 = 0.0f;
       originWeights[0] = v8;
       if ( v8 <= 1.0 )
         v7 = originWeights[0];
       else
-        v7 = FLOAT_1_0;
+        v7 = 1.0f;
       originWeights[0] = v7;
       if ( originWeights[1] >= 0.0 )
         v6 = originWeights[1];
       else
-        v6 = *(float *)&FLOAT_0_0;
+        v6 = 0.0f;
       originWeights[1] = v6;
       if ( v6 <= 1.0 )
         v5 = originWeights[1];
       else
-        v5 = FLOAT_1_0;
+        v5 = 1.0f;
       originWeights[1] = v5;
       if ( originWeights[2] >= 0.0 )
         v4 = originWeights[2];
       else
-        v4 = *(float *)&FLOAT_0_0;
+        v4 = 0.0f;
       originWeights[2] = v4;
       if ( v4 <= 1.0 )
         v3 = originWeights[2];
       else
-        v3 = FLOAT_1_0;
+        v3 = 1.0f;
       originWeights[2] = v3;
       lightingOrigin[0] = (float)((float)(1.0 - originWeights[0]) * smodelInst->mins[0])
                         + (float)(smodelInst->maxs[0] * originWeights[0]);
@@ -4394,27 +4394,27 @@ void __cdecl R_LoadMiscModel(char *(*spawnVars)[2], int spawnVarCount)
       }
       if ( !primaryLightIndex )
       {
-        wx[0] = *(float *)&FLOAT_0_0;
-        wx[1] = FLOAT_1_0;
-        wx[2] = *(float *)&FLOAT_0_0;
-        wx[3] = FLOAT_1_0;
-        wx[4] = *(float *)&FLOAT_0_0;
-        wx[5] = FLOAT_1_0;
-        wx[6] = *(float *)&FLOAT_0_0;
-        wx[7] = FLOAT_1_0;
-        wy[0] = *(float *)&FLOAT_0_0;
-        wy[1] = *(float *)&FLOAT_0_0;
-        wy[2] = FLOAT_1_0;
-        wy[3] = FLOAT_1_0;
-        wy[4] = *(float *)&FLOAT_0_0;
-        wy[5] = *(float *)&FLOAT_0_0;
-        wy[6] = FLOAT_1_0;
-        wy[7] = FLOAT_1_0;
+        wx[0] = 0.0f;
+        wx[1] = 1.0f;
+        wx[2] = 0.0f;
+        wx[3] = 1.0f;
+        wx[4] = 0.0f;
+        wx[5] = 1.0f;
+        wx[6] = 0.0f;
+        wx[7] = 1.0f;
+        wy[0] = 0.0f;
+        wy[1] = 0.0f;
+        wy[2] = 1.0f;
+        wy[3] = 1.0f;
+        wy[4] = 0.0f;
+        wy[5] = 0.0f;
+        wy[6] = 1.0f;
+        wy[7] = 1.0f;
         memset(wz, 0, 16);
-        wz[4] = FLOAT_1_0;
-        wz[5] = FLOAT_1_0;
-        wz[6] = FLOAT_1_0;
-        wz[7] = FLOAT_1_0;
+        wz[4] = 1.0f;
+        wz[5] = 1.0f;
+        wz[6] = 1.0f;
+        wz[7] = 1.0f;
         for ( j = 0; j < 8; ++j )
         {
           adjustedPosition[0] = (float)((float)(1.0 - wx[j]) * smodelInst->mins[0])
@@ -4552,9 +4552,9 @@ bool __cdecl R_VectorForKey(const char *key, char *defaultString, char *(*spawnV
     success = 0;
     string = defaultString;
   }
-  *v = *(float *)&FLOAT_0_0;
-  v[1] = *(float *)&FLOAT_0_0;
-  v[2] = *(float *)&FLOAT_0_0;
+  *v = 0.0f;
+  v[1] = 0.0f;
+  v[2] = 0.0f;
   sscanf(string, "%f %f %f", v, v + 1, v + 2);
   return success;
 }
@@ -5318,7 +5318,7 @@ void __cdecl R_GenerateHighmipAabbs_AddStaticModelSurfaces(
   int smodelCount; // [esp+E0h] [ebp-8h]
   float SIZE_EPSILON; // [esp+E4h] [ebp-4h]
 
-  SIZE_EPSILON = FLOAT_0_000099999997;
+  SIZE_EPSILON = 0.000099999997f;
   smodelCount = s_world.dpvs.smodelCount;
   for ( smodelIter = 0; smodelIter != smodelCount; ++smodelIter )
   {
@@ -5497,10 +5497,10 @@ unsigned __int8 *R_AllocPrimaryLightBuffers()
 
 void R_LoadInitSkyIntensity()
 {
-  s_world.skyDynIntensity.angle0 = *(float *)&FLOAT_0_0;
-  s_world.skyDynIntensity.angle1 = *(float *)&FLOAT_0_0;
-  s_world.skyDynIntensity.factor0 = FLOAT_1_0;
-  s_world.skyDynIntensity.factor1 = FLOAT_1_0;
+  s_world.skyDynIntensity.angle0 = 0.0f;
+  s_world.skyDynIntensity.angle1 = 0.0f;
+  s_world.skyDynIntensity.factor0 = 1.0f;
+  s_world.skyDynIntensity.factor1 = 1.0f;
 }
 
 unsigned int R_SetStaticModelReflectionProbes()

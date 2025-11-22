@@ -598,8 +598,8 @@ void __cdecl DevGui_DrawMenuVertically(const DevMenuItem *menu, unsigned __int16
   origH = R_TextHeight(cls.consoleFont) + 8;
   w = origW;
   h = origH;
-  fontXScale = FLOAT_1_0;
-  fontYScale = FLOAT_1_0;
+  fontXScale = 1.0f;
+  fontYScale = 1.0f;
   fontXOffset = 4;
   fontYOffset = 4;
   childCount = 0;
@@ -661,8 +661,8 @@ void __cdecl DevGui_DrawMenuVertically(const DevMenuItem *menu, unsigned __int16
         {
           w = origW;
           h = origH;
-          fontXScale = FLOAT_1_0;
-          fontYScale = FLOAT_1_0;
+          fontXScale = 1.0f;
+          fontYScale = 1.0f;
           fontXOffset = 4;
           fontYOffset = 4;
         }
@@ -1014,7 +1014,7 @@ void __cdecl DevGui_DrawSliders(const DevMenuItem *menu)
         {
           case DVAR_TYPE_INT:
             if ( dvar->domain.integer.max == dvar->domain.enumeration.stringCount )
-              fraction = FLOAT_0_5;
+              fraction = 0.5f;
             else
               fraction = (float)(dvar->latched.integer - dvar->domain.enumeration.stringCount)
                        / (float)(dvar->domain.integer.max - dvar->domain.enumeration.stringCount);
@@ -1023,7 +1023,7 @@ void __cdecl DevGui_DrawSliders(const DevMenuItem *menu)
             if ( dvar->domain.enumeration.stringCount > 1 )
               fraction = (float)dvar->latched.integer / (float)(dvar->domain.enumeration.stringCount - 1);
             else
-              fraction = FLOAT_0_5;
+              fraction = 0.5f;
             break;
           case DVAR_TYPE_FLOAT:
             fraction = (float)(dvar->latched.value - dvar->domain.value.min)
@@ -1033,16 +1033,16 @@ void __cdecl DevGui_DrawSliders(const DevMenuItem *menu)
             v2 = va("unhandled dvar type %i", dvar->type);
             if ( !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\devgui\\devgui.cpp", 1397, 1, v2) )
               __debugbreak();
-            fraction = FLOAT_0_5;
+            fraction = 0.5f;
             break;
         }
       }
       else
       {
         if ( dvar->latched.enabled )
-          v3 = FLOAT_1_0;
+          v3 = 1.0f;
         else
-          v3 = *(float *)&FLOAT_0_0;
+          v3 = 0.0f;
         fraction = v3;
       }
       DevGui_DrawSingleSlider(
@@ -2444,7 +2444,7 @@ double __cdecl DevGui_PickFloatScrollStep(float min, float max)
   range = max - min;
   if ( max == (float)(int)(max + 9.313225746154785e-10) && min == (float)(int)(min + 9.313225746154785e-10) )
   {
-    for ( step = FLOAT_1_0; range > (float)(step * 100.0); step = step * 2.0 )
+    for ( step = 1.0f; range > (float)(step * 100.0); step = step * 2.0 )
       ;
     while ( (float)(step * 100.0) > range )
       step = step * 0.5;
@@ -2588,11 +2588,11 @@ void __cdecl DevGui_UpdateGraph(int localClientNum, float deltaTime)
         if ( (float)(v6 - 1.0) < 0.0 )
           v7 = graph->knots[graph->selectedKnot][1];
         else
-          v7 = FLOAT_1_0;
+          v7 = 1.0f;
         if ( (float)(0.0 - v6) < 0.0 )
           v2 = v7;
         else
-          v2 = *(float *)&FLOAT_0_0;
+          v2 = 0.0f;
         graph->knots[graph->selectedKnot][1] = v2;
       }
     }
@@ -2620,11 +2620,11 @@ void __cdecl DevGui_UpdateGraph(int localClientNum, float deltaTime)
       if ( (float)(v8 - 1.0) < 0.0 )
         v9 = graph->knots[graph->selectedKnot][1];
       else
-        v9 = FLOAT_1_0;
+        v9 = 1.0f;
       if ( (float)(0.0 - v8) < 0.0 )
         v3 = v9;
       else
-        v3 = *(float *)&FLOAT_0_0;
+        v3 = 0.0f;
       graph->knots[graph->selectedKnot][1] = v3;
     }
     if ( graphUpdated && graph->eventCallback )
@@ -2795,8 +2795,8 @@ void __cdecl DevGui_RemoveGraphKnot(DevGraph *graph, int localClientNum)
       *v2 = v2[2];
       v2[1] = v2[3];
     }
-    graph->knots[currentKnotCount - 1][0] = FLOAT_N1_0;
-    graph->knots[currentKnotCount - 1][1] = FLOAT_N1_0;
+    graph->knots[currentKnotCount - 1][0] = -1.0f;
+    graph->knots[currentKnotCount - 1][1] = -1.0f;
     --*graph->knotCount;
     if ( graph->eventCallback )
       graph->eventCallback(graph, EVENT_UPDATE, localClientNum);

@@ -570,8 +570,8 @@ int __cdecl Player_GetUseList(gentity_s *ent, MaterialMemory *useList, int prevH
   float v55; // [esp+13A0h] [ebp-4h]
   gentity_s *ent2; // [esp+13ACh] [ebp+8h]
 
-  fl_256 = FLOAT_256_0;
-  fl_0_76 = FLOAT_0_75999999;
+  fl_256 = 256.0f;
+  fl_0_76 = 0.75f999999;
   v47 = 0;
   if ( (float)(192.0 - player_throwbackOuterRadius->current.value) < 0.0 )
     value = player_throwbackOuterRadius->current.value;
@@ -589,7 +589,7 @@ int __cdecl Player_GetUseList(gentity_s *ent, MaterialMemory *useList, int prevH
     integer = LODWORD(v33);
   v33 = *(float *)&integer;
   v34 = *(float *)&integer;
-  v35 = FLOAT_96_0;
+  v35 = 96.0f;
   ps = &ent->client->ps;
   v36 = 0;
   G_GetPlayerViewOrigin(ps, &origin);

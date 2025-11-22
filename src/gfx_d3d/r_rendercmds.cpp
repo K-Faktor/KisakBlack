@@ -121,7 +121,7 @@ unsigned int R_InitSpotShadowMeshes()
   float ya; // [esp+2Ch] [ebp-8h]
   unsigned int spotShadowIndex; // [esp+30h] [ebp-4h]
 
-  y = *(float *)&FLOAT_0_0;
+  y = 0.0f;
   for ( spotShadowIndex = 0; spotShadowIndex < 4; ++spotShadowIndex )
   {
     R_InitDynamicMesh(&gfxMeshGlob.spotShadowClearMeshData[spotShadowIndex], 6u, 4u, 0x20u);
@@ -139,7 +139,7 @@ unsigned int R_InitSpotShadowMeshes()
     y = y + 512.0;
     result = spotShadowIndex + 1;
   }
-  ya = *(float *)&FLOAT_0_0;
+  ya = 0.0f;
   for ( sunShadowIndex = 0; sunShadowIndex < 2; ++sunShadowIndex )
   {
     R_InitDynamicMesh(&gfxMeshGlob.sunShadowClearMeshData[sunShadowIndex], 6u, 4u, 0x20u);
@@ -1324,7 +1324,7 @@ char __cdecl SetDrawText2DTypewriterFXParms(
   cmd->fxLetterTime = fxLetterTime;
   cmd->fxDecayStartTime = fxDecayStartTime;
   cmd->fxDecayDuration = fxDecayDuration;
-  cmd->padding = *(float *)&FLOAT_0_0;
+  cmd->padding = 0.0f;
   return 1;
 }
 
@@ -1382,7 +1382,7 @@ char __cdecl SetDrawText2DCOD7DecodeFXParms(
   cmd->fxLetterTime = fxLetterTime;
   cmd->fxDecayStartTime = fxDecayStartTime;
   cmd->fxDecayDuration = fxDecayDuration;
-  cmd->padding = *(float *)&FLOAT_0_0;
+  cmd->padding = 0.0f;
   return 1;
 }
 
@@ -1440,7 +1440,7 @@ char __cdecl SetDrawText2DCOD7TypeWriterFXParms(
   cmd->fxLetterTime = fxLetterTime;
   cmd->fxDecayStartTime = fxDecayStartTime;
   cmd->fxDecayDuration = fxDecayDuration;
-  cmd->padding = *(float *)&FLOAT_0_0;
+  cmd->padding = 0.0f;
   return 1;
 }
 
@@ -1506,7 +1506,7 @@ char __cdecl SetDrawText2DRedactFXParms(
   cmd->fxDecayDuration = fxDecayDuration;
   cmd->fxRedactDecayStartTime = fxRedactDecayStartTime;
   cmd->fxRedactDecayDuration = fxRedactDecayDuration;
-  cmd->padding = *(float *)&FLOAT_0_0;
+  cmd->padding = 0.0f;
   return 1;
 }
 
@@ -1564,7 +1564,7 @@ char __cdecl SetDrawText2DPopInWriteFXParms(
   cmd->fxLetterTime = fxLetterTime;
   cmd->fxDecayStartTime = fxDecayStartTime;
   cmd->fxDecayDuration = fxDecayDuration;
-  cmd->padding = *(float *)&FLOAT_0_0;
+  cmd->padding = 0.0f;
   return 1;
 }
 
@@ -1621,8 +1621,8 @@ GfxCmdDrawText2D *__cdecl AddBaseDrawConsoleTextCmd(
     return 0;
   cmd->x = x;
   cmd->y = y;
-  cmd->w = FLOAT_1_0;
-  cmd->rotation = *(float *)&FLOAT_0_0;
+  cmd->w = 1.0f;
+  cmd->rotation = 0.0f;
   cmd->font = font;
   cmd->xScale = xScale;
   cmd->yScale = yScale;
@@ -1691,7 +1691,7 @@ void __cdecl R_AddCmdDrawConsoleTextTypewriterFX(
     cmd->fxLetterTime = fxLetterTime;
     cmd->fxDecayStartTime = fxDecayStartTime;
     cmd->fxDecayDuration = fxDecayDuration;
-    cmd->padding = FLOAT_1_0;
+    cmd->padding = 1.0f;
   }
 }
 
@@ -1778,7 +1778,7 @@ char __cdecl SetDrawText2DPulseFXParms(
   cmd->fxLetterTime = fxLetterTime;
   cmd->fxDecayStartTime = fxDecayStartTime;
   cmd->fxDecayDuration = fxDecayDuration;
-  cmd->padding = *(float *)&FLOAT_0_0;
+  cmd->padding = 0.0f;
   return 1;
 }
 
@@ -2115,9 +2115,9 @@ void R_SetTestLods()
     for ( i = 0; i < 4; ++i )
     {
       if ( i == r_forceLod->current.integer )
-        dist = *(float *)&FLOAT_0_0;
+        dist = 0.0f;
       else
-        dist = FLOAT_0_001;
+        dist = 0.001f;
       XModelSetTestLods(i, dist);
     }
   }

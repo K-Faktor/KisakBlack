@@ -316,8 +316,8 @@ void __cdecl G_PlayerTurretPositionAndBlend(gentity_s *ent, gentity_s *pTurretEn
                   + (float)(vDelta[2] * turretAxis[2][2]);
         fDelta = tagHeight - tagMat->trans[2];
         numVertChildren = XAnimGetNumChildren(pXAnims, baseAnim);
-        fPrevTransZ = *(float *)&FLOAT_0_0;
-        fPrevBlend = *(float *)&FLOAT_0_0;
+        fPrevTransZ = 0.0f;
+        fPrevBlend = 0.0f;
         iPrevBlend = 0;
         leafAnim2 = 0;
         if ( !numVertChildren )
@@ -343,7 +343,7 @@ void __cdecl G_PlayerTurretPositionAndBlend(gentity_s *ent, gentity_s *pTurretEn
           }
           else
           {
-            fBlend = *(float *)&FLOAT_0_0;
+            fBlend = 0.0f;
           }
           iBlend = (int)fBlend;
           fBlend = fBlend - (float)(int)fBlend;
@@ -538,7 +538,7 @@ void __cdecl turret_clientaim(gentity_s *self, gentity_s *other)
   else
     v2 = LODWORD(pTurretInfo->arcmin[1]);
   self->s.lerp.u.loopFx.period = v2;
-  self->s.lerp.u.actor.team = *(unsigned int *)&FLOAT_0_0;
+  self->s.lerp.u.actor.team = 0;
   self->s.lerp.u.turret.heatVal = g_entities[ps->ps.viewlocked_entNum].pTurretInfo->heatVal / 100.0;
   self->s.lerp.u.turret.overheating = g_entities[ps->ps.viewlocked_entNum].pTurretInfo->overheating;
   if ( (pTurretInfo->flags & 0x800) != 0 )
@@ -964,7 +964,7 @@ int __cdecl turret_CanTargetSentient(
       }
       else if ( bTooLow )
       {
-        *localAngles = *(float *)&FLOAT_0_0;
+        *localAngles = 0.0f;
         targetPosition[2] = tagFlashPos[2];
         return 1;
       }
@@ -979,7 +979,7 @@ int __cdecl turret_CanTargetSentient(
     }
     else
     {
-      *localAngles = *(float *)&FLOAT_0_0;
+      *localAngles = 0.0f;
       targetPosition[2] = tagFlashPos[2];
       return 1;
     }
@@ -1019,7 +1019,7 @@ int __cdecl turret_CanTargetSentient(
       }
       else if ( bTooLow )
       {
-        *localAngles = *(float *)&FLOAT_0_0;
+        *localAngles = 0.0f;
         targetPosition[2] = tagFlashPos[2];
         return 1;
       }
@@ -1034,7 +1034,7 @@ int __cdecl turret_CanTargetSentient(
     }
     else
     {
-      *localAngles = *(float *)&FLOAT_0_0;
+      *localAngles = 0.0f;
       targetPosition[2] = tagFlashPos[2];
       return 1;
     }
@@ -1131,7 +1131,7 @@ void __cdecl turret_think_init(gentity_s *self)
   }
   self->handler = 18;
   self->nextthink = level.time + 50;
-  self->s.lerp.u.actor.team = *(unsigned int *)&FLOAT_0_0;
+  self->s.lerp.u.actor.team = 0;
   if ( self->tagInfo )
     G_GeneralLink(self);
   if ( !self->pTurretInfo
@@ -1191,8 +1191,8 @@ void __cdecl turret_RestoreDefaultDropPitch(gentity_s *self)
       for ( i = 0; i <= 30; ++i )
       {
         angles[0] = (float)(-90.0 / 30.0) * (float)i;
-        angles[1] = *(float *)&FLOAT_0_0;
-        angles[2] = *(float *)&FLOAT_0_0;
+        angles[1] = 0.0f;
+        angles[2] = 0.0f;
         AnglesToAxis(angles, mtx);
         MatrixTransformVector(dir, mtx, transDir);
         transDir[0] = aimMtx->trans[0] + transDir[0];
@@ -1226,7 +1226,7 @@ void __cdecl turret_think(gentity_s *self)
     __debugbreak();
   }
   self->nextthink = level.time + 50;
-  self->s.lerp.u.actor.team = *(unsigned int *)&FLOAT_0_0;
+  self->s.lerp.u.actor.team = 0;
   if ( self->tagInfo )
     G_GeneralLink(self);
   if ( EntHandle::isDefined(&self->r.ownerNum) )
@@ -1242,7 +1242,7 @@ void __cdecl turret_think(gentity_s *self)
                                - (float)((float)((float)(level.time - level.previousTime) * weapDef->cooldownRate)
                                        / 1000.0);
     if ( self->pTurretInfo->heatVal < 0.0 )
-      self->pTurretInfo->heatVal = *(float *)&FLOAT_0_0;
+      self->pTurretInfo->heatVal = 0.0f;
     if ( weapDef->overheatEndVal >= self->pTurretInfo->heatVal )
       self->pTurretInfo->overheating = 0;
   }
@@ -1275,11 +1275,11 @@ int __cdecl turret_ReturnToDefaultPos(gentity_s *self, int bManned)
     __debugbreak();
   }
   if ( bManned )
-    dropPitch = *(float *)&FLOAT_0_0;
+    dropPitch = 0.0f;
   else
     dropPitch = pTurretInfo->dropPitch;
   desiredAngles[0] = dropPitch;
-  desiredAngles[1] = *(float *)&FLOAT_0_0;
+  desiredAngles[1] = 0.0f;
   turret_SetState(self, 0);
   return turret_UpdateTargetAngles(self, desiredAngles, bManned);
 }
@@ -1332,8 +1332,8 @@ int __cdecl turret_UpdateTargetAngles(gentity_s *self, const float *desiredAngle
   }
   else
   {
-    fSpeed[0] = FLOAT_200_0;
-    fSpeed[1] = FLOAT_200_0;
+    fSpeed[0] = 200.0f;
+    fSpeed[1] = 200.0f;
   }
   if ( (pTurretInfo->flags & 0x200) != 0 && (pTurretInfo->flags & 0x100) != 0 )
     fSpeed[0] = INITIAL_PITCH_SPEED;
@@ -1449,8 +1449,8 @@ void __cdecl Turret_ScanStop(gentity_s *self)
     Scr_Notify(self, scr_const.turret_scan_stop, 0);
   turret->flags &= ~0x40000u;
   turret->flags ^= 0x80000u;
-  turret->scanSpeed = *(float *)&FLOAT_0_0;
-  turret->scanDecelYaw = *(float *)&FLOAT_0_0;
+  turret->scanSpeed = 0.0f;
+  turret->scanDecelYaw = 0.0f;
   turret->scanPauseTime = 0;
 }
 
@@ -1560,22 +1560,22 @@ void __cdecl Turret_ScanForEnemies(gentity_s *self)
   {
     self->s.lerp.u.turret.flags &= ~0x20u;
     if ( (float)((float)(turret->arcmin[1] + 4.0) - -90.0) < 0.0 )
-      v2 = FLOAT_N90_0;
+      v2 = -90.0f;
     else
       v2 = turret->arcmin[1] + 4.0;
     if ( (float)(90.0 - (float)(turret->arcmax[1] - 4.0)) < 0.0 )
-      v1 = FLOAT_90_0;
+      v1 = 90.0f;
     else
       v1 = turret->arcmax[1] - 4.0;
     if ( (turret->flags & 0x80000) != 0 )
     {
       deltaYaw = self->s.lerp.u.turret.gunAngles[1] - v2;
-      sign = FLOAT_N1_0;
+      sign = -1.0f;
     }
     else
     {
       deltaYaw = v1 - self->s.lerp.u.turret.gunAngles[1];
-      sign = FLOAT_1_0;
+      sign = 1.0f;
     }
     if ( (turret->flags & 0x40000) == 0 )
       Turret_ScanStart(self, weapDef, deltaYaw);
@@ -1647,7 +1647,7 @@ void __cdecl Turret_ScanStart(gentity_s *self, const WeaponDef *weapDef, float d
     __debugbreak();
   }
   turret->flags |= 0x40000u;
-  turret->scanSpeed = *(float *)&FLOAT_0_0;
+  turret->scanSpeed = 0.0f;
   turret->scanPauseTime = weapDef->scanPauseTime + level.time;
   turret->scanDecelYaw = (float)(weapDef->scanSpeed * weapDef->scanSpeed) / (float)(2.0 * weapDef->scanAccel);
   if ( turret->scanDecelYaw > (float)(deltaYaw * 0.5) )
@@ -1705,7 +1705,7 @@ int __cdecl turret_aimat_Sentient_Internal(
     if ( (pTurretInfo->flags & 8) != 0 )
     {
       if ( missTime <= 0 )
-        divergence = *(float *)&FLOAT_0_0;
+        divergence = 0.0f;
       else
         divergence = (float)(missTime + pTurretInfo->targetTime - level.time) / (float)missTime;
       missOffsetOuter[0] = (float)(divergence * 30.0) * pTurretInfo->missOffsetNormalized[0];
@@ -1761,9 +1761,9 @@ int __cdecl turret_aimat_Sentient_Internal(
         return 1;
       }
       v6 = pTurretInfo->missOffsetNormalized;
-      pTurretInfo->missOffsetNormalized[0] = *(float *)&FLOAT_0_0;
-      v6[1] = *(float *)&FLOAT_0_0;
-      v6[2] = *(float *)&FLOAT_0_0;
+      pTurretInfo->missOffsetNormalized[0] = 0.0f;
+      v6[1] = 0.0f;
+      v6[2] = 0.0f;
     }
   }
   turret_aimat_vector_internal(self, targetPosition, bShoot, desiredAngles);
@@ -2135,10 +2135,10 @@ void __cdecl turret_controller(const gentity_s *self, int *partBits)
       __debugbreak();
     }
     DObjSetLocalTag(obj, partBits, boneIndex, vec3_origin, angles);
-    angles[0] = *(float *)&FLOAT_0_0;
+    angles[0] = 0.0f;
   }
   angles[1] = self->s.lerp.u.turret.gunAngles[1];
-  angles[2] = *(float *)&FLOAT_0_0;
+  angles[2] = 0.0f;
   boneIndex = -2;
   DObjGetBoneIndex(obj, scr_const.tag_aim, &boneIndex, -1);
   DObjSetControlTagAngles(obj, partBits, boneIndex, angles);
@@ -2146,7 +2146,7 @@ void __cdecl turret_controller(const gentity_s *self, int *partBits)
   DObjGetBoneIndex(obj, scr_const.tag_aim_animated, &boneIndex, -1);
   DObjSetControlTagAngles(obj, partBits, boneIndex, angles);
   angles[0] = self->s.lerp.u.turret.gunAngles[2];
-  angles[1] = *(float *)&FLOAT_0_0;
+  angles[1] = 0.0f;
   boneIndex = -2;
   DObjGetBoneIndex(obj, scr_const.tag_flash, &boneIndex, -1);
   DObjSetControlTagAngles(obj, partBits, boneIndex, angles);
@@ -2221,7 +2221,7 @@ bool __cdecl turret_behind(gentity_s *self, gentity_s *other)
   Vec3Normalize(forward);
   dir[0] = self->r.currentOrigin[0] - other->r.currentOrigin[0];
   dir[1] = self->r.currentOrigin[1] - other->r.currentOrigin[1];
-  dir[2] = *(float *)&FLOAT_0_0;
+  dir[2] = 0.0f;
   Vec3Normalize(dir);
   dot = (float)((float)(forward[0] * dir[0]) + (float)(forward[1] * dir[1])) + (float)(forward[2] * dir[2]);
   angle = Q_acos(dot) * 57.295776;
@@ -2266,21 +2266,21 @@ void __cdecl turret_find_max_angles(gentity_s *pOwner, gentity_s *pTurret)
   float toPlayer[3]; // [esp+164h] [ebp-Ch] BYREF
 
   memset(&tr, 0, 16);
-  stepCount = FLOAT_3_0;
-  dropTraceWidth = FLOAT_0_25;
-  heightTestDist = FLOAT_4_0;
+  stepCount = 3.0f;
+  dropTraceWidth = 0.25f;
+  heightTestDist = 4.0f;
   col_context_t::col_context_t(&context);
   drawLines = cg_debugMounting->current.integer > 1;
-  up[0] = *(float *)&FLOAT_0_0;
-  up[1] = *(float *)&FLOAT_0_0;
-  up[2] = FLOAT_1_0;
+  up[0] = 0.0f;
+  up[1] = 0.0f;
+  up[2] = 1.0f;
   pTurretInfo = pTurret->pTurretInfo;
   ps = &pOwner->client->ps;
   minTurretArc = pTurretInfo->arcmin[1];
   maxTurretArc = pTurretInfo->arcmax[1];
   LODWORD(dropMins[0]) = LODWORD(dropTraceWidth) ^ _mask__NegFloat_;
   LODWORD(dropMins[1]) = LODWORD(dropTraceWidth) ^ _mask__NegFloat_;
-  dropMins[2] = *(float *)&FLOAT_0_0;
+  dropMins[2] = 0.0f;
   dropMaxs[0] = dropTraceWidth;
   dropMaxs[1] = dropTraceWidth;
   dropMaxs[2] = heightTestDist * 2.0;
@@ -2296,22 +2296,22 @@ void __cdecl turret_find_max_angles(gentity_s *pOwner, gentity_s *pTurret)
   maxs[1] = maxs[1] + 5.0;
   toPlayer[0] = pOwner->s.lerp.pos.trBase[0] - pTurret->s.lerp.pos.trBase[0];
   toPlayer[1] = pOwner->s.lerp.pos.trBase[1] - pTurret->s.lerp.pos.trBase[1];
-  toPlayer[2] = *(float *)&FLOAT_0_0;
+  toPlayer[2] = 0.0f;
   distToTurret = Vec3Normalize(toPlayer) + 24.0;
   toPlayer[0] = (float)(distToTurret * toPlayer[0]) + pTurret->s.lerp.pos.trBase[0];
   toPlayer[1] = (float)(distToTurret * toPlayer[1]) + pTurret->s.lerp.pos.trBase[1];
   toPlayer[2] = (float)(distToTurret * toPlayer[2]) + pTurret->s.lerp.pos.trBase[2];
   toPlayer[2] = pOwner->s.lerp.pos.trBase[2] + heightTestDist;
-  leftPoint[0] = *(float *)&FLOAT_0_0;
-  leftPoint[1] = FLOAT_1_0;
-  leftPoint[2] = *(float *)&FLOAT_0_0;
+  leftPoint[0] = 0.0f;
+  leftPoint[1] = 1.0f;
+  leftPoint[2] = 0.0f;
   YawVectors((float)(pTurret->r.currentAngles[1] + 180.0) + minTurretArc, leftPoint, 0);
   leftPoint[0] = (float)(distToTurret * leftPoint[0]) + pTurret->s.lerp.pos.trBase[0];
   leftPoint[1] = (float)(distToTurret * leftPoint[1]) + pTurret->s.lerp.pos.trBase[1];
   leftPoint[2] = toPlayer[2];
-  rightPoint[0] = *(float *)&FLOAT_0_0;
-  rightPoint[1] = FLOAT_1_0;
-  rightPoint[2] = *(float *)&FLOAT_0_0;
+  rightPoint[0] = 0.0f;
+  rightPoint[1] = 1.0f;
+  rightPoint[2] = 0.0f;
   YawVectors((float)(pTurret->r.currentAngles[1] + 180.0) + maxTurretArc, rightPoint, 0);
   rightPoint[0] = (float)(distToTurret * rightPoint[0]) + pTurret->s.lerp.pos.trBase[0];
   rightPoint[1] = (float)(distToTurret * rightPoint[1]) + pTurret->s.lerp.pos.trBase[1];
@@ -2324,10 +2324,10 @@ void __cdecl turret_find_max_angles(gentity_s *pOwner, gentity_s *pTurret)
     end[0] = (float)(20.0 * up[0]) + leftPoint[0];
     end[1] = (float)(20.0 * up[1]) + leftPoint[1];
     end[2] = (float)(20.0 * up[2]) + leftPoint[2];
-    color[0] = *(float *)&FLOAT_0_0;
-    color[1] = *(float *)&FLOAT_0_0;
-    color[2] = FLOAT_1_0;
-    color[3] = FLOAT_1_0;
+    color[0] = 0.0f;
+    color[1] = 0.0f;
+    color[2] = 1.0f;
+    color[3] = 1.0f;
     CG_DebugLine(start, end, color, 0, 1000);
   }
   G_TraceCapsule(&tr, toPlayer, mins, maxs, leftPoint, pOwner->s.number, pOwner->clipmask & 0xFDFF7FFF, &context);
@@ -2336,9 +2336,9 @@ void __cdecl turret_find_max_angles(gentity_s *pOwner, gentity_s *pTurret)
   stepIncrement = (float)(minTurretArc / stepCount) * -1.0;
   while ( minTurretArc != 0.0 )
   {
-    leftPoint[0] = *(float *)&FLOAT_0_0;
-    leftPoint[1] = FLOAT_1_0;
-    leftPoint[2] = *(float *)&FLOAT_0_0;
+    leftPoint[0] = 0.0f;
+    leftPoint[1] = 1.0f;
+    leftPoint[2] = 0.0f;
     YawVectors((float)(pTurret->r.currentAngles[1] + 180.0) + minTurretArc, leftPoint, 0);
     leftPoint[0] = (float)(distToTurret * leftPoint[0]) + pTurret->s.lerp.pos.trBase[0];
     leftPoint[1] = (float)(distToTurret * leftPoint[1]) + pTurret->s.lerp.pos.trBase[1];
@@ -2365,10 +2365,10 @@ void __cdecl turret_find_max_angles(gentity_s *pOwner, gentity_s *pTurret)
         end[0] = (float)(20.0 * up[0]) + dropPoint[0];
         end[1] = (float)(20.0 * up[1]) + dropPoint[1];
         end[2] = (float)(20.0 * up[2]) + dropPoint[2];
-        color[0] = *(float *)&FLOAT_0_0;
-        color[1] = FLOAT_1_0;
-        color[2] = *(float *)&FLOAT_0_0;
-        color[3] = FLOAT_1_0;
+        color[0] = 0.0f;
+        color[1] = 1.0f;
+        color[2] = 0.0f;
+        color[3] = 1.0f;
         CG_DebugBox(start, dropMins, dropMaxs, 0.0, color, 0, 1000);
       }
       break;
@@ -2381,16 +2381,16 @@ void __cdecl turret_find_max_angles(gentity_s *pOwner, gentity_s *pTurret)
       end[0] = (float)(20.0 * up[0]) + dropPoint[0];
       end[1] = (float)(20.0 * up[1]) + dropPoint[1];
       end[2] = (float)(20.0 * up[2]) + dropPoint[2];
-      color[0] = FLOAT_1_0;
-      color[1] = *(float *)&FLOAT_0_0;
-      color[2] = *(float *)&FLOAT_0_0;
-      color[3] = FLOAT_1_0;
+      color[0] = 1.0f;
+      color[1] = 0.0f;
+      color[2] = 0.0f;
+      color[3] = 1.0f;
       CG_DebugBox(start, dropMins, dropMaxs, 0.0, color, 0, 1000);
     }
     minTurretArc = minTurretArc + stepIncrement;
     if ( stepIncrement < 0.0 && minTurretArc < 0.0 || stepIncrement > 0.0 && minTurretArc > 0.0 )
     {
-      minTurretArc = *(float *)&FLOAT_0_0;
+      minTurretArc = 0.0f;
       break;
     }
   }
@@ -2402,10 +2402,10 @@ void __cdecl turret_find_max_angles(gentity_s *pOwner, gentity_s *pTurret)
     end[0] = (float)(20.0 * up[0]) + rightPoint[0];
     end[1] = (float)(20.0 * up[1]) + rightPoint[1];
     end[2] = (float)(20.0 * up[2]) + rightPoint[2];
-    color[0] = *(float *)&FLOAT_0_0;
-    color[1] = *(float *)&FLOAT_0_0;
-    color[2] = FLOAT_1_0;
-    color[3] = FLOAT_1_0;
+    color[0] = 0.0f;
+    color[1] = 0.0f;
+    color[2] = 1.0f;
+    color[3] = 1.0f;
     CG_DebugLine(start, end, color, 0, 1000);
   }
   G_TraceCapsule(&tr, toPlayer, mins, maxs, rightPoint, pOwner->s.number, pOwner->clipmask & 0xFDFF7FFF, &context);
@@ -2414,9 +2414,9 @@ void __cdecl turret_find_max_angles(gentity_s *pOwner, gentity_s *pTurret)
   stepIncrement = (float)(maxTurretArc / stepCount) * -1.0;
   while ( maxTurretArc != 0.0 )
   {
-    rightPoint[0] = *(float *)&FLOAT_0_0;
-    rightPoint[1] = FLOAT_1_0;
-    rightPoint[2] = *(float *)&FLOAT_0_0;
+    rightPoint[0] = 0.0f;
+    rightPoint[1] = 1.0f;
+    rightPoint[2] = 0.0f;
     YawVectors((float)(pTurret->r.currentAngles[1] + 180.0) + maxTurretArc, rightPoint, 0);
     rightPoint[0] = (float)(distToTurret * rightPoint[0]) + pTurret->s.lerp.pos.trBase[0];
     rightPoint[1] = (float)(distToTurret * rightPoint[1]) + pTurret->s.lerp.pos.trBase[1];
@@ -2443,10 +2443,10 @@ void __cdecl turret_find_max_angles(gentity_s *pOwner, gentity_s *pTurret)
         end[0] = (float)(20.0 * up[0]) + dropPoint[0];
         end[1] = (float)(20.0 * up[1]) + dropPoint[1];
         end[2] = (float)(20.0 * up[2]) + dropPoint[2];
-        color[0] = *(float *)&FLOAT_0_0;
-        color[1] = FLOAT_1_0;
-        color[2] = *(float *)&FLOAT_0_0;
-        color[3] = FLOAT_1_0;
+        color[0] = 0.0f;
+        color[1] = 1.0f;
+        color[2] = 0.0f;
+        color[3] = 1.0f;
         CG_DebugBox(start, dropMins, dropMaxs, 0.0, color, 0, 1000);
       }
       break;
@@ -2459,16 +2459,16 @@ void __cdecl turret_find_max_angles(gentity_s *pOwner, gentity_s *pTurret)
       end[0] = (float)(20.0 * up[0]) + dropPoint[0];
       end[1] = (float)(20.0 * up[1]) + dropPoint[1];
       end[2] = (float)(20.0 * up[2]) + dropPoint[2];
-      color[0] = FLOAT_1_0;
-      color[1] = *(float *)&FLOAT_0_0;
-      color[2] = *(float *)&FLOAT_0_0;
-      color[3] = FLOAT_1_0;
+      color[0] = 1.0f;
+      color[1] = 0.0f;
+      color[2] = 0.0f;
+      color[3] = 1.0f;
       CG_DebugBox(start, dropMins, dropMaxs, 0.0, color, 0, 1000);
     }
     maxTurretArc = maxTurretArc + stepIncrement;
     if ( stepIncrement < 0.0 && maxTurretArc < 0.0 || stepIncrement > 0.0 && maxTurretArc > 0.0 )
     {
-      maxTurretArc = *(float *)&FLOAT_0_0;
+      maxTurretArc = 0.0f;
       break;
     }
   }
@@ -2482,9 +2482,9 @@ void __cdecl turret_find_max_angles(gentity_s *pOwner, gentity_s *pTurret)
   {
     if ( minTurretArc != pTurretInfo->arcmin[1] )
     {
-      leftPoint[0] = *(float *)&FLOAT_0_0;
-      leftPoint[1] = FLOAT_1_0;
-      leftPoint[2] = *(float *)&FLOAT_0_0;
+      leftPoint[0] = 0.0f;
+      leftPoint[1] = 1.0f;
+      leftPoint[2] = 0.0f;
       YawVectors((float)(pTurret->r.currentAngles[1] + 180.0) + minTurretArc, leftPoint, 0);
       leftPoint[0] = (float)(distToTurret * leftPoint[0]) + pTurret->s.lerp.pos.trBase[0];
       leftPoint[1] = (float)(distToTurret * leftPoint[1]) + pTurret->s.lerp.pos.trBase[1];
@@ -2495,17 +2495,17 @@ void __cdecl turret_find_max_angles(gentity_s *pOwner, gentity_s *pTurret)
       end[0] = (float)(20.0 * up[0]) + leftPoint[0];
       end[1] = (float)(20.0 * up[1]) + leftPoint[1];
       end[2] = (float)(20.0 * up[2]) + toPlayer[2];
-      color[0] = FLOAT_1_0;
-      color[1] = FLOAT_1_0;
-      color[2] = *(float *)&FLOAT_0_0;
-      color[3] = FLOAT_1_0;
+      color[0] = 1.0f;
+      color[1] = 1.0f;
+      color[2] = 0.0f;
+      color[3] = 1.0f;
       CG_DebugLine(start, end, color, 0, 1000);
     }
     if ( maxTurretArc != pTurretInfo->arcmax[1] )
     {
-      rightPoint[0] = *(float *)&FLOAT_0_0;
-      rightPoint[1] = FLOAT_1_0;
-      rightPoint[2] = *(float *)&FLOAT_0_0;
+      rightPoint[0] = 0.0f;
+      rightPoint[1] = 1.0f;
+      rightPoint[2] = 0.0f;
       YawVectors((float)(pTurret->r.currentAngles[1] + 180.0) + maxTurretArc, rightPoint, 0);
       rightPoint[0] = (float)(distToTurret * rightPoint[0]) + pTurret->s.lerp.pos.trBase[0];
       rightPoint[1] = (float)(distToTurret * rightPoint[1]) + pTurret->s.lerp.pos.trBase[1];
@@ -2516,10 +2516,10 @@ void __cdecl turret_find_max_angles(gentity_s *pOwner, gentity_s *pTurret)
       end[0] = (float)(20.0 * up[0]) + rightPoint[0];
       end[1] = (float)(20.0 * up[1]) + rightPoint[1];
       end[2] = (float)(20.0 * up[2]) + toPlayer[2];
-      color[0] = FLOAT_1_0;
-      color[1] = FLOAT_1_0;
-      color[2] = *(float *)&FLOAT_0_0;
-      color[3] = FLOAT_1_0;
+      color[0] = 1.0f;
+      color[1] = 1.0f;
+      color[2] = 0.0f;
+      color[3] = 1.0f;
       CG_DebugLine(start, end, color, 0, 1000);
     }
   }
@@ -2635,7 +2635,7 @@ void __cdecl turret_use(gentity_s *self, gentity_s *owner)
     else
       v5 = LODWORD(pTurretInfo->arcmin[1]);
     self->s.lerp.u.loopFx.period = v5;
-    self->s.lerp.u.actor.team = *(unsigned int *)&FLOAT_0_0;
+    self->s.lerp.u.actor.team = 0;
     ps->viewAngleClampRange[0] = (float)(pTurretInfo->arcmax[0] - pTurretInfo->arcmin[0]) * 0.5;
     ps->viewAngleClampBase[0] = self->r.currentAngles[0] + pTurretInfo->arcmax[0];
     v3 = AngleNormalize360(ps->viewAngleClampBase[0] - ps->viewAngleClampRange[0]);
@@ -2682,7 +2682,7 @@ void __cdecl G_SpawnTurret(gentity_s *self, const char *weaponinfoname, SpawnVar
   memset((unsigned __int8 *)turretInfo, 0, sizeof(TurretInfo));
   self->pTurretInfo = turretInfo;
   turretInfo->inuse = 1;
-  turretInfo->scanningPitch = *(float *)&FLOAT_0_0;
+  turretInfo->scanningPitch = 0.0f;
   WeaponIndexForName = G_GetWeaponIndexForName(weaponinfoname);
   AssignToSmallerType<unsigned short>(&self->s.weapon, WeaponIndexForName);
   self->s.weaponModel = 0;
@@ -2708,7 +2708,7 @@ void __cdecl G_SpawnTurret(gentity_s *self, const char *weaponinfoname, SpawnVar
   turretInfo->stance = weapDef->stance;
   turretInfo->prevStance = -1;
   turretInfo->fireSndDelay = 0;
-  turretInfo->heatVal = *(float *)&FLOAT_0_0;
+  turretInfo->heatVal = 0.0f;
   turretInfo->overheating = 0;
 
   if ( weapDef->fireLoopSound )
@@ -2735,23 +2735,23 @@ void __cdecl G_SpawnTurret(gentity_s *self, const char *weaponinfoname, SpawnVar
     turretInfo->arcmin[1] = weapDef->rightArc;
   turretInfo->arcmin[1] = turretInfo->arcmin[1] * -1.0;
   if ( turretInfo->arcmin[1] > 0.0 )
-    turretInfo->arcmin[1] = *(float *)&FLOAT_0_0;
+    turretInfo->arcmin[1] = 0.0f;
   turretInfo->initialYawmin = turretInfo->arcmin[1];
   if ( !spawnVar || !G_SpawnFloat(spawnVar, "leftarc", &toastPopupTitle, &turretInfo->arcmax[1]) )
     turretInfo->arcmax[1] = weapDef->leftArc;
   if ( turretInfo->arcmax[1] < 0.0 )
-    turretInfo->arcmax[1] = *(float *)&FLOAT_0_0;
+    turretInfo->arcmax[1] = 0.0f;
   turretInfo->initialYawmax = turretInfo->arcmax[1];
   turretInfo->forwardAngleDot = turretInfo->initialYawmax - turretInfo->initialYawmin;
   forwardAngleDot = turretInfo->forwardAngleDot;
   if ( (float)(forwardAngleDot - 180.0) < 0.0 )
     v11 = turretInfo->forwardAngleDot;
   else
-    v11 = FLOAT_180_0;
+    v11 = 180.0f;
   if ( (float)(90.0 - forwardAngleDot) < 0.0 )
     *((float *)&v8 + 1) = v11;
   else
-    *((float *)&v8 + 1) = FLOAT_90_0;
+    *((float *)&v8 + 1) = 90.0f;
   turretInfo->forwardAngleDot = *((float *)&v8 + 1);
   v7 = (float)(turretInfo->forwardAngleDot * 0.017453292);
   __libm_sse2_cos(v8);
@@ -2761,37 +2761,37 @@ void __cdecl G_SpawnTurret(gentity_s *self, const char *weaponinfoname, SpawnVar
     turretInfo->arcmin[0] = weapDef->topArc;
   turretInfo->arcmin[0] = turretInfo->arcmin[0] * -1.0;
   if ( turretInfo->arcmin[0] > 0.0 )
-    turretInfo->arcmin[0] = *(float *)&FLOAT_0_0;
+    turretInfo->arcmin[0] = 0.0f;
   if ( !spawnVar || !G_SpawnFloat(spawnVar, "bottomarc", &toastPopupTitle, turretInfo->arcmax) )
     turretInfo->arcmax[0] = weapDef->bottomArc;
   if ( turretInfo->arcmax[0] < 0.0 )
-    turretInfo->arcmax[0] = *(float *)&FLOAT_0_0;
+    turretInfo->arcmax[0] = 0.0f;
   if ( (!spawnVar || !G_SpawnFloat(spawnVar, "yawconvergencetime", &toastPopupTitle, &convergenceTime))
     && (!spawnVar || !G_SpawnFloat(spawnVar, "convergencetime", &toastPopupTitle, &convergenceTime)) )
   {
     convergenceTime = weapDef->yawConvergenceTime;
   }
   if ( convergenceTime < 0.0 )
-    convergenceTime = *(float *)&FLOAT_0_0;
+    convergenceTime = 0.0f;
   turretInfo->convergenceTime[1] = (int)(float)((float)(convergenceTime * 1000.0) + 0.5);
   if ( !spawnVar || !G_SpawnFloat(spawnVar, "pitchconvergencetime", &toastPopupTitle, &convergenceTime) )
     convergenceTime = weapDef->pitchConvergenceTime;
   if ( convergenceTime < 0.0 )
-    convergenceTime = *(float *)&FLOAT_0_0;
+    convergenceTime = 0.0f;
   turretInfo->convergenceTime[0] = (int)(float)((float)(convergenceTime * 1000.0) + 0.5);
   if ( !spawnVar || !G_SpawnFloat(spawnVar, "suppressionTime", &toastPopupTitle, &suppressTime) )
     suppressTime = weapDef->suppressTime;
   if ( suppressTime < 0.0 )
-    suppressTime = *(float *)&FLOAT_0_0;
+    suppressTime = 0.0f;
   turretInfo->suppressTime = (int)(float)((float)(suppressTime * 1000.0) + 0.5);
   if ( !spawnVar || !G_SpawnFloat(spawnVar, "maxrange", &toastPopupTitle, &maxRange) )
     maxRange = weapDef->maxRange;
   if ( maxRange <= 0.0 )
-    v9 = FLOAT_3_4028235e38;
+    v9 = FLT_MAX;
   else
     v9 = maxRange * maxRange;
   turretInfo->maxRangeSquared = v9;
-  turretInfo->dropPitch = FLOAT_N90_0;
+  turretInfo->dropPitch = -90.0f;
   if ( !self->health )
     self->health = 100;
   if ( !spawnVar || !G_SpawnFloat(spawnVar, "accuracy", "1", &turretInfo->accuracy) )
@@ -2799,20 +2799,20 @@ void __cdecl G_SpawnTurret(gentity_s *self, const char *weaponinfoname, SpawnVar
   if ( turretInfo->accuracy >= 0.0 )
   {
     if ( turretInfo->accuracy > 1.0 )
-      turretInfo->accuracy = FLOAT_1_0;
+      turretInfo->accuracy = 1.0f;
   }
   else
   {
-    turretInfo->accuracy = *(float *)&FLOAT_0_0;
+    turretInfo->accuracy = 0.0f;
   }
   if ( !spawnVar || !G_SpawnFloat(spawnVar, "aiSpread", "1", &turretInfo->aiSpread) )
     turretInfo->aiSpread = weapDef->aiSpread;
   if ( turretInfo->aiSpread < 0.0 )
-    turretInfo->aiSpread = *(float *)&FLOAT_0_0;
+    turretInfo->aiSpread = 0.0f;
   if ( !spawnVar || !G_SpawnFloat(spawnVar, "playerSpread", "1", &turretInfo->playerSpread) )
     turretInfo->playerSpread = weapDef->playerSpread;
   if ( turretInfo->playerSpread < 0.0 )
-    turretInfo->playerSpread = *(float *)&FLOAT_0_0;
+    turretInfo->playerSpread = 0.0f;
   turretInfo->flags = 4099;
   turretInfo->state = 0;
   turretInfo->prevSentTarget = -1;
@@ -2831,15 +2831,15 @@ void __cdecl G_SpawnTurret(gentity_s *self, const char *weaponinfoname, SpawnVar
   }
   self->r.mins[0] = FLOAT_N32_0;
   self->r.mins[1] = FLOAT_N32_0;
-  self->r.mins[2] = *(float *)&FLOAT_0_0;
-  self->r.maxs[0] = FLOAT_32_0;
-  self->r.maxs[1] = FLOAT_32_0;
+  self->r.mins[2] = 0.0f;
+  self->r.maxs[0] = 32.0f;
+  self->r.maxs[1] = 32.0f;
   self->r.maxs[2] = FLOAT_56_0;
   G_SetOrigin(self, self->r.currentOrigin);
   G_SetAngle(self, self->r.currentAngles);
-  self->s.lerp.u.actor.index.actorNum = *(unsigned int *)&FLOAT_0_0;
-  self->s.lerp.u.loopFx.period = *(unsigned int *)&FLOAT_0_0;
-  self->s.lerp.u.actor.team = *(unsigned int *)&FLOAT_0_0;
+  self->s.lerp.u.actor.index.actorNum = 0;
+  self->s.lerp.u.loopFx.period = 0;
+  self->s.lerp.u.actor.team = 0;
   self->handler = 17;
   self->nextthink = level.time + 50;
   self->s.lerp.apos.trType = 4;

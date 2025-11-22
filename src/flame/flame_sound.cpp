@@ -4,9 +4,9 @@ void __cdecl Flame_Class_Source_Sound_Init(flameSource_t *source)
 {
   source->wasFiring = 0;
   source->lastSoundTime = 0;
-  source->flameSoundPoint[0] = *(float *)&FLOAT_0_0;
-  source->flameSoundPoint[1] = *(float *)&FLOAT_0_0;
-  source->flameSoundPoint[2] = *(float *)&FLOAT_0_0;
+  source->flameSoundPoint[0] = 0.0f;
+  source->flameSoundPoint[1] = 0.0f;
+  source->flameSoundPoint[2] = 0.0f;
 }
 
 void __cdecl Flame_Class_Source_Sound(

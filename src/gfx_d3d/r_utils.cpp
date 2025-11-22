@@ -218,7 +218,7 @@ char __cdecl R_GetClearColor(float *unpackedRgba)
       unpackedRgba[1] = color[1];
       unpackedRgba[2] = color[2];
       unpackedRgba[3] = color[3];
-      unpackedRgba[3] = FLOAT_1_0;
+      unpackedRgba[3] = 1.0f;
       return 1;
     }
     else if ( r_clear->current.integer == 3 || (Sys_Milliseconds() & 0x200) == 0 )
@@ -234,10 +234,10 @@ char __cdecl R_GetClearColor(float *unpackedRgba)
   }
   else
   {
-    *unpackedRgba = *(float *)&FLOAT_0_0;
-    unpackedRgba[1] = *(float *)&FLOAT_0_0;
-    unpackedRgba[2] = *(float *)&FLOAT_0_0;
-    unpackedRgba[3] = *(float *)&FLOAT_0_0;
+    *unpackedRgba = 0.0f;
+    unpackedRgba[1] = 0.0f;
+    unpackedRgba[2] = 0.0f;
+    unpackedRgba[3] = 0.0f;
     return 0;
   }
 }

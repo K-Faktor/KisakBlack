@@ -189,17 +189,17 @@ void __cdecl Scr_Target_Set()
     targGlob.targets[targetIndex].materialIndex = -1;
     targGlob.targets[targetIndex].offscreenMaterialIndex = -1;
     v6 = 28 * targetIndex + 66290436;
-    targGlob.targets[targetIndex].offset[0] = *(float *)&FLOAT_0_0;
-    *(unsigned int *)(v6 + 4) = *(unsigned int *)&FLOAT_0_0;
-    *(unsigned int *)(v6 + 8) = *(unsigned int *)&FLOAT_0_0;
+    targGlob.targets[targetIndex].offset[0] = 0.0f;
+    *(unsigned int *)(v6 + 4) = 0;
+    *(unsigned int *)(v6 + 8) = 0;
     ++targGlob.targetCount;
   }
   if ( (unsigned int)Scr_GetNumParam(SCRIPTINSTANCE_SERVER) <= 1 )
   {
     v5 = 28 * targetIndex + 66290436;
-    targGlob.targets[targetIndex].offset[0] = *(float *)&FLOAT_0_0;
-    *(unsigned int *)(v5 + 4) = *(unsigned int *)&FLOAT_0_0;
-    *(unsigned int *)(v5 + 8) = *(unsigned int *)&FLOAT_0_0;
+    targGlob.targets[targetIndex].offset[0] = 0.0f;
+    *(unsigned int *)(v5 + 4) = 0;
+    *(unsigned int *)(v5 + 8) = 0;
   }
   else
   {
@@ -438,9 +438,9 @@ char __cdecl G_TargetGetOffset(const gentity_s *targ, float *result)
   targetIndex = GetTargetIdx(targ);
   if ( targetIndex == 32 )
   {
-    *result = *(float *)&FLOAT_0_0;
-    result[1] = *(float *)&FLOAT_0_0;
-    result[2] = *(float *)&FLOAT_0_0;
+    *result = 0.0f;
+    result[1] = 0.0f;
+    result[2] = 0.0f;
     return 0;
   }
   else

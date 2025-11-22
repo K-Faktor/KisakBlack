@@ -436,7 +436,7 @@ bool __cdecl Melee_Trace(
   {
     __debugbreak();
   }
-  traceResult->fraction = FLOAT_1_0;
+  traceResult->fraction = 1.0f;
   if ( width > 0.0 || height > 0.0 )
     v9 = 9;
   else
@@ -604,7 +604,7 @@ gentity_s *__cdecl Weapon_GrenadeLauncher_Fire(
     __debugbreak();
   if ( !wp && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\g_weapon.cpp", 463, 0, "%s", "wp") )
     __debugbreak();
-  fAddVel = *(float *)&FLOAT_0_0;
+  fAddVel = 0.0f;
   iProjectileSpeed = (float)wp->weapDef->iProjectileSpeed;
   vTossVel[0] = iProjectileSpeed * wp->forward[0];
   vTossVel[1] = iProjectileSpeed * wp->forward[1];
@@ -681,7 +681,7 @@ gentity_s * Weapon_RocketLauncher_Fire@<eax>(
   gunrandom(&dir[1], &dir[2]);
   dir[1] = dir[1] * v21;
   dir[2] = dir[2] * v21;
-  dir[0] = FLOAT_16_0;
+  dir[0] = 16.0f;
   v17 = 16.0 * wp->forward[0];
   v18 = 16.0 * wp->forward[1];
   v19 = 16.0 * wp->forward[2];
@@ -706,7 +706,7 @@ gentity_s * Weapon_RocketLauncher_Fire@<eax>(
     LODWORD(v12) = LODWORD(wp->forward[1]) ^ _mask__NegFloat_;
     LODWORD(v13) = LODWORD(wp->forward[2]) ^ _mask__NegFloat_;
     if ( v13 > 0.0 )
-      v13 = *(float *)&FLOAT_0_0;
+      v13 = 0.0f;
     velocity = ent->client->ps.velocity;
     client = ent->client;
     *velocity = (float)(64.0 * COERCE_FLOAT(LODWORD(wp->forward[0]) ^ _mask__NegFloat_)) + client->ps.velocity[0];
@@ -750,7 +750,7 @@ gentity_s *__cdecl Weapon_BombDrop_Fire(
   float launchpos[3]; // [esp+3Ch] [ebp-10h] BYREF
   float u; // [esp+48h] [ebp-4h] BYREF
 
-  fDist = FLOAT_16_0;
+  fDist = 16.0f;
   if ( !ent && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\g_weapon.cpp", 608, 0, "%s", "ent") )
     __debugbreak();
   if ( !wp && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\g_weapon.cpp", 609, 0, "%s", "wp") )
@@ -850,7 +850,7 @@ void  Weapon_Overheat_Update(__m128 amount@<xmm0>, gentity_s *ent)
       if ( turretEnt->pTurretInfo->heatVal >= 100.0 )
       {
         turretEnt->pTurretInfo->overheating = 1;
-        turretEnt->pTurretInfo->heatVal = FLOAT_100_0;
+        turretEnt->pTurretInfo->heatVal = 100.0f;
       }
     }
   }
@@ -923,9 +923,9 @@ void __cdecl Weapon_Flamethrower_Update(gentity_s *ent, weaponParms *wp)
   flameWeaponConfig.fTable = wp->weapDef->flameTableThirdPersonPtr;
   flameWeaponConfig.bFireWhileIdle = 0;
   flameWeaponConfig.bIsFiring = isFiring;
-  flameWeaponConfig.burnRate = FLOAT_1_0;
-  flameWeaponConfig.strength = FLOAT_1_0;
-  flameWeaponConfig.thickness = FLOAT_1_0;
+  flameWeaponConfig.burnRate = 1.0f;
+  flameWeaponConfig.strength = 1.0f;
+  flameWeaponConfig.thickness = 1.0f;
   flameWeaponConfig.entityOrigin[0] = ent->r.currentOrigin[0];
   flameWeaponConfig.entityOrigin[1] = ent->r.currentOrigin[1];
   flameWeaponConfig.entityOrigin[2] = ent->r.currentOrigin[2];
@@ -985,9 +985,9 @@ void __cdecl Weapon_Flamethrower_Fire(gentity_s *ent, weaponParms *wp)
   }
   flameWeaponConfig.bFireWhileIdle = 0;
   flameWeaponConfig.bIsFiring = isFiring;
-  flameWeaponConfig.burnRate = FLOAT_1_0;
-  flameWeaponConfig.strength = FLOAT_1_0;
-  flameWeaponConfig.thickness = FLOAT_1_0;
+  flameWeaponConfig.burnRate = 1.0f;
+  flameWeaponConfig.strength = 1.0f;
+  flameWeaponConfig.thickness = 1.0f;
   flameWeaponConfig.entityOrigin[0] = ent->r.currentOrigin[0];
   flameWeaponConfig.entityOrigin[1] = ent->r.currentOrigin[1];
   flameWeaponConfig.entityOrigin[2] = ent->r.currentOrigin[2];
@@ -1240,14 +1240,14 @@ void __cdecl DeployWeapon(gentity_s *ent)
 
   turretEnt = 0;
   memset(&trace, 0, 16);
-  traceWidth = FLOAT_4_0;
+  traceWidth = 4.0f;
   bipodNudgeDist = bipodNudgeDistDefault;
   col_context_t::col_context_t(&context);
   drawTime = 1000;
   drawLines = cg_debugMounting->current.integer > 0;
-  up[0] = *(float *)&FLOAT_0_0;
-  up[1] = *(float *)&FLOAT_0_0;
-  up[2] = FLOAT_1_0;
+  up[0] = 0.0f;
+  up[1] = 0.0f;
+  up[2] = 1.0f;
   if ( !ent->client
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\g_weapon.cpp", 1276, 0, "%s", "ent->client") )
   {
@@ -1264,15 +1264,15 @@ void __cdecl DeployWeapon(gentity_s *ent)
       ledgePos[1] = ps->mountPos[1];
       ledgePos[2] = ps->mountPos[2];
       mountDir = ps->mountDir;
-      ledgeAngles[0] = *(float *)&FLOAT_0_0;
+      ledgeAngles[0] = 0.0f;
       ledgeAngles[1] = mountDir;
-      ledgeAngles[2] = *(float *)&FLOAT_0_0;
+      ledgeAngles[2] = 0.0f;
       if ( drawLines )
       {
-        color[0] = *(float *)&FLOAT_0_0;
-        color[1] = FLOAT_1_0;
-        color[2] = FLOAT_0_5;
-        color[3] = FLOAT_1_0;
+        color[0] = 0.0f;
+        color[1] = 1.0f;
+        color[2] = 0.5f;
+        color[3] = 1.0f;
         G_DebugStar(ledgePos, color, 1000);
       }
       tracedLedgePos[0] = ledgePos[0];
@@ -1281,29 +1281,29 @@ void __cdecl DeployWeapon(gentity_s *ent)
       origin = ps->origin;
       toPlayer[0] = ps->origin[0] - ledgePos[0];
       toPlayer[1] = ps->origin[1] - ledgePos[1];
-      toPlayer[2] = *(float *)&FLOAT_0_0;
+      toPlayer[2] = 0.0f;
       distToTurret = Vec3Normalize(toPlayer) + traceOffset + 1.0;
-      traceStart[0] = *(float *)&FLOAT_0_0;
-      traceStart[1] = FLOAT_1_0;
-      traceStart[2] = *(float *)&FLOAT_0_0;
+      traceStart[0] = 0.0f;
+      traceStart[1] = 1.0f;
+      traceStart[2] = 0.0f;
       YawVectors(ledgeAngles[1] + 180.0, traceStart, 0);
       traceStart[0] = (float)(distToTurret * traceStart[0]) + ledgePos[0];
       traceStart[1] = (float)(distToTurret * traceStart[1]) + ledgePos[1];
       traceStart[2] = (float)(distToTurret * traceStart[2]) + ledgePos[2];
       traceStart[2] = traceStart[2] - traceOffset;
-      traceEnd[0] = *(float *)&FLOAT_0_0;
-      traceEnd[1] = FLOAT_1_0;
-      traceEnd[2] = *(float *)&FLOAT_0_0;
+      traceEnd[0] = 0.0f;
+      traceEnd[1] = 1.0f;
+      traceEnd[2] = 0.0f;
       YawVectors(ledgeAngles[1], ledgeDir, 0);
       traceEnd[0] = (float)(distToTurret * ledgeDir[0]) + ledgePos[0];
       traceEnd[1] = (float)(distToTurret * ledgeDir[1]) + ledgePos[1];
       traceEnd[2] = (float)((float)(distToTurret * ledgeDir[2]) + ledgePos[2]) - traceOffset;
       mins[0] = FLOAT_N0_1;
       mins[1] = FLOAT_N0_1;
-      mins[2] = *(float *)&FLOAT_0_0;
+      mins[2] = 0.0f;
       v10 = traceOffset * 2.0;
-      maxs[0] = FLOAT_0_1;
-      maxs[1] = FLOAT_0_1;
+      maxs[0] = 0.1f;
+      maxs[1] = 0.1f;
       maxs[2] = traceOffset * 2.0;
       YawVectors(ledgeAngles[1], toLedge, 0);
       bBulletHit = 1;
@@ -1328,10 +1328,10 @@ void __cdecl DeployWeapon(gentity_s *ent)
           end[1] = traceEnd[1];
           start[2] = traceStart[2] + 0.80000001;
           end[2] = traceEnd[2] + 0.80000001;
-          color[0] = FLOAT_1_0;
-          color[1] = FLOAT_0_30000001;
-          color[2] = FLOAT_0_60000002;
-          color[3] = FLOAT_1_0;
+          color[0] = 1.0f;
+          color[1] = 0.3f;
+          color[2] = 0.6f;
+          color[3] = 1.0f;
           CG_DebugLine(start, end, color, 0, 1000);
         }
         traceStart[2] = traceStart[2] - traceOffset;
@@ -1357,10 +1357,10 @@ void __cdecl DeployWeapon(gentity_s *ent)
           end[0] = traceEnd[0];
           end[1] = traceEnd[1];
           end[2] = traceEnd[2];
-          color[0] = FLOAT_1_0;
-          color[1] = *(float *)&FLOAT_0_0;
-          color[2] = *(float *)&FLOAT_0_0;
-          color[3] = FLOAT_1_0;
+          color[0] = 1.0f;
+          color[1] = 0.0f;
+          color[2] = 0.0f;
+          color[3] = 1.0f;
           CG_DebugLine(start, end, color, 0, 1000);
           CG_DebugBox(traceEnd, mins, maxs, 0.0, color, 0, 1000);
         }
@@ -1415,7 +1415,7 @@ void __cdecl DeployWeapon(gentity_s *ent)
             f = (float)(ledgeDepthNudgeReductionStart - ledgeDepth)
               / (float)(ledgeDepthNudgeReductionStart - ledgeDepthNudgeReductionEnd);
             if ( f > 1.0 )
-              f = FLOAT_1_0;
+              f = 1.0f;
             bipodNudgeDist = (float)(1.0 - f) * bipodNudgeDist;
           }
         }
@@ -1427,18 +1427,18 @@ void __cdecl DeployWeapon(gentity_s *ent)
           end[0] = traceEnd[0];
           end[1] = traceEnd[1];
           end[2] = traceEnd[2];
-          color[0] = *(float *)&FLOAT_0_0;
-          color[1] = FLOAT_1_0;
-          color[2] = *(float *)&FLOAT_0_0;
-          color[3] = FLOAT_1_0;
+          color[0] = 0.0f;
+          color[1] = 1.0f;
+          color[2] = 0.0f;
+          color[3] = 1.0f;
           CG_DebugLine(start, end, color, 0, 1000);
           CG_DebugBox(traceEnd, mins, maxs, 0.0, color, 0, 1000);
           if ( trace.fraction > 0.0 && trace.fraction < 1.0 )
           {
-            color[0] = FLOAT_1_0;
-            color[1] = *(float *)&FLOAT_0_0;
-            color[2] = *(float *)&FLOAT_0_0;
-            color[3] = FLOAT_1_0;
+            color[0] = 1.0f;
+            color[1] = 0.0f;
+            color[2] = 0.0f;
+            color[3] = 1.0f;
             start[0] = tracedLedgePos[0];
             start[1] = tracedLedgePos[1];
             end[0] = traceHit[0];
@@ -1455,14 +1455,14 @@ void __cdecl DeployWeapon(gentity_s *ent)
       if ( bBulletHit )
         v2 = bulletLedgeHeightRaiseAdd;
       else
-        v2 = *(float *)&FLOAT_0_0;
+        v2 = 0.0f;
       traceStart[2] = (float)(traceOffset + v2) + traceStart[2];
       traceEnd[0] = tracedLedgePos[0];
       traceEnd[1] = tracedLedgePos[1];
       traceEnd[2] = tracedLedgePos[2] - traceOffset;
       LODWORD(mins[0]) = LODWORD(traceWidth) ^ _mask__NegFloat_;
       LODWORD(mins[1]) = LODWORD(traceWidth) ^ _mask__NegFloat_;
-      mins[2] = *(float *)&FLOAT_0_0;
+      mins[2] = 0.0f;
       maxs[0] = traceWidth;
       maxs[1] = traceWidth;
       maxs[2] = traceWidth * 2.0;
@@ -1479,10 +1479,10 @@ void __cdecl DeployWeapon(gentity_s *ent)
           end[0] = traceEnd[0];
           end[1] = traceEnd[1];
           end[2] = traceEnd[2];
-          color[0] = FLOAT_1_0;
-          color[1] = FLOAT_0_5;
-          color[2] = FLOAT_0_5;
-          color[3] = FLOAT_1_0;
+          color[0] = 1.0f;
+          color[1] = 0.5f;
+          color[2] = 0.5f;
+          color[3] = 1.0f;
           CG_DebugLine(start, end, color, 0, 1000);
         }
         G_LocationalTraceAllowChildren(
@@ -1506,7 +1506,7 @@ void __cdecl DeployWeapon(gentity_s *ent)
       {
         LODWORD(mins[0]) = LODWORD(traceOffset) ^ _mask__NegFloat_;
         LODWORD(mins[1]) = LODWORD(traceOffset) ^ _mask__NegFloat_;
-        mins[2] = *(float *)&FLOAT_0_0;
+        mins[2] = 0.0f;
         maxs[0] = traceOffset;
         maxs[1] = traceOffset;
         maxs[2] = traceOffset * 2.0;
@@ -1532,10 +1532,10 @@ void __cdecl DeployWeapon(gentity_s *ent)
         end[0] = (float)(20.0 * up[0]) + start[0];
         end[1] = (float)(20.0 * up[1]) + start[1];
         end[2] = (float)(20.0 * up[2]) + start[2];
-        color[0] = *(float *)&FLOAT_0_0;
-        color[1] = *(float *)&FLOAT_0_0;
-        color[2] = FLOAT_1_0;
-        color[3] = FLOAT_1_0;
+        color[0] = 0.0f;
+        color[1] = 0.0f;
+        color[2] = 1.0f;
+        color[3] = 1.0f;
         CG_DebugLine(start, end, color, 0, 1000);
         start[0] = ps->mountPos[0];
         start[1] = ps->mountPos[1];
@@ -1543,15 +1543,15 @@ void __cdecl DeployWeapon(gentity_s *ent)
         end[0] = (float)(20.0 * up[0]) + start[0];
         end[1] = (float)(20.0 * up[1]) + start[1];
         end[2] = (float)(20.0 * up[2]) + start[2];
-        color[0] = *(float *)&FLOAT_0_0;
-        color[1] = *(float *)&FLOAT_0_0;
-        color[2] = FLOAT_1_0;
-        color[3] = FLOAT_1_0;
+        color[0] = 0.0f;
+        color[1] = 0.0f;
+        color[2] = 1.0f;
+        color[3] = 1.0f;
         CG_DebugLine(start, end, color, 0, 1000);
-        color[0] = FLOAT_1_0;
-        color[1] = FLOAT_1_0;
-        color[2] = *(float *)&FLOAT_0_0;
-        color[3] = FLOAT_1_0;
+        color[0] = 1.0f;
+        color[1] = 1.0f;
+        color[2] = 0.0f;
+        color[3] = 1.0f;
         G_DebugStar(tracedLedgePos, color, 1000);
       }
       if ( (float)(tracedLedgePos[2] - ent->s.lerp.pos.trBase[2]) <= 40.0 )

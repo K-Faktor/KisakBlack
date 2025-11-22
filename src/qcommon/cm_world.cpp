@@ -709,7 +709,7 @@ void __cdecl CM_PointTraceStaticModels(trace_t *results, const float *start, con
   tw.extents.end.vec.v[2] = end[2];
   CM_CalcTraceExtents(&tw.extents);
   start_[0] = *(_QWORD *)tw.extents.start.vec.v;
-  start_[1] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, tw.extents.start.vec.u[2]);
+  start_[1] = __PAIR64__(0, tw.extents.start.vec.u[2]);
   end_[0] = *(_QWORD *)tw.extents.end.vec.v;
   LODWORD(end_[1]) = tw.extents.end.vec.u[2];
   HIDWORD(end_[1]) = LODWORD(results->fraction);
@@ -909,7 +909,7 @@ void __cdecl CM_ClipMoveToEntities(moveclip_t *clip, trace_t *trace)
   LODWORD(start[1]) = clip->extents.start.vec.u[2];
   end[0] = *(_QWORD *)clip->extents.end.vec.v;
   LODWORD(end[1]) = clip->extents.end.vec.u[2];
-  HIDWORD(start[1]) = *(unsigned int *)&FLOAT_0_0;
+  HIDWORD(start[1]) = 0;
   HIDWORD(end[1]) = LODWORD(trace->fraction);
   CM_ClipMoveToEntities_r(clip, 1u, (const float *)start, (const float *)end, trace);
   if ( GetCurrentThreadId() == g_DXDeviceThread )
@@ -978,8 +978,8 @@ void __cdecl CM_ClipMoveToEntities_r(
         if ( (float)(t2 - t1) == 0.0 )
         {
           side = 0;
-          frac = FLOAT_1_0;
-          frac2 = *(float *)&FLOAT_0_0;
+          frac = 1.0f;
+          frac2 = 0.0f;
         }
         else
         {
@@ -998,7 +998,7 @@ void __cdecl CM_ClipMoveToEntities_r(
           __debugbreak();
         }
         if ( (float)(1.0 - frac) < 0.0 )
-          v6 = FLOAT_1_0;
+          v6 = 1.0f;
         else
           v6 = frac;
         mid[0] = (float)((float)(*p2 - p[0]) * v6) + p[0];
@@ -1018,7 +1018,7 @@ void __cdecl CM_ClipMoveToEntities_r(
           __debugbreak();
         }
         if ( (float)(frac2 - 0.0) < 0.0 )
-          v5 = *(float *)&FLOAT_0_0;
+          v5 = 0.0f;
         else
           v5 = frac2;
         p[0] = (float)((float)(*p2 - p[0]) * v5) + p[0];
@@ -1107,8 +1107,8 @@ int __cdecl CM_ClipSightTraceToEntities_r(
     if ( (float)(t2 - t1) == 0.0 )
     {
       side = 0;
-      frac = FLOAT_1_0;
-      frac2 = *(float *)&FLOAT_0_0;
+      frac = 1.0f;
+      frac2 = 0.0f;
     }
     else
     {
@@ -1126,7 +1126,7 @@ int __cdecl CM_ClipSightTraceToEntities_r(
     {
       __debugbreak();
     }
-    v6 = (float)(1.0 - frac) < 0.0 ? FLOAT_1_0 : frac;
+    v6 = (float)(1.0 - frac) < 0.0 ? 1.0f : frac;
     mid[0] = (float)((float)(*p2 - p[0]) * v6) + p[0];
     mid[1] = (float)((float)(p2[1] - p[1]) * v6) + p[1];
     mid[2] = (float)((float)(p2[2] - p[2]) * v6) + p[2];
@@ -1145,7 +1145,7 @@ int __cdecl CM_ClipSightTraceToEntities_r(
       __debugbreak();
     }
     if ( (float)(frac2 - 0.0) < 0.0 )
-      v5 = *(float *)&FLOAT_0_0;
+      v5 = 0.0f;
     else
       v5 = frac2;
     p[0] = (float)((float)(*p2 - p[0]) * v5) + p[0];
@@ -1177,7 +1177,7 @@ void __cdecl CM_PointTraceToEntities(pointtrace_t *clip, trace_t *trace, col_con
   LODWORD(start[1]) = clip->extents.start.vec.u[2];
   end[0] = *(_QWORD *)clip->extents.end.vec.v;
   LODWORD(end[1]) = clip->extents.end.vec.u[2];
-  HIDWORD(start[1]) = *(unsigned int *)&FLOAT_0_0;
+  HIDWORD(start[1]) = 0;
   HIDWORD(end[1]) = LODWORD(trace->fraction);
   CM_PointTraceToEntities_r(clip, 1u, (const float *)start, (const float *)end, trace, context);
   if ( GetCurrentThreadId() == g_DXDeviceThread )

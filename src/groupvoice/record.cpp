@@ -16,7 +16,7 @@ int __cdecl Record_QueueAudioDataForEncoding(audioSample_t *sample)
   int i; // [esp+2020h] [ebp-8h]
   int FrameSize; // [esp+2024h] [ebp-4h]
 
-  voice_current_voicelevel = *(float *)&FLOAT_0_0;
+  voice_current_voicelevel = 0.0f;
   if ( sample->bytesPerSample == 2 && sample->lengthInSamples > 0 )
   {
     for ( i = 0; i < sample->lengthInSamples; ++i )

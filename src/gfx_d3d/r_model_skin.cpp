@@ -99,9 +99,9 @@ void __cdecl R_SkinXSurfaceWeight(
       for ( iVert = 0; iVert < numVerts; ++iVert )
       {
         if ( outVerts->binormalSign >= 0.0 )
-          v5 = FLOAT_1_0;
+          v5 = 1.0f;
         else
-          v5 = FLOAT_N1_0;
+          v5 = -1.0f;
         outVerts->binormalSign = v5;
         ++inVerts;
         ++outVerts;
@@ -180,7 +180,7 @@ void __cdecl MatrixTransformVertexAndBasis(
   out[2] = *(float *)&normal.packed;
   in.packed = normal.packed;
   Vec3UnpackUnitVec(normal, out);
-  in.packed = *(unsigned int *)&FLOAT_0_0;
+  in.packed = 0;
   unpacked[0] = out[0];
   unpacked[1] = out[1];
   unpacked[2] = out[2];
@@ -192,7 +192,7 @@ void __cdecl MatrixTransformVertexAndBasis(
              + (float)(out[2] * mat->axis[2][2]);
   v12 = rotated[1];
   v13 = rotated[2];
-  v14 = *(unsigned int *)&FLOAT_0_0;
+  v14 = 0;
   v9.array[0] = (int)(float)((float)(rotated[0] * 127.0) + 127.5);
   v9.array[1] = (int)(float)((float)(rotated[1] * 127.0) + 127.5);
   v9.array[2] = (int)(float)((float)(rotated[2] * 127.0) + 127.5);
@@ -205,7 +205,7 @@ void __cdecl MatrixTransformVertexAndBasis(
   v7[2] = *(float *)&tangent.packed;
   v8.packed = tangent.packed;
   Vec3UnpackUnitVec(tangent, v7);
-  v8.packed = *(unsigned int *)&FLOAT_0_0;
+  v8.packed = 0;
   unpacked[0] = v7[0];
   unpacked[1] = v7[1];
   unpacked[2] = v7[2];
@@ -1230,10 +1230,10 @@ void  R_SkinXModelCmd(int a1@<ebp>, SkinXModelCmd *data)
               mat1.origin[1] = mat1.origin[1] - skinCmd->viewoffset[1];
               mat1.origin[2] = mat1.origin[2] - skinCmd->viewoffset[2];
               R_MultiplySkelMat(&mat0, &mat1, &boneSkelMats[j]);
-              boneSkelMats[j].axis[0][3] = *(float *)&FLOAT_0_0;
-              boneSkelMats[j].axis[1][3] = *(float *)&FLOAT_0_0;
-              boneSkelMats[j].axis[2][3] = *(float *)&FLOAT_0_0;
-              boneSkelMats[j].origin[3] = FLOAT_1_0;
+              boneSkelMats[j].axis[0][3] = 0.0f;
+              boneSkelMats[j].axis[1][3] = 0.0f;
+              boneSkelMats[j].axis[2][3] = 0.0f;
+              boneSkelMats[j].origin[3] = 1.0f;
             }
           }
         }

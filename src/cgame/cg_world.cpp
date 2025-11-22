@@ -417,12 +417,12 @@ void __cdecl CG_CalcWorldBounds(centity_s *cent, DObj *dobj)
   {
     AnglesToAxis(cent->pose.angles, xform);
     DObjCalcBounds(dobj, mins, maxs);
-    cent->pose.absmin[0] = FLOAT_3_4028235e38;
-    cent->pose.absmin[1] = FLOAT_3_4028235e38;
-    cent->pose.absmin[2] = FLOAT_3_4028235e38;
-    cent->pose.absmax[0] = FLOAT_N3_4028235e38;
-    cent->pose.absmax[1] = FLOAT_N3_4028235e38;
-    cent->pose.absmax[2] = FLOAT_N3_4028235e38;
+    cent->pose.absmin[0] = FLT_MAX;
+    cent->pose.absmin[1] = FLT_MAX;
+    cent->pose.absmin[2] = FLT_MAX;
+    cent->pose.absmax[0] = -FLT_MAX;
+    cent->pose.absmax[1] = -FLT_MAX;
+    cent->pose.absmax[2] = -FLT_MAX;
     for ( k = 0; k < 8; ++k )
     {
       if ( (k & 1) != 0 )
@@ -855,7 +855,7 @@ void __cdecl CG_PointTraceToEntities(const pointtrace_t *clip, trace_t *results)
   LODWORD(start[1]) = clip->extents.start.vec.u[2];
   end[0] = *(_QWORD *)clip->extents.end.vec.v;
   LODWORD(end[1]) = clip->extents.end.vec.u[2];
-  HIDWORD(start[1]) = *(unsigned int *)&FLOAT_0_0;
+  HIDWORD(start[1]) = 0;
   HIDWORD(end[1]) = LODWORD(results->fraction);
   CG_PointTraceToEntities_r(clip, 1u, (const float *)start, (const float *)end, results);
   if ( g_DXDeviceThread == GetCurrentThreadId() )
@@ -1204,7 +1204,7 @@ void __cdecl CG_ClipMoveToEntities(const moveclip_t *clip, trace_t *results)
   LODWORD(start[1]) = clip->extents.start.vec.u[2];
   end[0] = *(_QWORD *)clip->extents.end.vec.v;
   LODWORD(end[1]) = clip->extents.end.vec.u[2];
-  HIDWORD(start[1]) = *(unsigned int *)&FLOAT_0_0;
+  HIDWORD(start[1]) = 0;
   HIDWORD(end[1]) = LODWORD(results->fraction);
   CG_ClipMoveToEntities_r(clip, 1u, (const float *)start, (const float *)end, results);
   if ( g_DXDeviceThread == GetCurrentThreadId() )
@@ -1363,8 +1363,8 @@ void __cdecl CG_ClipMoveToEntities_r(
         diff = t2 - t1;
         if ( (float)(t2 - t1) == 0.0 )
         {
-          frac = FLOAT_1_0;
-          frac2 = *(float *)&FLOAT_0_0;
+          frac = 1.0f;
+          frac2 = 0.0f;
           side = 0;
         }
         else
@@ -1383,7 +1383,7 @@ void __cdecl CG_ClipMoveToEntities_r(
         {
           __debugbreak();
         }
-        v7 = (float)(1.0 - frac) < 0.0 ? FLOAT_1_0 : frac;
+        v7 = (float)(1.0 - frac) < 0.0 ? 1.0f : frac;
         mid[0] = (float)((float)(*p2 - p[0]) * v7) + p[0];
         mid[1] = (float)((float)(p2[1] - p[1]) * v7) + p[1];
         mid[2] = (float)((float)(p2[2] - p[2]) * v7) + p[2];
@@ -1403,7 +1403,7 @@ void __cdecl CG_ClipMoveToEntities_r(
           __debugbreak();
         }
         if ( (float)(frac2 - 0.0) < 0.0 )
-          v6 = *(float *)&FLOAT_0_0;
+          v6 = 0.0f;
         else
           v6 = frac2;
         p[0] = (float)((float)(*p2 - p[0]) * v6) + p[0];
@@ -2024,7 +2024,7 @@ bool __cdecl CG_SightTracePointInternal(int *hitNum, const float *start, const f
   {
     __debugbreak();
   }
-  trace->fraction = FLOAT_1_0;
+  trace->fraction = 1.0f;
   trace->startsolid = 0;
   trace->allsolid = 0;
   tw.contents = mask;
@@ -2067,39 +2067,39 @@ traceWork_t *__thiscall traceWork_t::traceWork_t(traceWork_t *this)
   int v4; // [esp+10h] [ebp-18h]
   hybrid_vector *i; // [esp+14h] [ebp-14h]
 
-  this->delta.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->delta.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->delta.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->delta.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
-  this->midpoint.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->midpoint.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->midpoint.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->midpoint.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
-  this->halfDelta.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->halfDelta.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->halfDelta.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->halfDelta.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
-  this->halfDeltaAbs.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->halfDeltaAbs.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->halfDeltaAbs.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->halfDeltaAbs.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
-  this->size.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->size.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
+  this->delta.vec.u[0] = 0;
+  this->delta.vec.u[1] = 0;
+  this->delta.vec.u[2] = 0;
+  this->delta.vec.u[3] = 0;
+  this->midpoint.vec.u[0] = 0;
+  this->midpoint.vec.u[1] = 0;
+  this->midpoint.vec.u[2] = 0;
+  this->midpoint.vec.u[3] = 0;
+  this->halfDelta.vec.u[0] = 0;
+  this->halfDelta.vec.u[1] = 0;
+  this->halfDelta.vec.u[2] = 0;
+  this->halfDelta.vec.u[3] = 0;
+  this->halfDeltaAbs.vec.u[0] = 0;
+  this->halfDeltaAbs.vec.u[1] = 0;
+  this->halfDeltaAbs.vec.u[2] = 0;
+  this->halfDeltaAbs.vec.u[3] = 0;
+  this->size.vec.u[0] = 0;
+  this->size.vec.u[1] = 0;
   p_size = &this->size;
-  p_size->vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  p_size->vec.u[3] = *(unsigned int *)&FLOAT_0_0;
+  p_size->vec.u[2] = 0;
+  p_size->vec.u[3] = 0;
   v4 = 2;
   for ( i = this->bounds; --v4 >= 0; ++i )
   {
-    i->vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-    i->vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-    i->vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-    i->vec.u[3] = *(unsigned int *)&FLOAT_0_0;
+    i->vec.u[0] = 0;
+    i->vec.u[1] = 0;
+    i->vec.u[2] = 0;
+    i->vec.u[3] = 0;
   }
-  this->radiusOffset.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->radiusOffset.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->radiusOffset.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->radiusOffset.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
+  this->radiusOffset.vec.u[0] = 0;
+  this->radiusOffset.vec.u[1] = 0;
+  this->radiusOffset.vec.u[2] = 0;
+  this->radiusOffset.vec.u[3] = 0;
   TraceExtents::TraceExtents(&this->extents);
   return this;
 }
@@ -2150,8 +2150,8 @@ bool __cdecl CG_SightTracePoint(int *hitNum, const float *start, const float *en
       mn[2] = occlusion_overrides[i][0][2];
       *(_QWORD *)mx = *(_QWORD *)&occlusion_overrides[i][1][0];
       mx[2] = occlusion_overrides[i][1][2];
-      t0 = *(float *)&FLOAT_0_0;
-      t1 = FLOAT_1_0;
+      t0 = 0.0f;
+      t1 = 1.0f;
       if ( intersect_extents_aabb(&extents, mn, mx, &t0, &t1) )
       {
         intervals[nintervals][0] = t0;
@@ -2163,7 +2163,7 @@ bool __cdecl CG_SightTracePoint(int *hitNum, const float *start, const float *en
     if ( nintervals <= 0 )
       return CG_SightTracePointInternal(hitNum, start, end, mask, trace);
     qsort(intervals, nintervals, 8u, (int (__cdecl *)(const void *, const void *))cmpr);
-    v11 = *(float *)&FLOAT_0_0;
+    v11 = 0.0f;
     dir = *end - *start;
     dir_4 = end[1] - start[1];
     dir_8 = end[2] - start[2];

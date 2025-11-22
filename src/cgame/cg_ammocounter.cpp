@@ -766,7 +766,7 @@ void __cdecl CG_DrawPlayerActionSlotArrow(
   colorMod[2] = color[2];
   colorMod[3] = color[3];
   if ( ActionSlotIsActive(localClientNum, slotIdx) )
-    colorMod[3] = FLOAT_0_80000001;
+    colorMod[3] = 0.8f;
   colorMod[3] = CG_FadeHudMenu(
                   localClientNum,
                   hud_fade_ammodisplay,
@@ -828,15 +828,15 @@ void __cdecl CG_DrawPlayerActionSlot(
   float w; // [esp+13Ch] [ebp-8h] BYREF
   bool new_weapon_has_no_ammo; // [esp+143h] [ebp-1h]
 
-  highlightSize = FLOAT_94_0;
-  topHighlightSize = FLOAT_96_0;
-  leftHighlightOffset = FLOAT_2_0;
-  circleSize = FLOAT_11_0;
-  circleX = *(float *)&FLOAT_0_0;
-  circleY = *(float *)&FLOAT_0_0;
-  ammoAlpha = FLOAT_0_5;
+  highlightSize = 94.0f;
+  topHighlightSize = 96.0f;
+  leftHighlightOffset = 2.0f;
+  circleSize = 11.0f;
+  circleX = 0.0f;
+  circleY = 0.0f;
+  ammoAlpha = 0.5f;
   memset(black, 0, 12);
-  black[3] = FLOAT_0_80000001;
+  black[3] = 0.8f;
   if ( !rect && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_ammocounter.cpp", 1045, 0, "%s", "rect") )
     __debugbreak();
   if ( slotIdx > 3
@@ -1191,9 +1191,9 @@ void __cdecl DpadTextPos(
   float slot_adjust_x; // [esp+8h] [ebp-8h]
   float MYADJUST_X; // [esp+Ch] [ebp-4h]
 
-  MYADJUST_X = FLOAT_N7_0;
-  MYADJUST_X_INDEX_2 = FLOAT_N0_5;
-  MYADJUST_Y = FLOAT_5_0;
+  MYADJUST_X = -7.0f;
+  MYADJUST_X_INDEX_2 = -0.5f;
+  MYADJUST_Y = 5.0f;
   if ( !rect && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_ammocounter.cpp", 759, 0, "%s", "rect") )
     __debugbreak();
   if ( !weapVariantDef
@@ -1211,7 +1211,7 @@ void __cdecl DpadTextPos(
     MYADJUST_X_INDEX_2 = -0.5 * 2.0;
     MYADJUST_Y = (float)(5.0 * 2.0) + 1.0;
   }
-  slot_adjust_x = *(float *)&FLOAT_0_0;
+  slot_adjust_x = 0.0f;
   if ( slotIdx == 2 )
     slot_adjust_x = MYADJUST_X_INDEX_2;
   *x = (float)((float)((float)(rect->w / 2.0) + rect->x) + MYADJUST_X) + slot_adjust_x;
@@ -1264,7 +1264,7 @@ void __cdecl CG_DrawPlayerActionSlotBind(
     colorMod[0] = colorMod[0] * 1.0;
     colorMod[1] = colorMod[1] * 0.80000001;
     colorMod[2] = colorMod[2] * 0.40000001;
-    colorMod[3] = FLOAT_0_80000001;
+    colorMod[3] = 0.8f;
   }
   colorMod[3] = CG_FadeHudMenu(
                   localClientNum,

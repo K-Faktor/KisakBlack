@@ -295,7 +295,7 @@ char __fastcall Actor_CanSeeEntityEx(actor_s *self, const gentity_s *ent, float 
       || SentientHandle::isDefined(&self->pFavoriteEnemy)
       && (v5 = SentientHandle::sentient(&self->pFavoriteEnemy), v5 == sentient) )
     {
-      fovDotUse = *(float *)&FLOAT_0_0;
+      fovDotUse = 0.0f;
     }
     if ( (float)(fMaxDistSqrd - (float)(sentient->maxVisibleDist * sentient->maxVisibleDist)) < 0.0 )
       v11 = fMaxDistSqrd;
@@ -581,7 +581,7 @@ void __fastcall Actor_UpdateEyeInformation(actor_s *self)
       self->eyeInfo.pos[2] = tagMat[3][2];
       *(_QWORD *)self->eyeInfo.dir = *(_QWORD *)&tagMat[0][0];
       Vec2Normalize(self->eyeInfo.dir);
-      self->eyeInfo.dir[2] = *(float *)&FLOAT_0_0;
+      self->eyeInfo.dir[2] = 0.0f;
     }
     else
     {
@@ -657,8 +657,8 @@ void __fastcall Actor_GetEyeOffset(actor_s *self, float *vEyePosOut)
   {
     __debugbreak();
   }
-  *vEyePosOut = *(float *)&FLOAT_0_0;
-  vEyePosOut[1] = *(float *)&FLOAT_0_0;
+  *vEyePosOut = 0.0f;
+  vEyePosOut[1] = 0.0f;
   vEyePosOut[2] = ACTOR_EYE_OFFSET;
 }
 

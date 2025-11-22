@@ -222,11 +222,11 @@ void __cdecl UI_ScreenshotHandleInput(int localClientNum)
     if ( (float)(s_screenshotZoom - 1.0) < 0.0 )
       v4 = s_screenshotZoom;
     else
-      v4 = FLOAT_1_0;
+      v4 = 1.0f;
     if ( (float)(0.0 - s_screenshotZoom) < 0.0 )
       v3 = v4;
     else
-      v3 = *(float *)&FLOAT_0_0;
+      v3 = 0.0f;
     s_screenshotZoom = v3;
   }
 }
@@ -386,11 +386,11 @@ void __cdecl UI_ScreenshotZoom_f()
     if ( (float)(s_screenshotZoom - 1.0) < 0.0 )
       v3 = s_screenshotZoom;
     else
-      v3 = FLOAT_1_0;
+      v3 = 1.0f;
     if ( (float)(0.0 - s_screenshotZoom) < 0.0 )
       v1 = v3;
     else
-      v1 = *(float *)&FLOAT_0_0;
+      v1 = 0.0f;
     s_screenshotZoom = v1;
   }
 }

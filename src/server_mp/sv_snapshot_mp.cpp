@@ -659,7 +659,7 @@ char __cdecl SV_GetClientPositionsAtTime(int gametime, float (*pos)[3], float (*
     if ( foundStart && foundEnd )
     {
       if ( startOffset == endOffset )
-        progress = *(float *)&FLOAT_0_0;
+        progress = 0.0f;
       else
         progress = (float)(gametime - frameStart->time) / (float)(frameEnd->time - frameStart->time);
       if ( progress < 0.0
@@ -687,7 +687,7 @@ char __cdecl SV_GetClientPositionsAtTime(int gametime, float (*pos)[3], float (*
     }
     else
     {
-      progress = *(float *)&FLOAT_0_0;
+      progress = 0.0f;
     }
     for ( clientNum = 0; clientNum < 32; ++clientNum )
     {
@@ -1490,9 +1490,9 @@ void __cdecl SV_GetClientPositionsFromCachedSnap(
       break;
     success[clientNum] = 1;
     BG_EvaluateTrajectory(&cachedEnt->s.lerp.pos, cachedFrame->time, &(*pos)[3 * clientNum]);
-    (*angles)[3 * clientNum] = *(float *)&FLOAT_0_0;
+    (*angles)[3 * clientNum] = 0.0f;
     (*angles)[3 * clientNum + 1] = cachedEnt->s.lerp.apos.trBase[1];
-    (*angles)[3 * clientNum + 2] = *(float *)&FLOAT_0_0;
+    (*angles)[3 * clientNum + 2] = 0.0f;
   }
 }
 
@@ -2290,7 +2290,7 @@ void __cdecl SV_AddEntitiesVisibleFromPoint(float *org, int clientNum, snapshotE
     clientpvs = 0;
   fogOpaqueDistSqrd = G_GetFogOpaqueDistSqrd();
   if ( fogOpaqueDistSqrd == 3.4028235e38 )
-    fogOpaqueDistSqrd = *(float *)&FLOAT_0_0;
+    fogOpaqueDistSqrd = 0.0f;
   for ( e = 0; e < sv.bpsWindow[10]; ++e )
   {
     ent = (gentity_s *)(sv.bpsWindow[8] + e * sv.bpsWindow[9]);
@@ -2405,7 +2405,7 @@ void __cdecl SV_AddCachedEntitiesVisibleFromPoint(
     v17 = CM_ClusterPVS(cluster);
     fogOpaqueDistSqrd = G_GetFogOpaqueDistSqrd();
     if ( fogOpaqueDistSqrd == 3.4028235e38 )
-      fogOpaqueDistSqrd = *(float *)&FLOAT_0_0;
+      fogOpaqueDistSqrd = 0.0f;
     memset((unsigned __int8 *)dst, 0, 0x1000u);
     for ( e = 0; ; ++e )
     {
@@ -3228,7 +3228,7 @@ void __cdecl SV_SendClientMessages()
   }
   if ( numclients > 0 )
   {
-    uave = *(float *)&FLOAT_0_0;
+    uave = 0.0f;
     total = 0;
     for ( i = 0; i < 19; ++i )
     {

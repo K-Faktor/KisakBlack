@@ -153,9 +153,9 @@ void __cdecl SNDL_DisconnectListener(int localClientNum)
   memset((unsigned __int8 *)&g_snd.listeners[localClientNum], 0, sizeof(g_snd.listeners[localClientNum]));
   AxisClear(g_snd.listeners[localClientNum].orient.axis);
   v2 = &g_snd.listeners[localClientNum];
-  v2->orient.origin[0] = *(float *)&FLOAT_0_0;
-  v2->orient.origin[1] = *(float *)&FLOAT_0_0;
-  v2->orient.origin[2] = *(float *)&FLOAT_0_0;
+  v2->orient.origin[0] = 0.0f;
+  v2->orient.origin[1] = 0.0f;
+  v2->orient.origin[2] = 0.0f;
   kill = 1;
   for ( i = 0; !i; i = 1 )
   {
@@ -252,10 +252,10 @@ void __cdecl SNDL_SetListener(
     __debugbreak();
   }
   AxisCopy(inAxis, axis);
-  axis[0][2] = *(float *)&FLOAT_0_0;
-  axis[1][2] = *(float *)&FLOAT_0_0;
-  axis[2][0] = *(float *)&FLOAT_0_0;
-  *(_QWORD *)&axis[2][1] = __PAIR64__(LODWORD(FLOAT_1_0), *(unsigned int *)&FLOAT_0_0);
+  axis[0][2] = 0.0f;
+  axis[1][2] = 0.0f;
+  axis[2][0] = 0.0f;
+  *(_QWORD *)&axis[2][1] = __PAIR64__(LODWORD(1.0f), 0);
   a = Vec3Normalize(axis[0]);
   b = Vec3Normalize(axis[1]);
   if ( (LODWORD(a) & 0x7F800000) == 0x7F800000
@@ -504,11 +504,11 @@ void __cdecl SNDL_SetPlaybackAttenuation(int playbackId, float attenuation)
     if ( (float)(attenuation - 1.0) < 0.0 )
       v3 = attenuation;
     else
-      v3 = FLOAT_1_0;
+      v3 = 1.0f;
     if ( (float)(0.0 - attenuation) < 0.0 )
       g = v3;
     else
-      g = *(float *)&FLOAT_0_0;
+      g = 0.0f;
     SND_FaderSetGoal(&voice->script_fade, g);
   }
 }
@@ -534,11 +534,11 @@ void __cdecl SNDL_SetPlaybackPitch(int playbackId, float pitch)
     if ( (float)(pitch - 2.0) < 0.0 )
       v3 = pitch;
     else
-      v3 = FLOAT_2_0;
+      v3 = 2.0f;
     if ( (float)(0.1 - pitch) < 0.0 )
       g = v3;
     else
-      g = FLOAT_0_1;
+      g = 0.1f;
     SND_FaderSetGoal(&voice->script_pitch, g);
   }
 }
@@ -656,9 +656,9 @@ void __cdecl SNDL_StopLoopAt(unsigned int id, const float *origin)
       g_snd.loopEmitters[i].id = 0;
       g_snd.loopEmitters[i].alias = 0;
       v2 = g_snd.loopEmitters[i].origin;
-      *v2 = *(float *)&FLOAT_0_0;
-      v2[1] = *(float *)&FLOAT_0_0;
-      v2[2] = *(float *)&FLOAT_0_0;
+      *v2 = 0.0f;
+      v2[1] = 0.0f;
+      v2[2] = 0.0f;
     }
   }
 }
@@ -715,13 +715,13 @@ void __cdecl SNDL_StopLineAt(unsigned int id, const float *origin0, const float 
       g_snd.lineEmitters[i].id = 0;
       g_snd.lineEmitters[i].alias = 0;
       v4 = g_snd.lineEmitters[i].origin[0];
-      *v4 = *(float *)&FLOAT_0_0;
-      v4[1] = *(float *)&FLOAT_0_0;
-      v4[2] = *(float *)&FLOAT_0_0;
+      *v4 = 0.0f;
+      v4[1] = 0.0f;
+      v4[2] = 0.0f;
       v3 = &g_snd.loopEmitters[-204].id + 8 * i;
-      *v3 = *(unsigned int *)&FLOAT_0_0;
-      v3[1] = *(unsigned int *)&FLOAT_0_0;
-      v3[2] = *(unsigned int *)&FLOAT_0_0;
+      *v3 = 0;
+      v3[1] = 0;
+      v3[2] = 0;
     }
   }
 }
@@ -784,16 +784,16 @@ void __cdecl SNDL_GameReset()
     SNDL_SetSnapshot(SND_SNAPSHOT_SHELLSHOCK, g_snd.defaultHash, 0.0, 1.0);
     SNDL_SetSnapshot(SND_SNAPSHOT_ADS, g_snd.defaultHash, 0.0, 1.0);
     SNDL_SetSnapshot(SND_SNAPSHOT_BREATH, g_snd.defaultHash, 0.0, 1.0);
-    g_snd.scriptTimescale = FLOAT_1_0;
+    g_snd.scriptTimescale = 1.0f;
     memset((unsigned __int8 *)g_snd.envEffects, 0, sizeof(g_snd.envEffects));
     g_snd.effect = g_snd.envEffects;
     g_snd.envEffects[0].reverbId = g_snd.defaultHash;
-    g_snd.envEffects[0].drylevel = FLOAT_1_0;
-    g_snd.effect->drygoal = FLOAT_1_0;
-    g_snd.effect->dryrate = *(float *)&FLOAT_0_0;
-    g_snd.effect->wetlevel = *(float *)&FLOAT_0_0;
-    g_snd.effect->wetgoal = *(float *)&FLOAT_0_0;
-    g_snd.effect->wetrate = *(float *)&FLOAT_0_0;
+    g_snd.envEffects[0].drylevel = 1.0f;
+    g_snd.effect->drygoal = 1.0f;
+    g_snd.effect->dryrate = 0.0f;
+    g_snd.effect->wetlevel = 0.0f;
+    g_snd.effect->wetgoal = 0.0f;
+    g_snd.effect->wetrate = 0.0f;
     g_snd.effect->active = 1;
   }
 }

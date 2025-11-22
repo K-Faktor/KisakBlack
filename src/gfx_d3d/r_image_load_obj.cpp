@@ -947,7 +947,7 @@ void __cdecl Image_LoadWhiteR32F(GfxImage *image)
 {
   float pic; // [esp+0h] [ebp-4h] BYREF
 
-  pic = FLOAT_3_4028235e38;
+  pic = FLT_MAX;
   Image_Generate2D(image, (unsigned __int8 *)&pic, 1, 1, D3DFMT_R32F);
 }
 
@@ -955,7 +955,7 @@ void __cdecl Image_LoadG16R16(GfxImage *image)
 {
   float pic; // [esp+0h] [ebp-4h] BYREF
 
-  pic = FLOAT_1_0;
+  pic = 1.0f;
   Image_Generate2D(image, (unsigned __int8 *)&pic, 1, 1, D3DFMT_G16R16);
 }
 

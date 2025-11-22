@@ -134,18 +134,18 @@ void __cdecl TerrainScorch(float *loresCellPos, bool instant)
   v17 = R_VertexStream2_Lock(&stream2LockedSize);
   if ( v17 )
   {
-    maxs[3] = FLOAT_240_0;
-    *(float *)&surfCounts[1] = FLOAT_96_0;
-    allowSurf[1] = (int (__cdecl *)(int, void *))(LODWORD(FLOAT_240_0) ^ _mask__NegFloat_);
-    allowSurf[2] = (int (__cdecl *)(int, void *))(LODWORD(FLOAT_240_0) ^ _mask__NegFloat_);
-    allowSurf[3] = (int (__cdecl *)(int, void *))(LODWORD(FLOAT_96_0) ^ _mask__NegFloat_);
+    maxs[3] = 240.0f;
+    *(float *)&surfCounts[1] = 96.0f;
+    allowSurf[1] = (int (__cdecl *)(int, void *))(LODWORD(240.0f) ^ _mask__NegFloat_);
+    allowSurf[2] = (int (__cdecl *)(int, void *))(LODWORD(240.0f) ^ _mask__NegFloat_);
+    allowSurf[3] = (int (__cdecl *)(int, void *))(LODWORD(96.0f) ^ _mask__NegFloat_);
     v27 = 240.0 * 240.0;
     maxs[0] = *loresCellPos + 240.0;
     maxs[1] = loresCellPos[1] + 240.0;
     maxs[2] = loresCellPos[2] + 96.0;
-    mins[0] = *loresCellPos + COERCE_FLOAT(LODWORD(FLOAT_240_0) ^ _mask__NegFloat_);
-    mins[1] = loresCellPos[1] + COERCE_FLOAT(LODWORD(FLOAT_240_0) ^ _mask__NegFloat_);
-    mins[2] = loresCellPos[2] + COERCE_FLOAT(LODWORD(FLOAT_96_0) ^ _mask__NegFloat_);
+    mins[0] = *loresCellPos + COERCE_FLOAT(LODWORD(240.0f) ^ _mask__NegFloat_);
+    mins[1] = loresCellPos[1] + COERCE_FLOAT(LODWORD(240.0f) ^ _mask__NegFloat_);
+    mins[2] = loresCellPos[2] + COERCE_FLOAT(LODWORD(96.0f) ^ _mask__NegFloat_);
     floatIn = (float)G_GetTime() * 0.001;
     surfLists = (GfxSurface **)v21;
     R_BoxSurfaces((int)&savedregs, mins, maxs, allowSurf, 0, &surfLists, 0x400u, surfCounts, 1u);
@@ -205,11 +205,11 @@ void __cdecl TerrainScorch(float *loresCellPos, bool instant)
                     if ( (float)(v5 - 1.0) < 0.0 )
                       v4 = (float)(floatIn - v6) / 3.0;
                     else
-                      v4 = FLOAT_1_0;
+                      v4 = 1.0f;
                     if ( (float)(0.0 - v5) < 0.0 )
                       v3 = v4;
                     else
-                      v3 = *(float *)&FLOAT_0_0;
+                      v3 = 0.0f;
                     v2 = HalfFromFloat(floatIn - (float)((float)((float)(v3 * v8) / v7) * 3.0));
                   }
                   else
@@ -387,10 +387,10 @@ void __cdecl CG_RenderFire()
 
   if ( fire_debug && fire_debug->current.enabled )
   {
-    color[0] = FLOAT_1_0;
-    color[1] = FLOAT_1_0;
-    color[2] = FLOAT_1_0;
-    color[3] = FLOAT_1_0;
+    color[0] = 1.0f;
+    color[1] = 1.0f;
+    color[2] = 1.0f;
+    color[3] = 1.0f;
     memset(mins, 0, sizeof(mins));
     for ( i = 0; i < g_FM_BurnDataActiveCount; ++i )
     {
@@ -427,12 +427,12 @@ void __cdecl CG_SetFireToWall(int localClientNum, float *pos, int *models, int m
   int curTime; // [esp+14h] [ebp-28h]
   float axis[3][3]; // [esp+18h] [ebp-24h] BYREF
 
-  axis[0][0] = *(float *)&FLOAT_0_0;
-  *(_QWORD *)&axis[0][1] = __PAIR64__(LODWORD(FLOAT_1_0), *(unsigned int *)&FLOAT_0_0);
-  *(_QWORD *)&axis[1][0] = __PAIR64__(LODWORD(FLOAT_N1_0), *(unsigned int *)&FLOAT_0_0);
-  axis[1][2] = *(float *)&FLOAT_0_0;
-  *(_QWORD *)&axis[2][0] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_1_0));
-  axis[2][2] = *(float *)&FLOAT_0_0;
+  axis[0][0] = 0.0f;
+  *(_QWORD *)&axis[0][1] = __PAIR64__(LODWORD(1.0f), 0);
+  *(_QWORD *)&axis[1][0] = __PAIR64__(LODWORD(-1.0f), 0);
+  axis[1][2] = 0.0f;
+  *(_QWORD *)&axis[2][0] = __PAIR64__(0, LODWORD(1.0f));
+  axis[2][2] = 0.0f;
   v5 = rand() & 0x80000000;
   if ( v5 < 0 )
     v5 = 0;
@@ -478,12 +478,12 @@ void __cdecl CG_SetFireToTerrain(
   int i; // [esp+94h] [ebp-28h]
   float axis[3][3]; // [esp+98h] [ebp-24h] BYREF
 
-  dim[0] = FLOAT_32_0;
-  dim[1] = FLOAT_32_0;
-  dim[2] = FLOAT_32_0;
-  inv_dim[0] = FLOAT_0_03125;
-  inv_dim[1] = FLOAT_0_03125;
-  inv_dim[2] = FLOAT_0_03125;
+  dim[0] = 32.0f;
+  dim[1] = 32.0f;
+  dim[2] = 32.0f;
+  inv_dim[0] = 0.03125f;
+  inv_dim[1] = 0.03125f;
+  inv_dim[2] = 0.03125f;
   cur_time = Sys_Milliseconds();
   cell_pos[0] = *pos * 0.03125;
   cell_pos[1] = pos[1] * 0.03125;
@@ -537,12 +537,12 @@ void __cdecl CG_SetFireToTerrain(
   AddBurnCell(cell_pos);
   rad = GetFoliageBurnRadius(fireSrc);
   R_FoliageNotifyBurn(pos, rad, models, models_count, 0);
-  axis[0][0] = *(float *)&FLOAT_0_0;
-  *(_QWORD *)&axis[0][1] = __PAIR64__(LODWORD(FLOAT_1_0), *(unsigned int *)&FLOAT_0_0);
-  *(_QWORD *)&axis[1][0] = __PAIR64__(LODWORD(FLOAT_N1_0), *(unsigned int *)&FLOAT_0_0);
-  axis[1][2] = *(float *)&FLOAT_0_0;
-  *(_QWORD *)&axis[2][0] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_1_0));
-  axis[2][2] = *(float *)&FLOAT_0_0;
+  axis[0][0] = 0.0f;
+  *(_QWORD *)&axis[0][1] = __PAIR64__(LODWORD(1.0f), 0);
+  *(_QWORD *)&axis[1][0] = __PAIR64__(LODWORD(-1.0f), 0);
+  axis[1][2] = 0.0f;
+  *(_QWORD *)&axis[2][0] = __PAIR64__(0, LODWORD(1.0f));
+  axis[2][2] = 0.0f;
   fxIndex = rand() % 3;
   if ( !g_FM_fx_flamethrower_effect[fxIndex]
     && !Assert_MyHandler(
@@ -693,28 +693,28 @@ void __cdecl CG_GenerateFireSounds(int localClientNum)
     _S1 |= 2u;
     SOUND_DIRECTIONS[0][0] = SQRT2;
     dword_E4DB34 = LODWORD(SQRT2);
-    dword_E4DB38 = *(unsigned int *)&FLOAT_0_0;
-    dword_E4DB3C = LODWORD(FLOAT_1_0);
-    dword_E4DB40 = *(unsigned int *)&FLOAT_0_0;
-    dword_E4DB44 = *(unsigned int *)&FLOAT_0_0;
+    dword_E4DB38 = 0;
+    dword_E4DB3C = LODWORD(1.0f);
+    dword_E4DB40 = 0;
+    dword_E4DB44 = 0;
     dword_E4DB48 = LODWORD(SQRT2);
     dword_E4DB4C = LODWORD(SQRT2) ^ _mask__NegFloat_;
-    dword_E4DB50 = *(unsigned int *)&FLOAT_0_0;
-    dword_E4DB54 = *(unsigned int *)&FLOAT_0_0;
-    dword_E4DB58 = LODWORD(FLOAT_N1_0);
-    dword_E4DB5C = *(unsigned int *)&FLOAT_0_0;
+    dword_E4DB50 = 0;
+    dword_E4DB54 = 0;
+    dword_E4DB58 = LODWORD(-1.0f);
+    dword_E4DB5C = 0;
     dword_E4DB60 = LODWORD(SQRT2) ^ _mask__NegFloat_;
     dword_E4DB64 = LODWORD(SQRT2) ^ _mask__NegFloat_;
-    dword_E4DB68 = *(unsigned int *)&FLOAT_0_0;
-    dword_E4DB6C = LODWORD(FLOAT_N1_0);
-    dword_E4DB70 = *(unsigned int *)&FLOAT_0_0;
-    dword_E4DB74 = *(unsigned int *)&FLOAT_0_0;
+    dword_E4DB68 = 0;
+    dword_E4DB6C = LODWORD(-1.0f);
+    dword_E4DB70 = 0;
+    dword_E4DB74 = 0;
     dword_E4DB78 = LODWORD(SQRT2) ^ _mask__NegFloat_;
     dword_E4DB7C = LODWORD(SQRT2);
-    dword_E4DB80 = *(unsigned int *)&FLOAT_0_0;
-    dword_E4DB84 = *(unsigned int *)&FLOAT_0_0;
-    dword_E4DB88 = LODWORD(FLOAT_1_0);
-    dword_E4DB8C = *(unsigned int *)&FLOAT_0_0;
+    dword_E4DB80 = 0;
+    dword_E4DB84 = 0;
+    dword_E4DB88 = LODWORD(1.0f);
+    dword_E4DB8C = 0;
   }
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
   if ( cgameGlob->nextSnap )
@@ -724,7 +724,7 @@ void __cdecl CG_GenerateFireSounds(int localClientNum)
     playerPosition[1] = p_snapFlags[14];
     playerPosition[2] = p_snapFlags[15];
     for ( j = 0; j < 8; ++j )
-      fireDensity[j] = *(float *)&FLOAT_0_0;
+      fireDensity[j] = 0.0f;
     for ( i = 0; i < 0x100; ++i )
     {
       if ( g_FM_ActiveCells[i].is_active )
@@ -738,11 +738,11 @@ void __cdecl CG_GenerateFireSounds(int localClientNum)
           if ( (float)((float)(distance / 500.0) - 1.0) < 0.0 )
             v6 = distance / 500.0;
           else
-            v6 = FLOAT_1_0;
+            v6 = 1.0f;
           if ( (float)(0.0 - (float)(distance / 500.0)) < 0.0 )
             v3 = v6;
           else
-            v3 = *(float *)&FLOAT_0_0;
+            v3 = 0.0f;
           distanceAttenuation = (float)(1.0 - v3) * (float)(1.0 - v3);
           for ( ja = 0; ja < 8; ++ja )
           {
@@ -765,11 +765,11 @@ void __cdecl CG_GenerateFireSounds(int localClientNum)
       if ( (float)(v4 - 1.0) < 0.0 )
         v5 = fireDensity[i] / 4.0;
       else
-        v5 = FLOAT_1_0;
+        v5 = 1.0f;
       if ( (float)(0.0 - v4) < 0.0 )
         level = v5;
       else
-        level = *(float *)&FLOAT_0_0;
+        level = 0.0f;
       CG_FireManagerUpdate(localClientNum, i, soundPosition, level);
     }
   }

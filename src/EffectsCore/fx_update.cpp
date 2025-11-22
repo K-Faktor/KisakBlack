@@ -167,11 +167,11 @@ void __cdecl FX_SpawnLoopingElems(
       if ( (float)(v10 - 1.0) < 0.0 )
         v11 = v10;
       else
-        v11 = FLOAT_1_0;
+        v11 = 1.0f;
       if ( (float)(0.0 - v10) < 0.0 )
         v9 = v11;
       else
-        v9 = *(float *)&FLOAT_0_0;
+        v9 = 0.0f;
       intervalMsec = (int)(float)((float)((float)(1.0 - v9) * (float)intervalMsec)
                                 + (float)((float)elemDef->spawnIntervalAtMaxWind * v9));
     }
@@ -539,7 +539,7 @@ void __cdecl FX_SpawnTrailLoopingElems(
   v12 = distanceTravelledBegin / (float)splitDist;
   v11 = floor(v12);
   normalizedDistanceBeforeSpawn = 1.0 - (v12 - v11);
-  normalizedDistanceTraversed = *(float *)&FLOAT_0_0;
+  normalizedDistanceTraversed = 0.0f;
   normalizedDistanceRemaining = normalizedTotalDistance;
   while ( normalizedDistanceRemaining > normalizedDistanceBeforeSpawn )
   {
@@ -560,7 +560,7 @@ void __cdecl FX_SpawnTrailLoopingElems(
     Vec4Normalize(frameWhenPlayed.quat);
     FX_SpawnTrailElem_Cull(system, effect, remoteEffect, trail, &frameWhenPlayed, msecSpawn, distSpawn);
     normalizedDistanceRemaining = normalizedDistanceRemaining - normalizedDistanceBeforeSpawn;
-    normalizedDistanceBeforeSpawn = FLOAT_1_0;
+    normalizedDistanceBeforeSpawn = 1.0f;
   }
 }
 
@@ -1876,9 +1876,9 @@ int __cdecl FX_CollisionResponse(
                  + (float)(update->elemBaseVel[1] * update->elemBaseVel[1])) < 1.0 )
       {
         elemBaseVel = update->elemBaseVel;
-        *elemBaseVel = *(float *)&FLOAT_0_0;
-        elemBaseVel[1] = *(float *)&FLOAT_0_0;
-        elemBaseVel[2] = *(float *)&FLOAT_0_0;
+        *elemBaseVel = 0.0f;
+        elemBaseVel[1] = 0.0f;
+        elemBaseVel[2] = 0.0f;
       }
       return msecUpdateEnd;
     }
@@ -2184,7 +2184,7 @@ unsigned __int8 __cdecl FX_ProcessEmitting(
     if ( distNextEmit > distInUpdate )
       break;
     if ( (float)(distNextEmit - 0.0) < 0.0 )
-      v8 = *(float *)&FLOAT_0_0;
+      v8 = 0.0f;
     else
       v8 = distNextEmit;
     distNextEmit = v8;
@@ -2272,10 +2272,10 @@ void __cdecl FX_GetQuatForOrientation(
   }
   else
   {
-    *quat = *(float *)&FLOAT_0_0;
-    quat[1] = *(float *)&FLOAT_0_0;
-    quat[2] = *(float *)&FLOAT_0_0;
-    quat[3] = FLOAT_1_0;
+    *quat = 0.0f;
+    quat[1] = 0.0f;
+    quat[2] = 0.0f;
+    quat[3] = 1.0f;
   }
 }
 
@@ -2488,8 +2488,8 @@ FxUpdateResult __cdecl FX_UpdateTrailElement(
       if ( !FX_UpdateElement_TruncateToElemBegin(&update, &updateResult) )
         return updateResult;
       v9 = (float)trailElem->baseVelZ * 0.001;
-      baseVel[0] = *(float *)&FLOAT_0_0;
-      baseVel[1] = *(float *)&FLOAT_0_0;
+      baseVel[0] = 0.0f;
+      baseVel[1] = 0.0f;
       baseVel[2] = v9;
       update.elemBaseVel = baseVel;
       update.physObjId = 0;

@@ -95,10 +95,10 @@ void __cdecl BG_Dog_Look_At(int localClientNum, const entityState_s *es)
                   localClientNum);
   if ( obj )
   {
-    upWeight = *(float *)&FLOAT_0_0;
-    downWeight = *(float *)&FLOAT_0_0;
-    leftWeight = *(float *)&FLOAT_0_0;
-    rightWeight = *(float *)&FLOAT_0_0;
+    upWeight = 0.0f;
+    downWeight = 0.0f;
+    leftWeight = 0.0f;
+    rightWeight = 0.0f;
     if ( es->un2.animState.fAimUpDown <= 0.0 )
       downWeight = -1.0 * es->un2.animState.fAimUpDown;
     else
@@ -210,9 +210,9 @@ void __cdecl BG_Dog_Move_Run(int localClientNum, const entityState_s *es, ActorA
       BG_Dog_Clear_Traverse_Anims(localClientNum, es, prevState);
       BG_Dog_Init_Normal_Look_At(localClientNum, es);
     }
-    center = *(float *)&FLOAT_0_0;
-    left = *(float *)&FLOAT_0_0;
-    right = *(float *)&FLOAT_0_0;
+    center = 0.0f;
+    left = 0.0f;
+    right = 0.0f;
     BG_Dog_GetRunAnimWeights(es->un2.animState.fLeanAmount, &center, &left, &right);
     v7 = DObjGetTree(obj);
     XAnimClearTreeGoalWeights(v7, 2u, 0.30000001, -1);
@@ -248,43 +248,43 @@ void __cdecl BG_Dog_GetRunAnimWeights(float leanAmount, float *center, float *le
   if ( leanAmount <= 0.0 )
   {
     if ( leanAmount < 0.0 && leanAmount > -0.94999999 )
-      leanAmount = FLOAT_N0_94999999;
+      leanAmount = -0.95f;
   }
   else if ( leanAmount < 0.94999999 )
   {
-    leanAmount = FLOAT_0_94999999;
+    leanAmount = 0.95f;
   }
   if ( leanAmount <= 0.0 )
   {
     if ( leanAmount >= 0.0 )
     {
-      *left = *(float *)&FLOAT_0_0;
-      *right = *(float *)&FLOAT_0_0;
-      *center = FLOAT_1_0;
+      *left = 0.0f;
+      *right = 0.0f;
+      *center = 1.0f;
     }
     else
     {
-      *right = *(float *)&FLOAT_0_0;
+      *right = 0.0f;
       *left = (float)(leanAmount + 1.0) * 20.0;
       if ( *left > 1.0 )
-        *left = FLOAT_1_0;
+        *left = 1.0f;
       if ( *left < 0.0 )
-        *left = *(float *)&FLOAT_0_0;
+        *left = 0.0f;
       *center = 1.0 - *left;
     }
   }
   else
   {
-    *left = *(float *)&FLOAT_0_0;
+    *left = 0.0f;
     *right = (float)(1.0 - leanAmount) * 20.0;
     if ( *right <= 1.0 )
     {
       if ( *right < 0.0 )
-        *right = *(float *)&FLOAT_0_0;
+        *right = 0.0f;
     }
     else
     {
-      *right = FLOAT_1_0;
+      *right = 1.0f;
     }
     *center = 1.0 - *right;
   }
@@ -353,9 +353,9 @@ void __cdecl BG_Dog_Move_Run_Think(int localClientNum, const entityState_s *es)
                   localClientNum);
   if ( obj )
   {
-    center = *(float *)&FLOAT_0_0;
-    left = *(float *)&FLOAT_0_0;
-    right = *(float *)&FLOAT_0_0;
+    center = 0.0f;
+    left = 0.0f;
+    right = 0.0f;
     BG_Dog_GetRunAnimWeights(es->un2.animState.fLeanAmount, &center, &left, &right);
     Tree = DObjGetTree(obj);
     XAnimClearTreeGoalWeights(Tree, 2u, 0.30000001, -1);

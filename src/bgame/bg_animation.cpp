@@ -438,7 +438,7 @@ void __cdecl BG_ParseCommands(const char **input, animScriptItem_t *scriptItem, 
         }
       }
       if ( parseMovetype == ANIM_MT_IDLE || parseEvent == 22 )
-        scriptData->animations[command->animIndex[partIndex]].moveSpeed = *(float *)&FLOAT_0_0;
+        scriptData->animations[command->animIndex[partIndex]].moveSpeed = 0.0f;
       if ( parseMovetype == ANIM_MT_RUN )
         scriptData->animations[command->animIndex[partIndex]].flags |= 0x4000000u;
       if ( parseMovetype == ANIM_MT_WALK )
@@ -454,12 +454,12 @@ void __cdecl BG_ParseCommands(const char **input, animScriptItem_t *scriptItem, 
           scriptData->animations[command->animIndex[partIndex]].flags |= 0x400u;
           break;
         case 1:
-          scriptData->animations[command->animIndex[partIndex]].moveSpeed = *(float *)&FLOAT_0_0;
-          scriptData->animations[command->animIndex[partIndex]].rotSpeed = *(float *)&FLOAT_0_0;
+          scriptData->animations[command->animIndex[partIndex]].moveSpeed = 0.0f;
+          scriptData->animations[command->animIndex[partIndex]].rotSpeed = 0.0f;
           scriptData->animations[command->animIndex[partIndex]].flags |= 0x100u;
           break;
         case 7:
-          scriptData->animations[command->animIndex[partIndex]].moveSpeed = *(float *)&FLOAT_0_0;
+          scriptData->animations[command->animIndex[partIndex]].moveSpeed = 0.0f;
           break;
         default:
           if ( parseMovetype < ANIM_MT_MANTLE_UP_57 || parseMovetype > ANIM_MT_MANTLE_OVER_LOW )
@@ -471,14 +471,14 @@ void __cdecl BG_ParseCommands(const char **input, animScriptItem_t *scriptItem, 
             }
             else
             {
-              scriptData->animations[command->animIndex[partIndex]].moveSpeed = *(float *)&FLOAT_0_0;
-              scriptData->animations[command->animIndex[partIndex]].rotSpeed = *(float *)&FLOAT_0_0;
+              scriptData->animations[command->animIndex[partIndex]].moveSpeed = 0.0f;
+              scriptData->animations[command->animIndex[partIndex]].rotSpeed = 0.0f;
             }
           }
           else
           {
-            scriptData->animations[command->animIndex[partIndex]].moveSpeed = *(float *)&FLOAT_0_0;
-            scriptData->animations[command->animIndex[partIndex]].rotSpeed = *(float *)&FLOAT_0_0;
+            scriptData->animations[command->animIndex[partIndex]].moveSpeed = 0.0f;
+            scriptData->animations[command->animIndex[partIndex]].rotSpeed = 0.0f;
           }
           break;
       }
@@ -769,7 +769,7 @@ int __cdecl BG_PlayAnim(
   if ( *(float *)(**(unsigned int **)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8)
                 + 120 * animNum
                 + 72) <= 0.0 )
-    v30 = FLOAT_1_0;
+    v30 = 1.0f;
   else
     v30 = *(float *)(**(unsigned int **)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8)
                    + 120 * animNum
@@ -2121,8 +2121,8 @@ LABEL_7:
     }
     AnglesSubtract(vHeadAngles, vTorsoAngles, vHeadAngles);
     AnglesSubtract(vTorsoAngles, tag_origin_angles, vTorsoAngles);
-    tag_origin_offset = *(float *)&FLOAT_0_0;
-    tag_origin_offset_4 = *(float *)&FLOAT_0_0;
+    tag_origin_offset = 0.0f;
+    tag_origin_offset_4 = 0.0f;
     fLeanFrac = GetLeanFraction(ci->lerpLean);
     vTorsoAngles[2] = (float)(fLeanFrac * 50.0) * 0.92500001;
     vHeadAngles[2] = vTorsoAngles[2];
@@ -2156,7 +2156,7 @@ LABEL_7:
         tag_origin_offset_4 = (float)((float)(COERCE_FLOAT(LODWORD(fLeanFrac) ^ _mask__NegFloat_) * (float)(1.0 - c))
                                     * 16.0)
                             + tag_origin_offset_4;
-      angles[0][0] = *(float *)&FLOAT_0_0;
+      angles[0][0] = 0.0f;
       angles[0][1] = (float)(vTorsoAngles[1] * 0.30000001) + (float)(vTorsoAngles[2] * -1.2);
       angles[0][2] = vTorsoAngles[2] * 0.30000001;
       if ( es->un2.animState.fAimUpDown != 0.0 || es->un2.animState.fAimLeftRight != 0.0 )
@@ -2164,10 +2164,10 @@ LABEL_7:
         v8 = AngleNormalize180(es->un2.animState.fAimUpDown - es->un2.animState.fAimLeftRight);
         angles[0][0] = angles[0][0] + v8;
       }
-      angles[1][0] = *(float *)&FLOAT_0_0;
+      angles[1][0] = 0.0f;
       angles[1][1] = (float)(vTorsoAngles[1] * 0.30000001) - (float)(vTorsoAngles[2] * 0.2);
       angles[1][2] = vTorsoAngles[2] * 0.2;
-      angles[2][0] = *(float *)&FLOAT_0_0;
+      angles[2][0] = 0.0f;
       angles[2][1] = (float)(vTorsoAngles[1] * 0.30000001) - (float)(vTorsoAngles[2] * -1.0);
       angles[2][2] = vTorsoAngles[2] * -0.2;
     }
@@ -2227,7 +2227,7 @@ LABEL_7:
     info->tag_origin_angles[2] = tag_origin_angles[2];
     info->tag_origin_offset[0] = tag_origin_offset;
     info->tag_origin_offset[1] = tag_origin_offset_4;
-    info->tag_origin_offset[2] = *(float *)&FLOAT_0_0;
+    info->tag_origin_offset[2] = 0.0f;
   }
 }
 
@@ -2322,7 +2322,7 @@ void __cdecl BG_RunLerpFrameRate(
     {
       if ( !anim || anim->rotSpeed == 0.0 && anim->moveSpeed == 0.0 || !lf->oldFrameSnapshotTime )
       {
-        lf->animSpeedScale = FLOAT_1_0;
+        lf->animSpeedScale = 1.0f;
         lf->oldFrameSnapshotTime = *(unsigned int *)(*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer
                                                            + _tls_index)
                                                          + 8)
@@ -2378,11 +2378,11 @@ void __cdecl BG_RunLerpFrameRate(
           if ( lf->animSpeedScale <= 1.0 )
           {
             if ( lf->animSpeedScale < 0.40000001 )
-              lf->animSpeedScale = FLOAT_0_40000001;
+              lf->animSpeedScale = 0.4f;
           }
           else
           {
-            lf->animSpeedScale = FLOAT_1_0;
+            lf->animSpeedScale = 1.0f;
           }
         }
         else
@@ -2394,7 +2394,7 @@ void __cdecl BG_RunLerpFrameRate(
                                                          + 8)
                                              + 8);
         if ( isScriptEventAnim )
-          lf->animSpeedScale = FLOAT_1_0;
+          lf->animSpeedScale = 1.0f;
         lf->oldFramePos[0] = es->lerp.pos.trBase[0];
         lf->oldFramePos[1] = es->lerp.pos.trBase[1];
         lf->oldFramePos[2] = es->lerp.pos.trBase[2];
@@ -2406,7 +2406,7 @@ void __cdecl BG_RunLerpFrameRate(
             if ( (anim->flags & 2) != 0 )
             {
               if ( lf->animSpeedScale > 4.0 )
-                lf->animSpeedScale = FLOAT_4_0;
+                lf->animSpeedScale = 4.0f;
             }
             else if ( anim->moveSpeed <= 150.0 )
             {
@@ -2418,22 +2418,22 @@ void __cdecl BG_RunLerpFrameRate(
               }
               else if ( lf->animSpeedScale > 3.0 )
               {
-                lf->animSpeedScale = FLOAT_3_0;
+                lf->animSpeedScale = 3.0f;
               }
             }
             else
             {
-              lf->animSpeedScale = FLOAT_2_0;
+              lf->animSpeedScale = 2.0f;
             }
           }
         }
         else if ( lf->animSpeedScale < 0.0099999998 && isLadderAnim )
         {
-          lf->animSpeedScale = *(float *)&FLOAT_0_0;
+          lf->animSpeedScale = 0.0f;
         }
         else
         {
-          lf->animSpeedScale = FLOAT_0_1;
+          lf->animSpeedScale = 0.1f;
         }
       }
     }
@@ -2486,7 +2486,7 @@ void __cdecl BG_SetNewAnimation(
 
   transitionMin = -1;
   firstAnim = 0;
-  fStartTime = *(float *)&FLOAT_0_0;
+  fStartTime = 0.0f;
   BG_CheckThread();
   if ( !*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8)
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\bgame\\bg_animation.cpp", 3763, 0, "%s", "bgs") )
@@ -2801,7 +2801,7 @@ void __cdecl BG_PlayerAngles(const entityState_s *es, clientInfo_t *ci)
   }
   else
   {
-    swingSpeed = FLOAT_1_0;
+    swingSpeed = 1.0f;
   }
   if ( (es->lerp.eFlags & 0x300) != 0 )
   {
@@ -2844,34 +2844,34 @@ LABEL_25:
   {
     vLegsAngles_4 = vHeadAngles_4;
     vTorsoAngles_4 = vHeadAngles_4;
-    clampTolerance = FLOAT_90_0;
+    clampTolerance = 90.0f;
   }
   else if ( es->lerp.u.actor.team == 5 || es->lerp.u.actor.team == 6 )
   {
     vTorsoAngles_4 = vHeadAngles_4 + moveDir;
-    clampTolerance = *(float *)&FLOAT_0_0;
+    clampTolerance = 0.0f;
   }
   else if ( (es->lerp.eFlags & 0x8000) != 0 )
   {
     vTorsoAngles_4 = vHeadAngles_4;
     vLegsAngles_4 = vHeadAngles_4;
-    clampTolerance = FLOAT_90_0;
+    clampTolerance = 90.0f;
   }
   else if ( ci->needsRevive )
   {
     vLegsAngles_4 = vHeadAngles_4;
     vTorsoAngles_4 = vHeadAngles_4;
-    clampTolerance = FLOAT_45_0;
+    clampTolerance = 45.0f;
   }
   else if ( (es->lerp.eFlags & 8) != 0 )
   {
     vTorsoAngles_4 = vHeadAngles_4;
-    clampTolerance = FLOAT_90_0;
+    clampTolerance = 90.0f;
   }
   else if ( (es->lerp.eFlags & 0x40) != 0 )
   {
     vTorsoAngles_4 = vHeadAngles_4;
-    clampTolerance = FLOAT_45_0;
+    clampTolerance = 45.0f;
   }
   else
   {
@@ -2879,7 +2879,7 @@ LABEL_25:
       vTorsoAngles_4 = vHeadAngles_4;
     else
       vTorsoAngles_4 = (float)(player_move_factor_on_torso->current.value * moveDir) + vHeadAngles_4;
-    clampTolerance = FLOAT_90_0;
+    clampTolerance = 90.0f;
   }
   BG_SwingAngles(vTorsoAngles_4, 0.0, clampTolerance, swingSpeed, &ci->torso.yawAngle, &ci->torso.yawing);
   if ( !**(unsigned int **)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8)
@@ -2952,7 +2952,7 @@ LABEL_55:
     ci->torso.yawAngle = vHeadAngles_4 + moveDir;
     ci->legs.yawAngle = vHeadAngles_4 + moveDir;
   }
-  MAX_PITCH_FRACTION = FLOAT_2_0;
+  MAX_PITCH_FRACTION = 2.0f;
   if ( IKImport_GetVar_IK_Enable() )
     MAX_PITCH_FRACTION = IK_MAX_PITCH_FRACTION;
   if ( (es->lerp.eFlags & 0x40000) != 0
@@ -3010,7 +3010,7 @@ void __cdecl BG_SwingAngles(
     swinga = AngleNormalize180(destination - *angle);
     scale = COERCE_FLOAT(LODWORD(swinga) & _mask__AbsFloat_) * 0.050000001;
     if ( scale < 0.5 )
-      scale = FLOAT_0_5;
+      scale = 0.5f;
     if ( swinga < 0.0 )
     {
       move = (float)((float)*(int *)(*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8)
@@ -4281,12 +4281,12 @@ void __cdecl BG_FinalizePlayerAnims(const char *levelName)
         if ( !pCurrAnim->initialLerp )
           pCurrAnim->initialLerp = -1;
         pCurrAnim->finalLerp = -1;
-        pCurrAnim->forceAnimRate = FLOAT_N1_0;
+        pCurrAnim->forceAnimRate = -1.0f;
         duration = XAnimGetLength(pXAnims, i);
         if ( duration == 0.0 )
         {
           pCurrAnim->duration = 500;
-          pCurrAnim->moveSpeed = *(float *)&FLOAT_0_0;
+          pCurrAnim->moveSpeed = 0.0f;
         }
         else
         {
@@ -4299,7 +4299,7 @@ void __cdecl BG_FinalizePlayerAnims(const char *levelName)
           if ( XAnimGetParamValue(pXAnims, i, "turn", &rotate) )
             pCurrAnim->rotSpeed = rotate / duration;
           else
-            pCurrAnim->rotSpeed = *(float *)&FLOAT_0_0;
+            pCurrAnim->rotSpeed = 0.0f;
           if ( anim_debugSpeeds->current.enabled )
           {
             if ( pCurrAnim->moveSpeed <= 1.0 )
@@ -4312,7 +4312,7 @@ void __cdecl BG_FinalizePlayerAnims(const char *levelName)
               if ( g_speed )
                 fullspeed = (float)g_speed->current.integer;
               else
-                fullspeed = FLOAT_190_0;
+                fullspeed = 190.0f;
               strstr((unsigned __int8 *)pCurrAnim, "crouch");
               if ( v2 )
               {
@@ -4386,10 +4386,10 @@ void __cdecl BG_FinalizePlayerAnims(const char *levelName)
         if ( !pCurrAnim->initialLerp )
           pCurrAnim->initialLerp = -1;
         pCurrAnim->duration = 0;
-        pCurrAnim->moveSpeed = *(float *)&FLOAT_0_0;
-        pCurrAnim->rotSpeed = *(float *)&FLOAT_0_0;
+        pCurrAnim->moveSpeed = 0.0f;
+        pCurrAnim->rotSpeed = 0.0f;
         pCurrAnim->finalLerp = -1;
-        pCurrAnim->forceAnimRate = FLOAT_N1_0;
+        pCurrAnim->forceAnimRate = -1.0f;
       }
     }
     else

@@ -103,34 +103,34 @@ void __cdecl CM_BuildAxialPlanes(const cbrush_t *brush, float (*axialPlanes)[4])
   float v7; // [esp+28h] [ebp-4h]
 
   LODWORD(v7) = LODWORD(brush->mins[0]) ^ _mask__NegFloat_;
-  (*axialPlanes)[0] = FLOAT_N1_0;
-  (*axialPlanes)[1] = *(float *)&FLOAT_0_0;
-  (*axialPlanes)[2] = *(float *)&FLOAT_0_0;
+  (*axialPlanes)[0] = -1.0f;
+  (*axialPlanes)[1] = 0.0f;
+  (*axialPlanes)[2] = 0.0f;
   (*axialPlanes)[3] = v7;
   v6 = brush->maxs[0];
-  (*axialPlanes)[4] = FLOAT_1_0;
-  (*axialPlanes)[5] = *(float *)&FLOAT_0_0;
-  (*axialPlanes)[6] = *(float *)&FLOAT_0_0;
+  (*axialPlanes)[4] = 1.0f;
+  (*axialPlanes)[5] = 0.0f;
+  (*axialPlanes)[6] = 0.0f;
   (*axialPlanes)[7] = v6;
   LODWORD(v5) = LODWORD(brush->mins[1]) ^ _mask__NegFloat_;
-  (*axialPlanes)[8] = *(float *)&FLOAT_0_0;
-  (*axialPlanes)[9] = FLOAT_N1_0;
-  (*axialPlanes)[10] = *(float *)&FLOAT_0_0;
+  (*axialPlanes)[8] = 0.0f;
+  (*axialPlanes)[9] = -1.0f;
+  (*axialPlanes)[10] = 0.0f;
   (*axialPlanes)[11] = v5;
   v4 = brush->maxs[1];
-  (*axialPlanes)[12] = *(float *)&FLOAT_0_0;
-  (*axialPlanes)[13] = FLOAT_1_0;
-  (*axialPlanes)[14] = *(float *)&FLOAT_0_0;
+  (*axialPlanes)[12] = 0.0f;
+  (*axialPlanes)[13] = 1.0f;
+  (*axialPlanes)[14] = 0.0f;
   (*axialPlanes)[15] = v4;
   LODWORD(v3) = LODWORD(brush->mins[2]) ^ _mask__NegFloat_;
-  (*axialPlanes)[16] = *(float *)&FLOAT_0_0;
-  (*axialPlanes)[17] = *(float *)&FLOAT_0_0;
-  (*axialPlanes)[18] = FLOAT_N1_0;
+  (*axialPlanes)[16] = 0.0f;
+  (*axialPlanes)[17] = 0.0f;
+  (*axialPlanes)[18] = -1.0f;
   (*axialPlanes)[19] = v3;
   v2 = brush->maxs[2];
-  (*axialPlanes)[20] = *(float *)&FLOAT_0_0;
-  (*axialPlanes)[21] = *(float *)&FLOAT_0_0;
-  (*axialPlanes)[22] = FLOAT_1_0;
+  (*axialPlanes)[20] = 0.0f;
+  (*axialPlanes)[21] = 0.0f;
+  (*axialPlanes)[22] = 1.0f;
   (*axialPlanes)[23] = v2;
 }
 
@@ -378,7 +378,7 @@ void __cdecl CM_AddExteriorPointToWindingProjected(winding_t *w, float *pt, int 
   float bestSignedArea; // [esp+14h] [ebp-4h]
 
   bestIndex = -1;
-  bestSignedArea = FLOAT_3_4028235e38;
+  bestSignedArea = FLT_MAX;
   indexPrev = w->numpoints - 1;
   for ( index = 0; index < w->numpoints; ++index )
   {
@@ -533,7 +533,7 @@ double __cdecl CM_RepresentativeTriangleFromWinding(const winding_t *w, const fl
   *i0 = 0;
   *i1 = 1;
   *i2 = 2;
-  areaBest = *(float *)&FLOAT_0_0;
+  areaBest = 0.0f;
   for ( k = 2; k < w->numpoints; ++k )
   {
     for ( j = 1; j < k; ++j )
@@ -639,20 +639,20 @@ void __cdecl CM_GetShowCollisionColor(float *colorFloat, char colorCounter)
     __debugbreak();
   }
   if ( (colorCounter & 1) != 0 )
-    v4 = FLOAT_1_0;
+    v4 = 1.0f;
   else
-    v4 = *(float *)&FLOAT_0_0;
+    v4 = 0.0f;
   *colorFloat = v4;
   if ( (colorCounter & 2) != 0 )
-    v3 = FLOAT_1_0;
+    v3 = 1.0f;
   else
-    v3 = *(float *)&FLOAT_0_0;
+    v3 = 0.0f;
   colorFloat[1] = v3;
   if ( (colorCounter & 4) != 0 )
-    v2 = FLOAT_1_0;
+    v2 = 1.0f;
   else
-    v2 = *(float *)&FLOAT_0_0;
+    v2 = 0.0f;
   colorFloat[2] = v2;
-  colorFloat[3] = FLOAT_0_5;
+  colorFloat[3] = 0.5f;
 }
 

@@ -2,28 +2,28 @@
 
 void __cdecl SND_RvParamsDefault(snd_rv_params *params)
 {
-  params->earlySize = FLOAT_1_0;
-  params->lateSize = FLOAT_1_0;
-  params->earlyGain = FLOAT_1_0;
-  params->lateGain = FLOAT_1_0;
-  params->smoothing = FLOAT_0_5;
-  params->diffusion = FLOAT_0_5;
+  params->earlySize = 1.0f;
+  params->lateSize = 1.0f;
+  params->earlyGain = 1.0f;
+  params->lateGain = 1.0f;
+  params->smoothing = 0.5f;
+  params->diffusion = 0.5f;
   params->dryGain = 0.0;
-  params->earlyTime = FLOAT_0_80000001;
-  params->lateTime = FLOAT_0_80000001;
+  params->earlyTime = 0.8f;
+  params->lateTime = 0.8f;
   params->earlyLpf = 0.0;
-  params->lateGainProx[0] = FLOAT_1_0;
-  params->lateGainProx[1] = FLOAT_1_0;
-  params->lateGainProx[2] = FLOAT_1_0;
-  params->lateGainProx[3] = FLOAT_1_0;
-  params->returnGain = FLOAT_1_0;
+  params->lateGainProx[0] = 1.0f;
+  params->lateGainProx[1] = 1.0f;
+  params->lateGainProx[2] = 1.0f;
+  params->lateGainProx[3] = 1.0f;
+  params->returnGain = 1.0f;
   params->lateLpf = 0.0;
   params->inputLpf = 0.0;
   params->dampLpf = 0.0;
-  params->wallReflect[0] = FLOAT_0_5;
-  params->wallReflect[1] = FLOAT_0_5;
-  params->wallReflect[2] = FLOAT_0_5;
-  params->wallReflect[3] = FLOAT_0_5;
+  params->wallReflect[0] = 0.5f;
+  params->wallReflect[1] = 0.5f;
+  params->wallReflect[2] = 0.5f;
+  params->wallReflect[3] = 0.5f;
   params->frameRate = FLOAT_48000_0;
   params->delayMatrix = 0;
 }

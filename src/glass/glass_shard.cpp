@@ -660,7 +660,7 @@ void __userpurge GlassPhysics::IntegrateVelocity(GlassPhysics *this@<ecx>, int a
     v8->z = v8->z * v9;
   }
   if ( (float)(deltaTime * phys_dragLinear->current.value) >= 0.89999998 )
-    v4 = FLOAT_0_89999998;
+    v4 = 0.9f;
   else
     v4 = deltaTime * phys_dragLinear->current.value;
   v7 = &v75->m_t_vel;
@@ -668,7 +668,7 @@ void __userpurge GlassPhysics::IntegrateVelocity(GlassPhysics *this@<ecx>, int a
   v7->y = v7->y * (float)(1.0 - v4);
   v7->z = v7->z * (float)(1.0 - v4);
   if ( (float)(deltaTime * phys_dragAngular->current.value) >= 0.89999998 )
-    v5 = FLOAT_0_89999998;
+    v5 = 0.9f;
   else
     v5 = deltaTime * phys_dragAngular->current.value;
   v6 = &v75->m_a_vel;
@@ -805,9 +805,9 @@ GlassShard::Outline::Vertex *__thiscall GlassShard::Outline::Add(GlassShard::Out
     v5->edge.origin[0] = *pos;
     v5->edge.origin[1] = pos[1];
     dir = this->verts[this->numVerts].edge.dir;
-    *dir = *(float *)&FLOAT_0_0;
-    dir[1] = *(float *)&FLOAT_0_0;
-    this->verts[this->numVerts].edge.len = *(float *)&FLOAT_0_0;
+    *dir = 0.0f;
+    dir[1] = 0.0f;
+    this->verts[this->numVerts].edge.len = 0.0f;
     this->verts[this->numVerts++].isOriginalEdge = 0;
   }
   return &this->verts[this->numVerts - 1];
@@ -838,9 +838,9 @@ GlassShard::Outline::Vertex *__thiscall GlassShard::Outline::Add(GlassShard::Out
     v6->edge.origin[0] = (float)(v8 * v7->edge.dir[0]) + v7->edge.origin[0];
     v6->edge.origin[1] = (float)(v8 * v7->edge.dir[1]) + v7->edge.origin[1];
     v5 = this->verts[this->numVerts].edge.dir;
-    *v5 = *(float *)&FLOAT_0_0;
-    v5[1] = *(float *)&FLOAT_0_0;
-    this->verts[this->numVerts].edge.len = *(float *)&FLOAT_0_0;
+    *v5 = 0.0f;
+    v5[1] = 0.0f;
+    this->verts[this->numVerts].edge.len = 0.0f;
     this->verts[this->numVerts++].isOriginalEdge = 0;
   }
   return &this->verts[this->numVerts - 1];
@@ -897,8 +897,8 @@ char __thiscall GlassShard::Outline::CloseOutline(GlassShard::Outline *this)
       v1 = 0;
     }
   }
-  this->length = *(float *)&FLOAT_0_0;
-  this->area = *(float *)&FLOAT_0_0;
+  this->length = 0.0f;
+  this->area = 0.0f;
   for ( i = 0; i < this->numVerts; ++i )
   {
     v11 = ((signed int)-abs(i - (this->numVerts - 1)) >> 31) & (i + 1);
@@ -1004,7 +1004,7 @@ bool __thiscall GlassShard::Outline::HasNarrowAngle(GlassShard::Outline *this)
   unsigned int i; // [esp+1Ch] [ebp-8h]
   float val; // [esp+20h] [ebp-4h]
 
-  val = FLOAT_1_0;
+  val = 1.0f;
   for ( i = 0; i < this->numVerts; ++i )
   {
     if ( (float)((float)((float)(this->verts[i].edge.dir[0] * this->verts[(i + 1) % this->numVerts].edge.dir[0])
@@ -1102,11 +1102,11 @@ int __thiscall GlassShard::Outline::GetNumIntersections(
   float end[2]; // [esp+58h] [ebp-Ch] BYREF
   int n; // [esp+60h] [ebp-4h]
 
-  TEST_LENGTH = FLOAT_1000_0;
+  TEST_LENGTH = 1000.0f;
   n = 0;
   end[0] = (float)(1000.0 * *dir) + *start;
   end[1] = (float)(1000.0 * dir[1]) + start[1];
-  *nearestDist = FLOAT_1000_0;
+  *nearestDist = 1000.0f;
   for ( i = 0; i < this->numVerts; ++i )
   {
     if ( Vec2IntersectSegments(
@@ -1256,11 +1256,11 @@ void __thiscall GlassShard::Outline::GetNearestDistances(
                   + (float)((float)(len * this->verts[m].edge.dir[1]) * (float)(p[1] - this->verts[m].edge.origin[1])))
           / (float)(len * len);
     else
-      v11 = FLOAT_1_0;
+      v11 = 1.0f;
     if ( (float)(0.0 - v10) < 0.0 )
       v7 = v11;
     else
-      v7 = *(float *)&FLOAT_0_0;
+      v7 = 0.0f;
     v8 = v7 * this->verts[m].edge.len;
     v9 = &this->verts[m];
     *(float *)&np = (float)(v8 * v9->edge.dir[0]) + v9->edge.origin[0];
@@ -1385,18 +1385,18 @@ void __thiscall GlassShard::Mesh::Init(
     this->indices = ptr;
     ptr += 12 * outline->numVerts - 12;
     this->numNorm = 0;
-    vec[0] = *(float *)&FLOAT_0_0;
-    vec[1] = *(float *)&FLOAT_0_0;
-    vec[2] = FLOAT_1_0;
+    vec[0] = 0.0f;
+    vec[1] = 0.0f;
+    vec[2] = 1.0f;
     v11 = &this->normArray[this->numNorm++];
     LOBYTE(v12) = (int)(float)((float)(vec[0] * 127.0) + 127.5);
     BYTE1(v12) = (int)(float)((float)(vec[1] * 127.0) + 127.5);
     BYTE2(v12) = (int)(float)((float)(vec[2] * 127.0) + 127.5);
     HIBYTE(v12) = 63;
     v11->packed = v12;
-    vec[0] = *(float *)&FLOAT_0_0;
-    vec[1] = *(float *)&FLOAT_0_0;
-    vec[2] = FLOAT_N1_0;
+    vec[0] = 0.0f;
+    vec[1] = 0.0f;
+    vec[2] = -1.0f;
     v9 = &this->normArray[this->numNorm++];
     LOBYTE(v10) = (int)(float)((float)(vec[0] * 127.0) + 127.5);
     BYTE1(v10) = (int)(float)((float)(vec[1] * 127.0) + 127.5);
@@ -1425,11 +1425,11 @@ void __thiscall GlassShard::Mesh::Init(
       v8 = outline->verts[v1].edge.origin[1];
       p1[0] = outline->verts[v1].edge.origin[0];
       p1[1] = v8;
-      p1[2] = *(float *)&FLOAT_0_0;
+      p1[2] = 0.0f;
       v7 = outline->verts[v2].edge.origin[1];
       p2[0] = outline->verts[v2].edge.origin[0];
       p2[1] = v7;
-      p2[2] = *(float *)&FLOAT_0_0;
+      p2[2] = 0.0f;
       v6 = outline->verts[v1].edge.origin[1];
       p3[0] = outline->verts[v1].edge.origin[0];
       p3[1] = v6;
@@ -1645,12 +1645,12 @@ void __thiscall GlassShard::Init(GlassShard *this)
   this->inGroupChange = 0;
   this->memoryPtr = 0;
   this->delayedDrop = 0;
-  this->worldBBoxMin[0] = FLOAT_N3_4028235e38;
-  this->worldBBoxMin[1] = FLOAT_N3_4028235e38;
-  this->worldBBoxMin[2] = FLOAT_N3_4028235e38;
-  this->worldBBoxMax[0] = FLOAT_3_4028235e38;
-  this->worldBBoxMax[1] = FLOAT_3_4028235e38;
-  this->worldBBoxMax[2] = FLOAT_3_4028235e38;
+  this->worldBBoxMin[0] = -FLT_MAX;
+  this->worldBBoxMin[1] = -FLT_MAX;
+  this->worldBBoxMin[2] = -FLT_MAX;
+  this->worldBBoxMax[0] = FLT_MAX;
+  this->worldBBoxMax[1] = FLT_MAX;
+  this->worldBBoxMax[2] = FLT_MAX;
 }
 
 void __thiscall GlassShard::Destroy(GlassShard *this)
@@ -1666,13 +1666,13 @@ double __thiscall GlassShard::EdgeRatio(GlassShard *this)
   unsigned int i; // [esp+Ch] [ebp-8h]
   float originalEdgeRatio; // [esp+10h] [ebp-4h]
 
-  originalEdgeRatio = *(float *)&FLOAT_0_0;
+  originalEdgeRatio = 0.0f;
   for ( i = 0; i < this->outline.numVerts; ++i )
   {
     if ( this->outline.verts[i].isOriginalEdge )
       len = this->outline.verts[i].edge.len;
     else
-      len = *(float *)&FLOAT_0_0;
+      len = 0.0f;
     originalEdgeRatio = originalEdgeRatio + len;
   }
   return originalEdgeRatio / GlassShard::Outline::Length(&this->outline);
@@ -1768,7 +1768,7 @@ bool __thiscall GlassShard::CanSplit(GlassShard *this, bool shatter)
     __debugbreak();
   }
   if ( shatter )
-    value = FLOAT_1_0;
+    value = 1.0f;
   else
     value = clGlasses->renderer->shardShatterSizeLimitScale->current.value;
   return GlassShard::CanSplit(this, this->group->glassDef->maxShardSize, this->group->glassDef->minShardSize * value);
@@ -1893,9 +1893,9 @@ int __cdecl compareShards(const void *s1, const GlassShard **s2)
   v5 = GlassShard::Outline::Area((GlassShard::Outline *)(*(unsigned int *)s1 + 12));
   v4 = GlassShard::Outline::Area(&shard2->outline);
   if ( (float)(v5 - v4) < 0.0 )
-    return (int)FLOAT_1_0;
+    return (int)1.0f;
   else
-    return (int)FLOAT_N1_0;
+    return (int)-1.0f;
 }
 
 void __thiscall GlassShard::InitPhysics(
@@ -1919,9 +1919,9 @@ void __thiscall GlassShard::InitPhysics(
     return;
   }
   if ( (float)((float)((float)(*dir * *dir) + (float)(dir[1] * dir[1])) + (float)(dir[2] * dir[2])) == 0.0 )
-    v7 = FLOAT_0_5;
+    v7 = 0.5f;
   else
-    v7 = FLOAT_1_0;
+    v7 = 1.0f;
   numKeepShards = (int)(float)((float)((float)((float)numNewShards * this->group->glassDef->shardLifeProbablility) * v7)
                              + 0.5);
   //PIXBeginNamedEvent(0, "InitPhysics");
@@ -2199,8 +2199,8 @@ bool __thiscall GlassShard::Intersect(GlassShard *this, float *pos, float *dir, 
   localHit[2] = (float)(t * localDir[2]) + localPos[2];
   *hitPoint = localHit[0];
   hitPoint[1] = localHit[1];
-  testDir[0] = FLOAT_1_0;
-  testDir[1] = *(float *)&FLOAT_0_0;
+  testDir[0] = 1.0f;
+  testDir[1] = 0.0f;
   return GlassShard::Outline::GetNumIntersections(&this->outline, hitPoint, testDir, &d, &edge) % 2 == 1;
 }
 
@@ -2415,7 +2415,7 @@ LABEL_38:
     if ( GlassShard::EdgeRatio(newShards[j]) < 0.15000001 )
       GlassShard::UnEdge(newShards[j]);
   }
-  STICKINESS = FLOAT_1_0;
+  STICKINESS = 1.0f;
   if ( numNewShards == 1 )
   {
     if ( newShards[0]->isOriginalEdge && !GlassShard::LeaveOnEdge(newShards[0], STICKINESS) )
@@ -2462,7 +2462,7 @@ LABEL_38:
       else
         GlassShard::UnEdge(newShards[1]);
     }
-    SHARD_CHIP_RATIO = FLOAT_3_0;
+    SHARD_CHIP_RATIO = 3.0f;
     v18 = GlassShard::Outline::Area(&newShards[0]->outline);
     v12 = v18 * SHARD_CHIP_RATIO;
     if ( GlassShard::Outline::Area(&newShards[1]->outline) <= v12 )
@@ -2575,17 +2575,17 @@ void __thiscall GlassShard::GetLocalBBox(GlassShard *this, float *mins, float *m
   v6 = this->outline.verts->edge.origin[1];
   *mins = this->outline.verts->edge.origin[0];
   mins[1] = v6;
-  mins[2] = *(float *)&FLOAT_0_0;
+  mins[2] = 0.0f;
   v5 = this->outline.verts->edge.origin[1];
   *maxs = this->outline.verts->edge.origin[0];
   maxs[1] = v5;
-  maxs[2] = *(float *)&FLOAT_0_0;
+  maxs[2] = 0.0f;
   for ( i = 1; i < this->outline.numVerts; ++i )
   {
     v4 = this->outline.verts[i].edge.origin[1];
     pos[0] = this->outline.verts[i].edge.origin[0];
     pos[1] = v4;
-    pos[2] = *(float *)&FLOAT_0_0;
+    pos[2] = 0.0f;
     Vec3Min(pos, mins, mins);
     Vec3Max(pos, maxs, maxs);
   }
@@ -2663,12 +2663,12 @@ void __thiscall GlassShard::UpdateBBox(GlassShard *this)
   unsigned int i; // [esp+3Ch] [ebp-10h]
   float offset[3]; // [esp+40h] [ebp-Ch]
 
-  this->worldBBoxMin[0] = FLOAT_3_4028235e38;
-  this->worldBBoxMin[1] = FLOAT_3_4028235e38;
-  this->worldBBoxMin[2] = FLOAT_3_4028235e38;
-  this->worldBBoxMax[0] = FLOAT_N3_4028235e38;
-  this->worldBBoxMax[1] = FLOAT_N3_4028235e38;
-  this->worldBBoxMax[2] = FLOAT_N3_4028235e38;
+  this->worldBBoxMin[0] = FLT_MAX;
+  this->worldBBoxMin[1] = FLT_MAX;
+  this->worldBBoxMin[2] = FLT_MAX;
+  this->worldBBoxMax[0] = -FLT_MAX;
+  this->worldBBoxMax[1] = -FLT_MAX;
+  this->worldBBoxMax[2] = -FLT_MAX;
   thickness = this->thickness;
   offset[0] = thickness * this->axis[2][0];
   offset[1] = thickness * this->axis[2][1];
@@ -2960,7 +2960,7 @@ void __thiscall GlassShard::GenerateVerts(
     v16 = *(float *)&out.packed;
     in.packed = out.packed;
     Vec3UnpackUnitVec(out, (float *)&out.packed);
-    in.packed = *(unsigned int *)&FLOAT_0_0;
+    in.packed = 0;
     v46.packed = out.packed;
     v47 = v15;
     v48 = v16;
@@ -3000,7 +3000,7 @@ void __thiscall GlassShard::GenerateVerts(
     baseVerts->normal.packed = v61[*(unsigned __int8 *)(v62 + 2 * v42 + 1)];
     baseVerts->tangent = v56;
     baseVerts->color.packed = -1;
-    baseVerts->binormalSign = FLOAT_1_0;
+    baseVerts->binormalSign = 1.0f;
     baseVerts->texCoord.packed = v54[*(unsigned __int8 *)(v62 + 2 * v42++)];
     ++baseVerts;
   }
@@ -3078,7 +3078,7 @@ int __thiscall GlassShard::Split(
   v25 = clGlasses->renderer;
   maxEdgeLength = GlassShard::Outline::Length(&this->outline) * v25->shardEdgeSize->current.vector[1];
   dirSign = 0;
-  newEdgeDist = FLOAT_N1_0;
+  newEdgeDist = -1.0f;
   newEdgeIdx = -1;
   NUM_TRIES = 10;
   if ( startEdgeParam >= 0.0 )
@@ -3108,7 +3108,7 @@ int __thiscall GlassShard::Split(
   else
   {
     startEdge = 64;
-    startEdgeParam = *(float *)&FLOAT_0_0;
+    startEdgeParam = 0.0f;
     for ( j = 0; j < 10 && startEdge >= 0x40; ++j )
     {
       max = GlassShard::Outline::Length(&this->outline);
@@ -3124,11 +3124,11 @@ int __thiscall GlassShard::Split(
             if ( (float)((float)(startParam / len) - 0.75) < 0.0 )
               v24 = startParam / len;
             else
-              v24 = FLOAT_0_75;
+              v24 = 0.75f;
             if ( (float)(0.25 - (float)(startParam / len)) < 0.0 )
               v9 = v24;
             else
-              v9 = FLOAT_0_25;
+              v9 = 0.25f;
             startEdgeParam = v9;
           }
           break;
@@ -3312,7 +3312,7 @@ int __thiscall GlassShard::Chip(
   newDir[0] = outline1.verts[1].edge.dir[0];
   newDir[1] = outline1.verts[1].edge.dir[1];
   VectorAngleMultiply(newDir, firstAngle);
-  newEdgeDist = FLOAT_N1_0;
+  newEdgeDist = -1.0f;
   newEdgeIdx = -1;
   if ( GlassShard::Outline::GetNumIntersections(&this->outline, hitPoint, newDir, &newEdgeDist, &newEdgeIdx) >= 1 )
   {
@@ -3390,13 +3390,13 @@ int __thiscall GlassShard::InitSplitShards(
   *newShards = GlassRenderer::AllocShard(clGlasses->renderer);
   if ( *newShards )
   {
-    otherOffset[0] = *(float *)&FLOAT_0_0;
-    otherOffset[1] = *(float *)&FLOAT_0_0;
+    otherOffset[0] = 0.0f;
+    otherOffset[1] = 0.0f;
     GlassShard::Outline::Reverse(outline2);
     if ( GlassShard::Init(*newShards, this, outline2, otherOffset) )
     {
-      offset[0] = *(float *)&FLOAT_0_0;
-      offset[1] = *(float *)&FLOAT_0_0;
+      offset[0] = 0.0f;
+      offset[1] = 0.0f;
       if ( GlassShard::Init(this, this, outline1, offset) )
       {
         return 1;
@@ -3528,7 +3528,7 @@ bool __thiscall GlassShard::InitPhysicsObj(GlassShard *this, bool enableCollisio
   {
     Com_Memset((unsigned int *)&physPreset, 0, 84);
     physPreset.mass = GlassShard::GetMass(this);
-    physPreset.friction = FLOAT_0_5;
+    physPreset.friction = 0.5f;
     AxisToQuat(this->axis, quat);
     Sys_EnterCriticalSection(CRITSECT_PHYSICS_UPDATE);
     Sys_EnterCriticalSection(CRITSECT_PHYSICS);
@@ -3761,8 +3761,8 @@ bool __thiscall GlassShard::IsOnBottomEdge(GlassShard *this)
   if ( edgeIdx == -1 )
     return 0;
   edgeIdx2 = ((signed int)-abs(edgeIdx - (this->outline.numVerts - 1)) >> 31) & (edgeIdx + 1);
-  minEdge = FLOAT_3_4028235e38;
-  minOthers = FLOAT_3_4028235e38;
+  minEdge = FLT_MAX;
+  minOthers = FLT_MAX;
   for ( j = 0; j < this->outline.numVerts; ++j )
   {
     GlassShard::ToWorldPos(this, this->outline.verts[j].edge.origin, wPos, 0);
@@ -3881,11 +3881,11 @@ char __thiscall GlassShard::InitPhysics(
           if ( (float)(v13 - 1.0) < 0.0 )
             v14 = (float)(clGlasses->renderer->forceAttenuation->current.value * dist) / glassSize;
           else
-            v14 = FLOAT_1_0;
+            v14 = 1.0f;
           if ( (float)(0.25 - v13) < 0.0 )
             v7 = v14;
           else
-            v7 = FLOAT_0_25;
+            v7 = 0.25f;
           distAtten = 1.0 - v7;
           v = (float)(1.0 - v7) * v;
           v23 = (float)(1.0 - v7) * v23;
@@ -3905,11 +3905,11 @@ char __thiscall GlassShard::InitPhysics(
           if ( (float)((float)(strength * 2.0) - 1.0) < 0.0 )
             v18 = strength * 2.0;
           else
-            v18 = FLOAT_1_0;
+            v18 = 1.0f;
           if ( (float)(0.2 - (float)(strength * 2.0)) < 0.0 )
             v17 = v18;
           else
-            v17 = FLOAT_0_2;
+            v17 = 0.2f;
           dir[0] = v17 * dir[0];
           dir[1] = v17 * dir[1];
           dir[2] = v17 * dir[2];
@@ -3984,7 +3984,7 @@ void __thiscall GlassShard::DrawOutline(GlassShard *this)
     v12 = this->outline.verts[i].edge.origin[1];
     pos[0] = this->outline.verts[i].edge.origin[0];
     pos[1] = v12;
-    pos[2] = *(float *)&FLOAT_0_0;
+    pos[2] = 0.0f;
     temp[0] = (float)(pos[0] * this->axis[0][0]) + this->origin[0];
     temp[1] = (float)(pos[0] * this->axis[0][1]) + this->origin[1];
     temp[2] = (float)(pos[0] * this->axis[0][2]) + this->origin[2];

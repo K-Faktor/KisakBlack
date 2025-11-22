@@ -34,12 +34,12 @@ gjkcc_info *__cdecl create_gjkcc_info(unsigned int gjkcc_id, bool is_server_thre
   gcci->m_active = 0;
   gcci->m_is_server_thread = is_server_thread;
   phys_mat44::operator=(&gcci->m_cg_to_world_xform, &PHYS_IDENTITY_MATRIX_1);
-  gcci->m_mins[0] = FLOAT_N15_0;
-  gcci->m_mins[1] = FLOAT_N15_0;
-  gcci->m_mins[2] = *(float *)&FLOAT_0_0;
-  gcci->m_maxs[0] = FLOAT_15_0;
-  gcci->m_maxs[1] = FLOAT_15_0;
-  gcci->m_maxs[2] = FLOAT_70_0;
+  gcci->m_mins[0] = -15.0f;
+  gcci->m_mins[1] = -15.0f;
+  gcci->m_mins[2] = 0.0f;
+  gcci->m_maxs[0] = 15.0f;
+  gcci->m_maxs[1] = 15.0f;
+  gcci->m_maxs[2] = 70.0f;
   gcci->m_cg_ = gjk_polygon_cylinder_t::create(
                   (float (*)[3])gcci->m_mins,
                   (float (*)[3])gcci->m_maxs,
@@ -685,7 +685,7 @@ void __cdecl calc_time(phys_gjk_info *gjk_info, bool keep_all_collisions, float 
     if ( *dist <= (float)(0.5 * 0.125) || keep_all_collisions )
       *time = gjk_info->m_continuous_collision_lambda;
     else
-      *time = FLOAT_1_0;
+      *time = 1.0f;
   }
   else
   {
@@ -933,7 +933,7 @@ void  gjk_trace(int a1@<ebp>, const gjk_trace_input_t *gti, list_gjk_trace_outpu
           if ( (float)(v8->m_hit_time + gti->m_extra_time) <= 1.0 )
             v3 = v8->m_hit_time + gti->m_extra_time;
           else
-            v3 = FLOAT_1_0;
+            v3 = 1.0f;
           pgi.m_cg2_translation.z = v3;
         }
         if ( list->m_first_hit )
@@ -1050,8 +1050,8 @@ void __cdecl init_pgi(phys_gjk_input *pgi, const gjk_trace_input_t *gti)
   pgi->m_cg2_translation.x = PHYS_ZERO_VEC_1.x;
   pgi->m_cg2_translation.y = PHYS_ZERO_VEC_1.y;
   pgi->m_cg2_translation.z = PHYS_ZERO_VEC_1.z;
-  pgi->m_start_time = *(float *)&FLOAT_0_0;
-  pgi->m_end_time = FLOAT_1_0;
+  pgi->m_start_time = 0.0f;
+  pgi->m_end_time = 1.0f;
   m_gcci = gti->m_gcci;
   m_cg = gti->m_cg;
   v3 = gti->m_cg->get_geom_radius(gti->m_cg);
@@ -1060,7 +1060,7 @@ void __cdecl init_pgi(phys_gjk_input *pgi, const gjk_trace_input_t *gti)
   pgi->cg1_to_world_xform = &m_gcci->m_cg_to_world_xform;
   pgi->cg2_to_world_xform = 0;
   pgi->cg1_radius = v3;
-  pgi->cg2_radius = *(float *)&FLOAT_0_0;
+  pgi->cg2_radius = 0.0f;
   pgi->gjk_ci = 0;
   pgi->m_sep_thresh = gti->m_gjk_ac_eps;
   pgi->m_intersection_test_only = 0;
@@ -1226,7 +1226,7 @@ void  setup_trace_info(
   gti->m_gjk_ac_eps = PT_AC_EPS;
   gti->m_keep_all_collisions = 0;
   gti->m_exit_on_penetration = 1;
-  gti->m_extra_time = *(float *)&FLOAT_0_0;
+  gti->m_extra_time = 0.0f;
   gti->m_allocator = &gti->m_query_output->m_allocator;
   setup_query_input(
     gjkcc_in,
@@ -1577,7 +1577,7 @@ char  gjk_push_out@<al>(
     &v71);
   v71.m_keep_all_collisions = 1;
   v71.m_exit_on_penetration = 0;
-  v71.m_extra_time = FLOAT_1_0;
+  v71.m_extra_time = 1.0f;
   v70.m_list.m_first = 0;
   v70.m_list.m_last_next_ptr = (gjk_trace_output_t **)&v70;
   *(_QWORD *)&v70.m_list.m_alloc_count = 0;
@@ -1654,7 +1654,7 @@ LABEL_54:
   while ( v45 != v47 )
   {
     v44 = v47;
-    v47->m_lambda = *(float *)&FLOAT_0_0;
+    v47->m_lambda = 0.0f;
     p_m_arm = &v44->m_arm;
     v42 = v73.x + v44->m_arm.x;
     v41 = v73.y + v44->m_arm.y;
@@ -1666,7 +1666,7 @@ LABEL_54:
                       - (float)((float)((float)(v42 * v44->m_normal.x) + (float)(v41 * v44->m_normal.y))
                               + (float)(v40 * v44->m_normal.z));
     if ( v44->m_no_push_out && v44->m_right_side > 0.0 )
-      v44->m_right_side = *(float *)&FLOAT_0_0;
+      v44->m_right_side = 0.0f;
     ++v47;
   }
   project((int)v75, &PHYS_ZERO_VEC_1, &v74, &v36);
@@ -1745,13 +1745,13 @@ LABEL_53:
       v12 = &v74.m_slot_array[v74.m_alloc_count];
       while ( v12 != v13 )
       {
-        v13->m_lambda = *(float *)&FLOAT_0_0;
+        v13->m_lambda = 0.0f;
         v13->m_right_side = v13->m_d
                           - (float)((float)((float)((float)(v73.x + v13->m_arm.x) * v13->m_normal.x)
                                           + (float)((float)(v73.y + v13->m_arm.y) * v13->m_normal.y))
                                   + (float)((float)(v73.z + v13->m_arm.z) * v13->m_normal.z));
         if ( v13->m_no_push_out && v13->m_right_side > 0.0 )
-          v13->m_right_side = *(float *)&FLOAT_0_0;
+          v13->m_right_side = 0.0f;
         ++v13;
       }
       x = v36.x;
@@ -2123,8 +2123,8 @@ bool  gjk_slide_move1@<eax>(
   v183 = v7;
   v182 = v7;
   v181 = v220;
-  v180 = FLOAT_0_016666668;
-  v179 = *(float *)&FLOAT_0_0;
+  v180 = 0.016666668f;
+  v179 = 0.0f;
   m_alloc_count = v221.m_alloc_count;
   v177 = 128 - v221.m_alloc_count;
   i = 0;
@@ -2143,7 +2143,7 @@ bool  gjk_slide_move1@<eax>(
     if ( v180 <= v174 )
       v173 = v180 / v174;
     else
-      v173 = FLOAT_1_0;
+      v173 = 1.0f;
     v216.m_extra_time = v173;
     gjk_trace((int)v222, &v216, &v186);
     if ( !v186.m_first_hit )
@@ -2182,7 +2182,7 @@ bool  gjk_slide_move1@<eax>(
       }
     }
     v162 = v186.m_first_hit->m_hit_time * v174;
-    v161 = *(float *)&FLOAT_0_0;
+    v161 = 0.0f;
     if ( v162 > v180 )
     {
       m_first_hit = v186.m_first_hit;
@@ -2253,7 +2253,7 @@ bool  gjk_slide_move1@<eax>(
           v140->m_hit_point.x = v140->m_hit_point.x + v124;
           v118->y = v118->y + v120;
           v118->z = v118->z + v121;
-          v140->m_hit_dist = *(float *)&FLOAT_0_0;
+          v140->m_hit_dist = 0.0f;
         }
         add_hit_info(v140, &v221, &v216.m_query_input.m_geom_skip_list);
         input->custom_process(input, v140);
@@ -2279,7 +2279,7 @@ bool  gjk_slide_move1@<eax>(
     while ( v113 != v115 )
     {
       v112 = v115;
-      v115->m_lambda = *(float *)&FLOAT_0_0;
+      v115->m_lambda = 0.0f;
       p_m_arm = &v112->m_arm;
       v110 = v220.x + v112->m_arm.x;
       v109 = v220.y + v112->m_arm.y;
@@ -2291,7 +2291,7 @@ bool  gjk_slide_move1@<eax>(
                          - (float)((float)((float)(v110 * v112->m_normal.x) + (float)(v109 * v112->m_normal.y))
                                  + (float)(v108 * v112->m_normal.z));
       if ( (no_push_out || v112->m_no_push_out) && v112->m_right_side > 0.0 )
-        v112->m_right_side = *(float *)&FLOAT_0_0;
+        v112->m_right_side = 0.0f;
       ++v115;
     }
     project((int)v222, &v194, &v221, &v188);
@@ -2328,7 +2328,7 @@ bool  gjk_slide_move1@<eax>(
     {
       v85 = v88;
       if ( v88->m_right_side > 0.0 )
-        v85->m_right_side = *(float *)&FLOAT_0_0;
+        v85->m_right_side = 0.0f;
       ++v88;
     }
     project((int)v222, &v189, &v221, &v187);
@@ -2350,7 +2350,7 @@ bool  gjk_slide_move1@<eax>(
   v219.z = v83 * v187.z;
   if ( do_step_down && input->do_step_down )
   {
-    v76 = FLOAT_10000_0;
+    v76 = 10000.0f;
     v75 = 0;
     v74 = v221.m_slot_array;
     v73 = v221.m_slot_array;
@@ -2383,12 +2383,12 @@ bool  gjk_slide_move1@<eax>(
     }
     if ( v76 > WALKABLE_DIST_THRESH && v76 != 10000.0 )
     {
-      v61.x = *(float *)&FLOAT_0_0;
-      v61.y = *(float *)&FLOAT_0_0;
-      v61.z = FLOAT_N30_0;
-      v60.x = *(float *)&FLOAT_0_0;
-      v60.y = *(float *)&FLOAT_0_0;
-      v60.z = FLOAT_N30_0;
+      v61.x = 0.0f;
+      v61.y = 0.0f;
+      v61.z = -30.0f;
+      v60.x = 0.0f;
+      v60.y = 0.0f;
+      v60.z = -30.0f;
       v60.w = v61.w;
       for ( k = 0; ; ++k )
       {
@@ -2396,7 +2396,7 @@ bool  gjk_slide_move1@<eax>(
         if ( k >= v221.m_alloc_count )
           break;
         v57 = 0;
-        v56 = FLOAT_1_0;
+        v56 = 1.0f;
         v55 = v221.m_slot_array;
         v54 = v221.m_slot_array;
         v53 = &v221.m_slot_array[v221.m_alloc_count];
@@ -2513,7 +2513,7 @@ bool  gjk_slide_move1@<eax>(
                                               + (float)((float)(v220.y + v11->m_arm.y) * v11->m_normal.y))
                                       + (float)((float)(v220.z + v11->m_arm.z) * v11->m_normal.z));
             if ( v11->m_right_side > 0.0 )
-              v11->m_right_side = *(float *)&FLOAT_0_0;
+              v11->m_right_side = 0.0f;
           }
           ++v11;
         }
@@ -2594,7 +2594,7 @@ void  setup_player_push_slide_move_input(
 
   v11 = a1;
   v12 = retaddr;
-  v10 = FLOAT_0_033333335;
+  v10 = 0.033333335;
   v9 = 1.0 / 0.033333335;
   v8 = (float)(1.0 / 0.033333335) * push_movement->x;
   v7 = (float)(1.0 / 0.033333335) * push_movement->y;
@@ -2725,13 +2725,13 @@ void  gjk_sentient_push(
   {
     __debugbreak();
   }
-  v89 = *(unsigned int *)&FLOAT_0_0;
-  v90 = *(unsigned int *)&FLOAT_0_0;
-  v91 = *(unsigned int *)&FLOAT_0_0;
-  v88 = FLOAT_2_0;
+  v89 = 0;
+  v90 = 0;
+  v91 = 0;
+  v88 = 2.0f;
   v85 = pushRadius + 2.0;
   v86 = pushRadius + 2.0;
-  v87 = *(float *)&FLOAT_0_0;
+  v87 = 0.0f;
   v83 = Phys_Vec3ToNitrousVec(&v84, mins);
   v82 = v83->x - v85;
   v81 = v83->y - v86;
@@ -2796,7 +2796,7 @@ void  gjk_sentient_push(
         v51 = v68.z - xform->m_mat.w.z;
         v48 = v53;
         v49 = v52;
-        v50 = *(float *)&FLOAT_0_0;
+        v50 = 0.0f;
         v47 = (float)((float)(v48 * v48) + (float)(v49 * v49)) + (float)(0.0 * 0.0);
         v46 = (float)((float)(pushRadius + 15.0) + v56) + v88;
         v45 = v46 * v46;
@@ -2828,7 +2828,7 @@ void  gjk_sentient_push(
           v36->m_d = (float)((float)((float)(v36->m_normal.x * *p_x) + (float)(v36->m_normal.y * p_x[1]))
                            + (float)(v36->m_normal.z * p_x[2]))
                    + v56;
-          v36->m_lambda = *(float *)&FLOAT_0_0;
+          v36->m_lambda = 0.0f;
           v36->m_right_side = (float)(v36->m_d
                                     - (float)((float)((float)(v68.x * v36->m_normal.x) + (float)(v68.y * v36->m_normal.y))
                                             + (float)(v68.z * v36->m_normal.z)))
@@ -2869,7 +2869,7 @@ void  gjk_sentient_push(
     {
       v17 = v20;
       if ( v20->m_right_side > 0.0 )
-        v17->m_right_side = *(float *)&FLOAT_0_0;
+        v17->m_right_side = 0.0f;
       ++v20;
     }
     v15 = Phys_Vec3ToNitrousVec(&v16, pm->ps->velocity);
@@ -3010,8 +3010,8 @@ void  render_gjkcc_collision(float a1@<ebp>, float (*mins)[3], float (*maxs)[3],
   radius = *((float *)&gjk_geom.m_contents + 2) + *(float *)&aabb_max_4[72];
   v76 = gjk_geom.m_center.y + gjk_geom.m_polygon_cylinder_radius;
   w = gjk_geom.m_center.w;
-  v72 = *(unsigned int *)&FLOAT_0_0;
-  v73 = *(unsigned int *)&FLOAT_0_0;
+  v72 = 0;
+  v73 = 0;
   v74 = gjk_geom.m_center.w;
   v71 = (float)(*(float *)&gjk_geom.m_contents + *(float *)&aabb_max_4[64]) + 0.0;
   head_pos.w = (float)(*((float *)&gjk_geom.m_contents + 1) + *(float *)&aabb_max_4[68]) + 0.0;
@@ -3020,8 +3020,8 @@ void  render_gjkcc_collision(float a1@<ebp>, float (*mins)[3], float (*maxs)[3],
   v69[1] = head_pos.w;
   v69[2] = head_pos.z;
   v68 = gjk_geom.m_center.w;
-  v65 = *(unsigned int *)&FLOAT_0_0;
-  v66 = *(unsigned int *)&FLOAT_0_0;
+  v65 = 0;
+  v66 = 0;
   v67 = gjk_geom.m_center.w;
   v64 = (float)(*(float *)&gjk_geom.m_contents + *(float *)&aabb_max_4[64]) - 0.0;
   foot_pos.w = (float)(*((float *)&gjk_geom.m_contents + 1) + *(float *)&aabb_max_4[68]) - 0.0;
@@ -3030,12 +3030,12 @@ void  render_gjkcc_collision(float a1@<ebp>, float (*mins)[3], float (*maxs)[3],
   v62[1] = foot_pos.w;
   v62[2] = foot_pos.z;
   v61 = gjk_geom.m_center.w - gjk_geom.m_capsule_radius;
-  v58 = *(float *)&FLOAT_0_0;
-  v59 = *(float *)&FLOAT_0_0;
+  v58 = 0.0f;
+  v59 = 0.0f;
   v60 = gjk_geom.m_center.w - gjk_geom.m_capsule_radius;
   *(float *)&v57 = COERCE_FLOAT(LODWORD(gjk_geom.m_center.w) ^ _mask__NegFloat_) + gjk_geom.m_half_height;
-  co1 = *(float *)&FLOAT_0_0;
-  si1 = *(float *)&FLOAT_0_0;
+  co1 = 0.0f;
+  si1 = 0.0f;
   i = v57;
   for ( next_i = 0; next_i < 12; ++next_i )
   {
@@ -3046,12 +3046,12 @@ void  render_gjkcc_collision(float a1@<ebp>, float (*mins)[3], float (*maxs)[3],
     rvec1.y = v76 * si2;
     v47[0] = v76 * co2;
     v47[1] = v76 * si2;
-    v47[2] = *(float *)&FLOAT_0_0;
+    v47[2] = 0.0f;
     v46 = v76 * rvec1.w;
     rvec2.w = v76 * v49;
     v44[0] = v76 * rvec1.w;
     v44[1] = v76 * v49;
-    v44[2] = *(float *)&FLOAT_0_0;
+    v44[2] = 0.0f;
     v43 = v77 + co1;
     v42 = v78 + si1;
     v41 = radius + *(float *)&i;
@@ -3816,7 +3816,7 @@ void  PM_gjk_ground_trace(
 
   v27[0] = a1;
   v27[1] = retaddr;
-  v26 = FLOAT_0_5;
+  v26 = 0.5f;
   p_m_query_output = &gti.m_query_output;
   list.m_first_hit = (gjk_trace_output_t *)&gti.m_query_input.m_proximity_data;
   gti.m_query_input.m_proximity_data = 0;
@@ -3833,7 +3833,7 @@ void  PM_gjk_ground_trace(
   if ( v26 <= *(float *)&list.m_list.m_alloc_count )
     *(float *)&list.m_list.m_last_next_ptr = v26 / *(float *)&list.m_list.m_alloc_count;
   else
-    *(float *)&list.m_list.m_last_next_ptr = FLOAT_1_0;
+    *(float *)&list.m_list.m_last_next_ptr = 1.0f;
   gti.m_cg = (const gjk_base_t *)list.m_list.m_last_next_ptr;
   first_hit_timea = 0;
   first_gto = (gjk_trace_output_t *)&first_hit_timea;
@@ -4010,7 +4010,7 @@ void __cdecl PM_StepSlideMove(pmove_t *pm, pml_t *pml, int gravity)
   int savedregs; // [esp+160h] [ebp+0h] BYREF
 
   memset(&trace, 0, 16);
-  fStepAmount = *(float *)&FLOAT_0_0;
+  fStepAmount = 0.0f;
   ps = pm->ps;
   if ( !ps && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\bgame\\bg_slidemove.cpp", 2239, 0, "%s", "ps") )
     __debugbreak();
@@ -4038,9 +4038,9 @@ void __cdecl PM_StepSlideMove(pmove_t *pm, pml_t *pml, int gravity)
   start_v[2] = ps->velocity[2];
   iBumps = PM_SlideMove(pm, pml, gravity);
   if ( (ps->pm_flags & 1) != 0 )
-    fStepSize = FLOAT_10_0;
+    fStepSize = 10.0f;
   else
-    fStepSize = FLOAT_18_0;
+    fStepSize = 18.0f;
   if ( ps->groundEntityNum != 1023 )
     goto LABEL_27;
   if ( (ps->pm_flags & 0x4000) != 0 && ps->pm_time )
@@ -4085,7 +4085,7 @@ LABEL_27:
       }
       else
       {
-        fStepAmount = *(float *)&FLOAT_0_0;
+        fStepAmount = 0.0f;
       }
     }
     if ( bHadGround || fStepAmount != 0.0 )
@@ -4171,7 +4171,7 @@ LABEL_27:
       ps->velocity[0] = down_v;
       v6[1] = down_v_4;
       v6[2] = down_v_8;
-      fStepAmount = *(float *)&FLOAT_0_0;
+      fStepAmount = 0.0f;
       if ( bHadGround )
       {
         down[0] = ps->origin[0];
@@ -4422,7 +4422,7 @@ int __cdecl PM_SlideMove(pmove_t *pm, pml_t *pml, int gravity)
       PM_playerTrace(pm, &trace, ps->origin, pm->mins, pm->maxs, end, ps->clientNum, pm->tracemask);
       if ( trace.allsolid )
       {
-        ps->velocity[2] = *(float *)&FLOAT_0_0;
+        ps->velocity[2] = 0.0f;
         return 1;
       }
       if ( trace.startsolid && do_push )
@@ -4443,9 +4443,9 @@ int __cdecl PM_SlideMove(pmove_t *pm, pml_t *pml, int gravity)
       if ( numplanes >= 8 )
       {
         v15 = ps->velocity;
-        ps->velocity[0] = *(float *)&FLOAT_0_0;
-        v15[1] = *(float *)&FLOAT_0_0;
-        v15[2] = *(float *)&FLOAT_0_0;
+        ps->velocity[0] = 0.0f;
+        v15[1] = 0.0f;
+        v15[2] = 0.0f;
         return 1;
       }
       for ( i = 0; i < numplanes; ++i )
@@ -4508,9 +4508,9 @@ int __cdecl PM_SlideMove(pmove_t *pm, pml_t *pml, int gravity)
                                + (float)(clipVelocity[2] * v10[2])) < 0.1 )
                     {
                       v9 = ps->velocity;
-                      ps->velocity[0] = *(float *)&FLOAT_0_0;
-                      v9[1] = *(float *)&FLOAT_0_0;
-                      v9[2] = *(float *)&FLOAT_0_0;
+                      ps->velocity[0] = 0.0f;
+                      v9[1] = 0.0f;
+                      v9[2] = 0.0f;
                       return 1;
                     }
                   }

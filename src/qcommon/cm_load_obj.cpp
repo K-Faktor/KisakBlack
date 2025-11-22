@@ -576,12 +576,12 @@ void __cdecl CMod_PartionLeafBrushes(unsigned __int16 *leafBrushes, int numLeafB
 
   if ( numLeafBrushes )
   {
-    mins[0] = FLOAT_3_4028235e38;
-    mins[1] = FLOAT_3_4028235e38;
-    mins[2] = FLOAT_3_4028235e38;
-    maxs[0] = FLOAT_N3_4028235e38;
-    maxs[1] = FLOAT_N3_4028235e38;
-    maxs[2] = FLOAT_N3_4028235e38;
+    mins[0] = FLT_MAX;
+    mins[1] = FLT_MAX;
+    mins[2] = FLT_MAX;
+    maxs[0] = -FLT_MAX;
+    maxs[1] = -FLT_MAX;
+    maxs[2] = -FLT_MAX;
     for ( k = 0; k < numLeafBrushes; ++k )
     {
       brushnum = leafBrushes[k];
@@ -656,9 +656,9 @@ cLeafBrushNode_s *__cdecl CMod_PartionLeafBrushes_r(
     __debugbreak();
   }
   node = CMod_AllocLeafBrushNode();
-  bestScore = *(float *)&FLOAT_0_0;
+  bestScore = 0.0f;
   axis = -1;
-  dist = *(float *)&FLOAT_0_0;
+  dist = 0.0f;
   for ( testAxis = 0; testAxis < 3u; ++testAxis )
   {
     for ( k = 0; k < numLeafBrushes; ++k )
@@ -715,7 +715,7 @@ cLeafBrushNode_s *__cdecl CMod_PartionLeafBrushes_r(
       node->contents = returnNode->contents;
       leafBrushes += numLeafBrushesChild;
     }
-    range = FLOAT_3_4028235e38;
+    range = FLT_MAX;
     node->axis = axis;
     node->data.children.dist = dist;
     side = 0;
@@ -813,7 +813,7 @@ cLeafBrushNode_s *__cdecl CMod_AllocLeafBrushNode()
   result->data.leaf.brushes = 0;
   result->data.children.range = 0.0;
   *(unsigned int *)result->data.children.childOffset = 0;
-  result->data.children.dist = FLOAT_N3_4028235e38;
+  result->data.children.dist = -FLT_MAX;
   return result;
 }
 
@@ -836,8 +836,8 @@ double __cdecl CMod_GetPartitionScore(
 
   rightBrushCount = -1;
   leftBrushCount = -1;
-  min = FLOAT_N3_4028235e38;
-  max = FLOAT_3_4028235e38;
+  min = -FLT_MAX;
+  max = FLT_MAX;
   for ( k = 0; k < numLeafBrushes; ++k )
   {
     b = &cm.brushes[leafBrushes[k]];
@@ -874,7 +874,7 @@ double __cdecl CMod_GetPartitionScore(
   *dist = (float)(min + max) * 0.5;
   if ( v9 <= 0 )
   {
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
   }
   else
   {
@@ -964,7 +964,7 @@ const unsigned __int8 *CMod_LoadBrushes()
     outBrush->sides = outBrush->numsides != 0 ? outSides : 0;
     for ( axisIter = 0; axisIter < 3; ++axisIter )
     {
-      sign = FLOAT_N1_0;
+      sign = -1.0f;
       index = 0;
       while ( index < 2 )
       {
@@ -975,7 +975,7 @@ const unsigned __int8 *CMod_LoadBrushes()
         outBrush->axial_cflags[index][axisIter] = cm.materials[inSides->materialNum].contentFlags;
         outBrush->axial_sflags[index++][axisIter] = cm.materials[inSides->materialNum].surfaceFlags;
         ++inSides;
-        sign = FLOAT_1_0;
+        sign = 1.0f;
       }
     }
     sideIter = 0;
@@ -1263,12 +1263,12 @@ unsigned __int16 *CM_InitBoxHull()
   cm.box_brush->contents = -1;
   cm.box_model.leaf.brushContents = -1;
   cm.box_model.leaf.terrainContents = 0;
-  cm.box_model.leaf.mins[0] = FLOAT_3_4028235e38;
-  cm.box_model.leaf.mins[1] = FLOAT_3_4028235e38;
-  cm.box_model.leaf.mins[2] = FLOAT_3_4028235e38;
-  cm.box_model.leaf.maxs[0] = FLOAT_N3_4028235e38;
-  cm.box_model.leaf.maxs[1] = FLOAT_N3_4028235e38;
-  cm.box_model.leaf.maxs[2] = FLOAT_N3_4028235e38;
+  cm.box_model.leaf.mins[0] = FLT_MAX;
+  cm.box_model.leaf.mins[1] = FLT_MAX;
+  cm.box_model.leaf.mins[2] = FLT_MAX;
+  cm.box_model.leaf.maxs[0] = -FLT_MAX;
+  cm.box_model.leaf.maxs[1] = -FLT_MAX;
+  cm.box_model.leaf.maxs[2] = -FLT_MAX;
   cm.box_brush->axial_sflags[0][0] = -1;
   cm.box_brush->axial_sflags[0][1] = -1;
   cm.box_brush->axial_sflags[0][2] = -1;

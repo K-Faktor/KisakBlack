@@ -346,7 +346,7 @@ void __cdecl G_ProcessMiscModelCommand(const RadiantCommand *command, SpawnVar *
   origin_string = GetPairValue(spawnVar, "origin");
   angles_string = GetPairValue(spawnVar, "angles");
   scale_string = GetPairValue(spawnVar, "modelscale");
-  scale = FLOAT_1_0;
+  scale = 1.0f;
   memset(origin, 0, sizeof(origin));
   memset(angles, 0, sizeof(angles));
   v2 = jpeg_mem_init();
@@ -441,8 +441,8 @@ void __cdecl G_ProcessCoronaCommand(const RadiantCommand *command, SpawnVar *spa
   color_string = GetPairValue(spawnVar, "color");
   radius_string = GetPairValue(spawnVar, "radius");
   intensity_string = GetPairValue(spawnVar, "intensity");
-  radius = FLOAT_20_0;
-  intensity = FLOAT_1_0;
+  radius = 20.0f;
+  intensity = 1.0f;
   memset(origin, 0, sizeof(origin));
   memset(color, 0, sizeof(color));
   v2 = jpeg_mem_init();

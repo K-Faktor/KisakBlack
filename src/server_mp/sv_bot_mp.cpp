@@ -1789,7 +1789,7 @@ double __cdecl Bot_UpdateYaw(float currentYaw, float targetYaw, bool forceSlow, 
     if ( (float)(1.0 - ratea) < 0.0 )
       v7 = ratea;
     else
-      v7 = FLOAT_1_0;
+      v7 = 1.0f;
     rateb = v7;
   }
   if ( diff < 50.0 )
@@ -2522,7 +2522,7 @@ char __cdecl Bot_GrenadeInRange(
   denominator = g * range;
   if ( (float)(g * range) == 0.0 )
   {
-    *outPitch = *(float *)&FLOAT_0_0;
+    *outPitch = 0.0f;
     if ( g_DXDeviceThread == GetCurrentThreadId() )
       D3DPERF_EndEvent();
     return 0;
@@ -2535,7 +2535,7 @@ char __cdecl Bot_GrenadeInRange(
     *outPitch = *(float *)&v6;
     if ( (*(unsigned int *)outPitch & 0x7F800000) == 0x7F800000 )
     {
-      *outPitch = *(float *)&FLOAT_0_0;
+      *outPitch = 0.0f;
       if ( g_DXDeviceThread == GetCurrentThreadId() )
         D3DPERF_EndEvent();
       return 0;
@@ -3201,7 +3201,7 @@ void __cdecl Bot_DrawDebug(const ScreenPlacement *scrPlace)
       if ( Path_Exists(&botInfo->path) )
         fLookaheadDist = botInfo->path.fLookaheadDist;
       else
-        fLookaheadDist = *(float *)&FLOAT_0_0;
+        fLookaheadDist = 0.0f;
       v8 = va("LOOK AHEAD DIST: %.1f", fLookaheadDist);
       Bot_DrawString(scrPlace, v8, *(float *)&x, &y, v37);
       Bot_DrawString(scrPlace, (char *)&toastPopupTitle, *(float *)&x, &y, colorWhite);
@@ -3255,7 +3255,7 @@ void __cdecl Bot_DrawDebug(const ScreenPlacement *scrPlace)
       if ( botInfo->threat.enemy )
         v28 = fsqrt(botInfo->threat.distSq);
       else
-        v28 = *(float *)&FLOAT_0_0;
+        v28 = 0.0f;
       v13 = va("DISTANCE: %.1f", v28);
       Bot_DrawString(scrPlace, v13, *(float *)&x, &y, v29);
       if ( dead )
@@ -3265,7 +3265,7 @@ void __cdecl Bot_DrawDebug(const ScreenPlacement *scrPlace)
       if ( botInfo->threat.enemy )
         dot = botInfo->threat.dot;
       else
-        dot = *(float *)&FLOAT_0_0;
+        dot = 0.0f;
       v14 = va("DOT: %.2f", dot);
       Bot_DrawString(scrPlace, v14, *(float *)&x, &y, v27);
       if ( dead )

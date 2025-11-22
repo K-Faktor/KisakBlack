@@ -18,25 +18,25 @@ void __cdecl UI_DrawHandlePic(
 
   if ( w >= 0.0 )
   {
-    s0 = *(float *)&FLOAT_0_0;
-    s1 = FLOAT_1_0;
+    s0 = 0.0f;
+    s1 = 1.0f;
   }
   else
   {
     LODWORD(w) ^= _mask__NegFloat_;
-    s0 = FLOAT_1_0;
-    s1 = *(float *)&FLOAT_0_0;
+    s0 = 1.0f;
+    s1 = 0.0f;
   }
   if ( h >= 0.0 )
   {
-    t0 = *(float *)&FLOAT_0_0;
-    t1 = FLOAT_1_0;
+    t0 = 0.0f;
+    t1 = 1.0f;
   }
   else
   {
     LODWORD(h) ^= _mask__NegFloat_;
-    t0 = FLOAT_1_0;
-    t1 = *(float *)&FLOAT_0_0;
+    t0 = 1.0f;
+    t1 = 0.0f;
   }
   CL_DrawStretchPic(scrPlace, x, y, w, h, horzAlign, vertAlign, s0, t0, s1, t1, color, material);
 }
@@ -60,25 +60,25 @@ void __cdecl UI_DrawHandlePicRotated(
 
   if ( w >= 0.0 )
   {
-    s0 = *(float *)&FLOAT_0_0;
-    s1 = FLOAT_1_0;
+    s0 = 0.0f;
+    s1 = 1.0f;
   }
   else
   {
     LODWORD(w) ^= _mask__NegFloat_;
-    s0 = FLOAT_1_0;
-    s1 = *(float *)&FLOAT_0_0;
+    s0 = 1.0f;
+    s1 = 0.0f;
   }
   if ( h >= 0.0 )
   {
-    t0 = *(float *)&FLOAT_0_0;
-    t1 = FLOAT_1_0;
+    t0 = 0.0f;
+    t1 = 1.0f;
   }
   else
   {
     LODWORD(h) ^= _mask__NegFloat_;
-    t0 = FLOAT_1_0;
-    t1 = *(float *)&FLOAT_0_0;
+    t0 = 1.0f;
+    t1 = 0.0f;
   }
   ScrPlace_ApplyRect(scrPlace, &x, &y, &w, &h, horzAlign, vertAlign);
   CL_DrawStretchPicPhysicalRotateXY(x, y, w, h, s0, t0, s1, t1, angle, color, material);
@@ -164,7 +164,7 @@ double __cdecl UI_LoadBarProgress_LoadObj()
   if ( (float)(v3 - 1.0) < 0.0 )
     return v3;
   else
-    return FLOAT_1_0;
+    return 1.0f;
 }
 
 double __cdecl UI_LoadBarProgress_FastFile()

@@ -671,7 +671,7 @@ void __cdecl R_StoreWindowSettings(const GfxWindowParms *wndParms)
     vidConfig.aspectRatioDisplayPixel = (float)((float)dx.adapterFullscreenHeight * vidConfig.aspectRatioWindow)
                                       / (float)dx.adapterFullscreenWidth;
   else
-    vidConfig.aspectRatioDisplayPixel = FLOAT_1_0;
+    vidConfig.aspectRatioDisplayPixel = 1.0f;
   vidConfig.isToolMode = 0;
   v2 = r_reflectionProbeGenerate && r_reflectionProbeGenerate->current.enabled;
   vidConfig.isToolMode = v2;
@@ -1613,14 +1613,14 @@ void R_InitGlobalStructs()
   memset((unsigned __int8 *)&rg, 0, sizeof(rg));
   memset((unsigned __int8 *)&rgp, 0, sizeof(rgp));
   RB_InitBackendGlobalStructs();
-  g_drawConsts.identityPlacement.base.quat[0] = *(float *)&FLOAT_0_0;
-  g_drawConsts.identityPlacement.base.quat[1] = *(float *)&FLOAT_0_0;
-  g_drawConsts.identityPlacement.base.quat[2] = *(float *)&FLOAT_0_0;
-  g_drawConsts.identityPlacement.base.quat[3] = FLOAT_1_0;
-  g_drawConsts.identityPlacement.base.origin[0] = *(float *)&FLOAT_0_0;
-  g_drawConsts.identityPlacement.base.origin[1] = *(float *)&FLOAT_0_0;
-  g_drawConsts.identityPlacement.base.origin[2] = *(float *)&FLOAT_0_0;
-  g_drawConsts.identityPlacement.scale = FLOAT_1_0;
+  g_drawConsts.identityPlacement.base.quat[0] = 0.0f;
+  g_drawConsts.identityPlacement.base.quat[1] = 0.0f;
+  g_drawConsts.identityPlacement.base.quat[2] = 0.0f;
+  g_drawConsts.identityPlacement.base.quat[3] = 1.0f;
+  g_drawConsts.identityPlacement.base.origin[0] = 0.0f;
+  g_drawConsts.identityPlacement.base.origin[1] = 0.0f;
+  g_drawConsts.identityPlacement.base.origin[2] = 0.0f;
+  g_drawConsts.identityPlacement.scale = 1.0f;
   MatrixIdentity44(rg.identityViewParms.viewMatrix.m);
   MatrixIdentity44(rg.identityViewParms.projectionMatrix.m);
   MatrixIdentity44(rg.identityViewParms.viewProjectionMatrix.m);

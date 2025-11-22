@@ -252,9 +252,9 @@ void __cdecl R_PickWaterFrequencies(water_t *water)
       }
       else
       {
-        water->H0[i].real = *(float *)&FLOAT_0_0;
-        water->H0[i].imag = *(float *)&FLOAT_0_0;
-        water->wTerm[i] = *(float *)&FLOAT_0_0;
+        water->H0[i].real = 0.0f;
+        water->H0[i].imag = 0.0f;
+        water->wTerm[i] = 0.0f;
       }
       ++i;
     }

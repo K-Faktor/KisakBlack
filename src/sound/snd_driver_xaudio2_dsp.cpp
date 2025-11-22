@@ -446,15 +446,15 @@ void __thiscall SDXA2MasterBusEffect::Process(
         v7 = frameCount - framesProcessed;
       for ( frame = 0; frame < v7; ++frame )
       {
-        frameSample = *(float *)&FLOAT_0_0;
+        frameSample = 0.0f;
         for ( channel = 0; channel < channelCount; ++channel )
           frameSample = frameSample + data[frameCount * channel + framesProcessed + frame];
         if ( frameSample >= 1.0 )
-          v6 = FLOAT_1_0;
+          v6 = 1.0f;
         else
           v6 = frameSample;
         if ( v6 <= -1.0 )
-          v5 = FLOAT_N1_0;
+          v5 = -1.0f;
         else
           v5 = v6;
         shorts[frame] = (int)(float)(v5 * 32767.0);

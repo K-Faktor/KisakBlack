@@ -37,7 +37,7 @@ void __fastcall Actor_SetLookAngles(actor_s *self, float fPitch, float fYaw)
   vLookAngles[0] = self->fLookPitch;
   self->fLookYaw = AngleNormalize360(fYaw);
   vLookAngles[1] = self->fLookYaw;
-  vLookAngles[2] = *(float *)&FLOAT_0_0;
+  vLookAngles[2] = 0.0f;
   AngleVectors(vLookAngles, self->vLookForward, self->vLookRight, self->vLookUp);
 }
 
@@ -56,9 +56,9 @@ void __fastcall Actor_SetBodyAngle(actor_s *self, float fAngle)
   {
     __debugbreak();
   }
-  ent->r.currentAngles[0] = *(float *)&FLOAT_0_0;
+  ent->r.currentAngles[0] = 0.0f;
   ent->r.currentAngles[1] = AngleNormalize360(fAngle);
-  ent->r.currentAngles[2] = *(float *)&FLOAT_0_0;
+  ent->r.currentAngles[2] = 0.0f;
   if ( ai_debugAnimDeltas->current.integer == ent->s.number )
     Com_Printf(18, "%i currentYaw = %g\n", level.time, ent->r.currentAngles[1]);
 }
@@ -185,16 +185,16 @@ void __fastcall Actor_UpdateBodyAngle(actor_s *self)
   if ( ai_showPaths->current.integer > 1 )
   {
     fDesiredBodyYaw = self->fDesiredBodyYaw;
-    angles[0] = *(float *)&FLOAT_0_0;
+    angles[0] = 0.0f;
     angles[1] = fDesiredBodyYaw;
-    angles[2] = *(float *)&FLOAT_0_0;
+    angles[2] = 0.0f;
     AngleVectors(angles, desiredDir, 0, 0);
     currentOrigin = self->ent->r.currentOrigin;
     desiredDir[0] = (float)(10.0 * desiredDir[0]) + *currentOrigin;
     desiredDir[1] = (float)(10.0 * desiredDir[1]) + currentOrigin[1];
     desiredDir[2] = (float)(10.0 * desiredDir[2]) + currentOrigin[2];
   }
-  fYawVeloc = *(float *)&FLOAT_0_0;
+  fYawVeloc = 0.0f;
   fYaw = self->ent->r.currentAngles[1];
   if ( ai_angularYawEnabled->current.enabled )
   {
@@ -317,7 +317,7 @@ char __fastcall Actor_GetAnglesToLikelyEnemyPath(actor_s *self)
   }
   self->faceLikelyEnemyPathNode = 0;
   pFacingEnemy = 0;
-  fMinDistSqrd = FLOAT_3_4028235e38;
+  fMinDistSqrd = FLT_MAX;
   enemy = level.sentients;
   for ( i = 0; i < 48; ++i )
   {

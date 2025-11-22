@@ -361,27 +361,27 @@ void __cdecl CG_HighlightPlayer(int localClientNum, centity_s *cent, ShaderConst
   float normalHeroLightingB[4]; // [esp+100h] [ebp-10h] BYREF
 
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
-  normalHeroLightingR[0] = FLOAT_1_0;
+  normalHeroLightingR[0] = 1.0f;
   memset(&normalHeroLightingR[1], 0, 12);
-  normalHeroLightingG[0] = *(float *)&FLOAT_0_0;
-  normalHeroLightingG[1] = FLOAT_1_0;
-  normalHeroLightingG[2] = *(float *)&FLOAT_0_0;
-  normalHeroLightingG[3] = *(float *)&FLOAT_0_0;
-  normalHeroLightingB[0] = *(float *)&FLOAT_0_0;
-  normalHeroLightingB[1] = *(float *)&FLOAT_0_0;
-  normalHeroLightingB[2] = FLOAT_1_0;
-  normalHeroLightingB[3] = *(float *)&FLOAT_0_0;
-  heroLightingR[0] = FLOAT_1_0;
+  normalHeroLightingG[0] = 0.0f;
+  normalHeroLightingG[1] = 1.0f;
+  normalHeroLightingG[2] = 0.0f;
+  normalHeroLightingG[3] = 0.0f;
+  normalHeroLightingB[0] = 0.0f;
+  normalHeroLightingB[1] = 0.0f;
+  normalHeroLightingB[2] = 1.0f;
+  normalHeroLightingB[3] = 0.0f;
+  heroLightingR[0] = 1.0f;
   memset(&heroLightingR[1], 0, 12);
-  heroLightingG[0] = *(float *)&FLOAT_0_0;
-  heroLightingG[1] = FLOAT_1_0;
-  heroLightingG[2] = *(float *)&FLOAT_0_0;
-  heroLightingG[3] = *(float *)&FLOAT_0_0;
-  heroLightingB[0] = *(float *)&FLOAT_0_0;
-  heroLightingB[1] = *(float *)&FLOAT_0_0;
-  heroLightingB[2] = FLOAT_1_0;
-  heroLightingB[3] = *(float *)&FLOAT_0_0;
-  corpseFade = *(float *)&FLOAT_0_0;
+  heroLightingG[0] = 0.0f;
+  heroLightingG[1] = 1.0f;
+  heroLightingG[2] = 0.0f;
+  heroLightingG[3] = 0.0f;
+  heroLightingB[0] = 0.0f;
+  heroLightingB[1] = 0.0f;
+  heroLightingB[2] = 1.0f;
+  heroLightingB[3] = 0.0f;
+  corpseFade = 0.0f;
   isEnemy = 0;
   R_UnmapShaderConstantSet(constantSet, 0);
   R_UnmapShaderConstantSet(constantSet, 1u);
@@ -461,14 +461,14 @@ LABEL_11:
             expandedColor[j] = expandedColor[j] * cg_playerHighlightBrightness->current.value;
           heroLightingR[0] = expandedColor[0];
           memset(&heroLightingR[1], 0, 12);
-          heroLightingG[0] = *(float *)&FLOAT_0_0;
+          heroLightingG[0] = 0.0f;
           heroLightingG[1] = expandedColor[1];
-          heroLightingG[2] = *(float *)&FLOAT_0_0;
-          heroLightingG[3] = *(float *)&FLOAT_0_0;
-          heroLightingB[0] = *(float *)&FLOAT_0_0;
-          heroLightingB[1] = *(float *)&FLOAT_0_0;
+          heroLightingG[2] = 0.0f;
+          heroLightingG[3] = 0.0f;
+          heroLightingB[0] = 0.0f;
+          heroLightingB[1] = 0.0f;
           heroLightingB[2] = expandedColor[2];
-          heroLightingB[3] = *(float *)&FLOAT_0_0;
+          heroLightingB[3] = 0.0f;
           Vec4Lerp(normalHeroLightingR, heroLightingR, v11, heroLightingR);
           Vec4Lerp(normalHeroLightingG, heroLightingG, v11, heroLightingG);
           Vec4Lerp(normalHeroLightingB, heroLightingB, v11, heroLightingB);
@@ -478,19 +478,19 @@ LABEL_11:
       {
         integer = cg_infraredHighlightOffset->current.integer;
         heroLightingR[0] = cg_infraredHighlightScale->current.value;
-        heroLightingR[1] = *(float *)&FLOAT_0_0;
-        heroLightingR[2] = *(float *)&FLOAT_0_0;
+        heroLightingR[1] = 0.0f;
+        heroLightingR[2] = 0.0f;
         LODWORD(heroLightingR[3]) = integer;
         v7 = cg_infraredHighlightScale->current.integer;
         v8 = cg_infraredHighlightOffset->current.integer;
-        heroLightingG[0] = *(float *)&FLOAT_0_0;
+        heroLightingG[0] = 0.0f;
         LODWORD(heroLightingG[1]) = v7;
-        heroLightingG[2] = *(float *)&FLOAT_0_0;
+        heroLightingG[2] = 0.0f;
         LODWORD(heroLightingG[3]) = v8;
         v5 = cg_infraredHighlightScale->current.integer;
         v6 = cg_infraredHighlightOffset->current.integer;
-        heroLightingB[0] = *(float *)&FLOAT_0_0;
-        heroLightingB[1] = *(float *)&FLOAT_0_0;
+        heroLightingB[0] = 0.0f;
+        heroLightingB[1] = 0.0f;
         LODWORD(heroLightingB[2]) = v5;
         LODWORD(heroLightingB[3]) = v6;
       }
@@ -696,16 +696,16 @@ void __cdecl CG_Player(int localClientNum, centity_s *cent)
               if ( (float)(burnFraction - 1.0) < 0.0 )
                 v9 = burnFraction;
               else
-                v9 = FLOAT_1_0;
+                v9 = 1.0f;
               if ( (float)(0.0 - burnFraction) < 0.0 )
                 v5 = v9;
               else
-                v5 = *(float *)&FLOAT_0_0;
+                v5 = 0.0f;
               burnFraction = v5;
             }
             else
             {
-              burnFraction = *(float *)&FLOAT_0_0;
+              burnFraction = 0.0f;
               cent->pose.startBurnTime = 0;
             }
             CG_HighlightPlayer(localClientNum, cent, &cent->pose.constantSet, 0);
@@ -800,7 +800,7 @@ void __cdecl CG_Player(int localClientNum, centity_s *cent)
               placement.base.origin[1] = cent->pose.origin[1];
               placement.base.origin[2] = cent->pose.origin[2];
               AnglesToQuat(cent->pose.angles, placement.base.quat);
-              placement.scale = FLOAT_1_0;
+              placement.scale = 1.0f;
               CG_AddPlayerWeapon(localClientNum, &placement, 0, cent, 1);
               if ( GetCurrentThreadId() == g_DXDeviceThread )
                 D3DPERF_EndEvent();
@@ -1052,7 +1052,7 @@ void __cdecl CG_PlayerTurretPositionAndBlend(int localClientNum, centity_s *cent
                         }
                         AnglesToAxis(vec3_origin, turretAxis);
                         memset(turretAxis[3], 0, sizeof(float[3]));
-                        localYaw = *(float *)&FLOAT_0_0;
+                        localYaw = 0.0f;
                       }
                       else
                       {
@@ -1077,8 +1077,8 @@ void __cdecl CG_PlayerTurretPositionAndBlend(int localClientNum, centity_s *cent
                       }
                       fDelta = tagHeight - (float)(tagOrigin[2] - turretAxis[3][2]);
                       numVertChildren = XAnimGetNumChildren(pXAnims, baseAnim);
-                      fPrevTransZ = *(float *)&FLOAT_0_0;
-                      fPrevBlend = *(float *)&FLOAT_0_0;
+                      fPrevTransZ = 0.0f;
+                      fPrevBlend = 0.0f;
                       iPrevBlend = 0;
                       leafAnim2 = 0;
                       if ( !numVertChildren )
@@ -1108,7 +1108,7 @@ void __cdecl CG_PlayerTurretPositionAndBlend(int localClientNum, centity_s *cent
                         }
                         else
                         {
-                          fBlend = *(float *)&FLOAT_0_0;
+                          fBlend = 0.0f;
                         }
                         iBlend = (int)fBlend;
                         fBlend = fBlend - (float)(int)fBlend;
@@ -1270,9 +1270,9 @@ void __cdecl CG_PlayerUpdateUserRigidBody(int localClientNum, centity_s *cent)
   if ( use_prone_feet )
   {
     v2 = ci->legs.yawAngle + proneFeetYawOffset;
-    proneFeetAngle[0] = *(float *)&FLOAT_0_0;
+    proneFeetAngle[0] = 0.0f;
     proneFeetAngle[1] = v2;
-    proneFeetAngle[2] = *(float *)&FLOAT_0_0;
+    proneFeetAngle[2] = 0.0f;
     AngleVectors(proneFeetAngle, dir, 0, 0);
     proneFeetPos[0] = (float)(proneFeetDist * dir[0]) + cent->pose.origin[0];
     proneFeetPos[1] = (float)(proneFeetDist * dir[1]) + cent->pose.origin[1];
@@ -1385,16 +1385,16 @@ void __cdecl CG_Corpse(int localClientNum, centity_s *cent)
         if ( (float)(burnFraction - 1.0) < 0.0 )
           v3 = burnFraction;
         else
-          v3 = FLOAT_1_0;
+          v3 = 1.0f;
         if ( (float)(0.0 - burnFraction) < 0.0 )
           v2 = v3;
         else
-          v2 = *(float *)&FLOAT_0_0;
+          v2 = 0.0f;
         burnFraction = v2;
       }
       else
       {
-        burnFraction = *(float *)&FLOAT_0_0;
+        burnFraction = 0.0f;
         cent->pose.startBurnTime = 0;
       }
       CG_HighlightPlayer(localClientNum, cent, &cent->pose.constantSet, 0);
@@ -1532,7 +1532,7 @@ void __cdecl CG_ResetPlayerEntity(int localClientNum, cg_s *cgameGlob, centity_s
       memset((unsigned __int8 *)&ci->legs, 0, sizeof(ci->legs));
       ci->legs.yawAngle = ci->playerAngles[1];
       ci->legs.yawing = 0;
-      ci->legs.pitchAngle = *(float *)&FLOAT_0_0;
+      ci->legs.pitchAngle = 0.0f;
       ci->legs.pitching = 0;
       memset((unsigned __int8 *)&ci->torso, 0, sizeof(ci->torso));
       ci->torso.yawAngle = ci->playerAngles[1];

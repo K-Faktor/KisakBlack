@@ -813,7 +813,7 @@ int __cdecl MSG_WriteRangedFloat(
       if ( oftenZeroOrOne )
       {
         if ( (float)(0.0 - end) < 0.0 )
-          v16 = *(float *)&FLOAT_0_0;
+          v16 = 0.0f;
         else
           v16 = end;
         if ( (float)(begin - 0.0) < 0.0 )
@@ -825,7 +825,7 @@ int __cdecl MSG_WriteRangedFloat(
         else
           v11 = (float)(end - begin) * (float)precision;
         if ( (float)(1.0 - end) < 0.0 )
-          v15 = FLOAT_1_0;
+          v15 = 1.0f;
         else
           v15 = end;
         if ( (float)(begin - 1.0) < 0.0 )

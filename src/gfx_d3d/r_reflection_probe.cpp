@@ -49,63 +49,63 @@ void __cdecl R_CalcCubeMapViewValues(refdef_s *refdef, CubemapShot cubemapShot, 
   refdef->height = cubemapSize + 2;
   refdef->tanHalfFovX = (float)(cubemapSize + 2) / (float)cubemapSize;
   refdef->tanHalfFovY = refdef->tanHalfFovX;
-  refdef->zNear = *(float *)&FLOAT_0_0;
+  refdef->zNear = 0.0f;
   switch ( cubemapShot )
   {
     case CUBEMAPSHOT_RIGHT:
-      refdef->viewaxis[0][0] = FLOAT_1_0;
-      refdef->viewaxis[0][1] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[0][2] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[1][0] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[1][1] = FLOAT_1_0;
-      refdef->viewaxis[1][2] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[2][0] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[2][1] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[2][2] = FLOAT_1_0;
+      refdef->viewaxis[0][0] = 1.0f;
+      refdef->viewaxis[0][1] = 0.0f;
+      refdef->viewaxis[0][2] = 0.0f;
+      refdef->viewaxis[1][0] = 0.0f;
+      refdef->viewaxis[1][1] = 1.0f;
+      refdef->viewaxis[1][2] = 0.0f;
+      refdef->viewaxis[2][0] = 0.0f;
+      refdef->viewaxis[2][1] = 0.0f;
+      refdef->viewaxis[2][2] = 1.0f;
       break;
     case CUBEMAPSHOT_LEFT:
-      refdef->viewaxis[0][0] = FLOAT_N1_0;
-      refdef->viewaxis[0][1] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[0][2] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[1][0] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[1][1] = FLOAT_N1_0;
-      refdef->viewaxis[1][2] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[2][0] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[2][1] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[2][2] = FLOAT_1_0;
+      refdef->viewaxis[0][0] = -1.0f;
+      refdef->viewaxis[0][1] = 0.0f;
+      refdef->viewaxis[0][2] = 0.0f;
+      refdef->viewaxis[1][0] = 0.0f;
+      refdef->viewaxis[1][1] = -1.0f;
+      refdef->viewaxis[1][2] = 0.0f;
+      refdef->viewaxis[2][0] = 0.0f;
+      refdef->viewaxis[2][1] = 0.0f;
+      refdef->viewaxis[2][2] = 1.0f;
       break;
     case CUBEMAPSHOT_FRONT:
-      refdef->viewaxis[0][0] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[0][1] = FLOAT_N1_0;
-      refdef->viewaxis[0][2] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[1][0] = FLOAT_1_0;
-      refdef->viewaxis[1][1] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[1][2] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[2][0] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[2][1] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[2][2] = FLOAT_1_0;
+      refdef->viewaxis[0][0] = 0.0f;
+      refdef->viewaxis[0][1] = -1.0f;
+      refdef->viewaxis[0][2] = 0.0f;
+      refdef->viewaxis[1][0] = 1.0f;
+      refdef->viewaxis[1][1] = 0.0f;
+      refdef->viewaxis[1][2] = 0.0f;
+      refdef->viewaxis[2][0] = 0.0f;
+      refdef->viewaxis[2][1] = 0.0f;
+      refdef->viewaxis[2][2] = 1.0f;
       break;
     case CUBEMAPSHOT_UP:
-      refdef->viewaxis[0][0] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[0][1] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[0][2] = FLOAT_1_0;
-      refdef->viewaxis[1][0] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[1][1] = FLOAT_1_0;
-      refdef->viewaxis[1][2] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[2][0] = FLOAT_N1_0;
-      refdef->viewaxis[2][1] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[2][2] = *(float *)&FLOAT_0_0;
+      refdef->viewaxis[0][0] = 0.0f;
+      refdef->viewaxis[0][1] = 0.0f;
+      refdef->viewaxis[0][2] = 1.0f;
+      refdef->viewaxis[1][0] = 0.0f;
+      refdef->viewaxis[1][1] = 1.0f;
+      refdef->viewaxis[1][2] = 0.0f;
+      refdef->viewaxis[2][0] = -1.0f;
+      refdef->viewaxis[2][1] = 0.0f;
+      refdef->viewaxis[2][2] = 0.0f;
       break;
     case CUBEMAPSHOT_DOWN:
-      refdef->viewaxis[0][0] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[0][1] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[0][2] = FLOAT_N1_0;
-      refdef->viewaxis[1][0] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[1][1] = FLOAT_1_0;
-      refdef->viewaxis[1][2] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[2][0] = FLOAT_1_0;
-      refdef->viewaxis[2][1] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[2][2] = *(float *)&FLOAT_0_0;
+      refdef->viewaxis[0][0] = 0.0f;
+      refdef->viewaxis[0][1] = 0.0f;
+      refdef->viewaxis[0][2] = -1.0f;
+      refdef->viewaxis[1][0] = 0.0f;
+      refdef->viewaxis[1][1] = 1.0f;
+      refdef->viewaxis[1][2] = 0.0f;
+      refdef->viewaxis[2][0] = 1.0f;
+      refdef->viewaxis[2][1] = 0.0f;
+      refdef->viewaxis[2][2] = 0.0f;
       break;
     default:
       if ( cubemapShot != CUBEMAPSHOT_BACK
@@ -119,15 +119,15 @@ void __cdecl R_CalcCubeMapViewValues(refdef_s *refdef, CubemapShot cubemapShot, 
       {
         __debugbreak();
       }
-      refdef->viewaxis[0][0] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[0][1] = FLOAT_1_0;
-      refdef->viewaxis[0][2] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[1][0] = FLOAT_N1_0;
-      refdef->viewaxis[1][1] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[1][2] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[2][0] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[2][1] = *(float *)&FLOAT_0_0;
-      refdef->viewaxis[2][2] = FLOAT_1_0;
+      refdef->viewaxis[0][0] = 0.0f;
+      refdef->viewaxis[0][1] = 1.0f;
+      refdef->viewaxis[0][2] = 0.0f;
+      refdef->viewaxis[1][0] = -1.0f;
+      refdef->viewaxis[1][1] = 0.0f;
+      refdef->viewaxis[1][2] = 0.0f;
+      refdef->viewaxis[2][0] = 0.0f;
+      refdef->viewaxis[2][1] = 0.0f;
+      refdef->viewaxis[2][2] = 1.0f;
       break;
   }
 }
@@ -267,7 +267,7 @@ void  R_GenerateReflectionRawData(int a1@<ebp>, DiskGfxReflectionProbe *probeRaw
   v7.vieworg[2] = probeRawData->origin[2];
   v7.localClientNum = 0;
   v7.time = 0;
-  v7.blurRadius = *(float *)&FLOAT_0_0;
+  v7.blurRadius = 0.0f;
   v7.useScissorViewport = 0;
   R_InitPrimaryLights(v7.primaryLights);
   for ( i = CUBEMAPSHOT_RIGHT; i < CUBEMAPSHOT_COUNT; ++i )
@@ -540,10 +540,10 @@ ColorCorrectionData *R_CreateDefaultColorCorrectionEntry()
   }
   ccd = &s_colorCorrectionDataEntries[s_numColorCorrectionDataEntries++];
   I_strncpyz(ccd->name, "default", 64);
-  ccd->black_level = *(float *)&FLOAT_0_0;
-  ccd->white_level = FLOAT_1_0;
-  ccd->gamma = FLOAT_1_0;
-  ccd->saturation = FLOAT_1_0;
+  ccd->black_level = 0.0f;
+  ccd->white_level = 1.0f;
+  ccd->gamma = 1.0f;
+  ccd->saturation = 1.0f;
   result = ccd;
   ccd->range = ccd->white_level - ccd->black_level;
   return result;

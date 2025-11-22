@@ -255,7 +255,7 @@ void __cdecl XModelReadSurface(XModel *model, unsigned __int8 **pos, void *(__cd
         *pos += 4;
         Value = v21;
         if ( v21 == 0.0 )
-          v11 = FLOAT_1_0;
+          v11 = 1.0f;
         else
           v11 = 1.0 / Value;
         surface->vertInfo.tensionData[12 * j + m] = v11;

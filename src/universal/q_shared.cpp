@@ -1334,7 +1334,7 @@ void __cdecl AddLeanToPosition(float *position, float fViewYaw, float fLeanFrac,
   if ( fLeanFrac != 0.0 )
   {
     fLean = GetLeanFraction(fLeanFrac);
-    vAng[0] = *(float *)&FLOAT_0_0;
+    vAng[0] = 0.0f;
     vAng[1] = fViewYaw;
     vAng[2] = fLean * fViewRoll;
     AngleVectors(vAng, 0, vRight, 0);

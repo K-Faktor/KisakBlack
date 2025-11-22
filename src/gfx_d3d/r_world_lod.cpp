@@ -5,7 +5,7 @@ void __thiscall LodChainState::Init(LodChainState *this, const GfxWorldLodChain 
   int i; // [esp+10h] [ebp-4h]
 
   this->m_lodChain = lodChain;
-  this->m_fade = *(float *)&FLOAT_0_0;
+  this->m_fade = 0.0f;
   this->m_curLevel = 1;
   this->m_lastLevel = 1;
   for ( i = 1; i < this->m_lodChain->lodInfoCount; ++i )
@@ -31,22 +31,22 @@ void __thiscall LodChainState::UpdateLevel(LodChainState *this, int newLevel, in
       {
         if ( this->m_lastLevel == (unsigned __int8)(this->m_lodChain->lodInfoCount + 1) )
         {
-          this->m_fade = *(float *)&FLOAT_0_0;
+          this->m_fade = 0.0f;
         }
         else
         {
-          this->m_fade = FLOAT_1_0;
+          this->m_fade = 1.0f;
           if ( this->m_curLevel )
             SetFadeForSortedSurfaces(1.0, this->m_lodChain->firstLodInfo + this->m_curLevel - 1, localClientNum);
         }
       }
       else if ( this->m_curLevel == (unsigned __int8)(this->m_lodChain->lodInfoCount + 1) )
       {
-        this->m_fade = FLOAT_1_0;
+        this->m_fade = 1.0f;
       }
       else
       {
-        this->m_fade = *(float *)&FLOAT_0_0;
+        this->m_fade = 0.0f;
       }
     }
     else
@@ -54,9 +54,9 @@ void __thiscall LodChainState::UpdateLevel(LodChainState *this, int newLevel, in
       for ( i = 0; i < this->m_lodChain->lodInfoCount; ++i )
       {
         if ( i == this->m_curLevel )
-          val = FLOAT_1_0;
+          val = 1.0f;
         else
-          val = *(float *)&FLOAT_0_0;
+          val = 0.0f;
         if ( i )
           SetFadeForSortedSurfaces(val, this->m_lodChain->firstLodInfo + i - 1, localClientNum);
       }
@@ -84,7 +84,7 @@ void __thiscall LodChainState::UpdateFade(LodChainState *this, float dt, int loc
           this->m_fade = this->m_fade - (float)(dt * 1.0);
           if ( this->m_fade <= 0.0 )
           {
-            this->m_fade = *(float *)&FLOAT_0_0;
+            this->m_fade = 0.0f;
             this->m_lastLevel = this->m_curLevel;
           }
           SetFadeForSortedSurfaces(this->m_fade, this->m_lodChain->firstLodInfo + m_lastLevel - 1, localClientNum);
@@ -95,7 +95,7 @@ void __thiscall LodChainState::UpdateFade(LodChainState *this, float dt, int loc
           this->m_fade = (float)(dt * 1.0) + this->m_fade;
           if ( this->m_fade >= 1.0 )
           {
-            this->m_fade = FLOAT_1_0;
+            this->m_fade = 1.0f;
             this->m_lastLevel = this->m_curLevel;
           }
           if ( this->m_fade >= 1.0 )
@@ -111,7 +111,7 @@ void __thiscall LodChainState::UpdateFade(LodChainState *this, float dt, int loc
         this->m_fade = this->m_fade - (float)(dt * 1.0);
         if ( this->m_fade <= 0.0 )
         {
-          this->m_fade = *(float *)&FLOAT_0_0;
+          this->m_fade = 0.0f;
           this->m_lastLevel = this->m_curLevel;
         }
         SetFadeForSortedSurfaces(this->m_fade, firstLodInfo, localClientNum);
@@ -125,7 +125,7 @@ void __thiscall LodChainState::UpdateFade(LodChainState *this, float dt, int loc
       this->m_fade = (float)(dt * 1.0) + this->m_fade;
       if ( this->m_fade >= 1.0 )
       {
-        this->m_fade = FLOAT_1_0;
+        this->m_fade = 1.0f;
         this->m_lastLevel = this->m_curLevel;
       }
       SetFadeForSortedSurfaces(this->m_fade, lodInfoIndex, localClientNum);
@@ -202,11 +202,11 @@ void __cdecl R_WorldLod_FrameUpdate(float curTime, float *camPos, int localClien
   if ( (float)(dt - 1.0) < 0.0 )
     v4 = dt;
   else
-    v4 = FLOAT_1_0;
+    v4 = 1.0f;
   if ( (float)(0.0 - dt) < 0.0 )
     v3 = v4;
   else
-    v3 = *(float *)&FLOAT_0_0;
+    v3 = 0.0f;
   for ( i = 0; i < rgp.world->worldLodChainCount; ++i )
     UpdateChain((int)&savedregs, i, camPos, v3, localClientNum);
 }
@@ -257,22 +257,22 @@ void  UpdateChain(int a1@<ebp>, int index, const float *inputCamPos, float dt, i
   camPos.v.y = v31;
   camPos.v.z = v30;
   camPos.v.w = v29;
-  v28 = *(unsigned int *)&FLOAT_0_0;
+  v28 = 0;
   v24 = v31;
   v25 = v30;
   v26 = v29;
-  camPos.v.x = *(float *)&FLOAT_0_0;
+  camPos.v.x = 0.0f;
   v23 = v32->origin[0];
   v22 = v32->origin[1];
   v21 = v32->origin[2];
   lodPos.v.y = v23;
   lodPos.v.z = v22;
   lodPos.v.w = v21;
-  v20 = *(unsigned int *)&FLOAT_0_0;
+  v20 = 0;
   v16 = v23;
   v17 = v22;
   v18 = v21;
-  lodPos.v.x = *(float *)&FLOAT_0_0;
+  lodPos.v.x = 0.0f;
   v12 = v31 - v23;
   v13 = v30 - v22;
   v14 = v29 - v21;

@@ -334,7 +334,7 @@ void __thiscall UIViewer::UpdateCamera(UIViewer *this, refdef_s *refdef, float d
   }
   else if ( this->mode == MODE_PLAYER_FIRST || this->mode == MODE_WEAPON_FIRST || this->mode == MODE_EDIT_PLAYER_BODY )
   {
-    YAW_SPEED = FLOAT_180_0;
+    YAW_SPEED = 180.0f;
     cgameGlob = CG_GetLocalClientGlobals(0);
     localClientNum = cgameGlob->localClientNum;
     if ( Key_IsDown(localClientNum, 156) || Key_IsDown(localClientNum, 200) && s_viewerRotateLeftRepeatEnabled )
@@ -371,14 +371,14 @@ void __thiscall UIViewer::UpdateCamera(UIViewer *this, refdef_s *refdef, float d
       yaw = this->cameraAnimStart.yaw;
       angles[0] = pitch;
       angles[1] = yaw;
-      angles[2] = *(float *)&FLOAT_0_0;
+      angles[2] = 0.0f;
       AnglesToQuat(angles, quatStart);
       LODWORD(axis[9]) = this->cameraAnimEnd.lookAt;
       v6 = this->cameraAnimEnd.pitch;
       v7 = this->cameraAnimEnd.yaw;
       v8[0] = v6;
       v8[1] = v7;
-      v8[2] = *(float *)&FLOAT_0_0;
+      v8[2] = 0.0f;
       AnglesToQuat(v8, quatEnd);
       QuatSlerp(quatStart, quatEnd, frac, quat);
       QuatToAxis(quat, (float (*)[3])axis);
@@ -407,8 +407,8 @@ void __thiscall UIViewer::CameraParams::SetRefDef(UIViewer::CameraParams *this, 
   float angles[3]; // [esp+24h] [ebp-Ch] BYREF
 
   angles[0] = this->pitch;
-  angles[2] = *(float *)&FLOAT_0_0;
-  angles[1] = *(float *)&FLOAT_0_0;
+  angles[2] = 0.0f;
+  angles[1] = 0.0f;
   AnglesToAxis(angles, refdef->viewaxis);
   LODWORD(v4) = LODWORD(this->dist) ^ _mask__NegFloat_;
   refdef->vieworg[0] = (float)(v4 * refdef->viewaxis[0][0]) + this->lookAt[0];
@@ -759,11 +759,11 @@ void __thiscall UIViewer::DrawScene(UIViewer *this, unsigned int eyeToRender)
   if ( (float)(deltaTime - 0.1) < 0.0 )
     v5 = deltaTime;
   else
-    v5 = FLOAT_0_1;
+    v5 = 0.1f;
   if ( (float)(0.0 - deltaTime) < 0.0 )
     *(float *)&v4 = v5;
   else
-    LODWORD(v4) = *(unsigned int *)&FLOAT_0_0;
+    LODWORD(v4) = 0;
   deltaTime = *(float *)&v4;
   UIViewer::Update(this, *(float *)&v4);
   if ( !*(_BYTE *)(HIDWORD(v4) + 5) )
@@ -893,11 +893,11 @@ char __thiscall UIViewer::DrawDobj::Draw(UIViewer::DrawDobj *this, float deltaTi
                            *(renderOptions_s *)(LODWORD(thisa) + 388),
                            (ShaderConstantSet *)(LODWORD(thisa) + 404),
                            Name);
-  l = FLOAT_1_0;
+  l = 1.0f;
   if ( *(_BYTE *)(LODWORD(thisa) + 392) )
   {
-    MAX_LIGHT = FLOAT_4_0;
-    LIGHT_CYCLE = FLOAT_2_0;
+    MAX_LIGHT = 4.0f;
+    LIGHT_CYCLE = 2.0f;
     v15 = (float)(cls.realtime - *(unsigned int *)(LODWORD(thisa) + 396)) * 0.001;
     __libm_sse2_sin(thisa);
     ratio = (float)((float)((float)(6.2831855 * v15) / 2.0) + 1.0) * 0.5;
@@ -912,9 +912,9 @@ char __thiscall UIViewer::DrawDobj::Draw(UIViewer::DrawDobj *this, float deltaTi
   R_SetShaderConstantSetValue((ShaderConstantSet *)(LODWORD(thisa) + 404), 6u, 0.0, 0.0, l, 0.0);
   dobjConstantSet = (ShaderConstantSet *)(LODWORD(thisa) + 404);
   v9 = *(float *)(LODWORD(thisa) + 380) - uiViewer.camera.yaw;
-  *(unsigned int *)(LODWORD(thisa) + 68) = *(unsigned int *)&FLOAT_0_0;
+  *(unsigned int *)(LODWORD(thisa) + 68) = 0;
   *(float *)(LODWORD(thisa) + 72) = v9;
-  *(unsigned int *)(LODWORD(thisa) + 76) = *(unsigned int *)&FLOAT_0_0;
+  *(unsigned int *)(LODWORD(thisa) + 76) = 0;
   EntNum = DObjGetEntNum(*(const DObj **)LODWORD(thisa));
   R_AddDObjToScene(
     *(const DObj **)LODWORD(thisa),
@@ -1300,7 +1300,7 @@ void __thiscall UIViewer::UpdatePlayerDObj(
     *origin = p_current->value;
     origin[1] = p_current->vector[1];
     origin[2] = p_current->vector[2];
-    this->drawDobjs[this->nDrawDobjs].yaw = FLOAT_180_0;
+    this->drawDobjs[this->nDrawDobjs].yaw = 180.0f;
     this->drawDobjs[this->nDrawDobjs].depthHack = 0;
     UIViewer::DrawDobj::Set(&this->drawDobjs[this->nDrawDobjs], playerParams, weapParams, weaponVariantDef, 0, locked);
     ++this->nDrawDobjs;
@@ -1622,7 +1622,7 @@ void __thiscall UIViewer::AddWeaponToScene(
       *origin = p_current->value;
       origin[1] = p_current->vector[1];
       origin[2] = p_current->vector[2];
-      this->drawDobjs[this->nDrawDobjs].yaw = FLOAT_90_0;
+      this->drawDobjs[this->nDrawDobjs].yaw = 90.0f;
       this->drawDobjs[this->nDrawDobjs].depthHack = this->mode == MODE_EDIT_ATTACHMENT_TOP;
       UIViewer::DrawDobj::Set(&this->drawDobjs[this->nDrawDobjs], weapParams, weaponVariantDef, 0);
       ++this->nDrawDobjs;
@@ -1647,7 +1647,7 @@ void __thiscall UIViewer::AddWeaponToScene(
         *v10 = v11->value;
         v10[1] = v11->vector[1];
         v10[2] = v11->vector[2];
-        this->drawDobjs[this->nDrawDobjs].yaw = FLOAT_90_0;
+        this->drawDobjs[this->nDrawDobjs].yaw = 90.0f;
         this->drawDobjs[this->nDrawDobjs].depthHack = this->mode == MODE_EDIT_ATTACHMENT_TOP;
         UIViewer::DrawDobj::Set(&this->drawDobjs[this->nDrawDobjs], weapParams, weaponVariantDef, 1);
         ++this->nDrawDobjs;
@@ -1714,7 +1714,7 @@ char __thiscall UIViewer::SetCameraPos(UIViewer *this, char *string, bool animat
   }
   if ( i < 5 )
     return 0;
-  at[0] = *(float *)&FLOAT_0_0;
+  at[0] = 0.0f;
   at[1] = vals[0];
   at[2] = vals[1];
   UIViewer::SetCameraPos(this, at, vals[2], vals[3], vals[4], animate);
@@ -1813,7 +1813,7 @@ void __cdecl UIViewer::SetCameraPosCmd()
     v8 = atof(v0);
     v1 = Cmd_Argv(2);
     v9 = atof(v1);
-    lookat[0] = *(float *)&FLOAT_0_0;
+    lookat[0] = 0.0f;
     lookat[1] = v8;
     lookat[2] = v9;
     v2 = Cmd_Argv(5);

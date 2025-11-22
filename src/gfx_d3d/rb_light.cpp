@@ -360,15 +360,15 @@ void __cdecl SetPixelColorLightGridVec4_PC(unsigned __int8 *v, const float *colo
   if ( (float)(*color / 31.875) <= 1.0 )
     v5 = *color / 31.875;
   else
-    v5 = FLOAT_1_0;
+    v5 = 1.0f;
   if ( (float)(color[1] / 31.875) <= 1.0 )
     v4 = color[1] / 31.875;
   else
-    v4 = FLOAT_1_0;
+    v4 = 1.0f;
   if ( (float)(color[2] / 31.875) <= 1.0 )
     v3 = color[2] / 31.875;
   else
-    v3 = FLOAT_1_0;
+    v3 = 1.0f;
   *(unsigned int *)v = ((unsigned __int8)(int)(float)(primaryWeight * 255.0) << 24)
                | (unsigned __int8)(int)(float)(fsqrt(v3) * 255.0)
                | ((unsigned __int8)(int)(float)(fsqrt(v4) * 255.0) << 8)
@@ -540,7 +540,7 @@ unsigned __int8 __cdecl R_LightGridLookup(
   if ( r_vc_makelog->current.integer )
     R_UpdateVisHistory(lightGrid, pos);
   primaryLightIndex = 0;
-  bestPrimaryLightWeight = *(float *)&FLOAT_0_0;
+  bestPrimaryLightWeight = 0.0f;
   honorSuppression = 0;
   cornerIndex = 0;
   cornerTraceBit = 1;
@@ -1058,9 +1058,9 @@ unsigned int __cdecl R_GetLightingAtPoint(
   pos[2] = ((int)v7 + 0x20000) >> 6;
   heroPos = useHeroLighting ? samplePos : 0;
   sampleCount = 0;
-  maxWeight = *(float *)&FLOAT_0_0;
-  primaryVisibleWeight = *(float *)&FLOAT_0_0;
-  primaryOccludedWeight = *(float *)&FLOAT_0_0;
+  maxWeight = 0.0f;
+  primaryVisibleWeight = 0.0f;
+  primaryOccludedWeight = 0.0f;
   for ( cornerIndex = 0; cornerIndex < 8; ++cornerIndex )
   {
     remoteEntry = cornerEntry[cornerIndex];
@@ -1130,7 +1130,7 @@ LABEL_10:
     if ( primaryOccludedWeight == 0.0 )
     {
       if ( primaryVisibleWeight != 0.0 )
-        primaryVisibleWeight = FLOAT_1_0;
+        primaryVisibleWeight = 1.0f;
     }
     else
     {
@@ -1139,7 +1139,7 @@ LABEL_10:
   }
   else
   {
-    primaryVisibleWeight = *(float *)&FLOAT_0_0;
+    primaryVisibleWeight = 0.0f;
   }
   if ( sampleCount == 1 )
     R_SetLightGridColorsFromIndex(lightGrid, sampleColors[0], heroPos, primaryVisibleWeight, dest);
@@ -1299,13 +1299,13 @@ void __cdecl R_GetAverageLightingAtPoint(const float *samplePos, float *outColor
   float primaryWeight; // [esp+834h] [ebp-4h]
 
   sampleCount = 0;
-  maxWeight = *(float *)&FLOAT_0_0;
-  primaryWeight = *(float *)&FLOAT_0_0;
+  maxWeight = 0.0f;
+  primaryWeight = 0.0f;
   primaryLightIndex = R_LightGridLookup(&rgp.world->lightGrid, samplePos, cornerWeight, cornerEntry, &defaultGridEntry);
   if ( primaryLightIndex != 1 )
   {
     memset(colorWithSunAlpha, 0, 12);
-    colorWithSunAlpha[3] = FLOAT_0_25;
+    colorWithSunAlpha[3] = 0.25f;
     goto LABEL_35;
   }
   for ( cornerIndex = 0; cornerIndex < 8; ++cornerIndex )
@@ -1390,7 +1390,7 @@ LABEL_4:
   else
   {
     memset(colorWithSunAlpha, 0, 12);
-    colorWithSunAlpha[3] = FLOAT_1_0;
+    colorWithSunAlpha[3] = 1.0f;
   }
 LABEL_35:
   *outColor = (float)((float)(rgp.world->sunParse.sunSettings[0].sunDiffuseColor[0]
@@ -1434,7 +1434,7 @@ void __cdecl R_GetAverageSecondaryLightingAtPoint(const float *samplePos, float 
   float sampleWeight[8]; // [esp+7D4h] [ebp-20h]
 
   sampleCount = 0;
-  maxWeight = *(float *)&FLOAT_0_0;
+  maxWeight = 0.0f;
   R_LightGridLookup(&rgp.world->lightGrid, samplePos, cornerWeight, cornerEntry, &defaultGridEntry);
   for ( cornerIndex = 0; cornerIndex < 8; ++cornerIndex )
   {
@@ -1471,7 +1471,7 @@ LABEL_2:
   }
   memset((unsigned __int8 *)&accumulatedColors, 0, sizeof(accumulatedColors));
   if ( maxWeight <= 0.0 )
-    v2 = *(float *)&FLOAT_0_0;
+    v2 = 0.0f;
   else
     v2 = 1.0 / maxWeight;
   weightNormalizeScale = v2;
@@ -1488,9 +1488,9 @@ LABEL_2:
       v4[2] = v5[2] + v4[2];
     }
   }
-  *outColor = *(float *)&FLOAT_0_0;
-  outColor[1] = *(float *)&FLOAT_0_0;
-  outColor[2] = *(float *)&FLOAT_0_0;
+  *outColor = 0.0f;
+  outColor[1] = 0.0f;
+  outColor[2] = 0.0f;
   for ( m = 0; m < 56; ++m )
   {
     v3 = accumulatedColors.rgb[m];

@@ -50,7 +50,7 @@ void __cdecl FX_PostLight_GenerateVerts(FxPostLightInfo *postLightInfoAddr, FxSy
   int POINTS_AROUND; // [esp+10Ch] [ebp-4h]
 
   POINTS_AROUND = 8;
-  POLYGON_RADIUS_GROW = FLOAT_1_4142135;
+  POLYGON_RADIUS_GROW = 1.4f142135;
   VERT_COUNT = 16;
   IND_COUNT = 84;
   postLightInfo = postLightInfoAddr;

@@ -174,9 +174,9 @@ void __cdecl AxisToSignedAngles(const float (*axis)[3], float *angles)
   else
   {
     if ( pitch >= 0.0 )
-      v2 = FLOAT_N180_0;
+      v2 = -180.0f;
     else
-      v2 = FLOAT_180_0;
+      v2 = 180.0f;
     angles[2] = pitch + v2;
   }
 }
@@ -195,11 +195,11 @@ void __cdecl vectosignedangles(const float *vec, float *angles)
 
   if ( vec[1] == 0.0 && *vec == 0.0 )
   {
-    v10 = *(float *)&FLOAT_0_0;
+    v10 = 0.0f;
     if ( COERCE_FLOAT(*((unsigned int *)vec + 2) ^ _mask__NegFloat_) < 0.0 )
-      v9 = FLOAT_N90_0;
+      v9 = -90.0f;
     else
-      v9 = FLOAT_90_0;
+      v9 = 90.0f;
     v8 = v9;
   }
   else
@@ -219,7 +219,7 @@ void __cdecl vectosignedangles(const float *vec, float *angles)
   }
   *angles = v8;
   angles[1] = v10;
-  angles[2] = *(float *)&FLOAT_0_0;
+  angles[2] = 0.0f;
 }
 
 double __cdecl vectosignedpitch(const float *vec)
@@ -231,9 +231,9 @@ double __cdecl vectosignedpitch(const float *vec)
   if ( vec[1] == 0.0 && *vec == 0.0 )
   {
     if ( COERCE_FLOAT(*((unsigned int *)vec + 2) ^ _mask__NegFloat_) < 0.0 )
-      return FLOAT_N90_0;
+      return -90.0f;
     else
-      return FLOAT_90_0;
+      return 90.0f;
   }
   else
   {

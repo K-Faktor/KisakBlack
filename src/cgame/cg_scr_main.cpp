@@ -743,11 +743,11 @@ void CScr_Print3D()
   const char *text; // [esp+40h] [ebp-4h]
 
   duration.intValue = 1;
-  scale = FLOAT_1_0;
-  color[0] = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
-  color[3] = FLOAT_1_0;
+  scale = 1.0f;
+  color[0] = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
+  color[3] = 1.0f;
   switch ( Scr_GetNumParam(SCRIPTINSTANCE_CLIENT) )
   {
     case 2:
@@ -1086,11 +1086,11 @@ void CScr_LerpFloat()
   if ( (float)(time - 1.0) < 0.0 )
     v1 = time;
   else
-    v1 = FLOAT_1_0;
+    v1 = 1.0f;
   if ( (float)(0.0 - time) < 0.0 )
     v0 = v1;
   else
-    v0 = *(float *)&FLOAT_0_0;
+    v0 = 0.0f;
   Scr_AddFloat((float)((float)(to - from) * v0) + from, SCRIPTINSTANCE_CLIENT);
 }
 
@@ -1109,11 +1109,11 @@ void CScr_LerpVector()
   if ( (float)(time - 1.0) < 0.0 )
     v1 = time;
   else
-    v1 = FLOAT_1_0;
+    v1 = 1.0f;
   if ( (float)(0.0 - time) < 0.0 )
     v0 = v1;
   else
-    v0 = *(float *)&FLOAT_0_0;
+    v0 = 0.0f;
   time = v0;
   retVal[0] = (float)((float)(to[0] - from[0]) * v0) + from[0];
   retVal[1] = (float)((float)(to[1] - from[1]) * v0) + from[1];
@@ -1255,7 +1255,7 @@ fake_centity_s *CScr_PlayLoopedFX()
   float axis[3][3]; // [esp+68h] [ebp-28h] BYREF
   float cullDist; // [esp+8Ch] [ebp-4h]
 
-  cullDist = *(float *)&FLOAT_0_0;
+  cullDist = 0.0f;
   period = 0;
   if ( (unsigned int)Scr_GetNumParam(SCRIPTINSTANCE_CLIENT) < 5
     || (unsigned int)Scr_GetNumParam(SCRIPTINSTANCE_CLIENT) > 8 )
@@ -1263,7 +1263,7 @@ fake_centity_s *CScr_PlayLoopedFX()
     Scr_Error(SCRIPTINSTANCE_CLIENT, "Incorrect number of parameters", 0);
   }
   givenAxisCount = 0;
-  cullDist = *(float *)&FLOAT_0_0;
+  cullDist = 0.0f;
   localClientNum = CScr_GetLocalClientNum(0).intValue;
   entId = Scr_GetInt(1u, SCRIPTINSTANCE_CLIENT).intValue;
   fxId = Scr_GetInt(2u, SCRIPTINSTANCE_CLIENT).intValue;
@@ -1836,7 +1836,7 @@ void CScr_PlaySound()
   int localClientNum; // [esp+34h] [ebp-8h]
   bool havePosition; // [esp+3Bh] [ebp-1h]
 
-  volume = FLOAT_1_0;
+  volume = 1.0f;
   havePosition = 0;
   localClientNum = CScr_GetLocalClientNum(0).intValue;
   pAlias = Scr_GetString(1u, SCRIPTINSTANCE_CLIENT);
@@ -1851,11 +1851,11 @@ void CScr_PlaySound()
     if ( (float)(Float - 1.0) < 0.0 )
       v3 = Float;
     else
-      v3 = FLOAT_1_0;
+      v3 = 1.0f;
     if ( (float)(0.0 - Float) < 0.0 )
       v1 = v3;
     else
-      v1 = *(float *)&FLOAT_0_0;
+      v1 = 0.0f;
     volume = v1;
   }
   AliasId = SND_FindAliasId((char *)pAlias);
@@ -1904,7 +1904,7 @@ void __cdecl CScr_PlaySoundOnEntity(scr_entref_t entref)
     else
       pFake = CG_GetFakeEntity(entref.client, entref.entnum);
   }
-  volume = FLOAT_1_0;
+  volume = 1.0f;
   localClientNum = entref.client;
   pAlias = Scr_GetString(1u, SCRIPTINSTANCE_CLIENT);
   if ( Scr_GetNumParam(SCRIPTINSTANCE_CLIENT) == 3 )
@@ -1923,11 +1923,11 @@ void __cdecl CScr_PlaySoundOnEntity(scr_entref_t entref)
     if ( (float)(Float - 1.0) < 0.0 )
       v4 = Float;
     else
-      v4 = FLOAT_1_0;
+      v4 = 1.0f;
     if ( (float)(0.0 - Float) < 0.0 )
       v2 = v4;
     else
-      v2 = *(float *)&FLOAT_0_0;
+      v2 = 0.0f;
     volume = v2;
   }
   AliasId = SND_FindAliasId((char *)pAlias);
@@ -1989,7 +1989,7 @@ unsigned intCScr_PlayLoopSound()
   }
   pszSoundName = Scr_GetString(2u, SCRIPTINSTANCE_CLIENT);
   cent->nextState.loopSoundId = SND_FindAliasId(pszSoundName);
-  fadeTime = *(float *)&FLOAT_0_0;
+  fadeTime = 0.0f;
   if ( Scr_GetNumParam(SCRIPTINSTANCE_CLIENT) == 4 )
   {
     fadeTimea = Scr_GetFloat(3u, SCRIPTINSTANCE_CLIENT);
@@ -2070,14 +2070,14 @@ unsigned intCScr_StopLoopSound()
   {
     __debugbreak();
   }
-  fadeTime = *(float *)&FLOAT_0_0;
+  fadeTime = 0.0f;
   if ( Scr_GetNumParam(SCRIPTINSTANCE_CLIENT) == 3 )
     fadeTime = Scr_GetFloat(2u, SCRIPTINSTANCE_CLIENT) * 1000.0;
   if ( fadeTime < 0.0 || fadeTime > 32000.0 )
   {
     error = va("stoploopsound: invalid fade value %f. it must be between 0 and 32 seconds.", fadeTime);
     Scr_ParamError(0, error, SCRIPTINSTANCE_CLIENT);
-    fadeTime = *(float *)&FLOAT_0_0;
+    fadeTime = 0.0f;
   }
   if ( Scr_GetNumParam(SCRIPTINSTANCE_CLIENT) == 2 || fadeTime == 0.0 )
   {
@@ -2134,7 +2134,7 @@ void __cdecl CScr_PlayLoopSoundOnEntity(scr_entref_t entref)
   }
   pAlias = Scr_GetString(0, SCRIPTINSTANCE_CLIENT);
   pSelf->nextState.loopSoundId = SND_FindAliasId(pAlias);
-  fadeTime = *(float *)&FLOAT_0_0;
+  fadeTime = 0.0f;
   if ( Scr_GetNumParam(SCRIPTINSTANCE_CLIENT) == 2 )
   {
     fadeTimea = Scr_GetFloat(1u, SCRIPTINSTANCE_CLIENT);
@@ -2182,7 +2182,7 @@ void __cdecl CScr_StopLoopSoundOnEntity(scr_entref_t entref)
     if ( entref.entnum >= 0x400u )
       CG_GetFakeEntity(entref.client, entref.entnum);
   }
-  fadeTime = *(float *)&FLOAT_0_0;
+  fadeTime = 0.0f;
   if ( Scr_GetNumParam(SCRIPTINSTANCE_CLIENT) )
   {
     fadeTimea = Scr_GetFloat(0, SCRIPTINSTANCE_CLIENT);
@@ -2667,11 +2667,11 @@ void CScr_SetHealthSnapshot()
     if ( (float)(Float - 1.0) < 0.0 )
       v2 = Float;
     else
-      v2 = FLOAT_1_0;
+      v2 = 1.0f;
     if ( (float)(0.0 - Float) < 0.0 )
       amount = v2;
     else
-      amount = *(float *)&FLOAT_0_0;
+      amount = 0.0f;
     String = Scr_GetString(0, SCRIPTINSTANCE_CLIENT);
     SND_SetSnapshot(SND_SNAPSHOT_HEALTH, String, 0.0, amount);
   }
@@ -2694,11 +2694,11 @@ void CScr_SetLevelFadeSnapshot()
     if ( (float)(Float - 1.0) < 0.0 )
       v2 = Float;
     else
-      v2 = FLOAT_1_0;
+      v2 = 1.0f;
     if ( (float)(0.0 - Float) < 0.0 )
       amount = v2;
     else
-      amount = *(float *)&FLOAT_0_0;
+      amount = 0.0f;
     String = Scr_GetString(0, SCRIPTINSTANCE_CLIENT);
     SND_SetSnapshot(SND_SNAPSHOT_LEVELFADE, String, 0.0, amount);
   }
@@ -2759,7 +2759,7 @@ void CScr_DeactivateReverb()
   char *prio_name; // [esp+24h] [ebp-4h]
 
   priority = 0;
-  fadetime = *(float *)&FLOAT_0_0;
+  fadetime = 0.0f;
   NumParam = Scr_GetNumParam(SCRIPTINSTANCE_CLIENT);
   if ( NumParam == 1 )
     goto LABEL_4;
@@ -2804,9 +2804,9 @@ void CScr_SetReverb()
   const char *prio_name; // [esp+38h] [ebp-8h]
   int prio; // [esp+3Ch] [ebp-4h]
 
-  fadetime = *(float *)&FLOAT_0_0;
-  drylevel = FLOAT_1_0;
-  wetlevel = FLOAT_0_5;
+  fadetime = 0.0f;
+  drylevel = 1.0f;
+  wetlevel = 0.5f;
   switch ( Scr_GetNumParam(SCRIPTINSTANCE_CLIENT) )
   {
     case 2u:
@@ -4449,10 +4449,10 @@ void __cdecl CScr_line()
 
   duration.intValue = 0;
   depthTest = 0;
-  color[0] = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
-  color[3] = FLOAT_1_0;
+  color[0] = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
+  color[3] = 1.0f;
   switch ( Scr_GetNumParam(SCRIPTINSTANCE_CLIENT) )
   {
     case 2:
@@ -4498,17 +4498,17 @@ void __cdecl CScr_box()
 
   duration = 0;
   depthTest = 0;
-  color[0] = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
-  color[3] = FLOAT_1_0;
-  yaw = *(float *)&FLOAT_0_0;
-  mins[0] = FLOAT_N10_0;
-  mins[1] = FLOAT_N10_0;
-  mins[2] = FLOAT_N10_0;
-  maxs[0] = FLOAT_10_0;
-  maxs[1] = FLOAT_10_0;
-  maxs[2] = FLOAT_10_0;
+  color[0] = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
+  color[3] = 1.0f;
+  yaw = 0.0f;
+  mins[0] = -10.0f;
+  mins[1] = -10.0f;
+  mins[2] = -10.0f;
+  maxs[0] = 10.0f;
+  maxs[1] = 10.0f;
+  maxs[2] = 10.0f;
   switch ( Scr_GetNumParam(SCRIPTINSTANCE_CLIENT) )
   {
     case 1:
@@ -4571,10 +4571,10 @@ void __cdecl CScr_debugstar()
   float color[4]; // [esp+20h] [ebp-10h] BYREF
 
   duration.intValue = 10;
-  color[0] = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
-  color[3] = FLOAT_1_0;
+  color[0] = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
+  color[3] = 1.0f;
   NumParam = Scr_GetNumParam(SCRIPTINSTANCE_CLIENT);
   if ( NumParam != 1 )
   {
@@ -4730,9 +4730,9 @@ void __cdecl CScr_SetFxAngles(unsigned int givenAxisCount, float (*axis)[3], flo
   }
   else
   {
-    *angles = FLOAT_270_0;
-    angles[1] = *(float *)&FLOAT_0_0;
-    angles[2] = *(float *)&FLOAT_0_0;
+    *angles = 270.0f;
+    angles[1] = 0.0f;
+    angles[2] = 0.0f;
   }
   *angles = AngleNormalize180(*angles);
   angles[1] = AngleNormalize180(angles[1]);
@@ -5931,7 +5931,7 @@ void __cdecl CScrCmd_GetSpeed(scr_entref_t entref)
   fake_centity_s *pFake; // [esp+84h] [ebp-8h]
   float speed; // [esp+88h] [ebp-4h]
 
-  speed = *(float *)&FLOAT_0_0;
+  speed = 0.0f;
   if ( entref.classnum )
   {
     Scr_Error(SCRIPTINSTANCE_CLIENT, "not an entity", 0);
@@ -6309,7 +6309,7 @@ void __cdecl CScr_SetLightColor(scr_entref_t entref)
   if ( pSelf->nextState.eType != 10 )
     Scr_Error(SCRIPTINSTANCE_CLIENT, "Function can only be called on a 'light' entity", 0);
   Scr_GetVector(0, unpackedColor, SCRIPTINSTANCE_CLIENT);
-  unpackedColor[3] = *(float *)&FLOAT_0_0;
+  unpackedColor[3] = 0.0f;
   exponent = pSelf->nextState.lerp.u.primaryLight.colorAndExp[3];
   Byte4PackRgba(unpackedColor, (unsigned __int8 *)&pSelf->nextState.lerp.u);
   pSelf->nextState.lerp.u.primaryLight.colorAndExp[3] = exponent;
@@ -6384,7 +6384,7 @@ void __cdecl CScr_SetLightIntensity(scr_entref_t entref)
   if ( intensity < -0.001 )
     Scr_ParamError(0, "intensity must be >= 0", SCRIPTINSTANCE_CLIENT);
   if ( (float)(intensity - 0.0) < 0.0 )
-    v1 = *(unsigned int *)&FLOAT_0_0;
+    v1 = 0;
   else
     v1 = LODWORD(intensity);
   pSelf->nextState.lerp.u.loopFx.period = v1;
@@ -6484,7 +6484,7 @@ void __cdecl CScr_SetLightRadius(scr_entref_t entref)
   if ( (float)(0.0 - radius) < 0.0 )
     v1 = LODWORD(v2);
   else
-    v1 = *(unsigned int *)&FLOAT_0_0;
+    v1 = 0;
   pSelf->nextState.lerp.u.actor.team = v1;
 }
 
@@ -6626,7 +6626,7 @@ void __cdecl CScr_SetLightFovRange(scr_entref_t entref)
   if ( (float)(cosHalfFovOuter - 1.0) < 0.0 )
     v8 = (float)(fovOuter * 0.017453292) * 0.5;
   else
-    v8 = FLOAT_1_0;
+    v8 = 1.0f;
   if ( (float)(refLight->cosHalfFovOuter - cosHalfFovOuter) < 0.0 )
     v6 = v8;
   else
@@ -6641,7 +6641,7 @@ void __cdecl CScr_SetLightFovRange(scr_entref_t entref)
     if ( (float)(cosHalfFovInner - 1.0) < 0.0 )
       v7 = (float)(fovInner * 0.017453292) * 0.5;
     else
-      v7 = FLOAT_1_0;
+      v7 = 1.0f;
     if ( (float)((float)(v6 + 0.001) - cosHalfFovInner) < 0.0 )
       v5 = v7;
     else
@@ -6751,12 +6751,12 @@ void __cdecl CScrCmdGetCommandTimes(float *pfTotalTime, float *pfAccelTime, floa
   if ( *pfTotalTime <= 0.0 )
     Scr_ParamError(1u, "total time must be positive", SCRIPTINSTANCE_CLIENT);
   if ( *pfTotalTime < 0.001 )
-    *pfTotalTime = FLOAT_0_001;
+    *pfTotalTime = 0.001f;
   iNumParms = Scr_GetNumParam(SCRIPTINSTANCE_CLIENT);
   if ( iNumParms <= 2 )
   {
-    *pfAccelTime = *(float *)&FLOAT_0_0;
-    *pfDecelTime = *(float *)&FLOAT_0_0;
+    *pfAccelTime = 0.0f;
+    *pfDecelTime = 0.0f;
   }
   else
   {
@@ -6765,7 +6765,7 @@ void __cdecl CScrCmdGetCommandTimes(float *pfTotalTime, float *pfAccelTime, floa
       Scr_ParamError(2u, "accel time must be nonnegative", SCRIPTINSTANCE_CLIENT);
     if ( iNumParms <= 3 )
     {
-      *pfDecelTime = *(float *)&FLOAT_0_0;
+      *pfDecelTime = 0.0f;
     }
     else
     {
@@ -6986,7 +6986,7 @@ void __cdecl CScriptMover_SetupMove(
     pTr->trTime = *(unsigned int *)(*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8) + 4);
     pTr->trDuration = (int)(float)(fTotalTime * 1000.0);
     *pfMidTime = fTotalTime;
-    *pfDecelTime = *(float *)&FLOAT_0_0;
+    *pfDecelTime = 0.0f;
     *vPos3 = *vPos;
     vPos3[1] = vPos[1];
     vPos3[2] = vPos[2];
@@ -7460,7 +7460,7 @@ void __cdecl CScriptMover_SetupMoveSpeed(
     pTr->trTime = *(unsigned int *)(*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8) + 4);
     pTr->trDuration = (int)(float)(fTotalTime * 1000.0);
     *pfMidTime = fTotalTime;
-    *pfDecelTime = *(float *)&FLOAT_0_0;
+    *pfDecelTime = 0.0f;
     pTr->trBase[0] = *vCurrPos;
     pTr->trBase[1] = vCurrPos[1];
     pTr->trBase[2] = vCurrPos[2];
@@ -7979,9 +7979,9 @@ void __cdecl CScr_SetAnimKnobInternal(scr_entref_t entref, char flags, bool bFla
   signed int iCurrParama; // [esp+60h] [ebp-Ch]
   unsigned int anim; // [esp+68h] [ebp-4h]
 
-  goalWeight = FLOAT_1_0;
-  goalTime = FLOAT_0_2;
-  rate = FLOAT_1_0;
+  goalWeight = 1.0f;
+  goalTime = 0.2f;
+  rate = 1.0f;
   if ( entref.classnum )
   {
     Scr_Error(SCRIPTINSTANCE_CLIENT, "not an entity", 0);
@@ -8169,9 +8169,9 @@ void __cdecl CScr_SetAnimKnobAllInternal(scr_entref_t entref, char flags, bool b
   scr_anim_s anim; // [esp+6Ch] [ebp-Ch]
   scr_anim_s rootAnim; // [esp+74h] [ebp-4h]
 
-  goalWeight = FLOAT_1_0;
-  goalTime = FLOAT_0_2;
-  rate = FLOAT_1_0;
+  goalWeight = 1.0f;
+  goalTime = 0.2f;
+  rate = 1.0f;
   if ( entref.classnum )
   {
     Scr_Error(SCRIPTINSTANCE_CLIENT, "not an entity", 0);
@@ -8336,9 +8336,9 @@ void __cdecl CScr_SetAnimInternal(scr_entref_t entref, char flags, bool bFlagged
   signed int iCurrParama; // [esp+60h] [ebp-Ch]
   unsigned __int16 anim; // [esp+68h] [ebp-4h]
 
-  goalWeight = FLOAT_1_0;
-  goalTime = FLOAT_0_2;
-  rate = FLOAT_1_0;
+  goalWeight = 1.0f;
+  goalTime = 0.2f;
+  rate = 1.0f;
   if ( entref.classnum )
   {
     Scr_Error(SCRIPTINSTANCE_CLIENT, "not an entity", 0);
@@ -8739,13 +8739,13 @@ void __cdecl CScr_SetAnimTime(scr_entref_t entref)
   {
     if ( time > 1.0 )
     {
-      time = FLOAT_1_0;
+      time = 1.0f;
       Scr_ParamError(1u, "must be < 1", SCRIPTINSTANCE_CLIENT);
     }
   }
   else
   {
-    time = *(float *)&FLOAT_0_0;
+    time = 0.0f;
     Scr_ParamError(1u, "must be > 0", SCRIPTINSTANCE_CLIENT);
   }
   anims = XAnimGetAnims(tree);
@@ -8960,12 +8960,12 @@ void __cdecl CScrCmd_IsTouching(scr_entref_t entref)
   }
   if ( ent->nextState.eType == 1 || ent->nextState.eType == 17 )
   {
-    mins[0] = FLOAT_N15_0;
-    mins[1] = FLOAT_N15_0;
-    mins[2] = *(float *)&FLOAT_0_0;
-    maxs[0] = FLOAT_15_0;
-    maxs[1] = FLOAT_15_0;
-    maxs[2] = FLOAT_70_0;
+    mins[0] = -15.0f;
+    mins[1] = -15.0f;
+    mins[2] = 0.0f;
+    maxs[0] = 15.0f;
+    maxs[1] = 15.0f;
+    maxs[2] = 70.0f;
     absMins[0] = ent->pose.origin[0] + -15.0;
     absMins[1] = ent->pose.origin[1] + -15.0;
     absMins[2] = ent->pose.origin[2] + 0.0;
@@ -10113,12 +10113,12 @@ void __cdecl CG_DoTouchTriggers(centity_s *ent, int localClientNum)
     }
     if ( ent->nextState.eType == 1 || ent->nextState.eType == 17 )
     {
-      mins = FLOAT_N15_0;
-      v26 = FLOAT_N15_0;
-      v27 = *(float *)&FLOAT_0_0;
-      maxs = FLOAT_15_0;
-      v6 = FLOAT_15_0;
-      v7 = FLOAT_70_0;
+      mins = -15.0f;
+      v26 = -15.0f;
+      v27 = 0.0f;
+      maxs = 15.0f;
+      v6 = 15.0f;
+      v7 = 70.0f;
       absMins = ent->pose.origin[0] + -15.0;
       v29 = ent->pose.origin[1] + -15.0;
       v30 = ent->pose.origin[2] + 0.0;

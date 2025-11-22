@@ -141,7 +141,7 @@ flameDrips_t *__cdecl Flame_Class_Drips_Spawn(bool is_server, flameChunk_s *from
   fire->gen.age.endTime = fire->gen.age.startTime + (int)(float)(1000.0 * lifetime);
   fire->gen.age.lastUpdateTime = curTime;
   fire->gen.size.current = fromChunk->gen.size.current * flameVars->flameVar_dripsStartSizeScale;
-  fire->gen.size.rate = FLOAT_1_0;
+  fire->gen.size.rate = 1.0f;
   fire->gen.phys.origin[0] = fromChunk->gen.phys.origin[0];
   fire->gen.phys.origin[1] = fromChunk->gen.phys.origin[1];
   fire->gen.phys.origin[2] = fromChunk->gen.phys.origin[2];
@@ -201,12 +201,12 @@ void __cdecl Flame_Class_Drips_Render_Item(int localClientNum, flameDrips_t *fir
   }
   if ( flame_debug_render->current.integer > 0 )
   {
-    points[0][0] = FLOAT_N1_0;
-    points[0][1] = FLOAT_N1_0;
-    *(_QWORD *)&points[1][0] = __PAIR64__(LODWORD(FLOAT_N1_0), LODWORD(FLOAT_1_0));
-    points[2][0] = FLOAT_1_0;
-    points[2][1] = FLOAT_1_0;
-    *(_QWORD *)&points[3][0] = __PAIR64__(LODWORD(FLOAT_1_0), LODWORD(FLOAT_N1_0));
+    points[0][0] = -1.0f;
+    points[0][1] = -1.0f;
+    *(_QWORD *)&points[1][0] = __PAIR64__(LODWORD(-1.0f), LODWORD(1.0f));
+    points[2][0] = 1.0f;
+    points[2][1] = 1.0f;
+    *(_QWORD *)&points[3][0] = __PAIR64__(LODWORD(1.0f), LODWORD(-1.0f));
     AxisToAngles(clientGlobals->refdef.viewaxis, angles);
     angles[2] = fire->gen.phys.rotation;
     AngleVectors(angles, fwd, right, down);

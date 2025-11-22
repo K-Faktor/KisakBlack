@@ -112,7 +112,7 @@ void __cdecl R_UI3D_OnetimeInit(
   g_ui3dStatus.pmemLocation = pmemLocation;
   R_InitUI3DRenderTarget(width, height, pmemLocation, allocatePingPongBuffer);
   g_ui3dStatus.hasPingPongBuffer = allocatePingPongBuffer;
-  g_ui3dStatus.blurRadius = *(float *)&FLOAT_0_0;
+  g_ui3dStatus.blurRadius = 0.0f;
   g_ui3dStatus.initialized = 1;
   for ( i = 0; i < 6; ++i )
     R_UI3D_SetupTextureWindow(i, 0.0, 0.0, 0.0, 0.0);
@@ -127,7 +127,7 @@ void __cdecl R_UI3D_Shutdown()
       Sleep(1u);
     R_ShutdownUI3DRenderTarget(g_ui3dStatus.hasPingPongBuffer);
     g_ui3dStatus.hasPingPongBuffer = 0;
-    g_ui3dStatus.blurRadius = *(float *)&FLOAT_0_0;
+    g_ui3dStatus.blurRadius = 0.0f;
     g_ui3dStatus.initialized = 0;
   }
 }
@@ -251,25 +251,25 @@ void __cdecl R_UI3D_SetupTextureWindow(
     if ( (float)(normX - 1.0) < 0.0 )
       v12 = normX;
     else
-      v12 = FLOAT_1_0;
+      v12 = 1.0f;
     if ( (float)(0.0 - normX) < 0.0 )
       v8 = v12;
     else
-      v8 = *(float *)&FLOAT_0_0;
+      v8 = 0.0f;
     if ( (float)(normY - 1.0) < 0.0 )
       v11 = normY;
     else
-      v11 = FLOAT_1_0;
+      v11 = 1.0f;
     if ( (float)(0.0 - normY) < 0.0 )
       v7 = v11;
     else
-      v7 = *(float *)&FLOAT_0_0;
+      v7 = 0.0f;
     if ( (float)((float)(1.0 - v8) - normWidth) < 0.0 )
       v10 = 1.0 - v8;
     else
       v10 = normWidth;
     if ( (float)(v10 - 0.0) < 0.0 )
-      v6 = *(float *)&FLOAT_0_0;
+      v6 = 0.0f;
     else
       v6 = v10;
     if ( (float)((float)(1.0 - v7) - normHeight) < 0.0 )
@@ -277,7 +277,7 @@ void __cdecl R_UI3D_SetupTextureWindow(
     else
       v9 = normHeight;
     if ( (float)(v9 - 0.0) < 0.0 )
-      v5 = *(float *)&FLOAT_0_0;
+      v5 = 0.0f;
     else
       v5 = v9;
     windowPixelWidth = (int)(float)((float)g_ui3dStatus.width * v6);
@@ -298,20 +298,20 @@ void __cdecl R_UI3D_SetupTextureWindow(
 void __cdecl ScrPlace_SetupUI3D(ScreenPlacement *scrPlace, int viewportWidth, int viewportHeight)
 {
   memset((unsigned __int8 *)scrPlace, 0xB0u, sizeof(ScreenPlacement));
-  scrPlace->realViewportBase[0] = *(float *)&FLOAT_0_0;
-  scrPlace->realViewportBase[1] = *(float *)&FLOAT_0_0;
-  scrPlace->virtualViewableMin[0] = *(float *)&FLOAT_0_0;
-  scrPlace->virtualViewableMin[1] = *(float *)&FLOAT_0_0;
+  scrPlace->realViewportBase[0] = 0.0f;
+  scrPlace->realViewportBase[1] = 0.0f;
+  scrPlace->virtualViewableMin[0] = 0.0f;
+  scrPlace->virtualViewableMin[1] = 0.0f;
   scrPlace->virtualViewableMax[0] = (float)viewportWidth;
   scrPlace->virtualViewableMax[1] = (float)viewportHeight;
   scrPlace->realViewportSize[0] = (float)viewportWidth;
   scrPlace->realViewportSize[1] = (float)viewportHeight;
-  scrPlace->realViewableMin[0] = *(float *)&FLOAT_0_0;
-  scrPlace->realViewableMin[1] = *(float *)&FLOAT_0_0;
+  scrPlace->realViewableMin[0] = 0.0f;
+  scrPlace->realViewableMin[1] = 0.0f;
   scrPlace->realViewableMax[0] = (float)viewportWidth;
   scrPlace->realViewableMax[1] = (float)viewportHeight;
-  scrPlace->subScreen[0] = *(float *)&FLOAT_0_0;
-  scrPlace->subScreen[1] = *(float *)&FLOAT_0_0;
+  scrPlace->subScreen[0] = 0.0f;
+  scrPlace->subScreen[1] = 0.0f;
   scrPlace->scaleVirtualToReal[0] = (float)viewportWidth / 640.0;
   scrPlace->scaleVirtualToReal[1] = (float)viewportHeight / 480.0;
   scrPlace->scaleVirtualToFull[0] = (float)viewportWidth / 640.0;
@@ -333,10 +333,10 @@ void __cdecl RB_UI3D_SetShaderConstants(GfxCmdBufSourceState *source, const GfxU
   }
   else
   {
-    uvsetup[0] = *(float *)&FLOAT_0_0;
-    uvsetup[1] = *(float *)&FLOAT_0_0;
-    uvsetup[2] = FLOAT_0_0099999998;
-    uvsetup[3] = FLOAT_0_0099999998;
+    uvsetup[0] = 0.0f;
+    uvsetup[1] = 0.0f;
+    uvsetup[2] = 0.01f;
+    uvsetup[3] = 0.01f;
     for ( j = 0; j < 6; ++j )
       R_SetCodeConstantFromVec4(source, j + 173, uvsetup);
   }

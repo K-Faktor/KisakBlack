@@ -137,13 +137,13 @@ void __cdecl CG_mg42_PreControllers(DObj *obj, centity_s *cent)
   }
   else
   {
-    cent->pose.player.nextRippleTime = *(unsigned int *)&FLOAT_0_0;
+    cent->pose.player.nextRippleTime = 0;
   }
   if ( cent->pose.turret.playerUsing )
   {
     cent->pose.fx.triggerTime = (int)cgameGlob->predictedPlayerState.viewangles;
     cent->pose.cullIn = 0;
-    cent->pose.turret.barrelPitch = *(float *)&FLOAT_0_0;
+    cent->pose.turret.barrelPitch = 0.0f;
   }
   else
   {
@@ -260,19 +260,19 @@ void  CG_UpdateBModelWorldBounds(int a1@<ebp>, int localClientNum, centity_s *ce
   v71 = v76[0];
   v72 = v76[1];
   v73 = v76[2];
-  v74 = *(float *)&FLOAT_0_0;
+  v74 = 0.0f;
   v70 = axis;
   v67 = *(_QWORD *)axis;
   v68 = *(float *)&axis[8];
-  v69 = *(float *)&FLOAT_0_0;
+  v69 = 0.0f;
   v66 = &axis[12];
   v63 = *(_QWORD *)&axis[12];
   v64 = *(float *)&axis[20];
-  v65 = *(float *)&FLOAT_0_0;
+  v65 = 0.0f;
   v59 = cent->pose.origin[0];
   v60 = cent->pose.origin[1];
   v61 = cent->pose.origin[2];
-  v62 = *(float *)&FLOAT_0_0;
+  v62 = 0.0f;
   LODWORD(v56) = *(unsigned int *)&axis[24];
   HIDWORD(v56) = *(unsigned int *)&axis[24];
   v57 = *(unsigned int *)&axis[24];
@@ -422,9 +422,9 @@ void  CG_UpdateBModelWorldBounds(int a1@<ebp>, int localClientNum, centity_s *ce
     HARD_CODED_MIP1_RADIUS = HARD_CODED_MIP1_RADIUS + g_entMoveTolVec[2];
 LABEL_41:
     *(float *)(*(unsigned int *)&axis[56] + 24) = 100.0 * 100.0;
-    maxs[1] = maxs[1] + COERCE_FLOAT(LODWORD(FLOAT_100_0) ^ _mask__NegFloat_);
-    maxs[2] = maxs[2] + COERCE_FLOAT(LODWORD(FLOAT_100_0) ^ _mask__NegFloat_);
-    maxs[3] = maxs[3] + COERCE_FLOAT(LODWORD(FLOAT_100_0) ^ _mask__NegFloat_);
+    maxs[1] = maxs[1] + COERCE_FLOAT(LODWORD(100.0f) ^ _mask__NegFloat_);
+    maxs[2] = maxs[2] + COERCE_FLOAT(LODWORD(100.0f) ^ _mask__NegFloat_);
+    maxs[3] = maxs[3] + COERCE_FLOAT(LODWORD(100.0f) ^ _mask__NegFloat_);
     *(float *)&v5 = *(float *)&v5 + 100.0;
     *((float *)&v5 + 1) = *((float *)&v5 + 1) + 100.0;
     HARD_CODED_MIP1_RADIUS = HARD_CODED_MIP1_RADIUS + 100.0;
@@ -461,7 +461,7 @@ double __cdecl CG_ScriptMover_GetBurnFraction(int localClientNum, centity_s *cen
   float burnFraction; // [esp+10h] [ebp-4h]
   float burnFractiona; // [esp+10h] [ebp-4h]
 
-  burnFraction = *(float *)&FLOAT_0_0;
+  burnFraction = 0.0f;
   if ( cent->pose.startBurnTime )
   {
     time = CG_GetLocalClientGlobals(localClientNum)->time;
@@ -469,11 +469,11 @@ double __cdecl CG_ScriptMover_GetBurnFraction(int localClientNum, centity_s *cen
     if ( (float)(burnFractiona - 1.0) < 0.0 )
       v4 = (float)(time - cent->pose.startBurnTime) / 2000.0;
     else
-      v4 = FLOAT_1_0;
+      v4 = 1.0f;
     if ( (float)(0.0 - burnFractiona) < 0.0 )
       v3 = v4;
     else
-      v3 = *(float *)&FLOAT_0_0;
+      v3 = 0.0f;
     burnFraction = v3;
   }
   if ( cent->destructible )
@@ -548,9 +548,9 @@ void  CG_AdjustPositionForMover(
   cgameGlob = retaddr;
   if ( outDeltaAngles )
   {
-    *outDeltaAngles = *(float *)&FLOAT_0_0;
-    outDeltaAngles[1] = *(float *)&FLOAT_0_0;
-    outDeltaAngles[2] = *(float *)&FLOAT_0_0;
+    *outDeltaAngles = 0.0f;
+    outDeltaAngles[1] = 0.0f;
+    outDeltaAngles[2] = 0.0f;
   }
   if ( moverNum > 0
     && moverNum < 1022
@@ -561,8 +561,8 @@ void  CG_AdjustPositionForMover(
     LODWORD(current[2]) = frame_interp_from->nextSnap->serverTime - frame_interp_from->snap->serverTime;
     if ( SLODWORD(current[2]) <= 0 )
     {
-      current[1] = *(float *)&FLOAT_0_0;
-      current[0] = *(float *)&FLOAT_0_0;
+      current[1] = 0.0f;
+      current[0] = 0.0f;
     }
     else
     {
@@ -708,11 +708,11 @@ void __cdecl CG_SetFrameInterpolation(int localClientNum)
   {
     cgameGlob->frameInterpolation = (float)(cgameGlob->time - cgameGlob->snap->serverTime) / (float)delta;
     if ( cgameGlob->frameInterpolation < 0.0 )
-      cgameGlob->frameInterpolation = *(float *)&FLOAT_0_0;
+      cgameGlob->frameInterpolation = 0.0f;
   }
   else
   {
-    cgameGlob->frameInterpolation = *(float *)&FLOAT_0_0;
+    cgameGlob->frameInterpolation = 0.0f;
   }
 }
 
@@ -784,12 +784,12 @@ void __cdecl CG_DebugDrawFootFalls(int localClientNum, const centity_s *cent, eF
   }
   else
   {
-    axis[0][0] = *(float *)&FLOAT_0_0;
-    *(_QWORD *)&axis[0][1] = __PAIR64__(LODWORD(FLOAT_1_0), *(unsigned int *)&FLOAT_0_0);
-    *(_QWORD *)&axis[1][0] = __PAIR64__(LODWORD(FLOAT_N1_0), *(unsigned int *)&FLOAT_0_0);
-    axis[1][2] = *(float *)&FLOAT_0_0;
-    *(_QWORD *)&axis[2][0] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_1_0));
-    axis[2][2] = *(float *)&FLOAT_0_0;
+    axis[0][0] = 0.0f;
+    *(_QWORD *)&axis[0][1] = __PAIR64__(LODWORD(1.0f), 0);
+    *(_QWORD *)&axis[1][0] = __PAIR64__(LODWORD(-1.0f), 0);
+    axis[1][2] = 0.0f;
+    *(_QWORD *)&axis[2][0] = __PAIR64__(0, LODWORD(1.0f));
+    axis[2][2] = 0.0f;
     memcpy(footMatrix, axis, 0x24u);
     footMatrix[3][0] = cent->pose.origin[0];
     footMatrix[3][1] = cent->pose.origin[1];
@@ -1341,7 +1341,7 @@ int __cdecl CG_AddPacketEntities(int localClientNum)
   contextKey = cgs[1].processedSnapshotNum;
   LOBYTE(cgs[1].processedSnapshotNum) = LOBYTE(cgs[1].processedSnapshotNum) == 0;
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
-  cgameGlob->rumbleScale = *(float *)&FLOAT_0_0;
+  cgameGlob->rumbleScale = 0.0f;
   numEntities = cgameGlob->nextSnap->numEntities;
   numEntities = cgameGlob->nextSnap->numEntities;
   if ( numEntities )
@@ -1460,15 +1460,15 @@ void __cdecl CG_ProcessFakeEntity(int localClientNum, fake_centity_s *fakeEnt)
           }
           if ( cg_debug_triggers->current.enabled )
           {
-            color[0] = *(float *)&FLOAT_0_0;
-            color[1] = FLOAT_1_0;
-            color[2] = *(float *)&FLOAT_0_0;
-            color[3] = FLOAT_1_0;
+            color[0] = 0.0f;
+            color[1] = 1.0f;
+            color[2] = 0.0f;
+            color[3] = 1.0f;
             if ( (*((unsigned int *)cent + 201) & 0x10000) != 0 )
             {
-              up[0] = *(float *)&FLOAT_0_0;
-              up[1] = *(float *)&FLOAT_0_0;
-              up[2] = FLOAT_1_0;
+              up[0] = 0.0f;
+              up[1] = 0.0f;
+              up[2] = 1.0f;
               G_DebugCircleEx(cent->pose.origin, cent->pose.turret.barrelPitch, up, color, 0, 1);
             }
             else
@@ -1827,8 +1827,8 @@ void __cdecl CG_PrimaryLight(int localClientNum, centity_s *cent)
   light->specularColor[0] = light->color[0];
   light->specularColor[1] = light->color[1];
   light->specularColor[2] = light->color[2];
-  light->specularColor[3] = FLOAT_1_0;
-  light->diffuseColor[3] = FLOAT_1_0;
+  light->specularColor[3] = 1.0f;
+  light->diffuseColor[3] = 1.0f;
   if ( refLight->rotationLimit < 1.0 )
   {
     BG_EvaluateTrajectory(&cent->nextState.lerp.apos, cgameGlob->time, lightAngles);
@@ -2632,8 +2632,8 @@ LABEL_28:
         ci->playerAngles[0] = cent->pose.angles[0];
         ci->playerAngles[1] = cent->pose.angles[1];
         ci->playerAngles[2] = cent->pose.angles[2];
-        cent->pose.angles[0] = *(float *)&FLOAT_0_0;
-        cent->pose.angles[2] = *(float *)&FLOAT_0_0;
+        cent->pose.angles[0] = 0.0f;
+        cent->pose.angles[2] = 0.0f;
         ci->lerpLean = cent->nextState.lerp.u.turret.gunAngles[0];
       }
       else if ( cent->nextState.eType == 2 )
@@ -2655,8 +2655,8 @@ LABEL_28:
         cia->playerAngles[0] = cent->pose.angles[0];
         cia->playerAngles[1] = cent->pose.angles[1];
         cia->playerAngles[2] = cent->pose.angles[2];
-        cent->pose.angles[0] = *(float *)&FLOAT_0_0;
-        cent->pose.angles[2] = *(float *)&FLOAT_0_0;
+        cent->pose.angles[0] = 0.0f;
+        cent->pose.angles[2] = 0.0f;
         cia->lerpLean = cent->nextState.lerp.u.turret.gunAngles[0];
       }
       if ( cent != &cgameGlob->predictedPlayerEntity && (!cent->linkInfo || !cent->linkInfo->linkEnt) )
@@ -2755,8 +2755,8 @@ void __cdecl CG_InterpolateEntityPosition(cg_s *cgameGlob, centity_s *cent, int 
       ci->playerAngles[0] = cent->pose.angles[0];
       playerAngles[1] = cent->pose.angles[1];
       playerAngles[2] = cent->pose.angles[2];
-      cent->pose.angles[0] = *(float *)&FLOAT_0_0;
-      cent->pose.angles[2] = *(float *)&FLOAT_0_0;
+      cent->pose.angles[0] = 0.0f;
+      cent->pose.angles[2] = 0.0f;
       v10 = cent->currentState.u.turret.gunAngles[0];
       v7 = AngleNormalize180(cent->nextState.lerp.u.turret.gunAngles[0] - v10);
       ci->lerpLean = v7 * f + v10;
@@ -3225,9 +3225,9 @@ DObj *__cdecl CG_PreProcess_GetDObj(int localClientNum, int entIndex, int entTyp
     if ( entIndex < 1536 )
       CG_SetDObjInfo(localClientNum, entIndex, entType, model);
     v11 = cg_entityOriginArray[localClientNum][cent->nextState.number];
-    *v11 = FLOAT_131072_0;
-    v11[1] = FLOAT_131072_0;
-    v11[2] = FLOAT_131072_0;
+    *v11 = 131072.0f;
+    v11[1] = 131072.0f;
+    v11[2] = 131072.0f;
     CG_UpdateTags(cent);
   }
   if ( !dobjExisted && obj )
@@ -4371,9 +4371,9 @@ void __cdecl CG_SetOrigin(centity_s *ent, const float *origin)
   ent->nextState.lerp.pos.trType = 0;
   ent->nextState.lerp.pos.trTime = 0;
   ent->nextState.lerp.pos.trDuration = 0;
-  ent->nextState.lerp.pos.trDelta[0] = *(float *)&FLOAT_0_0;
-  ent->nextState.lerp.pos.trDelta[1] = *(float *)&FLOAT_0_0;
-  ent->nextState.lerp.pos.trDelta[2] = *(float *)&FLOAT_0_0;
+  ent->nextState.lerp.pos.trDelta[0] = 0.0f;
+  ent->nextState.lerp.pos.trDelta[1] = 0.0f;
+  ent->nextState.lerp.pos.trDelta[2] = 0.0f;
   ent->pose.origin[0] = *origin;
   ent->pose.origin[1] = origin[1];
   ent->pose.origin[2] = origin[2];
@@ -4387,9 +4387,9 @@ void __cdecl CG_SetAngle(centity_s *ent, const float *angle)
   ent->nextState.lerp.apos.trType = 0;
   ent->nextState.lerp.apos.trTime = 0;
   ent->nextState.lerp.apos.trDuration = 0;
-  ent->nextState.lerp.apos.trDelta[0] = *(float *)&FLOAT_0_0;
-  ent->nextState.lerp.apos.trDelta[1] = *(float *)&FLOAT_0_0;
-  ent->nextState.lerp.apos.trDelta[2] = *(float *)&FLOAT_0_0;
+  ent->nextState.lerp.apos.trDelta[0] = 0.0f;
+  ent->nextState.lerp.apos.trDelta[1] = 0.0f;
+  ent->nextState.lerp.apos.trDelta[2] = 0.0f;
   ent->pose.angles[0] = *angle;
   ent->pose.angles[1] = angle[1];
   ent->pose.angles[2] = angle[2];

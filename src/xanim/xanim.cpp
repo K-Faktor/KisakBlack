@@ -619,7 +619,7 @@ void __cdecl XAnimCalcRelDeltaParts(
           fromVec = (float)*pSmallTrans;
           fromVec_4 = (float)pSmallTrans[1];
           fromVec_8 = (float)pSmallTrans[2];
-          fromVec_12 = *(float *)&FLOAT_0_0;
+          fromVec_12 = 0.0f;
 
           v8 = &pSmallTrans[3 * trans->size];
           toVec = (float)*v8;
@@ -632,7 +632,7 @@ void __cdecl XAnimCalcRelDeltaParts(
           fromVec = (float)*pBigTrans;
           fromVec_4 = (float)pBigTrans[1];
           fromVec_8 = (float)pBigTrans[2];
-          fromVec_12 = *(float *)&FLOAT_0_0;
+          fromVec_12 = 0.0f;
           v6 = &pBigTrans[3 * trans->size];
           toVec = (float)*v6;
           toVec_4 = (float)v6[1];
@@ -998,7 +998,7 @@ double __cdecl XAnimGetTime(const XAnimTree_s *tree, unsigned int animIndex)
   if ( infoIndex )
     return g_xAnimInfo[infoIndex].state.currentAnimTime;
   else
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
 }
 
 double __cdecl XAnimGetWeight(const XAnimTree_s *tree, unsigned int animIndex)
@@ -1038,7 +1038,7 @@ double __cdecl XAnimGetWeight(const XAnimTree_s *tree, unsigned int animIndex)
   if ( infoIndex )
     return g_xAnimInfo[infoIndex].state.weight;
   else
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
 }
 
 bool __cdecl XAnimHasFinished(const XAnimTree_s *tree, unsigned int animIndex)
@@ -1296,7 +1296,7 @@ void __cdecl XAnimUpdateOldTime(
   else
   {
     g_xAnimInfo[infoIndex].state.weight = g_xAnimInfo[infoIndex].state.goalWeight;
-    g_xAnimInfo[infoIndex].state.goalTime = *(float *)&FLOAT_0_0;
+    g_xAnimInfo[infoIndex].state.goalTime = 0.0f;
   }
   v6 = parentHasWeight && g_xAnimInfo[infoIndex].state.weight != 0.0;
   g_xAnimInfo[infoIndex].state.instantWeightChange = 0;
@@ -1397,9 +1397,9 @@ void __cdecl XAnimResetTimeInternal(unsigned int infoIndex)
     __debugbreak();
   }
   state = &g_xAnimInfo[infoIndex].state;
-  state->currentAnimTime = *(float *)&FLOAT_0_0;
+  state->currentAnimTime = 0.0f;
   state->cycleCount = 0;
-  state->oldTime = *(float *)&FLOAT_0_0;
+  state->oldTime = 0.0f;
   state->oldCycleCount = 0;
   g_xAnimInfo[infoIndex].notifyIndex = -1;
 }
@@ -1435,7 +1435,7 @@ unsigned int __cdecl XAnimCloneInitTime(
   toInfo = &g_xAnimInfo[toInfoIndex];
   XAnimCloneAnimInfo(tree, fromInfo, toInfo);
   XAnimResetTimeInternal(toInfoIndex);
-  toInfo->state.weight = *(float *)&FLOAT_0_0;
+  toInfo->state.weight = 0.0f;
   toInfo->state.instantWeightChange = 1;
   for ( childInfoIndex = g_xAnimInfo[infoIndex].children; childInfoIndex; childInfoIndex = g_xAnimInfo[childInfoIndex].next )
     XAnimCloneInitTime(tree, childInfoIndex, toInfoIndex, cmdIndex);
@@ -1455,7 +1455,7 @@ void __cdecl DObjInitServerTime(DObj *obj, float dtime)
   {
     if ( tree->children )
     {
-      syncState.currentAnimTime = *(float *)&FLOAT_0_0;
+      syncState.currentAnimTime = 0.0f;
       syncState.cycleCount = 0;
       XAnimUpdateOldTime(obj, tree->children, &syncState, dtime, 1, &childHasTime);
     }
@@ -1483,7 +1483,7 @@ void __cdecl DObjUpdateClientInfo(DObj *obj, float dtime, int notifyFlags)
   tree = obj->localTree;
   if ( tree && tree->children )
   {
-    syncState.currentAnimTime = *(float *)&FLOAT_0_0;
+    syncState.currentAnimTime = 0.0f;
     syncState.cycleCount = 0;
     XAnimUpdateOldTime(obj, tree->children, &syncState, dtime, 1, &childHasTime);
     if ( tree->children )
@@ -1736,8 +1736,8 @@ double __cdecl XAnimGetAverageRateFrequency(const XAnimTree_s *tree, unsigned in
   }
   else
   {
-    totalWeight = *(float *)&FLOAT_0_0;
-    totalDtime = *(float *)&FLOAT_0_0;
+    totalWeight = 0.0f;
+    totalDtime = 0.0f;
     for ( infoIndexa = info->children; infoIndexa; infoIndexa = infoa->next )
     {
       if ( infoIndexa >= 0x1000
@@ -1775,7 +1775,7 @@ double __cdecl XAnimGetAverageRateFrequency(const XAnimTree_s *tree, unsigned in
       }
     }
     if ( totalWeight == 0.0 )
-      return *(float *)&FLOAT_0_0;
+      return 0.0f;
     else
       return (float)(totalDtime / totalWeight);
   }
@@ -1845,7 +1845,7 @@ void __cdecl XAnimUpdateTimeAndNotetrackLeaf(
         if ( (float)(g_xAnimInfo[infoIndex].state.oldTime - 0.99999988) < 0.0 )
           v9 = FLOAT_0_99999988;
         else
-          v9 = FLOAT_1_0;
+          v9 = 1.0f;
         time = v9;
       }
     }
@@ -2168,7 +2168,7 @@ signed int __cdecl XAnimGetNextNotifyIndex(const XAnimParts *parts, float time)
   if ( time == 0.0 )
     return 0;
   bestNotifyInfo = 0;
-  bestTime = FLOAT_2_0;
+  bestTime = 2.0f;
   notifyInfo = parts->notify;
   if ( !notifyInfo
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\xanim\\xanim.cpp", 1451, 0, "%s", "notifyInfo") )
@@ -2307,7 +2307,7 @@ void __cdecl XAnimUpdateTimeAndNotetrackSyncSubTree(
       if ( (float)(g_xAnimInfo[infoIndex].state.oldTime - 0.99999988) < 0.0 )
         v8 = FLOAT_0_99999988;
       else
-        v8 = FLOAT_1_0;
+        v8 = 1.0f;
       time = v8;
     }
     else
@@ -2501,7 +2501,7 @@ void __cdecl XAnimProcessServerNotify(const DObj *obj, XAnimInfo *info, float ti
         {
           for ( i = (unsigned __int16)XAnimGetNextNotifyIndex(parts, fStartTime); i < parts->notifyCount; ++i )
             NotifyServerNotetrack(obj, info->notifyName, parts->notify[i].name, 0.0);
-          fStartTime = *(float *)&FLOAT_0_0;
+          fStartTime = 0.0f;
         }
         for ( iCurrNotify = (unsigned __int16)XAnimGetNextNotifyIndex(parts, fStartTime);
               iCurrNotify < parts->notifyCount && time >= parts->notify[iCurrNotify].time;
@@ -2772,7 +2772,7 @@ void __cdecl XAnimDisplay(
     if ( delta < 0.0 )
       delta = delta + 1.0;
     if ( parts->frequency == 0.0 )
-      v9 = *(float *)&FLOAT_0_0;
+      v9 = 0.0f;
     else
       v9 = delta / parts->frequency;
     if ( info->notifyName )
@@ -2930,8 +2930,8 @@ void __cdecl XAnimCalcDelta(DObj *obj, unsigned int animIndex, float *rot, float
     XAnimCalcDeltaTree(obj, infoIndex, 1.0, deltaInfo, &rotPos);
     if ( rotPos.rot[0] == 0.0 || rotPos.rot[1] == 0.0 )
     {
-      *rot = *(float *)&FLOAT_0_0;
-      rot[1] = FLOAT_1_0;
+      *rot = 0.0f;
+      rot[1] = 1.0f;
     }
     else
     {
@@ -2944,11 +2944,11 @@ void __cdecl XAnimCalcDelta(DObj *obj, unsigned int animIndex, float *rot, float
   }
   else
   {
-    *rot = *(float *)&FLOAT_0_0;
-    rot[1] = FLOAT_1_0;
-    *trans = *(float *)&FLOAT_0_0;
-    trans[1] = *(float *)&FLOAT_0_0;
-    trans[2] = *(float *)&FLOAT_0_0;
+    *rot = 0.0f;
+    rot[1] = 1.0f;
+    *trans = 0.0f;
+    trans[1] = 0.0f;
+    trans[2] = 0.0f;
   }
 }
 
@@ -3000,12 +3000,12 @@ void __cdecl XAnimCalcDeltaTree(
   {
     if ( deltaInfo.bClear )
     {
-      rotPos->rot[0] = *(float *)&FLOAT_0_0;
-      rotPos->rot[1] = *(float *)&FLOAT_0_0;
-      rotPos->posWeight = *(float *)&FLOAT_0_0;
-      rotPos->pos[0] = *(float *)&FLOAT_0_0;
-      rotPos->pos[1] = *(float *)&FLOAT_0_0;
-      rotPos->pos[2] = *(float *)&FLOAT_0_0;
+      rotPos->rot[0] = 0.0f;
+      rotPos->rot[1] = 0.0f;
+      rotPos->posWeight = 0.0f;
+      rotPos->pos[0] = 0.0f;
+      rotPos->pos[1] = 0.0f;
+      rotPos->pos[2] = 0.0f;
     }
     parts = info->parts;
     if ( !parts && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\xanim\\xanim.cpp", 2624, 0, "%s", "parts") )
@@ -3026,12 +3026,12 @@ void __cdecl XAnimCalcDeltaTree(
       {
         if ( deltaInfo.bClear )
         {
-          rotPos->rot[0] = *(float *)&FLOAT_0_0;
-          rotPos->rot[1] = *(float *)&FLOAT_0_0;
-          rotPos->posWeight = *(float *)&FLOAT_0_0;
-          rotPos->pos[0] = *(float *)&FLOAT_0_0;
-          rotPos->pos[1] = *(float *)&FLOAT_0_0;
-          rotPos->pos[2] = *(float *)&FLOAT_0_0;
+          rotPos->rot[0] = 0.0f;
+          rotPos->rot[1] = 0.0f;
+          rotPos->posWeight = 0.0f;
+          rotPos->pos[0] = 0.0f;
+          rotPos->pos[1] = 0.0f;
+          rotPos->pos[2] = 0.0f;
         }
         return;
       }
@@ -3230,8 +3230,8 @@ void __cdecl XAnimCalcAbsDelta(DObj *obj, unsigned int animIndex, float *rot, fl
     XAnimCalcDeltaTree(obj, infoIndex, 1.0, deltaInfo, &rotPos);
     if ( rotPos.rot[0] == 0.0 && rotPos.rot[1] == 0.0 )
     {
-      *rot = *(float *)&FLOAT_0_0;
-      rot[1] = FLOAT_1_0;
+      *rot = 0.0f;
+      rot[1] = 1.0f;
     }
     else
     {
@@ -3244,11 +3244,11 @@ void __cdecl XAnimCalcAbsDelta(DObj *obj, unsigned int animIndex, float *rot, fl
   }
   else
   {
-    *rot = *(float *)&FLOAT_0_0;
-    rot[1] = FLOAT_1_0;
-    *trans = *(float *)&FLOAT_0_0;
-    trans[1] = *(float *)&FLOAT_0_0;
-    trans[2] = *(float *)&FLOAT_0_0;
+    *rot = 0.0f;
+    rot[1] = 1.0f;
+    *trans = 0.0f;
+    trans[1] = 0.0f;
+    trans[2] = 0.0f;
   }
 }
 
@@ -3276,8 +3276,8 @@ void __cdecl XAnimGetRelDelta(
     XAnimCalcRelDeltaParts(parts, 1.0, time1, time2, &rotPos, 0);
     if ( rotPos.rot[0] == 0.0 && rotPos.rot[1] == 0.0 )
     {
-      *rot = *(float *)&FLOAT_0_0;
-      rot[1] = FLOAT_1_0;
+      *rot = 0.0f;
+      rot[1] = 1.0f;
     }
     else
     {
@@ -3291,11 +3291,11 @@ void __cdecl XAnimGetRelDelta(
   else
   {
 LABEL_11:
-    *rot = *(float *)&FLOAT_0_0;
-    rot[1] = FLOAT_1_0;
-    *trans = *(float *)&FLOAT_0_0;
-    trans[1] = *(float *)&FLOAT_0_0;
-    trans[2] = *(float *)&FLOAT_0_0;
+    *rot = 0.0f;
+    rot[1] = 1.0f;
+    *trans = 0.0f;
+    trans[1] = 0.0f;
+    trans[2] = 0.0f;
   }
 }
 
@@ -3317,8 +3317,8 @@ void __cdecl XAnimGetAbsDelta(const XAnim_s *anims, unsigned int animIndex, floa
     XAnimCalcAbsDeltaParts(parts, 1.0, time, &rotPos);
     if ( rotPos.rot[0] == 0.0 && rotPos.rot[1] == 0.0 )
     {
-      *rot = *(float *)&FLOAT_0_0;
-      rot[1] = FLOAT_1_0;
+      *rot = 0.0f;
+      rot[1] = 1.0f;
     }
     else
     {
@@ -3332,11 +3332,11 @@ void __cdecl XAnimGetAbsDelta(const XAnim_s *anims, unsigned int animIndex, floa
   else
   {
 LABEL_11:
-    *rot = *(float *)&FLOAT_0_0;
-    rot[1] = FLOAT_1_0;
-    *trans = *(float *)&FLOAT_0_0;
-    trans[1] = *(float *)&FLOAT_0_0;
-    trans[2] = *(float *)&FLOAT_0_0;
+    *rot = 0.0f;
+    rot[1] = 1.0f;
+    *trans = 0.0f;
+    trans[1] = 0.0f;
+    trans[2] = 0.0f;
   }
 }
 
@@ -3608,10 +3608,10 @@ unsigned int __cdecl XAnimEnsureGoalWeightParent(DObj *obj, unsigned int animInd
     infoIndex = XAnimAllocInfoWithParent(tree, 0, 0, 0, 0);
     info = &g_xAnimInfo[infoIndex];
     XAnimInitInfo(info);
-    info->state.goalWeight = FLOAT_1_0;
-    info->state.weight = FLOAT_1_0;
-    info->state.goalTime = *(float *)&FLOAT_0_0;
-    info->state.rate = FLOAT_1_0;
+    info->state.goalWeight = 1.0f;
+    info->state.weight = 1.0f;
+    info->state.goalTime = 0.0f;
+    info->state.rate = 1.0f;
   }
   return infoIndex;
 }
@@ -3668,7 +3668,7 @@ void __cdecl XAnimClearGoalWeightInternal(
   {
     g_xAnimInfo[infoIndex].state.goalTime = blendTime;
   }
-  g_xAnimInfo[infoIndex].state.goalWeight = *(float *)&FLOAT_0_0;
+  g_xAnimInfo[infoIndex].state.goalWeight = 0.0f;
   if ( *(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8)
     && *(unsigned int *)(*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8) + 180) )
   {
@@ -3683,11 +3683,11 @@ void __cdecl XAnimClearGoalWeightInternal(
   }
   if ( blendTime == 0.0 )
   {
-    g_xAnimInfo[infoIndex].state.oldTime = *(float *)&FLOAT_0_0;
-    g_xAnimInfo[infoIndex].state.currentAnimTime = *(float *)&FLOAT_0_0;
+    g_xAnimInfo[infoIndex].state.oldTime = 0.0f;
+    g_xAnimInfo[infoIndex].state.currentAnimTime = 0.0f;
     g_xAnimInfo[infoIndex].state.oldCycleCount = 0;
     g_xAnimInfo[infoIndex].state.cycleCount = 0;
-    g_xAnimInfo[infoIndex].state.weight = *(float *)&FLOAT_0_0;
+    g_xAnimInfo[infoIndex].state.weight = 0.0f;
     g_xAnimInfo[infoIndex].state.instantWeightChange = 1;
   }
   XAnimClearServerNotify(&g_xAnimInfo[infoIndex], (scriptInstance_t)tree->inst);
@@ -3784,7 +3784,7 @@ int __cdecl XAnimSetCompleteGoalWeightKnob(
   if ( !obj && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\xanim\\xanim.cpp", 4314, 0, "%s", "obj") )
     __debugbreak();
   if ( goalWeight < 0.001 )
-    goalWeight = *(float *)&FLOAT_0_0;
+    goalWeight = 0.0f;
   tree = obj->localTree;
   infoIndex = XAnimGetInfoIndex(obj->localTree, animIndex);
   if ( infoIndex )
@@ -3835,7 +3835,7 @@ void __cdecl XAnimClearGoalWeightKnobInternal(
   {
     __debugbreak();
   }
-  largestWeightDiff = *(float *)&FLOAT_0_0;
+  largestWeightDiff = 0.0f;
   if ( g_xAnimInfo[infoIndex].parent )
     children = g_xAnimInfo[g_xAnimInfo[infoIndex].parent].children;
   else
@@ -4027,7 +4027,7 @@ int __cdecl XAnimSetGoalWeightKnob(
   if ( !obj && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\xanim\\xanim.cpp", 4442, 0, "%s", "obj") )
     __debugbreak();
   if ( goalWeight < 0.001 )
-    goalWeight = *(float *)&FLOAT_0_0;
+    goalWeight = 0.0f;
   tree = obj->localTree;
   infoIndex = XAnimGetInfoIndex(obj->localTree, animIndex);
   if ( infoIndex )
@@ -4141,14 +4141,14 @@ int __cdecl XAnimSetGoalWeightNode(
   }
   if ( !animIndex )
   {
-    goalWeight = FLOAT_1_0;
-    goalTime = *(float *)&FLOAT_0_0;
-    rate = FLOAT_1_0;
+    goalWeight = 1.0f;
+    goalTime = 0.0f;
+    rate = 1.0f;
   }
   if ( goalTime == 0.0 )
   {
     info->state.weight = goalWeight;
-    info->state.goalTime = *(float *)&FLOAT_0_0;
+    info->state.goalTime = 0.0f;
     info->state.instantWeightChange = 1;
   }
   else
@@ -4253,7 +4253,7 @@ unsigned int __cdecl XAnimGetDescendantWithGreatestWeight(const XAnimTree_s *tre
   }
   else
   {
-    bestWeight = *(float *)&FLOAT_0_0;
+    bestWeight = 0.0f;
     result = 0;
     for ( infoIndexa = info->children; infoIndexa; infoIndexa = g_xAnimInfo[infoIndexa].next )
     {
@@ -4431,11 +4431,11 @@ void __cdecl XAnimSetTime(XAnimTree_s *tree, unsigned int animIndex, float time,
       if ( (float)(time - 1.0) < 0.0 )
         v11 = time;
       else
-        v11 = FLOAT_1_0;
+        v11 = 1.0f;
       if ( (float)(0.0 - time) < 0.0 )
         v10 = v11;
       else
-        v10 = *(float *)&FLOAT_0_0;
+        v10 = 0.0f;
       time = v10;
     }
     if ( (time < 0.0 || time > 1.0)
@@ -4575,7 +4575,7 @@ int __cdecl XAnimSetGoalWeight(
   if ( !obj && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\xanim\\xanim.cpp", 4989, 0, "%s", "obj") )
     __debugbreak();
   if ( goalWeight < 0.001 )
-    goalWeight = *(float *)&FLOAT_0_0;
+    goalWeight = 0.0f;
   tree = obj->localTree;
   infoIndex = XAnimGetInfoIndex(obj->localTree, animIndex);
   if ( infoIndex )
@@ -4767,7 +4767,7 @@ int __cdecl XAnimSetCompleteGoalWeight(
   if ( !obj && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\xanim\\xanim.cpp", 5322, 0, "%s", "obj") )
     __debugbreak();
   if ( goalWeight < 0.001 )
-    goalWeight = *(float *)&FLOAT_0_0;
+    goalWeight = 0.0f;
   tree = obj->localTree;
   infoIndex = XAnimGetInfoIndex(obj->localTree, animIndex);
   if ( infoIndex )

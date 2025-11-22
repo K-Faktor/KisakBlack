@@ -562,7 +562,7 @@ int  R_PreSkinXSurface@<eax>(
     {
       __debugbreak();
     }
-    rigidSurf_1->placement.scale = FLOAT_1_0;
+    rigidSurf_1->placement.scale = 1.0f;
     RotTransArray = &DObjGetRotTransArray(obj)[surfaceInfo->boneIndex];
     offset = surf->vertList->boneOffset >> 6;
     mat = &surfaceInfo->baseMat[offset];

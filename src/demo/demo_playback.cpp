@@ -152,7 +152,7 @@ void  Demo_HiResScreenshot(int a1@<esi>, int localClientNum, int tiles)
     CL_UpdateUIVisibilityBits(localClientNum);
     width = cls.vidConfig.displayWidth;
     height = cls.vidConfig.displayHeight;
-    yAspect = FLOAT_1_0;
+    yAspect = 1.0f;
     if ( (!cls.vidConfig.displayHeight || !width)
       && !Assert_MyHandler(
             "C:\\projects_pc\\cod\\codsrc\\src\\demo\\demo_playback.cpp",
@@ -187,8 +187,8 @@ void  Demo_HiResScreenshot(int a1@<esi>, int localClientNum, int tiles)
           SCR_UpdateScreen(a1);
         NET_Sleep(0xC8u);
         R_BeginHiResShot(tiles);
-        exif.gpsLat = FLOAT_34_021542;
-        exif.gpsLon = FLOAT_N118_44875;
+        exif.gpsLat = 34.021542f;
+        exif.gpsLon = -118.44875;
         exif.gpsOffsetLat = 0.0;
         exif.gpsOffsetLon = 0.0;
         exif.gpsOffsetLon = cgameGlob->refdef.vieworg[0] * 0.0254;
@@ -632,8 +632,8 @@ void __cdecl Demo_SetupForPlayerSwitch(int localClientNum)
   EndShellShock(localClientNum);
   cgameGlob->newPlayerViewmodel = 1;
   CG_ResetLowHealthOverlay(cgameGlob);
-  cgameGlob->refdef.poisonFx.curAmountTarget = *(float *)&FLOAT_0_0;
-  cgameGlob->refdef.poisonFx.curAmount = *(float *)&FLOAT_0_0;
+  cgameGlob->refdef.poisonFx.curAmountTarget = 0.0f;
+  cgameGlob->refdef.poisonFx.curAmount = 0.0f;
   cgameGlob->refdef.waterSheetingFx.enabled = 0;
   cgameGlob->refdef.waterSheetingFx.duration = 0;
   cgameGlob->refdef.electrifiedFx.enabled = 0;
@@ -1028,7 +1028,7 @@ void __cdecl Demo_DrawMetaInformationScreen(int localClientNum)
     s = UI_SafeTranslateString("MENU_PREPARING");
     width = (float)UI_TextWidth(s, 0, font, 0.33333334);
     x = (float)(640.0 - width) * 0.5;
-    y = *(float *)&FLOAT_0_0;
+    y = 0.0f;
     CL_DrawText(
       &scrPlaceView[localClientNum],
       (char *)s,
@@ -1042,9 +1042,9 @@ void __cdecl Demo_DrawMetaInformationScreen(int localClientNum)
       0.69999999,
       textColor,
       textStyle);
-    width = FLOAT_32_0;
+    width = 32.0f;
     x = (float)(640.0 - 32.0) * 0.5;
-    y = FLOAT_10_0;
+    y = 10.0f;
     CL_DrawSpinner(&scrPlaceView[localClientNum], x, 10.0, 32.0, 32.0, 0, 2, textColor);
   }
 }
@@ -1086,7 +1086,7 @@ void __cdecl Demo_ResetTimeValues(int localClientNum, int time)
   v2->v_dmg_time = 0;
   v2->crosshairClientLastTime = 0;
   v2->resetWeaponStateFlag = 1;
-  v2->stepViewChange = *(float *)&FLOAT_0_0;
+  v2->stepViewChange = 0.0f;
 }
 
 void __cdecl Demo_ResetSequenceNumbers(int localClientNum, int sequence)
@@ -1133,8 +1133,8 @@ void __cdecl Demo_ResetWorldInformation(int localClientNum, int time)
   CG_ResetLowHealthOverlay(cgameGlob);
   if ( GetCurrentThreadId() == g_DXDeviceThread )
     D3DPERF_EndEvent();
-  cgameGlob->refdef.poisonFx.curAmountTarget = *(float *)&FLOAT_0_0;
-  cgameGlob->refdef.poisonFx.curAmount = *(float *)&FLOAT_0_0;
+  cgameGlob->refdef.poisonFx.curAmountTarget = 0.0f;
+  cgameGlob->refdef.poisonFx.curAmount = 0.0f;
   cgameGlob->refdef.waterSheetingFx.enabled = 0;
   cgameGlob->refdef.waterSheetingFx.duration = 0;
   cgameGlob->refdef.electrifiedFx.enabled = 0;
@@ -1253,7 +1253,7 @@ void __cdecl Demo_SwitchCameraMode(int localClientNum, unsigned int newCamMode)
         cgameGlob->movieCameraOrigin[1] = cgameGlob->refdef.vieworg[1];
         cgameGlob->movieCameraOrigin[2] = cgameGlob->refdef.vieworg[2];
         AxisToAngles(cgameGlob->refdef.viewaxis, LocalClientGlobals->viewangles);
-        LocalClientGlobals->viewangles[2] = *(float *)&FLOAT_0_0;
+        LocalClientGlobals->viewangles[2] = 0.0f;
         if ( oldCamMode == 1 )
         {
           clipCameraOrigin = demo.playback->clipCameraOrigin;
@@ -3020,13 +3020,13 @@ void __cdecl Demo_ReadCustomSnaphotInformation(int localClientNum, msg_t *msg)
         tree = CScr_GetEntAnimTree(cent);
         XAnimClearTreeGoalWeights(tree, 0, 0.0, -1);
         anim = demo.ps[i].torsoAnim & 0xFFFFFBFF;
-        legsWeight = FLOAT_1_0;
+        legsWeight = 1.0f;
         animTime = MSG_ReadRangedFloatBits(msg, 0.0, 1.0, 0x10u);
         if ( anim )
         {
           XAnimSetCompleteGoalWeight(obj, anim, 1.0, 0.0, 1.0, 0, 0, 0, -1);
           XAnimSetTime(tree, anim, animTime, 0xFFFFu);
-          legsWeight = FLOAT_0_0099999998;
+          legsWeight = 0.01f;
         }
         anima = demo.ps[i].legsAnim & 0xFFFFFBFF;
         animTimea = MSG_ReadRangedFloatBits(msg, 0.0, 1.0, 0x10u);
@@ -5501,7 +5501,7 @@ void __cdecl Demo_HandleInput(int localClientNum, int controllerIndex, int key, 
               if ( (float)(0.2 - v23) < 0.0 )
                 v20 = *(float *)&integer;
               else
-                v20 = FLOAT_0_2;
+                v20 = 0.2f;
               v17 = va("demo_timescale %i %f\n", demo_cmdNum->current.integer, v20);
               v14 = Com_LocalClient_GetControllerIndex(localClientNum);
               Cmd_ExecuteSingleCommand(localClientNum, v14, v17);
@@ -5519,7 +5519,7 @@ void __cdecl Demo_HandleInput(int localClientNum, int controllerIndex, int key, 
               if ( (float)(0.2 - v21) < 0.0 )
                 v19 = *(float *)&v22;
               else
-                v19 = FLOAT_0_2;
+                v19 = 0.2f;
               v18 = va("demo_timescale %i %f\n", demo_cmdNum->current.integer, v19);
               v15 = Com_LocalClient_GetControllerIndex(localClientNum);
               Cmd_ExecuteSingleCommand(localClientNum, v15, v18);
@@ -5732,7 +5732,7 @@ void __cdecl Demo_HandleInputForControllerConfig(int localClientNum, int control
             if ( (float)(0.2 - v46) < 0.0 )
               v42 = *(float *)&integer;
             else
-              v42 = FLOAT_0_2;
+              v42 = 0.2f;
             v39 = va("demo_timescale %i %f\n", demo_cmdNum->current.integer, v42);
             v24 = Com_LocalClient_GetControllerIndex(localClientNum);
             Cmd_ExecuteSingleCommand(localClientNum, v24, v39);
@@ -5750,7 +5750,7 @@ void __cdecl Demo_HandleInputForControllerConfig(int localClientNum, int control
             if ( (float)(0.2 - v44) < 0.0 )
               v41 = *(float *)&v45;
             else
-              v41 = FLOAT_0_2;
+              v41 = 0.2f;
             v40 = va("demo_timescale %i %f\n", demo_cmdNum->current.integer, v41);
             v25 = Com_LocalClient_GetControllerIndex(localClientNum);
             Cmd_ExecuteSingleCommand(localClientNum, v25, v40);
@@ -5784,7 +5784,7 @@ void __cdecl Demo_HandleInputForControllerConfig(int localClientNum, int control
           trigValue = GPad_GetButton(controllerIndex, GPAD_R_TRIG);
           if ( trigValue <= 0.0 )
           {
-            timeScale = FLOAT_1_0;
+            timeScale = 1.0f;
             if ( !Demo_IsPaused() )
             {
               v27 = va("demo_pause %i\n", demo_cmdNum->current.integer);
@@ -5801,7 +5801,7 @@ void __cdecl Demo_HandleInputForControllerConfig(int localClientNum, int control
               Cmd_ExecuteSingleCommand(localClientNum, v6, v26);
             }
             if ( (float)((float)(trigValue * demo_timeScaleRate->current.value) - 0.1) < 0.0 )
-              v43 = FLOAT_0_1;
+              v43 = 0.1f;
             else
               v43 = trigValue * demo_timeScaleRate->current.value;
             timeScale = v43;
@@ -5833,12 +5833,12 @@ void __cdecl Demo_HandleInputForControllerConfig(int localClientNum, int control
               v10 = Com_LocalClient_GetControllerIndex(localClientNum);
               Cmd_ExecuteSingleCommand(localClientNum, v10, v30);
             }
-            timeScale = FLOAT_0_30000001;
+            timeScale = 0.3f;
             Demo_SetButtonPressTime(8u);
           }
           else
           {
-            timeScale = FLOAT_1_0;
+            timeScale = 1.0f;
             if ( !Demo_IsPaused() )
             {
               v31 = va("demo_pause %i\n", demo_cmdNum->current.integer);
@@ -5865,7 +5865,7 @@ void __cdecl Demo_HandleInputForControllerConfig(int localClientNum, int control
           }
           else
           {
-            timeScale = FLOAT_1_0;
+            timeScale = 1.0f;
             v29 = va("demo_pause %i\n", demo_cmdNum->current.integer);
             v9 = Com_LocalClient_GetControllerIndex(localClientNum);
             Cmd_ExecuteSingleCommand(localClientNum, v9, v29);

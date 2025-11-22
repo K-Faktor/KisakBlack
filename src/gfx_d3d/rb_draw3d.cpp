@@ -471,17 +471,17 @@ void  R_DrawFullbrightOrDebugShader(
   *(_QWORD *)&v9.gap0[1844] = __PAIR64__(v7, v8);
   v9.input.consts[115][3] = v6;
   R_DirtyCodeConstant(&v9, 0x73u);
-  *(_QWORD *)&v9.gap0[704] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_1_0));
-  v9.input.consts[44][2] = *(float *)&FLOAT_0_0;
-  v9.input.consts[44][3] = *(float *)&FLOAT_0_0;
+  *(_QWORD *)&v9.gap0[704] = __PAIR64__(0, LODWORD(1.0f));
+  v9.input.consts[44][2] = 0.0f;
+  v9.input.consts[44][3] = 0.0f;
   R_DirtyCodeConstant(&v9, 0x2Cu);
-  *(_QWORD *)&v9.gap0[720] = __PAIR64__(LODWORD(FLOAT_1_0), *(unsigned int *)&FLOAT_0_0);
-  v9.input.consts[45][2] = *(float *)&FLOAT_0_0;
-  v9.input.consts[45][3] = *(float *)&FLOAT_0_0;
+  *(_QWORD *)&v9.gap0[720] = __PAIR64__(LODWORD(1.0f), 0);
+  v9.input.consts[45][2] = 0.0f;
+  v9.input.consts[45][3] = 0.0f;
   R_DirtyCodeConstant(&v9, 0x2Du);
-  v9.input.consts[46][0] = *(float *)&FLOAT_0_0;
-  *(_QWORD *)&v9.gap0[740] = __PAIR64__(LODWORD(FLOAT_1_0), *(unsigned int *)&FLOAT_0_0);
-  v9.input.consts[46][3] = *(float *)&FLOAT_0_0;
+  v9.input.consts[46][0] = 0.0f;
+  *(_QWORD *)&v9.gap0[740] = __PAIR64__(LODWORD(1.0f), 0);
+  v9.input.consts[46][3] = 0.0f;
   R_DirtyCodeConstant(&v9, 0x2Eu);
   R_DrawCall((int)v11, callback, viewInfo, &v9, viewInfo, info, &viewInfo->cullViewInfo.viewParms, cmdBuf, 0);
 }
@@ -638,7 +638,7 @@ void __cdecl RB_StandardDrawCommands(const GfxViewInfo *viewInfo)
     R_SetRenderTargetSize(&gfxCmdBufSourceState, 0x16u);
     R_SetRenderTarget(gfxCmdBufContext, 0x16u);
     memset(v2, 0, 12);
-    v2[3] = FLOAT_1_0;
+    v2[3] = 1.0f;
     R_ClearScreen(gfxCmdBufState.prim.device, 7u, v2, 1.0, 0, 0);
     if ( GetCurrentThreadId() == g_DXDeviceThread )
       D3DPERF_EndEvent();
@@ -821,8 +821,8 @@ void RB_SetFrameBufferAlpha()
   dword_B473FCC = 1;
   R_Set2D(&gfxCmdBufSourceState);
   R_InitLocalCmdBufState(&gfxCmdBufState);
-  gfxCmdBufSourceState.viewParms.viewProjectionMatrix.m[1][2] = FLOAT_1_0;
-  gfxCmdBufSourceState.viewParms.inverseViewProjectionMatrix.m[1][2] = FLOAT_1_0;
+  gfxCmdBufSourceState.viewParms.viewProjectionMatrix.m[1][2] = 1.0f;
+  gfxCmdBufSourceState.viewParms.inverseViewProjectionMatrix.m[1][2] = 1.0f;
   RB_DrawStretchPicZ(
     rgp.setAlphaMaterial,
     0.0,
@@ -875,7 +875,7 @@ void  R_DrawLights(int a1@<ebp>, const GfxViewInfo *viewInfo, GfxCmdBuf *cmdBuf)
   *(float *)&v5 = (float)r_treeScale->current.integer;
   integer = r_testScale->current.integer;
   LODWORD(v6.input.consts[68][0]) = r_skyTransition->current.integer;
-  *(_QWORD *)&v6.gap0[1092] = __PAIR64__(v5, *(unsigned int *)&FLOAT_0_0);
+  *(_QWORD *)&v6.gap0[1092] = __PAIR64__(v5, 0);
   LODWORD(v6.input.consts[68][3]) = integer;
   R_DirtyCodeConstant(&v6, 0x44u);
   R_DrawPointLitSurfs(&v6, viewInfo, cmdBuf);
@@ -946,10 +946,10 @@ void __cdecl R_DrawPointLitSurfs(GfxCmdBufSourceState *source, const GfxViewInfo
       light = &pointLightPartition->light;
       info.drawSurfInfo = &pointLightPartition->info;
       info.clearQuadMesh = &viewInfo->pointLightMeshData[partitionIndex];
-      dist[0] = FLOAT_1_0;
-      dist[1] = FLOAT_N1_0;
-      dist[2] = FLOAT_1_0;
-      dist[3] = FLOAT_N1_0;
+      dist[0] = 1.0f;
+      dist[1] = -1.0f;
+      dist[2] = 1.0f;
+      dist[3] = -1.0f;
       offset[0] = pointLightPartition->light.origin[0] - viewParms->origin[0];
       offset[1] = pointLightPartition->light.origin[1] - viewParms->origin[1];
       offset[2] = pointLightPartition->light.origin[2] - viewParms->origin[2];
@@ -960,7 +960,7 @@ void __cdecl R_DrawPointLitSurfs(GfxCmdBufSourceState *source, const GfxViewInfo
       {
         tangentDist = fsqrt(tangentDistSq);
         perpDist = offsetDistSq / tangentDist;
-        sign = FLOAT_1_0;
+        sign = 1.0f;
         planeIndex = 0;
         while ( planeIndex < 4 )
         {
@@ -1002,11 +1002,11 @@ void __cdecl R_DrawPointLitSurfs(GfxCmdBufSourceState *source, const GfxViewInfo
               if ( (float)((float)(planeDist / w) - 1.0) < 0.0 )
                 v8 = planeDist / w;
               else
-                v8 = FLOAT_1_0;
+                v8 = 1.0f;
               if ( (float)(-1.0 - (float)(planeDist / w)) < 0.0 )
                 v7 = v8;
               else
-                v7 = FLOAT_N1_0;
+                v7 = -1.0f;
               dist[planeIndex] = v7;
             }
           }
@@ -1243,20 +1243,20 @@ void RB_ShowFbColorDebug_Feedback()
   R_SetRenderTargetSize(&gfxCmdBufSourceState, 2u);
   R_SetRenderTarget(gfxCmdBufContext, 2u);
   R_Set2D(&gfxCmdBufSourceState);
-  gfxCmdBufSourceState.input.consts[44][0] = FLOAT_1_0;
-  gfxCmdBufSourceState.input.consts[44][1] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[44][2] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[44][3] = *(float *)&FLOAT_0_0;
+  gfxCmdBufSourceState.input.consts[44][0] = 1.0f;
+  gfxCmdBufSourceState.input.consts[44][1] = 0.0f;
+  gfxCmdBufSourceState.input.consts[44][2] = 0.0f;
+  gfxCmdBufSourceState.input.consts[44][3] = 0.0f;
   R_DirtyCodeConstant(&gfxCmdBufSourceState, 0x2Cu);
-  gfxCmdBufSourceState.input.consts[45][0] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[45][1] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[45][2] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[45][3] = *(float *)&FLOAT_0_0;
+  gfxCmdBufSourceState.input.consts[45][0] = 0.0f;
+  gfxCmdBufSourceState.input.consts[45][1] = 0.0f;
+  gfxCmdBufSourceState.input.consts[45][2] = 0.0f;
+  gfxCmdBufSourceState.input.consts[45][3] = 0.0f;
   R_DirtyCodeConstant(&gfxCmdBufSourceState, 0x2Du);
-  gfxCmdBufSourceState.input.consts[46][0] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[46][1] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[46][2] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[46][3] = *(float *)&FLOAT_0_0;
+  gfxCmdBufSourceState.input.consts[46][0] = 0.0f;
+  gfxCmdBufSourceState.input.consts[46][1] = 0.0f;
+  gfxCmdBufSourceState.input.consts[46][2] = 0.0f;
+  gfxCmdBufSourceState.input.consts[46][3] = 0.0f;
   R_DirtyCodeConstant(&gfxCmdBufSourceState, 0x2Eu);
   RB_DrawStretchPic(
     rgp.colorChannelMixerMaterial,
@@ -1271,20 +1271,20 @@ void RB_ShowFbColorDebug_Feedback()
     0xFFFFFFFF,
     GFX_PRIM_STATS_CODE);
   RB_EndTessSurface();
-  gfxCmdBufSourceState.input.consts[44][0] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[44][1] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[44][2] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[44][3] = *(float *)&FLOAT_0_0;
+  gfxCmdBufSourceState.input.consts[44][0] = 0.0f;
+  gfxCmdBufSourceState.input.consts[44][1] = 0.0f;
+  gfxCmdBufSourceState.input.consts[44][2] = 0.0f;
+  gfxCmdBufSourceState.input.consts[44][3] = 0.0f;
   R_DirtyCodeConstant(&gfxCmdBufSourceState, 0x2Cu);
-  gfxCmdBufSourceState.input.consts[45][0] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[45][1] = FLOAT_1_0;
-  gfxCmdBufSourceState.input.consts[45][2] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[45][3] = *(float *)&FLOAT_0_0;
+  gfxCmdBufSourceState.input.consts[45][0] = 0.0f;
+  gfxCmdBufSourceState.input.consts[45][1] = 1.0f;
+  gfxCmdBufSourceState.input.consts[45][2] = 0.0f;
+  gfxCmdBufSourceState.input.consts[45][3] = 0.0f;
   R_DirtyCodeConstant(&gfxCmdBufSourceState, 0x2Du);
-  gfxCmdBufSourceState.input.consts[46][0] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[46][1] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[46][2] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[46][3] = *(float *)&FLOAT_0_0;
+  gfxCmdBufSourceState.input.consts[46][0] = 0.0f;
+  gfxCmdBufSourceState.input.consts[46][1] = 0.0f;
+  gfxCmdBufSourceState.input.consts[46][2] = 0.0f;
+  gfxCmdBufSourceState.input.consts[46][3] = 0.0f;
   R_DirtyCodeConstant(&gfxCmdBufSourceState, 0x2Eu);
   RB_DrawStretchPic(
     rgp.colorChannelMixerMaterial,
@@ -1639,15 +1639,15 @@ void __cdecl RB_StandardRenderCommands(const GfxViewInfo *viewInfo)
   }
   R_BeginView(&gfxCmdBufSourceState, &viewInfo->sceneDef, &viewInfo->cullViewInfo.viewParms);
   R_SetViewportStruct(&gfxCmdBufSourceState, &viewInfo->cullViewInfo.displayViewport);
-  gfxCmdBufSourceState.input.consts[170][0] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[170][1] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[170][2] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[170][3] = *(float *)&FLOAT_0_0;
+  gfxCmdBufSourceState.input.consts[170][0] = 0.0f;
+  gfxCmdBufSourceState.input.consts[170][1] = 0.0f;
+  gfxCmdBufSourceState.input.consts[170][2] = 0.0f;
+  gfxCmdBufSourceState.input.consts[170][3] = 0.0f;
   R_DirtyCodeConstant(&gfxCmdBufSourceState, 0xAAu);
-  gfxCmdBufSourceState.input.consts[171][0] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[171][1] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[171][2] = *(float *)&FLOAT_0_0;
-  gfxCmdBufSourceState.input.consts[171][3] = *(float *)&FLOAT_0_0;
+  gfxCmdBufSourceState.input.consts[171][0] = 0.0f;
+  gfxCmdBufSourceState.input.consts[171][1] = 0.0f;
+  gfxCmdBufSourceState.input.consts[171][2] = 0.0f;
+  gfxCmdBufSourceState.input.consts[171][3] = 0.0f;
   R_DirtyCodeConstant(&gfxCmdBufSourceState, 0xABu);
   if ( viewInfo->cmds )
   {

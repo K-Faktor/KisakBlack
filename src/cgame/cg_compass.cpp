@@ -852,9 +852,9 @@ double __cdecl CG_FadeCompassIcons(int localClientNum, bool ignoreGlobalScramble
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
   fade = 1.0 - CG_GetScramblerEnemyAlpha(localClientNum);
   if ( !ignoreGlobalScrambler && cgameGlob->globalScramblerActive )
-    fade = *(float *)&FLOAT_0_0;
+    fade = 0.0f;
   if ( fade < 0.0 )
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
   return fade;
 }
 
@@ -931,7 +931,7 @@ void __cdecl CG_DrawPlayerPopUps(
 
   swayMaxTime = &scrPlaceView[localClientNum];
   cgameGlob = item->window.outlineColor[3];
-  time = *(unsigned int *)&FLOAT_0_0;
+  time = 0;
   if ( text )
   {
     if ( color[3] != 0.0 )
@@ -943,16 +943,16 @@ void __cdecl CG_DrawPlayerPopUps(
       {
         if ( swingLength && (float)ratio > (float)((float)swingLength + 2500.0) )
         {
-          yScale->popupRotationAngle = *(float *)&FLOAT_0_0;
-          yScale->popUpAngleDelta = *(float *)&FLOAT_0_0;
+          yScale->popupRotationAngle = 0.0f;
+          yScale->popUpAngleDelta = 0.0f;
         }
         stringPixelLength = R_NormalizedTextScale(font, scale);
         if ( doSwing )
         {
           rotatedX = (float)((float)((float)swingLength + 2500.0) - (float)ratio) / 2500.0;
           if ( yScale->popupRotationAngle > (float)((float)(rotatedX * rotatedX) * 7.0) )
-            yScale->popUpAngleDelta = COERCE_FLOAT(LODWORD(FLOAT_0_5) ^ _mask__NegFloat_) * (float)(rotatedX * rotatedX);
-          if ( (float)(COERCE_FLOAT(LODWORD(FLOAT_7_0) ^ _mask__NegFloat_) * (float)(rotatedX * rotatedX)) > yScale->popupRotationAngle )
+            yScale->popUpAngleDelta = COERCE_FLOAT(LODWORD(0.5f) ^ _mask__NegFloat_) * (float)(rotatedX * rotatedX);
+          if ( (float)(COERCE_FLOAT(LODWORD(7.0f) ^ _mask__NegFloat_) * (float)(rotatedX * rotatedX)) > yScale->popupRotationAngle )
             yScale->popUpAngleDelta = (float)(rotatedX * rotatedX) * 0.5;
           yScale->popupRotationAngle = yScale->popupRotationAngle + yScale->popUpAngleDelta;
         }
@@ -1604,12 +1604,12 @@ void __cdecl CG_CompassDrawStatic(
       {
         texRadius = (float)(0.5 * compassMaxRange->current.value) / cgameGlob->compassMapWorldSize[1];
         scaleFinalS = cgameGlob->compassMapWorldSize[1] / cgameGlob->compassMapWorldSize[0];
-        scaleFinalT = FLOAT_1_0;
+        scaleFinalT = 1.0f;
       }
       else
       {
         texRadius = (float)(0.5 * compassMaxRange->current.value) / cgameGlob->compassMapWorldSize[0];
-        scaleFinalS = FLOAT_1_0;
+        scaleFinalS = 1.0f;
         scaleFinalT = cgameGlob->compassMapWorldSize[0] / cgameGlob->compassMapWorldSize[1];
       }
       CG_CompassCalcDimensions(COMPASS_TYPE_PARTIAL, cgameGlob, parentRect, rect, &x, &y, &w, &h);
@@ -1640,7 +1640,7 @@ void __cdecl CG_UpdateEnemyScramblerAlpha(int localClientNum)
   bool enemy; // [esp+22h] [ebp-6h]
   float enemyScramblerDistance; // [esp+24h] [ebp-4h]
 
-  enemyScramblerAlpha = *(float *)&FLOAT_0_0;
+  enemyScramblerAlpha = 0.0f;
   enemy = 0;
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
   if ( cgameGlob->closestEnemyScrambler && ((*((unsigned int *)cgameGlob->closestEnemyScrambler + 201) >> 1) & 1) != 0 )
@@ -1661,7 +1661,7 @@ void __cdecl CG_UpdateEnemyScramblerAlpha(int localClientNum)
     }
   }
   if ( enemyScramblerAlpha > 1.0 )
-    enemyScramblerAlpha = FLOAT_1_0;
+    enemyScramblerAlpha = 1.0f;
   cgameGlob->scramblerEnemyAlpha = enemyScramblerAlpha;
 }
 
@@ -1760,12 +1760,12 @@ void __cdecl CG_CompassDrawScrambler(
       {
         texRadius = (float)(0.5 * compassMaxRange->current.value) / cgameGlob->compassMapWorldSize[1];
         scaleFinalS = cgameGlob->compassMapWorldSize[1] / cgameGlob->compassMapWorldSize[0];
-        scaleFinalT = FLOAT_1_0;
+        scaleFinalT = 1.0f;
       }
       else
       {
         texRadius = (float)(0.5 * compassMaxRange->current.value) / cgameGlob->compassMapWorldSize[0];
-        scaleFinalS = FLOAT_1_0;
+        scaleFinalS = 1.0f;
         scaleFinalT = cgameGlob->compassMapWorldSize[0] / cgameGlob->compassMapWorldSize[1];
       }
       CG_CompassCalcDimensions(COMPASS_TYPE_PARTIAL, cgameGlob, parentRect, rect, &x, &y, &w, &h);
@@ -1953,19 +1953,19 @@ void __cdecl CG_CompassDrawPlayerMap(
       {
         texRadius = (float)(0.5 * compassMaxRange->current.value) / cgameGlob->compassMapWorldSize[1];
         scaleFinalS = cgameGlob->compassMapWorldSize[1] / cgameGlob->compassMapWorldSize[0];
-        scaleFinalT = FLOAT_1_0;
+        scaleFinalT = 1.0f;
       }
       else
       {
         texRadius = (float)(0.5 * compassMaxRange->current.value) / cgameGlob->compassMapWorldSize[0];
-        scaleFinalS = FLOAT_1_0;
+        scaleFinalS = 1.0f;
         scaleFinalT = cgameGlob->compassMapWorldSize[0] / cgameGlob->compassMapWorldSize[1];
       }
       if ( compassRotation->current.enabled )
         LODWORD(rotation) = COERCE_UNSIGNED_INT(cgameGlob->refdefViewAngles[1] - cgameGlob->compassNorthYaw)
                           ^ _mask__NegFloat_;
       else
-        rotation = *(float *)&FLOAT_0_0;
+        rotation = 0.0f;
       CG_CompassCalcDimensions(COMPASS_TYPE_PARTIAL, cgameGlob, parentRect, rect, &x, &y, &w, &h);
       if ( grid )
         CL_DrawStretchPicRotatedST(
@@ -2113,14 +2113,14 @@ void __cdecl CG_CompassDrawPlayerMapLocationSelector(
         quadMin[0] = (float)((float)((float)(0.0 - texMin[0]) / (float)(texMax - texMin[0]))
                            * (float)(quadMax[0] - quadMin[0]))
                    + quadMin[0];
-        texMin[0] = *(float *)&FLOAT_0_0;
+        texMin[0] = 0.0f;
       }
       if ( texMin[1] < 0.0 )
       {
         quadMin[1] = (float)((float)((float)(0.0 - texMin[1]) / (float)(texMax_4 - texMin[1]))
                            * (float)(quadMax[1] - quadMin[1]))
                    + quadMin[1];
-        texMin[1] = *(float *)&FLOAT_0_0;
+        texMin[1] = 0.0f;
       }
       if ( texMax > 1.0 )
         quadMax[0] = (float)((float)((float)(1.0 - texMin[0]) / (float)(texMax - texMin[0]))
@@ -2130,7 +2130,7 @@ void __cdecl CG_CompassDrawPlayerMapLocationSelector(
         quadMax[1] = (float)((float)((float)(1.0 - texMin[1]) / (float)(texMax_4 - texMin[1]))
                            * (float)(quadMax[1] - quadMin[1]))
                    + quadMin[1];
-      yawTo = *(float *)&FLOAT_0_0;
+      yawTo = 0.0f;
       if ( cgameGlob->compassMapWorldSize[1] <= 0.0 || radius <= 0.0 )
         radius = radius * 250.0;
       else
@@ -2273,30 +2273,30 @@ void __cdecl CG_CompassDrawPlayerSelectedLocations(
             quadMin[0] = (float)((float)((float)(0.0 - texMin[0]) / (float)(texMax[0] - texMin[0]))
                                * (float)(quadMax[0] - quadMin[0]))
                        + quadMin[0];
-            texMin[0] = *(float *)&FLOAT_0_0;
+            texMin[0] = 0.0f;
           }
           if ( texMin[1] < 0.0 )
           {
             quadMin[1] = (float)((float)((float)(0.0 - texMin[1]) / (float)(texMax[1] - texMin[1]))
                                * (float)(quadMax[1] - quadMin[1]))
                        + quadMin[1];
-            texMin[1] = *(float *)&FLOAT_0_0;
+            texMin[1] = 0.0f;
           }
           if ( texMax[0] > 1.0 )
           {
             quadMax[0] = (float)((float)((float)(1.0 - texMin[0]) / (float)(texMax[0] - texMin[0]))
                                * (float)(quadMax[0] - quadMin[0]))
                        + quadMin[0];
-            texMax[0] = FLOAT_1_0;
+            texMax[0] = 1.0f;
           }
           if ( texMax[1] > 1.0 )
           {
             quadMax[1] = (float)((float)((float)(1.0 - texMin[1]) / (float)(texMax[1] - texMin[1]))
                                * (float)(quadMax[1] - quadMin[1]))
                        + quadMin[1];
-            texMax[1] = FLOAT_1_0;
+            texMax[1] = 1.0f;
           }
-          yawTo = *(float *)&FLOAT_0_0;
+          yawTo = 0.0f;
           if ( cgameGlob->compassMapWorldSize[1] <= 0.0 || radius <= 0.0 )
             radius = radius * 250.0;
           else
@@ -2381,8 +2381,8 @@ void __cdecl CG_CompassDrawPlayer(
   {
     w = cg_hudMapPlayerWidth->current.value;
     h = cg_hudMapPlayerHeight->current.value;
-    xy[0] = *(float *)&FLOAT_0_0;
-    xy[1] = *(float *)&FLOAT_0_0;
+    xy[0] = 0.0f;
+    xy[1] = 0.0f;
     if ( (cgameGlob->predictedPlayerState.otherFlags & 2) != 0 )
       CG_WorldPosToCompass(
         COMPASS_TYPE_FULL,
@@ -2424,19 +2424,19 @@ void __cdecl CG_CompassDrawPlayer(
     w = compassPlayerWidth->current.value * compassSize->current.value;
     h = compassPlayerHeight->current.value * compassSize->current.value;
     BG_EvalVehicleName(compassType);
-    x = *(float *)&FLOAT_0_0;
-    y = *(float *)&FLOAT_0_0;
+    x = 0.0f;
+    y = 0.0f;
   }
   if ( (cgameGlob->predictedPlayerState.eFlags2 & 0x10000000) == 0 )
   {
     if ( compassType || !compassRotation->current.enabled )
       angle = AngleNormalize180(cgameGlob->compassNorthYaw - cgameGlob->refdefViewAngles[1]);
     else
-      angle = *(float *)&FLOAT_0_0;
+      angle = 0.0f;
     goto LABEL_25;
   }
-  outClipped = *(float *)&FLOAT_0_0;
-  v9 = *(float *)&FLOAT_0_0;
+  outClipped = 0.0f;
+  v9 = 0.0f;
   CG_CompassUpYawVector(cgameGlob, yawVector);
   clipped = CG_WorldPosToCompass(
               (CompassType)compassType,
@@ -2752,7 +2752,7 @@ void  CG_CompassDrawTickertape(
         nearestDist = tapeAngleCenter - (float)(iconDrawY * 0.5);
         nearestDistHeightDelta = (float)(compassTickertapeStretch->current.value * 360.0) * 0.5;
         *(float *)&objIdx = AngleNormalize360(COERCE_CONST_FLOAT(LODWORD(tapeRight) ^ _mask__NegFloat_));
-        *(float *)&objective = FLOAT_3_4028235e38;
+        *(float *)&objective = FLT_MAX;
         cent = *(centity_s **)&FLOAT_0_0;
         for ( goalOrig = 0; (int)goalOrig < 32; goalOrig = (const float *)((char *)goalOrig + 1) )
         {
@@ -2795,11 +2795,11 @@ void  CG_CompassDrawTickertape(
                 if ( distWithRange <= nearestDistHeightDelta )
                   iconMaterial = (float)(distWithRange + nearestDistHeightDelta) / (float)(nearestDistHeightDelta * 2.0);
                 else
-                  iconMaterial = FLOAT_1_0;
+                  iconMaterial = 1.0f;
               }
               else
               {
-                iconMaterial = *(float *)&FLOAT_0_0;
+                iconMaterial = 0.0f;
               }
               iconX = colorMod[1];
               v15 = CG_ObjectiveIcon(localClientNum, v26[8], 0);
@@ -3132,7 +3132,7 @@ void __cdecl CG_CompassDrawGridPoints(
   float gridHeight; // [esp+114h] [ebp-8h]
   float w; // [esp+118h] [ebp-4h]
 
-  w = *(float *)&FLOAT_0_0;
+  w = 0.0f;
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
   if ( !cgameGlob->nextSnap
     && !Assert_MyHandler(
@@ -3304,12 +3304,12 @@ void __cdecl CG_GetGridFromPos(int localClientNum, float *pos, char *gridName)
 
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
   *(_QWORD *)&parentRect.w = *(_QWORD *)cgameGlob->compassMapWorldSize;
-  parentRect.x = *(float *)&FLOAT_0_0;
-  parentRect.y = *(float *)&FLOAT_0_0;
+  parentRect.x = 0.0f;
+  parentRect.y = 0.0f;
   parentRect.horzAlign = 1;
   parentRect.vertAlign = 1;
-  rect.x = *(float *)&FLOAT_0_0;
-  rect.y = *(float *)&FLOAT_0_0;
+  rect.x = 0.0f;
+  rect.y = 0.0f;
   *(_QWORD *)&rect.w = *(_QWORD *)&parentRect.w;
   rect.horzAlign = 1;
   rect.vertAlign = 1;
@@ -3491,7 +3491,7 @@ void __cdecl CG_CompassDrawPlayerPointers_MiniMap(
             {
               if ( objDist < compassObjectiveMaxRange->current.value )
               {
-                lerp = *(float *)&FLOAT_0_0;
+                lerp = 0.0f;
                 if ( (float)(compassObjectiveMaxRange->current.value - compassMaxRange->current.value) != 0.0 )
                   lerp = (float)(objDist - compassMaxRange->current.value)
                        / (float)(compassObjectiveMaxRange->current.value - compassMaxRange->current.value);
@@ -3504,10 +3504,10 @@ void __cdecl CG_CompassDrawPlayerPointers_MiniMap(
             }
             else
             {
-              newColor[3] = FLOAT_1_0;
+              newColor[3] = 1.0f;
             }
-            xyClipped[0] = *(float *)&FLOAT_0_0;
-            xyClipped[1] = *(float *)&FLOAT_0_0;
+            xyClipped[0] = 0.0f;
+            xyClipped[1] = 0.0f;
             clipped = CG_WorldPosToCompass(
                         compassType,
                         cgameGlob,
@@ -3558,7 +3558,7 @@ void __cdecl CG_CompassDrawPlayerPointers_MiniMap(
             }
             x = xyClipped[0] - (float)(w * 0.5);
             y = xyClipped[1] - (float)(h * 0.5);
-            iconAngle = *(float *)&FLOAT_0_0;
+            iconAngle = 0.0f;
             if ( shouldRotateWithView )
               iconAngle = cgameGlob->refdefViewAngles[1];
             UI_DrawHandlePicRotated(
@@ -3583,7 +3583,7 @@ double __cdecl GetObjectiveFade(const rectDef_s *clipRect, float x, float y, flo
 {
   float maxclip; // [esp+4h] [ebp-4h]
 
-  maxclip = *(float *)&FLOAT_0_0;
+  maxclip = 0.0f;
   if ( (float)((float)(clipRect->x - x) / width) > 0.0 )
     maxclip = (float)(clipRect->x - x) / width;
   if ( (float)((float)(clipRect->y - y) / height) > maxclip )
@@ -3593,7 +3593,7 @@ double __cdecl GetObjectiveFade(const rectDef_s *clipRect, float x, float y, flo
   if ( (float)((float)((float)(y + height) - (float)(clipRect->y + clipRect->h)) / height) > maxclip )
     maxclip = (float)((float)(y + height) - (float)(clipRect->y + clipRect->h)) / height;
   if ( maxclip > 1.0 )
-    maxclip = FLOAT_1_0;
+    maxclip = 1.0f;
   return 1.0 - maxclip;
 }
 

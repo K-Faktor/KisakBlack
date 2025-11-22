@@ -36,7 +36,7 @@ void  R_SetFrameFog(float a1@<ebp>, GfxCmdBufInput *input, const GfxViewInfo *vi
     startAng = &data->fogSettings;
     R_SetInputCodeConstantFromVec4(input, 0x3Du, data->fogSettings.sunFogColor);
     R_SetInputCodeConstantFromVec4(input, 0x3Cu, data->fogSettings.sunFogDir);
-    v20 = FLOAT_1_0e7;
+    v20 = 1.0fe7;
     endAng = data->fogSettings.sunFogStartAng * 0.017453292;
     __libm_sse2_cos(v3);
     parms[3] = endAng;
@@ -47,8 +47,8 @@ void  R_SetFrameFog(float a1@<ebp>, GfxCmdBufInput *input, const GfxViewInfo *vi
       v20 = 1.0 / (float)(parms[3] - parms[1]);
     fogColorVec[2] = COERCE_FLOAT(LODWORD(parms[1]) ^ _mask__NegFloat_) * v20;
     fogColorVec[3] = v20;
-    v17 = *(float *)&FLOAT_0_0;
-    parms[0] = *(float *)&FLOAT_0_0;
+    v17 = 0.0f;
+    parms[0] = 0.0f;
     R_SetInputCodeConstantFromVec4(input, 0x3Bu, &fogColorVec[2]);
     LODWORD(fogColorVec[1]) = startAng->color;
     fog_maxDensity = startAng->color[0];
@@ -66,9 +66,9 @@ void  R_SetFrameFog(float a1@<ebp>, GfxCmdBufInput *input, const GfxViewInfo *vi
     }
     else
     {
-      parms2[0] = *(float *)&FLOAT_0_0;
-      v11[2] = *(float *)&FLOAT_0_0;
-      v11[1] = *(float *)&FLOAT_0_0;
+      parms2[0] = 0.0f;
+      v11[2] = 0.0f;
+      v11[1] = 0.0f;
       if ( parms2[1] > (float)(100.0 * parms2[2]) )
         parms2[1] = 100.0 * parms2[2];
       if ( parms2[2] > parms2[1] )

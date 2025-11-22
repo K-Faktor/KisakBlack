@@ -664,10 +664,10 @@ void  R_GenerateWorldOutdoorLookupMatrix(
   zIn[3] = r_outdoorDownBias->current.value;
   LODWORD(zIn[2]) = source;
   LODWORD(zIn[1]) = R_GetCodeMatrix(source, 0xCAu, 0);
-  zInTimesInvView[1] = *(float *)&FLOAT_0_0;
-  zInTimesInvView[2] = *(float *)&FLOAT_0_0;
+  zInTimesInvView[1] = 0.0f;
+  zInTimesInvView[2] = 0.0f;
   LODWORD(zInTimesInvView[3]) = (unsigned int)invViewProjMatrix ^ _mask__NegFloat_;
-  zIn[0] = *(float *)&FLOAT_0_0;
+  zIn[0] = 0.0f;
   MatrixTransformVector44(
     &zInTimesInvView[1],
     (const float (*)[4])LODWORD(zIn[1]),
@@ -902,14 +902,14 @@ void __cdecl R_ChangeDepthRange(GfxCmdBufState *state, GfxDepthRangeType depthRa
   }
   state->depthRangeType = depthRangeType;
   if ( depthRangeType )
-    v3 = *(float *)&FLOAT_0_0;
+    v3 = 0.0f;
   else
     v3 = FLOAT_0_015625;
   state->depthRangeNear = v3;
   if ( depthRangeType )
     v2 = FLOAT_0_015625;
   else
-    v2 = FLOAT_1_0;
+    v2 = 1.0f;
   state->depthRangeFar = v2;
   device = state->prim.device;
   if ( !device && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_state.cpp", 1516, 0, "%s", "device") )
@@ -2996,12 +2996,12 @@ void __cdecl R_UpdateViewport(GfxCmdBufSourceState *source, GfxViewport *viewpor
   *(_QWORD *)&source->gap0[344] = invWidth;
   R_DirtyCodeConstant(source, 0x15u);
   *(_QWORD *)&source->gap0[1152] = __PAIR64__(LODWORD(lookupScale_4) ^ (unsigned int)_mask__NegFloat_, lookupScale);
-  source->input.consts[72][2] = *(float *)&FLOAT_0_0;
-  source->input.consts[72][3] = FLOAT_1_0;
+  source->input.consts[72][2] = 0.0f;
+  source->input.consts[72][3] = 1.0f;
   R_DirtyCodeConstant(source, 0x48u);
   *(_QWORD *)&source->gap0[1168] = lookupOffset;
-  source->input.consts[73][2] = *(float *)&FLOAT_0_0;
-  source->input.consts[73][3] = *(float *)&FLOAT_0_0;
+  source->input.consts[73][2] = 0.0f;
+  source->input.consts[73][3] = 0.0f;
   R_DirtyCodeConstant(source, 0x49u);
 }
 
@@ -3069,8 +3069,8 @@ void __cdecl UpdateVPosToWorld(GfxCmdBufSourceState *source)
     v1 = -1.0 / (float)(*projM44)[5];
     scale1[0] = 1.0 / (*projM44)[0];
     scale1[1] = v1;
-    scale1[2] = FLOAT_N1_0;
-    scale1[3] = *(float *)&FLOAT_0_0;
+    scale1[2] = -1.0f;
+    scale1[3] = 0.0f;
     MatrixTransformVector44(scale1, invViewM44, vpos1_to_world);
     R_SetCodeConstantFromVec4(source, 0x16u, vposx_to_world);
     R_SetCodeConstantFromVec4(source, 0x17u, vposy_to_world);
@@ -3261,8 +3261,8 @@ void __cdecl R_HW_SetRenderTarget(GfxCmdBufState *state, unsigned __int8 newTarg
     state->viewport.width = (unsigned __int16)word_B50E83C[10 * newTargetId];
     state->viewport.height = (unsigned __int16)word_B50E83E[10 * newTargetId];
     state->depthRangeType = GFX_DEPTH_RANGE_FULL;
-    state->depthRangeNear = *(float *)&FLOAT_0_0;
-    state->depthRangeFar = FLOAT_1_0;
+    state->depthRangeNear = 0.0f;
+    state->depthRangeFar = 1.0f;
   }
   if ( dword_B50E838[5 * state->renderTargetId] != dword_B50E838[5 * newTargetId] )
   {

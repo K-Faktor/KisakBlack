@@ -77,10 +77,10 @@ void __cdecl R_DepthPrepassCallback(const GfxViewInfo *userData, GfxCmdBufContex
     }
     baseTechType = 1;
     R_DrawQuadMesh(context, rgp.shadowClearMaterial, &viewInfo->fullSceneViewMesh->meshData);
-    context.source->input.consts[75][0] = *(float *)&FLOAT_0_0;
-    context.source->input.consts[75][1] = *(float *)&FLOAT_0_0;
-    context.source->input.consts[75][2] = *(float *)&FLOAT_0_0;
-    context.source->input.consts[75][3] = FLOAT_1_0;
+    context.source->input.consts[75][0] = 0.0f;
+    context.source->input.consts[75][1] = 0.0f;
+    context.source->input.consts[75][2] = 0.0f;
+    context.source->input.consts[75][3] = 1.0f;
     R_DirtyCodeConstant(context.source, 0x4Bu);
   }
   else

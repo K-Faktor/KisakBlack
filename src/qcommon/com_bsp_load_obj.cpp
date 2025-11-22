@@ -871,7 +871,7 @@ ComPrimaryLight *Com_LoadPrimaryLights()
       }
       else
       {
-        out->cosHalfFovExpanded = FLOAT_N1_0;
+        out->cosHalfFovExpanded = -1.0f;
       }
     }
     else
@@ -882,15 +882,15 @@ ComPrimaryLight *Com_LoadPrimaryLights()
     out->diffuseColor[0] = in->color[0];
     out->diffuseColor[1] = in->color[1];
     out->diffuseColor[2] = in->color[2];
-    out->diffuseColor[3] = *(float *)&FLOAT_0_0;
+    out->diffuseColor[3] = 0.0f;
     out->specularColor[0] = in->specularcolor[0];
     out->specularColor[1] = in->specularcolor[1];
     out->specularColor[2] = in->specularcolor[2];
-    out->specularColor[3] = *(float *)&FLOAT_0_0;
+    out->specularColor[3] = 0.0f;
     out->attenuation[0] = in->attenuation[0];
     out->attenuation[1] = in->attenuation[1];
     out->attenuation[2] = in->attenuation[2];
-    out->attenuation[3] = *(float *)&FLOAT_0_0;
+    out->attenuation[3] = 0.0f;
     out->falloff[0] = in->cutOn;
     out->falloff[1] = in->radius;
     out->falloff[2] = (float)((float)(in->radius - in->cutOn) * in->nearEdge) + in->cutOn;
@@ -1008,8 +1008,8 @@ const DiskPrimaryLight_Version16 *Com_LoadPrimaryLights_Version16()
     out->cosHalfFovOuter = in->cosHalfFovOuter;
     out->cosHalfFovInner = in->cosHalfFovInner;
     out->cosHalfFovExpanded = out->cosHalfFovOuter;
-    out->rotationLimit = FLOAT_1_0;
-    out->translationLimit = *(float *)&FLOAT_0_0;
+    out->rotationLimit = 1.0f;
+    out->translationLimit = 0.0f;
     if ( in->type && in->type != 1 )
       out->defName = Com_GetLightDefName(in->defName, comWorld.primaryLights, lightIndex);
     else

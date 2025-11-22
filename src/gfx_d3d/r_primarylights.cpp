@@ -100,7 +100,7 @@ void __cdecl R_ChooseShadowedLights(GfxViewInfo *viewInfo)
     if ( (float)(v5 - 1.0) < 0.0 )
       v4 = 0.001 / sm_spotShadowFadeTime->current.value * (double)timeDelta;
     else
-      v4 = FLOAT_1_0;
+      v4 = 1.0f;
     fadeDelta = v4;
     R_FadeOutShadowHistoryEntries(shadowHistory, v4);
     memcpy(shadowableLightIsUsed, scene.shadowableLightIsUsed, sizeof(shadowableLightIsUsed));
@@ -255,7 +255,7 @@ void __cdecl R_AddShadowedLightToShadowHistory(
       if ( (float)((float)(shadowHistory->entries[historyIndex].fade + fadeDelta) - 1.0) < 0.0 )
         v3 = shadowHistory->entries[historyIndex].fade + fadeDelta;
       else
-        v3 = FLOAT_1_0;
+        v3 = 1.0f;
       shadowHistory->entries[historyIndex].fade = v3;
       return;
     }
@@ -537,7 +537,7 @@ void __cdecl R_LinkDynEntToPrimaryLights(
   boxHalfSize[1] = boxMidPoint[1] - mins[1];
   boxHalfSize[2] = boxMidPoint[2] - mins[2];
   bestPrimaryLightIndex = 0;
-  minDistSq = FLOAT_3_4028235e38;
+  minDistSq = FLT_MAX;
   for ( primaryLightIndex = rgp.world->sunPrimaryLightIndex + 1;
         primaryLightIndex < rgp.world->primaryLightCount;
         ++primaryLightIndex )
@@ -949,9 +949,9 @@ void __cdecl R_ShowPrimaryLightDebugLine(const float *lineStartPosition, unsigne
       {
         color = (const float (*)[4])colorRed;
       }
-      ext[0] = FLOAT_0_75;
-      ext[1] = FLOAT_0_75;
-      ext[2] = FLOAT_0_75;
+      ext[0] = 0.75f;
+      ext[1] = 0.75f;
+      ext[2] = 0.75f;
       maxs[0] = *lineStartPosition + 0.75;
       maxs[1] = lineStartPosition[1] + 0.75;
       maxs[2] = lineStartPosition[2] + 0.75;

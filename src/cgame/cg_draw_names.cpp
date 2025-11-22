@@ -164,7 +164,7 @@ void __cdecl CG_DrawOverheadNames(int localClientNum, const centity_s *cent, flo
             }
             else
             {
-              distanceScale = FLOAT_1_0;
+              distanceScale = 1.0f;
             }
             scale = R_NormalizedTextScale(font, cg_overheadNamesSize->current.value * distanceScale);
             v17 = scale;
@@ -229,9 +229,9 @@ void __cdecl CG_DrawOverheadNames(int localClientNum, const centity_s *cent, flo
                 v8 = (float)(2.0 * distanceScale) + iconSize;
                 v6 = R_TextWidth(rankText, 32, font);
                 x = x - (float)((float)(v8 + (float)((float)v6 * newscale)) * aspect);
-                color[0] = FLOAT_1_0;
-                color[1] = FLOAT_1_0;
-                color[2] = FLOAT_1_0;
+                color[0] = 1.0f;
+                color[1] = 1.0f;
+                color[2] = 1.0f;
                 color[3] = alpha;
                 CL_DrawStretchPicPhysicalW(
                   x,
@@ -345,7 +345,7 @@ double __cdecl CG_FadeCrosshairNameAlpha(int time, int startMsec, int lastMsec, 
   }
   else
   {
-    return FLOAT_1_0;
+    return 1.0f;
   }
 }
 
@@ -470,7 +470,7 @@ void __cdecl CG_ScanForCrosshairEntityInternal(int localClientNum)
   //PIXBeginNamedEvent(-1, "CG_ScanForCrosshairEntity");
   fadeOutTime = cg_friendlyNameFadeOut->current.integer;
   owner = 0;
-  fCheckDist = FLOAT_8192_0;
+  fCheckDist = 8192.0f;
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
   if ( !cgameGlob->nextSnap
     && !Assert_MyHandler(
@@ -597,7 +597,7 @@ void __cdecl CG_ScanForCrosshairEntityInternal(int localClientNum)
         weaponIndex = CG_GetPlayerWeapon(&cgameGlob->predictedPlayerState, localClientNum);
         weapDef = BG_GetWeaponDef(weaponIndex);
         if ( (cgameGlob->predictedPlayerState.weapFlags & 0x400000) != 0 )
-          enemyCrosshairRange = FLOAT_600_0;
+          enemyCrosshairRange = 600.0f;
         else
           enemyCrosshairRange = weapDef->enemyCrosshairRange;
         if ( (float)((float)((float)(diff[0] * diff[0]) + (float)(diff[1] * diff[1])) + (float)(diff[2] * diff[2])) > (float)(enemyCrosshairRange * enemyCrosshairRange) )

@@ -56,7 +56,7 @@ int __cdecl SND_GetListenerIndexNearestToOrigin(const float *origin)
     if ( g_snd.listeners[i].active )
       v2 = Vec3DistanceSq(origin, g_snd.listeners[i].orient.origin);
     else
-      v2 = FLOAT_3_4028235e38;
+      v2 = FLT_MAX;
     *(&dist + i) = v2;
   }
   return 0;
@@ -384,9 +384,9 @@ void __cdecl SND_SetVoiceStartInfo(unsigned int index, SndStartAliasInfo *SndSta
     __debugbreak();
   }
   fluxVelocity = voice->fluxVelocity;
-  voice->fluxVelocity[0] = *(float *)&FLOAT_0_0;
-  fluxVelocity[1] = *(float *)&FLOAT_0_0;
-  fluxVelocity[2] = *(float *)&FLOAT_0_0;
+  voice->fluxVelocity[0] = 0.0f;
+  fluxVelocity[1] = 0.0f;
+  fluxVelocity[2] = 0.0f;
   voice->losHitCache = 0;
   position = voice->position;
   voice->position[0] = SndStartAliasInfo->org[0];
@@ -401,14 +401,14 @@ void __cdecl SND_SetVoiceStartInfo(unsigned int index, SndStartAliasInfo *SndSta
     voice->pitchShift = 1;
   }
   voice->played = 0;
-  voice->futzBlend = *(float *)&FLOAT_0_0;
+  voice->futzBlend = 0.0f;
   SND_SetVoiceStartSeeds(alias, voice);
   SND_SetVoiceStartFades(SndStartAliasInfo->fadetime, voice);
   SND_UpdateVoicePosition(voice, SndStartAliasInfo->org);
   Snd_SpeakerMapZero(&voice->pan);
   Snd_SpeakerMapZero(&voice->panGoal);
   SND_UpdateVoice(voice, 0.0);
-  occlusionGoal = *(float *)&FLOAT_0_0;
+  occlusionGoal = 0.0f;
   ++occlusionTotal;
   if ( snd_losOcclusion->current.enabled )
   {
@@ -533,9 +533,9 @@ void __cdecl SND_SetVoiceStartFlux(snd_voice_t *voice, float *player)
   float speed; // [esp+84h] [ebp-10h]
   float Z[3]; // [esp+88h] [ebp-Ch] BYREF
 
-  Z[0] = *(float *)&FLOAT_0_0;
-  Z[1] = *(float *)&FLOAT_0_0;
-  Z[2] = FLOAT_1_0;
+  Z[0] = 0.0f;
+  Z[1] = 0.0f;
+  Z[2] = 1.0f;
   alias = voice->alias;
   if ( !player && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 427, 0, "%s", "player") )
     __debugbreak();
@@ -597,15 +597,15 @@ void __cdecl SND_SetVoiceStartFlux(snd_voice_t *voice, float *player)
     }
     Vec3Normalize(moveBasis[0]);
     if ( move_type == SND_FLUX_TYPE_LEFT_OF_SHOT || move_type == SND_FLUX_TYPE_LEFT_OF_PLAYER )
-      Z[2] = FLOAT_N1_0;
+      Z[2] = -1.0f;
     separation = snd_flux_separation->current.integer;
     if ( move_type == SND_FLUX_TYPE_CENTER_OF_SHOT || move_type == SND_FLUX_TYPE_CENTER_OF_PLAYER )
-      separation = *(unsigned int *)&FLOAT_0_0;
+      separation = 0;
     Vec3Cross(moveBasis[0], Z, moveBasis[1]);
     Vec3Lerp(moveBasis[0], moveBasis[1], *(float *)&separation, voice->fluxVelocity);
     Vec3Normalize(voice->fluxVelocity);
     if ( (float)((float)alias->fluxTime / 1000.0) <= 0.0000152879 )
-      speed = *(float *)&FLOAT_0_0;
+      speed = 0.0f;
     else
       speed = (float)alias->distReverbMax / (float)((float)alias->fluxTime / 1000.0);
     voice->fluxVelocity[0] = speed * voice->fluxVelocity[0];
@@ -732,7 +732,7 @@ void __cdecl SND_FaderSetRateTime(snd_fader_t *fader, float time)
     __debugbreak();
   }
   if ( (float)(time - 0.0000099999997) < 0.0 )
-    v2 = *(float *)&FLOAT_0_0;
+    v2 = 0.0f;
   else
     v2 = 1.0 / time;
   fader->rate = v2;
@@ -767,9 +767,9 @@ void __cdecl SND_FaderUpdate(snd_fader_t *fader, float dt)
   value = fader->value;
   goal = fader->goal;
   if ( (float)(goal - fader->value) < 0.0 )
-    v4 = FLOAT_N1_0;
+    v4 = -1.0f;
   else
-    v4 = FLOAT_1_0;
+    v4 = 1.0f;
   if ( (float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(goal - value) & _mask__AbsFloat_) - (float)(rate * dt)) < 0.0 )
     LODWORD(v3) = COERCE_UNSIGNED_INT(goal - value) & _mask__AbsFloat_;
   else
@@ -816,15 +816,15 @@ void __cdecl SND_UpdateVoicePosition(snd_voice_t *voice, const float *startPosit
     {
       voice->entity_update = SND_ENTITY_UPDATE_NEVER;
       voice->positionUpdated = 1;
-      voice->position[0] = *(float *)&FLOAT_0_0;
-      voice->position[1] = *(float *)&FLOAT_0_0;
-      voice->position[2] = *(float *)&FLOAT_0_0;
-      voice->offset[0] = *(float *)&FLOAT_0_0;
-      voice->offset[1] = *(float *)&FLOAT_0_0;
-      voice->offset[2] = *(float *)&FLOAT_0_0;
-      voice->velocity[0] = *(float *)&FLOAT_0_0;
-      voice->velocity[1] = *(float *)&FLOAT_0_0;
-      voice->velocity[2] = *(float *)&FLOAT_0_0;
+      voice->position[0] = 0.0f;
+      voice->position[1] = 0.0f;
+      voice->position[2] = 0.0f;
+      voice->offset[0] = 0.0f;
+      voice->offset[1] = 0.0f;
+      voice->offset[2] = 0.0f;
+      voice->velocity[0] = 0.0f;
+      voice->velocity[1] = 0.0f;
+      voice->velocity[2] = 0.0f;
       AxisClear(voice->orientation);
       return;
     }
@@ -837,12 +837,12 @@ void __cdecl SND_UpdateVoicePosition(snd_voice_t *voice, const float *startPosit
       voice->position[0] = *startPosition;
       voice->position[1] = startPosition[1];
       voice->position[2] = startPosition[2];
-      voice->offset[0] = *(float *)&FLOAT_0_0;
-      voice->offset[1] = *(float *)&FLOAT_0_0;
-      voice->offset[2] = *(float *)&FLOAT_0_0;
-      voice->velocity[0] = *(float *)&FLOAT_0_0;
-      voice->velocity[1] = *(float *)&FLOAT_0_0;
-      voice->velocity[2] = *(float *)&FLOAT_0_0;
+      voice->offset[0] = 0.0f;
+      voice->offset[1] = 0.0f;
+      voice->offset[2] = 0.0f;
+      voice->velocity[0] = 0.0f;
+      voice->velocity[1] = 0.0f;
+      voice->velocity[2] = 0.0f;
       AxisClear(voice->orientation);
       return;
     }
@@ -850,13 +850,13 @@ void __cdecl SND_UpdateVoicePosition(snd_voice_t *voice, const float *startPosit
     voice->position[0] = *startPosition;
     voice->position[1] = startPosition[1];
     voice->position[2] = startPosition[2];
-    voice->offset[0] = *(float *)&FLOAT_0_0;
-    voice->offset[1] = *(float *)&FLOAT_0_0;
-    voice->offset[2] = *(float *)&FLOAT_0_0;
+    voice->offset[0] = 0.0f;
+    voice->offset[1] = 0.0f;
+    voice->offset[2] = 0.0f;
     AxisClear(voice->orientation);
-    voice->velocity[0] = *(float *)&FLOAT_0_0;
-    voice->velocity[1] = *(float *)&FLOAT_0_0;
-    voice->velocity[2] = *(float *)&FLOAT_0_0;
+    voice->velocity[0] = 0.0f;
+    voice->velocity[1] = 0.0f;
+    voice->velocity[2] = 0.0f;
   }
   if ( voice->entity_update != SND_ENTITY_UPDATE_NEVER )
   {
@@ -1130,7 +1130,7 @@ unsigned int __cdecl SND_FindFreeVoice(SndStartAliasInfo *startAliasInfo)
       return i;
   }
   replacedVoice = -1;
-  thatPriority = *(float *)&FLOAT_0_0;
+  thatPriority = 0.0f;
   thatVoice = -1;
   Snd_GetLowestPriority(&thatPriority, &thatVoice, start, count);
   if ( thisPriority > (float)(thatPriority + snd_playing_priority_boost->current.value) )
@@ -1279,7 +1279,7 @@ double __cdecl Snd_GetGlobalPriority(const snd_alias_t *alias, float volume)
   {
     __debugbreak();
   }
-  t = FLOAT_0_5;
+  t = 0.5f;
   if ( (float)((float)alias->maxPriorityThreshold / 255.0) != (float)((float)alias->minPriorityThreshold / 255.0) )
     t = (float)(volume - (float)((float)alias->minPriorityThreshold / 255.0))
       / (float)((float)((float)alias->maxPriorityThreshold / 255.0) - (float)((float)alias->minPriorityThreshold / 255.0));
@@ -1387,9 +1387,9 @@ double __cdecl Snd_GetGlobalPriorityVolume(const snd_alias_t *alias, const float
   distance = Vec3Distance(org, g_snd.listeners[ListenerIndexNearestToOrigin].orient.origin);
   normDistance = distance / (float)alias->distReverbMax;
   if ( normDistance > 1.0 )
-    normDistance = FLOAT_1_0;
+    normDistance = 1.0f;
   if ( normDistance < 0.0 )
-    normDistance = *(float *)&FLOAT_0_0;
+    normDistance = 0.0f;
   return 1.0 - normDistance;
 }
 
@@ -1399,7 +1399,7 @@ void __cdecl Snd_GetLowestPriority(float *priority, int *channel, unsigned int s
   float p; // [esp+Ch] [ebp-8h]
   unsigned int c; // [esp+10h] [ebp-4h]
 
-  *priority = FLOAT_1_0e10;
+  *priority = 1.0fe10;
   *channel = -1;
   for ( c = 0; c < count; ++c )
   {
@@ -2008,7 +2008,7 @@ void __cdecl SND_GetPlayingInfo(
   count = 0;
   oldest = -1;
   oldTime = 0x7FFFFFFF;
-  leastPriority = FLOAT_1000000_0;
+  leastPriority = 1000000.0f;
   if ( !aliasHash
     && !Assert_MyHandler(
           "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
@@ -2112,9 +2112,9 @@ void __cdecl SND_UpdateDebugAlias()
   }
   if ( snd_start_alias && snd_start_alias->current.integer && *(_BYTE *)snd_start_alias->current.integer )
   {
-    soundDir[0] = FLOAT_1_0;
-    soundDir[1] = *(float *)&FLOAT_0_0;
-    soundDir[2] = *(float *)&FLOAT_0_0;
+    soundDir[0] = 1.0f;
+    soundDir[1] = 0.0f;
+    soundDir[2] = 0.0f;
     entHandle.field = SND_EntHandle(0, 4094, 0, 0, 1, TEAM_FREE).field;
     SND_Play((char *)snd_start_alias->current.integer, 0, 1.0, entHandle, g_snd.listeners[0].orient.origin, soundDir, 0);
     Dvar_SetString((dvar_s *)snd_start_alias, &toastPopupTitle);
@@ -2271,11 +2271,11 @@ void __cdecl SND_UpdateVoices(int frametime)
   if ( (float)(v2 - 0.25) < 0.0 )
     v3 = (float)frametime / 1000.0;
   else
-    v3 = FLOAT_0_25;
+    v3 = 0.25f;
   if ( (float)(0.0 - v2) < 0.0 )
     dt = v3;
   else
-    dt = *(float *)&FLOAT_0_0;
+    dt = 0.0f;
   count = 0;
   //PIXBeginNamedEvent(-1, "SND_UpdateVoicePosition");
   for ( i = 0; i < 0x4A; ++i )
@@ -2323,13 +2323,13 @@ void __cdecl SND_UpdateRoomEffects(int frametime)
         if ( g_snd.effect->drylevel >= g_snd.effect->drygoal )
         {
           g_snd.effect->drylevel = g_snd.effect->drygoal;
-          g_snd.effect->dryrate = *(float *)&FLOAT_0_0;
+          g_snd.effect->dryrate = 0.0f;
         }
       }
       else if ( g_snd.effect->drygoal >= g_snd.effect->drylevel )
       {
         g_snd.effect->drylevel = g_snd.effect->drygoal;
-        g_snd.effect->dryrate = *(float *)&FLOAT_0_0;
+        g_snd.effect->dryrate = 0.0f;
       }
     }
     if ( g_snd.effect->wetrate != 0.0 )
@@ -2340,13 +2340,13 @@ void __cdecl SND_UpdateRoomEffects(int frametime)
         if ( g_snd.effect->wetlevel >= g_snd.effect->wetgoal )
         {
           g_snd.effect->wetlevel = g_snd.effect->wetgoal;
-          g_snd.effect->wetrate = *(float *)&FLOAT_0_0;
+          g_snd.effect->wetrate = 0.0f;
         }
       }
       else if ( g_snd.effect->wetgoal >= g_snd.effect->wetlevel )
       {
         g_snd.effect->wetlevel = g_snd.effect->wetgoal;
-        g_snd.effect->wetrate = *(float *)&FLOAT_0_0;
+        g_snd.effect->wetrate = 0.0f;
       }
     }
   }
@@ -2389,7 +2389,7 @@ void SND_UpdateStaticSounds()
         }
         if ( g_snd.lineEmitters[i].alias )
         {
-          distance = FLOAT_3_4028235e38;
+          distance = FLT_MAX;
           for ( l = 0; l < SND_ActiveListenerCount(); ++l )
           {
             SND_GetNearestPointOnSegment(
@@ -2425,13 +2425,13 @@ void SND_UpdateStaticSounds()
           SND_LogMissingAliasId(g_snd.lineEmitters[i].id);
           g_snd.lineEmitters[i].id = 0;
           v3 = g_snd.lineEmitters[i].origin[0];
-          *v3 = *(float *)&FLOAT_0_0;
-          v3[1] = *(float *)&FLOAT_0_0;
-          v3[2] = *(float *)&FLOAT_0_0;
+          *v3 = 0.0f;
+          v3[1] = 0.0f;
+          v3[2] = 0.0f;
           v2 = &g_snd.loopEmitters[-204].id + 8 * i;
-          *v2 = *(unsigned int *)&FLOAT_0_0;
-          v2[1] = *(unsigned int *)&FLOAT_0_0;
-          v2[2] = *(unsigned int *)&FLOAT_0_0;
+          *v2 = 0;
+          v2[1] = 0;
+          v2[2] = 0;
         }
       }
     }
@@ -2548,23 +2548,23 @@ void __cdecl SND_Init()
     {
       __debugbreak();
     }
-    g_snd.maximumPriority = *(float *)&FLOAT_0_0;
+    g_snd.maximumPriority = 0.0f;
     SND_FaderSetGoal(&g_snd.minimumPriority, 0.0);
     SND_FaderSetRate(&g_snd.minimumPriority, 20.0);
     g_snd.minimumPriority.value = g_snd.minimumPriority.goal;
-    g_snd.gameState.timescale = FLOAT_1_0;
+    g_snd.gameState.timescale = 1.0f;
     g_snd.effect = g_snd.envEffects;
     g_snd.envEffects[0].reverbId = g_snd.defaultHash;
-    g_snd.envEffects[0].drylevel = FLOAT_1_0;
-    g_snd.effect->drygoal = FLOAT_1_0;
-    g_snd.effect->dryrate = *(float *)&FLOAT_0_0;
-    g_snd.effect->wetlevel = *(float *)&FLOAT_0_0;
-    g_snd.effect->wetgoal = *(float *)&FLOAT_0_0;
-    g_snd.effect->wetrate = *(float *)&FLOAT_0_0;
+    g_snd.envEffects[0].drylevel = 1.0f;
+    g_snd.effect->drygoal = 1.0f;
+    g_snd.effect->dryrate = 0.0f;
+    g_snd.effect->wetlevel = 0.0f;
+    g_snd.effect->wetgoal = 0.0f;
+    g_snd.effect->wetrate = 0.0f;
     g_snd.effect->active = 1;
     g_snd.forcePause = 0;
-    g_snd.timescale = FLOAT_1_0;
-    g_snd.scriptTimescale = *(float *)&FLOAT_0_0;
+    g_snd.timescale = 1.0f;
+    g_snd.scriptTimescale = 0.0f;
     Snd_StreamInit();
     memset((unsigned __int8 *)g_snd.voiceAliasHash, 0, sizeof(g_snd.voiceAliasHash));
     SND_InitGroups();
@@ -2657,7 +2657,7 @@ void __cdecl SND_InitSnapshot()
 
   for ( c = 0; c < 0xB; ++c )
   {
-    g_snd.snapshotAttenuation[387 * c - 3872] = *(float *)&FLOAT_0_0;
+    g_snd.snapshotAttenuation[387 * c - 3872] = 0.0f;
     LODWORD(g_snd.snapshotAttenuation[387 * c - 3873]) = g_snd.defaultHash;
   }
   SND_UpdateSnapshot(0.0);
@@ -2728,13 +2728,13 @@ void __cdecl SND_UpdateSnapshot(float dt)
     if ( !category->snapshot )
     {
       category->snapshot = g_snd.defaultHash;
-      category->length = *(float *)&FLOAT_0_0;
+      category->length = 0.0f;
     }
   }
   for ( i = 0; i < g_snd.global_constants->snapshotGroupCount; ++i )
   {
-    voiceAttenuations[i] = FLOAT_1_0;
-    voiceOcclusions[i] = FLOAT_1_0;
+    voiceAttenuations[i] = 1.0f;
+    voiceOcclusions[i] = 1.0f;
   }
   for ( j = 0; j < 0x4A; ++j )
   {
@@ -2759,7 +2759,7 @@ void __cdecl SND_UpdateSnapshot(float dt)
               timePlayed = (float)(v2 - voice->alias->startDelay) / 1000.0;
               if ( timePlayed >= 0.0 && (isLooping || (float)(SnapshotById->fadeIn + SnapshotById->fadeOut) <= timeEnd) )
               {
-                lerp = FLOAT_1_0;
+                lerp = 1.0f;
                 if ( SnapshotById->fadeIn <= timePlayed )
                 {
                   if ( !isLooping
@@ -2850,8 +2850,8 @@ void __cdecl SND_UpdateSnapshot(float dt)
   }
   for ( jj = 0; jj < g_snd.global_constants->snapshotGroupCount; ++jj )
   {
-    g_snd.snapshotAttenuation[jj] = FLOAT_1_0;
-    g_snd.snapshotOcclusion[jj] = FLOAT_1_0;
+    g_snd.snapshotAttenuation[jj] = 1.0f;
+    g_snd.snapshotOcclusion[jj] = 1.0f;
     for ( kk = 0; kk < 0xB; ++kk )
     {
       if ( (float)(g_snd.snapshotCategories[kk].attenuation[jj].value - g_snd.snapshotAttenuation[jj]) < 0.0 )
@@ -2922,7 +2922,7 @@ double __cdecl SND_GetPitch(snd_voice_t *voice)
   if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(pitchb - 1.0) & _mask__AbsFloat_) > 0.0000152879 )
     voice->pitchShift = 1;
   if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(pitchb - 1.0) & _mask__AbsFloat_) < 0.0000152879 )
-    pitchb = FLOAT_1_0;
+    pitchb = 1.0f;
   if ( (float)(pitchb - 1.9) < 0.0 )
     v3 = pitchb;
   else
@@ -2930,7 +2930,7 @@ double __cdecl SND_GetPitch(snd_voice_t *voice)
   if ( (float)(0.0099999998 - pitchb) < 0.0 )
     return v3;
   else
-    return FLOAT_0_0099999998;
+    return 0.01f;
 }
 
 bool __cdecl SND_IsAliasTimescale(const snd_alias_t *alias)
@@ -3070,7 +3070,7 @@ double __cdecl SND_GetBaseLevel(const snd_voice_t *voice)
     __debugbreak();
   }
   if ( attenuatione < 0.0000152879 )
-    attenuatione = *(float *)&FLOAT_0_0;
+    attenuatione = 0.0f;
   if ( (LODWORD(attenuatione) & 0x7F800000) == 0x7F800000
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2644, 0, "%s", "!IS_NAN(attenuation)") )
   {
@@ -3079,11 +3079,11 @@ double __cdecl SND_GetBaseLevel(const snd_voice_t *voice)
   if ( (float)(attenuatione - 1.0) < 0.0 )
     v5 = attenuatione;
   else
-    v5 = FLOAT_1_0;
+    v5 = 1.0f;
   if ( (float)(0.0 - attenuatione) < 0.0 )
     return v5;
   else
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
 }
 
 double __cdecl SND_GetDryLevel(const snd_voice_t *voice)
@@ -3117,11 +3117,11 @@ double __cdecl SND_GetDryLevel(const snd_voice_t *voice)
                - (float)((float)((float)alias->occlusionLevel / 255.0) * (float)((float)alias->occlusionWetDry / 255.0)))
        + 0.25;
   else
-    v5 = FLOAT_1_0;
+    v5 = 1.0f;
   if ( (float)(0.0 - change) < 0.0 )
     v3 = v5;
   else
-    v3 = *(float *)&FLOAT_0_0;
+    v3 = 0.0f;
   attenuationa = (float)((float)((float)(1.0 - (float)(1.0 - voice->losOcclusion.value)) * 1.0)
                        + (float)(v3 * (float)(1.0 - voice->losOcclusion.value)))
                * attenuation;
@@ -3143,7 +3143,7 @@ double __cdecl SND_GetDryLevel(const snd_voice_t *voice)
     __debugbreak();
   }
   if ( attenuationc < 0.0000152879 )
-    attenuationc = *(float *)&FLOAT_0_0;
+    attenuationc = 0.0f;
   if ( (LODWORD(attenuationc) & 0x7F800000) == 0x7F800000
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 2676, 0, "%s", "!IS_NAN(attenuation)") )
   {
@@ -3152,11 +3152,11 @@ double __cdecl SND_GetDryLevel(const snd_voice_t *voice)
   if ( (float)(attenuationc - 1.0) < 0.0 )
     v4 = attenuationc;
   else
-    v4 = FLOAT_1_0;
+    v4 = 1.0f;
   if ( (float)(0.0 - attenuationc) < 0.0 )
     return v4;
   else
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
 }
 
 double __cdecl SND_GetWetLevel(const snd_voice_t *voice)
@@ -3198,11 +3198,11 @@ double __cdecl SND_GetWetLevel(const snd_voice_t *voice)
                + 1.0)
        - 0.25;
   else
-    v9 = FLOAT_1_0;
+    v9 = 1.0f;
   if ( (float)(0.0 - change) < 0.0 )
     v5 = v9;
   else
-    v5 = *(float *)&FLOAT_0_0;
+    v5 = 0.0f;
   attenuationa = (float)((float)((float)(1.0 - voice->losOcclusion.value) * 1.0)
                        + (float)(v5 * voice->losOcclusion.value))
                * attenuation;
@@ -3234,7 +3234,7 @@ double __cdecl SND_GetWetLevel(const snd_voice_t *voice)
     if ( (float)(0.0 - baseDistance) < 0.0 )
       *((float *)&v3 + 1) = value;
     else
-      HIDWORD(v3) = *(unsigned int *)&FLOAT_0_0;
+      HIDWORD(v3) = 0;
     v1 = (float)((float)(*((float *)&v3 + 1) / dm) * 1.5707964);
     __libm_sse2_sin(v3);
     *(float *)&v1 = v1;
@@ -3248,11 +3248,11 @@ double __cdecl SND_GetWetLevel(const snd_voice_t *voice)
   if ( (float)(attenuationc - 1.0) < 0.0 )
     v6 = attenuationc;
   else
-    v6 = FLOAT_1_0;
+    v6 = 1.0f;
   if ( (float)(0.0 - attenuationc) < 0.0 )
     return v6;
   else
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
 }
 
 double __cdecl SND_GetDistance(const snd_voice_t *channel)
@@ -3332,7 +3332,7 @@ double __cdecl I_fmap(float minx, float maxx, float miny, float maxy, float x)
   if ( (float)(0.0 - (float)(x - minx)) < 0.0 )
     v6 = v7;
   else
-    v6 = *(float *)&FLOAT_0_0;
+    v6 = 0.0f;
   return maxy * (float)(v6 / (float)(maxx - minx)) + (1.0 - (float)(v6 / (float)(maxx - minx))) * miny;
 }
 
@@ -3437,11 +3437,11 @@ void __cdecl SND_UpdatePanFilter(float dt, snd_voice_t *voice)
     if ( (float)(v3 - 1.0) < 0.0 )
       v4 = snd_pan_filter->current.value * dt;
     else
-      v4 = FLOAT_1_0;
+      v4 = 1.0f;
     if ( (float)(0.0 - v3) < 0.0 )
       v2 = v4;
     else
-      v2 = *(float *)&FLOAT_0_0;
+      v2 = 0.0f;
     voice->pan.volumes[i] = (float)((float)(1.0 - v2) * voice->panGoal.volumes[i]) + (float)(voice->pan.volumes[i] * v2);
     if ( (LODWORD(voice->pan.volumes[i]) & 0x7F800000) == 0x7F800000
       && !Assert_MyHandler(
@@ -3583,8 +3583,8 @@ void __cdecl SND_UpdateVoice(snd_voice_t *voice, float dt)
     }
     SND_FaderUpdate(&voice->script_fade, dt);
     SND_FaderUpdate(&voice->script_pitch, dt);
-    voice->baseDistance = FLOAT_N1_0;
-    voice->cylinderAttenuation = FLOAT_1_0;
+    voice->baseDistance = -1.0f;
+    voice->cylinderAttenuation = 1.0f;
     if ( (alias->flags & 2) >> 1 )
     {
       if ( voice->entity_update != SND_ENTITY_UPDATE_NEVER )
@@ -3873,16 +3873,16 @@ void __cdecl SND_UpdateVoice(snd_voice_t *voice, float dt)
               if ( (float)(atten - 1.0) < 0.0 )
                 v39 = atten;
               else
-                v39 = FLOAT_1_0;
+                v39 = 1.0f;
               if ( (float)(0.0 - atten) < 0.0 )
                 v32 = v39;
               else
-                v32 = *(float *)&FLOAT_0_0;
+                v32 = 0.0f;
               atten = v32;
               Snd_SpeakerMapSetVolume(&voice->panGoal, 0, out, v32);
             }
             if ( ndist > 0.0 )
-              voice->distanceAttenuation = FLOAT_1_0;
+              voice->distanceAttenuation = 1.0f;
             voice->reverbAttenuation = voice->reverbAttenuation * a;
             voice->futzBlend = b;
           }
@@ -3903,7 +3903,7 @@ void __cdecl SND_UpdateVoice(snd_voice_t *voice, float dt)
               Snd_SpeakerMapSetVolume(&voice->panGoal, 0, j, baseL * v55);
               Snd_SpeakerMapSetVolume(&voice->panGoal, 1, j, baseR * v57);
             }
-            voice->distanceAttenuation = FLOAT_1_0;
+            voice->distanceAttenuation = 1.0f;
             voice->reverbAttenuation = voice->reverbAttenuation * v55;
           }
           else if ( inputChannelCount == 2 && snd_stereo_3d->current.enabled )
@@ -3936,9 +3936,9 @@ void __cdecl SND_UpdateVoice(snd_voice_t *voice, float dt)
     }
     else
     {
-      voice->distanceAttenuation = FLOAT_1_0;
+      voice->distanceAttenuation = 1.0f;
       voice->reverbAttenuation = (float)alias->reverbSend / 65535.0;
-      voice->baseDistance = *(float *)&FLOAT_0_0;
+      voice->baseDistance = 0.0f;
       SND_FaderSetGoal(&voice->losOcclusion, 0.0);
       voice->losOcclusion.value = voice->losOcclusion.goal;
       voice->closestListenerIndex = 0;

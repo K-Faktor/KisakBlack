@@ -121,8 +121,8 @@ void __fastcall Path_AddTrimmedAmount(path_t *pPath, const float *vStartPos)
     v[0] = *vStartPos - pt->vOrigPoint[0];
     v[1] = vStartPos[1] - pt->vOrigPoint[1];
     closestDist = Vec2Length(v);
-    amount = *(float *)&FLOAT_0_0;
-    closestAmount = *(float *)&FLOAT_0_0;
+    amount = 0.0f;
+    closestAmount = 0.0f;
     if ( i >= pPath->wOrigPathLen
       && !Assert_MyHandler(
             "C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_navigation.cpp",
@@ -483,7 +483,7 @@ int __fastcall Path_FindPathFromToWithWidth(
   info.width = width;
   info.perp[0] = *perp;
   info.perp[1] = perp[1];
-  pNodeFrom->transient.costFactor = *(float *)&FLOAT_0_0;
+  pNodeFrom->transient.costFactor = 0.0f;
   return Path_AStarAlgorithm_CustomSearchInfo_FindPathWithWidth_(
            pPath,
            eTeam,
@@ -810,9 +810,9 @@ int __fastcall Path_GeneratePath(
   }
   if ( pPath->wNegotiationStartNode > 0 )
     Path_IncrementNodeUserCount(pPath);
-  pPath->pts[iTotal - 1].fOrigLength = *(float *)&FLOAT_0_0;
-  pPath->pts[iTotal - 1].fDir2D[0] = *(float *)&FLOAT_0_0;
-  pPath->pts[iTotal - 1].fDir2D[1] = *(float *)&FLOAT_0_0;
+  pPath->pts[iTotal - 1].fOrigLength = 0.0f;
+  pPath->pts[iTotal - 1].fDir2D[0] = 0.0f;
+  pPath->pts[iTotal - 1].fDir2D[1] = 0.0f;
   v16 = &pPath->pts[iTotal - 1];
   pPath->vCurrPoint[0] = v16->vOrigPoint[0];
   pPath->vCurrPoint[1] = v16->vOrigPoint[1];
@@ -823,7 +823,7 @@ int __fastcall Path_GeneratePath(
                                    pPath->pts[ia + 1].vOrigPoint,
                                    pPath->pts[ia].vOrigPoint);
   if ( iTotal <= 1 )
-    fOrigLength = *(float *)&FLOAT_0_0;
+    fOrigLength = 0.0f;
   else
     fOrigLength = pPath->pts[iTotal - 2].fOrigLength;
   pPath->fCurrLength = fOrigLength;
@@ -864,9 +864,9 @@ int __fastcall Path_GeneratePath(
       pPath->fLookaheadAmount = FLOAT_4096_0;
       pPath->minLookAheadNodes = 2;
     }
-    pPath->lookaheadDir[0] = *(float *)&FLOAT_0_0;
-    pPath->lookaheadDir[1] = *(float *)&FLOAT_0_0;
-    pPath->lookaheadDir[2] = *(float *)&FLOAT_0_0;
+    pPath->lookaheadDir[0] = 0.0f;
+    pPath->lookaheadDir[1] = 0.0f;
+    pPath->lookaheadDir[2] = 0.0f;
     Path_UpdateLookahead(pPath, vStartPos, 0, 0, 1, 0);
     pPath->minLookAheadNodes = 0;
   }
@@ -1025,7 +1025,7 @@ void __fastcall Path_TransferLookahead(path_t *pPath, const float *vStartPos)
     Path_SetLookaheadToStart(pPath, vStartPos, 0);
     return;
   }
-  totalArea = *(float *)&FLOAT_0_0;
+  totalArea = 0.0f;
   amount = pPath->fLookaheadAmount;
   if ( amount <= 0.0
     && !Assert_MyHandler(
@@ -1055,7 +1055,7 @@ void __fastcall Path_TransferLookahead(path_t *pPath, const float *vStartPos)
   fLength = Vec2Normalize(vStartDir);
   prevDot = (float)((float)(vDir[0] * vStartDir[1]) - (float)(vDir[1] * vStartDir[0])) * fLength;
   bestForwardDot = (float)(vDir[0] * vStartDir[0]) + (float)(vDir[1] * vStartDir[1]);
-  closestTotalArea = *(float *)&FLOAT_0_0;
+  closestTotalArea = 0.0f;
   bAtStart = 1;
   i = pPath->wPathLen - 2;
   while ( i >= pPath->wNegotiationStartNode )
@@ -1166,7 +1166,7 @@ void __fastcall Path_TransferLookahead(path_t *pPath, const float *vStartPos)
         if ( (pPath->flags & 2) == 0 && pPath->fLookaheadAmount > closestTotalArea )
         {
           if ( closestTotalArea < 64.0 )
-            closestTotalArea = FLOAT_64_0;
+            closestTotalArea = 64.0f;
           pPath->fLookaheadAmount = closestTotalArea;
         }
         return;
@@ -1192,7 +1192,7 @@ LABEL_79:
   if ( (pPath->flags & 2) == 0 && pPath->fLookaheadAmount > closestTotalArea )
   {
     if ( closestTotalArea < 64.0 )
-      closestTotalArea = FLOAT_64_0;
+      closestTotalArea = 64.0f;
     pPath->fLookaheadAmount = closestTotalArea;
   }
 }
@@ -1207,11 +1207,11 @@ void __fastcall Path_SetLookaheadToStart(path_t *pPath, const float *vStartPos, 
   pPath->lookaheadDir[2] = pPath->vCurrPoint[2] - vStartPos[2];
   pPath->fLookaheadDist = Vec2Normalize(pPath->lookaheadDir);
   if ( pPath->fLookaheadDist == 0.0 )
-    v3 = *(float *)&FLOAT_0_0;
+    v3 = 0.0f;
   else
     v3 = pPath->lookaheadDir[2] / pPath->fLookaheadDist;
   pPath->lookaheadDir[2] = v3;
-  pPath->fLookaheadDistToNextNode = *(float *)&FLOAT_0_0;
+  pPath->fLookaheadDistToNextNode = 0.0f;
   pPath->lookaheadNextNode = pPath->wPathLen - 1;
   if ( ai_useBetterLookahead->current.enabled && !zombiemode->current.enabled )
     numIter = 3;
@@ -1319,7 +1319,7 @@ int __fastcall Path_FindPathGetCloseAsPossible(
   CustomSearchInfo_FindPathClosestPossible info; // [esp+BCh] [ebp-10h] BYREF
 
   LODWORD(info.negotiationOverlapCost) = ai_pathNegotiationOverlapCost->current.integer;
-  info.m_fBestScore = FLOAT_3_4028235e38;
+  info.m_fBestScore = FLT_MAX;
   info.m_pBestNode = 0;
   if ( !pNodeTo
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_navigation.cpp", 1770, 0, "%s", "pNodeTo") )
@@ -1522,7 +1522,7 @@ void __cdecl Path_TrimLastNodes(path_t *pPath, int iNodeCount, bool bMaintainGoa
     if ( pPath->lookaheadNextNode < 0 )
     {
       pPath->lookaheadNextNode = 0;
-      pPath->fLookaheadDistToNextNode = *(float *)&FLOAT_0_0;
+      pPath->fLookaheadDistToNextNode = 0.0f;
     }
     newNegotiationNode = pPath->wNegotiationStartNode - iNodeCount;
     if ( newNegotiationNode > 0 )
@@ -1561,11 +1561,11 @@ void __cdecl Path_TrimLastNodes(path_t *pPath, int iNodeCount, bool bMaintainGoa
       pPath->pts[0].vOrigPoint[1] = pPath->vCurrPoint[1];
       pPath->pts[0].vOrigPoint[2] = pPath->vCurrPoint[2];
       pPath->wOrigPathLen = 1;
-      pPath->fCurrLength = *(float *)&FLOAT_0_0;
+      pPath->fCurrLength = 0.0f;
       pPath->pts[0].iNodeNum = -1;
-      pPath->pts[0].fOrigLength = *(float *)&FLOAT_0_0;
-      pPath->pts[0].fDir2D[0] = *(float *)&FLOAT_0_0;
-      pPath->pts[0].fDir2D[1] = *(float *)&FLOAT_0_0;
+      pPath->pts[0].fOrigLength = 0.0f;
+      pPath->pts[0].fDir2D[0] = 0.0f;
+      pPath->pts[0].fDir2D[1] = 0.0f;
     }
     else
     {
@@ -2211,9 +2211,9 @@ int __fastcall Path_PredictionTraceCheckForEntities(
   {
     ent = (gentity_s *)(sv.bpsWindow[8] + entities[entityIndex] * sv.bpsWindow[9]);
     if ( ent && ent->actor && ent->actor->Physics.prone )
-      stepheight = FLOAT_10_0;
+      stepheight = 10.0f;
     else
-      stepheight = FLOAT_18_0;
+      stepheight = 18.0f;
     clip.mins[2] = stepheight + 0.0;
     if ( SV_SightTraceCapsuleToEntity(&clip, entities[entityIndex]) )
     {
@@ -2459,7 +2459,7 @@ int __fastcall Path_GetForwardStartPos(path_t *pPath, const float *vStartPos, fl
   if ( (pPath->flags & 1) != 0 )
     return 0;
   if ( (float)(60.0 - pPath->fLookaheadDist) < 0.0 )
-    fLookaheadDist = FLOAT_60_0;
+    fLookaheadDist = 60.0f;
   else
     fLookaheadDist = pPath->fLookaheadDist;
   *vForwardStartPos = (float)(fLookaheadDist * pPath->lookaheadDir[0]) + *vStartPos;
@@ -2515,7 +2515,7 @@ void __fastcall Path_UpdateLookahead_NonCodeMove(path_t *pPath, const float *vPr
     }
   }
   if ( (float)(pPath->fLookaheadAmount - 1024.0) < 0.0 )
-    fLookaheadAmount = FLOAT_1024_0;
+    fLookaheadAmount = 1024.0f;
   else
     fLookaheadAmount = pPath->fLookaheadAmount;
   pPath->fLookaheadAmount = fLookaheadAmount;
@@ -2658,11 +2658,11 @@ void __fastcall Path_UpdateLookahead(
     pPath->lookaheadDir[2] = pPath->vCurrPoint[2] - vStartPos[2];
     pPath->fLookaheadDist = Vec2Normalize(pPath->lookaheadDir);
     if ( pPath->fLookaheadDist == 0.0 )
-      v7 = *(float *)&FLOAT_0_0;
+      v7 = 0.0f;
     else
       v7 = pPath->lookaheadDir[2] / pPath->fLookaheadDist;
     pPath->lookaheadDir[2] = v7;
-    pPath->fLookaheadDistToNextNode = *(float *)&FLOAT_0_0;
+    pPath->fLookaheadDistToNextNode = 0.0f;
     pPath->lookaheadNextNode = pPath->wNegotiationStartNode;
     pPath->flags |= 0x41u;
   }
@@ -2764,7 +2764,7 @@ void __fastcall Path_SubtractTrimmedAmount(path_t *pPath, const float *vStartPos
     }
     pPath->fLookaheadAmount = pPath->fLookaheadAmount - amount;
     if ( pPath->fLookaheadAmount < 64.0 )
-      pPath->fLookaheadAmount = FLOAT_64_0;
+      pPath->fLookaheadAmount = 64.0f;
   }
 }
 
@@ -3140,7 +3140,7 @@ LABEL_127:
         __debugbreak();
       }
       if ( i <= pPath->wNegotiationStartNode + 1 )
-        fOrigLength = *(float *)&FLOAT_0_0;
+        fOrigLength = 0.0f;
       else
         fOrigLength = pPath->pts[i - 2].fOrigLength;
       pPath->fCurrLength = fOrigLength;
@@ -3596,7 +3596,7 @@ void __fastcall Path_CalcLookahead(
             v4) )
       __debugbreak();
   }
-  totalArea = *(float *)&FLOAT_0_0;
+  totalArea = 0.0f;
   lookaheadAmount = pPath->fLookaheadAmount;
   if ( (LODWORD(lookaheadAmount) & 0x7F800000) == 0x7F800000
     && !Assert_MyHandler(
@@ -3739,11 +3739,11 @@ void __fastcall Path_UpdateLookaheadAmount(
   }
   if ( pPath->lookaheadNextNode >= pPath->wPathLen - 1 )
   {
-    pPath->fLookaheadDistToNextNode = *(float *)&FLOAT_0_0;
+    pPath->fLookaheadDistToNextNode = 0.0f;
     pPath->lookaheadNextNode = pPath->wPathLen - 1;
   }
-  prevLength = *(float *)&FLOAT_0_0;
-  prevHeight = *(float *)&FLOAT_0_0;
+  prevLength = 0.0f;
+  prevHeight = 0.0f;
   prevLookaheadAmount = pPath->fLookaheadAmount;
   restorePrevLookahead = 0;
   lookaheadTrace = 0;
@@ -3851,7 +3851,7 @@ LABEL_28:
     pPath->lookaheadDir[2] = prevLookaheadPos[2] - vStartPos[2];
     pPath->fLookaheadDist = Vec2Normalize(pPath->lookaheadDir);
     if ( pPath->fLookaheadDist == 0.0 )
-      v10 = *(float *)&FLOAT_0_0;
+      v10 = 0.0f;
     else
       v10 = pPath->lookaheadDir[2] / pPath->fLookaheadDist;
     pPath->lookaheadDir[2] = v10;
@@ -3865,7 +3865,7 @@ LABEL_28:
     pPath->lookaheadDir[2] = vLookaheadPos[2] - vStartPos[2];
     pPath->fLookaheadDist = Vec2Normalize(pPath->lookaheadDir);
     if ( pPath->fLookaheadDist == 0.0 )
-      v9 = *(float *)&FLOAT_0_0;
+      v9 = 0.0f;
     else
       v9 = pPath->lookaheadDir[2] / pPath->fLookaheadDist;
     pPath->lookaheadDir[2] = v9;
@@ -3980,7 +3980,7 @@ void __fastcall Path_ReduceLookaheadAmount(path_t *pPath, float maxLookaheadAmou
   else
     pPath->fLookaheadAmount = maxLookaheadAmountIfReduce * 0.5625;
   if ( pPath->fLookaheadAmount < 0.001 )
-    pPath->fLookaheadAmount = FLOAT_0_001;
+    pPath->fLookaheadAmount = 0.001f;
   pPath->flags &= 0xFFFFFDFC;
 }
 
@@ -5042,7 +5042,7 @@ fail_2:
       }
       ++pt;
       pPath->lookaheadNextNode = ++startIndex;
-      pPath->fLookaheadDistToNextNode = *(float *)&FLOAT_0_0;
+      pPath->fLookaheadDistToNextNode = 0.0f;
       pt->iNodeNum = -1;
       Path_DodgeDrawRaisedLine(pt[-1].vOrigPoint, pt->vOrigPoint, colorGreen);
     }
@@ -5115,9 +5115,9 @@ LABEL_29:
   pPath->vCurrPoint[0] = vNewDodgeStart[0];
   pPath->vCurrPoint[1] = vNewDodgeStart[1];
   pPath->vCurrPoint[2] = vNewDodgeStart[2];
-  pt->fOrigLength = *(float *)&FLOAT_0_0;
-  pt->fDir2D[0] = *(float *)&FLOAT_0_0;
-  pt->fDir2D[1] = *(float *)&FLOAT_0_0;
+  pt->fOrigLength = 0.0f;
+  pt->fDir2D[0] = 0.0f;
+  pt->fDir2D[1] = 0.0f;
   pPath->flags &= 0xFFFFFDBC;
   pPath->wPathLen = startIndex + 1;
   pPath->wOrigPathLen = pPath->wPathLen;

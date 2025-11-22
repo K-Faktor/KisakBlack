@@ -117,7 +117,7 @@ void __cdecl RB_DrawSuperFlareOccluders(const GfxViewInfo *viewInfo)
                 Error = 1;
               if ( Error )
               {
-                v4 = *(float *)&FLOAT_0_0;
+                v4 = 0.0f;
               }
               else
               {
@@ -125,18 +125,18 @@ void __cdecl RB_DrawSuperFlareOccluders(const GfxViewInfo *viewInfo)
                 if ( (float)(v5 - 1.0) < 0.0 )
                   v6 = (double)VisiblePixelCount / (double)PossiblePixelCount;
                 else
-                  v6 = FLOAT_1_0;
+                  v6 = 1.0f;
                 if ( (float)(0.0 - v5) < 0.0 )
                   v3 = v6;
                 else
-                  v3 = *(float *)&FLOAT_0_0;
+                  v3 = 0.0f;
                 v4 = v3;
               }
               FilterInfo->passFlareOcclusion[iFilter][iPass] = v4;
             }
             else
             {
-              FilterInfo->passFlareOcclusion[iFilter][iPass] = *(float *)&FLOAT_0_0;
+              FilterInfo->passFlareOcclusion[iFilter][iPass] = 0.0f;
             }
             if ( r_superFlare_debug->current.enabled )
               superFlareOccluderNoZDebug = rgp.superFlareOccluderNoZDebug;
@@ -165,13 +165,13 @@ void __cdecl RB_DrawSuperFlareOccluders(const GfxViewInfo *viewInfo)
           }
           else
           {
-            FilterInfo->passFlareOcclusion[iFilter][iPass] = *(float *)&FLOAT_0_0;
+            FilterInfo->passFlareOcclusion[iFilter][iPass] = 0.0f;
           }
         }
         else
         {
-          FilterInfo->passFlareOcclusion[iFilter][iPass] = *(float *)&FLOAT_0_0;
-          FilterInfo->passFlareOcclusion[iFilter][iPass] = *(float *)&FLOAT_0_0;
+          FilterInfo->passFlareOcclusion[iFilter][iPass] = 0.0f;
+          FilterInfo->passFlareOcclusion[iFilter][iPass] = 0.0f;
         }
       }
     }
@@ -293,20 +293,20 @@ GfxVertex *__cdecl RB_SetSuperFlareQuads()
   tess.indices[tess.indexCount + 5] = vertCount + 1;
   vert = &tess.verts[vertCount];
   vert->normal.packed = 1073643391;
-  vert->texCoord[0] = *(float *)&FLOAT_0_0;
-  vert->texCoord[1] = *(float *)&FLOAT_0_0;
+  vert->texCoord[0] = 0.0f;
+  vert->texCoord[1] = 0.0f;
   vert->color.packed = -1;
   vert[1].normal.packed = 1073643391;
-  vert[1].texCoord[0] = FLOAT_1_0;
-  vert[1].texCoord[1] = *(float *)&FLOAT_0_0;
+  vert[1].texCoord[0] = 1.0f;
+  vert[1].texCoord[1] = 0.0f;
   vert[1].color.packed = -1;
   vert[2].normal.packed = 1073643391;
-  vert[2].texCoord[0] = FLOAT_1_0;
-  vert[2].texCoord[1] = FLOAT_1_0;
+  vert[2].texCoord[0] = 1.0f;
+  vert[2].texCoord[1] = 1.0f;
   vert[2].color.packed = -1;
   vert[3].normal.packed = 1073643391;
-  vert[3].texCoord[0] = *(float *)&FLOAT_0_0;
-  vert[3].texCoord[1] = FLOAT_1_0;
+  vert[3].texCoord[0] = 0.0f;
+  vert[3].texCoord[1] = 1.0f;
   vert[3].color.packed = -1;
   tess.vertexCount += 4;
   tess.indexCount += 6;

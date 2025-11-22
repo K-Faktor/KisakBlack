@@ -40,7 +40,7 @@ int __cdecl G_GetFreePlayerCorpseIndex()
   float distSq; // [esp+28h] [ebp-8h]
   float bestDistSq; // [esp+2Ch] [ebp-4h]
 
-  bestDistSq = FLOAT_N1_0;
+  bestDistSq = -1.0f;
   bestIndex = 0;
   ent = G_Find(0, 356, scr_const.player);
   if ( !ent && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\g_player_corpse.cpp", 135, 0, "%s", "ent") )
@@ -207,7 +207,7 @@ void __cdecl G_RunCorpseMove(gentity_s *ent)
     ent->r.currentOrigin[1] = endpos[1];
     ent->r.currentOrigin[2] = endpos[2];
     if ( tr.startsolid )
-      tr.fraction = *(float *)&FLOAT_0_0;
+      tr.fraction = 0.0f;
     SV_LinkEntity((int)&savedregs, ent);
     G_RunThink(ent);
     if ( ent->r.inuse )
@@ -222,9 +222,9 @@ void __cdecl G_RunCorpseMove(gentity_s *ent)
           ent->s.lerp.pos.trBase[2] = endpos[2];
           ent->s.lerp.pos.trTime = 0;
           ent->s.lerp.pos.trDuration = 0;
-          ent->s.lerp.pos.trDelta[0] = *(float *)&FLOAT_0_0;
-          ent->s.lerp.pos.trDelta[1] = *(float *)&FLOAT_0_0;
-          ent->s.lerp.pos.trDelta[2] = *(float *)&FLOAT_0_0;
+          ent->s.lerp.pos.trDelta[0] = 0.0f;
+          ent->s.lerp.pos.trDelta[1] = 0.0f;
+          ent->s.lerp.pos.trDelta[2] = 0.0f;
           origin[2] = origin[2] - 1.0;
           col_context_t::col_context_t(&v10, mask);
           if ( EntHandle::isDefined(&ent->r.ownerNum) )
@@ -240,9 +240,9 @@ void __cdecl G_RunCorpseMove(gentity_s *ent)
             ent->s.lerp.pos.trBase[0] = endpos[0];
             ent->s.lerp.pos.trBase[1] = endpos[1];
             ent->s.lerp.pos.trBase[2] = endpos[2];
-            ent->s.lerp.pos.trDelta[0] = *(float *)&FLOAT_0_0;
-            ent->s.lerp.pos.trDelta[1] = *(float *)&FLOAT_0_0;
-            ent->s.lerp.pos.trDelta[2] = *(float *)&FLOAT_0_0;
+            ent->s.lerp.pos.trDelta[0] = 0.0f;
+            ent->s.lerp.pos.trDelta[1] = 0.0f;
+            ent->s.lerp.pos.trDelta[2] = 0.0f;
             v6 = deltaChange[0];
             ent->s.lerp.pos.trDelta[0] = (float)(deltaChange[0] * forward[0]) + ent->s.lerp.pos.trDelta[0];
             ent->s.lerp.pos.trDelta[1] = (float)(v6 * forward[1]) + ent->s.lerp.pos.trDelta[1];
@@ -264,7 +264,7 @@ void __cdecl G_RunCorpseMove(gentity_s *ent)
       {
         if ( tr.allsolid )
         {
-          DROP_CHECK_TRACE_START_HEIGHT = FLOAT_32_0;
+          DROP_CHECK_TRACE_START_HEIGHT = 32.0f;
           start[0] = ent->r.currentOrigin[0];
           start[1] = ent->r.currentOrigin[1];
           start[2] = ent->r.currentOrigin[2];
@@ -301,16 +301,16 @@ void __cdecl G_BounceCorpse(gentity_s *ent, corpseInfo_t *corpseInfo, trace_t *t
   int savedregs; // [esp+54h] [ebp+0h] BYREF
 
   isRagdoll = Com_IsRagdollTrajectory(&ent->s.lerp.pos);
-  ent->s.lerp.pos.trDelta[0] = *(float *)&FLOAT_0_0;
-  ent->s.lerp.pos.trDelta[1] = *(float *)&FLOAT_0_0;
-  ent->s.lerp.pos.trDelta[2] = *(float *)&FLOAT_0_0;
+  ent->s.lerp.pos.trDelta[0] = 0.0f;
+  ent->s.lerp.pos.trDelta[1] = 0.0f;
+  ent->s.lerp.pos.trDelta[2] = 0.0f;
   if ( trace->allsolid || trace->normal.vec.v[2] > 0.0 )
   {
     corpseInfo->falling = 0;
     AssignToSmallerType<unsigned char>(&ent->s.lerp.pos.trType, isRagdoll ? 14 : 1);
-    ent->s.lerp.pos.trDelta[0] = *(float *)&FLOAT_0_0;
-    ent->s.lerp.pos.trDelta[1] = *(float *)&FLOAT_0_0;
-    ent->s.lerp.pos.trDelta[2] = *(float *)&FLOAT_0_0;
+    ent->s.lerp.pos.trDelta[0] = 0.0f;
+    ent->s.lerp.pos.trDelta[1] = 0.0f;
+    ent->s.lerp.pos.trDelta[2] = 0.0f;
     ent->s.lerp.pos.trBase[0] = *endpos;
     ent->s.lerp.pos.trBase[1] = endpos[1];
     ent->s.lerp.pos.trBase[2] = endpos[2];

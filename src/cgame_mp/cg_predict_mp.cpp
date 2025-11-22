@@ -46,9 +46,9 @@ void __thiscall colgeom_visitor_inlined_t<200>::update(
   _mx[0] = _mx[0] + fudge[0];
   _mx[1] = _mx[1] + fudge[1];
   _mx[2] = _mx[2] + fudge[2];
-  expand_vec[0] = FLOAT_70_0;
-  expand_vec[1] = FLOAT_70_0;
-  expand_vec[2] = FLOAT_20_0;
+  expand_vec[0] = 70.0f;
+  expand_vec[1] = 70.0f;
+  expand_vec[2] = 20.0f;
   this->update(this, _mn, _mx, mask, expand_vec);
 }
 
@@ -144,7 +144,7 @@ LABEL_6:
     speed = Abs(cgameGlob->movieCameraVelocity);
     if ( speed >= 1.0 )
     {
-      drop = *(float *)&FLOAT_0_0;
+      drop = 0.0f;
       curFriction = friction->current.value * 1.5;
       if ( stopspeed->current.value <= speed )
         value = speed;
@@ -154,7 +154,7 @@ LABEL_6:
       drop = (float)((float)(value * curFriction) * 0.016666999) + drop;
       newspeed = speed - drop;
       if ( (float)(speed - drop) < 0.0 )
-        newspeed = *(float *)&FLOAT_0_0;
+        newspeed = 0.0f;
       newspeed = newspeed / speed;
       movieCameraVelocity = cgameGlob->movieCameraVelocity;
       v8 = cgameGlob->movieCameraVelocity;
@@ -171,7 +171,7 @@ LABEL_6:
     }
     fmove = (float)cmd->forwardmove;
     smove = (float)cmd->rightmove;
-    umove = *(float *)&FLOAT_0_0;
+    umove = 0.0f;
     if ( bitarray<51>::testBit(&cmd->button_bits, 7u) )
       umove = umove + 127.0;
     if ( bitarray<51>::testBit(&cmd->button_bits, 6u) )
@@ -257,12 +257,12 @@ void __cdecl CG_ClearSavedPlayerState(int localClientNum)
     __debugbreak();
   }
   cgameGlob->oldCommandTime = 0;
-  cgameGlob->oldOrigin[0] = *(float *)&FLOAT_0_0;
-  cgameGlob->oldOrigin[1] = *(float *)&FLOAT_0_0;
-  cgameGlob->oldOrigin[2] = *(float *)&FLOAT_0_0;
-  cgameGlob->oldViewangles[0] = *(float *)&FLOAT_0_0;
-  cgameGlob->oldViewangles[1] = *(float *)&FLOAT_0_0;
-  cgameGlob->oldViewangles[2] = *(float *)&FLOAT_0_0;
+  cgameGlob->oldOrigin[0] = 0.0f;
+  cgameGlob->oldOrigin[1] = 0.0f;
+  cgameGlob->oldOrigin[2] = 0.0f;
+  cgameGlob->oldViewangles[0] = 0.0f;
+  cgameGlob->oldViewangles[1] = 0.0f;
+  cgameGlob->oldViewangles[2] = 0.0f;
   CG_ClearTransPlayerState(&cgameGlob->oldTransPlayerState);
 }
 
@@ -487,7 +487,7 @@ void __cdecl CG_PredictPlayerState_Internal(int localClientNum)
       dword_F543CC[580 * localClientNum] &= 0xFDFE7FFF;
       dword_F543CC[580 * localClientNum] |= 0x800u;
     }
-    dword_F54598[580 * localClientNum] = *(unsigned int *)&FLOAT_0_0;
+    dword_F54598[580 * localClientNum] = 0;
     dword_F54594[580 * localClientNum] = cgameGlob->stepViewStart;
     cmdNum = current - 127;
     if ( CL_GetUserCmd(localClientNum, current - 127, &oldestCmd) )
@@ -592,16 +592,16 @@ void __cdecl CG_PredictPlayerState_Internal(int localClientNum)
                 if ( cg_errorDecay->current.value == 0.0 )
                 {
                   predictedError = cgameGlob->predictedError;
-                  cgameGlob->predictedError[0] = *(float *)&FLOAT_0_0;
-                  predictedError[1] = *(float *)&FLOAT_0_0;
-                  predictedError[2] = *(float *)&FLOAT_0_0;
+                  cgameGlob->predictedError[0] = 0.0f;
+                  predictedError[1] = 0.0f;
+                  predictedError[2] = 0.0f;
                 }
                 else
                 {
                   t = cgameGlob->time - cgameGlob->predictedErrorTime;
                   f = (float)(cg_errorDecay->current.value - (float)t) / cg_errorDecay->current.value;
                   if ( f < 0.0 )
-                    f = *(float *)&FLOAT_0_0;
+                    f = 0.0f;
                   if ( f > 0.0 && cg_showmiss->current.integer )
                     Com_Printf(17, "Double prediction decay: %f\n", f);
                   v12 = cgameGlob->predictedError;
@@ -660,7 +660,7 @@ void __cdecl CG_PredictPlayerState_Internal(int localClientNum)
         || ps->pm_type && ps->pm_type != 2 && ps->pm_type != 3 )
       {
         if ( (float)(cgameGlob->time - cgameGlob->stepViewStart) > (float)(cg_viewZSmoothingTime->current.value * 1000.0) )
-          cgameGlob->stepViewChange = *(float *)&FLOAT_0_0;
+          cgameGlob->stepViewChange = 0.0f;
       }
       else
       {
@@ -669,11 +669,11 @@ void __cdecl CG_PredictPlayerState_Internal(int localClientNum)
         {
           if ( (float)(cgameGlob->time - cgameGlob->stepViewStart) > (float)(cg_viewZSmoothingTime->current.value
                                                                            * 1000.0) )
-            cgameGlob->stepViewChange = *(float *)&FLOAT_0_0;
+            cgameGlob->stepViewChange = 0.0f;
         }
         else
         {
-          stepRemaining = *(float *)&FLOAT_0_0;
+          stepRemaining = 0.0f;
           if ( (float)(cg_viewZSmoothingTime->current.value * 1000.0) > (float)(cgameGlob->time
                                                                               - cgameGlob->stepViewStart) )
           {
@@ -840,7 +840,7 @@ void __cdecl CG_InterpolatePlayerStateViewAngles(int localClientNum, playerState
         }
         if ( vehicleType < 2 )
         {
-          pitchClamp = FLOAT_360_0;
+          pitchClamp = 360.0f;
           vehAngles[0] = vehCent->pose.angles[0];
           vehAngles[1] = vehCent->pose.angles[1];
           vehAngles[2] = vehCent->pose.angles[2];
@@ -877,9 +877,9 @@ void __cdecl CG_InterpolatePlayerStateViewAngles(int localClientNum, playerState
           else
           {
             AnglesToAxis(vehAngles, vehMat);
-            viewYawAngles[0] = *(float *)&FLOAT_0_0;
+            viewYawAngles[0] = 0.0f;
             viewYawAngles[1] = yawOffset;
-            viewYawAngles[2] = *(float *)&FLOAT_0_0;
+            viewYawAngles[2] = 0.0f;
             AnglesToAxis(viewYawAngles, viewMat);
             MatrixMultiply(viewMat, vehMat, resultMat);
             AxisToAngles(resultMat, centerAngles);
@@ -1120,30 +1120,30 @@ colgeom_visitor_t *__thiscall colgeom_visitor_t::colgeom_visitor_t(colgeom_visit
 {
   this->__vftable = (colgeom_visitor_t_vtbl *)&visitor_base_t::`vftable';
   this->__vftable = (colgeom_visitor_t_vtbl *)&colgeom_visitor_t::`vftable';
-  this->m_mn.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->m_mn.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->m_mn.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->m_mn.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
-  this->m_mx.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->m_mx.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->m_mx.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->m_mx.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
-  this->m_p0.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->m_p0.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->m_p0.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->m_p0.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
-  this->m_p1.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->m_p1.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->m_p1.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->m_p1.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
-  this->m_delta.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->m_delta.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->m_delta.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->m_delta.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
-  this->m_rvec.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->m_rvec.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->m_rvec.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->m_rvec.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
+  this->m_mn.vec.u[0] = 0;
+  this->m_mn.vec.u[1] = 0;
+  this->m_mn.vec.u[2] = 0;
+  this->m_mn.vec.u[3] = 0;
+  this->m_mx.vec.u[0] = 0;
+  this->m_mx.vec.u[1] = 0;
+  this->m_mx.vec.u[2] = 0;
+  this->m_mx.vec.u[3] = 0;
+  this->m_p0.vec.u[0] = 0;
+  this->m_p0.vec.u[1] = 0;
+  this->m_p0.vec.u[2] = 0;
+  this->m_p0.vec.u[3] = 0;
+  this->m_p1.vec.u[0] = 0;
+  this->m_p1.vec.u[1] = 0;
+  this->m_p1.vec.u[2] = 0;
+  this->m_p1.vec.u[3] = 0;
+  this->m_delta.vec.u[0] = 0;
+  this->m_delta.vec.u[1] = 0;
+  this->m_delta.vec.u[2] = 0;
+  this->m_delta.vec.u[3] = 0;
+  this->m_rvec.vec.u[0] = 0;
+  this->m_rvec.vec.u[1] = 0;
+  this->m_rvec.vec.u[2] = 0;
+  this->m_rvec.vec.u[3] = 0;
   return this;
 }
 

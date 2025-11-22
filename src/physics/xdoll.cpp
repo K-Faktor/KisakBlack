@@ -715,12 +715,12 @@ void  XDoll_CreateConstraint(
         powera = (const phys_vec3 *)(highStop + 80);
         v5 = phys_multiply(&v13, (const phys_mat44 *)(highStop + 32), (const phys_vec3 *)&lowStop);
         operator+((phys_vec3 *)&hinge_axis_loc.y, v5, powera);
-        ref_axis_loc.y = *(float *)&FLOAT_0_0;
-        ref_axis_loc.z = *(float *)&FLOAT_0_0;
-        ref_axis_loc.w = FLOAT_1_0;
-        b1_hinge_axis_loc.y = *(float *)&FLOAT_0_0;
-        b1_hinge_axis_loc.z = FLOAT_1_0;
-        b1_hinge_axis_loc.w = *(float *)&FLOAT_0_0;
+        ref_axis_loc.y = 0.0f;
+        ref_axis_loc.z = 0.0f;
+        ref_axis_loc.w = 1.0f;
+        b1_hinge_axis_loc.y = 0.0f;
+        b1_hinge_axis_loc.z = 1.0f;
+        b1_hinge_axis_loc.w = 0.0f;
         phys_multiply(
           (phys_vec3 *)&b1_ref_axis_loc.y,
           (const phys_mat44 *)(highStop + 32),
@@ -986,8 +986,8 @@ void __cdecl XDoll_DoControllers(int xdoll_handle, int *partBits, int localClien
           v3 = Vec4LengthSq(boneMat->quat);
           if ( v3 == 0.0 )
           {
-            boneMat->quat[3] = FLOAT_1_0;
-            boneMat->transWeight = FLOAT_2_0;
+            boneMat->quat[3] = 1.0f;
+            boneMat->transWeight = 2.0f;
           }
           else
           {

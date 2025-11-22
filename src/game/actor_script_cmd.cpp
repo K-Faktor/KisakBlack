@@ -53,15 +53,15 @@ LABEL_9:
     self->arrivalInfo.animscriptOverrideOriginError[0] = startPos[0] - ent->r.currentOrigin[0];
     self->arrivalInfo.animscriptOverrideOriginError[1] = startPos[1] - currentOrigin[1];
     self->arrivalInfo.animscriptOverrideOriginError[2] = startPos[2] - currentOrigin[2];
-    angles[0] = *(float *)&FLOAT_0_0;
+    angles[0] = 0.0f;
     angles[1] = Scr_GetFloat(1u, SCRIPTINSTANCE_SERVER);
-    angles[2] = *(float *)&FLOAT_0_0;
-    self->Physics.vVelocity[0] = *(float *)&FLOAT_0_0;
-    self->Physics.vVelocity[1] = *(float *)&FLOAT_0_0;
-    self->Physics.vVelocity[2] = *(float *)&FLOAT_0_0;
-    self->Physics.vWishDelta[0] = *(float *)&FLOAT_0_0;
-    self->Physics.vWishDelta[1] = *(float *)&FLOAT_0_0;
-    self->Physics.vWishDelta[2] = *(float *)&FLOAT_0_0;
+    angles[2] = 0.0f;
+    self->Physics.vVelocity[0] = 0.0f;
+    self->Physics.vVelocity[1] = 0.0f;
+    self->Physics.vVelocity[2] = 0.0f;
+    self->Physics.vWishDelta[0] = 0.0f;
+    self->Physics.vWishDelta[1] = 0.0f;
+    self->Physics.vWishDelta[2] = 0.0f;
     self->ScriptOrient.eMode = AI_ORIENT_INVALID;
     Actor_SetDesiredAngles(&self->CodeOrient, angles[0], angles[1]);
     Actor_SetDesiredAngles(&self->ScriptOrient, angles[0], angles[1]);
@@ -229,7 +229,7 @@ void __cdecl ActorCmd_SetLookAt(scr_entref_t entref)
   float fTurnAccel; // [esp+10h] [ebp-8h]
   actor_s *self; // [esp+14h] [ebp-4h]
 
-  fTurnAccel = *(float *)&FLOAT_0_0;
+  fTurnAccel = 0.0f;
   self = Actor_Get(entref);
   if ( !self->lookAtInfo.bLookAtSetup )
     Scr_Error("LookAt Called without setLookAtAnimNodes being called first.", 0);
@@ -258,7 +258,7 @@ void __cdecl ActorCmd_StopLookAt(scr_entref_t entref)
   float fTurnAccel; // [esp+4h] [ebp-8h]
   actor_s *self; // [esp+8h] [ebp-4h]
 
-  fTurnAccel = *(float *)&FLOAT_0_0;
+  fTurnAccel = 0.0f;
   self = Actor_Get(entref);
   if ( Scr_GetNumParam(SCRIPTINSTANCE_SERVER) )
     fTurnAccel = Scr_GetFloat(0, SCRIPTINSTANCE_SERVER);
@@ -380,7 +380,7 @@ int __cdecl MayMove_TraceCheck(actor_s *self, float *vStart, float *vEnd, int al
   float vPointLow[3]; // [esp+D4h] [ebp-Ch] BYREF
 
   memset(&results, 0, 16);
-  MAX_FALL_HEIGHT = FLOAT_32_0;
+  MAX_FALL_HEIGHT = 32.0f;
   if ( !self
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_script_cmd.cpp", 1360, 0, "%s", "self") )
   {
@@ -422,9 +422,9 @@ int __cdecl MayMove_TraceCheck(actor_s *self, float *vStart, float *vEnd, int al
   else
   {
     if ( self->Physics.prone )
-      stepheight = FLOAT_10_0;
+      stepheight = 10.0f;
     else
-      stepheight = FLOAT_18_0;
+      stepheight = 18.0f;
     if ( checkDrop
       && (Vec3Lerp(vPointHigh, vPointLow, results.fraction, vPointLow),
           (float)(vStart[2] - vPointLow[2]) > MAX_FALL_HEIGHT) )
@@ -547,13 +547,13 @@ void __cdecl ActorCmd_Teleport(scr_entref_t entref)
   }
   G_SetOrigin(ent, vSpawnPos);
   vVelocity = self->Physics.vVelocity;
-  self->Physics.vVelocity[0] = *(float *)&FLOAT_0_0;
-  vVelocity[1] = *(float *)&FLOAT_0_0;
-  vVelocity[2] = *(float *)&FLOAT_0_0;
+  self->Physics.vVelocity[0] = 0.0f;
+  vVelocity[1] = 0.0f;
+  vVelocity[2] = 0.0f;
   vWishDelta = self->Physics.vWishDelta;
-  self->Physics.vWishDelta[0] = *(float *)&FLOAT_0_0;
-  vWishDelta[1] = *(float *)&FLOAT_0_0;
-  vWishDelta[2] = *(float *)&FLOAT_0_0;
+  self->Physics.vWishDelta[0] = 0.0f;
+  vWishDelta[1] = 0.0f;
+  vWishDelta[2] = 0.0f;
   if ( self->useEnemyGoal && (!Actor_PointAtGoal(vSpawnPos, &self->codeGoal) || distSquared > 100.0) )
   {
     self->useEnemyGoal = 0;
@@ -601,13 +601,13 @@ void __cdecl ActorCmd_ForceTeleport(scr_entref_t entref)
     ent->s.lerp.eFlags ^= 2u;
   G_SetOrigin(ent, vSpawnPos);
   vVelocity = self->Physics.vVelocity;
-  self->Physics.vVelocity[0] = *(float *)&FLOAT_0_0;
-  vVelocity[1] = *(float *)&FLOAT_0_0;
-  vVelocity[2] = *(float *)&FLOAT_0_0;
+  self->Physics.vVelocity[0] = 0.0f;
+  vVelocity[1] = 0.0f;
+  vVelocity[2] = 0.0f;
   vWishDelta = self->Physics.vWishDelta;
-  self->Physics.vWishDelta[0] = *(float *)&FLOAT_0_0;
-  vWishDelta[1] = *(float *)&FLOAT_0_0;
-  vWishDelta[2] = *(float *)&FLOAT_0_0;
+  self->Physics.vWishDelta[0] = 0.0f;
+  vWishDelta[1] = 0.0f;
+  vWishDelta[2] = 0.0f;
   if ( self->useEnemyGoal && (!Actor_PointAtGoal(vSpawnPos, &self->codeGoal) || distSquared > 100.0) )
   {
     self->useEnemyGoal = 0;
@@ -951,7 +951,7 @@ void __cdecl ActorCmd_GetMotionAngle(scr_entref_t entref)
     }
     else
     {
-      fDeltaYaw = *(float *)&FLOAT_0_0;
+      fDeltaYaw = 0.0f;
     }
   }
   else
@@ -1009,9 +1009,9 @@ void __cdecl ActorCmd_LerpPosition(scr_entref_t entref)
   v3[1] = 20.0 * v4[1];
   v3[2] = 20.0 * v4[2];
   vWishDelta = self->Physics.vWishDelta;
-  self->Physics.vWishDelta[0] = *(float *)&FLOAT_0_0;
-  vWishDelta[1] = *(float *)&FLOAT_0_0;
-  vWishDelta[2] = *(float *)&FLOAT_0_0;
+  self->Physics.vWishDelta[0] = 0.0f;
+  vWishDelta[1] = 0.0f;
+  vWishDelta[2] = 0.0f;
   v1 = ent->r.currentOrigin;
   ent->r.currentOrigin[0] = origin[0];
   v1[1] = origin[1];
@@ -1093,7 +1093,7 @@ void __cdecl ActorCmd_GetHitYaw(scr_entref_t entref)
     Scr_Error("nothing was hit", 0);
   LODWORD(normal[0]) = LODWORD(self->Physics.vHitNormal[0]) ^ _mask__NegFloat_;
   LODWORD(normal[1]) = LODWORD(self->Physics.vHitNormal[1]) ^ _mask__NegFloat_;
-  normal[2] = *(float *)&FLOAT_0_0;
+  normal[2] = 0.0f;
   value = vectoyaw(normal);
   Scr_AddFloat(value, SCRIPTINSTANCE_SERVER);
 }
@@ -1457,7 +1457,7 @@ void __cdecl ActorCmd_ClearFixedNodeSafeVolume(scr_entref_t entref)
 
   self = Actor_Get(entref);
   EntHandle::setEnt(&self->fixedNodeSafeVolume, 0);
-  self->fixedNodeSafeVolumeRadiusSq = *(float *)&FLOAT_0_0;
+  self->fixedNodeSafeVolumeRadiusSq = 0.0f;
 }
 
 void __cdecl ActorCmd_IsInGoal(scr_entref_t entref)
@@ -1508,10 +1508,10 @@ void __cdecl ActorCmd_ClearOverrideRunToPos(scr_entref_t entref)
 
   v1 = Actor_Get(entref);
   v1->arrivalInfo.animscriptOverrideRunTo = 0;
-  v1->arrivalInfo.animscriptOverrideRunToPos[0] = *(float *)&FLOAT_0_0;
+  v1->arrivalInfo.animscriptOverrideRunToPos[0] = 0.0f;
   v1 = (actor_s *)((char *)v1 + 3836);
   v1->sentient = *(sentient_s **)&FLOAT_0_0;
-  v1->species = *(unsigned int *)&FLOAT_0_0;
+  v1->species = 0;
 }
 
 void __cdecl ActorCmd_NearNode(scr_entref_t entref)
@@ -1589,7 +1589,7 @@ void __cdecl ActorCmd_SetEntityTarget(scr_entref_t entref)
     if ( (float)(0.0 - Float) < 0.0 )
       v1 = v4;
     else
-      v1 = *(float *)&FLOAT_0_0;
+      v1 = 0.0f;
     targetThreat = v1;
   }
   targetEnt = Scr_GetEntity(0);
@@ -1715,7 +1715,7 @@ void __cdecl ActorCmd_SetFlashBanged(scr_entref_t entref)
   float strength; // [esp+10h] [ebp-4h]
 
   self = Actor_Get(entref);
-  strength = FLOAT_1_0;
+  strength = 1.0f;
   NumParam = Scr_GetNumParam(SCRIPTINSTANCE_SERVER);
   if ( NumParam != 1 )
   {

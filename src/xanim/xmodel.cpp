@@ -123,12 +123,12 @@ void __cdecl XModelMakeDefault(XModel *model)
   model->surfs = 0;
   model->materialHandles = g_materials;
   g_materials[0] = Material_RegisterHandle("mc/$default", 8);
-  g_default.boneInfo.bounds[0][0] = FLOAT_N16_0;
-  g_default.boneInfo.bounds[0][1] = FLOAT_N16_0;
-  g_default.boneInfo.bounds[0][2] = FLOAT_N16_0;
-  g_default.boneInfo.bounds[1][0] = FLOAT_16_0;
-  g_default.boneInfo.bounds[1][1] = FLOAT_16_0;
-  g_default.boneInfo.bounds[1][2] = FLOAT_16_0;
+  g_default.boneInfo.bounds[0][0] = -16.0f;
+  g_default.boneInfo.bounds[0][1] = -16.0f;
+  g_default.boneInfo.bounds[0][2] = -16.0f;
+  g_default.boneInfo.bounds[1][0] = 16.0f;
+  g_default.boneInfo.bounds[1][1] = 16.0f;
+  g_default.boneInfo.bounds[1][2] = 16.0f;
   model->localBoneInfo = &g_default.boneInfo;
 }
 
@@ -240,7 +240,7 @@ int __cdecl XModelTraceLine(
             if ( startDist > 0.0 )
             {
               frac = (float)(startDist - 0.125) / (float)(startDist - endDist);
-              v6 = (float)(frac - 0.0) < 0.0 ? *(float *)&FLOAT_0_0 : frac;
+              v6 = (float)(frac - 0.0) < 0.0 ? 0.0f : frac;
               frac = v6;
               if ( v6 < results->fraction )
               {
@@ -416,7 +416,7 @@ int __cdecl XModelTraceLineAnimated(
                 if ( startDist > 0.0 )
                 {
                   frac = (float)(startDist - 0.125) / (float)(startDist - endDist);
-                  v12 = (float)(frac - 0.0) < 0.0 ? *(float *)&FLOAT_0_0 : frac;
+                  v12 = (float)(frac - 0.0) < 0.0 ? 0.0f : frac;
                   frac = v12;
                   if ( v12 < results->fraction )
                   {
@@ -680,11 +680,11 @@ void __cdecl XSurfaceVisitTrianglesInAabb_ConvertAabb(
     if ( v16 <= 1000000.0 )
       v15 = v16;
     else
-      v15 = FLOAT_1000000_0;
+      v15 = 1000000.0f;
   }
   else
   {
-    v15 = FLOAT_N1000000_0;
+    v15 = -1000000.0;
   }
   *mins = (__int64)v15;
   v14 = transformedMins_4 - 0.5;
@@ -698,11 +698,11 @@ void __cdecl XSurfaceVisitTrianglesInAabb_ConvertAabb(
     if ( v14 <= 1000000.0 )
       v13 = transformedMins_4 - 0.5;
     else
-      v13 = FLOAT_1000000_0;
+      v13 = 1000000.0f;
   }
   else
   {
-    v13 = FLOAT_N1000000_0;
+    v13 = -1000000.0;
   }
   mins[1] = (__int64)v13;
   v12 = transformedMins_8 - 0.5;
@@ -716,11 +716,11 @@ void __cdecl XSurfaceVisitTrianglesInAabb_ConvertAabb(
     if ( v12 <= 1000000.0 )
       v11 = transformedMins_8 - 0.5;
     else
-      v11 = FLOAT_1000000_0;
+      v11 = 1000000.0f;
   }
   else
   {
-    v11 = FLOAT_N1000000_0;
+    v11 = -1000000.0;
   }
   mins[2] = (__int64)v11;
   v10 = transformedMaxs + 0.5;
@@ -734,11 +734,11 @@ void __cdecl XSurfaceVisitTrianglesInAabb_ConvertAabb(
     if ( v10 <= 1000000.0 )
       v9 = transformedMaxs + 0.5;
     else
-      v9 = FLOAT_1000000_0;
+      v9 = 1000000.0f;
   }
   else
   {
-    v9 = FLOAT_N1000000_0;
+    v9 = -1000000.0;
   }
   *maxs = (__int64)v9;
   v8 = transformedMaxs_4 + 0.5;
@@ -752,11 +752,11 @@ void __cdecl XSurfaceVisitTrianglesInAabb_ConvertAabb(
     if ( v8 <= 1000000.0 )
       v7 = transformedMaxs_4 + 0.5;
     else
-      v7 = FLOAT_1000000_0;
+      v7 = 1000000.0f;
   }
   else
   {
-    v7 = FLOAT_N1000000_0;
+    v7 = -1000000.0;
   }
   maxs[1] = (__int64)v7;
   v6 = transformedMaxs_8 + 0.5;
@@ -770,11 +770,11 @@ void __cdecl XSurfaceVisitTrianglesInAabb_ConvertAabb(
     if ( v6 <= 1000000.0 )
       v5 = transformedMaxs_8 + 0.5;
     else
-      v5 = FLOAT_1000000_0;
+      v5 = 1000000.0f;
   }
   else
   {
-    v5 = FLOAT_N1000000_0;
+    v5 = -1000000.0;
   }
   maxs[2] = (__int64)v5;
 }

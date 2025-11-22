@@ -296,7 +296,7 @@ double __cdecl Snd_CurveEvalOverRange(const snd_curve *curve, float x, float min
   if ( (float)(v5 - 1.0) < 0.0 )
     v6 = (float)(x - minimum) / (float)(maximum - minimum);
   else
-    v6 = FLOAT_1_0;
+    v6 = 1.0f;
   if ( (float)(0.0 - v5) < 0.0 )
     return Snd_CurveEval(curve, v6);
   else

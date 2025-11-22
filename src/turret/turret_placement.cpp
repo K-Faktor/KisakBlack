@@ -107,15 +107,15 @@ int __cdecl Turret_PlaceTurret_Internal(
   {
     __debugbreak();
   }
-  *outAngles = *(float *)&FLOAT_0_0;
-  outAngles[1] = *(float *)&FLOAT_0_0;
-  outAngles[2] = *(float *)&FLOAT_0_0;
+  *outAngles = 0.0f;
+  outAngles[1] = 0.0f;
+  outAngles[2] = 0.0f;
   outAngles[1] = viewAngles[1];
   traceDist = turret_placement_trace_dist->current.value;
   traceDist = traceDist + turret_placement_trace_radius_canon_safety->current.value;
   traceAngles[0] = turret_placement_trace_pitch->current.value;
   traceAngles[1] = viewAngles[1];
-  traceAngles[2] = *(float *)&FLOAT_0_0;
+  traceAngles[2] = 0.0f;
   AngleVectors(traceAngles, traceDir, 0, 0);
   traceStart[0] = *viewOrigin;
   traceStart[1] = viewOrigin[1];
@@ -372,7 +372,7 @@ bool __cdecl Turret_PlaceTurret_UpdateFooting(
     {
       ++numFailed;
       feetSuccess[legIndex] = 0;
-      feetElevation[legIndex] = *(float *)&FLOAT_0_0;
+      feetElevation[legIndex] = 0.0f;
       if ( turret_placement_debug->current.enabled )
         G_DebugLine(legPosition[legIndex], traceEnd, colorRed, 0);
     }

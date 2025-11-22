@@ -1059,7 +1059,7 @@ LABEL_180:
             if ( waterSimEnabled )
               Height = R_WaterSimulationGetHeight(position);
             else
-              Height = *(float *)&FLOAT_0_0;
+              Height = 0.0f;
             waterZ = Height;
             explosionRadius = (float)weaponDef->iExplosionRadius;
             Ragdoll_ExplosionEvent(localClientNum, 0, position, 0.0, explosionRadius, vec3_origin, 1.0);
@@ -1216,7 +1216,7 @@ $LN108:
           case EV_CUSTOM_EXPLODE_NOMARKS:
             cgameGlob->nomarks = 1;
 $LN101:
-            innerRadius = *(float *)&FLOAT_0_0;
+            innerRadius = 0.0f;
             Ragdoll_ExplosionEvent(
               localClientNum,
               0,
@@ -2140,12 +2140,12 @@ void __cdecl CG_Obituary(int localClientNum, const entityState_s *ent)
 
   victimCI = 0;
   victimColor = 55;
-  baseIconSize = FLOAT_1_4;
+  baseIconSize = 1.4f;
   target = ent->otherEntityNum;
   attacker = ent->attackerEntityNum;
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
-  iconWidth = FLOAT_1_4;
-  iconHeight = FLOAT_1_4;
+  iconWidth = 1.4f;
+  iconHeight = 1.4f;
   iconHorzFlip = 0;
   if ( ent->weaponModel )
   {
@@ -2343,7 +2343,7 @@ void __cdecl CG_ObituaryRevive(int localClientNum, const entityState_s *ent)
   int clientNum; // [esp+54h] [ebp-8h]
   Material *iconShader; // [esp+58h] [ebp-4h]
 
-  baseIconSize = FLOAT_1_4;
+  baseIconSize = 1.4f;
   s = 0;
   gamerTag = 0;
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
@@ -2405,7 +2405,7 @@ void __cdecl CG_DirectionalHitIndicator(int localClientNum, const entityState_s 
         *entOrigin = cent->pose.origin[0];
         entOrigin[1] = cent->pose.origin[1];
         entOrigin[2] = cent->pose.origin[2];
-        cgameGlob->directionalHitIndicator[slot].entOrigin[2] = *(float *)&FLOAT_0_0;
+        cgameGlob->directionalHitIndicator[slot].entOrigin[2] = 0.0f;
       }
     }
     fullVictimEntBitArray >>= 1;

@@ -54,8 +54,8 @@ void __cdecl SND_ParseInit(
       dword_E14A34[8 * i + 72] = 4 * i + 92;
       byte_E14A38[32 * i + 288] = 1;
       dword_E14A3C[8 * i + 72] = 1;
-      dword_E14A40[8 * i + 72] = *(unsigned int *)&FLOAT_0_0;
-      dword_E14A44[8 * i + 72] = LODWORD(FLOAT_1_0);
+      dword_E14A40[8 * i + 72] = 0;
+      dword_E14A44[8 * i + 72] = LODWORD(1.0f);
       dword_E14A48[8 * i + 72] = 0;
       dword_E14A4C[8 * i + 72] = 0;
     }

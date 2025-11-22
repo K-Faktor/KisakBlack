@@ -29,7 +29,7 @@ void __cdecl P_DamageFeedback(gentity_s *player)
         damagea = 127;
       client->ps.aimSpreadScale = (float)damagea + client->ps.aimSpreadScale;
       if ( client->ps.aimSpreadScale > 255.0 )
-        client->ps.aimSpreadScale = FLOAT_255_0;
+        client->ps.aimSpreadScale = 255.0f;
       kick = (float)damagea * bg_viewKickScale->current.value;
       if ( bg_viewKickMin->current.value <= kick )
       {
@@ -42,7 +42,7 @@ void __cdecl P_DamageFeedback(gentity_s *player)
       }
       if ( client->damage_fromWorld )
       {
-        client->v_dmg_roll = *(float *)&FLOAT_0_0;
+        client->v_dmg_roll = 0.0f;
         LODWORD(client->v_dmg_pitch) = LODWORD(kick) ^ _mask__NegFloat_;
         client->ps.damagePitch = 255;
         client->ps.damageYaw = 255;
@@ -576,9 +576,9 @@ LABEL_6:
         if ( damage != 0.0 )
         {
           damage = (float)client->ps.stats[2] * damage;
-          dir[0] = *(float *)&FLOAT_0_0;
-          dir[1] = *(float *)&FLOAT_0_0;
-          dir[2] = FLOAT_1_0;
+          dir[0] = 0.0f;
+          dir[1] = 0.0f;
+          dir[2] = 1.0f;
           G_Damage(ent, 0, 0, 0, 0, (int)damage, 0, 12, 0xFFFFFFFF, HITLOC_NONE, 0, 0, 0);
         }
 LABEL_54:
@@ -833,7 +833,7 @@ void __cdecl ClientVehicleJumpOff(gentity_s *ent)
       client->ps.pm_time = 4000;
       xyVec[0] = client->ps.origin[0] - groundEnt->r.currentOrigin[0];
       xyVec[1] = client->ps.origin[1] - groundEnt->r.currentOrigin[1];
-      xyVec[2] = *(float *)&FLOAT_0_0;
+      xyVec[2] = 0.0f;
       Vec3Normalize(xyVec);
       xyVec[0] = xySpeed * xyVec[0];
       xyVec[1] = xySpeed * xyVec[1];
@@ -1010,8 +1010,8 @@ void __cdecl G_PlayerVehiclePositionAndBlend(gentity_s *ent, gentity_s *pTurretE
               yaw = vectosignedyaw(tagAxis[0]);
               localYaw = AngleNormalize180(yaw - pTurretEnt->r.currentAngles[1]);
               numVertChildren = XAnimGetNumChildren(pXAnims, baseAnim);
-              fPrevTransZ = *(float *)&FLOAT_0_0;
-              fPrevBlend = *(float *)&FLOAT_0_0;
+              fPrevTransZ = 0.0f;
+              fPrevBlend = 0.0f;
               iPrevBlend = 0;
               leafAnim2 = 0;
               isT34 = 0;
@@ -1044,7 +1044,7 @@ void __cdecl G_PlayerVehiclePositionAndBlend(gentity_s *ent, gentity_s *pTurretE
               }
               AnglesToAxis(vec3_origin, turretAxis);
               memset(turretAxis[3], 0, sizeof(float[3]));
-              localYaw = *(float *)&FLOAT_0_0;
+              localYaw = 0.0f;
               vDelta[0] = ent->r.currentOrigin[0] - 0.0;
               vDelta[1] = ent->r.currentOrigin[1] - 0.0;
               vDelta[2] = ent->r.currentOrigin[2] - 0.0;
@@ -1084,7 +1084,7 @@ void __cdecl G_PlayerVehiclePositionAndBlend(gentity_s *ent, gentity_s *pTurretE
                 }
                 else
                 {
-                  fBlend = *(float *)&FLOAT_0_0;
+                  fBlend = 0.0f;
                 }
                 iBlend = (int)fBlend;
                 fBlend = fBlend - (float)(int)fBlend;
@@ -1163,7 +1163,7 @@ void __cdecl G_PlayerVehiclePositionAndBlend(gentity_s *ent, gentity_s *pTurretE
               BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, 1, 1u);
               LODWORD(ent->r.mins[0]) = LODWORD(gunnerXYradius) ^ _mask__NegFloat_;
               LODWORD(ent->r.mins[1]) = LODWORD(gunnerXYradius) ^ _mask__NegFloat_;
-              ent->r.mins[2] = *(float *)&FLOAT_0_0;
+              ent->r.mins[2] = 0.0f;
               ent->r.maxs[0] = gunnerXYradius;
               ent->r.maxs[1] = gunnerXYradius;
               ent->r.maxs[2] = gunnerZheight;
@@ -1300,7 +1300,7 @@ LABEL_53:
                    - (float)(loc2d_4 * level.compassNorth[0]);
             loc[1] = (float)(level.compassMapUpperLeft[1] - (float)(loc2d * level.compassNorth[0]))
                    - (float)(loc2d_4 * level.compassNorth[1]);
-            loc[2] = *(float *)&FLOAT_0_0;
+            loc[2] = 0.0f;
             if ( bitarray<51>::testBit(&client->button_bitsSinceLastFrame, 0x10u) )
             {
               Scr_AddInt(yaw, SCRIPTINSTANCE_SERVER);
@@ -1342,7 +1342,7 @@ LABEL_53:
           if ( level.time - client->ps.jumpTime >= 500 )
             v6 = client->ps.velocity[2];
           else
-            v6 = *(float *)&FLOAT_0_0;
+            v6 = 0.0f;
         }
         else
         {
@@ -1479,9 +1479,9 @@ LABEL_53:
           && ((client->ps.eFlags & 0x4000) == 0
            || (client->ps.vehiclePos < 1 || client->ps.vehiclePos > 4) && (client->ps.eFlags2 & 0x10000000) == 0) )
         {
-          ent->r.currentAngles[0] = *(float *)&FLOAT_0_0;
-          ent->r.currentAngles[1] = *(float *)&FLOAT_0_0;
-          ent->r.currentAngles[2] = *(float *)&FLOAT_0_0;
+          ent->r.currentAngles[0] = 0.0f;
+          ent->r.currentAngles[1] = 0.0f;
+          ent->r.currentAngles[2] = 0.0f;
           ent->r.currentAngles[1] = client->ps.viewangles[1];
         }
         ClientImpacts(ent, pm);
@@ -1510,9 +1510,9 @@ void __cdecl Player_WaterUpdate(gentity_s *ent)
   {
     waterDamage = player_swimDamage->current.integer;
     client->outWaterTime += 1000 * (int)player_swimDamagerInterval->current.value;
-    dir[0] = *(float *)&FLOAT_0_0;
-    dir[1] = *(float *)&FLOAT_0_0;
-    dir[2] = FLOAT_N1_0;
+    dir[0] = 0.0f;
+    dir[1] = 0.0f;
+    dir[2] = -1.0f;
     point[0] = ent->r.currentOrigin[0];
     point[1] = ent->r.currentOrigin[1];
     point[2] = ent->r.currentOrigin[2];
@@ -1739,15 +1739,15 @@ void __cdecl G_RunClient(gentity_s *ent)
       ent->s.lerp.pos.trType = 1;
       ent->s.lerp.pos.trDuration = 0;
       ent->s.lerp.pos.trTime = 0;
-      ent->s.lerp.pos.trDelta[0] = *(float *)&FLOAT_0_0;
-      ent->s.lerp.pos.trDelta[1] = *(float *)&FLOAT_0_0;
-      ent->s.lerp.pos.trDelta[2] = *(float *)&FLOAT_0_0;
+      ent->s.lerp.pos.trDelta[0] = 0.0f;
+      ent->s.lerp.pos.trDelta[1] = 0.0f;
+      ent->s.lerp.pos.trDelta[2] = 0.0f;
       ent->s.lerp.apos.trType = 1;
       ent->s.lerp.apos.trDuration = 0;
       ent->s.lerp.apos.trTime = 0;
-      ent->s.lerp.apos.trDelta[0] = *(float *)&FLOAT_0_0;
-      ent->s.lerp.apos.trDelta[1] = *(float *)&FLOAT_0_0;
-      ent->s.lerp.apos.trDelta[2] = *(float *)&FLOAT_0_0;
+      ent->s.lerp.apos.trDelta[0] = 0.0f;
+      ent->s.lerp.apos.trDelta[1] = 0.0f;
+      ent->s.lerp.apos.trDelta[2] = 0.0f;
       SV_LinkEntity((int)&savedregs, ent);
       origin = ent->client->ps.origin;
       *origin = ent->r.currentOrigin[0];
@@ -1827,8 +1827,8 @@ void __cdecl SpectatorClientEndFrame(gentity_s *ent)
   client->ps.otherFlags &= ~4u;
   ent->s.eType = 5;
   client->ps.viewmodelIndex = 0;
-  client->fGunPitch = *(float *)&FLOAT_0_0;
-  client->fGunYaw = *(float *)&FLOAT_0_0;
+  client->fGunPitch = 0.0f;
+  client->fGunYaw = 0.0f;
   if ( client->sess.forceSpectatorClient < 0 )
   {
 LABEL_26:
@@ -2078,12 +2078,12 @@ int __cdecl StuckInClient(gentity_s *self)
   vDelta[1] = G_crandom() + vDelta[1];
   Vec2Normalize(vDelta);
   if ( Vec2Length(hit->client->ps.velocity) <= 0.0 )
-    integer = *(float *)&FLOAT_0_0;
+    integer = 0.0f;
   else
     integer = (float)g_playerCollisionEjectSpeed->current.integer;
   hitSpeed = integer;
   if ( Vec2Length(self->client->ps.velocity) <= 0.0 )
-    v2 = *(float *)&FLOAT_0_0;
+    v2 = 0.0f;
   else
     v2 = (float)g_playerCollisionEjectSpeed->current.integer;
   selfSpeed = v2;
@@ -2135,12 +2135,12 @@ void __cdecl CM_CheckForTraps(gentity_s *ent)
 
   memset(&results, 0, 16);
   contentmask = 1;
-  v12 = FLOAT_1_0;
-  v13 = FLOAT_1_0;
-  v14 = FLOAT_1_0;
-  mins[3] = FLOAT_55_0;
-  mins[4] = FLOAT_55_0;
-  mins[5] = *(float *)&FLOAT_0_0;
+  v12 = 1.0f;
+  v13 = 1.0f;
+  v14 = 1.0f;
+  mins[3] = 55.0f;
+  mins[4] = 55.0f;
+  mins[5] = 0.0f;
   mins[0] = ent->r.currentOrigin[0] - 55.0;
   mins[1] = ent->r.currentOrigin[1] - 55.0;
   mins[2] = ent->r.currentOrigin[2] - 0.0;
@@ -2739,9 +2739,9 @@ void __cdecl ClientEndFrame(gentity_s *ent)
       spawn_origin[1] = client->ps.origin[1];
       spawn_origin[2] = client->ps.origin[2];
       v17 = client->ps.viewangles[1];
-      spawn_angles[0] = *(float *)&FLOAT_0_0;
+      spawn_angles[0] = 0.0f;
       spawn_angles[1] = v17;
-      spawn_angles[2] = *(float *)&FLOAT_0_0;
+      spawn_angles[2] = 0.0f;
       ClientSpawn(ent, spawn_origin, spawn_angles);
       if ( client->ps.clientNum != ent->s.number
         && !Assert_MyHandler(

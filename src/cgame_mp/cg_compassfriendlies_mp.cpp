@@ -985,8 +985,8 @@ void __cdecl CG_CompassIncreaseRadarTime(int localClientNum)
   cg_s *cgameGlob; // [esp+30h] [ebp-8h]
   float oldLocalRadarProgress; // [esp+34h] [ebp-4h]
 
-  oldRadarProgress = *(float *)&FLOAT_0_0;
-  oldLocalRadarProgress = *(float *)&FLOAT_0_0;
+  oldRadarProgress = 0.0f;
+  oldLocalRadarProgress = 0.0f;
   cgameGlob = CG_GetLocalClientGlobals(localClientNum);
   if ( !cgameGlob
     && !Assert_MyHandler(
@@ -1018,7 +1018,7 @@ void __cdecl CG_CompassIncreaseRadarTime(int localClientNum)
   }
   else
   {
-    cgameGlob->radarProgress = *(float *)&FLOAT_0_0;
+    cgameGlob->radarProgress = 0.0f;
   }
   if ( cgameGlob->hasLocalRadar )
   {
@@ -1037,7 +1037,7 @@ void __cdecl CG_CompassIncreaseRadarTime(int localClientNum)
   }
   else
   {
-    cgameGlob->localRadarProgress = *(float *)&FLOAT_0_0;
+    cgameGlob->localRadarProgress = 0.0f;
   }
   if ( cgameGlob->predictedPlayerState.spyplaneTypeEnabled )
   {
@@ -1881,7 +1881,7 @@ void __cdecl CG_CompassDrawFriendlies(
                 icon = timeDiff >= 250;
               }
               firingMaterial = 0;
-              firingFade = *(float *)&FLOAT_0_0;
+              firingFade = 0.0f;
               if ( actor->beginFadeTime
                 && (float)((float)actor->beginFadeTime + (float)(compassSoundPingFadeTime->current.value * 1000.0)) >= (float)cgameGlob->time )
               {
@@ -1890,11 +1890,11 @@ void __cdecl CG_CompassDrawFriendlies(
                              - (float)((float)(cgameGlob->time - actor->beginFadeTime)
                                      / (float)(compassSoundPingFadeTime->current.value * 1000.0));
                 else
-                  firingFade = FLOAT_1_0;
+                  firingFade = 1.0f;
                 firingMaterial = cgMedia.compassping_friendlyfiring;
               }
               voiceMaterial = 0;
-              voiceFade = *(float *)&FLOAT_0_0;
+              voiceFade = 0.0f;
               if ( actor->beginVoiceFadeTime
                 && (float)((float)actor->beginVoiceFadeTime + (float)(compassSoundPingFadeTime->current.value * 1000.0)) >= (float)cgameGlob->time )
               {
@@ -1903,7 +1903,7 @@ void __cdecl CG_CompassDrawFriendlies(
                             - (float)((float)(cgameGlob->time - actor->beginVoiceFadeTime)
                                     / (float)(compassSoundPingFadeTime->current.value * 1000.0));
                 else
-                  voiceFade = FLOAT_1_0;
+                  voiceFade = 1.0f;
                 voiceMaterial = cgMedia.compassping_friendlyyelling;
               }
               baseColorModdedByComapassFadeOut[0] = *color;
@@ -2121,7 +2121,7 @@ void __cdecl CG_CompassDrawArtilleryIcon(
     icon_color[2] = color[2];
     icon_color[3] = color[3];
     max_alpha = color[3];
-    alpha = *(float *)&FLOAT_0_0;
+    alpha = 0.0f;
     for ( i = 0; i < 6; ++i )
     {
       if ( s_compassArtillery[localClientNum][i].fireTime
@@ -2134,7 +2134,7 @@ void __cdecl CG_CompassDrawArtilleryIcon(
         ScramblerEnemyAlpha = CG_GetScramblerEnemyAlpha(localClientNum);
         alpha = (1.0 - ScramblerEnemyAlpha) * alpha;
         if ( cgameGlob->globalScramblerActive )
-          alpha = *(float *)&FLOAT_0_0;
+          alpha = 0.0f;
         icon_color[3] = alpha;
         if ( isMortar )
         {
@@ -2264,10 +2264,10 @@ void __cdecl CG_CompassDrawIncomingArtilleryIcon(
                   xy);
       icon = cgMedia.compass_incoming_artillery;
       if ( (ps->artilleryInboundIconLocation & 0x10000) != 0 )
-        *color = *(float *)&FLOAT_0_0;
+        *color = 0.0f;
       else
-        color[1] = *(float *)&FLOAT_0_0;
-      color[2] = *(float *)&FLOAT_0_0;
+        color[1] = 0.0f;
+      color[2] = 0.0f;
       if ( !clipped )
         CG_CompassDrawIconAtLocation(localClientNum, compassType, parentRect, rect, color, artilleryPos, icon);
     }
@@ -2411,10 +2411,10 @@ void __cdecl CG_CompassDrawEnemies(
         num = 0;
         while ( num < 32 )
         {
-          fadeTimeAmount = *(float *)&FLOAT_0_0;
-          radarTimeAmount = *(float *)&FLOAT_0_0;
-          satelliteTimeAmount = *(float *)&FLOAT_0_0;
-          StaticImageTimeAmount = *(float *)&FLOAT_0_0;
+          fadeTimeAmount = 0.0f;
+          radarTimeAmount = 0.0f;
+          satelliteTimeAmount = 0.0f;
+          StaticImageTimeAmount = 0.0f;
           if ( actor->enemy )
           {
             thisClientInfo = &cgameGlob->bgs.clientinfo[num];
@@ -2480,7 +2480,7 @@ LABEL_106:
                       xy[1] = (float)(centerY - (float)(h * 0.5)) + xy[1];
                       if ( actor->beginRadarFadeTime >= cgameGlob->time || alwaysShowEnemies || hasShowRadarPerk )
                       {
-                        radarTimeAmount = FLOAT_1_0;
+                        radarTimeAmount = 1.0f;
                       }
                       else if ( actor->beginRadarFadeTime )
                       {
@@ -2497,7 +2497,7 @@ LABEL_106:
                       }
                       else
                       {
-                        satelliteTimeAmount = FLOAT_1_0;
+                        satelliteTimeAmount = 1.0f;
                       }
                       if ( actor->beginStaticImageFadeTime < cgameGlob->time )
                       {
@@ -2509,7 +2509,7 @@ LABEL_106:
                       }
                       else
                       {
-                        StaticImageTimeAmount = FLOAT_1_0;
+                        StaticImageTimeAmount = 1.0f;
                       }
                       if ( actor->beginFadeTime < cgameGlob->time )
                       {
@@ -2520,9 +2520,9 @@ LABEL_106:
                       }
                       else
                       {
-                        fadeTimeAmount = FLOAT_1_0;
+                        fadeTimeAmount = 1.0f;
                       }
-                      actor->currentFadeTimeAmount = *(float *)&FLOAT_0_0;
+                      actor->currentFadeTimeAmount = 0.0f;
                       if ( radarTimeAmount >= 0.0 )
                       {
                         actor->currentFadeTimeAmount = actor->currentFadeTimeAmount + radarTimeAmount;
@@ -2611,7 +2611,7 @@ LABEL_106:
                       }
                       else
                       {
-                        StaticImageTimeAmount = FLOAT_1_0;
+                        StaticImageTimeAmount = 1.0f;
                       }
                       if ( StaticImageTimeAmount >= 0.0 && thisClientInfo->attachedVehEntNum == 1023 )
                       {
@@ -2782,7 +2782,7 @@ void __cdecl CG_CompassDrawFakeFire(
           entNum = 0;
           while ( entNum < 8 )
           {
-            fadeTimeAmount = *(float *)&FLOAT_0_0;
+            fadeTimeAmount = 0.0f;
             if ( (float)((float)actor->beginFadeTime + (float)(compassSoundPingFadeTime->current.value * 1000.0)) > (float)cgameGlob->time
               && actor->beginFadeTime )
             {
@@ -2809,7 +2809,7 @@ void __cdecl CG_CompassDrawFakeFire(
                 }
                 else
                 {
-                  fadeTimeAmount = FLOAT_1_0;
+                  fadeTimeAmount = 1.0f;
                 }
                 if ( fadeTimeAmount >= 0.0 )
                 {
@@ -2977,7 +2977,7 @@ void __cdecl CG_CompassDrawRadarEffects(
       if ( compassRotation->current.enabled )
         rotation = cgameGlob->compassNorthYaw - cgameGlob->refdefViewAngles[1];
       else
-        rotation = *(float *)&FLOAT_0_0;
+        rotation = 0.0f;
       CL_DrawStretchPicRotatedST(
         scrPlace,
         xy[0],
@@ -3041,7 +3041,7 @@ LABEL_31:
         fadedColor[3] = color[3];
         fadedColor[3] = 1.0 - (float)((float)(cgameGlob->localRadarProgress - 0.5) * 2.0);
         if ( fadedColor[3] < 0.0 )
-          fadedColor[3] = *(float *)&FLOAT_0_0;
+          fadedColor[3] = 0.0f;
         CL_DrawStretchPic(
           scrPlace,
           (float)(out[0] + center[0]) - radiusPixels,
@@ -3079,7 +3079,7 @@ LABEL_31:
     {
       texLeft = (float)(COERCE_FLOAT(LODWORD(radarXAmount) ^ _mask__NegFloat_) / radarLineThickness) + 0.5;
       texRight = (float)((float)(1.0 - radarXAmount) / radarLineThickness) + 0.5;
-      texBottom = *(float *)&FLOAT_0_0;
+      texBottom = 0.0f;
       if ( h == 0.0
         && !Assert_MyHandler(
               "C:\\projects_pc\\cod\\codsrc\\src\\cgame_mp\\cg_compassfriendlies_mp.cpp",
@@ -3300,7 +3300,7 @@ LABEL_72:
               ScramblerEnemyAlpha = CG_GetScramblerEnemyAlpha(localClientNum);
               fadedColor[3] = (1.0 - ScramblerEnemyAlpha) * fadedColor[3];
               if ( cgameGlob->globalScramblerActive )
-                fadedColor[3] = *(float *)&FLOAT_0_0;
+                fadedColor[3] = 0.0f;
               if ( eType == 13 && ((*((unsigned int *)cent + 201) >> 18) & 1) != 0 || !isSelf )
               {
                 if ( friendly )
@@ -3360,9 +3360,9 @@ LABEL_72:
                 }
                 else if ( !IsHardcoreMode(localClientNum) )
                 {
-                  fadedColor[0] = FLOAT_1_0;
-                  fadedColor[1] = FLOAT_1_0;
-                  fadedColor[2] = FLOAT_1_0;
+                  fadedColor[0] = 1.0f;
+                  fadedColor[1] = 1.0f;
+                  fadedColor[2] = 1.0f;
                   CG_DrawRotatedPic(
                     &scrPlaceView[localClientNum],
                     xy[0],
@@ -3378,9 +3378,9 @@ LABEL_72:
               }
               else
               {
-                fadedColor[0] = FLOAT_1_0;
-                fadedColor[1] = FLOAT_1_0;
-                fadedColor[2] = *(float *)&FLOAT_0_0;
+                fadedColor[0] = 1.0f;
+                fadedColor[1] = 1.0f;
+                fadedColor[2] = 0.0f;
                 CG_DrawRotatedPic(
                   &scrPlaceView[localClientNum],
                   xy[0],
@@ -3748,7 +3748,7 @@ void __cdecl CG_CompassDrawTurrets(
             ScramblerEnemyAlpha = CG_GetScramblerEnemyAlpha(localClientNum);
             fadedColor[3] = (1.0 - ScramblerEnemyAlpha) * fadedColor[3];
             if ( cgameGlob->globalScramblerActive )
-              fadedColor[3] = *(float *)&FLOAT_0_0;
+              fadedColor[3] = 0.0f;
             if ( friendly )
               goto LABEL_33;
             if ( enemy )
@@ -3773,9 +3773,9 @@ LABEL_33:
             }
             if ( !IsHardcoreMode(localClientNum) )
             {
-              fadedColor[0] = FLOAT_1_0;
-              fadedColor[1] = FLOAT_1_0;
-              fadedColor[2] = FLOAT_1_0;
+              fadedColor[0] = 1.0f;
+              fadedColor[1] = 1.0f;
+              fadedColor[2] = 1.0f;
               CG_DrawRotatedPic(
                 &scrPlaceView[localClientNum],
                 xy[0],
@@ -3954,7 +3954,7 @@ void __cdecl CG_CompassDrawHelicopter(
           ScramblerEnemyAlpha = CG_GetScramblerEnemyAlpha(localClientNum);
           fadedColor[3] = (1.0 - ScramblerEnemyAlpha) * fadedColor[3];
           if ( cgameGlob->globalScramblerActive )
-            fadedColor[3] = *(float *)&FLOAT_0_0;
+            fadedColor[3] = 0.0f;
           myTeam = localClientInfo->team;
           friendly = 0;
           enemy = 0;
@@ -3968,9 +3968,9 @@ void __cdecl CG_CompassDrawHelicopter(
           friendly = !enemy;
           if ( isSelf )
           {
-            fadedColor[0] = FLOAT_1_0;
-            fadedColor[1] = FLOAT_1_0;
-            fadedColor[2] = *(float *)&FLOAT_0_0;
+            fadedColor[0] = 1.0f;
+            fadedColor[1] = 1.0f;
+            fadedColor[2] = 0.0f;
             CG_DrawRotatedPic(
               &scrPlaceView[localClientNum],
               xy[0],
@@ -4040,9 +4040,9 @@ void __cdecl CG_CompassDrawHelicopter(
           }
           else if ( !IsHardcoreMode(localClientNum) )
           {
-            fadedColor[0] = FLOAT_1_0;
-            fadedColor[1] = FLOAT_1_0;
-            fadedColor[2] = FLOAT_1_0;
+            fadedColor[0] = 1.0f;
+            fadedColor[1] = 1.0f;
+            fadedColor[2] = 1.0f;
             CG_DrawRotatedPic(
               &scrPlaceView[localClientNum],
               xy[0],
@@ -4174,7 +4174,7 @@ void __cdecl CG_CompassDrawGuidedMissile(
           ScramblerEnemyAlpha = CG_GetScramblerEnemyAlpha(localClientNum);
           fadedColor[3] = (1.0 - ScramblerEnemyAlpha) * fadedColor[3];
           if ( cgameGlob->globalScramblerActive )
-            fadedColor[3] = *(float *)&FLOAT_0_0;
+            fadedColor[3] = 0.0f;
           myTeam = localClientInfo->team;
           friendly = 0;
           enemy = 0;

@@ -129,18 +129,18 @@ LABEL_9:
 
 TraceExtents *__thiscall TraceExtents::TraceExtents(TraceExtents *this)
 {
-  this->start.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->start.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->start.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->start.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
-  this->end.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->end.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->end.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->end.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
-  this->invDelta.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  this->invDelta.vec.u[1] = *(unsigned int *)&FLOAT_0_0;
-  this->invDelta.vec.u[2] = *(unsigned int *)&FLOAT_0_0;
-  this->invDelta.vec.u[3] = *(unsigned int *)&FLOAT_0_0;
+  this->start.vec.u[0] = 0;
+  this->start.vec.u[1] = 0;
+  this->start.vec.u[2] = 0;
+  this->start.vec.u[3] = 0;
+  this->end.vec.u[0] = 0;
+  this->end.vec.u[1] = 0;
+  this->end.vec.u[2] = 0;
+  this->end.vec.u[3] = 0;
+  this->invDelta.vec.u[0] = 0;
+  this->invDelta.vec.u[1] = 0;
+  this->invDelta.vec.u[2] = 0;
+  this->invDelta.vec.u[3] = 0;
   return this;
 }
 
@@ -500,7 +500,7 @@ void __cdecl PM_FootstepEvent(pmove_t *pm, pml_t *pml, int iOldBobCycle, int iNe
         mins[1] = pm->mins[1];
         mins[0] = mins[0] + 6.0;
         mins[1] = mins[1] + 6.0;
-        mins[2] = FLOAT_8_0;
+        mins[2] = 8.0f;
         maxs[0] = pm->maxs[0];
         maxs[1] = pm->maxs[1];
         maxs[2] = pm->maxs[2];
@@ -539,7 +539,7 @@ void __cdecl PM_FootstepEvent(pmove_t *pm, pml_t *pml, int iOldBobCycle, int iNe
           __debugbreak();
         }
         iClipMask = pm->tracemask & 0xFDFE7FFF;
-        fTraceDist = FLOAT_N31_0;
+        fTraceDist = -31.0f;
         vEnd[0] = (float)(-31.0 * ps->vLadderVec[0]) + ps->origin[0];
         vEnd[1] = (float)(-31.0 * ps->vLadderVec[1]) + ps->origin[1];
         vEnd[2] = (float)(-31.0 * ps->vLadderVec[2]) + ps->origin[2];
@@ -635,7 +635,7 @@ void __cdecl PM_UpdateLean(
   int leaning; // [esp+D0h] [ebp-4h]
 
   leaning = 0;
-  leanofs = *(float *)&FLOAT_0_0;
+  leanofs = 0.0f;
   memset(&trace, 0, 16);
   col_context_t::col_context_t(&context);
   if ( ps->weaponstate != 35
@@ -663,20 +663,20 @@ void __cdecl PM_UpdateLean(
     if ( (float)(leanf - 1.0) < 0.0 )
       v8 = ps->leanf;
     else
-      v8 = FLOAT_1_0;
+      v8 = 1.0f;
     if ( (float)(0.0 - leanf) < 0.0 )
       v6 = v8;
     else
-      v6 = *(float *)&FLOAT_0_0;
+      v6 = 0.0f;
     ps->leanf = v6;
   }
   else
   {
     iStance = PM_GetEffectiveStance(ps);
     if ( iStance == 1 )
-      fLeanMax = FLOAT_0_25;
+      fLeanMax = 0.25f;
     else
-      fLeanMax = FLOAT_0_5;
+      fLeanMax = 0.5f;
     leanofs = ps->leanf;
     if ( leaning )
     {
@@ -701,19 +701,19 @@ void __cdecl PM_UpdateLean(
       {
         leanofs = (float)((float)(msec / 280.0) * fLeanMax) + leanofs;
         if ( leanofs > 0.0 )
-          leanofs = *(float *)&FLOAT_0_0;
+          leanofs = 0.0f;
       }
     }
     else
     {
       leanofs = leanofs - (float)((float)(msec / 280.0) * fLeanMax);
       if ( leanofs < 0.0 )
-        leanofs = *(float *)&FLOAT_0_0;
+        leanofs = 0.0f;
     }
     ps->leanf = leanofs;
     if ( ps->leanf != 0.0 )
     {
-      fLeanFrac = ps->leanf < 0.0 ? FLOAT_N1_0 : FLOAT_1_0;
+      fLeanFrac = ps->leanf < 0.0 ? -1.0f : 1.0f;
       start[0] = ps->origin[0];
       start[1] = ps->origin[1];
       start[2] = ps->origin[2];
@@ -722,12 +722,12 @@ void __cdecl PM_UpdateLean(
       end[1] = start[1];
       end[2] = start[2];
       AddLeanToPosition(end, ps->viewangles[1], fLeanFrac, 16.0, 20.0);
-      tmins[0] = FLOAT_N8_0;
-      tmins[1] = FLOAT_N8_0;
-      tmins[2] = FLOAT_N8_0;
-      tmaxs[0] = FLOAT_8_0;
-      tmaxs[1] = FLOAT_8_0;
-      tmaxs[2] = FLOAT_8_0;
+      tmins[0] = -8.0f;
+      tmins[1] = -8.0f;
+      tmins[2] = -8.0f;
+      tmaxs[0] = 8.0f;
+      tmaxs[1] = 8.0f;
+      tmaxs[2] = 8.0f;
       ((void (__cdecl *)(trace_t *, float *, float *, float *, float *, unsigned int, char *))capsuleTrace)(
         &trace,
         start,
@@ -740,9 +740,9 @@ void __cdecl PM_UpdateLean(
       if ( COERCE_FLOAT(LODWORD(ps->leanf) & _mask__AbsFloat_) > fLean )
       {
         if ( ps->leanf < 0.0 )
-          v4 = FLOAT_N1_0;
+          v4 = -1.0f;
         else
-          v4 = FLOAT_1_0;
+          v4 = 1.0f;
         ps->leanf = fLean * v4;
       }
     }
@@ -999,11 +999,11 @@ void __cdecl PM_UpdateViewAngles_Prone(
       }
       else if ( deltaa <= 0.0 )
       {
-        deltaa = FLOAT_N1_0;
+        deltaa = -1.0f;
       }
       else
       {
-        deltaa = FLOAT_1_0;
+        deltaa = 1.0f;
       }
       newProneYaw = AngleNormalize360(newProneYaw + deltaa);
     }
@@ -1085,9 +1085,9 @@ LABEL_33:
       if ( COERCE_FLOAT(LODWORD(deltab) & _mask__AbsFloat_) > 1.0 )
       {
         if ( deltab <= 0.0 )
-          deltab = FLOAT_N1_0;
+          deltab = -1.0f;
         else
-          deltab = FLOAT_1_0;
+          deltab = 1.0f;
       }
       proneBlocked = 1;
       ps->delta_angles[1] = ps->delta_angles[1] + deltab;
@@ -1282,7 +1282,7 @@ LABEL_24:
     }
     else
     {
-      fTargPitch = *(float *)&FLOAT_0_0;
+      fTargPitch = 0.0f;
     }
     delta = AngleDelta(fTargPitch, ps->proneDirectionPitch);
     if ( delta != 0.0 )
@@ -1294,9 +1294,9 @@ LABEL_24:
       else
       {
         if ( delta < 0.0 )
-          v5 = FLOAT_N1_0;
+          v5 = -1.0f;
         else
-          v5 = FLOAT_1_0;
+          v5 = 1.0f;
         ps->proneDirectionPitch = (float)((float)(70.0 * pml->frametime) * v5) + ps->proneDirectionPitch;
       }
       ps->proneDirectionPitch = AngleNormalize180(ps->proneDirectionPitch);
@@ -1320,9 +1320,9 @@ LABEL_24:
       else
       {
         if ( deltaa < 0.0 )
-          v4 = FLOAT_N1_0;
+          v4 = -1.0f;
         else
-          v4 = FLOAT_1_0;
+          v4 = 1.0f;
         ps->proneTorsoPitch = (float)((float)(70.0 * pml->frametime) * v4) + ps->proneTorsoPitch;
       }
       ps->proneTorsoPitch = AngleNormalize180(ps->proneTorsoPitch);
@@ -1370,7 +1370,7 @@ void __cdecl PM_MeleeChargeClear(playerState_s *ps)
   if ( !ps && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\bgame\\bg_pmove.cpp", 5857, 0, "%s", "ps") )
     __debugbreak();
   ps->pm_flags &= ~0x20000u;
-  ps->meleeChargeYaw = *(float *)&FLOAT_0_0;
+  ps->meleeChargeYaw = 0.0f;
   ps->meleeChargeDist = 0;
   ps->meleeChargeTime = 0;
   if ( player_bayonetLaunchProof->current.enabled )
@@ -1542,9 +1542,9 @@ void __cdecl PmoveSingle(pmove_t *pm)
   if ( (ps->eFlags2 & 0x10000000) != 0 )
   {
     velocity = ps->velocity;
-    ps->velocity[0] = *(float *)&FLOAT_0_0;
-    velocity[1] = *(float *)&FLOAT_0_0;
-    velocity[2] = *(float *)&FLOAT_0_0;
+    ps->velocity[0] = 0.0f;
+    velocity[1] = 0.0f;
+    velocity[2] = 0.0f;
   }
   if ( (ps->pm_flags & 0x20000) != 0 )
   {
@@ -1559,9 +1559,9 @@ void __cdecl PmoveSingle(pmove_t *pm)
     pm->cmd.forwardmove = 0;
     pm->cmd.rightmove = 0;
     v15 = ps->velocity;
-    ps->velocity[0] = *(float *)&FLOAT_0_0;
-    v15[1] = *(float *)&FLOAT_0_0;
-    v15[2] = *(float *)&FLOAT_0_0;
+    ps->velocity[0] = 0.0f;
+    v15[1] = 0.0f;
+    v15[2] = 0.0f;
   }
   else if ( (ps->pm_flags & 0x400) != 0 )
   {
@@ -1571,9 +1571,9 @@ void __cdecl PmoveSingle(pmove_t *pm)
     pm->cmd.forwardmove = 0;
     pm->cmd.rightmove = 0;
     v13 = ps->velocity;
-    ps->velocity[0] = *(float *)&FLOAT_0_0;
-    v13[1] = *(float *)&FLOAT_0_0;
-    v13[2] = *(float *)&FLOAT_0_0;
+    ps->velocity[0] = 0.0f;
+    v13[1] = 0.0f;
+    v13[2] = 0.0f;
   }
   else if ( PM_IsPlayerFrozenByWeapon(ps) )
   {
@@ -1585,9 +1585,9 @@ void __cdecl PmoveSingle(pmove_t *pm)
     for ( m = 0; m < 2; ++m )
       pm->cmd.button_bits.array[m] &= v24.array[m];
     v10 = ps->velocity;
-    ps->velocity[0] = *(float *)&FLOAT_0_0;
-    v10[1] = *(float *)&FLOAT_0_0;
-    v10[2] = *(float *)&FLOAT_0_0;
+    ps->velocity[0] = 0.0f;
+    v10[1] = 0.0f;
+    v10[2] = 0.0f;
   }
   else if ( (ps->eFlags2 & 0x10000000) != 0 && (ps->eFlags & 0x4000) == 0 )
   {
@@ -1599,9 +1599,9 @@ void __cdecl PmoveSingle(pmove_t *pm)
     for ( ii = 0; ii < 2; ++ii )
       pm->cmd.button_bits.array[ii] &= v23.array[ii];
     v7 = ps->velocity;
-    ps->velocity[0] = *(float *)&FLOAT_0_0;
-    v7[1] = *(float *)&FLOAT_0_0;
-    v7[2] = *(float *)&FLOAT_0_0;
+    ps->velocity[0] = 0.0f;
+    v7[1] = 0.0f;
+    v7[2] = 0.0f;
   }
   if ( bitarray<51>::testBit(&pm->cmd.button_bits, 0x1Du) )
   {
@@ -1779,9 +1779,9 @@ void __cdecl PmoveSingle(pmove_t *pm)
       ps->groundEntityNum = 1023;
       memset(&pml.walking, 0, 12);
       v5 = ps->velocity;
-      ps->velocity[0] = *(float *)&FLOAT_0_0;
-      v5[1] = *(float *)&FLOAT_0_0;
-      v5[2] = *(float *)&FLOAT_0_0;
+      ps->velocity[0] = 0.0f;
+      v5[1] = 0.0f;
+      v5[2] = 0.0f;
       PM_UpdateScriptedAnim(pm, &pml);
       PM_UpdateAimDownSightFlag(pm, &pml);
       PM_UpdateSprint(pm, &pml);
@@ -1855,9 +1855,9 @@ LABEL_151:
         ps->groundEntityNum = 1023;
         memset(&pml.walking, 0, 12);
         v4 = ps->velocity;
-        ps->velocity[0] = *(float *)&FLOAT_0_0;
-        v4[1] = *(float *)&FLOAT_0_0;
-        v4[2] = *(float *)&FLOAT_0_0;
+        ps->velocity[0] = 0.0f;
+        v4[1] = 0.0f;
+        v4[2] = 0.0f;
         PM_UpdateAimDownSightFlag(pm, &pml);
         PM_UpdateSprint(pm, &pml);
         PM_UpdatePlayerWalkingFlag(pm);
@@ -2245,7 +2245,7 @@ bool __cdecl PM_CanCrouch(playerState_s *ps, pmove_t *pm)
   if ( (ps->pm_flags & 1) == 0 )
     return 1;
   save_maxs2 = pm->maxs[2];
-  pm->maxs[2] = FLOAT_50_0;
+  pm->maxs[2] = 50.0f;
   result = is_not_penetrating(pm, ps->origin, pm->mins, pm->maxs, ps->origin, pm->tracemask & 0xFDFF7FFF);
   pm->maxs[2] = save_maxs2;
   return result;
@@ -2275,9 +2275,9 @@ void __cdecl PM_FlyMove(pmove_t *pm, pml_t *pml)
   }
   else
   {
-    up[1] = *(float *)&FLOAT_0_0;
-    up[0] = *(float *)&FLOAT_0_0;
-    up[2] = FLOAT_1_0;
+    up[1] = 0.0f;
+    up[0] = 0.0f;
+    up[2] = 1.0f;
     Vec3Cross(up, pml->right, forward);
     for ( i = 0; i < 3; ++i )
       wishvel[i] = (float)((float)((float)pm->cmd.forwardmove * forward[i])
@@ -2336,11 +2336,11 @@ void __cdecl PM_Friction(playerState_s *ps, pml_t *pml, pmove_t *pm)
   vec[1] = ps->velocity[1];
   vec[2] = ps->velocity[2];
   if ( pml->walking )
-    vec[2] = *(float *)&FLOAT_0_0;
+    vec[2] = 0.0f;
   speed = Abs(vec);
   if ( speed >= 1.0 )
   {
-    drop = *(float *)&FLOAT_0_0;
+    drop = 0.0f;
     if ( (ps->pm_flags & 0x20000) != 0 )
     {
       if ( ps->meleeChargeTime <= 0
@@ -2381,19 +2381,19 @@ void __cdecl PM_Friction(playerState_s *ps, pml_t *pml, pmove_t *pm)
     }
     if ( ps->waterlevel )
     {
-      scales[0] = *(float *)&FLOAT_0_0;
-      scales[1] = FLOAT_1_0;
-      scales[2] = FLOAT_2_0;
-      scales[3] = FLOAT_3_0;
-      scales[4] = FLOAT_3_0;
-      scales[5] = FLOAT_3_0;
+      scales[0] = 0.0f;
+      scales[1] = 1.0f;
+      scales[2] = 2.0f;
+      scales[3] = 3.0f;
+      scales[4] = 3.0f;
+      scales[5] = 3.0f;
       drop = (float)((float)((float)(speed * 1.0) * scales[ps->waterlevel]) * pml->frametime) + drop;
     }
     if ( ps->pm_type == 4 )
       drop = (float)((float)(speed * 5.0) * pml->frametime) + drop;
     newspeed = speed - drop;
     if ( (float)(speed - drop) < 0.0 )
-      newspeed = *(float *)&FLOAT_0_0;
+      newspeed = 0.0f;
     v4 = newspeed / speed;
     *vel = (float)(newspeed / speed) * *vel;
     vel[1] = v4 * vel[1];
@@ -2401,9 +2401,9 @@ void __cdecl PM_Friction(playerState_s *ps, pml_t *pml, pmove_t *pm)
   }
   else
   {
-    *vel = *(float *)&FLOAT_0_0;
-    vel[1] = *(float *)&FLOAT_0_0;
-    vel[2] = *(float *)&FLOAT_0_0;
+    *vel = 0.0f;
+    vel[1] = 0.0f;
+    vel[2] = 0.0f;
   }
 }
 
@@ -2545,16 +2545,16 @@ void __cdecl PM_AirMove(pmove_t *pm, pml_t *pml)
   smove = (float)pm->cmd.rightmove;
   memcpy(&cmd, &pm->cmd, sizeof(cmd));
   scale = PM_CmdScale(ps, &cmd);
-  pml->forward[2] = *(float *)&FLOAT_0_0;
-  pml->right[2] = *(float *)&FLOAT_0_0;
+  pml->forward[2] = 0.0f;
+  pml->right[2] = 0.0f;
   Vec3Normalize(pml->forward);
   Vec3Normalize(pml->right);
   for ( i = 0; i < 2; ++i )
     wishvel[i] = (float)(pml->forward[i] * fmove) + (float)(pml->right[i] * smove);
-  wishvel[2] = *(float *)&FLOAT_0_0;
+  wishvel[2] = 0.0f;
   wishdir[0] = wishvel[0];
   wishdir[1] = wishvel[1];
-  wishdir[2] = *(float *)&FLOAT_0_0;
+  wishdir[2] = 0.0f;
   wishspeed = Vec3Normalize(wishdir);
   wishspeed = wishspeed * scale;
   PM_Accelerate(ps, pml, wishdir, wishspeed, 1.0);
@@ -2576,7 +2576,7 @@ void __cdecl PM_DoSlideAdjustments(playerState_s *ps, const pml_t *pml)
   if ( (pml->groundTrace.sflags & 2) != 0 )
   {
     *(_QWORD *)dir = *(_QWORD *)pml->groundTrace.normal.vec.v;
-    dir[2] = *(float *)&FLOAT_0_0;
+    dir[2] = 0.0f;
     Vec3Normalize(dir);
     wishspeed = player_sliding_wishspeed->current.value;
     PM_Accelerate(ps, pml, dir, wishspeed, accel);
@@ -2702,25 +2702,25 @@ void __cdecl PM_SwimMove(pmove_t *pm, pml_t *pml)
   for ( i = 0; i < 3; ++i )
     wishvel[i] = (float)(pml->forward[i] * fmove) + (float)(pml->right[i] * smove);
   if ( ps->waterlevel == 3 && wishvel[2] >= 0.0 )
-    wishvel[2] = *(float *)&FLOAT_0_0;
+    wishvel[2] = 0.0f;
   wishdir[0] = wishvel[0];
   wishdir[1] = wishvel[1];
   wishdir[2] = wishvel[2];
   wishspeed = Vec3Normalize(wishdir);
   wishspeed = wishspeed * scale;
-  floatdir[0] = *(float *)&FLOAT_0_0;
-  floatdir[1] = *(float *)&FLOAT_0_0;
-  floatdir[2] = FLOAT_1_0;
-  floatspeed = *(float *)&FLOAT_0_0;
+  floatdir[0] = 0.0f;
+  floatdir[1] = 0.0f;
+  floatdir[2] = 1.0f;
+  floatspeed = 0.0f;
   moveSpeedScaleMultiplier = ps->moveSpeedScaleMultiplier;
   if ( (float)(moveSpeedScaleMultiplier - 1.5) < 0.0 )
     v4 = ps->moveSpeedScaleMultiplier;
   else
-    v4 = FLOAT_1_5;
+    v4 = 1.5f;
   if ( (float)(0.5 - moveSpeedScaleMultiplier) < 0.0 )
     v2 = v4;
   else
-    v2 = FLOAT_0_5;
+    v2 = 0.5f;
   mod = v2;
   if ( v2 <= 1.0 )
     floatspeed = (float)(player_floatSpeed->current.value / 2.0)
@@ -2732,7 +2732,7 @@ void __cdecl PM_SwimMove(pmove_t *pm, pml_t *pml)
     if ( floatspeed < 0.0 )
     {
       floatspeed = floatspeed * -1.0;
-      floatdir[2] = FLOAT_N1_0;
+      floatdir[2] = -1.0f;
     }
     PM_Accelerate(ps, pml, floatdir, floatspeed, 2.0);
   }
@@ -2789,13 +2789,13 @@ void __cdecl PM_WalkMove(pmove_t *pm, pml_t *pml)
     ps->damageTimer -= (int)(float)(pml->frametime * 1000.0);
     if ( ps->damageTimer <= 0 )
       ps->damageTimer = 0;
-    pml->forward[2] = *(float *)&FLOAT_0_0;
-    pml->right[2] = *(float *)&FLOAT_0_0;
+    pml->forward[2] = 0.0f;
+    pml->right[2] = 0.0f;
     Vec2Normalize(pml->forward);
     Vec2Normalize(pml->right);
     wishvel[0] = (float)(fmove * pml->forward[0]) + (float)(smove * pml->right[0]);
     wishvel[1] = (float)(fmove * pml->forward[1]) + (float)(smove * pml->right[1]);
-    wishvel[2] = *(float *)&FLOAT_0_0;
+    wishvel[2] = 0.0f;
     wishspeed = Vec3NormalizeTo(wishvel, wishdir);
     wishspeed = wishspeed * scale;
     PM_ProjectVelocity(wishdir, pml->groundTrace.normal.vec.v, wishdir);
@@ -2942,9 +2942,9 @@ void __cdecl PM_DeadMove(playerState_s *ps, pml_t *pml)
     }
     else
     {
-      ps->velocity[0] = *(float *)&FLOAT_0_0;
-      ps->velocity[1] = *(float *)&FLOAT_0_0;
-      ps->velocity[2] = *(float *)&FLOAT_0_0;
+      ps->velocity[0] = 0.0f;
+      ps->velocity[1] = 0.0f;
+      ps->velocity[2] = 0.0f;
     }
   }
 }
@@ -2983,7 +2983,7 @@ void __cdecl PM_NoclipMove(pmove_t *pm, pml_t *pml)
   speed = Abs(ps->velocity);
   if ( speed >= 1.0 )
   {
-    drop = *(float *)&FLOAT_0_0;
+    drop = 0.0f;
     curFriction = friction->current.value * 1.5;
     if ( stopspeed->current.value <= speed )
       value = speed;
@@ -2993,7 +2993,7 @@ void __cdecl PM_NoclipMove(pmove_t *pm, pml_t *pml)
     drop = (float)((float)(value * curFriction) * pml->frametime) + drop;
     newspeed = speed - drop;
     if ( (float)(speed - drop) < 0.0 )
-      newspeed = *(float *)&FLOAT_0_0;
+      newspeed = 0.0f;
     newspeed = newspeed / speed;
     velocity = ps->velocity;
     v8 = ps->velocity;
@@ -3010,7 +3010,7 @@ void __cdecl PM_NoclipMove(pmove_t *pm, pml_t *pml)
   }
   fmove = (float)pm->cmd.forwardmove;
   smove = (float)pm->cmd.rightmove;
-  umove = *(float *)&FLOAT_0_0;
+  umove = 0.0f;
   if ( bitarray<51>::testBit(&pm->cmd.button_bits, 7u) )
     umove = umove + 127.0;
   if ( bitarray<51>::testBit(&pm->cmd.button_bits, 6u) )
@@ -3069,18 +3069,18 @@ void __cdecl PM_UFOMove(pmove_t *pm, pml_t *pml)
   ps->viewHeightTarget = 60;
   fmove = (float)pm->cmd.forwardmove;
   smove = (float)pm->cmd.rightmove;
-  umove = *(float *)&FLOAT_0_0;
+  umove = 0.0f;
   if ( bitarray<51>::testBit(&pm->cmd.button_bits, 7u) )
     umove = umove + 127.0;
   if ( bitarray<51>::testBit(&pm->cmd.button_bits, 6u) )
     umove = umove - 127.0;
   if ( fmove == 0.0 && smove == 0.0 && umove == 0.0 )
-    speed = *(float *)&FLOAT_0_0;
+    speed = 0.0f;
   else
     speed = Abs(ps->velocity);
   if ( speed >= 1.0 )
   {
-    drop = *(float *)&FLOAT_0_0;
+    drop = 0.0f;
     curFriction = friction->current.value * 1.5;
     if ( stopspeed->current.value <= speed )
       value = speed;
@@ -3090,7 +3090,7 @@ void __cdecl PM_UFOMove(pmove_t *pm, pml_t *pml)
     drop = (float)((float)(value * curFriction) * pml->frametime) + drop;
     newspeed = speed - drop;
     if ( (float)(speed - drop) < 0.0 )
-      newspeed = *(float *)&FLOAT_0_0;
+      newspeed = 0.0f;
     newspeed = newspeed / speed;
     velocity = ps->velocity;
     v8 = ps->velocity;
@@ -3106,9 +3106,9 @@ void __cdecl PM_UFOMove(pmove_t *pm, pml_t *pml)
     v9[2] = 0.0;
   }
   scale = PM_MoveScale(ps, fmove, smove, umove);
-  up[1] = *(float *)&FLOAT_0_0;
-  up[0] = *(float *)&FLOAT_0_0;
-  up[2] = FLOAT_1_0;
+  up[1] = 0.0f;
+  up[0] = 0.0f;
+  up[2] = 1.0f;
   Vec3Cross(up, pml->right, forward);
   for ( i = 0; i < 3; ++i )
     wishvel[i] = (float)((float)(forward[i] * fmove) + (float)(pml->right[i] * smove)) + (float)(up[i] * umove);
@@ -3454,11 +3454,11 @@ void __cdecl PM_CrashLand(pmove_t *pm, pml_t *pml)
             if ( stunTime < 1500 )
               fSpeedMult = 0.5 - (float)((float)((float)((float)stunTime - 500.0) / 1000.0) * 0.30000001);
             else
-              fSpeedMult = FLOAT_0_2;
+              fSpeedMult = 0.2f;
           }
           else
           {
-            fSpeedMult = FLOAT_0_5;
+            fSpeedMult = 0.5f;
           }
           ps->pm_time = stunTime;
           ps->pm_flags |= 0x80u;
@@ -3657,11 +3657,11 @@ double __cdecl PM_GetViewHeightLerp(const pmove_t *pm, int iFromHeight, int iToH
   if ( fLerpFrac >= 0.0 )
   {
     if ( fLerpFrac > 1.0 )
-      return FLOAT_1_0;
+      return 1.0f;
   }
   else
   {
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
   }
   return fLerpFrac;
 }
@@ -3706,12 +3706,12 @@ void __cdecl PM_CheckDuck(pmove_t *pm, pml_t *pml)
   pm->proneChange = 0;
   if ( ps->pm_type == 4 )
   {
-    pm->mins[0] = FLOAT_N8_0;
-    pm->mins[1] = FLOAT_N8_0;
-    pm->mins[2] = FLOAT_N8_0;
-    pm->maxs[0] = FLOAT_8_0;
-    pm->maxs[1] = FLOAT_8_0;
-    pm->maxs[2] = FLOAT_16_0;
+    pm->mins[0] = -8.0f;
+    pm->mins[1] = -8.0f;
+    pm->mins[2] = -8.0f;
+    pm->maxs[0] = 8.0f;
+    pm->maxs[1] = 8.0f;
+    pm->maxs[2] = 16.0f;
     ps->pm_flags &= 0xFFFFFFFC;
     if ( bitarray<51>::testBit(&pm->cmd.button_bits, 8u) )
     {
@@ -3719,7 +3719,7 @@ void __cdecl PM_CheckDuck(pmove_t *pm, pml_t *pml)
       BG_AddPredictableEventToPlayerstate(8u, 0, ps);
     }
     ps->viewHeightTarget = 0;
-    ps->viewHeightCurrent = *(float *)&FLOAT_0_0;
+    ps->viewHeightCurrent = 0.0f;
     return;
   }
   bWasProne = (ps->pm_flags & 1) != 0;
@@ -3735,11 +3735,11 @@ void __cdecl PM_CheckDuck(pmove_t *pm, pml_t *pml)
     ps->viewHeightTarget = 8;
     if ( (ps->pm_flags & 2) != 0 )
     {
-      pm->maxs[2] = FLOAT_50_0;
+      pm->maxs[2] = 50.0f;
     }
     else if ( (ps->pm_flags & 1) != 0 )
     {
-      pm->maxs[2] = FLOAT_30_0;
+      pm->maxs[2] = 30.0f;
     }
 LABEL_25:
     PM_ViewHeightAdjust(pm, pml);
@@ -3831,7 +3831,7 @@ LABEL_25:
             else if ( (ps->pm_flags & 1) != 0 )
             {
               save_maxs2 = pm->maxs[2];
-              pm->maxs[2] = FLOAT_50_0;
+              pm->maxs[2] = 50.0f;
               not_pen = is_not_penetrating(pm, ps->origin, pm->mins, pm->maxs, ps->origin, pm->tracemask & 0xFDFF7FFF);
               pm->maxs[2] = save_maxs2;
               if ( not_pen )
@@ -3863,7 +3863,7 @@ LABEL_25:
             else
             {
               v7 = pm->maxs[2];
-              pm->maxs[2] = FLOAT_50_0;
+              pm->maxs[2] = 50.0f;
               v8 = is_not_penetrating(pm, ps->origin, pm->mins, pm->maxs, ps->origin, pm->tracemask & 0xFDFF7FFF);
               pm->maxs[2] = v7;
               if ( v8 )
@@ -3973,7 +3973,7 @@ LABEL_25:
     iStance = PM_GetEffectiveStance(ps);
     if ( iStance == 1 )
     {
-      pm->maxs[2] = FLOAT_30_0;
+      pm->maxs[2] = 30.0f;
       ps->eFlags |= 8u;
       ps->eFlags &= ~4u;
       ps->pm_flags |= 1u;
@@ -3981,7 +3981,7 @@ LABEL_25:
     }
     else if ( iStance == 2 )
     {
-      pm->maxs[2] = FLOAT_50_0;
+      pm->maxs[2] = 50.0f;
       ps->eFlags |= 4u;
       ps->eFlags &= ~8u;
       ps->pm_flags |= 2u;
@@ -4000,11 +4000,11 @@ LABEL_25:
         if ( ps->viewHeightCurrent >= 50.0 )
           pm->maxs[2] = 70.0;
         else
-          pm->maxs[2] = FLOAT_50_0;
+          pm->maxs[2] = 50.0f;
       }
       else
       {
-        pm->maxs[2] = FLOAT_30_0;
+        pm->maxs[2] = 30.0f;
       }
     }
     if ( (ps->pm_flags & 1) != 0 )
@@ -4084,7 +4084,7 @@ LABEL_25:
           &v3);
         if ( trace.startsolid || trace.fraction >= 1.0 || ps->pm_type == 6 )
         {
-          ps->proneDirectionPitch = *(float *)&FLOAT_0_0;
+          ps->proneDirectionPitch = 0.0f;
         }
         else
         {
@@ -4143,7 +4143,7 @@ void __cdecl PM_ViewHeightAdjust(pmove_t *pm, pml_t *pml)
     if ( ps->viewHeightCurrent != (float)ps->viewHeightTarget || ps->viewHeightLerpTime )
     {
       iLerpFrac = 0;
-      fNewPosOfs = *(float *)&FLOAT_0_0;
+      fNewPosOfs = 0.0f;
       if ( ps->viewHeightTarget == 11 || ps->viewHeightTarget == 40 || ps->viewHeightTarget == 60 )
       {
         if ( ps->viewHeightLerpTime )
@@ -4312,7 +4312,7 @@ void __cdecl PM_ViewHeightAdjust(pmove_t *pm, pml_t *pml)
   }
   else if ( ps->pm_type == 4 )
   {
-    ps->viewHeightCurrent = *(float *)&FLOAT_0_0;
+    ps->viewHeightCurrent = 0.0f;
   }
   else
   {
@@ -4931,7 +4931,7 @@ double __cdecl PM_CalcPlayerPitch(playerState_s *ps, pml_t *pml)
   if ( COERCE_FLOAT(LODWORD(v3) & _mask__AbsFloat_) >= 35.0 )
   {
     if ( COERCE_FLOAT(LODWORD(v3) & _mask__AbsFloat_) <= 145.0 )
-      pitchTrans = *(float *)&FLOAT_0_0;
+      pitchTrans = 0.0f;
     else
       pitchTrans = groundNormAngles[0] + 90.0;
   }
@@ -4970,7 +4970,7 @@ void __cdecl PM_FoliageSounds(pmove_t *pm)
     speedFrac = (float)(pm->xyspeed - bg_foliagesnd_minspeed->current.value)
               / (float)(bg_foliagesnd_maxspeed->current.value - bg_foliagesnd_minspeed->current.value);
     if ( speedFrac > 1.0 )
-      speedFrac = FLOAT_1_0;
+      speedFrac = 1.0f;
     interval = (int)(float)((float)((float)(bg_foliagesnd_fastinterval->current.integer
                                           - bg_foliagesnd_slowinterval->current.integer)
                                   * speedFrac)
@@ -5117,9 +5117,9 @@ void __cdecl PM_CheckLadderMove(pmove_t *pm, pml_t *pml)
   if ( !ps->pm_time || (ps->pm_flags & 8) != 0 || (ps->pm_flags & 0x180) == 0 )
   {
     if ( pml->walking )
-      tracedist = FLOAT_8_0;
+      tracedist = 8.0f;
     else
-      tracedist = FLOAT_30_0;
+      tracedist = 30.0f;
     v2 = (ps->pm_flags & 8) != 0 && ps->groundEntityNum == 1023;
     fellOffLadderInAir = v2;
     if ( v2 )
@@ -5132,7 +5132,7 @@ void __cdecl PM_CheckLadderMove(pmove_t *pm, pml_t *pml)
     {
       vLadderCheckDir[0] = pml->forward[0];
       vLadderCheckDir[1] = pml->forward[1];
-      vLadderCheckDir[2] = *(float *)&FLOAT_0_0;
+      vLadderCheckDir[2] = 0.0f;
       Vec3Normalize(vLadderCheckDir);
     }
     if ( ps->pm_type < 9 )
@@ -5147,7 +5147,7 @@ void __cdecl PM_CheckLadderMove(pmove_t *pm, pml_t *pml)
         mins[1] = pm->mins[1];
         mins[0] = mins[0] + 6.0;
         mins[1] = mins[1] + 6.0;
-        mins[2] = FLOAT_8_0;
+        mins[2] = 8.0f;
         maxs[0] = pm->maxs[0];
         maxs[1] = pm->maxs[1];
         maxs[2] = pm->maxs[2];
@@ -5282,15 +5282,15 @@ void __cdecl PM_LadderMove(pmove_t *pm, pml_t *pml)
     if ( upscale <= 1.0 )
     {
       if ( upscale < -1.0 )
-        upscale = FLOAT_N1_0;
+        upscale = -1.0f;
     }
     else
     {
-      upscale = FLOAT_1_0;
+      upscale = 1.0f;
     }
-    pml->forward[2] = *(float *)&FLOAT_0_0;
+    pml->forward[2] = 0.0f;
     Vec3Normalize(pml->forward);
-    pml->right[2] = *(float *)&FLOAT_0_0;
+    pml->right[2] = 0.0f;
     Vec3NormalizeTo(pml->right, vTempRight);
     ProjectPointOnPlane(vTempRight, ps->vLadderVec, pml->right);
     scale = PM_CmdScale(ps, &pm->cmd);
@@ -5312,13 +5312,13 @@ void __cdecl PM_LadderMove(pmove_t *pm, pml_t *pml)
       {
         ps->velocity[2] = (float)((float)ps->gravity * pml->frametime) + ps->velocity[2];
         if ( ps->velocity[2] > 0.0 )
-          ps->velocity[2] = *(float *)&FLOAT_0_0;
+          ps->velocity[2] = 0.0f;
       }
       else
       {
         ps->velocity[2] = ps->velocity[2] - (float)((float)ps->gravity * pml->frametime);
         if ( ps->velocity[2] < 0.0 )
-          ps->velocity[2] = *(float *)&FLOAT_0_0;
+          ps->velocity[2] = 0.0f;
       }
     }
     if ( !pm->cmd.rightmove )
@@ -5340,9 +5340,9 @@ void __cdecl PM_LadderMove(pmove_t *pm, pml_t *pml)
           if ( COERCE_FLOAT(LODWORD(fSpeedDrop) & _mask__AbsFloat_) < 1.0 )
           {
             if ( fSpeedDrop < 0.0 )
-              v2 = FLOAT_N1_0;
+              v2 = -1.0f;
             else
-              v2 = FLOAT_1_0;
+              v2 = 1.0f;
             fSpeedDrop = v2;
           }
           fSideSpeed = fSideSpeed - fSpeedDrop;
@@ -5367,7 +5367,7 @@ void __cdecl PM_LadderMove(pmove_t *pm, pml_t *pml)
         && (float)(ps->velocity[2] * ps->velocity[2]) >= (float)((float)(ps->velocity[0] * ps->velocity[0])
                                                                + (float)(ps->velocity[1] * ps->velocity[1])) )
       {
-        fSideSpeed = FLOAT_N50_0;
+        fSideSpeed = -50.0f;
         v3 = ps->velocity;
         v4 = ps->vLadderVec;
         v5 = ps->velocity;
@@ -5433,7 +5433,7 @@ void __cdecl PM_MeleeChargeMove(pmove_t *pm, pml_t *pml)
   {
     newSpeed = speed - (float)((float)(speed / (float)((float)ps->meleeChargeTime * 0.001)) * pml->frametime);
     if ( newSpeed < 0.0 )
-      newSpeed = *(float *)&FLOAT_0_0;
+      newSpeed = 0.0f;
     velocity = ps->velocity;
     v5 = (float)(speed + newSpeed) * 0.5;
     ps->velocity[0] = v5 * dir[0];
@@ -5451,8 +5451,8 @@ void __cdecl PM_MeleeChargeMove(pmove_t *pm, pml_t *pml)
   if ( ps->meleeChargeTime <= 0 )
   {
     v2 = ps->velocity;
-    ps->velocity[0] = *(float *)&FLOAT_0_0;
-    v2[1] = *(float *)&FLOAT_0_0;
+    ps->velocity[0] = 0.0f;
+    v2[1] = 0.0f;
     PM_MeleeChargeClear(ps);
   }
   PM_SetMovementDir(pm, pml);
@@ -5524,11 +5524,11 @@ void __cdecl set_stance(pmove_t *pm)
   pm->maxs[2] = 70.0;
   if ( (ps->pm_flags & 1) != 0 )
   {
-    pm->maxs[2] = FLOAT_30_0;
+    pm->maxs[2] = 30.0f;
   }
   else if ( (ps->pm_flags & 2) != 0 )
   {
-    pm->maxs[2] = FLOAT_50_0;
+    pm->maxs[2] = 50.0f;
   }
 }
 
@@ -5627,9 +5627,9 @@ void __thiscall colgeom_visitor_inlined_t<200>::update(
   _mx[0] = _mx[0] + fudge[0];
   _mx[1] = _mx[1] + fudge[1];
   _mx[2] = _mx[2] + fudge[2];
-  expand_vec[0] = FLOAT_70_0;
-  expand_vec[1] = FLOAT_70_0;
-  expand_vec[2] = FLOAT_20_0;
+  expand_vec[0] = 70.0f;
+  expand_vec[1] = 70.0f;
+  expand_vec[2] = 20.0f;
   this->update(this, _mn, _mx, mask, expand_vec);
 }
 

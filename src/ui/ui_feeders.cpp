@@ -1306,10 +1306,10 @@ LABEL_100:
         break;
       case 3:
       case 4:
-        color->integer = *(unsigned int *)&FLOAT_0_0;
-        color->vector[1] = *(float *)&FLOAT_0_0;
-        color->vector[2] = *(float *)&FLOAT_0_0;
-        color->vector[3] = FLOAT_0_15000001;
+        color->integer = 0;
+        color->vector[1] = 0.0f;
+        color->vector[2] = 0.0f;
+        color->vector[3] = 0.1f5000001;
         break;
       case 7:
       case 8:
@@ -1318,7 +1318,7 @@ LABEL_100:
           color->value = FLOAT_0_69;
           color->vector[1] = FLOAT_0_69;
           color->vector[2] = FLOAT_0_69;
-          color->vector[3] = FLOAT_1_0;
+          color->vector[3] = 1.0f;
         }
         goto LABEL_117;
       default:
@@ -1331,7 +1331,7 @@ LABEL_100:
     {
       if ( column == 1 )
       {
-        color->vector[3] = FLOAT_0_60000002;
+        color->vector[3] = 0.6f;
         return;
       }
       goto LABEL_117;
@@ -1340,15 +1340,15 @@ LABEL_100:
     {
       if ( column == 1 )
       {
-        color->vector[3] = FLOAT_0_60000002;
+        color->vector[3] = 0.6f;
         return;
       }
       if ( column == 5 )
       {
-        color->value = FLOAT_0_15000001;
+        color->value = 0.1f5000001;
         color->vector[1] = FLOAT_0_61000001;
-        color->vector[2] = *(float *)&FLOAT_0_0;
-        color->vector[3] = FLOAT_0_80000001;
+        color->vector[2] = 0.0f;
+        color->vector[3] = 0.8f;
         return;
       }
       goto LABEL_117;
@@ -1416,41 +1416,41 @@ LABEL_100:
     }
     else if ( feederID == 1.0 || feederID == 7.0 || feederID == 104.0 )
     {
-      color->value = FLOAT_1_0;
-      color->vector[1] = FLOAT_1_0;
-      color->vector[2] = FLOAT_1_0;
-      color->vector[3] = FLOAT_1_0;
+      color->value = 1.0f;
+      color->vector[1] = 1.0f;
+      color->vector[2] = 1.0f;
+      color->vector[3] = 1.0f;
       if ( column )
       {
         if ( column == 1 && listPtr->cursorPos[contextIndex] == index )
         {
-          color->integer = *(unsigned int *)&FLOAT_0_0;
-          color->vector[1] = *(float *)&FLOAT_0_0;
-          color->vector[2] = *(float *)&FLOAT_0_0;
-          color->vector[3] = FLOAT_1_0;
+          color->integer = 0;
+          color->vector[1] = 0.0f;
+          color->vector[2] = 0.0f;
+          color->vector[3] = 1.0f;
         }
       }
       else if ( listPtr->cursorPos[contextIndex] == index )
       {
-        color->value = FLOAT_1_0;
-        color->vector[1] = FLOAT_1_0;
-        color->vector[2] = FLOAT_1_0;
-        color->vector[3] = FLOAT_1_0;
+        color->value = 1.0f;
+        color->vector[1] = 1.0f;
+        color->vector[2] = 1.0f;
+        color->vector[3] = 1.0f;
       }
       else
       {
-        color->integer = *(unsigned int *)&FLOAT_0_0;
-        color->vector[1] = *(float *)&FLOAT_0_0;
-        color->vector[2] = *(float *)&FLOAT_0_0;
-        color->vector[3] = FLOAT_0_2;
+        color->integer = 0;
+        color->vector[1] = 0.0f;
+        color->vector[2] = 0.0f;
+        color->vector[3] = 0.2f;
       }
     }
     else if ( feederID == 48.0 )
     {
-      color->value = FLOAT_1_0;
-      color->vector[1] = FLOAT_1_0;
-      color->vector[2] = FLOAT_1_0;
-      color->vector[3] = FLOAT_1_0;
+      color->value = 1.0f;
+      color->vector[1] = 1.0f;
+      color->vector[2] = 1.0f;
+      color->vector[3] = 1.0f;
       v10 = listPtr->cursorPos[contextIndex] == index;
       if ( !Window_HasFocus(contextIndex, &item->parent->window) )
         v10 = 0;
@@ -1462,10 +1462,10 @@ LABEL_100:
           {
             if ( v10 && Window_HasFocus(contextIndex, &item->window) )
             {
-              color->integer = *(unsigned int *)&FLOAT_0_0;
-              color->vector[1] = *(float *)&FLOAT_0_0;
-              color->vector[2] = *(float *)&FLOAT_0_0;
-              color->vector[3] = FLOAT_1_0;
+              color->integer = 0;
+              color->vector[1] = 0.0f;
+              color->vector[2] = 0.0f;
+              color->vector[3] = 1.0f;
             }
             else if ( !v10 && !Window_HasFocus(contextIndex, &item->window) )
             {
@@ -1503,15 +1503,15 @@ LABEL_100:
       }
       else
       {
-        color->vector[3] = *(float *)&FLOAT_0_0;
+        color->vector[3] = 0.0f;
       }
     }
     else if ( feederID == 76.0 || feederID == 77.0 )
     {
-      color->value = FLOAT_1_0;
-      color->vector[1] = FLOAT_1_0;
-      color->vector[2] = FLOAT_1_0;
-      color->vector[3] = FLOAT_1_0;
+      color->value = 1.0f;
+      color->vector[1] = 1.0f;
+      color->vector[2] = 1.0f;
+      color->vector[3] = 1.0f;
       v9 = listPtr->cursorPos[contextIndex] == index;
       if ( feederID != 76.0 || Window_HasFocus(contextIndex, &item->parent->window) )
       {
@@ -1532,10 +1532,10 @@ LABEL_100:
             {
               if ( v9 )
               {
-                color->integer = *(unsigned int *)&FLOAT_0_0;
-                color->vector[1] = *(float *)&FLOAT_0_0;
-                color->vector[2] = *(float *)&FLOAT_0_0;
-                color->vector[3] = FLOAT_1_0;
+                color->integer = 0;
+                color->vector[1] = 0.0f;
+                color->vector[2] = 0.0f;
+                color->vector[3] = 1.0f;
               }
             }
             else
@@ -1548,9 +1548,9 @@ LABEL_100:
           }
           else if ( !v9 )
           {
-            color->integer = *(unsigned int *)&FLOAT_0_0;
-            color->vector[1] = *(float *)&FLOAT_0_0;
-            color->vector[2] = *(float *)&FLOAT_0_0;
+            color->integer = 0;
+            color->vector[1] = 0.0f;
+            color->vector[2] = 0.0f;
             color->vector[3] = FLOAT_0_44999999;
           }
         }
@@ -1561,7 +1561,7 @@ LABEL_100:
         {
           if ( !v9 )
           {
-            color->vector[3] = *(float *)&FLOAT_0_0;
+            color->vector[3] = 0.0f;
             return;
           }
           goto LABEL_100;

@@ -1518,7 +1518,7 @@ void __cdecl Com_Init_Try_Block_Function(char *commandLine)
   Com_InitHunkMemory();
   Hunk_UserStartup();
   dvar_modifiedFlags &= ~1u;
-  com_codeTimeScale = FLOAT_1_0;
+  com_codeTimeScale = 1.0f;
   collectors = _Dvar_RegisterBool("collectors", 0, 0x40u, "Set to true if the player has the collector's edition");
   primaryWeaponOffset = _Dvar_RegisterInt(
                           "primaryWeaponOffset",
@@ -2380,7 +2380,7 @@ int __cdecl Com_ModifyMsec(int msec)
   if ( useTimescale && originalMsec )
     v2 = (float)msec / (float)originalMsec;
   else
-    v2 = FLOAT_1_0;
+    v2 = 1.0f;
   com_timescaleValue = v2;
   return msec;
 }
@@ -2538,7 +2538,7 @@ void __cdecl Com_Restart()
 {
   XZoneInfo zoneInfo[1]; // [esp+4h] [ebp-Ch] BYREF
 
-  com_codeTimeScale = FLOAT_1_0;
+  com_codeTimeScale = 1.0f;
   CL_ShutdownHunkUsers();
   SV_ShutdownGameProgs();
   Com_ShutdownDObj();

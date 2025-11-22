@@ -173,15 +173,15 @@ void __cdecl R_GetWorldMatrixForModelSurf(const GfxModelRigidSurface *modelSurf,
   worldMat->x.v[0] = 1.0 - (float)(v3 + v5);
   worldMat->x.v[1] = v4 + v6;
   worldMat->x.v[2] = v8 - v7;
-  worldMat->x.u[3] = *(unsigned int *)&FLOAT_0_0;
+  worldMat->x.u[3] = 0;
   worldMat->y.v[0] = v4 - v6;
   worldMat->y.v[1] = 1.0 - (float)(v10 + v5);
   worldMat->y.v[2] = v9 + v11;
-  worldMat->y.u[3] = *(unsigned int *)&FLOAT_0_0;
+  worldMat->y.u[3] = 0;
   worldMat->z.v[0] = v8 + v7;
   worldMat->z.v[1] = v9 - v11;
   worldMat->z.v[2] = 1.0 - (float)(v10 + v3);
-  worldMat->z.u[3] = *(unsigned int *)&FLOAT_0_0;
+  worldMat->z.u[3] = 0;
   scale = modelSurf->placement.scale;
   scaleVec.v[0] = scale;
   scaleVec.v[1] = scale;
@@ -190,7 +190,7 @@ void __cdecl R_GetWorldMatrixForModelSurf(const GfxModelRigidSurface *modelSurf,
   worldMat->w.v[0] = modelSurf->placement.base.origin[0];
   worldMat->w.v[1] = modelSurf->placement.base.origin[1];
   worldMat->w.v[2] = modelSurf->placement.base.origin[2];
-  worldMat->w.u[3] = *(unsigned int *)&FLOAT_0_0;
+  worldMat->w.u[3] = 0;
   worldMat->x.v[0] = worldMat->x.v[0] * scaleVec.v[0];
   worldMat->x.v[1] = worldMat->x.v[1] * scaleVec.v[1];
   worldMat->x.v[2] = worldMat->x.v[2] * scaleVec.v[2];

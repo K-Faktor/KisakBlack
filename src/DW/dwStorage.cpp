@@ -1025,7 +1025,7 @@ void __cdecl dwFileShareGetProgressPooled(int localControllerIndex, unsigned int
   {
     Com_PrintError(16, "Error getting HTTP operation progress. No handle to pooled storage.\n");
     *bytes = 0;
-    *dataRate = *(float *)&FLOAT_0_0;
+    *dataRate = 0.0f;
   }
 }
 
@@ -1042,7 +1042,7 @@ void __cdecl dwFileShareGetProgressUser(int localControllerIndex, unsigned int *
   {
     Com_PrintError(16, "Error getting HTTP operation progress. No handle to content streaming.\n");
     *bytes = 0;
-    *dataRate = *(float *)&FLOAT_0_0;
+    *dataRate = 0.0f;
   }
 }
 

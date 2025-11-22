@@ -73,7 +73,7 @@ double __cdecl Voice_GetVoiceLevel()
     return 0.0;
   levelSamples[sampleCount % 6] = (float)(voice_current_voicelevel / 32767.0) / 6.0;
   ++sampleCount;
-  avgLvl = *(float *)&FLOAT_0_0;
+  avgLvl = 0.0f;
   for ( ii = 0; ii < 6; ++ii )
     avgLvl = avgLvl + levelSamples[ii];
   return avgLvl;
@@ -108,11 +108,11 @@ int __cdecl Voice_GetLocalVoiceData()
     if ( voice_current_scaler >= 0.5 )
     {
       if ( voice_current_scaler > 1.5 )
-        voice_current_scaler = FLOAT_1_5;
+        voice_current_scaler = 1.5f;
     }
     else
     {
-      voice_current_scaler = FLOAT_0_5;
+      voice_current_scaler = 0.5f;
     }
   }
   Record_Frame();

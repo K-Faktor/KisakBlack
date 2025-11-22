@@ -297,7 +297,7 @@ void __cdecl SND_OcclusionLpfCoef(float occlusionLevel, float occlusionRatio, fl
   {
     v7 = b0;
     v8 = a1;
-    *b0 = FLOAT_1_0;
+    *b0 = 1.0f;
     *a1 = 0.0;
   }
   else

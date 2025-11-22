@@ -962,13 +962,13 @@ char __cdecl FX_ParseEditorElem(int version, const char **parse, FxEditorElemDef
   }
   edElemDef->elemType = 13;
   edElemDef->sortOrder = 5;
-  edElemDef->timeScale = FLOAT_1_0;
-  edElemDef->billboardTopWidth = FLOAT_1_0;
-  edElemDef->billboardBottomWidth = FLOAT_1_0;
-  edElemDef->rotationAxis[0] = *(float *)&FLOAT_0_0;
-  edElemDef->rotationAxis[1] = *(float *)&FLOAT_0_0;
-  edElemDef->rotationAxis[2] = *(float *)&FLOAT_0_0;
-  edElemDef->rotationAxis[3] = FLOAT_1_0;
+  edElemDef->timeScale = 1.0f;
+  edElemDef->billboardTopWidth = 1.0f;
+  edElemDef->billboardBottomWidth = 1.0f;
+  edElemDef->rotationAxis[0] = 0.0f;
+  edElemDef->rotationAxis[1] = 0.0f;
+  edElemDef->rotationAxis[2] = 0.0f;
+  edElemDef->rotationAxis[3] = 1.0f;
   edElemDef->cloudDensityRange.base = 1024;
   edElemDef->cloudDensityRange.amplitude = 0;
   while ( 1 )
@@ -1046,12 +1046,12 @@ char __cdecl FX_ParseEditorEffect(const char **parse, FxEditorEffectDef *edEffec
     edEffectDef->edPriority = 0;
     edEffectDef->editorFlags = 0;
     edEffectDef->flags = 0;
-    edEffectDef->boundingBoxCentre[0] = *(float *)&FLOAT_0_0;
-    edEffectDef->boundingBoxCentre[1] = *(float *)&FLOAT_0_0;
-    edEffectDef->boundingBoxCentre[2] = *(float *)&FLOAT_0_0;
-    edEffectDef->boundingBoxDim[0] = *(float *)&FLOAT_0_0;
-    edEffectDef->boundingBoxDim[1] = *(float *)&FLOAT_0_0;
-    edEffectDef->boundingBoxDim[2] = *(float *)&FLOAT_0_0;
+    edEffectDef->boundingBoxCentre[0] = 0.0f;
+    edEffectDef->boundingBoxCentre[1] = 0.0f;
+    edEffectDef->boundingBoxCentre[2] = 0.0f;
+    edEffectDef->boundingBoxDim[0] = 0.0f;
+    edEffectDef->boundingBoxDim[1] = 0.0f;
+    edEffectDef->boundingBoxDim[2] = 0.0f;
     while ( 1 )
     {
       token = Com_Parse(parse);

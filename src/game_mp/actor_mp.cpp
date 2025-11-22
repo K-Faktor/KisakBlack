@@ -142,10 +142,10 @@ LABEL_2:
     Actor_InitMove(actor);
     Actor_InitAnim(actor);
     Actor_InitPath(actor);
-    actor->accuracy = FLOAT_0_2;
-    actor->playerSightAccuracy = FLOAT_1_0;
+    actor->accuracy = 0.2f;
+    actor->playerSightAccuracy = 1.0f;
     actor->debugLastAccuracy = FLOAT_N6969_0;
-    actor->sideMove = *(float *)&FLOAT_0_0;
+    actor->sideMove = 0.0f;
     actor->missCount = (__int64)(1.0 / actor->accuracy);
     actor->safeToChangeScript = 1;
     actor->ignoreTriggers = 0;
@@ -190,7 +190,7 @@ LABEL_2:
     actor->noDodgeMove = 0;
     actor->goalPosChanged = 0;
     actor->fixedNode = 0;
-    actor->fixedNodeSafeRadius = FLOAT_64_0;
+    actor->fixedNodeSafeRadius = 64.0f;
     actor->isFacingMotion = 0;
     actor->arrivalInfo.animscriptOverrideRunTo = 0;
     actor->arrivalInfo.arrivalNotifyRequested = 0;
@@ -202,15 +202,15 @@ LABEL_2:
     sentient->iThreatBias = 0;
     sentient->iThreatBiasGroupIndex = 0;
     sentient->pPrevClaimedNode = 0;
-    sentient->maxVisibleDist = FLOAT_8192_0;
-    sentient->attackerAccuracy = FLOAT_1_0;
+    sentient->maxVisibleDist = 8192.0f;
+    sentient->attackerAccuracy = 1.0f;
     sentient->oldOrigin[0] = ent->r.currentOrigin[0];
     sentient->oldOrigin[1] = ent->r.currentOrigin[1];
     sentient->oldOrigin[2] = ent->r.currentOrigin[2];
     G_InitActorProneInfo(actor);
-    actor->fInvProneAnimLowPitch = *(float *)&FLOAT_0_0;
-    actor->fInvProneAnimHighPitch = *(float *)&FLOAT_0_0;
-    actor->fProneLastDiff = *(float *)&FLOAT_0_0;
+    actor->fInvProneAnimLowPitch = 0.0f;
+    actor->fInvProneAnimHighPitch = 0.0f;
+    actor->fProneLastDiff = 0.0f;
     Actor_InitLookAt(actor);
     Actor_InitActorState(ent);
     anims = Dog_GetAnims();
@@ -424,7 +424,7 @@ void __cdecl Actor_FreeExpendable()
     __debugbreak();
   }
   Sentient_GetEyePosition(player->sentient, vRefPos);
-  fMaxDistSqrd = *(float *)&FLOAT_0_0;
+  fMaxDistSqrd = 0.0f;
   pExpendable = 0;
   for ( actor = Actor_FirstActor(-1); actor; actor = Actor_NextActor(actor, -1) )
   {
@@ -2289,40 +2289,40 @@ void __cdecl Actor_EntInfo(gentity_s *self, float *source)
           vDelta[1] = actor->lookAtInfo.vLookAtPos[1] - xyz[1];
           vDelta[2] = actor->lookAtInfo.vLookAtPos[2] - xyz[2];
           vectoangles(vDelta, vAngles);
-          vColor[0] = FLOAT_1_0;
-          vColor[1] = FLOAT_1_0;
-          vColor[2] = FLOAT_0_25;
-          vColor[3] = FLOAT_0_5;
+          vColor[0] = 1.0f;
+          vColor[1] = 1.0f;
+          vColor[2] = 0.25f;
+          vColor[3] = 0.5f;
           vDebugTargetPosition[0] = actor->lookAtInfo.vLookAtPos[0];
           vDebugTargetPosition[1] = actor->lookAtInfo.vLookAtPos[1];
           vDebugTargetPosition[2] = actor->lookAtInfo.vLookAtPos[2];
           vDebugTargetPosition[2] = vDebugTargetPosition[2] - 2.0;
           G_DebugLine(xyz, vDebugTargetPosition, vColor, 1);
-          vColor[3] = FLOAT_0_75;
+          vColor[3] = 0.75f;
           v31 = AngleNormalize360(fBaseYaw - actor->lookAtInfo.fLookAtTurnAngle);
-          vDebugTargetPosition[0] = *(float *)&FLOAT_0_0;
+          vDebugTargetPosition[0] = 0.0f;
           vDebugTargetPosition[1] = v31;
-          vDebugTargetPosition[2] = *(float *)&FLOAT_0_0;
+          vDebugTargetPosition[2] = 0.0f;
           AngleVectors(vDebugTargetPosition, forward, 0, 0);
           vDebugTargetPosition[0] = (float)(20.0 * forward[0]) + xyz[0];
           vDebugTargetPosition[1] = (float)(20.0 * forward[1]) + xyz[1];
           vDebugTargetPosition[2] = (float)(20.0 * forward[2]) + xyz[2];
           G_DebugLine(xyz, vDebugTargetPosition, vColor, 1);
-          vColor[0] = FLOAT_0_5;
-          vColor[1] = FLOAT_0_5;
-          vColor[2] = *(float *)&FLOAT_0_0;
-          vColor[3] = FLOAT_0_75;
-          vDebugTargetPosition[0] = *(float *)&FLOAT_0_0;
+          vColor[0] = 0.5f;
+          vColor[1] = 0.5f;
+          vColor[2] = 0.0f;
+          vColor[3] = 0.75f;
+          vDebugTargetPosition[0] = 0.0f;
           vDebugTargetPosition[1] = vAngles[1];
-          vDebugTargetPosition[2] = *(float *)&FLOAT_0_0;
+          vDebugTargetPosition[2] = 0.0f;
           AngleVectors(vDebugTargetPosition, forward, 0, 0);
           vDebugTargetPosition[0] = (float)(20.0 * forward[0]) + xyz[0];
           vDebugTargetPosition[1] = (float)(20.0 * forward[1]) + xyz[1];
           vDebugTargetPosition[2] = (float)(20.0 * forward[2]) + xyz[2];
           G_DebugLine(xyz, vDebugTargetPosition, vColor, 1);
-          vDebugTargetPosition[0] = *(float *)&FLOAT_0_0;
+          vDebugTargetPosition[0] = 0.0f;
           vDebugTargetPosition[1] = fBaseYaw;
-          vDebugTargetPosition[2] = *(float *)&FLOAT_0_0;
+          vDebugTargetPosition[2] = 0.0f;
           AngleVectors(vDebugTargetPosition, forward, 0, 0);
           vDebugTargetPosition[0] = (float)(20.0 * forward[0]) + xyz[0];
           vDebugTargetPosition[1] = (float)(20.0 * forward[1]) + xyz[1];
@@ -2336,8 +2336,8 @@ void __cdecl Actor_EntInfo(gentity_s *self, float *source)
         if ( drawLines || drawGoalLineRadius )
         {
           cycleTime = 1000;
-          fact = *(float *)&FLOAT_0_0;
-          v40 = FLOAT_1_0;
+          fact = 0.0f;
+          v40 = 1.0f;
 
           if ( level.time <= endTime )
           {
@@ -2377,8 +2377,8 @@ void __cdecl Actor_EntInfo(gentity_s *self, float *source)
             pos[1] = actor->scriptGoal.pos[1];
             pos[2] = actor->scriptGoal.pos[2];
             pos[2] = pos[2] + 16.0;
-            timingColor[2] = *(float *)&FLOAT_0_0;
-            timingColor[0] = *(float *)&FLOAT_0_0;
+            timingColor[2] = 0.0f;
+            timingColor[0] = 0.0f;
             G_DebugLine(xyz, pos, timingColor, 0);
             G_DebugCircle(pos, actor->fixedNodeSafeRadius, timingColor, 0, 1, 0);
             if ( EntHandle::isDefined(&actor->fixedNodeSafeVolume) )
@@ -2474,7 +2474,7 @@ void __cdecl Actor_EntInfo(gentity_s *self, float *source)
           }
           if ( (textMode & 6) != 0 )
           {
-            range = *(float *)&FLOAT_0_0;
+            range = 0.0f;
             if ( (textMode & 4) != 0 )
             {
               xyz[2] = xyz[2] - (float)(infoScale * 7.0);
@@ -2685,9 +2685,9 @@ void __fastcall Actor_InitMove(actor_s *self)
   }
   self->Physics.proximity_data.__vftable = dummy_3.__vftable;
   colgeom_visitor_inlined_t<500>::reset(&self->Physics.proximity_data);
-  self->Physics.vOrigin[0] = *(float *)&FLOAT_0_0;
-  self->Physics.vOrigin[1] = *(float *)&FLOAT_0_0;
-  self->Physics.vOrigin[2] = *(float *)&FLOAT_0_0;
+  self->Physics.vOrigin[0] = 0.0f;
+  self->Physics.vOrigin[1] = 0.0f;
+  self->Physics.vOrigin[2] = 0.0f;
   self->Physics.iEntNum = self->ent->s.number;
   self->Physics.ePhysicsType = AIPHYS_BAD;
   self->Physics.iMsec = 50;
@@ -2858,7 +2858,7 @@ LABEL_41:
         vOrigin[2] = v7[2];
         iNodeCount = Path_NodesInCylinder(self->ent->r.currentOrigin, 384.0, 128.0, nodes, 64, -1);
         node = 0;
-        bestDist = FLOAT_3_4028235e38;
+        bestDist = FLT_MAX;
         for ( i = 0; i < iNodeCount; ++i )
         {
           pTestNode = nodes[i].node;
@@ -2877,21 +2877,21 @@ LABEL_41:
             if ( deltaHeight < 0.0 )
             {
               if ( deltaHeight >= -18.0 )
-                deltaHeight = *(float *)&FLOAT_0_0;
+                deltaHeight = 0.0f;
               else
-                deltaHeight = FLOAT_N8_0;
+                deltaHeight = -8.0f;
             }
           }
           else
           {
-            deltaHeight = FLOAT_8_0;
+            deltaHeight = 8.0f;
           }
           v6 = self->ent->r.currentOrigin;
           self->Physics.vOrigin[0] = *v6;
           self->Physics.vOrigin[1] = v6[1];
           self->Physics.vOrigin[2] = v6[2];
           self->Physics.vOrigin[2] = self->Physics.vOrigin[2] + deltaHeight;
-          self->Physics.vVelocity[2] = *(float *)&FLOAT_0_0;
+          self->Physics.vVelocity[2] = 0.0f;
         }
       }
       goto LABEL_67;
@@ -2926,10 +2926,10 @@ LABEL_41:
     self->Physics.vOrigin[0] = *v5 + self->Physics.vWishDelta[0];
     self->Physics.vOrigin[1] = v5[1] + self->Physics.vWishDelta[1];
     self->Physics.vOrigin[2] = v5[2] + self->Physics.vWishDelta[2];
-    self->Physics.vVelocity[2] = *(float *)&FLOAT_0_0;
+    self->Physics.vVelocity[2] = 0.0f;
     self->Path.wDodgeEntity = 1023;
     if ( self->Path.fLookaheadAmount < 64.0 )
-      self->Path.fLookaheadAmount = FLOAT_64_0;
+      self->Path.fLookaheadAmount = 64.0f;
   }
 LABEL_67:
   v4 = self->ent->r.currentOrigin;
@@ -3444,8 +3444,8 @@ void __cdecl actor_controller(const gentity_s *self, int *partBits)
     if ( rotTrans )
     {
       v2 = (float)(pProneInfo->fTorsoPitch * fFrac) * 0.0087266462;
-      rotTrans->quat[0] = *(float *)&FLOAT_0_0;
-      rotTrans->quat[2] = *(float *)&FLOAT_0_0;
+      rotTrans->quat[0] = 0.0f;
+      rotTrans->quat[2] = 0.0f;
       rotTrans->quat[3] = cos(v2);
       rotTrans->quat[1] = sin(v2);
       DObjSetTrans(rotTrans, vec3_origin);
@@ -3727,9 +3727,9 @@ bool __fastcall Actor_FindPathToGoalDirectInternal(actor_s *self)
   vNewGoalPos[2] = self->codeGoal.pos[2];
   eTeam = self->sentient->eTeam;
   if ( self->Physics.prone )
-    stepheight = FLOAT_10_0;
+    stepheight = 10.0f;
   else
-    stepheight = FLOAT_18_0;
+    stepheight = 18.0f;
   pNodeTo2 = Path_FindCloseNode(eTeam, pNodeTo, vNewGoalPos, 1);
   Path_PredictionTrace(pNodeTo2->constant.vOrigin, vNewGoalPos, 1023, 0x820011, vGoalPos, stepheight, 1);
   if ( Actor_PointAtGoal(vGoalPos, &self->codeGoal) )
@@ -4153,9 +4153,9 @@ void __fastcall Actor_GetAnimDeltas(actor_s *self, float *rotation, float *trans
   }
   else
   {
-    *translation = *(float *)&FLOAT_0_0;
-    translation[1] = *(float *)&FLOAT_0_0;
-    translation[2] = *(float *)&FLOAT_0_0;
+    *translation = 0.0f;
+    translation[1] = 0.0f;
+    translation[2] = 0.0f;
   }
 }
 
@@ -4199,7 +4199,7 @@ void __fastcall Actor_UpdateAnglesAndDelta(actor_s *self)
         dist = Vec2Length(translation);
         Path_UpdateMovementDelta(self, dist);
         Actor_PathEndActions(self);
-        yawChange = *(float *)&FLOAT_0_0;
+        yawChange = 0.0f;
         if ( ai_showPaths->current.integer )
           Path_DebugDraw(&self->Path, ent->r.currentOrigin, 1, -1);
       }
@@ -4212,10 +4212,10 @@ void __fastcall Actor_UpdateAnglesAndDelta(actor_s *self)
           Actor_AddStationaryMoveHistory(self);
         }
         self->Physics.ePhysicsType = AIPHYS_NORMAL_ABSOLUTE;
-        self->Physics.vWishDelta[0] = *(float *)&FLOAT_0_0;
-        self->Physics.vWishDelta[1] = *(float *)&FLOAT_0_0;
-        self->Physics.vWishDelta[2] = *(float *)&FLOAT_0_0;
-        yawChange = *(float *)&FLOAT_0_0;
+        self->Physics.vWishDelta[0] = 0.0f;
+        self->Physics.vWishDelta[1] = 0.0f;
+        self->Physics.vWishDelta[2] = 0.0f;
+        yawChange = 0.0f;
         if ( ai_showPaths->current.integer == 2 )
           Path_DebugDraw(&self->Path, ent->r.currentOrigin, 1, -1);
       }
@@ -4225,15 +4225,15 @@ void __fastcall Actor_UpdateAnglesAndDelta(actor_s *self)
       self->Physics.ePhysicsType = AIPHYS_NORMAL_RELATIVE;
       self->Physics.vWishDelta[0] = translation[0];
       self->Physics.vWishDelta[1] = translation[1];
-      self->Physics.vWishDelta[2] = *(float *)&FLOAT_0_0;
-      yawChange = *(float *)&FLOAT_0_0;
+      self->Physics.vWishDelta[2] = 0.0f;
+      yawChange = 0.0f;
       goto LABEL_36;
     case AI_ANIM_USE_ANGLE_DELTAS:
       Actor_GetAnimDeltas(self, rotation, translation);
       self->Physics.ePhysicsType = AIPHYS_NORMAL_ABSOLUTE;
-      self->Physics.vWishDelta[0] = *(float *)&FLOAT_0_0;
-      self->Physics.vWishDelta[1] = *(float *)&FLOAT_0_0;
-      self->Physics.vWishDelta[2] = *(float *)&FLOAT_0_0;
+      self->Physics.vWishDelta[0] = 0.0f;
+      self->Physics.vWishDelta[1] = 0.0f;
+      self->Physics.vWishDelta[2] = 0.0f;
       yawChange = RotationToYaw(rotation);
       goto LABEL_36;
     case AI_ANIM_USE_BOTH_DELTAS:
@@ -4241,7 +4241,7 @@ void __fastcall Actor_UpdateAnglesAndDelta(actor_s *self)
       self->Physics.ePhysicsType = AIPHYS_NORMAL_RELATIVE;
       self->Physics.vWishDelta[0] = translation[0];
       self->Physics.vWishDelta[1] = translation[1];
-      self->Physics.vWishDelta[2] = *(float *)&FLOAT_0_0;
+      self->Physics.vWishDelta[2] = 0.0f;
       yawChange = RotationToYaw(rotation);
       goto LABEL_36;
     case AI_ANIM_USE_BOTH_DELTAS_NOCLIP:
@@ -4259,24 +4259,24 @@ void __fastcall Actor_UpdateAnglesAndDelta(actor_s *self)
       self->Physics.ePhysicsType = AIPHYS_ZONLY_PHYSICS_RELATIVE;
       self->Physics.vWishDelta[0] = translation[0];
       self->Physics.vWishDelta[1] = translation[1];
-      self->Physics.vWishDelta[2] = *(float *)&FLOAT_0_0;
+      self->Physics.vWishDelta[2] = 0.0f;
       yawChange = RotationToYaw(rotation);
       goto LABEL_36;
     case AI_ANIM_POINT_RELATIVE:
       self->Physics.ePhysicsType = AIPHYS_ZONLY_PHYSICS_RELATIVE;
       Actor_SetDesiredAngles(&self->CodeOrient, self->ent->r.currentAngles[0], self->ent->r.currentAngles[1]);
-      self->Physics.vVelocity[0] = *(float *)&FLOAT_0_0;
-      self->Physics.vVelocity[1] = *(float *)&FLOAT_0_0;
-      self->Physics.vVelocity[2] = *(float *)&FLOAT_0_0;
-      self->Physics.vWishDelta[0] = *(float *)&FLOAT_0_0;
-      self->Physics.vWishDelta[1] = *(float *)&FLOAT_0_0;
-      self->Physics.vWishDelta[2] = *(float *)&FLOAT_0_0;
+      self->Physics.vVelocity[0] = 0.0f;
+      self->Physics.vVelocity[1] = 0.0f;
+      self->Physics.vVelocity[2] = 0.0f;
+      self->Physics.vWishDelta[0] = 0.0f;
+      self->Physics.vWishDelta[1] = 0.0f;
+      self->Physics.vWishDelta[2] = 0.0f;
       return;
     default:
       v2 = va("bad eAnimMode value: %d", self->eAnimMode);
       if ( !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\actor_mp.cpp", 5041, 0, v2) )
         __debugbreak();
-      yawChange = *(float *)&FLOAT_0_0;
+      yawChange = 0.0f;
 LABEL_36:
       if ( ai_debugAnimDeltas->current.integer == ent->s.number )
         Com_Printf(18, "%i yawChange = %g\n", level.time, yawChange);
@@ -4354,7 +4354,7 @@ LABEL_23:
         if ( self->Physics.bHasGroundPlane )
           v1 = 1.0 / self->Physics.groundplaneSlope;
         else
-          v1 = FLOAT_1_0;
+          v1 = 1.0f;
         fInvTimeSteps = 50.0 / (float)(self->Path.iPathEndTime - level.time);
         fDeltaScale = (float)((float)(2.0 - fInvTimeSteps) * fInvTimeSteps) * v1;
         self->Physics.vWishDelta[0] = fDeltaScale * vGoalDelta;
@@ -4437,12 +4437,12 @@ void __fastcall Actor_UpdateOriginAndAngles(actor_s *self)
       G_SetFixedLink(ent, 1);
       Actor_ClearPath(self);
       Actor_UpdateAnglesAndDelta(self);
-      self->Physics.vVelocity[0] = *(float *)&FLOAT_0_0;
-      self->Physics.vVelocity[1] = *(float *)&FLOAT_0_0;
-      self->Physics.vVelocity[2] = *(float *)&FLOAT_0_0;
-      self->Physics.vWishDelta[0] = *(float *)&FLOAT_0_0;
-      self->Physics.vWishDelta[1] = *(float *)&FLOAT_0_0;
-      self->Physics.vWishDelta[2] = *(float *)&FLOAT_0_0;
+      self->Physics.vVelocity[0] = 0.0f;
+      self->Physics.vVelocity[1] = 0.0f;
+      self->Physics.vVelocity[2] = 0.0f;
+      self->Physics.vWishDelta[0] = 0.0f;
+      self->Physics.vWishDelta[1] = 0.0f;
+      self->Physics.vWishDelta[2] = 0.0f;
       G_CalcTagAxis(ent, 1);
     }
     else
@@ -4671,8 +4671,8 @@ void __fastcall Actor_ClearMoveHistory(actor_s *self)
 
   for ( i = 0; i < 10; ++i )
   {
-    self->moveHistory[i][0] = *(float *)&FLOAT_0_0;
-    self->moveHistory[i][1] = *(float *)&FLOAT_0_0;
+    self->moveHistory[i][0] = 0.0f;
+    self->moveHistory[i][1] = 0.0f;
   }
   self->moveHistoryIndex = 0;
 }
@@ -4686,9 +4686,9 @@ void __fastcall Actor_GetMoveHistoryAverage(actor_s *self, float *vDir)
 {
   int i; // [esp+8h] [ebp-4h]
 
-  *vDir = *(float *)&FLOAT_0_0;
-  vDir[1] = *(float *)&FLOAT_0_0;
-  vDir[2] = *(float *)&FLOAT_0_0;
+  *vDir = 0.0f;
+  vDir[1] = 0.0f;
+  vDir[2] = 0.0f;
   for ( i = 0; i < 10; ++i )
   {
     *vDir = *vDir + self->moveHistory[i][0];
@@ -4734,7 +4734,7 @@ void __fastcall Actor_UpdateMoveHistory(actor_s *self)
     self->moveHistory[index3][0] = self->moveHistory[index][0];
     self->moveHistory[index3][1] = self->moveHistory[index][1];
   }
-  nextWeight = FLOAT_1_0;
+  nextWeight = 1.0f;
   for ( i = index + 1; i < 10; ++i )
   {
     weight = nextWeight;
@@ -4774,9 +4774,9 @@ void __fastcall Path_UpdateLeanAmount(actor_s *self, float *vWishDir)
            100.0) )
     {
       self->leanAmount = (float)((float)(1.0 - 0.5) * self->leanAmount) + (float)(1.0 * 0.5);
-      self->prevMoveDir[0] = *(float *)&FLOAT_0_0;
-      self->prevMoveDir[1] = *(float *)&FLOAT_0_0;
-      self->leanAmount = *(float *)&FLOAT_0_0;
+      self->prevMoveDir[0] = 0.0f;
+      self->prevMoveDir[1] = 0.0f;
+      self->leanAmount = 0.0f;
     }
     else
     {
@@ -4951,7 +4951,7 @@ void __userpurge Path_UpdateMovementDelta(actor_s *self@<ecx>, float fMoveDist)
   v9 = 0.333 * v8;
 
   if ( v9 < 0.60000002 )
-    v9 = FLOAT_0_60000002;
+    v9 = 0.6f;
 
   fMoveDista = fMoveDist * v9;
 
@@ -4978,7 +4978,7 @@ void __cdecl Actor_SetFlashed(actor_s *self, int flashed, float strength)
   if ( !flashed || self->flashBangImmunity )
   {
     self->flashBanged = 0;
-    self->flashBangedStrength = *(float *)&FLOAT_0_0;
+    self->flashBangedStrength = 0.0f;
   }
   else
   {
@@ -5123,7 +5123,7 @@ void __fastcall Actor_SetGoalRadius(actor_goal_s *goal, float radius)
     __debugbreak();
   }
   if ( radius < 4.0 )
-    radius = FLOAT_4_0;
+    radius = 4.0f;
   goal->radius = radius;
 }
 
@@ -5137,7 +5137,7 @@ void __fastcall Actor_SetGoalHeight(actor_goal_s *goal, float height)
     __debugbreak();
   }
   if ( height < 80.0 )
-    height = FLOAT_80_0;
+    height = 80.0f;
   goal->height = height;
 }
 

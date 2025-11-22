@@ -101,9 +101,9 @@ void __cdecl CG_UpdateActorDObj(int localClientNum, centity_s *cent, actorInfo_t
       v4 = Com_ClientDObjCreate(dobjModels, 1u, pAnimTree, p_nextState->number, localClientNum);
       ai->dobjDirty = 0;
       v5 = cg_entityOriginArray[localClientNum][p_nextState->number];
-      *v5 = FLOAT_131072_0;
-      v5[1] = FLOAT_131072_0;
-      v5[2] = FLOAT_131072_0;
+      *v5 = 131072.0f;
+      v5[1] = 131072.0f;
+      v5[2] = 131072.0f;
       FX_MarkEntUpdateEnd(&markUpdateContext, localClientNum, p_nextState->number, v4, 0, 0);
     }
   }
@@ -156,10 +156,10 @@ void __cdecl CG_ResetActorEntity(int localClientNum, cg_s *cgameGlob, centity_s 
 
 void __cdecl CG_Actor_PreControllers(int localClientNum, centity_s *cent)
 {
-  cent->pose.player.nextWaterHeightCheck = *(unsigned int *)&FLOAT_0_0;
-  cent->pose.turret.barrelPitch = *(float *)&FLOAT_0_0;
+  cent->pose.player.nextWaterHeightCheck = 0;
+  cent->pose.turret.barrelPitch = 0.0f;
   cent->pose.fx.triggerTime = 1;
-  cent->pose.player.nextWaterHeightCheck = *(unsigned int *)&FLOAT_0_0;
+  cent->pose.player.nextWaterHeightCheck = 0;
 }
 
 void __cdecl CG_Actor(int localClientNum, centity_s *cent)

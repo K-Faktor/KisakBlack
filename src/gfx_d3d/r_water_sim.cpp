@@ -111,7 +111,7 @@ void __cdecl R_InitWaterSimulation()
     config.gridScale = FLOAT_25_0;
     config.waveSeedHeight = FLOAT_25_0;
     config.waveSeedRadius = FLOAT_125_0;
-    config.waveDamping = FLOAT_64_0;
+    config.waveDamping = 64.0f;
     memset((unsigned __int8 *)data.buffer[0].v, 0, data.buffer[0].bufferSize);
     memset((unsigned __int8 *)data.buffer[1].v, 0, data.buffer[1].bufferSize);
     memset((unsigned __int8 *)data.waterheight.v, 0, data.waterheight.bufferSize);
@@ -134,15 +134,15 @@ void __cdecl R_WaterSimulationRestart()
   int i; // [esp+4h] [ebp-8h]
   unsigned int n; // [esp+8h] [ebp-4h]
 
-  data.waveTimeleft = *(float *)&FLOAT_0_0;
+  data.waveTimeleft = 0.0f;
   data.timeDelta = 0;
   data.enabled = 0;
-  data.localSurfaceDistance = *(float *)&FLOAT_0_0;
+  data.localSurfaceDistance = 0.0f;
   data.localEyeHeight = FLOAT_N32768_0;
-  data.speedScale = FLOAT_1_0;
-  data.oldEyePos[0] = *(float *)&FLOAT_0_0;
-  data.oldEyePos[1] = *(float *)&FLOAT_0_0;
-  data.oldEyePos[2] = *(float *)&FLOAT_0_0;
+  data.speedScale = 1.0f;
+  data.oldEyePos[0] = 0.0f;
+  data.oldEyePos[1] = 0.0f;
+  data.oldEyePos[2] = 0.0f;
   for ( n = 0; n < 0x100; ++n )
     ExpireAllMeshes(&data.tiles[n]);
   memset((unsigned __int8 *)&prevCmd, 0, sizeof(prevCmd));
@@ -469,11 +469,11 @@ void __cdecl R_WaterSimulationTrackView(const float *eyePos)
     if ( (float)(*(float *)&v3 - 1.0) < 0.0 )
       *((float *)&v3 + 1) = d / (float)((float)(16.0 * config.gridScale) / 16.0);
     else
-      *((float *)&v3 + 1) = FLOAT_1_0;
+      *((float *)&v3 + 1) = 1.0f;
     if ( (float)(0.0 - *(float *)&v3) < 0.0 )
       LODWORD(v2) = HIDWORD(v3);
     else
-      LODWORD(v2) = *(unsigned int *)&FLOAT_0_0;
+      LODWORD(v2) = 0;
     v1 = (float)(1.0 - *(float *)&v2);
     __libm_sse2_pow(v2, v3);
     *(float *)&v1 = v1;
@@ -637,21 +637,21 @@ bool __cdecl R_WaterSimulationFillTile(tile_t *tile)
       if ( (float)(v7 - 255.0) < 0.0 )
         v8 = (float)cell.flooroffset / config.gridScale;
       else
-        v8 = FLOAT_255_0;
+        v8 = 255.0f;
       if ( (float)(0.0 - v7) < 0.0 )
         v3 = v8;
       else
-        v3 = *(float *)&FLOAT_0_0;
+        v3 = 0.0f;
       *p_flooroffset = (int)v3;
       v5 = (float)(16 * cell.shoredist) * config.gridScale;
       if ( (float)(v5 - 255.0) < 0.0 )
         v6 = (float)(16 * cell.shoredist) * config.gridScale;
       else
-        v6 = FLOAT_255_0;
+        v6 = 255.0f;
       if ( (float)(0.0 - v5) < 0.0 )
         v2 = v6;
       else
-        v2 = *(float *)&FLOAT_0_0;
+        v2 = 0.0f;
       *p_shoredist = (int)v2;
       if ( (float)*p_flooroffset > p_buf0->v[1] || (float)*p_flooroffset > p_buf1->v[1] )
       {
@@ -776,7 +776,7 @@ void R_WaterSimulationUpdateConfig()
   v0 = *((float *)&v2 + 1);
   __libm_sse2_cos(v2);
   *(float *)&v0 = v0;
-  *(_QWORD *)config.windDir = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(v0));
+  *(_QWORD *)config.windDir = __PAIR64__(0, LODWORD(v0));
   *(float *)&v3 = r_watersim_windDir->current.value * 0.017453292;
   v1 = *(float *)&v3;
   __libm_sse2_sin(v3);
@@ -1051,19 +1051,19 @@ void  R_WaterSimulationUpdateFrame(channel_t<float4> *a1@<ebp>, const WaterSimul
   LODWORD(windDirArray[2]) = &data.buffer[cmd->update.destBuf];
   LODWORD(windDirArray[1]) = &data.buffer[cmd->update.srcBuf];
   *(_QWORD *)&zero.unitVec[2].packed = __PAIR64__(LODWORD(config.windDir[2]), LODWORD(FLOAT_N0_1));
-  half.u[2] = *(unsigned int *)&FLOAT_0_0;
-  half.u[3] = *(unsigned int *)&FLOAT_0_0;
-  *(_QWORD *)zero.v = __PAIR64__(LODWORD(config.windDir[0]), *(unsigned int *)&FLOAT_0_0);
-  one.v[2] = FLOAT_0_5;
-  one.v[3] = FLOAT_0_5;
-  *(_QWORD *)half.v = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_0_5));
-  inv_4.v[2] = FLOAT_1_0;
-  inv_4.v[3] = FLOAT_1_0;
-  *(_QWORD *)one.v = __PAIR64__(LODWORD(FLOAT_0_5), LODWORD(FLOAT_1_0));
-  damping.v[2] = FLOAT_0_25;
-  damping.v[3] = FLOAT_0_25;
-  v130 = FLOAT_0_25;
-  *(_QWORD *)inv_4.v = __PAIR64__(LODWORD(FLOAT_1_0), LODWORD(FLOAT_0_25));
+  half.u[2] = 0;
+  half.u[3] = 0;
+  *(_QWORD *)zero.v = __PAIR64__(LODWORD(config.windDir[0]), 0);
+  one.v[2] = 0.5f;
+  one.v[3] = 0.5f;
+  *(_QWORD *)half.v = __PAIR64__(0, LODWORD(0.5f));
+  inv_4.v[2] = 1.0f;
+  inv_4.v[3] = 1.0f;
+  *(_QWORD *)one.v = __PAIR64__(LODWORD(0.5f), LODWORD(1.0f));
+  damping.v[2] = 0.25f;
+  damping.v[3] = 0.25f;
+  v130 = 0.25f;
+  *(_QWORD *)inv_4.v = __PAIR64__(LODWORD(1.0f), LODWORD(0.25f));
   damping.v[1] = 1.0 - (float)(1.0 / config.waveDamping);
   heightoffset.v[2] = damping.v[1];
   heightoffset.v[3] = damping.v[1];
@@ -1189,11 +1189,11 @@ void  R_WaterSimulationUpdateFrame(channel_t<float4> *a1@<ebp>, const WaterSimul
       heightdata[3] = p_old_pos2[256].v[2];
       veryoldc.u[0] = p_old_pos2[256].u[3];
       heights.v[1] = (float)*(__int16 *)(u + 512);
-      heights.u[2] = *(unsigned int *)&FLOAT_0_0;
+      heights.u[2] = 0;
       heights.v[3] = (float)*(char *)(uvAdjust + 256);
       heightdata[0] = (float)*(char *)(realU + 256);
       v78 = heights.u[1];
-      v79 = __PAIR64__(heights.u[3], *(unsigned int *)&FLOAT_0_0);
+      v79 = __PAIR64__(heights.u[3], 0);
       heights.v[0] = heightdata[0];
       v77 = p_waterheight + 4352;
       _mm_prefetch((const char *)p_waterheight + 8704, 1);
@@ -1534,8 +1534,8 @@ void  R_WaterSimulationUpdateFrame(channel_t<float4> *a1@<ebp>, const WaterSimul
                  - (float)((float)((float)((float)((float)((float)((float)(foamadd_12a * foamadd_12a)
                                                                  + (float)(v12 * v12))
                                                          + (float)(v14 * v14))
-                                                 + (float)(COERCE_FLOAT(*(unsigned int *)&winddir[16] & LODWORD(FLOAT_1_0))
-                                                         * COERCE_FLOAT(*(unsigned int *)&winddir[16] & LODWORD(FLOAT_1_0))))
+                                                 + (float)(COERCE_FLOAT(*(unsigned int *)&winddir[16] & LODWORD(1.0f))
+                                                         * COERCE_FLOAT(*(unsigned int *)&winddir[16] & LODWORD(1.0f))))
                                          * foamamount.v[0])
                                  + oldc.v[0])
                          * (float)(1.0 - config.foamDisappear))) < 0.0 )
@@ -1543,8 +1543,8 @@ void  R_WaterSimulationUpdateFrame(channel_t<float4> *a1@<ebp>, const WaterSimul
       else
         v7 = (float)((float)((float)((float)((float)((float)(foamadd_12a * foamadd_12a) + (float)(v12 * v12))
                                            + (float)(v14 * v14))
-                                   + (float)(COERCE_FLOAT(*(unsigned int *)&winddir[16] & LODWORD(FLOAT_1_0))
-                                           * COERCE_FLOAT(*(unsigned int *)&winddir[16] & LODWORD(FLOAT_1_0))))
+                                   + (float)(COERCE_FLOAT(*(unsigned int *)&winddir[16] & LODWORD(1.0f))
+                                           * COERCE_FLOAT(*(unsigned int *)&winddir[16] & LODWORD(1.0f))))
                            * foamamount.v[0])
                    + oldc.v[0])
            * (float)(1.0 - config.foamDisappear);
@@ -1793,7 +1793,7 @@ void __cdecl R_WaterSimulationSimpleDisplace(const float *hitpos, float radius, 
   if ( data.enabled )
   {
     v6 = (float)(radius - max_plop_size) < 0.0 ? radius : max_plop_size;
-    v4 = (float)(0.0 - radius) < 0.0 ? v6 : *(float *)&FLOAT_0_0;
+    v4 = (float)(0.0 - radius) < 0.0 ? v6 : 0.0f;
     v5 = (float)(height - max_plop_height) < 0.0 ? height : max_plop_height;
     if ( (float)(COERCE_FLOAT(LODWORD(max_plop_height) ^ _mask__NegFloat_) - height) < 0.0 )
       v3 = v5;
@@ -1811,7 +1811,7 @@ void __cdecl R_WaterSimulationSimpleDisplace(const float *hitpos, float radius, 
           dy = (float)v - (float)((float)size / 2.0);
           scale = 1.0 - (float)(fsqrt((float)(v10 * v10) + (float)(dy * dy)) / (float)size);
           if ( scale < 0.0 )
-            scale = *(float *)&FLOAT_0_0;
+            scale = 0.0f;
           x = u + sx - size / 2;
           y = v + sy - size / 2;
           if ( x >= 1 && y >= 1 && x < 255 && y < 255 )
@@ -1858,7 +1858,7 @@ void R_WaterSimulationApplyWaveSeed()
     while ( v0 && dv * dv + du * du < 0x4000 );
     v[0] = (float)(data.gridX + du) * config.gridScale;
     v[1] = (float)(data.gridY + dv) * config.gridScale;
-    v[2] = *(float *)&FLOAT_0_0;
+    v[2] = 0.0f;
     R_WaterSimulationSimpleDisplace(
       v,
       config.waveSeedRadius,
@@ -2095,45 +2095,45 @@ void  R_WaterSimulationSkinMesh(float a1@<ebp>, const WaterSimulationCmd *cmd)
 
   du_data[2] = a1;
   du_data[3] = retaddr;
-  dv_data[1] = FLOAT_4_0;
-  dv_data[2] = *(float *)&FLOAT_0_0;
-  dv_data[3] = *(float *)&FLOAT_0_0;
-  du_data[0] = *(float *)&FLOAT_0_0;
-  scale.v[3] = FLOAT_4_0;
-  v191 = *(unsigned int *)&FLOAT_0_0;
-  dv_data[0] = *(float *)&FLOAT_0_0;
-  *(_QWORD *)&scale.unitVec[1].packed = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(config.gridScale));
+  dv_data[1] = 4.0f;
+  dv_data[2] = 0.0f;
+  dv_data[3] = 0.0f;
+  du_data[0] = 0.0f;
+  scale.v[3] = 4.0f;
+  v191 = 0;
+  dv_data[0] = 0.0f;
+  *(_QWORD *)&scale.unitVec[1].packed = __PAIR64__(0, LODWORD(config.gridScale));
   inv_4.u[2] = LODWORD(config.gridScale);
   inv_4.u[3] = LODWORD(config.gridScale);
   scale.u[0] = LODWORD(config.gridScale);
-  one.v[2] = FLOAT_0_25;
-  one.v[3] = FLOAT_0_25;
-  *(_QWORD *)inv_4.v = __PAIR64__(LODWORD(config.gridScale), LODWORD(FLOAT_0_25));
-  half.v[2] = FLOAT_1_0;
-  half.v[3] = FLOAT_1_0;
-  *(_QWORD *)one.v = __PAIR64__(LODWORD(FLOAT_0_25), LODWORD(FLOAT_1_0));
-  zero.v[2] = FLOAT_0_5;
-  zero.v[3] = FLOAT_0_5;
-  *(_QWORD *)half.v = __PAIR64__(LODWORD(FLOAT_1_0), LODWORD(FLOAT_0_5));
-  *(_QWORD *)zero.v = __PAIR64__(LODWORD(FLOAT_0_5), *(unsigned int *)&FLOAT_0_0);
-  dv.u[2] = *(unsigned int *)&FLOAT_0_0;
-  dv.u[3] = *(unsigned int *)&FLOAT_0_0;
+  one.v[2] = 0.25f;
+  one.v[3] = 0.25f;
+  *(_QWORD *)inv_4.v = __PAIR64__(LODWORD(config.gridScale), LODWORD(0.25f));
+  half.v[2] = 1.0f;
+  half.v[3] = 1.0f;
+  *(_QWORD *)one.v = __PAIR64__(LODWORD(0.25f), LODWORD(1.0f));
+  zero.v[2] = 0.5f;
+  zero.v[3] = 0.5f;
+  *(_QWORD *)half.v = __PAIR64__(LODWORD(1.0f), LODWORD(0.5f));
+  *(_QWORD *)zero.v = __PAIR64__(LODWORD(0.5f), 0);
+  dv.u[2] = 0;
+  dv.u[3] = 0;
   memset(&du, 0, sizeof(du));
-  *(_QWORD *)&posScale.unitVec[2].packed = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_4_0));
-  *(_QWORD *)dv.v = __PAIR64__(LODWORD(FLOAT_4_0), *(unsigned int *)&FLOAT_0_0);
-  posOffset.v[2] = FLOAT_8_0;
-  posOffset.v[3] = FLOAT_8_0;
-  *(_QWORD *)posScale.v = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_8_0));
-  normalScale.v[2] = FLOAT_64_0;
-  normalScale.v[3] = FLOAT_64_0;
-  *(_QWORD *)posOffset.v = __PAIR64__(LODWORD(FLOAT_8_0), LODWORD(FLOAT_64_0));
-  normalOffset.v[2] = FLOAT_127_0;
-  normalOffset.v[3] = FLOAT_127_0;
-  *(_QWORD *)normalScale.v = __PAIR64__(LODWORD(FLOAT_64_0), LODWORD(FLOAT_127_0));
-  *(float *)&mesh = FLOAT_128_0;
-  *(float *)&tilenum = FLOAT_128_0;
-  *(float *)&srcBuf = FLOAT_128_0;
-  *(_QWORD *)normalOffset.v = __PAIR64__(LODWORD(FLOAT_127_0), LODWORD(FLOAT_128_0));
+  *(_QWORD *)&posScale.unitVec[2].packed = __PAIR64__(0, LODWORD(4.0f));
+  *(_QWORD *)dv.v = __PAIR64__(LODWORD(4.0f), 0);
+  posOffset.v[2] = 8.0f;
+  posOffset.v[3] = 8.0f;
+  *(_QWORD *)posScale.v = __PAIR64__(0, LODWORD(8.0f));
+  normalScale.v[2] = 64.0f;
+  normalScale.v[3] = 64.0f;
+  *(_QWORD *)posOffset.v = __PAIR64__(LODWORD(8.0f), LODWORD(64.0f));
+  normalOffset.v[2] = 127.0f;
+  normalOffset.v[3] = 127.0f;
+  *(_QWORD *)normalScale.v = __PAIR64__(LODWORD(64.0f), LODWORD(127.0f));
+  *(float *)&mesh = 128.0f;
+  *(float *)&tilenum = 128.0f;
+  *(float *)&srcBuf = 128.0f;
+  *(_QWORD *)normalOffset.v = __PAIR64__(LODWORD(127.0f), LODWORD(128.0f));
   dest = (GfxWaterVertex *)cmd->skin.srcBuf;
   for ( tileu = 0; (unsigned int)tileu < 0x10; ++tileu )
   {
@@ -2148,17 +2148,17 @@ void  R_WaterSimulationSkinMesh(float a1@<ebp>, const WaterSimulationCmd *cmd)
       maxBox.u[3] += 16 * *(unsigned int *)(tilev + 24);
       maxBox.u[2] = *(unsigned int *)tilev;
       maxBox.u[1] = *(unsigned int *)(tilev + 4);
-      minBox.v[2] = FLOAT_N3_4028235e38;
-      minBox.v[3] = FLOAT_N3_4028235e38;
-      maxBox.v[0] = FLOAT_N3_4028235e38;
-      zdata[1] = FLOAT_3_4028235e38;
-      zdata[2] = FLOAT_3_4028235e38;
-      zdata[3] = FLOAT_3_4028235e38;
-      *(_QWORD *)minBox.v = __PAIR64__(LODWORD(FLOAT_N3_4028235e38), LODWORD(FLOAT_3_4028235e38));
-      LODWORD(u) = *(unsigned int *)&FLOAT_0_0;
-      HIDWORD(u) = *(unsigned int *)&FLOAT_0_0;
-      tv = *(unsigned int *)&FLOAT_0_0;
-      zdata[0] = *(float *)&FLOAT_0_0;
+      minBox.v[2] = -FLT_MAX;
+      minBox.v[3] = -FLT_MAX;
+      maxBox.v[0] = -FLT_MAX;
+      zdata[1] = FLT_MAX;
+      zdata[2] = FLT_MAX;
+      zdata[3] = FLT_MAX;
+      *(_QWORD *)minBox.v = __PAIR64__(LODWORD(-FLT_MAX), LODWORD(FLT_MAX));
+      LODWORD(u) = 0;
+      HIDWORD(u) = 0;
+      tv = 0;
+      zdata[0] = 0.0f;
       for ( v = 0; (unsigned int)v < 0x11; ++v )
       {
         for ( worldU = 0; (unsigned int)worldU < 0x11; ++worldU )
@@ -2361,9 +2361,9 @@ void  R_WaterSimulationSkinMesh(float a1@<ebp>, const WaterSimulationCmd *cmd)
           zOffset.v[3] = zOffset.v[3] + posScale.v[3];
           binormal.v[0] = binormal.v[0] + dv.v[0];
           Vec3NormalizeTo(&binormal.v[1], &binormal.v[1]);
-          tangent.u[0] = *(unsigned int *)&FLOAT_0_0;
+          tangent.u[0] = 0;
           Vec3NormalizeTo(&zOffset.v[1], &zOffset.v[1]);
-          binormal.u[0] = *(unsigned int *)&FLOAT_0_0;
+          binormal.u[0] = 0;
           Float4LoadFloats(
             COERCE_UNSIGNED_INT(0.0),
             COERCE_UNSIGNED_INT(0.0),
@@ -2386,7 +2386,7 @@ void  R_WaterSimulationSkinMesh(float a1@<ebp>, const WaterSimulationCmd *cmd)
           if ( (float)(0.0 - v88) < 0.0 )
             foamW.u[2] = foamW.u[3];
           else
-            foamW.u[2] = *(unsigned int *)&FLOAT_0_0;
+            foamW.u[2] = 0;
           foamW.v[1] = (float)((float)(v91 << 6) + foamW.v[2]) + (float)(v89 << 7);
           v84 = foamW.v[1];
           v85 = foamW.v[1];
@@ -2534,41 +2534,41 @@ void  R_WaterSimulationSkinMesh(float a1@<ebp>, const WaterSimulationCmd *cmd)
           if ( (float)(v35 - 255.0) < 0.0 )
             v34 = (float)worldUV.unitVec[2].array[0] + 0.5;
           else
-            v34 = FLOAT_255_0;
+            v34 = 255.0f;
           if ( (float)(0.0 - v35) < 0.0 )
             v33 = v34;
           else
-            v33 = *(float *)&FLOAT_0_0;
+            v33 = 0.0f;
           *v36 = (int)v33;
           v32 = (float)worldUV.unitVec[1].array[0] + 0.5;
           if ( (float)(v32 - 255.0) < 0.0 )
             v31 = (float)worldUV.unitVec[1].array[0] + 0.5;
           else
-            v31 = FLOAT_255_0;
+            v31 = 255.0f;
           if ( (float)(0.0 - v32) < 0.0 )
             v30 = v31;
           else
-            v30 = *(float *)&FLOAT_0_0;
+            v30 = 0.0f;
           v36[1] = (int)v30;
           v29 = (float)(avgpos[7] + 128) + 0.5;
           if ( (float)(v29 - 255.0) < 0.0 )
             v28 = (float)(avgpos[7] + 128) + 0.5;
           else
-            v28 = FLOAT_255_0;
+            v28 = 255.0f;
           if ( (float)(0.0 - v29) < 0.0 )
             v27 = v28;
           else
-            v27 = *(float *)&FLOAT_0_0;
+            v27 = 0.0f;
           v36[2] = (int)v27;
           v26 = (double)(unsigned int)(2 * v + 112) + 0.5;
           if ( (float)(v26 - 255.0) < 0.0 )
             v25 = (double)(unsigned int)(2 * v + 112) + 0.5;
           else
-            v25 = FLOAT_255_0;
+            v25 = 255.0f;
           if ( (float)(0.0 - v26) < 0.0 )
             v24 = v25;
           else
-            v24 = *(float *)&FLOAT_0_0;
+            v24 = 0.0f;
           v36[3] = (int)v24;
           maxBox.u[3] += 16;
         }
@@ -2700,13 +2700,13 @@ void __cdecl R_WaterSimulationGetInfo(const float *queryPos, WaterSimInfo *info)
     info->pos[0] = *queryPos;
     info->pos[1] = queryPos[1];
     info->pos[2] = queryPos[2];
-    info->pos[2] = FLOAT_N3_4028235e38;
-    info->normal[0] = *(float *)&FLOAT_0_0;
-    info->normal[1] = *(float *)&FLOAT_0_0;
-    info->normal[2] = FLOAT_1_0;
-    info->waveVelocity[0] = *(float *)&FLOAT_0_0;
-    info->waveVelocity[1] = *(float *)&FLOAT_0_0;
-    info->waveVelocity[2] = *(float *)&FLOAT_0_0;
+    info->pos[2] = -FLT_MAX;
+    info->normal[0] = 0.0f;
+    info->normal[1] = 0.0f;
+    info->normal[2] = 1.0f;
+    info->waveVelocity[0] = 0.0f;
+    info->waveVelocity[1] = 0.0f;
+    info->waveVelocity[2] = 0.0f;
     waterheight = data.waterheight.v[256 * sy + sx];
     R_WaterSimulationGetGridPosition(sx, sy, 0, posc);
     R_WaterSimulationGetGridPosition(sx, sy, -1, oldposc);
@@ -2749,18 +2749,18 @@ void __cdecl R_WaterSimulationGetInfo(const float *queryPos, WaterSimInfo *info)
     info->pos[1] = queryPos[1];
     info->pos[2] = queryPos[2];
     info->pos[2] = R_WaterSimulationGetHeightGlobal(queryPos);
-    info->tangent[0] = FLOAT_1_0;
-    info->tangent[1] = *(float *)&FLOAT_0_0;
-    info->tangent[2] = *(float *)&FLOAT_0_0;
-    info->binormal[0] = *(float *)&FLOAT_0_0;
-    info->binormal[1] = FLOAT_1_0;
-    info->binormal[2] = *(float *)&FLOAT_0_0;
-    info->normal[0] = *(float *)&FLOAT_0_0;
-    info->normal[1] = *(float *)&FLOAT_0_0;
-    info->normal[2] = FLOAT_1_0;
-    info->waveVelocity[0] = *(float *)&FLOAT_0_0;
-    info->waveVelocity[1] = *(float *)&FLOAT_0_0;
-    info->waveVelocity[2] = *(float *)&FLOAT_0_0;
+    info->tangent[0] = 1.0f;
+    info->tangent[1] = 0.0f;
+    info->tangent[2] = 0.0f;
+    info->binormal[0] = 0.0f;
+    info->binormal[1] = 1.0f;
+    info->binormal[2] = 0.0f;
+    info->normal[0] = 0.0f;
+    info->normal[1] = 0.0f;
+    info->normal[2] = 1.0f;
+    info->waveVelocity[0] = 0.0f;
+    info->waveVelocity[1] = 0.0f;
+    info->waveVelocity[2] = 0.0f;
   }
 }
 

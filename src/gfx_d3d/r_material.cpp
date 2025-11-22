@@ -1132,7 +1132,7 @@ void __cdecl R_MaterialParameterTweak_f()
         if ( Cmd_Argc() < 3 )
         {
           if ( min > 0.0 )
-            min = *(float *)&FLOAT_0_0;
+            min = 0.0f;
         }
         else
         {
@@ -1144,7 +1144,7 @@ void __cdecl R_MaterialParameterTweak_f()
         if ( Cmd_Argc() < 4 )
         {
           if ( max < 1.0 )
-            max = FLOAT_1_0;
+            max = 1.0f;
         }
         else
         {

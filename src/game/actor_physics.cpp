@@ -122,7 +122,7 @@ void __cdecl AIPhys_FoliageSounds(actor_physics_t *pPhys)
   memset(&trace, 0, 16);
   vVel[0] = pPhys->vVelocity[0];
   vVel[1] = pPhys->vVelocity[1];
-  vVel[2] = *(float *)&FLOAT_0_0;
+  vVel[2] = 0.0f;
   xyspeed = Abs(vVel);
   if ( bg_foliagesnd_minspeed->current.value <= xyspeed )
   {
@@ -139,7 +139,7 @@ void __cdecl AIPhys_FoliageSounds(actor_physics_t *pPhys)
     fSpeedFrac = (float)(xyspeed - bg_foliagesnd_minspeed->current.value)
                / (float)(bg_foliagesnd_maxspeed->current.value - bg_foliagesnd_minspeed->current.value);
     if ( fSpeedFrac > 1.0 )
-      fSpeedFrac = FLOAT_1_0;
+      fSpeedFrac = 1.0f;
     iInterval = (int)(float)((float)((float)(bg_foliagesnd_fastinterval->current.integer
                                            - bg_foliagesnd_slowinterval->current.integer)
                                    * fSpeedFrac)
@@ -206,11 +206,11 @@ bool __cdecl Actor_Physics_1(actor_physics_t *pPhys)
     __debugbreak();
   }
   if ( pPhys->prone )
-    g_apl.stepheight = FLOAT_10_0;
+    g_apl.stepheight = 10.0f;
   else
-    g_apl.stepheight = FLOAT_18_0;
+    g_apl.stepheight = 18.0f;
   pPhys->bHasGroundPlane = 0;
-  pPhys->groundplaneSlope = *(float *)&FLOAT_0_0;
+  pPhys->groundplaneSlope = 0.0f;
   if ( pPhys->ePhysicsType == AIPHYS_NOCLIP )
   {
     AIPhys_NoClipMove(pPhys);
@@ -535,9 +535,9 @@ LABEL_23:
     fTimeLeft = fTimeLeft - (float)(fTimeLeft * trace.fraction);
     if ( iNumPlanes >= 5 )
     {
-      pPhys->vVelocity[0] = *(float *)&FLOAT_0_0;
-      pPhys->vVelocity[1] = *(float *)&FLOAT_0_0;
-      pPhys->vVelocity[2] = *(float *)&FLOAT_0_0;
+      pPhys->vVelocity[0] = 0.0f;
+      pPhys->vVelocity[1] = 0.0f;
+      pPhys->vVelocity[2] = 0.0f;
       return 1;
     }
     for ( i = 0; i < iNumPlanes; ++i )
@@ -610,9 +610,9 @@ LABEL_23:
                                      + (float)(vClipVelocity[1] * planes[k][1]))
                              + (float)(vClipVelocity[2] * planes[k][2])) < 0.1 )
                   {
-                    pPhys->vVelocity[0] = *(float *)&FLOAT_0_0;
-                    pPhys->vVelocity[1] = *(float *)&FLOAT_0_0;
-                    pPhys->vVelocity[2] = *(float *)&FLOAT_0_0;
+                    pPhys->vVelocity[0] = 0.0f;
+                    pPhys->vVelocity[1] = 0.0f;
+                    pPhys->vVelocity[2] = 0.0f;
                     return 1;
                   }
                 }
@@ -643,7 +643,7 @@ LABEL_23:
   }
   if ( !trace.startsolid )
     goto LABEL_23;
-  pPhys->vVelocity[2] = *(float *)&FLOAT_0_0;
+  pPhys->vVelocity[2] = 0.0f;
   if ( !iBumpCount && g_apl.groundTrace.startsolid )
     return 2;
   if ( pPhys->iHitEntnum == 1023 )
@@ -768,7 +768,7 @@ bool __cdecl AIPhys_WalkMove(actor_physics_t *pPhys)
   v2 = 1.0 / g_apl.fFrameTime;
   pPhys->vVelocity[0] = (float)(1.0 / g_apl.fFrameTime) * pPhys->vWishDelta[0];
   pPhys->vVelocity[1] = v2 * pPhys->vWishDelta[1];
-  pPhys->vVelocity[2] = *(float *)&FLOAT_0_0;
+  pPhys->vVelocity[2] = 0.0f;
   vel = Vec2Length(pPhys->vVelocity);
   oldvel = pPhys->vVelocity[0];
   oldvel_4 = pPhys->vVelocity[1];
@@ -796,7 +796,7 @@ bool __cdecl AIPhys_ZOnlyPhysicsMove(actor_physics_t *pPhys)
   v2 = 1.0 / g_apl.fFrameTime;
   pPhys->vVelocity[0] = (float)(1.0 / g_apl.fFrameTime) * pPhys->vWishDelta[0];
   pPhys->vVelocity[1] = v2 * pPhys->vWishDelta[1];
-  pPhys->vVelocity[2] = *(float *)&FLOAT_0_0;
+  pPhys->vVelocity[2] = 0.0f;
   return AIPhys_StepSlideMove(pPhys, 1, 1);
 }
 
@@ -844,10 +844,10 @@ void __cdecl AIPhys_GroundTrace(actor_physics_t *pPhys)
   if ( v3 )
     stepheight = g_apl.stepheight;
   else
-    stepheight = FLOAT_0_25;
+    stepheight = 0.25f;
   end[2] = pPhys->vOrigin[2] - stepheight;
   gjkcc_in = pPhys->m_gjkcc_input;
-  first_hit_time = FLOAT_1_0;
+  first_hit_time = 1.0f;
   if ( phys_ai_collision_mode->current.integer == 1 )
     PM_gjk_ground_trace(
       gjkcc_in,

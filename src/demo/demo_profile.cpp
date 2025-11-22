@@ -100,7 +100,7 @@ void __cdecl Demo_DrawDebugInformation(int localClientNum)
   int debugInfoDrawTime; // [esp+74h] [ebp-8h]
   int entityCount; // [esp+78h] [ebp-4h]
 
-  demoInfoCullDistance = FLOAT_512_0;
+  demoInfoCullDistance = 512.0f;
   debugInfoDrawTime = 50;
   entityCount = 0;
   entityIndex = -1;

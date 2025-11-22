@@ -87,8 +87,8 @@ void __cdecl LiveTicker_InitializeInternal()
   s_ticker.scrollLeftStartTime = 0;
   s_ticker.scrollUpStartTimeB = 0;
   s_ticker.pauseStartTimeB = 0;
-  s_ticker.scrollLeftDuration = *(float *)&FLOAT_0_0;
-  s_ticker.scrollLeftFinalX = *(float *)&FLOAT_0_0;
+  s_ticker.scrollLeftDuration = 0.0f;
+  s_ticker.scrollLeftFinalX = 0.0f;
   s_ticker.hasMessageScrolledLeft = 0;
   s_ticker.scrollUpStartTimeA = 0;
   s_ticker.messagedWidthInPixels = 0;
@@ -307,8 +307,8 @@ char *__cdecl LiveTicker_GetCurrentMessage(
           s_ticker.scrollLeftStartTime = 0;
           s_ticker.scrollUpStartTimeB = 0;
           s_ticker.pauseStartTimeB = 0;
-          s_ticker.scrollLeftDuration = *(float *)&FLOAT_0_0;
-          s_ticker.scrollLeftFinalX = *(float *)&FLOAT_0_0;
+          s_ticker.scrollLeftDuration = 0.0f;
+          s_ticker.scrollLeftFinalX = 0.0f;
           s_ticker.hasMessageScrolledLeft = 0;
           s_ticker.scrollUpStartTimeA = Sys_Milliseconds();
           s_ticker.messagedWidthInPixels = LiveTicker_GetTickerMessageTextWidth(currMessage->text, 0, font, scale);
@@ -434,7 +434,7 @@ char *__cdecl LiveTicker_GetCurrentMessageCategory(
     if ( s_ticker.headerAnimationStartTime <= 0 )
     {
       texta = LiveTicker_GetStreamNameTextInternal(currStream->streamName);
-      *outAlpha = FLOAT_1_0;
+      *outAlpha = 1.0f;
       *outScale = baseScale;
     }
     else if ( (int)(curTime - s_ticker.headerAnimationStartTime) >= 100 )
@@ -445,7 +445,7 @@ char *__cdecl LiveTicker_GetCurrentMessageCategory(
         s_ticker.previousStream = currStream->streamName;
         s_ticker.isHeaderAnimating = 0;
         s_ticker.headerAnimationStartTime = 0;
-        *outAlpha = FLOAT_1_0;
+        *outAlpha = 1.0f;
         *outScale = baseScale;
       }
       else

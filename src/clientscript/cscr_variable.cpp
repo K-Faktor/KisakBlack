@@ -72,15 +72,15 @@ void __cdecl Scr_DumpScriptThreads(scriptInstance_t inst)
       }
       qsort(infoArray, num, 0x8Cu, (int (__cdecl *)(const void *, const void *))ThreadInfoCompare);
       Com_Printf(24, "********************************\n");
-      varUsage = *(float *)&FLOAT_0_0;
-      endonUsage = *(float *)&FLOAT_0_0;
+      varUsage = 0.0f;
+      endonUsage = 0.0f;
       i = 0;
       while ( i < num )
       {
         pInfo = &infoArray[i];
         count = 0;
-        info.varUsage = *(float *)&FLOAT_0_0;
-        info.endonUsage = *(float *)&FLOAT_0_0;
+        info.varUsage = 0.0f;
+        info.endonUsage = 0.0f;
         do
         {
           ++count;
@@ -106,7 +106,7 @@ void __cdecl Scr_DumpScriptThreads(scriptInstance_t inst)
       {
         if ( gScrClassMap[inst][classnum].entArrayId )
         {
-          info.varUsage = *(float *)&FLOAT_0_0;
+          info.varUsage = 0.0f;
           count = 0;
           for ( entId = FindFirstSibling(inst, gScrClassMap[inst][classnum].entArrayId);
                 entId;
@@ -5303,9 +5303,9 @@ void __cdecl Scr_EvalDivide(scriptInstance_t inst, VariableValue *value1, Variab
         || *(float *)(value2->u.intValue + 4) == 0.0
         || *(float *)(value2->u.intValue + 8) == 0.0 )
       {
-        *tempVector = *(float *)&FLOAT_0_0;
-        tempVector[1] = *(float *)&FLOAT_0_0;
-        tempVector[2] = *(float *)&FLOAT_0_0;
+        *tempVector = 0.0f;
+        tempVector[1] = 0.0f;
+        tempVector[2] = 0.0f;
         RemoveRefToVector(inst, value1->u.vectorValue);
         RemoveRefToVector(inst, value2->u.vectorValue);
         value1->u.intValue = (int)tempVector;
@@ -5325,7 +5325,7 @@ void __cdecl Scr_EvalDivide(scriptInstance_t inst, VariableValue *value1, Variab
       if ( value2->u.floatValue == 0.0 )
       {
 LABEL_9:
-        value1->u.intValue = *(unsigned int *)&FLOAT_0_0;
+        value1->u.intValue = 0;
         Scr_Error(inst, "divide by 0", 0);
         return;
       }
@@ -7036,7 +7036,7 @@ double __cdecl Scr_GetObjectUsage(scriptInstance_t inst, unsigned int parentId)
   {
     __debugbreak();
   }
-  usage = FLOAT_1_0;
+  usage = 1.0f;
   for ( id = FindFirstSibling(inst, parentId); id; id = FindNextSibling(inst, id) )
     usage = Scr_GetEntryUsage(inst, &gScrVarGlob[inst].variableList[id + 0x8000]) + usage;
   return usage;

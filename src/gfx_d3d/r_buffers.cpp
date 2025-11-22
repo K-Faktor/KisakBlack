@@ -618,29 +618,29 @@ void __cdecl R_CreateParticleCloudBuffer()
         if ( (float)((float)(rand0 * 0.25) - 1.0) < 0.0 )
           v5 = rand0 * 0.25;
         else
-          v5 = FLOAT_1_0;
+          v5 = 1.0f;
         if ( (float)(-1.0 - (float)(rand0 * 0.25)) < 0.0 )
           v2 = v5;
         else
-          v2 = FLOAT_N1_0;
+          v2 = -1.0f;
         pos[1][0] = v2;
         if ( (float)((float)(rand1 * 0.25) - 1.0) < 0.0 )
           v4 = rand1 * 0.25;
         else
-          v4 = FLOAT_1_0;
+          v4 = 1.0f;
         if ( (float)(-1.0 - (float)(rand1 * 0.25)) < 0.0 )
           v1 = v4;
         else
-          v1 = FLOAT_N1_0;
+          v1 = -1.0f;
         pos[1][1] = v1;
         if ( (float)((float)(rand2 * 0.25) - 1.0) < 0.0 )
           v3 = rand2 * 0.25;
         else
-          v3 = FLOAT_1_0;
+          v3 = 1.0f;
         if ( (float)(-1.0 - (float)(rand2 * 0.25)) < 0.0 )
           v0 = v3;
         else
-          v0 = FLOAT_N1_0;
+          v0 = -1.0f;
         pos[1][2] = v0;
         for ( j = 0; j < 2; ++j )
         {

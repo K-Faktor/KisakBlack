@@ -453,12 +453,12 @@ XAnimParts *__cdecl XAnimLoadFile(char *name, void *(__cdecl *Alloc)(int), bool 
             parts->bDelta = (v90 & 2) != 0;
             parts->bLeftHandGripIK = (v90 & 4) != 0;
             parts->bStreamable = (v90 & 8) != 0;
-            parts->loopEntryTime = *(float *)&FLOAT_0_0;
+            parts->loopEntryTime = 0.0f;
             parts->assetType = *pos++;
             v39 = *(_WORD *)pos;
             pos += 2;
             parts->framerate = (float)(__int16)v39;
-            parts->primedLength = *(float *)&FLOAT_0_0;
+            parts->primedLength = 0.0f;
             if ( parts->bStreamable )
             {
               v38 = *(float *)pos;
@@ -485,7 +485,7 @@ XAnimParts *__cdecl XAnimLoadFile(char *name, void *(__cdecl *Alloc)(int), bool 
             if ( parts->numframes )
               v36 = parts->framerate / (float)parts->numframes;
             else
-              v36 = *(float *)&FLOAT_0_0;
+              v36 = 0.0f;
             parts->frequency = v36;
             if ( parts->frequency < 0.0
               && !Assert_MyHandler(
@@ -1252,7 +1252,7 @@ void __cdecl ReadNoteTracks(const char *name, unsigned __int16 **pos, XAnimParts
     if ( parts->numframes )
       v5 = (float)v6 / (float)parts->numframes;
     else
-      v5 = *(float *)&FLOAT_0_0;
+      v5 = 0.0f;
     notify->time = v5;
     if ( customLoopEntry && parts->bLoop )
       parts->loopEntryTime = notify->time;
@@ -1272,7 +1272,7 @@ void __cdecl ReadNoteTracks(const char *name, unsigned __int16 **pos, XAnimParts
     ++notify;
   }
   notify->name = SL_GetString_(SCRIPTINSTANCE_SERVER, "end", 0, 3);
-  notify->time = FLOAT_1_0;
+  notify->time = 1.0f;
 }
 
 unsigned __int8 *__cdecl GetQuaternions(

@@ -153,7 +153,7 @@ void  R_SetLightProperties(
   sMul = light->falloff[2];
   v73 = light->falloff[3];
   if ( farEdge == sMul )
-    sAdd = FLOAT_1_0;
+    sAdd = 1.0f;
   else
     sAdd = 1.0 / (float)(sMul - farEdge);
   v71 = sAdd;
@@ -164,7 +164,7 @@ void  R_SetLightProperties(
   eMul = v6;
   v69 = v6;
   if ( v73 == v75 )
-    eAdd = FLOAT_N1_0;
+    eAdd = -1.0f;
   else
     eAdd = 1.0 / (float)(v73 - v75);
   v67 = eAdd;
@@ -206,7 +206,7 @@ void  R_SetLightProperties(
     mx21 = (float)(aAMul * light->cookieControl0[0]) + mx21;
     aAAdd = source->input.consts[4];
     source->input.consts[4][0] = mx21 + 0.5;
-    aAAdd[1] = *(float *)&FLOAT_0_0;
+    aAAdd[1] = 0.0f;
     aAAdd[2] = aAMul + 0.5;
     aAAdd[3] = spotShadowFade;
     R_DirtyCodeConstant(source, 4u);
@@ -225,7 +225,7 @@ void  R_SetLightProperties(
     R_UpdateCodeConstant(source, 6u, v71, re, bBAdd, v67);
     R_UpdateCodeConstant(source, 7u, v69, v45, v47, w);
     if ( light->attenuation[3] == 0.0 )
-      v44 = FLOAT_1_0;
+      v44 = 1.0f;
     else
       v44 = 2.0 / light->attenuation[3];
     v43 = v44;
@@ -307,21 +307,21 @@ void  R_SetLightProperties(
   source->input.consts[1][0] = light->diffuseColor[0];
   source->input.consts[1][1] = v17;
   source->input.consts[1][2] = v16;
-  source->input.consts[1][3] = FLOAT_1_0;
+  source->input.consts[1][3] = 1.0f;
   R_DirtyCodeConstant(source, 1u);
   v15 = light->specularColor[1];
   v14 = light->specularColor[2];
   source->input.consts[2][0] = light->specularColor[0];
   source->input.consts[2][1] = v15;
   source->input.consts[2][2] = v14;
-  source->input.consts[2][3] = FLOAT_1_0;
+  source->input.consts[2][3] = 1.0f;
   R_DirtyCodeConstant(source, 2u);
   spotDotScale = light->dir[1];
   spotDotBias = light->dir[2];
   source->input.consts[3][0] = light->dir[0];
   source->input.consts[3][1] = spotDotScale;
   source->input.consts[3][2] = spotDotBias;
-  source->input.consts[3][3] = *(float *)&FLOAT_0_0;
+  source->input.consts[3][3] = 0.0f;
   R_DirtyCodeConstant(source, 3u);
   if ( light->type == 3 && hasShadowMap == LIGHT_HAS_SHADOWMAP )
   {
@@ -329,7 +329,7 @@ void  R_SetLightProperties(
     v10 = COERCE_FLOAT(LODWORD(v11) ^ _mask__NegFloat_) * light->cosHalfFovOuter;
     source->input.consts[4][0] = v11;
     source->input.consts[4][1] = v10;
-    source->input.consts[4][2] = *(float *)&FLOAT_0_0;
+    source->input.consts[4][2] = 0.0f;
     source->input.consts[4][3] = spotShadowFade;
     R_DirtyCodeConstant(source, 4u);
   }
@@ -391,7 +391,7 @@ void __cdecl R_SetShadowableLight(GfxCmdBufSourceState *source, unsigned int sha
           (float)def->lmapLookupStart * 0.001953125,
           0.0);
         hasShadowMap = LIGHT_HAS_NO_SHADOWMAP;
-        spotShadowFade = *(float *)&FLOAT_0_0;
+        spotShadowFade = 0.0f;
         if ( Com_BitCheckAssert(source->input.data->shadowableLightHasShadowMap, shadowableLightIndex, 32) )
         {
           if ( data->shadowableLights[shadowableLightIndex].spotShadowIndex >= 4

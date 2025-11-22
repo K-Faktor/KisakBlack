@@ -613,16 +613,16 @@ void __cdecl PM_UpdateSpinLerp(pmove_t *pm, pml_t *pml)
     if ( (float)(v3 - 1.0) < 0.0 )
       v4 = (float)((float)pml->msec * lerpRate) + ps->weaponSpinLerp;
     else
-      v4 = FLOAT_1_0;
+      v4 = 1.0f;
     if ( (float)(0.0 - v3) < 0.0 )
       v2 = v4;
     else
-      v2 = *(float *)&FLOAT_0_0;
+      v2 = 0.0f;
     ps->weaponSpinLerp = v2;
   }
   else
   {
-    ps->weaponSpinLerp = *(float *)&FLOAT_0_0;
+    ps->weaponSpinLerp = 0.0f;
   }
 }
 
@@ -648,7 +648,7 @@ void __cdecl PM_UpdateAimDownSightLerp(pmove_t *pm, pml_t *pml)
     || player_scopeExitOnDamage->current.enabled && ps->damageCount && weapDef->overlayReticle )
   {
     PM_ExitAimDownSight(ps);
-    ps->fWeaponPosFrac = *(float *)&FLOAT_0_0;
+    ps->fWeaponPosFrac = 0.0f;
     ps->adsDelayTime = 0;
   }
   else if ( weapDef->aimDownSight )
@@ -734,17 +734,17 @@ void __cdecl PM_UpdateAimDownSightLerp(pmove_t *pm, pml_t *pml)
       if ( (float)(v3 - 1.0) < 0.0 )
         v4 = (float)((float)pml->msec * lerpRate) + ps->fWeaponPosFrac;
       else
-        v4 = FLOAT_1_0;
+        v4 = 1.0f;
       if ( (float)(0.0 - v3) < 0.0 )
         v2 = v4;
       else
-        v2 = *(float *)&FLOAT_0_0;
+        v2 = 0.0f;
       ps->fWeaponPosFrac = v2;
     }
   }
   else
   {
-    ps->fWeaponPosFrac = *(float *)&FLOAT_0_0;
+    ps->fWeaponPosFrac = 0.0f;
     ps->adsDelayTime = 0;
   }
 }
@@ -815,11 +815,11 @@ void __cdecl BG_PlayerWeaponOverheatUpdate(playerState_s *ps, unsigned int weapo
     weaponState->heatPercent = weaponState->heatPercent + amount;
     if ( weaponState->heatPercent >= 100.0 )
     {
-      weaponState->heatPercent = FLOAT_100_0;
+      weaponState->heatPercent = 100.0f;
       weaponState->overHeating = 1;
     }
     if ( weaponState->heatPercent < 0.0 )
-      weaponState->fuelTankTime = *(unsigned int *)&FLOAT_0_0;
+      weaponState->fuelTankTime = 0;
     if ( BG_GetWeaponDef(weapon)->overheatEndVal >= weaponState->heatPercent )
       weaponState->overHeating = 0;
   }
@@ -910,12 +910,12 @@ void __cdecl PM_AdjustAimSpreadScale(pmove_t *pm, pml_t *pml)
   if ( !pm->ps && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\bgame\\bg_weapons.cpp", 2437, 0, "%s", "ps") )
     __debugbreak();
   weapDef = BG_GetWeaponDef(ps->weapon);
-  spreadOverrideScale = FLOAT_1_0;
+  spreadOverrideScale = 1.0f;
   wpnScale = weapDef->fHipSpreadDecayRate;
   if ( wpnScale == 0.0 )
   {
-    increase = *(float *)&FLOAT_0_0;
-    decrease = FLOAT_1_0;
+    increase = 0.0f;
+    decrease = 1.0f;
   }
   else
   {
@@ -943,18 +943,18 @@ void __cdecl PM_AdjustAimSpreadScale(pmove_t *pm, pml_t *pml)
     if ( ps->spreadOverrideState == 1 )
     {
       decrease = (float)(wpnScale * pml->frametime) / spreadOverrideScale;
-      increase = *(float *)&FLOAT_0_0;
+      increase = 0.0f;
     }
     else
     {
       decrease = wpnScale * pml->frametime;
       if ( ps->fWeaponPosFrac == 1.0 )
       {
-        increase = *(float *)&FLOAT_0_0;
+        increase = 0.0f;
       }
       else
       {
-        viewchange = *(float *)&FLOAT_0_0;
+        viewchange = 0.0f;
         if ( weapDef->fHipSpreadTurnAdd != 0.0 )
         {
           for ( i = 0; i < 2; ++i )
@@ -997,11 +997,11 @@ void __cdecl PM_AdjustAimSpreadScale(pmove_t *pm, pml_t *pml)
   if ( ps->aimSpreadScale >= 0.0 )
   {
     if ( ps->aimSpreadScale > 255.0 )
-      ps->aimSpreadScale = FLOAT_255_0;
+      ps->aimSpreadScale = 255.0f;
   }
   else
   {
-    ps->aimSpreadScale = *(float *)&FLOAT_0_0;
+    ps->aimSpreadScale = 0.0f;
   }
 }
 
@@ -1158,7 +1158,7 @@ void __cdecl PM_Weapon(pmove_t *pm, pml_t *pml)
             ps->weaponDelay = 0;
             ps->weapFlags |= 0x2000u;
             PM_ExitAimDownSight(ps);
-            ps->fWeaponPosFrac = *(float *)&FLOAT_0_0;
+            ps->fWeaponPosFrac = 0.0f;
             ps->adsDelayTime = 0;
           }
         }
@@ -1217,7 +1217,7 @@ void __cdecl PM_Weapon(pmove_t *pm, pml_t *pml)
             || ps->weaponstate == 18
             || ps->weaponstate == 19 )
           {
-            ps->aimSpreadScale = FLOAT_255_0;
+            ps->aimSpreadScale = 255.0f;
           }
           if ( (ps->weaponTime < 0 || ps->weaponDelay < 0)
             && !Assert_MyHandler(
@@ -1419,7 +1419,7 @@ void __cdecl PM_UpdateHoldBreath(pmove_t *pm, pml_t *pml)
     }
     if ( (ps->weapFlags & 4) != 0 )
     {
-      targetScale = *(float *)&FLOAT_0_0;
+      targetScale = 0.0f;
       lerp = player_breath_hold_lerp->current.integer;
     }
     else
@@ -1438,7 +1438,7 @@ void __cdecl PM_UpdateHoldBreath(pmove_t *pm, pml_t *pml)
   else
   {
     PM_EndHoldBreath(ps);
-    ps->holdBreathScale = FLOAT_1_0;
+    ps->holdBreathScale = 1.0f;
     ps->holdBreathTimer = 0;
   }
 }
@@ -1637,13 +1637,13 @@ void __cdecl PM_Weapon_FinishWeaponChange(pmove_t *pm, int previousWeaponState)
       if ( ps->aimSpreadScale >= 128.0 )
         aimspread = ps->aimSpreadScale;
       else
-        aimspread = FLOAT_128_0;
+        aimspread = 128.0f;
       anim = 22;
     }
     else
     {
       quick = BG_IsQuickSwitch(oldweapon, newweapon, previousWeaponState);
-      aimspread = FLOAT_255_0;
+      aimspread = 255.0f;
       noammo = PM_WeaponClipEmpty(ps);
       if ( weapDef->bNoDropsOrRaises )
       {
@@ -3511,7 +3511,7 @@ void __cdecl PM_Weapon_AddFiringAimSpreadScale(playerState_s *ps)
   {
     ps->aimSpreadScale = (float)(weapDef->fHipSpreadFireAdd * 255.0) + ps->aimSpreadScale;
     if ( ps->aimSpreadScale > 255.0 )
-      ps->aimSpreadScale = FLOAT_255_0;
+      ps->aimSpreadScale = 255.0f;
   }
 }
 
@@ -3577,7 +3577,7 @@ char __cdecl PM_WeaponAllowPlant(pmove_t *pm)
   end[1] = hit[1];
   end[2] = hit[2];
   end[2] = hit[2] - bg_plantInWaterDepth->current.value;
-  hit_fraction = FLOAT_1_0;
+  hit_fraction = 1.0f;
   surface = CM_TracePointDown(start, end, 2065, (int)&bg_vehicleInfos[11].rotorTailStartFx[20], hit, &hit_fraction, 0);
   if ( hit_fraction != 1.0 || ((unsigned int)&bg_vehicleInfos[11].rotorTailStartFx[20] & surface) != 0 )
     return 1;
@@ -3601,10 +3601,10 @@ void __cdecl DrawPlantDebug(float *start, float *end)
 
   if ( *(bgs_t **)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8) == &level_bgs )
   {
-    color[0] = *(float *)&FLOAT_0_0;
-    color[1] = *(float *)&FLOAT_0_0;
-    color[2] = FLOAT_1_0;
-    color[3] = FLOAT_1_0;
+    color[0] = 0.0f;
+    color[1] = 0.0f;
+    color[2] = 1.0f;
+    color[3] = 1.0f;
     if ( g_debugBullets->current.integer >= 5 )
       CG_DebugLine(start, end, color, 1, 500);
   }
@@ -4967,7 +4967,7 @@ void __cdecl BG_WeaponFireRecoil(const playerState_s *ps, float *recoilSpeed, fl
   weapIndex = BG_GetViewmodelWeaponIndex(ps);
   weapDef = BG_GetWeaponDef(weapIndex);
   fPosLerp = ps->fWeaponPosFrac;
-  fReducePercent = FLOAT_1_0;
+  fReducePercent = 1.0f;
   if ( ps->weaponRestrictKickTime > 0 )
   {
     if ( fPosLerp == 1.0 )

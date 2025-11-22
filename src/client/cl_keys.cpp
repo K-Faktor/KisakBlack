@@ -33,8 +33,8 @@ void __cdecl Field_DrawTextOverride(
   {
     font = cls.consoleFont;
     fontStyle = 0;
-    xScale = FLOAT_1_0;
-    yScale = FLOAT_1_0;
+    xScale = 1.0f;
+    yScale = 1.0f;
     if ( Key_GetOverstrikeMode(localClientNum) )
       cursorChar = 95;
     else
@@ -153,7 +153,7 @@ void __cdecl Field_AdjustScroll(const ScreenPlacement *scrPlace, field_t *edit)
   actualScale = v2;
   if ( lineWidth <= (float)((float)R_TextWidth(edit->buffer, 0, font) * actualScale) )
   {
-    len = *(float *)&FLOAT_0_0;
+    len = 0.0f;
     while ( lineWidth > len )
     {
       if ( edit->scroll <= 0 )
@@ -179,7 +179,7 @@ void __cdecl Field_AdjustScroll(const ScreenPlacement *scrPlace, field_t *edit)
         }
         else
         {
-          lena = *(float *)&FLOAT_0_0;
+          lena = 0.0f;
         }
       }
     }
@@ -187,7 +187,7 @@ void __cdecl Field_AdjustScroll(const ScreenPlacement *scrPlace, field_t *edit)
     v3 = &edit->buffer[edit->scroll + 1];
     v4 = &edit->buffer[edit->scroll + 1 + strlen(&edit->buffer[edit->scroll])];
     edit->drawWidth = edit->cursor - edit->scroll;
-    lenb = *(float *)&FLOAT_0_0;
+    lenb = 0.0f;
     while ( lineWidth > lenb && edit->drawWidth < v4 - v3 )
     {
       lenb = (float)R_TextWidth(&edit->buffer[edit->scroll], edit->drawWidth + 1, font) * actualScale;

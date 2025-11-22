@@ -71,25 +71,25 @@ double __cdecl Com_SurfaceDensity(int iTypeIndex)
   switch ( iTypeIndex )
   {
     case 16:
-      density = FLOAT_0_30000001;
+      density = 0.3f;
       break;
     case 21:
-      density = FLOAT_0_5;
+      density = 0.5f;
       break;
     case 24:
-      density = FLOAT_0_25;
+      density = 0.25f;
       break;
     case 25:
-      density = FLOAT_0_60000002;
+      density = 0.6f;
       break;
     case 26:
-      density = FLOAT_0_2;
+      density = 0.2f;
       break;
     case 27:
-      density = FLOAT_0_15000001;
+      density = 0.1f5000001;
       break;
     default:
-      density = FLOAT_1_0;
+      density = 1.0f;
       break;
   }
   return density;
@@ -104,17 +104,17 @@ double __cdecl Com_SurfaceFrictionScale(int iTypeIndex)
     case 6:
     case 10:
     case 11:
-      friction = FLOAT_0_89999998;
+      friction = 0.9f;
       break;
     case 12:
-      friction = FLOAT_0_75;
+      friction = 0.75f;
       break;
     case 14:
     case 19:
-      friction = FLOAT_0_80000001;
+      friction = 0.8f;
       break;
     default:
-      friction = FLOAT_1_0;
+      friction = 1.0f;
       break;
   }
   return friction;
@@ -129,16 +129,16 @@ double __cdecl Com_SurfaceBounceScale(int iTypeIndex)
     case 6:
     case 10:
     case 11:
-      bounce = FLOAT_0_30000001;
+      bounce = 0.3f;
       break;
     case 14:
-      bounce = FLOAT_0_1;
+      bounce = 0.1f;
       break;
     case 19:
-      bounce = FLOAT_0_2;
+      bounce = 0.2f;
       break;
     default:
-      bounce = FLOAT_1_0;
+      bounce = 1.0f;
       break;
   }
   return bounce;

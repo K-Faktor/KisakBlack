@@ -612,7 +612,7 @@ void __cdecl CG_SetNextSnap(int localClientNum, snapshot_s *snap)
         || bWasDemoJump )
       {
         cgameGlob->playerTeleported = 1;
-        cgameGlob->flareRatioLastFrame = *(float *)&FLOAT_0_0;
+        cgameGlob->flareRatioLastFrame = 0.0f;
         centInPrevSnapshot[(int)cgameGlob->snap->ps.clientNum >> 5] &= ~(0x80000000 >> (cgameGlob->snap->ps.clientNum
                                                                                       & 0x1F));
         oldEntNum = cgameGlob->snap->ps.clientNum;
@@ -632,9 +632,9 @@ void __cdecl CG_SetNextSnap(int localClientNum, snapshot_s *snap)
           memcpy((unsigned __int8 *)&cgameGlob->snap->ps, (unsigned __int8 *)&snap->ps, sizeof(cgameGlob->snap->ps));
           CG_ResetEntity(localClientNum, cent, 0);
           predictedError = cgameGlob->predictedError;
-          cgameGlob->predictedError[0] = *(float *)&FLOAT_0_0;
-          predictedError[1] = *(float *)&FLOAT_0_0;
-          predictedError[2] = *(float *)&FLOAT_0_0;
+          cgameGlob->predictedError[0] = 0.0f;
+          predictedError[1] = 0.0f;
+          predictedError[2] = 0.0f;
         }
       }
       else
@@ -642,9 +642,9 @@ void __cdecl CG_SetNextSnap(int localClientNum, snapshot_s *snap)
         memcpy((unsigned __int8 *)&cgameGlob->snap->ps, (unsigned __int8 *)&snap->ps, sizeof(cgameGlob->snap->ps));
         CG_ResetEntity(localClientNum, cent, 1);
         v11 = cgameGlob->predictedError;
-        cgameGlob->predictedError[0] = *(float *)&FLOAT_0_0;
-        v11[1] = *(float *)&FLOAT_0_0;
-        v11[2] = *(float *)&FLOAT_0_0;
+        cgameGlob->predictedError[0] = 0.0f;
+        v11[1] = 0.0f;
+        v11[2] = 0.0f;
       }
     }
     else if ( snap->ps.pm_type == 4 )
@@ -972,8 +972,8 @@ void __cdecl CG_ResetEntity(int localClientNum, centity_s *cent, int newEntity)
       cia->playerAngles[0] = cent->pose.angles[0];
       cia->playerAngles[1] = cent->pose.angles[1];
       cia->playerAngles[2] = cent->pose.angles[2];
-      cent->pose.angles[0] = *(float *)&FLOAT_0_0;
-      cent->pose.angles[2] = *(float *)&FLOAT_0_0;
+      cent->pose.angles[0] = 0.0f;
+      cent->pose.angles[2] = 0.0f;
       CG_ResetPlayerEntity(localClientNum, cgameGlob, cent, newEntity);
       obja = Com_GetClientDObj(cent->nextState.number, localClientNum);
       if ( obja )
@@ -1128,9 +1128,9 @@ void __cdecl CG_ResetEntity(int localClientNum, centity_s *cent, int newEntity)
       cent->previousEventSequence = cent->nextState.eventSequence;
 LABEL_74:
       v4 = cg_entityOriginArray[localClientNum][cent->nextState.number];
-      *v4 = FLOAT_131072_0;
-      v4[1] = FLOAT_131072_0;
-      v4[2] = FLOAT_131072_0;
+      *v4 = 131072.0f;
+      v4[1] = 131072.0f;
+      v4[2] = 131072.0f;
       break;
   }
 }
@@ -1182,16 +1182,16 @@ void __cdecl CG_TransitionKillcam(int localClientNum)
       cgameGlob->killCamEntityType = KC_NO_ENTITY;
       cgameGlob->invalidKillCamEntity = 1023;
       cgameGlob->killCamStoppedTime = 0;
-      cgameGlob->killCamLookAt[0] = *(float *)&FLOAT_0_0;
-      cgameGlob->killCamLookAt[1] = *(float *)&FLOAT_0_0;
-      cgameGlob->killCamLookAt[2] = *(float *)&FLOAT_0_0;
+      cgameGlob->killCamLookAt[0] = 0.0f;
+      cgameGlob->killCamLookAt[1] = 0.0f;
+      cgameGlob->killCamLookAt[2] = 0.0f;
       cgameGlob->killCamLastEntityNum = 1023;
-      cgameGlob->killCamLastEntityOrg[0] = *(float *)&FLOAT_0_0;
-      cgameGlob->killCamLastEntityOrg[1] = *(float *)&FLOAT_0_0;
-      cgameGlob->killCamLastEntityOrg[2] = *(float *)&FLOAT_0_0;
-      cgameGlob->killCamLastEntityAngles[0] = *(float *)&FLOAT_0_0;
-      cgameGlob->killCamLastEntityAngles[1] = *(float *)&FLOAT_0_0;
-      cgameGlob->killCamLastEntityAngles[2] = *(float *)&FLOAT_0_0;
+      cgameGlob->killCamLastEntityOrg[0] = 0.0f;
+      cgameGlob->killCamLastEntityOrg[1] = 0.0f;
+      cgameGlob->killCamLastEntityOrg[2] = 0.0f;
+      cgameGlob->killCamLastEntityAngles[0] = 0.0f;
+      cgameGlob->killCamLastEntityAngles[1] = 0.0f;
+      cgameGlob->killCamLastEntityAngles[2] = 0.0f;
       cgameGlob->clearMarks = 1;
       cgameGlob->weapIdleTime = cgameGlob->nextSnap->ps.weaponIdleTime;
       CG_SetEquippedOffHand(localClientNum, 0);

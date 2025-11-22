@@ -29,11 +29,11 @@ unsigned __int8 __cdecl FX_MarkGetFadedAlpha(const FxMark *mark)
       if ( v4 <= 1.0 )
         v3 = v4;
       else
-        v3 = FLOAT_1_0;
+        v3 = 1.0f;
     }
     else
     {
-      v3 = *(float *)&FLOAT_0_0;
+      v3 = 0.0f;
     }
     return (int)(float)((float)mark->nativeColor[3] * (float)(1.0 - v3));
   }
@@ -603,11 +603,11 @@ void __cdecl FX_ImpactMark_Generate_AddEntityBrush(
       AnglesToAxis(ent->pose.angles, entAxis);
       *(_QWORD *)modelBounds[0].v = *(_QWORD *)&brushModel->bounds[0][0];
       modelBounds[0].u[2] = LODWORD(brushModel->bounds[0][2]);
-      modelBounds[0].u[3] = *(unsigned int *)&FLOAT_0_0;
+      modelBounds[0].u[3] = 0;
       modelBounds[1].v[0] = brushModel->bounds[1][0];
       modelBounds[1].v[1] = brushModel->bounds[1][1];
       modelBounds[1].v[2] = brushModel->bounds[1][2];
-      modelBounds[1].u[3] = *(unsigned int *)&FLOAT_0_0;
+      modelBounds[1].u[3] = 0;
       v14 = ent->pose.origin[0];
       v15 = ent->pose.origin[1];
       v16 = ent->pose.origin[2];
@@ -2140,7 +2140,7 @@ void  FX_GenerateMarkVertsForMark_MatrixFromPlacement(
   skelMat.origin[2] = placement->quat[1];
   skelMat.origin[3] = placement->quat[2];
   animMat.quat[0] = placement->quat[3];
-  animMat.trans[0] = FLOAT_2_0;
+  animMat.trans[0] = 2.0f;
   animMat.quat[1] = placement->origin[0];
   animMat.quat[2] = placement->origin[1];
   animMat.quat[3] = placement->origin[2];
@@ -2203,19 +2203,19 @@ void __cdecl ConvertQuatToSkelMat(const DObjAnimMat *mat, DObjSkelMat *skelMat)
   skelMat->axis[0][0] = 1.0 - (float)(yy + zz);
   skelMat->axis[0][1] = xy + zw;
   skelMat->axis[0][2] = xz - yw;
-  skelMat->axis[0][3] = *(float *)&FLOAT_0_0;
+  skelMat->axis[0][3] = 0.0f;
   skelMat->axis[1][0] = xy - zw;
   skelMat->axis[1][1] = 1.0 - (float)(xx + zz);
   skelMat->axis[1][2] = yz + xw;
-  skelMat->axis[1][3] = *(float *)&FLOAT_0_0;
+  skelMat->axis[1][3] = 0.0f;
   skelMat->axis[2][0] = xz + yw;
   skelMat->axis[2][1] = yz - xw;
   skelMat->axis[2][2] = 1.0 - (float)(xx + yy);
-  skelMat->axis[2][3] = *(float *)&FLOAT_0_0;
+  skelMat->axis[2][3] = 0.0f;
   skelMat->origin[0] = mat->trans[0];
   skelMat->origin[1] = mat->trans[1];
   skelMat->origin[2] = mat->trans[2];
-  skelMat->origin[3] = FLOAT_1_0;
+  skelMat->origin[3] = 1.0f;
 }
 
 void __cdecl DObjSkelMatToMatrix43(const DObjSkelMat *inSkelMat, float (*outMatrix)[3])
@@ -2470,15 +2470,15 @@ void __cdecl ConvertQuatToInverseSkelMat(const DObjAnimMat *mat, DObjSkelMat *sk
   skelMat->axis[0][0] = 1.0 - (float)(yy + zz);
   skelMat->axis[0][1] = xy - zw;
   skelMat->axis[0][2] = xz + yw;
-  skelMat->axis[0][3] = *(float *)&FLOAT_0_0;
+  skelMat->axis[0][3] = 0.0f;
   skelMat->axis[1][0] = xy + zw;
   skelMat->axis[1][1] = 1.0 - (float)(xx + zz);
   skelMat->axis[1][2] = yz - xw;
-  skelMat->axis[1][3] = *(float *)&FLOAT_0_0;
+  skelMat->axis[1][3] = 0.0f;
   skelMat->axis[2][0] = xz - yw;
   skelMat->axis[2][1] = yz + xw;
   skelMat->axis[2][2] = 1.0 - (float)(xx + yy);
-  skelMat->axis[2][3] = *(float *)&FLOAT_0_0;
+  skelMat->axis[2][3] = 0.0f;
   LODWORD(skelMat->origin[0]) = COERCE_UNSIGNED_INT(
                                   (float)((float)(mat->trans[0] * skelMat->axis[0][0])
                                         + (float)(mat->trans[1] * skelMat->axis[1][0]))
@@ -2494,7 +2494,7 @@ void __cdecl ConvertQuatToInverseSkelMat(const DObjAnimMat *mat, DObjSkelMat *sk
                                         + (float)(mat->trans[1] * skelMat->axis[1][2]))
                                 + (float)(mat->trans[2] * skelMat->axis[2][2]))
                               ^ _mask__NegFloat_;
-  skelMat->origin[3] = FLOAT_1_0;
+  skelMat->origin[3] = 1.0f;
 }
 
 void __cdecl FX_GenerateMarkVertsForEntBrush(

@@ -366,7 +366,7 @@ LABEL_28:
           __debugbreak();
         }
         if ( (float)((float)(v62->radius - 16.0) - 0.0) < 0.0 )
-          radiusSqMins = *(float *)&FLOAT_0_0;
+          radiusSqMins = 0.0f;
         else
           radiusSqMins = v62->radius - 16.0;
         v9 = v62->radius + 16.0;

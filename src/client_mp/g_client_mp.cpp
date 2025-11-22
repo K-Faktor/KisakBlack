@@ -310,7 +310,7 @@ const char *__cdecl ClientConnect(unsigned int clientNum, unsigned int scriptPer
   client->sess.cs.clientIndex = clientNum;
   AssignToSmallerType<unsigned char>(&client->ps.clientNum, clientNum);
   client->ps.corpseIndex = -1;
-  client->sess.moveSpeedScaleMultiplier = FLOAT_1_0;
+  client->sess.moveSpeedScaleMultiplier = 1.0f;
   client->ps.moveSpeedScaleMultiplier = client->sess.moveSpeedScaleMultiplier;
   sentient = Sentient_Alloc();
   if ( !sentient )
@@ -318,8 +318,8 @@ const char *__cdecl ClientConnect(unsigned int clientNum, unsigned int scriptPer
   ent->sentient = sentient;
   sentient->ent = ent;
   sentient->eTeam = client->sess.cs.team;
-  sentient->maxVisibleDist = FLOAT_8192_0;
-  sentient->attackerAccuracy = FLOAT_1_0;
+  sentient->maxVisibleDist = 8192.0f;
+  sentient->attackerAccuracy = 1.0f;
   ClientUserinfoChanged(clientNum);
   SV_GetUserinfo(clientNum, userinfo, 1024);
   if ( !G_ExitAfterToolComplete() )
@@ -503,10 +503,10 @@ void __cdecl ClientSpawn(gentity_s *ent, const float *spawn_origin, const float 
   SV_GetUsercmd(client - level.clients, &client->sess.cmd);
   client->ps.eFlags ^= 2u;
   client->ps.viewHeightTarget = 60;
-  client->ps.viewHeightCurrent = FLOAT_60_0;
+  client->ps.viewHeightCurrent = 60.0f;
   client->ps.viewHeightLerpTime = 0;
-  client->ps.dofNearBlur = FLOAT_6_0;
-  client->ps.dofFarBlur = FLOAT_1_8;
+  client->ps.dofNearBlur = 6.0f;
+  client->ps.dofFarBlur = 1.8f;
   client->ps.spreadOverride = 0;
   client->ps.spreadOverrideState = 0;
   client->ps.throwBackGrenadeTimeLeft = 0;
@@ -524,7 +524,7 @@ void __cdecl ClientSpawn(gentity_s *ent, const float *spawn_origin, const float 
   v8 = spawn_angles[1];
   clean_spawn_angles[0] = *spawn_angles;
   clean_spawn_angles[1] = v8;
-  clean_spawn_angles[2] = *(float *)&FLOAT_0_0;
+  clean_spawn_angles[2] = 0.0f;
   SetClientViewAngle(ent, clean_spawn_angles);
   client->inactivityTime = level.time + 1000 * g_inactivity->current.integer;
   for ( j = 0; j < 2; ++j )
@@ -718,8 +718,8 @@ unsigned int __cdecl G_GetNonPVSPlayerInfo(gentity_s *pSelf, float *vPosition, i
   }
   iPos = (int)(float)((float)(pEnt->r.currentOrigin[0] - *vPosition) + 0.5);
   iPos_4 = (int)(float)((float)(pEnt->r.currentOrigin[1] - vPosition[1]) + 0.5);
-  fScale = FLOAT_1_0;
-  fScale_4 = FLOAT_1_0;
+  fScale = 1.0f;
+  fScale_4 = 1.0f;
   if ( iPos <= 1024 )
   {
     if ( iPos < -1022 )

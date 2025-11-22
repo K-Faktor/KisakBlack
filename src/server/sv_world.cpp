@@ -894,7 +894,7 @@ int __cdecl SV_SightTracePointToEntity(const sightpointtrace_t *clip, int entnum
     AnglesToAxis(touch->r.currentAngles, entAxis);
     MatrixTransposeTransformVector43(extents.start.vec.v, entAxis, localStart);
     MatrixTransposeTransformVector43(extents.end.vec.v, entAxis, localEnd);
-    objTrace.fraction = FLOAT_1_0;
+    objTrace.fraction = 1.0f;
     if ( (touch->r.svFlags & 4) != 0 )
     {
       DObjGeomTracelinePartBits(obj, clip->contentmask, partBits);

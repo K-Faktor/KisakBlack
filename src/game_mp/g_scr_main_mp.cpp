@@ -618,11 +618,11 @@ void GScr_print3d()
   const char *text; // [esp+40h] [ebp-4h]
 
   duration.intValue = 1;
-  scale = FLOAT_1_0;
-  color[0] = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
-  color[3] = FLOAT_1_0;
+  scale = 1.0f;
+  color[0] = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
+  color[3] = 1.0f;
   switch ( Scr_GetNumParam(SCRIPTINSTANCE_SERVER) )
   {
     case 2:
@@ -666,10 +666,10 @@ void GScr_line()
 
   duration.intValue = 0;
   depthTest = 0;
-  color[0] = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
-  color[3] = FLOAT_1_0;
+  color[0] = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
+  color[3] = 1.0f;
   switch ( Scr_GetNumParam(SCRIPTINSTANCE_SERVER) )
   {
     case 2:
@@ -715,17 +715,17 @@ void GScr_box()
 
   duration = 0;
   depthTest = 0;
-  color[0] = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
-  color[3] = FLOAT_1_0;
-  yaw = *(float *)&FLOAT_0_0;
-  mins[0] = FLOAT_N10_0;
-  mins[1] = FLOAT_N10_0;
-  mins[2] = FLOAT_N10_0;
-  maxs[0] = FLOAT_10_0;
-  maxs[1] = FLOAT_10_0;
-  maxs[2] = FLOAT_10_0;
+  color[0] = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
+  color[3] = 1.0f;
+  yaw = 0.0f;
+  mins[0] = -10.0f;
+  mins[1] = -10.0f;
+  mins[2] = -10.0f;
+  maxs[0] = 10.0f;
+  maxs[1] = 10.0f;
+  maxs[2] = 10.0f;
   switch ( Scr_GetNumParam(SCRIPTINSTANCE_SERVER) )
   {
     case 1:
@@ -788,10 +788,10 @@ void GScr_debugstar()
   float color[4]; // [esp+20h] [ebp-10h] BYREF
 
   duration.intValue = 10;
-  color[0] = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
-  color[3] = FLOAT_1_0;
+  color[0] = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
+  color[3] = 1.0f;
   NumParam = Scr_GetNumParam(SCRIPTINSTANCE_SERVER);
   if ( NumParam != 1 )
   {
@@ -827,11 +827,11 @@ void GScr_circle()
   duration.intValue = 0;
   onGround.intValue = 0;
   depthTest = 0;
-  color[0] = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
-  color[3] = FLOAT_1_0;
-  radius = FLOAT_10_0;
+  color[0] = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
+  color[3] = 1.0f;
+  radius = 10.0f;
   switch ( Scr_GetNumParam(SCRIPTINSTANCE_SERVER) )
   {
     case 1:
@@ -880,11 +880,11 @@ void GScr_sphere()
   duration.intValue = 0;
   sideCount.intValue = 10;
   depthTest = 0;
-  color[0] = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
-  color[3] = FLOAT_1_0;
-  radius = FLOAT_10_0;
+  color[0] = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
+  color[3] = 1.0f;
+  radius = 10.0f;
   switch ( Scr_GetNumParam(SCRIPTINSTANCE_SERVER) )
   {
     case 1:
@@ -1020,10 +1020,10 @@ int GScr_linelist()
   point_count = 0;
   duration = 0;
   depth_test.intValue = 0;
-  color[0] = FLOAT_1_0;
-  color[1] = FLOAT_1_0;
-  color[2] = FLOAT_1_0;
-  color[3] = FLOAT_1_0;
+  color[0] = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
+  color[3] = 1.0f;
   switch ( Scr_GetNumParam(SCRIPTINSTANCE_SERVER) )
   {
     case 1:
@@ -1810,9 +1810,9 @@ void GScr_SpawnTimedFX()
   const WeaponDef *weapDef; // [esp+34h] [ebp-4h]
   int savedregs; // [esp+38h] [ebp+0h] BYREF
 
-  direction[0] = *(float *)&FLOAT_0_0;
-  direction[1] = *(float *)&FLOAT_0_0;
-  direction[2] = FLOAT_1_0;
+  direction[0] = 0.0f;
+  direction[1] = 0.0f;
+  direction[2] = 1.0f;
   time = 10;
   weaponName = Scr_GetString(0, SCRIPTINSTANCE_SERVER);
   Scr_GetVector(1u, origin, SCRIPTINSTANCE_SERVER);
@@ -2614,62 +2614,62 @@ void __cdecl ScrCmd_PlayerLinkToDelta(scr_entref_t entref)
     }
   }
   if ( numParam <= 2 )
-    Float = *(float *)&FLOAT_0_0;
+    Float = 0.0f;
   else
     Float = Scr_GetFloat(2u, SCRIPTINSTANCE_SERVER);
   ent->client->linkAnglesFrac = Float;
   ent->client->linkAnglesLocked = 0;
   if ( numParam <= 3 )
-    v13 = FLOAT_180_0;
+    v13 = 180.0f;
   else
     v13 = Scr_GetFloat(3u, SCRIPTINSTANCE_SERVER);
   if ( (float)(v13 - 180.0) < 0.0 )
     v14 = v13;
   else
-    v14 = FLOAT_180_0;
+    v14 = 180.0f;
   if ( (float)(0.0 - v13) < 0.0 )
     v5 = v14;
   else
-    v5 = *(float *)&FLOAT_0_0;
+    v5 = 0.0f;
   LODWORD(ent->client->linkAnglesMinClamp[1]) = LODWORD(v5) ^ _mask__NegFloat_;
   if ( numParam <= 4 )
-    v11 = FLOAT_180_0;
+    v11 = 180.0f;
   else
     v11 = Scr_GetFloat(4u, SCRIPTINSTANCE_SERVER);
   if ( (float)(v11 - 180.0) < 0.0 )
     v12 = v11;
   else
-    v12 = FLOAT_180_0;
+    v12 = 180.0f;
   if ( (float)(0.0 - v11) < 0.0 )
     v4 = v12;
   else
-    v4 = *(float *)&FLOAT_0_0;
+    v4 = 0.0f;
   ent->client->linkAnglesMaxClamp[1] = v4;
   if ( numParam <= 5 )
-    v9 = FLOAT_180_0;
+    v9 = 180.0f;
   else
     v9 = Scr_GetFloat(5u, SCRIPTINSTANCE_SERVER);
   if ( (float)(v9 - 180.0) < 0.0 )
     v10 = v9;
   else
-    v10 = FLOAT_180_0;
+    v10 = 180.0f;
   if ( (float)(0.0 - v9) < 0.0 )
     v3 = v10;
   else
-    v3 = *(float *)&FLOAT_0_0;
+    v3 = 0.0f;
   LODWORD(ent->client->linkAnglesMinClamp[0]) = LODWORD(v3) ^ _mask__NegFloat_;
   if ( numParam <= 6 )
-    v7 = FLOAT_180_0;
+    v7 = 180.0f;
   else
     v7 = Scr_GetFloat(6u, SCRIPTINSTANCE_SERVER);
   if ( (float)(v7 - 180.0) < 0.0 )
     v8 = v7;
   else
-    v8 = FLOAT_180_0;
+    v8 = 180.0f;
   if ( (float)(0.0 - v7) < 0.0 )
     v2 = v8;
   else
-    v2 = *(float *)&FLOAT_0_0;
+    v2 = 0.0f;
   ent->client->linkAnglesMaxClamp[0] = v2;
   G_UpdateViewAngleClamp(ent->client, parent->r.currentAngles);
   if ( numParam > 7 && Scr_GetInt(7u, SCRIPTINSTANCE_SERVER).intValue )
@@ -2701,9 +2701,9 @@ void __cdecl ScrCmd_PlayerLinkToDelta(scr_entref_t entref)
   else
   {
     linkAngles = ent->client->ps.linkAngles;
-    *linkAngles = *(float *)&FLOAT_0_0;
-    linkAngles[1] = *(float *)&FLOAT_0_0;
-    linkAngles[2] = *(float *)&FLOAT_0_0;
+    *linkAngles = 0.0f;
+    linkAngles[1] = 0.0f;
+    linkAngles[2] = 0.0f;
   }
 }
 
@@ -3373,7 +3373,7 @@ void __cdecl ScrCmd_PlayLoopSound(scr_entref_t entref)
   pEnt->r.broadcastTime = -1;
   String = Scr_GetString(0, SCRIPTINSTANCE_SERVER);
   pEnt->s.loopSoundId = SND_FindAliasId(String);
-  fadeTime = *(float *)&FLOAT_0_0;
+  fadeTime = 0.0f;
   if ( Scr_GetNumParam(SCRIPTINSTANCE_SERVER) == 2 )
   {
     fadeTimea = Scr_GetFloat(1u, SCRIPTINSTANCE_SERVER);
@@ -3396,7 +3396,7 @@ void __cdecl ScrCmd_StopLoopSound(scr_entref_t entref)
 
   pEnt = GetEntity(entref);
   pEnt->r.broadcastTime = level.time + 300;
-  fadeTime = *(float *)&FLOAT_0_0;
+  fadeTime = 0.0f;
   if ( Scr_GetNumParam(SCRIPTINSTANCE_SERVER) )
   {
     fadeTimea = Scr_GetFloat(0, SCRIPTINSTANCE_SERVER);
@@ -3513,7 +3513,7 @@ void __cdecl ScrCmd_SetNormalHealth(scr_entref_t entref)
   ent = GetEntity(entref);
   normalHealth = Scr_GetFloat(0, SCRIPTINSTANCE_SERVER);
   if ( normalHealth > 1.0 )
-    normalHealth = FLOAT_1_0;
+    normalHealth = 1.0f;
   if ( ent->client )
   {
     newHealth = (int)((float)((float)ent->client->sess.maxHealth * normalHealth) + 9.313225746154785e-10);
@@ -4754,9 +4754,9 @@ void __cdecl GScr_MissileSetTarget(scr_entref_t entref)
   EntHandle::setEnt(&missile->missileTargetEnt, Entity);
   if ( (unsigned int)Scr_GetNumParam(SCRIPTINSTANCE_SERVER) <= 1 )
   {
-    missile->mover.pos3[2] = *(float *)&FLOAT_0_0;
-    missile->mover.apos1[0] = *(float *)&FLOAT_0_0;
-    missile->mover.apos1[1] = *(float *)&FLOAT_0_0;
+    missile->mover.pos3[2] = 0.0f;
+    missile->mover.apos1[0] = 0.0f;
+    missile->mover.apos1[1] = 0.0f;
   }
   else
   {
@@ -4821,9 +4821,9 @@ int __cdecl ObjectiveStateIndexFromString(objectiveState_t *piStateIndex, unsign
 void __cdecl ClearObjective(objective_t *obj)
 {
   obj->state = OBJST_EMPTY;
-  obj->origin[0] = *(float *)&FLOAT_0_0;
-  obj->origin[1] = *(float *)&FLOAT_0_0;
-  obj->origin[2] = *(float *)&FLOAT_0_0;
+  obj->origin[0] = 0.0f;
+  obj->origin[1] = 0.0f;
+  obj->origin[2] = 0.0f;
   obj->entNum = 1023;
   obj->teamNum = 0;
   obj->icon = 0;
@@ -5211,7 +5211,7 @@ void Scr_Objective_SetColor()
   color[0] = Scr_GetFloat(1u, SCRIPTINSTANCE_SERVER);
   color[1] = Scr_GetFloat(2u, SCRIPTINSTANCE_SERVER);
   color[2] = Scr_GetFloat(3u, SCRIPTINSTANCE_SERVER);
-  color[3] = FLOAT_1_0;
+  color[3] = 1.0f;
   if ( Scr_GetNumParam(SCRIPTINSTANCE_SERVER) == 5 )
     color[3] = Scr_GetFloat(4u, SCRIPTINSTANCE_SERVER);
   Byte4PackRgba(color, (unsigned __int8 *)level.objectivesClientMask[6 * objectiveIndex - 187]);
@@ -5279,21 +5279,21 @@ void __cdecl GetNormalised2DMapPosition(float *inPos, float *outPos)
   if ( (float)(*outPos - 1.0) < 0.0 )
     v6 = *outPos;
   else
-    v6 = FLOAT_1_0;
+    v6 = 1.0f;
   if ( (float)(0.0 - *outPos) < 0.0 )
     v3 = v6;
   else
-    v3 = *(float *)&FLOAT_0_0;
+    v3 = 0.0f;
   *outPos = v3;
   v4 = outPos[1];
   if ( (float)(v4 - 1.0) < 0.0 )
     v5 = outPos[1];
   else
-    v5 = FLOAT_1_0;
+    v5 = 1.0f;
   if ( (float)(0.0 - v4) < 0.0 )
     v2 = v5;
   else
-    v2 = *(float *)&FLOAT_0_0;
+    v2 = 0.0f;
   outPos[1] = v2;
 }
 
@@ -5503,11 +5503,11 @@ void GScr_LerpFloat()
   if ( (float)(time - 1.0) < 0.0 )
     v1 = time;
   else
-    v1 = FLOAT_1_0;
+    v1 = 1.0f;
   if ( (float)(0.0 - time) < 0.0 )
     v0 = v1;
   else
-    v0 = *(float *)&FLOAT_0_0;
+    v0 = 0.0f;
   Scr_AddFloat((float)((float)(to - from) * v0) + from, SCRIPTINSTANCE_SERVER);
 }
 
@@ -5526,11 +5526,11 @@ void GScr_LerpVector()
   if ( (float)(time - 1.0) < 0.0 )
     v1 = time;
   else
-    v1 = FLOAT_1_0;
+    v1 = 1.0f;
   if ( (float)(0.0 - time) < 0.0 )
     v0 = v1;
   else
-    v0 = *(float *)&FLOAT_0_0;
+    v0 = 0.0f;
   time = v0;
   retVal[0] = (float)((float)(to[0] - from[0]) * v0) + from[0];
   retVal[1] = (float)((float)(to[1] - from[1]) * v0) + from[1];
@@ -7806,8 +7806,8 @@ void __cdecl GScr_ShootUp(scr_entref_t entref)
   pEnt->s.lerp.pos.trBase[0] = pEnt->r.currentOrigin[0];
   pEnt->s.lerp.pos.trBase[1] = pEnt->r.currentOrigin[1];
   pEnt->s.lerp.pos.trBase[2] = pEnt->r.currentOrigin[2];
-  pEnt->s.lerp.pos.trDelta[0] = *(float *)&FLOAT_0_0;
-  pEnt->s.lerp.pos.trDelta[1] = *(float *)&FLOAT_0_0;
+  pEnt->s.lerp.pos.trDelta[0] = 0.0f;
+  pEnt->s.lerp.pos.trDelta[1] = 0.0f;
   pEnt->s.lerp.pos.trDelta[2] = velocity_8;
   if ( ((LODWORD(pEnt->s.lerp.pos.trDelta[0]) & 0x7F800000) == 0x7F800000
      || (LODWORD(pEnt->s.lerp.pos.trDelta[1]) & 0x7F800000) == 0x7F800000
@@ -7844,7 +7844,7 @@ void __cdecl GScr_DepthInWater(scr_entref_t entref)
   ent = GetEntity(entref);
   waterHeight = CM_GetWaterHeight(ent->r.currentOrigin, 200.0, -200.0) - ent->r.currentOrigin[2];
   if ( (float)(waterHeight - 0.0) < 0.0 )
-    v1 = *(float *)&FLOAT_0_0;
+    v1 = 0.0f;
   else
     v1 = waterHeight;
   Scr_AddFloat(v1, SCRIPTINSTANCE_SERVER);
@@ -7980,9 +7980,9 @@ int Scr_GrenadeExplosionEffect()
   vPos[1] = vOrg[1];
   vPos[2] = vOrg[2] + 1.0;
   pEnt = G_TempEntity(vPos, 57);
-  vDir[0] = *(float *)&FLOAT_0_0;
-  vDir[1] = *(float *)&FLOAT_0_0;
-  vDir[2] = FLOAT_1_0;
+  vDir[0] = 0.0f;
+  vDir[1] = 0.0f;
+  vDir[2] = 1.0f;
   v0 = DirToByte(vDir);
   pEnt->s.eventParm = v0;
   vEnd[0] = vPos[0];
@@ -8137,7 +8137,7 @@ void __cdecl GScr_DamageConeTraceInternal(scr_entref_t entref, int contentMask)
   *(float *)&v2 = v2;
   coneAngleCos = *(float *)&v2;
   if ( (unsigned int)Scr_GetNumParam(SCRIPTINSTANCE_SERVER) <= 2 )
-    v5 = FLOAT_1_0;
+    v5 = 1.0f;
   else
     v5 = coneAngleCos;
   NumParam = Scr_GetNumParam(SCRIPTINSTANCE_SERVER);
@@ -8264,11 +8264,11 @@ void __cdecl GScr_VisionSetLerpRatio(scr_entref_t entref)
   if ( (float)(visionSetLerpRatio - 1.0) < 0.0 )
     v2 = visionSetLerpRatio;
   else
-    v2 = FLOAT_1_0;
+    v2 = 1.0f;
   if ( (float)(0.0 - visionSetLerpRatio) < 0.0 )
     v1 = v2;
   else
-    v1 = *(float *)&FLOAT_0_0;
+    v1 = 0.0f;
   ent->client->ps.visionSetLerpRatio = v1;
 }
 
@@ -8422,8 +8422,8 @@ void GScr_GetMoveDelta()
   float rot[2]; // [esp+24h] [ebp-Ch] BYREF
   scr_anim_s anim; // [esp+2Ch] [ebp-4h]
 
-  startTime = *(float *)&FLOAT_0_0;
-  endTime = FLOAT_1_0;
+  startTime = 0.0f;
+  endTime = 1.0f;
   NumParam = Scr_GetNumParam(SCRIPTINSTANCE_SERVER);
   if ( NumParam != 1 )
   {
@@ -8460,8 +8460,8 @@ void GScr_GetAngleDelta()
   float rot[2]; // [esp+24h] [ebp-Ch] BYREF
   scr_anim_s anim; // [esp+2Ch] [ebp-4h]
 
-  startTime = *(float *)&FLOAT_0_0;
-  endTime = FLOAT_1_0;
+  startTime = 0.0f;
+  endTime = 1.0f;
   NumParam = Scr_GetNumParam(SCRIPTINSTANCE_SERVER);
   if ( NumParam != 1 )
   {
@@ -8625,9 +8625,9 @@ void __cdecl Scr_SetFxAngles(unsigned int givenAxisCount, float (*axis)[3], floa
   }
   else
   {
-    *angles = FLOAT_270_0;
-    angles[1] = *(float *)&FLOAT_0_0;
-    angles[2] = *(float *)&FLOAT_0_0;
+    *angles = 270.0f;
+    angles[1] = 0.0f;
+    angles[2] = 0.0f;
   }
 }
 
@@ -8725,7 +8725,7 @@ void Scr_PlayLoopedFX()
     Scr_Error("Incorrect number of parameters", 0);
   }
   givenAxisCount = 0;
-  cullDist = *(float *)&FLOAT_0_0;
+  cullDist = 0.0f;
   fxId = Scr_GetInt(0, SCRIPTINSTANCE_SERVER).intValue;
   NumParam = Scr_GetNumParam(SCRIPTINSTANCE_SERVER);
   if ( NumParam != 4 )
@@ -8976,8 +8976,8 @@ gentity_s *Scr_PhysicsExplosionSphere()
   ent = G_TempEntity(pos, 72);
   ent->s.eventParm = (unsigned __int16)Scr_GetInt(1u, SCRIPTINSTANCE_SERVER).floatValue;
   ent->s.lerp.u.turret.gunAngles[0] = Scr_GetFloat(2u, SCRIPTINSTANCE_SERVER);
-  ent->s.lerp.u.actor.team = *(unsigned int *)&FLOAT_0_0;
-  ent->s.lerp.u.destructibleHit.modelState3 = *(unsigned int *)&FLOAT_0_0;
+  ent->s.lerp.u.actor.team = 0;
+  ent->s.lerp.u.destructibleHit.modelState3 = 0;
   if ( ent->s.lerp.u.turret.gunAngles[0] < 0.0 )
     Scr_ParamError(2u, "Radius is negative", SCRIPTINSTANCE_SERVER);
   if ( ent->s.lerp.u.turret.gunAngles[0] > (float)ent->s.eventParm )
@@ -9238,15 +9238,15 @@ void Scr_SetVolumetricFog()
   float sunColorG; // [esp+98h] [ebp-Ch]
   float sunDirX; // [esp+9Ch] [ebp-8h]
 
-  sunColorR = FLOAT_0_5;
-  sunColorG = FLOAT_0_5;
-  sunColorB = FLOAT_0_5;
-  sunDirX = FLOAT_1_0;
-  sunDirY = *(float *)&FLOAT_0_0;
-  sunDirZ = *(float *)&FLOAT_0_0;
-  sunStartAng = *(float *)&FLOAT_0_0;
-  sunStopAng = *(float *)&FLOAT_0_0;
-  maxFogOpacity = FLOAT_1_0;
+  sunColorR = 0.5f;
+  sunColorG = 0.5f;
+  sunColorB = 0.5f;
+  sunDirX = 1.0f;
+  sunDirY = 0.0f;
+  sunDirZ = 0.0f;
+  sunStartAng = 0.0f;
+  sunStopAng = 0.0f;
+  maxFogOpacity = 1.0f;
   if ( Scr_GetNumParam(SCRIPTINSTANCE_SERVER) != 8 && Scr_GetNumParam(SCRIPTINSTANCE_SERVER) != 18 )
     Scr_Error(
       "Incorrect number of parameters\n"
@@ -9268,7 +9268,7 @@ void Scr_SetVolumetricFog()
   baseHeight = Scr_GetFloat(3u, SCRIPTINSTANCE_SERVER);
   density = 1.0 / halfwayDist;
   if ( halfwayHeight < 1.0 )
-    v1 = *(float *)&FLOAT_0_0;
+    v1 = 0.0f;
   else
     v1 = 1.0 / halfwayHeight;
   red = Scr_GetFloat(4u, SCRIPTINSTANCE_SERVER);
@@ -10080,13 +10080,13 @@ void __cdecl GScr_SetDepthOfField(scr_entref_t entref)
   }
   if ( dofNearStart >= dofNearEnd )
   {
-    dofNearStart = *(float *)&FLOAT_0_0;
-    dofNearEnd = *(float *)&FLOAT_0_0;
+    dofNearStart = 0.0f;
+    dofNearEnd = 0.0f;
   }
   if ( dofFarStart >= dofFarEnd || dofFarBlur == 0.0 )
   {
-    dofFarStart = *(float *)&FLOAT_0_0;
-    dofFarEnd = *(float *)&FLOAT_0_0;
+    dofFarStart = 0.0f;
+    dofFarEnd = 0.0f;
   }
   else if ( dofNearEnd > dofFarStart )
   {
@@ -10118,8 +10118,8 @@ void __cdecl GScr_SetViewModelDepthOfField(scr_entref_t entref)
     Scr_ParamError(1u, "end must be >= 0", SCRIPTINSTANCE_SERVER);
   if ( dofStart >= dofEnd )
   {
-    dofStart = *(float *)&FLOAT_0_0;
-    dofEnd = *(float *)&FLOAT_0_0;
+    dofStart = 0.0f;
+    dofEnd = 0.0f;
   }
   ent->client->ps.dofViewmodelStart = dofStart;
   ent->client->ps.dofViewmodelEnd = dofEnd;
@@ -10178,7 +10178,7 @@ void __cdecl GScr_SetRightArc(scr_entref_t entref)
     Scr_Error("entity is not a turret", 0);
   pTurretInfo->arcmin[1] = -Scr_GetFloat(0, SCRIPTINSTANCE_SERVER);
   if ( pTurretInfo->arcmin[1] > 0.0 )
-    pTurretInfo->arcmin[1] = *(float *)&FLOAT_0_0;
+    pTurretInfo->arcmin[1] = 0.0f;
 }
 
 void __cdecl GScr_SetLeftArc(scr_entref_t entref)
@@ -10190,7 +10190,7 @@ void __cdecl GScr_SetLeftArc(scr_entref_t entref)
     Scr_Error("entity is not a turret", 0);
   pTurretInfo->arcmax[1] = Scr_GetFloat(0, SCRIPTINSTANCE_SERVER);
   if ( pTurretInfo->arcmax[1] < 0.0 )
-    pTurretInfo->arcmax[1] = *(float *)&FLOAT_0_0;
+    pTurretInfo->arcmax[1] = 0.0f;
 }
 
 void __cdecl GScr_SetTopArc(scr_entref_t entref)
@@ -10202,7 +10202,7 @@ void __cdecl GScr_SetTopArc(scr_entref_t entref)
     Scr_Error("entity is not a turret", 0);
   pTurretInfo->arcmin[0] = -Scr_GetFloat(0, SCRIPTINSTANCE_SERVER);
   if ( pTurretInfo->arcmin[0] > 0.0 )
-    pTurretInfo->arcmin[0] = *(float *)&FLOAT_0_0;
+    pTurretInfo->arcmin[0] = 0.0f;
 }
 
 void __cdecl GScr_SetBottomArc(scr_entref_t entref)
@@ -10214,7 +10214,7 @@ void __cdecl GScr_SetBottomArc(scr_entref_t entref)
     Scr_Error("entity is not a turret", 0);
   pTurretInfo->arcmax[0] = Scr_GetFloat(0, SCRIPTINSTANCE_SERVER);
   if ( pTurretInfo->arcmax[0] < 0.0 )
-    pTurretInfo->arcmax[0] = *(float *)&FLOAT_0_0;
+    pTurretInfo->arcmax[0] = 0.0f;
 }
 
 void __cdecl GScr_PlaceSpawnPoint(scr_entref_t entref)
@@ -13037,7 +13037,7 @@ void __cdecl GScr_SetLightColor(scr_entref_t entref)
 
   ent = GScr_SetupLightEntity(entref);
   Scr_GetVector(0, unpackedColor, SCRIPTINSTANCE_SERVER);
-  unpackedColor[3] = *(float *)&FLOAT_0_0;
+  unpackedColor[3] = 0.0f;
   exponent = ent->s.lerp.u.primaryLight.colorAndExp[3];
   Byte4PackRgba(unpackedColor, (unsigned __int8 *)&ent->s.lerp.u);
   ent->s.lerp.u.primaryLight.colorAndExp[3] = exponent;
@@ -13062,7 +13062,7 @@ void __cdecl GScr_SetLightIntensity(scr_entref_t entref)
   if ( intensity < -0.001 )
     Scr_ParamError(0, "intensity must be >= 0", SCRIPTINSTANCE_SERVER);
   if ( (float)(intensity - 0.0) < 0.0 )
-    v1 = *(unsigned int *)&FLOAT_0_0;
+    v1 = 0;
   else
     v1 = LODWORD(intensity);
   ent->s.lerp.u.loopFx.period = v1;
@@ -13112,7 +13112,7 @@ void __cdecl GScr_SetLightRadius(scr_entref_t entref)
   if ( (float)(0.0 - radius) < 0.0 )
     v2 = LODWORD(v3);
   else
-    v2 = *(unsigned int *)&FLOAT_0_0;
+    v2 = 0;
   ent->s.lerp.u.actor.team = v2;
 }
 
@@ -13177,7 +13177,7 @@ void __cdecl GScr_SetLightFovRange(scr_entref_t entref)
   if ( (float)(cosHalfFovOuter - 1.0) < 0.0 )
     v8 = (float)(fovOuter * 0.017453292) * 0.5;
   else
-    v8 = FLOAT_1_0;
+    v8 = 1.0f;
   if ( (float)(refLight->cosHalfFovOuter - cosHalfFovOuter) < 0.0 )
     v6 = v8;
   else
@@ -13192,7 +13192,7 @@ void __cdecl GScr_SetLightFovRange(scr_entref_t entref)
     if ( (float)(cosHalfFovInner - 1.0) < 0.0 )
       v7 = (float)(fovInner * 0.017453292) * 0.5;
     else
-      v7 = FLOAT_1_0;
+      v7 = 1.0f;
     if ( (float)((float)(v6 + 0.001) - cosHalfFovInner) < 0.0 )
       v5 = v7;
     else
@@ -13333,9 +13333,9 @@ void __cdecl GScr_VehicleLaunch(scr_entref_t entref)
       tempent->s.eventParm = (unsigned __int16)Scr_GetInt(2u, SCRIPTINSTANCE_SERVER).floatValue;
     if ( (unsigned int)Scr_GetNumParam(SCRIPTINSTANCE_SERVER) <= 1 )
     {
-      tempent->s.lerp.pos.trDelta[0] = *(float *)&FLOAT_0_0;
-      tempent->s.lerp.pos.trDelta[1] = *(float *)&FLOAT_0_0;
-      tempent->s.lerp.pos.trDelta[2] = *(float *)&FLOAT_0_0;
+      tempent->s.lerp.pos.trDelta[0] = 0.0f;
+      tempent->s.lerp.pos.trDelta[1] = 0.0f;
+      tempent->s.lerp.pos.trDelta[2] = 0.0f;
     }
     else
     {
@@ -14311,11 +14311,11 @@ void GScr_CollisionTestPointsInSphere()
         {
           collision_results[1] = Vec3DistanceSq(points[point_index], sphere_center);
           if ( rsquared <= collision_results[1] )
-            v7 = *(float *)&FLOAT_0_0;
+            v7 = 0.0f;
           else
-            v7 = FLOAT_1_0;
+            v7 = 1.0f;
           collision_results[0] = v7;
-          collision_results[2] = *(float *)&FLOAT_0_0;
+          collision_results[2] = 0.0f;
           Scr_AddVector(collision_results, SCRIPTINSTANCE_SERVER);
           Scr_AddArray(SCRIPTINSTANCE_SERVER);
         }
@@ -14417,7 +14417,7 @@ void GScr_CollisionTestPointsInCylinder()
                   if ( cylinder_radius_squared > (float)(dsquared
                                                        - (float)(midpoint_axial_distance * midpoint_axial_distance)) )
                   {
-                    collision_results[0] = FLOAT_1_0;
+                    collision_results[0] = 1.0f;
                     collision_results[1] = Vec3DistanceSq(cylinder_base, points[point_index]);
                     collision_results[2] = dsquared - (float)(midpoint_axial_distance * midpoint_axial_distance);
                   }
@@ -14559,17 +14559,17 @@ void GScr_CollisionTestPointsInPill()
                         dsquared = Vec3DistanceSq(points[point_index], axis_midpoint);
                         if ( cylinder_radius_squared > (float)(dsquared
                                                              - (float)(midpoint_axial_distance * midpoint_axial_distance)) )
-                          collision_results[0] = FLOAT_1_0;
+                          collision_results[0] = 1.0f;
                       }
                     }
                     else
                     {
-                      collision_results[0] = FLOAT_1_0;
+                      collision_results[0] = 1.0f;
                     }
                   }
                   else
                   {
-                    collision_results[0] = FLOAT_1_0;
+                    collision_results[0] = 1.0f;
                   }
                 }
                 if ( collision_results[0] > 0.0 )
@@ -14764,7 +14764,7 @@ void GScr_CollisionTestPointsInCone()
                                                        * cone_radial_unit_vector[1]))
                                        + (float)((float)(points[point_index][2] - cone_base[2])
                                                * cone_radial_unit_vector[2]);
-                    collision_results[0] = FLOAT_1_0;
+                    collision_results[0] = 1.0f;
                     collision_results[1] = distance_from_origin_squared;
                     collision_results[2] = distance_from_axis * distance_from_axis;
                   }
@@ -14902,13 +14902,13 @@ void GScr_CollisionTestPointsInBox()
                 transform[2][2] = axes[2][2];
                 memset(transform[3], 0, sizeof(const float[3]));
                 local_forward[0] = box_width;
-                local_forward[1] = *(float *)&FLOAT_0_0;
-                local_forward[2] = *(float *)&FLOAT_0_0;
-                local_left[0] = *(float *)&FLOAT_0_0;
+                local_forward[1] = 0.0f;
+                local_forward[2] = 0.0f;
+                local_left[0] = 0.0f;
                 local_left[1] = box_height;
-                local_left[2] = *(float *)&FLOAT_0_0;
-                local_up[0] = *(float *)&FLOAT_0_0;
-                local_up[1] = *(float *)&FLOAT_0_0;
+                local_left[2] = 0.0f;
+                local_up[0] = 0.0f;
+                local_up[1] = 0.0f;
                 local_up[2] = box_depth;
                 MatrixTransformVector43(local_forward, transform, box_forward);
                 MatrixTransformVector43(local_up, transform, box_up);
@@ -14942,7 +14942,7 @@ void GScr_CollisionTestPointsInBox()
                                           + (float)(v18[2] * box_up[2]))
                                         & _mask__AbsFloat_) )
                   {
-                    collision_results[0] = FLOAT_1_0;
+                    collision_results[0] = 1.0f;
                     collision_results[1] = (float)((float)(v18[0] * v18[0]) + (float)(v18[1] * v18[1]))
                                          + (float)(v18[2] * v18[2]);
                   }
@@ -15872,9 +15872,9 @@ void __cdecl GScr_SetAnimInternal(scr_entref_t entref, char flags)
 
   ent = GetEntity(entref);
   tree = GScr_GetEntAnimTree(ent);
-  rate = FLOAT_1_0;
-  goalTime = FLOAT_0_2;
-  goalWeight = FLOAT_1_0;
+  rate = 1.0f;
+  goalTime = 0.2f;
+  goalWeight = 1.0f;
   if ( Scr_GetNumParam(SCRIPTINSTANCE_SERVER) )
   {
     anim = Scr_GetAnim(0, tree, SCRIPTINSTANCE_SERVER);

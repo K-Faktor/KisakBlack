@@ -268,7 +268,7 @@ void __cdecl Mount_CheckProne(pmove_t *pm)
     proneDirection = ps->proneDirection;
     lookAngles[0] = ps->proneDirectionPitch;
     lookAngles[1] = proneDirection;
-    lookAngles[2] = *(float *)&FLOAT_0_0;
+    lookAngles[2] = 0.0f;
     AngleVectors(lookAngles, lookVec, 0, 0);
     traceStart[0] = (float)(turretTestDist * lookVec[0]) + traceStart[0];
     traceStart[1] = (float)(turretTestDist * lookVec[1]) + traceStart[1];
@@ -278,7 +278,7 @@ void __cdecl Mount_CheckProne(pmove_t *pm)
     traceEnd[2] = traceStart[2] - heightTestDist;
     LODWORD(dropMins[0]) = LODWORD(dropTraceWidth) ^ _mask__NegFloat_;
     LODWORD(dropMins[1]) = LODWORD(dropTraceWidth) ^ _mask__NegFloat_;
-    dropMins[2] = *(float *)&FLOAT_0_0;
+    dropMins[2] = 0.0f;
     dropMaxs[0] = dropTraceWidth;
     dropMaxs[1] = dropTraceWidth;
     dropMaxs[2] = dropTraceWidth * 2.0;
@@ -336,7 +336,7 @@ char __cdecl Mantle_CheckLedge(pmove_t *pm, pml_t *pml, MantleResults *mresults,
   Mantle_DebugPrint(v4);
   LODWORD(mins[0]) = LODWORD(playerMaxs[0]) ^ _mask__NegFloat_;
   LODWORD(mins[1]) = LODWORD(playerMaxs[0]) ^ _mask__NegFloat_;
-  mins[2] = *(float *)&FLOAT_0_0;
+  mins[2] = 0.0f;
   maxs[0] = playerMaxs[0];
   maxs[1] = playerMaxs[0];
   maxs[2] = 15.0 * 2.0;
@@ -383,7 +383,7 @@ char __cdecl Mantle_CheckLedge(pmove_t *pm, pml_t *pml, MantleResults *mresults,
       {
         __debugbreak();
       }
-      maxs[2] = FLOAT_50_0;
+      maxs[2] = 50.0f;
       PM_trace(pm, &trace, mresults->ledgePos, mins, maxs, mresults->ledgePos, ps->clientNum, pm->tracemask);
       if ( trace.startsolid )
       {
@@ -487,7 +487,7 @@ void __cdecl Mantle_CalcEndPos(pmove_t *pm, MantleResults *mresults)
     mins[2] = 0.0;
     maxs[0] = playerMaxs[0];
     maxs[1] = 15.0;
-    maxs[2] = FLOAT_50_0;
+    maxs[2] = 50.0f;
     start[0] = mresults->ledgePos[0];
     start[1] = mresults->ledgePos[1];
     start[2] = mresults->ledgePos[2];
@@ -717,11 +717,11 @@ void  Mount_CheckLedge(cStaticModel_s *a1@<ebp>, pmove_t *pm, pml_t *pml, Mantle
   trace.staticModel = a1;
   trace.hitPartition = retaddr;
   ps = *(playerState_s **)&FLOAT_0_0;
-  heightTestDist = *(float *)&FLOAT_0_0;
-  dropTraceWidth = *(float *)&FLOAT_0_0;
-  trace.normal.vec.u[0] = *(unsigned int *)&FLOAT_0_0;
-  *(float *)&drawTime = FLOAT_2_0;
-  v26 = FLOAT_6_0;
+  heightTestDist = 0.0f;
+  dropTraceWidth = 0.0f;
+  trace.normal.vec.u[0] = 0;
+  *(float *)&drawTime = 2.0f;
+  v26 = 6.0f;
   v25 = pm->ps;
   if ( !v25 && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\bgame\\bg_mantle.cpp", 616, 0, "%s", "ps") )
     __debugbreak();
@@ -731,9 +731,9 @@ void  Mount_CheckLedge(cStaticModel_s *a1@<ebp>, pmove_t *pm, pml_t *pml, Mantle
   if ( (float)((float)((float)(v25->velocity[0] * v25->velocity[0]) + (float)(v25->velocity[1] * v25->velocity[1]))
              + (float)(v25->velocity[2] * v25->velocity[2])) > 0.0 )
     HIBYTE(up[1]) = 0;
-  lookVec[2] = *(float *)&FLOAT_0_0;
-  heightToLedge = *(float *)&FLOAT_0_0;
-  v23 = FLOAT_1_0;
+  lookVec[2] = 0.0f;
+  heightToLedge = 0.0f;
+  v23 = 1.0f;
   lookVec[1] = mresults->ledgePos[2] - v25->origin[2];
   LODWORD(lookVec[0]) = LODWORD(lookVec[1]) & _mask__AbsFloat_;
   if ( BG_GetWeaponDef(v25->weapon)->mountableWeapon
@@ -741,16 +741,16 @@ void  Mount_CheckLedge(cStaticModel_s *a1@<ebp>, pmove_t *pm, pml_t *pml, Mantle
     && lookVec[0] < 50.0
     && Mount_CanPlayerDeployTurret(v25) )
   {
-    ledgeVec[2] = *(float *)&FLOAT_0_0;
-    v19 = FLOAT_1_0;
-    v20 = *(float *)&FLOAT_0_0;
+    ledgeVec[2] = 0.0f;
+    v19 = 1.0f;
+    v20 = 0.0f;
     angle = AngleNormalize360(v25->viewangles[1]);
     YawVectors(angle, &ledgeVec[2], 0);
     LODWORD(ledgeVec[1]) = v25->origin;
     LODWORD(ledgeVec[0]) = mresults->ledgePos;
     ledgeAngles[1] = mresults->ledgePos[0] - v25->origin[0];
     ledgeAngles[2] = mresults->ledgePos[1] - v25->origin[1];
-    dotToLedge = *(float *)&FLOAT_0_0;
+    dotToLedge = 0.0f;
     Vec3Normalize(&ledgeAngles[1]);
     ledgeAngles[0] = (float)((float)(ledgeVec[2] * ledgeAngles[1]) + (float)(v19 * ledgeAngles[2]))
                    + (float)(v20 * dotToLedge);
@@ -759,7 +759,7 @@ void  Mount_CheckLedge(cStaticModel_s *a1@<ebp>, pmove_t *pm, pml_t *pml, Mantle
     {
       vectoangles(mresults->dir, traceStart);
       YawVectors(traceStart[1] + 180.0, &traceEnd[2], 0);
-      traceEnd[1] = FLOAT_36_0;
+      traceEnd[1] = 36.0f;
       LODWORD(traceEnd[0]) = mresults->ledgePos;
       traceEnd[2] = (float)(36.0 * traceEnd[2]) + mresults->ledgePos[0];
       v13 = (float)(36.0 * v13) + mresults->ledgePos[1];
@@ -772,7 +772,7 @@ void  Mount_CheckLedge(cStaticModel_s *a1@<ebp>, pmove_t *pm, pml_t *pml, Mantle
       dropMins[2] = dropMins[2] - v26;
       LODWORD(dropMaxs[0]) = drawTime ^ _mask__NegFloat_;
       LODWORD(dropMaxs[1]) = drawTime ^ _mask__NegFloat_;
-      dropMaxs[2] = *(float *)&FLOAT_0_0;
+      dropMaxs[2] = 0.0f;
       LODWORD(color[3]) = drawTime;
       LODWORD(color[4]) = drawTime;
       color[5] = *(float *)&drawTime * 2.0;
@@ -781,10 +781,10 @@ void  Mount_CheckLedge(cStaticModel_s *a1@<ebp>, pmove_t *pm, pml_t *pml, Mantle
       {
         if ( HIBYTE(up[1]) )
         {
-          v6 = FLOAT_1_0;
-          v7 = *(float *)&FLOAT_0_0;
-          v8 = *(unsigned int *)&FLOAT_0_0;
-          color[0] = FLOAT_1_0;
+          v6 = 1.0f;
+          v7 = 0.0f;
+          v8 = 0;
+          color[0] = 1.0f;
           CG_DebugBox(dropMins, dropMaxs, &color[3], 0.0, &v6, 0, 100);
         }
       }
@@ -803,10 +803,10 @@ void  Mount_CheckLedge(cStaticModel_s *a1@<ebp>, pmove_t *pm, pml_t *pml, Mantle
         mresults->flags |= 0x80u;
         if ( HIBYTE(up[1]) )
         {
-          v6 = *(float *)&FLOAT_0_0;
-          v7 = FLOAT_1_0;
-          v8 = *(unsigned int *)&FLOAT_0_0;
-          color[0] = FLOAT_1_0;
+          v6 = 0.0f;
+          v7 = 1.0f;
+          v8 = 0;
+          color[0] = 1.0f;
           CG_DebugBox(dropMins, dropMaxs, &color[3], 0.0, &v6, 0, 100);
         }
       }
@@ -882,7 +882,7 @@ char  Mantle_FindMantleSurface@<al>(int a1@<ebp>, pmove_t *pm, pml_t *pml, trace
   traceDir[0] = mantle_check_range->current.value + traceDir[1];
   start[2] = pml->forward[0];
   v14 = pml->forward[1];
-  v15 = *(float *)&FLOAT_0_0;
+  v15 = 0.0f;
   Vec3Normalize(&start[2]);
   LODWORD(start[1]) = LODWORD(traceDir[1]) ^ _mask__NegFloat_;
   LODWORD(start[0]) = ps->origin;
@@ -909,7 +909,7 @@ char  Mantle_FindMantleSurface@<al>(int a1@<ebp>, pmove_t *pm, pml_t *pml, trace
     *(unsigned int *)mantleDir = trace->normal.vec.u[0] ^ _mask__NegFloat_;
     *((unsigned int *)mantleDir + 1) = trace->normal.vec.u[1] ^ _mask__NegFloat_;
     *((unsigned int *)mantleDir + 2) = trace->normal.vec.u[2] ^ _mask__NegFloat_;
-    mantleDir[2] = *(float *)&FLOAT_0_0;
+    mantleDir[2] = 0.0f;
     v8 = Vec3Normalize(mantleDir);
     if ( v8 >= 0.000099999997 )
     {

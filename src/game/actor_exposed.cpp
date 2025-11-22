@@ -128,10 +128,10 @@ char __fastcall Actor_Exposed_ReacquireStepMove(actor_s *self, float fDist)
   if ( (float)((float)(forward[0] * forward[0]) + (float)(forward[1] * forward[1])) <= 1.0 )
     return 0;
   Vec2Normalize(forward);
-  forward[2] = *(float *)&FLOAT_0_0;
+  forward[2] = 0.0f;
   vStepDir[0] = forward[1];
   LODWORD(vStepDir[1]) = LODWORD(forward[0]) ^ _mask__NegFloat_;
-  vStepDir[2] = *(float *)&FLOAT_0_0;
+  vStepDir[2] = 0.0f;
   Actor_GetEyePosition(self, vEyePos);
   v4 = self->ent->r.currentOrigin;
   vStartPos[0] = *v4;
@@ -154,7 +154,7 @@ char __fastcall Actor_Exposed_ReacquireStepMove(actor_s *self, float fDist)
       vMovePos[0] = (float)(fScale * vStepDir[0]) + vStartPos[0];
       vMovePos[1] = (float)(fScale * vStepDir[1]) + vStartPos[1];
       vMovePos[2] = vStartPos[2];
-      stepheight = self->Physics.prone ? FLOAT_10_0 : FLOAT_18_0;
+      stepheight = self->Physics.prone ? 10.0f : 18.0f;
       if ( Path_PredictionTrace(vStartPos, vMovePos, 1023, self->Physics.iTraceMask | 4, vTraceEndPos, stepheight, 1)
         && Actor_PointAtGoal(vTraceEndPos, &self->codeGoal) )
       {

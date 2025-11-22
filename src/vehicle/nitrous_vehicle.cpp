@@ -4,50 +4,50 @@ VehicleParameter *__thiscall VehicleParameter::VehicleParameter(VehicleParameter
 {
   float *m_buoyancybox_max; // ecx
 
-  this->m_speed_max = FLOAT_1100_0;
-  this->m_accel_max = FLOAT_300_0;
-  this->m_reverse_scale = FLOAT_0_80000001;
-  this->m_steer_angle_max = FLOAT_0_60000002;
-  this->m_steer_speed = FLOAT_5_0;
-  this->m_wheel_radius = FLOAT_15_0;
-  this->m_susp_spring_k = FLOAT_20_0;
-  this->m_susp_damp_k = FLOAT_1_0;
-  this->m_susp_adj = FLOAT_10_0;
-  this->m_susp_hard_limit = FLOAT_23_0;
-  this->m_susp_min_height = FLOAT_N100_0;
-  this->m_tire_fric_fwd = FLOAT_2_5;
-  this->m_tire_fric_side = FLOAT_2_3;
-  this->m_tire_fric_brake = FLOAT_2_3;
-  this->m_tire_fric_hand_brake = *(float *)&FLOAT_0_0;
-  this->m_body_mass = FLOAT_1_0;
-  this->m_roll_stability = FLOAT_10_0;
-  this->m_pitch_roll_resistance = FLOAT_50_0;
-  this->m_yaw_resistance = *(float *)&FLOAT_0_0;
-  this->m_upright_strength = FLOAT_50_0;
-  this->m_tilt_fakey = FLOAT_0_25;
-  this->m_peel_out_max_speed = FLOAT_150_0;
-  this->m_tire_damp_coast = FLOAT_10_0;
-  this->m_tire_damp_brake = FLOAT_100_0;
-  this->m_tire_damp_hand = FLOAT_10000_0;
+  this->m_speed_max = 1100.0f;
+  this->m_accel_max = 300.0f;
+  this->m_reverse_scale = 0.8f;
+  this->m_steer_angle_max = 0.6f;
+  this->m_steer_speed = 5.0f;
+  this->m_wheel_radius = 15.0f;
+  this->m_susp_spring_k = 20.0f;
+  this->m_susp_damp_k = 1.0f;
+  this->m_susp_adj = 10.0f;
+  this->m_susp_hard_limit = 23.0f;
+  this->m_susp_min_height = -100.0f;
+  this->m_tire_fric_fwd = 2.5f;
+  this->m_tire_fric_side = 2.3f;
+  this->m_tire_fric_brake = 2.3f;
+  this->m_tire_fric_hand_brake = 0.0f;
+  this->m_body_mass = 1.0f;
+  this->m_roll_stability = 10.0f;
+  this->m_pitch_roll_resistance = 50.0f;
+  this->m_yaw_resistance = 0.0f;
+  this->m_upright_strength = 50.0f;
+  this->m_tilt_fakey = 0.25f;
+  this->m_peel_out_max_speed = 150.0f;
+  this->m_tire_damp_coast = 10.0f;
+  this->m_tire_damp_brake = 100.0f;
+  this->m_tire_damp_hand = 10000.0f;
   this->m_traction_type = TRACTION_TYPE_ALL_WD;
-  this->m_water_ebrake_power = FLOAT_1_5;
-  this->m_tire_fric_side_max = *(float *)&FLOAT_0_0;
-  this->m_bbox_min[0] = *(float *)&FLOAT_0_0;
-  this->m_bbox_min[1] = *(float *)&FLOAT_0_0;
-  this->m_bbox_min[2] = *(float *)&FLOAT_0_0;
-  this->m_bbox_max[0] = *(float *)&FLOAT_0_0;
-  this->m_bbox_max[1] = *(float *)&FLOAT_0_0;
-  this->m_bbox_max[2] = *(float *)&FLOAT_0_0;
-  this->m_mass_center_offset[0] = *(float *)&FLOAT_0_0;
-  this->m_mass_center_offset[1] = *(float *)&FLOAT_0_0;
-  this->m_mass_center_offset[2] = *(float *)&FLOAT_0_0;
-  this->m_buoyancybox_min[0] = *(float *)&FLOAT_0_0;
-  this->m_buoyancybox_min[1] = *(float *)&FLOAT_0_0;
-  this->m_buoyancybox_min[2] = *(float *)&FLOAT_0_0;
-  this->m_buoyancybox_max[0] = *(float *)&FLOAT_0_0;
+  this->m_water_ebrake_power = 1.5f;
+  this->m_tire_fric_side_max = 0.0f;
+  this->m_bbox_min[0] = 0.0f;
+  this->m_bbox_min[1] = 0.0f;
+  this->m_bbox_min[2] = 0.0f;
+  this->m_bbox_max[0] = 0.0f;
+  this->m_bbox_max[1] = 0.0f;
+  this->m_bbox_max[2] = 0.0f;
+  this->m_mass_center_offset[0] = 0.0f;
+  this->m_mass_center_offset[1] = 0.0f;
+  this->m_mass_center_offset[2] = 0.0f;
+  this->m_buoyancybox_min[0] = 0.0f;
+  this->m_buoyancybox_min[1] = 0.0f;
+  this->m_buoyancybox_min[2] = 0.0f;
+  this->m_buoyancybox_max[0] = 0.0f;
   m_buoyancybox_max = this->m_buoyancybox_max;
-  m_buoyancybox_max[1] = *(float *)&FLOAT_0_0;
-  m_buoyancybox_max[2] = *(float *)&FLOAT_0_0;
+  m_buoyancybox_max[1] = 0.0f;
+  m_buoyancybox_max[2] = 0.0f;
   this->m_mass_center_offset[2] = mass_z_offset;
   return this;
 }
@@ -63,8 +63,8 @@ NitrousVehicle *__thiscall NitrousVehicle::NitrousVehicle(NitrousVehicle *this)
   for ( j = this->m_wheel_orig_relpo; --v3 >= 0; ++j )
     ;
   this->m_parameter = 0;
-  this->m_script_brake = *(float *)&FLOAT_0_0;
-  this->m_hand_brake_friction_time = *(float *)&FLOAT_0_0;
+  this->m_script_brake = 0.0f;
+  this->m_hand_brake_friction_time = 0.0f;
   this->m_owner = 0;
   this->m_entnum = 0;
   this->m_vehicle_info = 0;
@@ -76,7 +76,7 @@ NitrousVehicle *__thiscall NitrousVehicle::NitrousVehicle(NitrousVehicle *this)
   this->m_server_notify_flags = 0;
   for ( k = 0; k < 2; ++k )
     this->mVehicleController.m_cmd.button_bits.array[k] = 0;
-  this->m_fake_rpm = *(float *)&FLOAT_0_0;
+  this->m_fake_rpm = 0.0f;
   this->m_trackDistAccumLeftInches = 0;
   this->m_trackDistAccumRightInches = 0;
   this->m_sfx_state_flags = 0;
@@ -113,13 +113,13 @@ void __thiscall NitrousVehicle::init(NitrousVehicle *this, gentity_s *owner, con
   ServerDObj = Com_GetServerDObj(this->m_entnum);
   this->m_xmodel = DObjGetModel(ServerDObj, 0);
   this->m_parameter = parameter;
-  this->m_hand_brake = *(float *)&FLOAT_0_0;
-  this->m_brake = *(float *)&FLOAT_0_0;
+  this->m_hand_brake = 0.0f;
+  this->m_brake = 0.0f;
   NitrousVehicle::set_throttle(this, 0.0);
-  this->m_steer_factor = *(float *)&FLOAT_0_0;
-  this->m_forward_vel = *(float *)&FLOAT_0_0;
-  this->m_script_brake = *(float *)&FLOAT_0_0;
-  this->m_stuck_time = *(float *)&FLOAT_0_0;
+  this->m_steer_factor = 0.0f;
+  this->m_forward_vel = 0.0f;
+  this->m_script_brake = 0.0f;
+  this->m_stuck_time = 0.0f;
   m_origin = this->m_origin;
   currentOrigin = owner->r.currentOrigin;
   this->m_origin[0] = owner->r.currentOrigin[0];
@@ -131,20 +131,20 @@ void __thiscall NitrousVehicle::init(NitrousVehicle *this, gentity_s *owner, con
   m_angles[1] = currentAngles[1];
   m_angles[2] = currentAngles[2];
   m_networkErrorOrigin = this->m_networkErrorOrigin;
-  this->m_networkErrorOrigin[0] = *(float *)&FLOAT_0_0;
-  m_networkErrorOrigin[1] = *(float *)&FLOAT_0_0;
-  m_networkErrorOrigin[2] = *(float *)&FLOAT_0_0;
+  this->m_networkErrorOrigin[0] = 0.0f;
+  m_networkErrorOrigin[1] = 0.0f;
+  m_networkErrorOrigin[2] = 0.0f;
   m_networkErrorAngles = this->m_networkErrorAngles;
-  this->m_networkErrorAngles[0] = *(float *)&FLOAT_0_0;
-  m_networkErrorAngles[1] = *(float *)&FLOAT_0_0;
-  m_networkErrorAngles[2] = *(float *)&FLOAT_0_0;
+  this->m_networkErrorAngles[0] = 0.0f;
+  m_networkErrorAngles[1] = 0.0f;
+  m_networkErrorAngles[2] = 0.0f;
   p_m_ground_vel = &this->m_ground_vel;
-  this->m_ground_vel.x = *(float *)&FLOAT_0_0;
-  p_m_ground_vel->y = *(float *)&FLOAT_0_0;
-  p_m_ground_vel->z = *(float *)&FLOAT_0_0;
+  this->m_ground_vel.x = 0.0f;
+  p_m_ground_vel->y = 0.0f;
+  p_m_ground_vel->z = 0.0f;
   this->m_lastErrorReductionTime = 0;
-  this->m_speed_scale = FLOAT_1_0;
-  this->m_drivepath_scale = FLOAT_1_0;
+  this->m_speed_scale = 1.0f;
+  this->m_drivepath_scale = 1.0f;
   this->m_boost_start_time = 0;
   this->m_boost_time_pool = this->m_vehicle_info->boostDuration;
   this->m_throttle_held_down = 0;
@@ -166,8 +166,8 @@ void __thiscall NitrousVehicle::init(NitrousVehicle *this, gentity_s *owner, con
   {
     this->m_wheel_state[i].m_state = WHEEL_STATE_AIRBORN;
     this->m_wheel_state[i].m_last_state = WHEEL_STATE_AIRBORN;
-    this->m_wheel_state[i].m_state_time = *(float *)&FLOAT_0_0;
-    this->m_wheel_state[i].m_rate = *(float *)&FLOAT_0_0;
+    this->m_wheel_state[i].m_state_time = 0.0f;
+    this->m_wheel_state[i].m_rate = 0.0f;
   }
 }
 
@@ -227,13 +227,13 @@ void __thiscall NitrousVehicle::init(
     this->m_entnum = owner->nextState.number;
     this->m_vehicle_info = CG_GetVehicleInfo(owner->nextState.un2.vehicleState.vehicleInfoIndex);
     this->m_parameter = parameter;
-    this->m_hand_brake = *(float *)&FLOAT_0_0;
-    this->m_brake = *(float *)&FLOAT_0_0;
+    this->m_hand_brake = 0.0f;
+    this->m_brake = 0.0f;
     NitrousVehicle::set_throttle(this, 0.0);
-    this->m_steer_factor = *(float *)&FLOAT_0_0;
-    this->m_forward_vel = *(float *)&FLOAT_0_0;
-    this->m_script_brake = *(float *)&FLOAT_0_0;
-    this->m_stuck_time = *(float *)&FLOAT_0_0;
+    this->m_steer_factor = 0.0f;
+    this->m_forward_vel = 0.0f;
+    this->m_script_brake = 0.0f;
+    this->m_stuck_time = 0.0f;
     m_origin = this->m_origin;
     origin = owner->pose.origin;
     this->m_origin[0] = owner->pose.origin[0];
@@ -245,19 +245,19 @@ void __thiscall NitrousVehicle::init(
     m_angles[1] = angles[1];
     m_angles[2] = angles[2];
     m_networkErrorOrigin = this->m_networkErrorOrigin;
-    this->m_networkErrorOrigin[0] = *(float *)&FLOAT_0_0;
-    m_networkErrorOrigin[1] = *(float *)&FLOAT_0_0;
-    m_networkErrorOrigin[2] = *(float *)&FLOAT_0_0;
+    this->m_networkErrorOrigin[0] = 0.0f;
+    m_networkErrorOrigin[1] = 0.0f;
+    m_networkErrorOrigin[2] = 0.0f;
     m_networkErrorAngles = this->m_networkErrorAngles;
-    this->m_networkErrorAngles[0] = *(float *)&FLOAT_0_0;
-    m_networkErrorAngles[1] = *(float *)&FLOAT_0_0;
-    m_networkErrorAngles[2] = *(float *)&FLOAT_0_0;
+    this->m_networkErrorAngles[0] = 0.0f;
+    m_networkErrorAngles[1] = 0.0f;
+    m_networkErrorAngles[2] = 0.0f;
     p_m_ground_vel = &this->m_ground_vel;
-    this->m_ground_vel.x = *(float *)&FLOAT_0_0;
-    p_m_ground_vel->y = *(float *)&FLOAT_0_0;
-    p_m_ground_vel->z = *(float *)&FLOAT_0_0;
-    this->m_speed_scale = FLOAT_1_0;
-    this->m_drivepath_scale = FLOAT_1_0;
+    this->m_ground_vel.x = 0.0f;
+    p_m_ground_vel->y = 0.0f;
+    p_m_ground_vel->z = 0.0f;
+    this->m_speed_scale = 1.0f;
+    this->m_drivepath_scale = 1.0f;
     this->m_boost_start_time = 0;
     this->m_boost_time_pool = this->m_vehicle_info->boostDuration;
     this->m_throttle_held_down = 0;
@@ -275,8 +275,8 @@ void __thiscall NitrousVehicle::init(
     {
       this->m_wheel_state[i].m_state = WHEEL_STATE_AIRBORN;
       this->m_wheel_state[i].m_last_state = WHEEL_STATE_AIRBORN;
-      this->m_wheel_state[i].m_state_time = *(float *)&FLOAT_0_0;
-      this->m_wheel_state[i].m_rate = *(float *)&FLOAT_0_0;
+      this->m_wheel_state[i].m_state_time = 0.0f;
+      this->m_wheel_state[i].m_rate = 0.0f;
     }
   }
 }
@@ -378,19 +378,19 @@ void  NitrousVehicle::unpause_physics(NitrousVehicle *this@<ecx>, int a2@<ebp>)
   {
     *(unsigned int *)(LODWORD(physPreset.buoyancyBoxMax[2]) + 600) &= ~1u;
     physPreset.buoyancyBoxMax[1] = *(float *)(LODWORD(physPreset.buoyancyBoxMax[2]) + 600);
-    *(float *)&physPreset.name = FLOAT_0_30000001;
-    physPreset.mass = FLOAT_1_0;
-    physPreset.bounce = FLOAT_1_0;
+    *(float *)&physPreset.name = 0.3f;
+    physPreset.mass = 1.0f;
+    physPreset.bounce = 1.0f;
     if ( *(_WORD *)(*(unsigned int *)(LODWORD(physPreset.buoyancyBoxMax[2]) + 556) + 64) == 4 )
-      *(float *)&physPreset.flags = FLOAT_1_0;
+      *(float *)&physPreset.flags = 1.0f;
     else
-      *(float *)&physPreset.flags = FLOAT_0_40000001;
+      *(float *)&physPreset.flags = 0.4f;
     vel[0] = *(float *)(LODWORD(physPreset.buoyancyBoxMax[2]) + 496);
     vel[3] = *(float *)(LODWORD(vel[0]) + 60);
     physPreset.sndAliasPrefix = (const char *)(*(float *)(*(unsigned int *)(LODWORD(physPreset.buoyancyBoxMax[2]) + 496) + 208) != 0.0);
     collision_visitor.gjk_geom_list = *(gjk_geom_list_t **)&FLOAT_0_0;
     gjk_geom_list.m_first_geom = *(gjk_base_t **)&FLOAT_0_0;
-    gjk_geom_list.m_geom_count = *(unsigned int *)&FLOAT_0_0;
+    gjk_geom_list.m_geom_count = 0;
     bpi = 0;
     collision_visitor.__vftable = 0;
     flags[0] = (int)&create_gjk_geom_collision_visitor::`vftable';
@@ -457,8 +457,8 @@ void  NitrousVehicle::unpause_physics(NitrousVehicle *this@<ecx>, int a2@<ebp>)
 
 void __thiscall NitrousVehicleController::Init(NitrousVehicleController *this)
 {
-  this->m_stuck_time = *(float *)&FLOAT_0_0;
-  this->m_stopped_time = *(float *)&FLOAT_0_0;
+  this->m_stuck_time = 0.0f;
+  this->m_stopped_time = 0.0f;
   memset((unsigned __int8 *)&this->m_cmd, 0, sizeof(this->m_cmd));
   this->m_cmd_local_client_num = 0;
   this->m_cmd_valid = 1;
@@ -707,7 +707,7 @@ void __userpurge NitrousVehicle::update_parms(
     }
     else
     {
-      body->m_max_avel = FLOAT_10_0;
+      body->m_max_avel = 10.0f;
     }
     v73 = v103->m_parameter;
     rigid_body::set_mass(body, v73->m_body_mass);
@@ -777,11 +777,11 @@ void __userpurge NitrousVehicle::update_parms(
         if ( (float)(v44 - 1.0) < 0.0 )
           mass = v44;
         else
-          mass = FLOAT_1_0;
+          mass = 1.0f;
         if ( (float)(0.0 - v44) < 0.0 )
           susp_spring_k = mass;
         else
-          susp_spring_k = *(float *)&FLOAT_0_0;
+          susp_spring_k = 0.0f;
         v44 = (float)(1.0 - susp_spring_k) * 2.0;
         susp_damp_k = v103->m_parameter;
         m_body_mass = susp_damp_k->m_body_mass;
@@ -791,12 +791,12 @@ void __userpurge NitrousVehicle::update_parms(
         susp_dir.z = (float)((float)(v103->m_parameter->m_susp_damp_k * phys_vehicleGravityMultiplier->current.value)
                            * v44)
                    * m_body_mass;
-        v37[0] = *(unsigned int *)&FLOAT_0_0;
-        v37[1] = *(unsigned int *)&FLOAT_0_0;
-        wheel_radius = FLOAT_N1_0;
+        v37[0] = 0;
+        v37[1] = 0;
+        wheel_radius = -1.0f;
         m_wheel_radius = v103->m_parameter->m_wheel_radius;
         if ( v103->m_parameter->m_tire_fric_side_max == 0.0 )
-          side_fric_max = FLOAT_3_4028235e38;
+          side_fric_max = FLT_MAX;
         else
           side_fric_max = v103->m_parameter->m_tire_fric_side_max;
         rigid_body_constraint_wheel::set(
@@ -865,13 +865,13 @@ void __userpurge NitrousVehicle::update_parms(
     }
     if ( v103->m_vehicle_info->type == 4 )
     {
-      front_steer_pt.y = FLOAT_50_0;
-      front_steer_pt.z = *(float *)&FLOAT_0_0;
-      front_steer_pt.w = *(float *)&FLOAT_0_0;
-      v18 = FLOAT_50_0;
-      v19 = *(float *)&FLOAT_0_0;
-      front_back_length = *(float *)&FLOAT_0_0;
-      v17 = FLOAT_100_0;
+      front_steer_pt.y = 50.0f;
+      front_steer_pt.z = 0.0f;
+      front_steer_pt.w = 0.0f;
+      v18 = 50.0f;
+      v19 = 0.0f;
+      front_back_length = 0.0f;
+      v17 = 100.0f;
     }
     else
     {
@@ -1178,13 +1178,13 @@ void __userpurge NitrousVehicle::_setup_wheels(NitrousVehicle *this@<ecx>, DObj 
       __debugbreak();
     }
     v7 = &v27->m_wheel_orig_relpo[4].w;
-    v27->m_wheel_orig_relpo[4].w.x = *(float *)&FLOAT_0_0;
-    v7->y = *(float *)&FLOAT_0_0;
-    v7->z = *(float *)&FLOAT_0_0;
+    v27->m_wheel_orig_relpo[4].w.x = 0.0f;
+    v7->y = 0.0f;
+    v7->z = 0.0f;
     v6 = &v27->m_wheel_orig_relpo[5].w;
-    v27->m_wheel_orig_relpo[5].w.x = *(float *)&FLOAT_0_0;
-    v6->y = *(float *)&FLOAT_0_0;
-    v6->z = *(float *)&FLOAT_0_0;
+    v27->m_wheel_orig_relpo[5].w.x = 0.0f;
+    v6->y = 0.0f;
+    v6->z = 0.0f;
   }
   else
   {
@@ -1200,9 +1200,9 @@ void __userpurge NitrousVehicle::_setup_wheels(NitrousVehicle *this@<ecx>, DObj 
       else
       {
         p_x = (unsigned int *)&v27->m_wheel_orig_relpo[i].w.x;
-        *p_x = *(unsigned int *)&FLOAT_0_0;
-        p_x[1] = *(unsigned int *)&FLOAT_0_0;
-        p_x[2] = *(unsigned int *)&FLOAT_0_0;
+        *p_x = 0;
+        p_x[1] = 0;
+        p_x[2] = 0;
       }
       v27->m_wheel_damage[i] = 0;
     }
@@ -1231,11 +1231,11 @@ double __thiscall NitrousVehicle::_calc_initial_susp_spring_k(
     v4 = COERCE_FLOAT(LODWORD(wheel_constraint->m_b1_wheel_center_loc.x) & _mask__AbsFloat_)
        / this->m_steer_front_back_length;
   else
-    v4 = FLOAT_1_0;
+    v4 = 1.0f;
   if ( (float)(0.0 - susp_spring_k) < 0.0 )
     v3 = v4;
   else
-    v3 = *(float *)&FLOAT_0_0;
+    v3 = 0.0f;
   return (float)((float)((float)(this->m_parameter->m_susp_spring_k * phys_vehicleGravityMultiplier->current.value)
                        * (float)((float)(1.0 - v3) * 2.0))
                * this->m_parameter->m_body_mass);
@@ -1272,17 +1272,17 @@ void __thiscall NitrousVehicle::destructible_damage(NitrousVehicle *this, const 
       {
         min = 3;
         max = 6;
-        this->m_speed_scale = *(float *)&FLOAT_0_0;
+        this->m_speed_scale = 0.0f;
       }
     }
     else
     {
       min = 0;
       max = 3;
-      this->m_speed_scale = *(float *)&FLOAT_0_0;
+      this->m_speed_scale = 0.0f;
     }
     if ( this->m_speed_scale < 0.0 )
-      this->m_speed_scale = FLOAT_1_0;
+      this->m_speed_scale = 1.0f;
     for ( i = min; i < max; ++i )
     {
       for ( j = 0; j < 6; ++j )
@@ -1359,9 +1359,9 @@ phys_vec3 *__thiscall NitrousVehicle::get_velocity(NitrousVehicle *this, phys_ve
   }
   else
   {
-    result->x = *(float *)&FLOAT_0_0;
-    result->y = *(float *)&FLOAT_0_0;
-    result->z = *(float *)&FLOAT_0_0;
+    result->x = 0.0f;
+    result->y = 0.0f;
+    result->z = 0.0f;
   }
   return result;
 }
@@ -1374,9 +1374,9 @@ phys_vec3 *__thiscall NitrousVehicle::get_a_velocity(NitrousVehicle *this, phys_
   }
   else
   {
-    result->x = *(float *)&FLOAT_0_0;
-    result->y = *(float *)&FLOAT_0_0;
-    result->z = *(float *)&FLOAT_0_0;
+    result->x = 0.0f;
+    result->y = 0.0f;
+    result->z = 0.0f;
   }
   return result;
 }
@@ -1424,15 +1424,15 @@ void __thiscall NitrousVehicle::_update_orientation_constraint(NitrousVehicle *t
   if ( (this->m_flags & 0x1000) != 0 )
   {
     this->m_orientation_constraint->m_active = 0;
-    this->m_orientation_constraint->m_torque_resistance_pitch_roll = *(float *)&FLOAT_0_0;
-    this->m_orientation_constraint->m_torque_resistance_yaw = *(float *)&FLOAT_0_0;
-    this->m_orientation_constraint->m_upright_strength = *(float *)&FLOAT_0_0;
+    this->m_orientation_constraint->m_torque_resistance_pitch_roll = 0.0f;
+    this->m_orientation_constraint->m_torque_resistance_yaw = 0.0f;
+    this->m_orientation_constraint->m_upright_strength = 0.0f;
     this->m_orientation_constraint->m_no_orientation_correction = 1;
     for ( i = 0; i < 6; ++i )
     {
       rbc_wheel = this->m_wheels[i];
       if ( rbc_wheel )
-        rbc_wheel->m_roll_stability_factor = *(float *)&FLOAT_0_0;
+        rbc_wheel->m_roll_stability_factor = 0.0f;
     }
   }
 }
@@ -1447,7 +1447,7 @@ double __thiscall NitrousVehicle::_get_stuck_accel_factor(NitrousVehicle *this, 
     return 1.0;
   if ( this->m_throttle <= 0.2 )
   {
-    this->m_stuck_time = *(float *)&FLOAT_0_0;
+    this->m_stuck_time = 0.0f;
   }
   else if ( this->m_phys_user_data )
   {
@@ -1468,7 +1468,7 @@ double __thiscall NitrousVehicle::_get_stuck_accel_factor(NitrousVehicle *this, 
                                                                      * this->m_phys_user_data->body->m_a_vel.z))
         || abs_steer_factor <= 0.5 )
       {
-        this->m_stuck_time = *(float *)&FLOAT_0_0;
+        this->m_stuck_time = 0.0f;
       }
       else
       {
@@ -1490,7 +1490,7 @@ double __thiscall NitrousVehicle::_get_stuck_accel_factor(NitrousVehicle *this, 
   if ( (float)(1.0 - accel_scale) < 0.0 )
     return v4;
   else
-    return FLOAT_1_0;
+    return 1.0f;
 }
 
 void __thiscall NitrousVehicle::_update_boost(NitrousVehicle *this, float delta_t)
@@ -1660,11 +1660,11 @@ void __userpurge NitrousVehicle::_update_prolog(NitrousVehicle *this@<ecx>, int 
         if ( (float)((float)(z + pitchFakeyZone) - 0.0) < 0.0 )
           v19 = z + pitchFakeyZone;
         else
-          v19 = *(float *)&FLOAT_0_0;
+          v19 = 0.0f;
         if ( (float)(-1.0 - (float)(z + pitchFakeyZone)) < 0.0 )
           v18 = v19;
         else
-          v18 = FLOAT_N1_0;
+          v18 = -1.0f;
         z = v18;
       }
       else
@@ -1672,33 +1672,33 @@ void __userpurge NitrousVehicle::_update_prolog(NitrousVehicle *this@<ecx>, int 
         if ( (float)((float)(z - pitchFakeyZone) - 1.0) < 0.0 )
           v21 = z - pitchFakeyZone;
         else
-          v21 = FLOAT_1_0;
+          v21 = 1.0f;
         if ( (float)(0.0 - (float)(z - pitchFakeyZone)) < 0.0 )
           v20 = v21;
         else
-          v20 = *(float *)&FLOAT_0_0;
+          v20 = 0.0f;
         z = v20;
       }
     }
     if ( (float)((float)(z / 0.40000001) - 1.0) < 0.0 )
       v17 = z / 0.40000001;
     else
-      v17 = FLOAT_1_0;
+      v17 = 1.0f;
     if ( (float)(-1.0 - (float)(z / 0.40000001)) < 0.0 )
       v16 = v17;
     else
-      v16 = FLOAT_N1_0;
+      v16 = -1.0f;
     v15 = (float)((float)(1.0 - COERCE_FLOAT(LODWORD(this->m_steer_factor) & _mask__AbsFloat_)) * this->m_throttle)
         * v16;
     if ( (float)(v15 - 1.0) < 0.0 )
       v14 = (float)((float)(1.0 - COERCE_FLOAT(LODWORD(this->m_steer_factor) & _mask__AbsFloat_)) * this->m_throttle)
           * v16;
     else
-      v14 = FLOAT_1_0;
+      v14 = 1.0f;
     if ( (float)(0.0 - v15) < 0.0 )
       speed = v14;
     else
-      speed = *(float *)&FLOAT_0_0;
+      speed = 0.0f;
     v4 = this->m_parameter;
     v12 = NitrousVehicle::get_maximum_acceleration(this) * v4->m_body_mass;
     if ( phys_heavyTankSwitch->current.enabled )
@@ -1713,7 +1713,7 @@ void __userpurge NitrousVehicle::_update_prolog(NitrousVehicle *this@<ecx>, int 
       if ( (float)((float)(v11 / rbc_wheel) - 1.0) < 0.0 )
         fraction = v11 / rbc_wheel;
       else
-        fraction = FLOAT_1_0;
+        fraction = 1.0f;
       if ( (float)(0.0 - (float)(v11 / rbc_wheel)) < 0.0 )
         Value = GraphFloat_GetValue(this->m_vehicle_info->accelGraph, fraction);
       else
@@ -1781,7 +1781,7 @@ void __userpurge NitrousVehicle::_update_prolog(NitrousVehicle *this@<ecx>, int 
   }
   else
   {
-    this->m_forward_vel = *(float *)&FLOAT_0_0;
+    this->m_forward_vel = 0.0f;
   }
   if ( this->m_script_brake > 0.0 )
     this->m_state_flags |= 2u;
@@ -1823,26 +1823,26 @@ void __thiscall NitrousVehicle::_update_friction(NitrousVehicle *this, float del
     if ( this->m_hand_brake > 0.1 && this->m_parameter->m_tire_fric_hand_brake > 0.0 )
       this->m_hand_brake_friction_time = hand_brake_friction_time;
     up = this->m_phys_user_data->body->m_mat.z.z;
-    fric_scaler = FLOAT_1_0;
+    fric_scaler = 1.0f;
     if ( this->m_vehicle_info->max_fric_tilt_angle > up && this->m_vehicle_info->max_fric_tilt_angle > 0.0 )
     {
       fric_scalera = (float)(this->m_vehicle_info->max_fric_tilt / this->m_vehicle_info->max_fric_tilt_angle) * up;
       if ( (float)(fric_scalera - 1.0) < 0.0 )
         v4 = (float)(this->m_vehicle_info->max_fric_tilt / this->m_vehicle_info->max_fric_tilt_angle) * up;
       else
-        v4 = FLOAT_1_0;
+        v4 = 1.0f;
       if ( (float)(0.15000001 - fric_scalera) < 0.0 )
         v2 = v4;
       else
-        v2 = FLOAT_0_15000001;
+        v2 = 0.1f5000001;
       fric_scaler = v2;
     }
     if ( NitrousVehicle::is_boosting(this) && this->m_vehicle_info->boostFrictionMultiplier > 0.0 )
       fric_scaler = fric_scaler * this->m_vehicle_info->boostFrictionMultiplier;
     if ( (this->m_flags & 0x80) != 0 )
     {
-      this->m_current_front_side_fric_scale = *(float *)&FLOAT_0_0;
-      this->m_current_front_fwd_fric_scale = *(float *)&FLOAT_0_0;
+      this->m_current_front_side_fric_scale = 0.0f;
+      this->m_current_front_fwd_fric_scale = 0.0f;
     }
     else if ( this->m_brake <= 0.1 )
     {
@@ -1895,7 +1895,7 @@ void __thiscall NitrousVehicle::_update_fakey_stuff(NitrousVehicle *this, float 
 
   rb = (environment_rigid_body *)this->m_phys_user_data->body;
   num_colliding_wheels = 0;
-  spring_delta = *(float *)&FLOAT_0_0;
+  spring_delta = 0.0f;
   if ( this->m_throttle <= 0.5 )
   {
     if ( this->m_throttle < -0.5 )
@@ -1908,7 +1908,7 @@ void __thiscall NitrousVehicle::_update_fakey_stuff(NitrousVehicle *this, float 
     spring_delta = (float)(this->m_parameter->m_susp_spring_k * this->m_parameter->m_tilt_fakey)
                  * this->m_parameter->m_body_mass;
   }
-  spring_k = FLOAT_30_0;
+  spring_k = 30.0f;
   wheel = this->m_wheels[1];
   if ( wheel )
   {
@@ -2002,11 +2002,11 @@ void __thiscall NitrousVehicle::_update_fakey_stuff(NitrousVehicle *this, float 
     if ( (float)(this->m_throttle * 0.80000001) > rpm_target )
       rpm_target = this->m_throttle * 0.80000001;
     if ( (this->m_flags & 0x400) == 0 )
-      rpm_target = FLOAT_1_0;
+      rpm_target = 1.0f;
   }
   if ( high_rpm && rpm_target < 0.80000001 )
-    rpm_target = FLOAT_0_80000001;
-  rpm_lerp_rate = FLOAT_1_5;
+    rpm_target = 0.8f;
+  rpm_lerp_rate = 1.5f;
   if ( snd_boat_using_lerp_rpm && snd_boat_using_lerp_rpm->current.enabled )
     rpm_lerp_rate = snd_boat_lerp_rpm->current.value;
   this->m_fake_rpm = (float)((float)(delta_t * (float)(rpm_target - this->m_fake_rpm)) * rpm_lerp_rate)
@@ -2061,8 +2061,8 @@ void __thiscall NitrousVehicle::start_path(NitrousVehicle *this, int attach_mode
         rbc_wheel = this->m_wheels[i];
         if ( rbc_wheel )
         {
-          rbc_wheel->m_fwd_fric_k = FLOAT_0_0099999998;
-          rbc_wheel->m_side_fric_k = FLOAT_0_0099999998;
+          rbc_wheel->m_fwd_fric_k = 0.01f;
+          rbc_wheel->m_side_fric_k = 0.01f;
         }
       }
     }
@@ -2447,11 +2447,11 @@ void  NitrousVehicle::debug_render(NitrousVehicle *this@<ecx>, int a2@<ebp>)
       alpha = 0.5 * v104;
       Phys_DebugBox(&v91, (const phys_vec3 *)&col[3], colorBlue);
     }
-    col[2] = FLOAT_0_18000001;
+    col[2] = 0.1f8000001;
     for ( col[1] = 0.0; SLODWORD(col[1]) < 6; ++LODWORD(col[1]) )
     {
-      radius = *(float *)&FLOAT_0_0;
-      b1 = (rigid_body *)LODWORD(FLOAT_1_0);
+      radius = 0.0f;
+      b1 = (rigid_body *)LODWORD(1.0f);
       rbc_wheel = *(rigid_body_constraint_wheel **)&FLOAT_0_0;
       col[0] = col[2];
       v81 = *(const phys_vec3 **)(LODWORD(pos.w) + 4 * LODWORD(col[1]) + 984);
@@ -2489,14 +2489,14 @@ void  NitrousVehicle::debug_render(NitrousVehicle *this@<ecx>, int a2@<ebp>)
         v58 = v73 - v64;
         if ( (LODWORD(v81[11].x) & 1) != 0 )
         {
-          radius = FLOAT_1_0;
-          b1 = (rigid_body *)LODWORD(FLOAT_1_0);
+          radius = 1.0f;
+          b1 = (rigid_body *)LODWORD(1.0f);
           rbc_wheel = *(rigid_body_constraint_wheel **)&FLOAT_0_0;
           col[0] = col[2];
         }
         if ( (LODWORD(v81[11].x) & 4) != 0 )
         {
-          radius = FLOAT_1_0;
+          radius = 1.0f;
           b1 = *(rigid_body **)&FLOAT_0_0;
           rbc_wheel = *(rigid_body_constraint_wheel **)&FLOAT_0_0;
           col[0] = col[2];
@@ -2551,18 +2551,18 @@ void  NitrousVehicle::debug_render(NitrousVehicle *this@<ecx>, int a2@<ebp>)
           Phys_NitrousVecToVec3((const phys_vec3 *)v77, &arm_col[1]);
           G_DebugCircleEx(&arm_col[1], v79, _pos, colorWhite, 0, 0);
         }
-        v25 = *(float *)&FLOAT_0_0;
-        v26 = FLOAT_1_0;
-        v27 = FLOAT_1_0;
-        arm_col[0] = FLOAT_1_0;
+        v25 = 0.0f;
+        v26 = 1.0f;
+        v27 = 1.0f;
+        arm_col[0] = 1.0f;
         v24 = vmin.w;
         v23 = v58;
         if ( v58 > (float)(vmin.w - 5.0) )
         {
-          v25 = FLOAT_1_0;
-          v26 = *(float *)&FLOAT_0_0;
-          v27 = *(float *)&FLOAT_0_0;
-          arm_col[0] = FLOAT_1_0;
+          v25 = 1.0f;
+          v26 = 0.0f;
+          v27 = 0.0f;
+          arm_col[0] = 1.0f;
         }
         render_line((phys_vec3 *)&vmin.y, (const phys_vec3 *)v57, &v25, 0, 0);
       }
@@ -2692,10 +2692,10 @@ void __thiscall NitrousVehicle::set(
   this->m_steer_front_pt_loc.y = steer_front_pt_loc->y;
   this->m_steer_front_pt_loc.z = steer_front_pt_loc->z;
   this->m_steer_front_back_length = steer_front_back_length;
-  this->m_steer_factor = *(float *)&FLOAT_0_0;
-  this->m_steer_current_angle = *(float *)&FLOAT_0_0;
+  this->m_steer_factor = 0.0f;
+  this->m_steer_current_angle = 0.0f;
   this->m_state_flags = 0;
-  this->m_forward_vel = *(float *)&FLOAT_0_0;
+  this->m_forward_vel = 0.0f;
 }
 
 // local variable allocation has failed, the output may be wrong!
@@ -2765,11 +2765,11 @@ void __userpurge NitrousVehicle::update_steering(NitrousVehicle *this@<ecx>, flo
   if ( angle_delta <= 1.0 )
   {
     if ( angle_delta < -1.0 )
-      angle_delta = FLOAT_N1_0;
+      angle_delta = -1.0f;
   }
   else
   {
-    angle_delta = FLOAT_1_0;
+    angle_delta = 1.0f;
   }
   v53 = *(float *)(LODWORD(max_delta_angle) + 1036) * angle_delta;
   *(float *)&i = *(float *)(LODWORD(max_delta_angle) + 1040) * delta_t;
@@ -2810,7 +2810,7 @@ void __userpurge NitrousVehicle::update_steering(NitrousVehicle *this@<ecx>, flo
       v38 = COERCE_FLOAT(*(unsigned int *)(LODWORD(max_delta_angle) + 1072) ^ _mask__NegFloat_) * 0.5;
       turning_center_radius_vec.y = v38;
       turning_center_radius_vec.z = v39;
-      turning_center_radius_vec.w = *(float *)&FLOAT_0_0;
+      turning_center_radius_vec.w = 0.0f;
       v34 = v38;
     }
     else
@@ -2822,11 +2822,11 @@ void __userpurge NitrousVehicle::update_steering(NitrousVehicle *this@<ecx>, flo
       LODWORD(v30) = *(unsigned int *)(LODWORD(max_delta_angle) + 1072) ^ _mask__NegFloat_;
       v27 = v30;
       v28 = v39;
-      v29 = *(unsigned int *)&FLOAT_0_0;
+      v29 = 0;
       v34 = v30;
     }
     v35 = v39;
-    turning_center_radius = *(float *)&FLOAT_0_0;
+    turning_center_radius = 0.0f;
     v33 = Abs(&v34);
     v26 = LODWORD(max_delta_angle) + 1056;
     turning_center.w = *(float *)(LODWORD(max_delta_angle) + 1056) + v34;
@@ -2851,14 +2851,14 @@ void __userpurge NitrousVehicle::update_steering(NitrousVehicle *this@<ecx>, flo
         wheel_axis.z = *(float *)&num_accel_wheels - v17;
         sign = wheel_ratios[5] - v15;
         y = total_ratio - v16;
-        nwheel_axis = *(float *)&FLOAT_0_0;
+        nwheel_axis = 0.0f;
         v9 = Abs(&sign);
         if ( (*(unsigned int *)(*(unsigned int *)(LODWORD(max_delta_angle) + 4 * k + 984) + 176) & 8) != 0 )
         {
           if ( *(float *)(LODWORD(max_delta_angle) + 1032) < 0.0 )
-            v8 = FLOAT_N1_0;
+            v8 = -1.0f;
           else
-            v8 = FLOAT_1_0;
+            v8 = 1.0f;
           if ( v9 <= 0.001 )
           {
             sign = gWheelAxisLoc.x;
@@ -2914,9 +2914,9 @@ void __userpurge NitrousVehicle::update_steering(NitrousVehicle *this@<ecx>, flo
         *(float *)(v47 + 4) = gWheelAxisLoc.y;
         *(float *)(v47 + 8) = gWheelAxisLoc.z;
         v46 = *(unsigned int *)(LODWORD(max_delta_angle) + 4 * n + 984);
-        *(float *)(v46 + 132) = FLOAT_1_0;
+        *(float *)(v46 + 132) = 1.0f;
         v45 = *(unsigned int *)(LODWORD(max_delta_angle) + 4 * n + 984);
-        *(float *)(v45 + 136) = FLOAT_1_0;
+        *(float *)(v45 + 136) = 1.0f;
       }
     }
   }
@@ -3033,11 +3033,11 @@ void __thiscall NitrousVehicle::update_control_from_network(NitrousVehicle *this
     if ( (float)(vehicleState->steerYaw - 1.0) < 0.0 )
       steerYaw = vehicleState->steerYaw;
     else
-      steerYaw = FLOAT_1_0;
+      steerYaw = 1.0f;
     if ( (float)(-1.0 - vehicleState->steerYaw) < 0.0 )
       v2 = steerYaw;
     else
-      v2 = FLOAT_N1_0;
+      v2 = -1.0f;
     this->m_steer_factor = v2;
     this->mVehicleController.m_cmd_valid = 0;
   }
@@ -3353,24 +3353,24 @@ void __cdecl make_rotate(phys_mat44 *m, const phys_vec3 *u, float ca, float sa)
   m->x.x = (float)((float)(u->x * u->x) * (float)(1.0 - ca)) + ca;
   m->y.x = xy - zsa;
   m->z.x = xz + ysa;
-  m->w.x = *(float *)&FLOAT_0_0;
+  m->w.x = 0.0f;
   *phys_vec3::operator[]<int>(&m->x, 1u) = xy + zsa;
   *phys_vec3::operator[]<int>(&m->y, 1u) = yy + ca;
   *phys_vec3::operator[]<int>(&m->z, 1u) = yz - xsa;
-  *phys_vec3::operator[]<int>(&m->w, 1u) = *(float *)&FLOAT_0_0;
+  *phys_vec3::operator[]<int>(&m->w, 1u) = 0.0f;
   *phys_vec3::operator[]<int>(&m->x, 2u) = xz - ysa;
   *phys_vec3::operator[]<int>(&m->y, 2u) = yz + xsa;
   *phys_vec3::operator[]<int>(&m->z, 2u) = zz + ca;
-  *phys_vec3::operator[]<int>(&m->w, 2u) = *(float *)&FLOAT_0_0;
+  *phys_vec3::operator[]<int>(&m->w, 2u) = 0.0f;
   phys_mat44::fix_w_column(m);
 }
 
 void __thiscall phys_mat44::fix_w_column(phys_mat44 *this)
 {
-  this->x.w = *(float *)&FLOAT_0_0;
-  this->y.w = *(float *)&FLOAT_0_0;
-  this->z.w = *(float *)&FLOAT_0_0;
-  this->w.w = FLOAT_1_0;
+  this->x.w = 0.0f;
+  this->y.w = 0.0f;
+  this->z.w = 0.0f;
+  this->w.w = 1.0f;
 }
 
 void __cdecl Phys_NitrousMat44ToVec33(const phys_mat44 *inMat, float (*outAxis)[3])
@@ -3438,11 +3438,11 @@ void __thiscall NitrousVehicle::GetEntityPose(
         if ( (float)((float)(errorReductionRate * dt) - 1.0) < 0.0 )
           v9 = errorReductionRate * dt;
         else
-          v9 = FLOAT_1_0;
+          v9 = 1.0f;
         if ( (float)(0.0 - (float)(errorReductionRate * dt)) < 0.0 )
           v6 = v9;
         else
-          v6 = *(float *)&FLOAT_0_0;
+          v6 = 0.0f;
         scale = v6;
         reduction[0] = v6 * this->m_networkErrorOrigin[0];
         reduction[1] = v6 * this->m_networkErrorOrigin[1];
@@ -3453,11 +3453,11 @@ void __thiscall NitrousVehicle::GetEntityPose(
         if ( (float)((float)(errorAReductionRate * dt) - 1.0) < 0.0 )
           v8 = errorAReductionRate * dt;
         else
-          v8 = FLOAT_1_0;
+          v8 = 1.0f;
         if ( (float)(0.0 - (float)(errorAReductionRate * dt)) < 0.0 )
           v5 = v8;
         else
-          v5 = *(float *)&FLOAT_0_0;
+          v5 = 0.0f;
         scale = v5;
         reduction[0] = v5 * this->m_networkErrorAngles[0];
         reduction[1] = v5 * this->m_networkErrorAngles[1];

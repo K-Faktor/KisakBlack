@@ -60,7 +60,7 @@ __int16 __cdecl VP_FindClosestPathNode(const float *pos)
   __int16 i; // [esp+1Ch] [ebp-4h]
 
   closestNode = -1;
-  closestDist2 = FLOAT_3_4028235e38;
+  closestDist2 = FLT_MAX;
   for ( i = 0; i < s_numNodes; ++i )
   {
     v1 = Vec3DistanceSq(pos, s_nodes[i].origin);
@@ -148,7 +148,7 @@ int __cdecl VP_FindPath(float *start, float *end, vehicle_pathpos_t *vpp)
     return 0;
   memset((unsigned __int8 *)dst, 0, sizeof(dst));
   v29 = 0;
-  *(unsigned int *)&dst[8 * v31 + 2] = *(unsigned int *)&FLOAT_0_0;
+  *(unsigned int *)&dst[8 * v31 + 2] = 0;
   v4 = Vec3Distance(s_nodes[v31].origin, s_nodes[ClosestPathNode].origin);
   *(float *)&dst[8 * v31 + 6] = v4;
   *(float *)&dst[8 * v31 + 4] = *(float *)&dst[8 * v31 + 6];
@@ -371,26 +371,26 @@ void __cdecl VP_DrawPath(const vehicle_pathpos_t *vpp)
       arrowCount = 0;
     }
   }
-  k_boxColor1[0] = *(float *)&FLOAT_0_0;
-  k_boxColor1[1] = FLOAT_1_0;
-  k_boxColor1[2] = *(float *)&FLOAT_0_0;
-  k_boxColor1[3] = FLOAT_1_0;
-  k_boxColor2[0] = *(float *)&FLOAT_0_0;
-  k_boxColor2[1] = *(float *)&FLOAT_0_0;
-  k_boxColor2[2] = FLOAT_1_0;
-  k_boxColor2[3] = FLOAT_1_0;
+  k_boxColor1[0] = 0.0f;
+  k_boxColor1[1] = 1.0f;
+  k_boxColor1[2] = 0.0f;
+  k_boxColor1[3] = 1.0f;
+  k_boxColor2[0] = 0.0f;
+  k_boxColor2[1] = 0.0f;
+  k_boxColor2[2] = 1.0f;
+  k_boxColor2[3] = 1.0f;
   count = 0;
   for ( node = &s_nodes[vpp->nodeIdx];
         count < s_numNodes && vpp->nodeIdx != node->splineNode.nextIdx;
         node = &s_nodes[node->splineNode.nextIdx] )
   {
     ++count;
-    mins[0] = FLOAT_N8_0;
-    mins[1] = FLOAT_N8_0;
-    mins[2] = FLOAT_N8_0;
-    maxs[0] = FLOAT_8_0;
-    maxs[1] = FLOAT_8_0;
-    maxs[2] = FLOAT_8_0;
+    mins[0] = -8.0f;
+    mins[1] = -8.0f;
+    mins[2] = -8.0f;
+    maxs[0] = 8.0f;
+    maxs[1] = 8.0f;
+    maxs[2] = 8.0f;
     if ( node == &s_nodes[vpp->nodeIdx] || g_radiant_selected_node == node )
       CG_DebugBox(node->origin, mins, maxs, node->angles[1], k_boxColor1, 1, 0);
     else
@@ -426,10 +426,10 @@ void __cdecl VP_AddDebugLine(const float *start, const float *end, int forceDraw
                   + (float)(dir[2] * *(float *)&dword_9A95FB0)) < 0.99989998
          || forceDraw )
   {
-    k_lineColor[0] = FLOAT_1_0;
-    k_lineColor[1] = *(float *)&FLOAT_0_0;
-    k_lineColor[2] = *(float *)&FLOAT_0_0;
-    k_lineColor[3] = FLOAT_1_0;
+    k_lineColor[0] = 1.0f;
+    k_lineColor[1] = 0.0f;
+    k_lineColor[2] = 0.0f;
+    k_lineColor[3] = 1.0f;
     G_DebugLine(s_start, s_end, k_lineColor, 1);
     s_start[0] = *start;
     dword_9A95FC4 = *((unsigned int *)start + 1);
@@ -459,17 +459,17 @@ void __cdecl VP_DebugArrow(const float *pos, const float *angles)
   float axis[4][3]; // [esp+70h] [ebp-6Ch] BYREF
   float origPts[5][3]; // [esp+A0h] [ebp-3Ch] BYREF
 
-  scale = FLOAT_80_0;
-  *(_QWORD *)&origPts[0][0] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_0_5));
-  origPts[0][2] = *(float *)&FLOAT_0_0;
-  *(_QWORD *)&origPts[1][0] = __PAIR64__(LODWORD(FLOAT_N0_40000001), LODWORD(FLOAT_N0_5));
-  origPts[1][2] = *(float *)&FLOAT_0_0;
-  *(_QWORD *)&origPts[2][0] = __PAIR64__(LODWORD(FLOAT_0_40000001), LODWORD(FLOAT_N0_5));
-  origPts[2][2] = *(float *)&FLOAT_0_0;
-  *(_QWORD *)&origPts[3][0] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_N0_5));
-  origPts[3][2] = FLOAT_0_40000001;
-  *(_QWORD *)&origPts[4][0] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(FLOAT_N0_5));
-  origPts[4][2] = *(float *)&FLOAT_0_0;
+  scale = 80.0f;
+  *(_QWORD *)&origPts[0][0] = __PAIR64__(0, LODWORD(0.5f));
+  origPts[0][2] = 0.0f;
+  *(_QWORD *)&origPts[1][0] = __PAIR64__(LODWORD(FLOAT_N0_40000001), LODWORD(-0.5f));
+  origPts[1][2] = 0.0f;
+  *(_QWORD *)&origPts[2][0] = __PAIR64__(LODWORD(0.4f), LODWORD(-0.5f));
+  origPts[2][2] = 0.0f;
+  *(_QWORD *)&origPts[3][0] = __PAIR64__(0, LODWORD(-0.5f));
+  origPts[3][2] = 0.4f;
+  *(_QWORD *)&origPts[4][0] = __PAIR64__(0, LODWORD(-0.5f));
+  origPts[4][2] = 0.0f;
   AnglesToAxis(angles, axis);
   axis[3][0] = *pos;
   axis[3][1] = pos[1];
@@ -482,10 +482,10 @@ void __cdecl VP_DebugArrow(const float *pos, const float *angles)
     v2[2] = scale * v2[2];
     MatrixTransformVector43(origPts[i], axis, pts[i]);
   }
-  k_lineColor[0] = FLOAT_1_0;
-  k_lineColor[1] = *(float *)&FLOAT_0_0;
-  k_lineColor[2] = *(float *)&FLOAT_0_0;
-  k_lineColor[3] = FLOAT_1_0;
+  k_lineColor[0] = 1.0f;
+  k_lineColor[1] = 0.0f;
+  k_lineColor[2] = 0.0f;
+  k_lineColor[3] = 1.0f;
   G_DebugLine(pts[0], pts[1], k_lineColor, 1);
   G_DebugLine(pts[1], pts[2], k_lineColor, 1);
   G_DebugLine(pts[2], pts[0], k_lineColor, 1);
@@ -522,9 +522,9 @@ void __cdecl G_FreeVehiclePaths()
 void __cdecl VP_ResetNode(vehicle_node_t *node)
 {
   if ( (node->flags & 0x20000) == 0 )
-    node->speed = FLOAT_N1_0;
+    node->speed = -1.0f;
   if ( (node->flags & 0x40000) == 0 )
-    node->lookAhead = FLOAT_N1_0;
+    node->lookAhead = -1.0f;
 }
 
 void __cdecl G_SetupSplinePaths()
@@ -593,9 +593,9 @@ void __cdecl G_SetupSplinePaths()
       if ( nodeb->splineNode.nextIdx < 0 )
       {
         if ( nodeb->speed <= 0.0 )
-          nodeb->speed = FLOAT_1_0;
+          nodeb->speed = 1.0f;
         if ( nodeb->lookAhead <= 0.0 )
-          nodeb->lookAhead = FLOAT_1_0;
+          nodeb->lookAhead = 1.0f;
       }
     }
   }
@@ -616,10 +616,10 @@ double __cdecl VP_CalcNodeSpeed(__int16 nodeIdx)
   node = &s_nodes[nodeIdx];
   if ( (node->flags & 0x20000) != 0 )
     return node->speed;
-  nextDist = *(float *)&FLOAT_0_0;
-  prevDist = *(float *)&FLOAT_0_0;
-  nextSpeed = FLOAT_N1_0;
-  prevSpeed = FLOAT_N1_0;
+  nextDist = 0.0f;
+  prevDist = 0.0f;
+  nextSpeed = -1.0f;
+  prevSpeed = -1.0f;
   if ( node->splineNode.prevIdx >= 0 )
   {
     count = 0;
@@ -679,10 +679,10 @@ double __cdecl VP_CalcNodeLookAhead(__int16 nodeIdx)
   node = &s_nodes[nodeIdx];
   if ( node->lookAhead >= 0.0 )
     return node->lookAhead;
-  nextDist = *(float *)&FLOAT_0_0;
-  prevDist = *(float *)&FLOAT_0_0;
-  nextLook = FLOAT_N1_0;
-  prevLook = FLOAT_N1_0;
+  nextDist = 0.0f;
+  prevDist = 0.0f;
+  nextLook = -1.0f;
+  prevLook = -1.0f;
   if ( node->splineNode.prevIdx >= 0 )
   {
     count = 0;
@@ -754,8 +754,8 @@ void __cdecl VP_CalcNodeAngles(__int16 nodeIdx, float *angles)
     angles[2] = node->angles[2];
     return;
   }
-  nextDist = *(float *)&FLOAT_0_0;
-  prevDist = *(float *)&FLOAT_0_0;
+  nextDist = 0.0f;
+  prevDist = 0.0f;
   prevAngles = s_invalidAngles[0];
   prevAngles_4 = s_invalidAngles[1];
   prevAngles_8 = s_invalidAngles[2];
@@ -830,9 +830,9 @@ void __cdecl VP_CalcNodeAngles(__int16 nodeIdx, float *angles)
     if ( (float)(prevDist + nextDist) <= 0.0 )
     {
 LABEL_47:
-      *angles = *(float *)&FLOAT_0_0;
-      angles[1] = *(float *)&FLOAT_0_0;
-      angles[2] = *(float *)&FLOAT_0_0;
+      *angles = 0.0f;
+      angles[1] = 0.0f;
+      angles[2] = 0.0f;
       return;
     }
     *angles = AngleNormalize180(nextAngles - prevAngles) * (float)(prevDist / totalDist) + prevAngles;
@@ -863,11 +863,11 @@ void __cdecl G_ConnectVehiclePaths()
       if ( node->speed <= 0.0 )
         node->speed = 100.0 * 17.6;
       if ( node->splineNode.length <= 0.0 )
-        node->splineNode.length = FLOAT_200_0;
+        node->splineNode.length = 200.0f;
       if ( node->lookAhead <= 0.0 )
         node->lookAhead = (float)(node->splineNode.length * 2.0) - 50.0;
       if ( node->lookAhead <= 0.0 )
-        node->lookAhead = FLOAT_200_0;
+        node->lookAhead = 200.0f;
       for ( j = 0; j < s_numNodes; ++j )
       {
         other = &s_nodes[j];
@@ -927,20 +927,20 @@ void __cdecl G_VehInitPathPos(vehicle_pathpos_t *vpp)
   vpp->lastNodeIdx = -1;
   vpp->nodeIdx = -1;
   vpp->endOfPath = 0;
-  vpp->frac = *(float *)&FLOAT_0_0;
-  vpp->speed = *(float *)&FLOAT_0_0;
-  vpp->lookAhead = *(float *)&FLOAT_0_0;
-  vpp->slide = *(float *)&FLOAT_0_0;
+  vpp->frac = 0.0f;
+  vpp->speed = 0.0f;
+  vpp->lookAhead = 0.0f;
+  vpp->slide = 0.0f;
   vpp->customPath = 0;
-  vpp->origin[0] = *(float *)&FLOAT_0_0;
-  vpp->origin[1] = *(float *)&FLOAT_0_0;
-  vpp->origin[2] = *(float *)&FLOAT_0_0;
-  vpp->angles[0] = *(float *)&FLOAT_0_0;
-  vpp->angles[1] = *(float *)&FLOAT_0_0;
-  vpp->angles[2] = *(float *)&FLOAT_0_0;
-  vpp->lookPos[0] = *(float *)&FLOAT_0_0;
-  vpp->lookPos[1] = *(float *)&FLOAT_0_0;
-  vpp->lookPos[2] = *(float *)&FLOAT_0_0;
+  vpp->origin[0] = 0.0f;
+  vpp->origin[1] = 0.0f;
+  vpp->origin[2] = 0.0f;
+  vpp->angles[0] = 0.0f;
+  vpp->angles[1] = 0.0f;
+  vpp->angles[2] = 0.0f;
+  vpp->lookPos[0] = 0.0f;
+  vpp->lookPos[1] = 0.0f;
+  vpp->lookPos[2] = 0.0f;
   VP_InitNode(vpp->switchNode, -1);
   VP_InitNode(&vpp->switchNode[1], -1);
 }
@@ -950,18 +950,18 @@ void __cdecl VP_InitNode(vehicle_node_t *node, __int16 nodeIdx)
   VP_ZeroNode(node);
   node->index = nodeIdx;
   node->flags = 0;
-  node->speed = FLOAT_N1_0;
-  node->lookAhead = FLOAT_N1_0;
-  node->origin[0] = *(float *)&FLOAT_0_0;
-  node->origin[1] = *(float *)&FLOAT_0_0;
-  node->origin[2] = *(float *)&FLOAT_0_0;
-  node->splineNode.dir[0] = *(float *)&FLOAT_0_0;
-  node->splineNode.dir[1] = *(float *)&FLOAT_0_0;
-  node->splineNode.dir[2] = *(float *)&FLOAT_0_0;
+  node->speed = -1.0f;
+  node->lookAhead = -1.0f;
+  node->origin[0] = 0.0f;
+  node->origin[1] = 0.0f;
+  node->origin[2] = 0.0f;
+  node->splineNode.dir[0] = 0.0f;
+  node->splineNode.dir[1] = 0.0f;
+  node->splineNode.dir[2] = 0.0f;
   node->angles[0] = s_invalidAngles[0];
   node->angles[1] = s_invalidAngles[1];
   node->angles[2] = s_invalidAngles[2];
-  node->splineNode.length = *(float *)&FLOAT_0_0;
+  node->splineNode.length = 0.0f;
   node->splineNode.nextIdx = -1;
   node->splineNode.prevIdx = -1;
 }
@@ -981,13 +981,13 @@ void __cdecl G_VehSetUpPathPos(vehicle_pathpos_t *vpp, __int16 nodeIdx)
   vpp->lastNodeIdx = nodeIdx;
   vpp->nodeIdx = nodeIdx;
   vpp->endOfPath = 0;
-  vpp->frac = *(float *)&FLOAT_0_0;
+  vpp->frac = 0.0f;
   vpp->speed = node->speed;
   vpp->lookAhead = node->lookAhead;
   if ( (node->flags & 0x10000) != 0 )
-    v2 = FLOAT_1_0;
+    v2 = 1.0f;
   else
-    v2 = *(float *)&FLOAT_0_0;
+    v2 = 0.0f;
   vpp->slide = v2;
   vpp->flags = 0;
   vpp->customPath = 0;
@@ -1157,7 +1157,7 @@ void __cdecl VP_GetLookAheadXYZCustom(const vehicle_pathpos_t *vpp, float *lookX
     link = &s_node_links[vpp->customPath->pathLinkIdx[pathIdx]];
   }
   if ( dist < 0.0 )
-    dist = *(float *)&FLOAT_0_0;
+    dist = 0.0f;
   *lookXYZ = (float)(dist * vpp->customGoalDir[0]) + node->origin[0];
   lookXYZ[1] = (float)(dist * vpp->customGoalDir[1]) + node->origin[1];
   lookXYZ[2] = (float)(dist * vpp->customGoalDir[2]) + node->origin[2];
@@ -1177,7 +1177,7 @@ void __cdecl VP_GetLookAheadXYZ(const vehicle_pathpos_t *vpp, float *lookXYZ)
     ++count;
     if ( node->splineNode.nextIdx < 0 || node->splineNode.length == 0.0 )
     {
-      dist = *(float *)&FLOAT_0_0;
+      dist = 0.0f;
       break;
     }
     if ( node->splineNode.length > dist )
@@ -1239,7 +1239,7 @@ int __cdecl VP_UpdatePathPosCustom(vehicle_pathpos_t *vpp, const float *dir, __i
         test = 1;
       if ( nextNodeIdx < 0 || clink->length == 0.0 )
       {
-        frac = *(float *)&FLOAT_0_0;
+        frac = 0.0f;
         goto LABEL_30;
       }
       nnodePlane = 0.5 * (float)(clink->dir[0] + nlink->dir[0]);
@@ -1258,7 +1258,7 @@ int __cdecl VP_UpdatePathPosCustom(vehicle_pathpos_t *vpp, const float *dir, __i
          + (float)(VPPToNNode[2] * nnodePlane_8);
       if ( d1 == 0.0 && d2 == 0.0 )
       {
-        frac = *(float *)&FLOAT_0_0;
+        frac = 0.0f;
         goto LABEL_30;
       }
       if ( d2 >= 0.0 )
@@ -1271,18 +1271,18 @@ int __cdecl VP_UpdatePathPosCustom(vehicle_pathpos_t *vpp, const float *dir, __i
     if ( (float)((float)((float)(clink->dir[0] * cnodeToVPP) + (float)(clink->dir[1] * cnodeToVPP_4))
                + (float)(clink->dir[2] * cnodeToVPP_8)) < 0.0 )
     {
-      frac = *(float *)&FLOAT_0_0;
+      frac = 0.0f;
       goto LABEL_30;
     }
     fraca = 1.0 - Abs(VPPToNNode) / clink->length;
     if ( (float)(fraca - 1.0) < 0.0 )
       v5 = fraca;
     else
-      v5 = FLOAT_1_0;
+      v5 = 1.0f;
     if ( (float)(0.0 - fraca) < 0.0 )
       v4 = v5;
     else
-      v4 = *(float *)&FLOAT_0_0;
+      v4 = 0.0f;
     frac = v4;
     if ( v4 <= 0.94999999 )
       goto LABEL_30;
@@ -1385,11 +1385,11 @@ double __cdecl VP_GetSlide(const vehicle_pathpos_t *vpp)
   }
   else if ( (node->flags & 0x10000) != 0 )
   {
-    return FLOAT_1_0;
+    return 1.0f;
   }
   else
   {
-    return *(float *)&FLOAT_0_0;
+    return 0.0f;
   }
 }
 
@@ -1428,7 +1428,7 @@ int __cdecl VP_UpdatePathPos(vehicle_pathpos_t *vpp, const float *dir, __int16 n
       test = 1;
     if ( cnode->splineNode.nextIdx < 0 || cnode->splineNode.length == 0.0 )
     {
-      frac = *(float *)&FLOAT_0_0;
+      frac = 0.0f;
       break;
     }
     nnode = &s_nodes[cnode->splineNode.nextIdx];
@@ -1474,7 +1474,7 @@ int __cdecl VP_UpdatePathPos(vehicle_pathpos_t *vpp, const float *dir, __int16 n
          + (float)(cnode->splineNode.dir[2] * cnodeToVPP[2]);
       if ( d1 < 0.0 )
       {
-        frac = *(float *)&FLOAT_0_0;
+        frac = 0.0f;
         break;
       }
       v3 = Abs(VPPToNNode);
@@ -1482,11 +1482,11 @@ int __cdecl VP_UpdatePathPos(vehicle_pathpos_t *vpp, const float *dir, __int16 n
       if ( (float)(frac - 1.0) < 0.0 )
         v6 = frac;
       else
-        v6 = FLOAT_1_0;
+        v6 = 1.0f;
       if ( (float)(0.0 - frac) < 0.0 )
         v5 = v6;
       else
-        v5 = *(float *)&FLOAT_0_0;
+        v5 = 0.0f;
       frac = v5;
       if ( v5 <= 0.89999998 )
         break;
@@ -1562,7 +1562,7 @@ void __cdecl G_VehSetSwitchNode(vehicle_pathpos_t *vpp, __int16 srcNodeIdx, __in
   if ( srcNodeIdx >= 0 && dstNodeIdx >= 0 )
   {
     if ( vpp->nodeIdx == srcNodeIdx )
-      vpp->frac = *(float *)&FLOAT_0_0;
+      vpp->frac = 0.0f;
     srcNode = &s_nodes[srcNodeIdx];
     dstNode = &s_nodes[dstNodeIdx];
     VP_CopyNode(srcNode, vpp->switchNode);
@@ -1804,8 +1804,8 @@ void __cdecl G_ProcessVehicleNodeCommand(const RadiantCommand *command, SpawnVar
     }
     if ( node )
     {
-      node->speed = FLOAT_N1_0;
-      node->lookAhead = FLOAT_N1_0;
+      node->speed = -1.0f;
+      node->lookAhead = -1.0f;
       node->flags = 0;
       VP_ParseFields(node, spawnVar, 1);
       if ( rotated )

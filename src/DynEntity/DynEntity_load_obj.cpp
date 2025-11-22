@@ -556,7 +556,7 @@ void __cdecl DynEnt_LoadEntities()
         v34 = (float)((float)((float)(p0 - p1) * (float)(p0 - p1)) + (float)((float)(v39 - v36) * (float)(v39 - v36)))
             + (float)((float)(v40 - v37) * (float)(v40 - v37));
         if ( v34 <= 0.0099999998 )
-          constraint->distance = FLOAT_100_0;
+          constraint->distance = 100.0f;
         else
           constraint->distance = fsqrt(v34);
       }

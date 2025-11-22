@@ -12,7 +12,7 @@ void __cdecl DB_AllocXBlocks(
   XBlock buf; // [esp+2Ch] [ebp-Ch]
   float total_size; // [esp+34h] [ebp-4h]
 
-  total_size = *(float *)&FLOAT_0_0;
+  total_size = 0.0f;
   for ( blockIndex = 0; blockIndex < 7; ++blockIndex )
   {
     buf.size = blockSize[blockIndex];

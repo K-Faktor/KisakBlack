@@ -50,11 +50,11 @@ void __cdecl RB_SetPolyVert(float *xyz, GfxColor color, int tessVertIndex)
   *xyzw = *xyz;
   xyzw[1] = xyz[1];
   xyzw[2] = xyz[2];
-  *(float *)&tess.indices[16 * tessVertIndex - 87194] = FLOAT_1_0;
+  *(float *)&tess.indices[16 * tessVertIndex - 87194] = 1.0f;
   *(unsigned int *)&tess.indices[16 * tessVertIndex - 87186] = 1073643391;
   *(GfxColor *)&tess.indices[16 * tessVertIndex - 87192] = color;
-  *(unsigned int *)&tess.indices[16 * tessVertIndex - 87190] = *(unsigned int *)&FLOAT_0_0;
-  *(unsigned int *)&tess.indices[16 * tessVertIndex - 87188] = *(unsigned int *)&FLOAT_0_0;
+  *(unsigned int *)&tess.indices[16 * tessVertIndex - 87190] = 0;
+  *(unsigned int *)&tess.indices[16 * tessVertIndex - 87188] = 0;
 }
 
 void __cdecl RB_SetDebugBrushesAndPatchesCallback(void (__cdecl *callback)())
@@ -222,7 +222,7 @@ void __cdecl RB_DrawDebugSpheres(trDebugSphere_t *spheres, int sphereCount)
   memset(usedList, 0, 0x100u);
   for ( j = 0; j < sphereCount; ++j )
   {
-    furthest = FLOAT_N1_0;
+    furthest = -1.0f;
     for ( i = 0; i < sphereCount; ++i )
     {
       if ( !usedList[i] )
@@ -304,10 +304,10 @@ void __cdecl RB_DrawDebugSphere(trDebugSphere_t *sphere)
   float v59; // [esp+657Ch] [ebp-4h]
 
   v39 = 482;
-  v51 = FLOAT_0_57700002;
-  v52 = FLOAT_0_57700002;
-  v53 = FLOAT_0_57700002;
-  v42 = *(float *)&FLOAT_0_0;
+  v51 = 0.5f7700002;
+  v52 = 0.5f7700002;
+  v53 = 0.5f7700002;
+  v42 = 0.0f;
   v25 = Vec3DistanceSq(&gfxCmdBufSourceState.viewParms.axis[2][2], sphere->center);
   v30 = (float)(sphere->radius * sphere->radius) > v25;
   v57 = sphere->center[0];
@@ -368,7 +368,7 @@ void __cdecl RB_DrawDebugSphere(trDebugSphere_t *sphere)
         v33 = v42 * sphere->color[1];
         v34 = v42 * sphere->color[2];
         R_ConvertColorToBytes(&colorFloat, colorBytes);
-        *(float *)&v24[16 * vertexCount + 12] = FLOAT_1_0;
+        *(float *)&v24[16 * vertexCount + 12] = 1.0f;
         v50[vertexCount] = *(unsigned int *)colorBytes;
         v15 = (float *)&v36[vertexCount];
         *v15 = (float)j * v56;
@@ -387,15 +387,15 @@ void __cdecl RB_DrawDebugSphere(trDebugSphere_t *sphere)
       __debugbreak();
     }
     v14 = &v24[12 * vertexCount + 7712];
-    *(unsigned int *)v14 = *(unsigned int *)&FLOAT_0_0;
-    *((unsigned int *)v14 + 1) = *(unsigned int *)&FLOAT_0_0;
-    *((float *)v14 + 2) = FLOAT_1_0;
+    *(unsigned int *)v14 = 0;
+    *((unsigned int *)v14 + 1) = 0;
+    *((float *)v14 + 2) = 1.0f;
     v12 = (float *)&v24[16 * vertexCount];
     v13 = (float *)&v24[12 * vertexCount + 7712];
     *v12 = (float)(radius * *v13) + v57;
     v12[1] = (float)(radius * v13[1]) + v58;
     v12[2] = (float)(radius * v13[2]) + v59;
-    *(float *)&v24[16 * vertexCount + 12] = FLOAT_1_0;
+    *(float *)&v24[16 * vertexCount + 12] = 1.0f;
     v42 = (float)((float)((float)((float)(*(float *)&v24[12 * vertexCount + 7712] * v51)
                                 + (float)(*(float *)&v24[12 * vertexCount + 7716] * v52))
                         + (float)(*(float *)&v24[12 * vertexCount + 7720] * v53))
@@ -407,19 +407,19 @@ void __cdecl RB_DrawDebugSphere(trDebugSphere_t *sphere)
     R_ConvertColorToBytes(&colorFloat, colorBytes);
     v50[vertexCount] = *(unsigned int *)colorBytes;
     v11 = (float *)&v36[vertexCount];
-    *v11 = *(float *)&FLOAT_0_0;
-    v11[1] = FLOAT_1_0;
+    *v11 = 0.0f;
+    v11[1] = 1.0f;
     ++vertexCount;
     v10 = &v24[12 * vertexCount + 7712];
-    *(unsigned int *)v10 = *(unsigned int *)&FLOAT_0_0;
-    *((unsigned int *)v10 + 1) = *(unsigned int *)&FLOAT_0_0;
-    *((float *)v10 + 2) = FLOAT_N1_0;
+    *(unsigned int *)v10 = 0;
+    *((unsigned int *)v10 + 1) = 0;
+    *((float *)v10 + 2) = -1.0f;
     v8 = (float *)&v24[16 * vertexCount];
     v9 = (float *)&v24[12 * vertexCount + 7712];
     *v8 = (float)(radius * *v9) + v57;
     v8[1] = (float)(radius * v9[1]) + v58;
     v8[2] = (float)(radius * v9[2]) + v59;
-    *(float *)&v24[16 * vertexCount + 12] = FLOAT_1_0;
+    *(float *)&v24[16 * vertexCount + 12] = 1.0f;
     v42 = (float)((float)((float)((float)(*(float *)&v24[12 * vertexCount + 7712] * v51)
                                 + (float)(*(float *)&v24[12 * vertexCount + 7716] * v52))
                         + (float)(*(float *)&v24[12 * vertexCount + 7720] * v53))
@@ -431,8 +431,8 @@ void __cdecl RB_DrawDebugSphere(trDebugSphere_t *sphere)
     R_ConvertColorToBytes(&colorFloat, colorBytes);
     v50[vertexCount] = *(unsigned int *)colorBytes;
     v7 = &v36[vertexCount];
-    *v7 = *(unsigned int *)&FLOAT_0_0;
-    v7[1] = *(unsigned int *)&FLOAT_0_0;
+    *v7 = 0;
+    v7[1] = 0;
     ++vertexCount;
     indexCount = 0;
     for ( j = 1; j < sideCount / 2 - 1; ++j )
@@ -593,7 +593,7 @@ void __cdecl RB_AddPlumeStrings(const GfxViewParms *viewParms)
     dt = gfxCmdBufSourceState.scissorViewport.height - backEndData->debugGlobals.plumes[plumeIndex].startTime;
     if ( dt >= 0 && dt <= backEndData->debugGlobals.plumes[plumeIndex].duration )
     {
-      backEndData->debugGlobals.plumes[plumeIndex].color[3] = FLOAT_1_0;
+      backEndData->debugGlobals.plumes[plumeIndex].color[3] = 1.0f;
       if ( 2 * dt > backEndData->debugGlobals.plumes[plumeIndex].duration )
         backEndData->debugGlobals.plumes[plumeIndex].color[3] = 2.0
                                                               - (float)((float)((float)dt * 2.0)
@@ -667,7 +667,7 @@ void __cdecl RB_ApplySunLight(const float (*verts)[3], const float *color, float
   lightDirUnit[1] = frontEndDataOut->sunLight.dir[1];
   lightDirUnit[2] = frontEndDataOut->sunLight.dir[2];
   Vec3Normalize(lightDirUnit);
-  minInt = FLOAT_0_2;
+  minInt = 0.2f;
   intensity = (float)((float)(normal[0] * lightDirUnit[0]) + (float)(normal[1] * lightDirUnit[1]))
             + (float)(normal[2] * lightDirUnit[2]);
   if ( intensity < 0.2 )
