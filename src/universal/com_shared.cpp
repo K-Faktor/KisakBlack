@@ -1,4 +1,8 @@
 #include "com_shared.h"
+#include <string.h>
+#include "q_shared.h"
+#include <ctype.h>
+#include <ctime>
 
 char __cdecl Com_Filter(const char *filter, char *name, int casesensitive)
 {
@@ -30,7 +34,7 @@ char __cdecl Com_Filter(const char *filter, char *name, int casesensitive)
                 }
                 else
                 {
-                    strstr((unsigned __int8 *)name, (unsigned __int8 *)buf);
+                    v3 = strstr(name, buf);
                     ptr = v3;
                 }
                 if ( !ptr )

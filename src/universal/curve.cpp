@@ -1,10 +1,21 @@
 #include "curve.h"
+#include "q_shared.h"
+#include <cstdlib>
 
-cCurve *__thiscall cCurve::cCurve(cCurve *this)
+CURVESORTARGS gCurveSortArgs;
+
+cCurve::cCurve()
 {
-    cCurve::Reset(this);
-    return this;
+    cCurve::Reset();
 }
+
+static const float gHermiteMatrix[4][4] =
+{
+  { 2.0, -2.0, 1.0, 1.0 },
+  { -3.0, 3.0, -2.0, -1.0 },
+  { 0.0, 0.0, 1.0, 0.0 },
+  { 1.0, 0.0, 0.0, 0.0 }
+};
 
 void __cdecl GetPositionOnCubic(
                 float *startPos,
@@ -58,7 +69,7 @@ void __cdecl GetPositionOnSpine(float *p1, float *p2, float *p3, float *p4, floa
     output[2] = (float)((float)((float)(p1[2] * u) + (float)(p2[2] * u_2)) + (float)(p3[2] * u_3)) + (float)(p4[2] * u_4);
 }
 
-void __thiscall cCurve::Reset(cCurve *this)
+void __thiscall cCurve::Reset()
 {
     int i; // [esp+4h] [ebp-4h]
 
@@ -90,7 +101,7 @@ void __thiscall cCurve::Reset(cCurve *this)
     }
 }
 
-void __thiscall cCurve::Reinit(cCurve *this)
+void __thiscall cCurve::Reinit()
 {
     this->mActive = 1;
     this->mDraw = 0;
@@ -107,7 +118,7 @@ void __thiscall cCurve::Reinit(cCurve *this)
     this->mCurServerPos = 0.0f;
 }
 
-void __thiscall cCurve::AddNode(cCurve *this, float *p)
+void cCurve::AddNode(float *p)
 {
     cCurve::nodeData *v3; // [esp+8h] [ebp-10h]
     float diff[3]; // [esp+Ch] [ebp-Ch] BYREF
@@ -147,7 +158,7 @@ void __thiscall cCurve::AddNode(cCurve *this, float *p)
     ++this->mNumNodes;
 }
 
-void __thiscall cCurve::AddNode(cCurve *this, float *p, float timePeriod)
+void __thiscall cCurve::AddNode(float *p, float timePeriod)
 {
     if ( !this->mActive
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\universal\\curve.cpp", 177, 0, "%s", "mActive == true") )
@@ -181,7 +192,7 @@ void __thiscall cCurve::AddNode(cCurve *this, float *p, float timePeriod)
     ++this->mNumNodes;
 }
 
-void __thiscall cCurve::GetPosition(cCurve *this, float time, float *pos)
+void __thiscall cCurve::GetPosition(float time, float *pos)
 {
     float v3; // [esp+10h] [ebp-54h]
     float dist; // [esp+18h] [ebp-4Ch]
@@ -275,7 +286,7 @@ void __thiscall cCurve::GetPosition(cCurve *this, float time, float *pos)
     }
 }
 
-void __thiscall cCurve::GetStartVelocity(cCurve *this, int index, float *vel)
+void __thiscall cCurve::GetStartVelocity(int index, float *vel)
 {
     float v3; // [esp+8h] [ebp-18h]
     float temp_4; // [esp+18h] [ebp-8h]
@@ -293,7 +304,7 @@ void __thiscall cCurve::GetStartVelocity(cCurve *this, int index, float *vel)
     vel[2] = 0.5 * temp_8;
 }
 
-void __thiscall cCurve::GetEndVelocity(cCurve *this, int index, float *vel)
+void __thiscall cCurve::GetEndVelocity(int index, float *vel)
 {
     float v3; // [esp+8h] [ebp-18h]
     float temp_4; // [esp+18h] [ebp-8h]
@@ -324,7 +335,7 @@ int __cdecl cCurve::CurveSortCompare(const float *e1, const float *e2)
         return (int)(float)(d2 - d1);
 }
 
-void __thiscall cCurve::Sort(cCurve *this, float *p, bool is_increasing_sort_order)
+void __thiscall cCurve::Sort(float *p, bool is_increasing_sort_order)
 {
     int v3; // ecx
     double v4; // st7
@@ -357,7 +368,7 @@ void __thiscall cCurve::Sort(cCurve *this, float *p, bool is_increasing_sort_ord
     }
 }
 
-void __thiscall cCurve::BuildNonUniform(cCurve *this)
+void __thiscall cCurve::BuildNonUniform()
 {
     float *vel; // [esp+20h] [ebp-6Ch]
     int j; // [esp+6Ch] [ebp-20h]
@@ -384,20 +395,20 @@ void __thiscall cCurve::BuildNonUniform(cCurve *this)
         if ( this->mNodes[i].vel[0] != 0.0 && this->mNodes[i].vel[1] != 0.0 && this->mNodes[i].vel[2] != 0.0 )
             Vec3NormalizeFast(this->mNodes[i].vel);
     }
-    cCurve::GetStartVelocity(this, 0, this->mNodes[0].vel);
-    cCurve::GetEndVelocity(this, this->mNumNodes - 1, this->mNodes[this->mNumNodes - 1].vel);
+    cCurve::GetStartVelocity(0, this->mNodes[0].vel);
+    cCurve::GetEndVelocity(this->mNumNodes - 1, this->mNodes[this->mNumNodes - 1].vel);
     if ( this->mCurveType )
     {
         for ( j = 0; j < 3; ++j )
         {
-            cCurve::Smooth(this);
+            cCurve::Smooth();
             if ( this->mCurveType == CURVE_TNS )
-                cCurve::Constrain(this);
+                cCurve::Constrain();
         }
     }
 }
 
-void __thiscall cCurve::BuildBSpline(cCurve *this)
+void __thiscall cCurve::BuildBSpline()
 {
     int i; // [esp+4h] [ebp-14h]
     float lastNode[3]; // [esp+8h] [ebp-10h] BYREF
@@ -421,20 +432,20 @@ void __thiscall cCurve::BuildBSpline(cCurve *this)
         for ( i = 0; i < nNeeded; ++i )
         {
             if ( this->mNumNodes < 100 )
-                cCurve::AddNode(this, lastNode);
+                cCurve::AddNode(lastNode);
         }
     }
 }
 
-void __thiscall cCurve::Build(cCurve *this)
+void __thiscall cCurve::Build()
 {
     if ( this->mCurveType == CURVE_BSPLINE )
-        cCurve::BuildBSpline(this);
+        cCurve::BuildBSpline();
     else
-        cCurve::BuildNonUniform(this);
+        cCurve::BuildNonUniform();
 }
 
-void __thiscall cCurve::Smooth(cCurve *this)
+void __thiscall cCurve::Smooth()
 {
     float *v1; // ecx
     float *vel; // [esp+Ch] [ebp-44h]
@@ -447,15 +458,15 @@ void __thiscall cCurve::Smooth(cCurve *this)
     float newVel[3]; // [esp+38h] [ebp-18h]
     float oldVel[3]; // [esp+44h] [ebp-Ch] BYREF
 
-    cCurve::GetStartVelocity(this, 0, oldVel);
+    cCurve::GetStartVelocity(0, oldVel);
     for ( i = 1; i < this->mNumNodes - 1; ++i )
     {
-        cCurve::GetEndVelocity(this, i, endVel);
+        cCurve::GetEndVelocity(i, endVel);
         dist = this->mNodes[i].dist;
         endVel[0] = dist * endVel[0];
         endVel[1] = dist * endVel[1];
         endVel[2] = dist * endVel[2];
-        cCurve::GetStartVelocity(this, i, startVel);
+        cCurve::GetStartVelocity(i, startVel);
         v5 = this->mNodes[i - 1].dist;
         startVel[0] = v5 * startVel[0];
         startVel[1] = v5 * startVel[1];
@@ -475,14 +486,14 @@ void __thiscall cCurve::Smooth(cCurve *this)
         oldVel[1] = newVel[1];
         oldVel[2] = newVel[2];
     }
-    cCurve::GetEndVelocity(this, this->mNumNodes - 1, this->mNodes[this->mNumNodes - 1].vel);
+    cCurve::GetEndVelocity(this->mNumNodes - 1, this->mNodes[this->mNumNodes - 1].vel);
     v1 = this->mNodes[this->mNumNodes - 2].vel;
     *v1 = oldVel[0];
     v1[1] = oldVel[1];
     v1[2] = oldVel[2];
 }
 
-void __thiscall cCurve::Constrain(cCurve *this)
+void __thiscall cCurve::Constrain()
 {
     double v1; // st7
     int v2; // eax
@@ -515,7 +526,7 @@ void __thiscall cCurve::Constrain(cCurve *this)
     }
 }
 
-void __thiscall cCurve::GetPos(cCurve *this, float t, float *p)
+void __thiscall cCurve::GetPos(float t, float *p)
 {
     if ( (t < 0.0 || t > 1.0)
         && !Assert_MyHandler(
@@ -527,10 +538,10 @@ void __thiscall cCurve::GetPos(cCurve *this, float t, float *p)
     {
         __debugbreak();
     }
-    cCurve::GetPosition(this, t, p);
+    cCurve::GetPosition(t, p);
 }
 
-double __thiscall cCurve::GetLength(cCurve *this)
+double __thiscall cCurve::GetLength()
 {
     double v1; // st7
     float diff[3]; // [esp+10h] [ebp-44h] BYREF
@@ -561,11 +572,11 @@ double __thiscall cCurve::GetLength(cCurve *this)
         step = (float)(end - start) / 32.0;
         pos = start;
         start = start + this->mNodes[i].dist;
-        cCurve::GetPosition(this, pos / this->mDistance, startPos);
+        cCurve::GetPosition(pos / this->mDistance, startPos);
         for ( j = 0; j < 32; ++j )
         {
             pos = pos + step;
-            cCurve::GetPosition(this, pos / this->mDistance, endPos);
+            cCurve::GetPosition(pos / this->mDistance, endPos);
             diff[0] = endPos[0] - startPos[0];
             diff[1] = endPos[1] - startPos[1];
             diff[2] = endPos[2] - startPos[2];
@@ -579,7 +590,7 @@ double __thiscall cCurve::GetLength(cCurve *this)
     return curveLength;
 }
 
-void __thiscall cCurve::SetDraw(cCurve *this, const float *userColor)
+void __thiscall cCurve::SetDraw(const float *userColor)
 {
     this->mDraw = 1;
     if ( userColor )

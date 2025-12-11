@@ -793,7 +793,7 @@ public:
         }
     }
 
-    void remote_all()
+    void remove_all()
     {
         T_internal *data; // esi
         T_internal_base *m_prev_T_internal; // ecx
@@ -980,6 +980,71 @@ struct __declspec(align(8)) tlAtomicReadWriteMutex // sizeof=0x18
     // padding byte
 };
 
+inline const phys_vec3 *__cdecl phys_min(phys_vec3 *result, const phys_vec3 *v1, const phys_vec3 *v2)
+{
+    float x; // [esp+0h] [ebp-24h]
+    float y; // [esp+4h] [ebp-20h]
+    float z; // [esp+8h] [ebp-1Ch]
+
+    if (v2->z < v1->z)
+        z = v2->z;
+    else
+        z = v1->z;
+    if (v2->y < v1->y)
+        y = v2->y;
+    else
+        y = v1->y;
+    if (v2->x < v1->x)
+        x = v2->x;
+    else
+        x = v1->x;
+    result->x = x;
+    result->y = y;
+    result->z = z;
+    return result;
+}
+
+inline const phys_vec3 *__cdecl phys_max(phys_vec3 *result, const phys_vec3 *v1, const phys_vec3 *v2)
+{
+    float x; // [esp+0h] [ebp-24h]
+    float y; // [esp+4h] [ebp-20h]
+    float z; // [esp+8h] [ebp-1Ch]
+
+    if (v1->z < v2->z)
+        z = v2->z;
+    else
+        z = v1->z;
+    if (v1->y < v2->y)
+        y = v2->y;
+    else
+        y = v1->y;
+    if (v1->x < v2->x)
+        x = v2->x;
+    else
+        x = v1->x;
+    result->x = x;
+    result->y = y;
+    result->z = z;
+    return result;
+}
+
+inline const phys_vec3 *__cdecl phys_multiply(phys_vec3 *result, const phys_mat44 *mat, const phys_vec3 *v)
+{
+    float v4; // [esp-ACh] [ebp-B8h]
+    float v5; // [esp-A8h] [ebp-B4h]
+    float y; // [esp-34h] [ebp-40h]
+    float z; // [esp-4h] [ebp-10h]
+
+    z = v->z;
+    y = v->y;
+    v5 = (float)((float)(v->x * mat->x.y) + (float)(y * mat->y.y)) + (float)(z * mat->z.y);
+    v4 = (float)((float)(v->x * mat->x.z) + (float)(y * mat->y.z)) + (float)(z * mat->z.z);
+    result->x = (float)((float)(v->x * mat->x.x) + (float)(y * mat->y.x)) + (float)(z * mat->z.x);
+    result->y = v5;
+    result->z = v4;
+    return result;
+}
+
 // oh fuck yes, in the compiler this is slurped into every file and duplicated 68 times
 static const phys_vec3 PHYS_X_VEC = { 1.0f, 0.0f, 0.0f, 0.0f };
 static const phys_vec3 PHYS_Y_VEC = { 0.0f, 1.0f, 0.0f, 0.0f };
@@ -987,14 +1052,7 @@ static const phys_vec3 PHYS_Z_VEC = { 0.0f, 0.0f, 1.0f, 0.0f };
 
 static const phys_vec3 PHYS_ZERO_VEC = { 0.0f, 0.0f, 0.0f, 0.0f };
 
-static const phys_mat44 PHYS_IDENTITY_MATRIX =
-{
-        .x = PHYS_X_VEC,
-        .y = PHYS_Y_VEC,
-        .z = PHYS_Z_VEC,
-
-        .w = { PHYS_ZERO_VEC }
-};
+static const phys_mat44 PHYS_IDENTITY_MATRIX(&PHYS_X_VEC, &PHYS_Y_VEC, &PHYS_Z_VEC, &PHYS_ZERO_VEC);
 
 static const float PHYS_PI = 3.1415927f;
 static const float PHYS_PI_TIMES_2 = 6.2831855f;

@@ -1,5 +1,9 @@
 #include "com_buildinfo.h"
+#include <stdio.h>
+#include <win32/win_localize.h>
+#include <string.h>
 
+char buf[128];
 char *__cdecl Com_GetBuildVersion()
 {
     if ( CHANGELIST_NUMBER )
@@ -24,8 +28,10 @@ const char *__cdecl Com_GetBuildOfficialNameR()
     char *Language; // eax
 
     Language = Win_GetLanguage();
-    _stricmp(Language, "japanese");
-    return aCallOfDuty_1;
+    // there is an if() here for japanese, but both branches return the same string
+    //_stricmp(Language, "japanese");
+    //return aCallOfDuty_1;
+    return "Call of Duty";
 }
 
 const char *__cdecl Com_GetBuildDisplayNameR()
@@ -36,7 +42,7 @@ const char *__cdecl Com_GetBuildDisplayNameR()
     if ( !_stricmp(Language, "japanese") )
         return "Call of Duty(R) Multiplayer - Release";
     else
-        return aCallOfDuty;
+        return "Call of Duty(R) Multiplayer - Release";
 }
 
 const char *__cdecl Com_GetBuildName()

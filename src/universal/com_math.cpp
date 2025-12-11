@@ -3243,11 +3243,55 @@ void __cdecl AxisCopy(const float (*in)[3], float (*out)[3])
     (*out)[8] = (*in)[8];
 }
 
+void __cdecl Vec3Rotate(const float *in, const float (*matrix)[3], float *out)
+{
+    if (in == out
+        && !Assert_MyHandler("c:\\projects_pc\\cod\\codsrc\\src\\universal\\com_vector.h", 525, 0, "%s", "in != out"))
+    {
+        __debugbreak();
+    }
+    *out = (float)((float)(*in * (*matrix)[0]) + (float)(in[1] * (float)(*matrix)[1]))
+        + (float)(in[2] * (float)(*matrix)[2]);
+    out[1] = (float)((float)(*in * (float)(*matrix)[3]) + (float)(in[1] * (float)(*matrix)[4]))
+        + (float)(in[2] * (float)(*matrix)[5]);
+    out[2] = (float)((float)(*in * (float)(*matrix)[6]) + (float)(in[1] * (float)(*matrix)[7]))
+        + (float)(in[2] * (float)(*matrix)[8]);
+}
+
+float __cdecl Vec3LengthSq(const float* v)
+{
+    float fDistSqrd = (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+    iassert(!IS_NAN(fDistSqrd));
+    return fDistSqrd;
+}
+
+void __cdecl Vec3NormalizeFast(float *v)
+{
+    int32_t number; // [esp+0h] [ebp-1Ch]
+    float invLength; // [esp+18h] [ebp-4h]
+
+    *(float *)&number = Vec3LengthSq(v);
+    invLength = I_rsqrt(number);
+    v[0] = v[0] * invLength;
+    v[1] = v[1] * invLength;
+    v[2] = v[2] * invLength;
+}
+
 void __cdecl Vec3Lerp(const float *start, const float *end, float fraction, float *endpos)
 {
         *endpos = (float)((float)(*end - *start) * fraction) + *start;
         endpos[1] = (float)((float)(end[1] - start[1]) * fraction) + start[1];
         endpos[2] = (float)((float)(end[2] - start[2]) * fraction) + start[2];
+}
+
+float __cdecl Vec3Distance(const float *v1, const float *v2)
+{
+    float dir[3]; // [esp+4h] [ebp-Ch] BYREF
+
+    dir[0] = *v2 - *v1;
+    dir[1] = v2[1] - v1[1];
+    dir[2] = v2[2] - v1[2];
+    return Abs(dir);
 }
 
 float __cdecl Vec3DistanceSq(const float *p1, const float *p2)

@@ -332,6 +332,19 @@ struct trajectory_t // sizeof=0x24
                                                                                 // CScriptMover_SetupMoveSpeed+71C/w ...
 };
 
+struct qtime_s // sizeof=0x24
+{                                       // XREF: SaveHeader/r qtime_t/r ...
+    int tm_sec;                         // XREF: CG_DrawWristWatch+18B/r
+    int tm_min;                         // XREF: CG_DrawWristWatch+8A/r
+    int tm_hour;                        // XREF: CG_DrawWristWatch+97/r
+    int tm_mday;                        // XREF: UI_StartServerRefresh(int,int,int)+C2/r
+    int tm_mon;                         // XREF: UI_StartServerRefresh(int,int,int)+C6/r
+    int tm_year;                        // XREF: UI_StartServerRefresh(int,int,int)+B9/r
+    int tm_wday;
+    int tm_yday;                        // XREF: Demo_Screenshot_f(void)+10C/r
+    int tm_isdst;
+};
+
 static const float colorBlack[4] = { 0.0, 0.0, 0.0, 1.0 }; // idb
 static const float colorRed[4] = { 1.0, 0.0, 0.0, 1.0 }; // idb
 static const float colorGreen[4] = { 0.0, 1.0, 0.0, 1.0 }; // idb

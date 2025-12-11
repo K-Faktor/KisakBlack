@@ -850,11 +850,10 @@ __m128 * _mm_cvtpu16_ps@<eax>(int a1@<ebp>)
 }
 
 void    R_SkinXSurfaceRigidSseOut(
-                GfxPackedVertex *a1@<ebp>,
                 const XSurface *surf,
                 int totalVertCount,
                 const DObjSkelMat *boneMatrix,
-                __m64 *dstVertNormals,
+    GfxPackedVertexNormal *dstVertNormals,
                 GfxPackedVertex *dstVerts)
 {
     __m64 v6; // [esp-Ch] [ebp-71Ch]
@@ -1016,8 +1015,8 @@ void __cdecl R_SkinXSurfaceRigidSseInOut(
                 const XSurface *surf,
                 int totalVertCount,
                 const DObjSkelMat *boneMatrix,
-                __m64 *srcVertNormals,
-                __m64 *dstVertNormals,
+                GfxPackedVertexNormal *srcVertNormals,
+                GfxPackedVertexNormal *dstVertNormals,
                 GfxPackedVertex *dstVerts)
 {
     __m128 v6; // [esp+64h] [ebp-1BCh]

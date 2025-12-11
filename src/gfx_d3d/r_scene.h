@@ -1,4 +1,385 @@
 #pragma once
+#include "r_dpvs.h"
+#include <cgame_mp/cg_local_mp.h>
+#include "r_init.h"
+
+struct GfxSceneDef // sizeof=0x14
+{                                       // XREF: GfxViewInfo/r
+                                        // GfxCmdBufSourceState/r ...
+    int time;                           // XREF: R_SetLodOrigin(refdef_s const *)+80/w
+    // R_SetLodOrigin(refdef_s const *)+86/r ...
+    float floatTime;                    // XREF: R_SetLodOrigin(refdef_s const *)+96/w
+    // R_RenderScene(refdef_s const *,int)+264/r ...
+    float viewOffset[3];                // XREF: R_SetLodOrigin(refdef_s const *)+52/w
+    // R_SetLodOrigin(refdef_s const *)+62/w ...
+};
+
+struct BModelDrawInfo // sizeof=0x2
+{                                       // XREF: GfxSceneDynBrush/r
+    unsigned __int16 surfId;
+};
+
+struct __declspec(align(4)) GfxSceneBrush // sizeof=0x2C
+{                                       // XREF: GfxScene/r
+    BModelDrawInfo info;
+    unsigned __int16 entnum;
+    const GfxBrushModel *bmodel;
+    GfxPlacement placement;
+    const ShaderConstantSet *brushConstantSet;
+    unsigned __int8 reflectionProbeIndex;
+    // padding byte
+    // padding byte
+    // padding byte
+};
+
+struct GfxVisibleLight // sizeof=0x2008
+{                                       // XREF: GfxScene/r GfxScene/r
+    int drawSurfCount;                  // XREF: R_GetPointLightPartitions(GfxLight *)+167/w
+                                        // R_GetPointLightPartitions(GfxLight *)+194/w ...
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    GfxDrawSurf drawSurfs[1024];        // XREF: R_GetBspSpotLightSurfs+DA/o
+};
+
+union GfxEntCellRefInfo // sizeof=0x4
+{                                       // XREF: R_FilterDObjIntoCells(int,uint,float * const,float)+10A/w
+                                        // R_FilterBModelIntoCells(int,uint,GfxBrushModel *)+8D/w ...
+    float radius;
+    GfxBrushModel *bmodel;
+};
+
+struct GfxSceneDpvs // sizeof=0x38
+{                                       // XREF: GfxScene/r
+    int localClientNum;                 // XREF: R_DrawAllSceneEnt(GfxViewInfo const *)+7/r
+                                        // R_DrawAllSceneEnt(GfxViewInfo const *)+4E/r ...
+    unsigned __int8 *entVisData[7];     // XREF: R_AddSceneDObj(uint,uint)+37/r
+                                        // R_DrawAllSceneEnt(GfxViewInfo const *)+161/r ...
+    unsigned __int16 *sceneXModelIndex; // XREF: R_InitSceneBuffers(void)+9F/w
+                                        // R_ShutdownSceneBuffers(void):loc_A46243/r ...
+    unsigned __int16 *sceneDObjIndex;   // XREF: R_InitSceneBuffers(void)+B9/w
+                                        // R_ShutdownSceneBuffers(void)+41/r ...
+    GfxEntCellRefInfo *entInfo[4];      // XREF: R_FilterEntIntoCells_r+246/r
+                                        // R_ShowCull(float const * const)+310/r ...
+};
+
+struct GfxSkinnedXModelSurfs // sizeof=0x4
+{                                       // XREF: GfxSceneEntityCull/r
+    void *firstSurf;
+};
+
+struct GfxSceneEntityCull // sizeof=0x40
+{                                       // XREF: GfxSceneEntity/r
+    volatile unsigned int state;
+    float mins[3];
+    float maxs[3];
+    char lods[32];
+    GfxSkinnedXModelSurfs skinnedSurfs;
+};
+
+union GfxSceneEntityInfo // sizeof=0x4
+{                                       // XREF: GfxSceneEntity/r
+    const cpose_t *pose;
+    unsigned __int16 *cachedLightingHandle;
+};
+
+struct __declspec(align(4)) GfxSceneEntity // sizeof=0x84
+{                                       // XREF: GfxScene/r
+    float lightingOrigin[3];
+    GfxScaledPlacement placement;
+    GfxSceneEntityCull cull;
+    unsigned __int16 gfxEntIndex;
+    unsigned __int16 entnum;
+    const DObj *obj;
+    GfxSceneEntityInfo info;
+    float lightingOriginToleranceSq;
+    unsigned __int16 gfxEntIndex2;
+    unsigned __int8 reflectionProbeIndex;
+    unsigned __int8 altXModelIndex;
+    unsigned __int8 entShaderConstantSetIndex;
+    unsigned __int8 entShaderConstantSetIndexExtraCam;
+    // padding byte
+    // padding byte
+};
+
+struct XModelDrawInfo // sizeof=0x4
+{                                       // XREF: GfxSceneDynModel/r
+                                        // GfxSceneModel/r
+    unsigned __int16 lod;
+    unsigned __int16 surfId;
+};
+
+struct __declspec(align(2)) GfxSceneModel // sizeof=0x4C
+{                                       // XREF: GfxScene/r
+    XModelDrawInfo info;
+    const XModel *model;
+    const DObj *obj;
+    GfxScaledPlacement placement;
+    unsigned __int16 gfxEntIndex;
+    unsigned __int16 entnum;
+    float radius;
+    unsigned __int16 *cachedLightingHandle;
+    float lightingOrigin[3];
+    float lightingOriginToleranceSq;
+    unsigned __int8 modelShaderConstantSetIndex;
+    unsigned __int8 modelShaderConstantSetIndexExtraCam;
+    unsigned __int8 reflectionProbeIndex;
+    // padding byte
+};
+
+struct __declspec(align(2)) GfxSceneGlassBrush // sizeof=0x28
+{                                       // XREF: GfxScene/r
+    GfxPlacement placement;
+    const GfxBrushModel *bmodel;
+    Material *altStreamingMaterial;
+    BModelDrawInfo info;
+    unsigned __int8 reflectionProbeIndex;
+    // padding byte
+};
+
+struct __declspec(align(64)) GfxScene // sizeof=0x1B0000
+{                                       // XREF: .data:GfxScene scene/r
+    GfxDrawSurf bspDrawSurfs[8192];
+    GfxDrawSurf smodelDrawSurfsLight[8192]; // XREF: R_InitScene(void)+D/o
+    GfxDrawSurf entDrawSurfsLight[8192]; // XREF: R_InitScene(void)+17/o
+    GfxDrawSurf codemeshDrawSurfsLight[8192];
+                                        // XREF: R_InitScene(void)+21/o
+    GfxDrawSurf bspDrawSurfsDecal[512]; // XREF: R_InitScene(void)+2B/o
+    GfxDrawSurf smodelDrawSurfsDecal[512]; // XREF: R_InitScene(void)+35/o
+    GfxDrawSurf entDrawSurfsDecal[512]; // XREF: R_InitScene(void)+3F/o
+    GfxDrawSurf bspDrawSurfsEmissive[8192];
+                                        // XREF: R_InitScene(void)+67/o
+    GfxDrawSurf smodelDrawSurfsEmissive[8192];
+                                        // XREF: R_InitScene(void)+71/o
+    GfxDrawSurf entDrawSurfsEmissive[8192];
+                                        // XREF: R_InitScene(void)+7B/o
+    GfxDrawSurf fxDrawSurfsEmissive[8192]; // XREF: R_InitScene(void)+85/o
+    GfxDrawSurf fxDrawSurfsEmissiveAuto[8192];
+                                        // XREF: R_InitScene(void)+8F/o
+    GfxDrawSurf fxDrawSurfsEmissiveDecal[8192];
+                                        // XREF: R_InitScene(void)+99/o
+    GfxDrawSurf reflectedFxDrawSurfsEmissive[8192];
+                                        // XREF: R_InitScene(void)+A3/o
+    GfxDrawSurf reflectedFxDrawSurfsEmissiveAuto[8192];
+                                        // XREF: R_InitScene(void)+AD/o
+    GfxDrawSurf reflectedFxDrawSurfsEmissiveDecal[8192];
+                                        // XREF: R_InitScene(void)+B7/o
+    GfxDrawSurf bspSunShadowDrawSurfs0[4096];
+                                        // XREF: R_InitScene(void)+C1/o
+    GfxDrawSurf smodelSunShadowDrawSurfs0[4096];
+                                        // XREF: R_InitScene(void)+CB/o
+    GfxDrawSurf entSunShadowDrawSurfs0[4096];
+                                        // XREF: R_InitScene(void)+D5/o
+    GfxDrawSurf codemeshSunShadowDrawSurfs0[64];
+                                        // XREF: R_InitScene(void)+DF/o
+    GfxDrawSurf bspSunShadowDrawSurfs1[8192];
+                                        // XREF: R_InitScene(void)+E9/o
+    GfxDrawSurf smodelSunShadowDrawSurfs1[8192];
+                                        // XREF: R_InitScene(void)+F3/o
+    GfxDrawSurf entSunShadowDrawSurfs1[8192];
+                                        // XREF: R_InitScene(void)+FD/o
+    GfxDrawSurf codemeshSunShadowDrawSurfs1[64];
+                                        // XREF: R_InitScene(void)+107/o
+    GfxDrawSurf bspSpotShadowDrawSurfs0[256];
+                                        // XREF: R_InitScene(void)+111/o
+    GfxDrawSurf smodelSpotShadowDrawSurfs0[256];
+                                        // XREF: R_InitScene(void)+11B/o
+    GfxDrawSurf entSpotShadowDrawSurfs0[512];
+                                        // XREF: R_InitScene(void)+125/o
+    GfxDrawSurf bspSpotShadowDrawSurfs1[256];
+                                        // XREF: R_InitScene(void)+12F/o
+    GfxDrawSurf smodelSpotShadowDrawSurfs1[256];
+                                        // XREF: R_InitScene(void)+139/o
+    GfxDrawSurf entSpotShadowDrawSurfs1[512];
+                                        // XREF: R_InitScene(void)+143/o
+    GfxDrawSurf bspSpotShadowDrawSurfs2[256];
+                                        // XREF: R_InitScene(void)+14D/o
+    GfxDrawSurf smodelSpotShadowDrawSurfs2[256];
+                                        // XREF: R_InitScene(void)+157/o
+    GfxDrawSurf entSpotShadowDrawSurfs2[512];
+                                        // XREF: R_InitScene(void)+161/o
+    GfxDrawSurf bspSpotShadowDrawSurfs3[256];
+                                        // XREF: R_InitScene(void)+16B/o
+    GfxDrawSurf smodelSpotShadowDrawSurfs3[256];
+                                        // XREF: R_InitScene(void)+175/o
+    GfxDrawSurf entSpotShadowDrawSurfs3[512];
+                                        // XREF: R_InitScene(void)+17F/o
+    unsigned int shadowableLightIsUsed[32];
+                                        // XREF: R_GenerateSortedDrawSurfs+949/w
+                                        // R_GenerateSortedDrawSurfs+94E/w ...
+    int maxDrawSurfCount[39];           // XREF: R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+20/r
+                                        // R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+3B/r ...
+    volatile int drawSurfCount[39];     // XREF: R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+96D/w
+                                        // R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+9DE/w ...
+    GfxDrawSurf *drawSurfs[39];         // XREF: R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+18/r
+                                        // R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+26/r ...
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    GfxDrawSurf fxDrawSurfsLight[8192]; // XREF: R_InitScene(void)+49/o
+    GfxDrawSurf fxDrawSurfsLightAuto[8192];
+                                        // XREF: R_InitScene(void)+53/o
+    GfxDrawSurf fxDrawSurfsLightDecal[8192];
+                                        // XREF: R_InitScene(void)+5D/o
+    GfxSceneDef def;                    // XREF: R_SetLodOrigin(refdef_s const *)+52/w
+                                        // R_SetLodOrigin(refdef_s const *)+62/w ...
+    int addedLightCount;                // XREF: R_CullDynamicSpotLightInCameraView(void)+2E/r
+                                        // R_CullDynamicPointLightsInCameraView(void)+43/r ...
+    GfxLight addedLight[32];            // XREF: R_CullDynamicSpotLightInCameraView(void):loc_A4682B/o
+                                        // R_CullDynamicPointLightsInCameraView(void)+54/o ...
+    bool isAddedLightCulled[32];        // XREF: R_CullDynamicSpotLightInCameraView(void)+72/w
+                                        // R_CullDynamicSpotLightInCameraView(void)+77/r ...
+    float dynamicSpotLightNearPlaneOffset;
+                                        // XREF: R_AddSpotLightToScene(float const * const,float const (* const)[3],float,float,float,float)+630/w
+                                        // R_AddSpotLightToScene(float const * const,float const (* const)[3],float,float,float,float)+63E/r ...
+    float dynamicSpotLightPlanes[6][4]; // XREF: R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+4C7/o
+                                        // R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+890/o ...
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    GfxVisibleLight visLight[4];        // XREF: R_GetPointLightPartitions(GfxLight *)+167/w
+                                        // R_GetBspSpotLightSurfs+12C/w ...
+    GfxVisibleLight visLightShadow[2];  // XREF: R_GenerateSortedDrawSurfs+153E/o
+                                        // R_GetPointLightPartitions(GfxLight *)+194/w ...
+    unsigned int *entOverflowedDrawBuf; // XREF: R_AddAllSceneEntSurfacesSpotShadow(GfxViewInfo const *,uint,uint)+27F/r
+                                        // R_DrawAllSceneEnt(GfxViewInfo const *)+C4E/r ...
+    volatile int sceneDObjCount;        // XREF: R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+B6/r
+                                        // R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+CB/r ...
+    GfxSceneEntity sceneDObj[1024];     // XREF: LaunchDobjLightingJobs+3D/o
+                                        // FinishDobjLighting+4C/o ...
+    unsigned __int8 sceneDObjVisData[7][1024];
+                                        // XREF: R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+B1/o
+                                        // R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+110/o ...
+    //volatile int sceneModelCount;       // XREF: R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+D7/r
+    volatile unsigned int sceneModelCount;       // XREF: R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+D7/r
+                                        // R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+18B/r ...
+    GfxSceneModel sceneModel[1024];     // XREF: LaunchModelLightingJobs+36/o
+                                        // FinishModelLighting+51/o ...
+    unsigned __int8 sceneModelVisData[7][1024];
+                                        // XREF: R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+186/o
+                                        // R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+1DC/o ...
+    //volatile int sceneBrushCount;       // XREF: R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+3F2/r
+    volatile unsigned int sceneBrushCount;       // XREF: R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+3F2/r
+                                        // R_AddAllSceneEntSurfacesRangeSunShadow:loc_A3FE13/r ...
+    GfxSceneBrush sceneBrush[1024];     // XREF: R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+436/o
+                                        // R_AddAllSceneEntSurfacesRangeSunShadow+29D/o ...
+    unsigned __int8 sceneBrushVisData[3][1024];
+                                        // XREF: R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+3FB/o
+                                        // R_AddAllSceneEntSurfacesRangeSunShadow+264/o ...
+    //volatile int glassBrushCount;       // XREF: R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+60F/r
+    volatile unsigned int glassBrushCount;       // XREF: R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+60F/r
+                                        // R_DrawAllSceneEnt(GfxViewInfo const *):loc_A4106A/r ...
+    GfxSceneGlassBrush glassBrush[1024];
+                                        // XREF: R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+66B/o
+                                        // R_DrawAllSceneEnt(GfxViewInfo const *)+CBA/o ...
+    unsigned __int8 glassBrushVisData[1024];
+                                        // XREF: R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+618/o
+                                        // R_DrawAllSceneEnt(GfxViewInfo const *)+C93/o ...
+    unsigned int sceneDynModelCount;    // XREF: R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+1AD/r
+                                        // R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+24E/r ...
+    unsigned int sceneDynBrushCount;    // XREF: R_AddAllSceneEntSurfacesCamera(GfxViewInfo const *)+751/r
+                                        // R_AddAllSceneEntSurfacesRangeSunShadow:loc_A3FE8A/r ...
+    DpvsPlane shadowFarPlane[2];        // XREF: R_SetupShadowSurfacesDpvs(GfxViewParms const *,float const (* const)[4],uint,int)+1F3/o
+                                        // R_SetupShadowSurfacesDpvs(GfxViewParms const *,float const (* const)[4],uint,int)+281/o ...
+    DpvsPlane shadowNearPlane[2];       // XREF: R_SetupShadowSurfacesDpvs(GfxViewParms const *,float const (* const)[4],uint,int)+115/o
+                                        // R_SetupShadowSurfacesDpvs(GfxViewParms const *,float const (* const)[4],uint,int)+1A2/o ...
+    GfxSceneDpvs dpvs;                  // XREF: R_AddSceneDObj(uint,uint)+37/r
+                                        // R_DrawAllSceneEnt(GfxViewInfo const *)+7/r ...
+    unsigned int dynSModelVisBitsCamera[64];
+                                        // XREF: R_ClearSceneDynSModelVisBits+A/o
+                                        // R_GenerateSortedDrawSurfs+16E6/o ...
+    unsigned int dynSModelVisBitsSunShadow[64];
+                                        // XREF: R_ClearSceneDynSModelVisBits+1E/o
+                                        // R_GenerateSortedDrawSurfs+16ED/o ...
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+};
+
+struct GfxSceneParms // sizeof=0x14E0
+{                                       // XREF: ?R_RenderScene@@YAXPBUrefdef_s@@H@Z/r
+                                        // ?R_RenderMissileCam@@YAXPBUrefdef_s@@H@Z/r
+    int localClientNum;
+    float blurRadius;
+    float sunVisibility;
+    GfxDepthOfField dof;
+    GfxLightScale charPrimaryLightScale;
+    GfxFilm film;
+    GfxBloom bloom;
+    GfxCompositeFx flameFx;
+    GfxReviveFx reviveFx;
+    GfxCompositeFx waterSheetingFx;
+    GfxDoubleVision doubleVision;
+    GfxGenericFilter genericFilter;
+    GfxPoison poisonFx;
+    GfxCompositeFx electrifiedFx;
+    GfxCompositeFx transportedFx;
+    GfxSaveScreenFx saveScreenFx;
+    bool isRenderingFullScreen;
+    bool playerTeleported;
+    // padding byte
+    // padding byte
+    GfxViewport sceneViewport;
+    GfxViewport displayViewport;
+    GfxViewport scissorViewport;
+    const GfxLight *primaryLights;
+    float sceneX;
+    float sceneY;
+    float sceneW;
+    float sceneH;
+};
 
 GfxScene *__cdecl R_GetScene();
 unsigned int __cdecl R_AllocSceneModel();
@@ -108,9 +489,9 @@ void __cdecl R_WaitEndTime();
 void __cdecl R_SetSunConstants(GfxCmdBufInput *input);
 void __cdecl R_SetInputCodeConstant(GfxCmdBufInput *input, unsigned int constant, float x, float y, float z, float w);
 void __cdecl R_SetInputCodeConstantFromVec4(GfxCmdBufInput *input, unsigned int constant, float *value);
-void    R_SetHDRControlConstants(float a1@<ebp>, GfxCmdBufInput *input, const GfxViewInfo *viewInfo);
+void    R_SetHDRControlConstants(GfxCmdBufInput *input, const GfxViewInfo *viewInfo);
 void __cdecl R_GenerateMarkVertsForDynamicModels(const GfxLight *visibleLights, int visibleLightCount);
-void    R_SetSkyDynamicIntensity(float a1@<ebp>, const float *viewForward, GfxCmdBufInput *input);
+void    R_SetSkyDynamicIntensity(const float *viewForward, GfxCmdBufInput *input);
 void __cdecl R_InitScene();
 void __cdecl R_ClearScene(int localClientNum);
 void R_ClearSceneDynSModelVisBits();
@@ -168,7 +549,7 @@ void __cdecl R_GetPointLightShadowSurfs(
                 int numLights);
 void __cdecl R_SetSunShadowConstants(GfxCmdBufInput *input, const GfxSunShadowProjection *sunProj);
 // local variable allocation has failed, the output may be wrong!
-void    R_SetHeroLighting(float a1@<ebp>, GfxCmdBufInput *input, GfxViewInfo *viewInfo);
+void    R_SetHeroLighting(GfxCmdBufInput *input, GfxViewInfo *viewInfo);
 void __cdecl R_SetDLightsConstantsDefaults(GfxCmdBufInput *input);
 void __cdecl R_SetInputCodeImageSamplerState(
                 GfxCmdBufInput *input,
@@ -176,7 +557,6 @@ void __cdecl R_SetInputCodeImageSamplerState(
                 unsigned __int8 samplerState);
 // local variable allocation has failed, the output may be wrong!
 void    R_SetDLightsConstants(
-                float a1@<ebp>,
                 GfxCmdBufInput *input,
                 const GfxViewInfo *viewInfo,
                 const GfxLight *visibleLights,

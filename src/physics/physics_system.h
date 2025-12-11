@@ -3,7 +3,7 @@
 
 struct phys_sys // sizeof=0x0
 {
-    environment_rigid_body *__cdecl get_environment_rigid_body();
+    static environment_rigid_body *__cdecl get_environment_rigid_body();
     void __cdecl set_max_delta_t(float max_delta_t);
     double __cdecl get_max_delta_t();
     void __cdecl set_v_tol(int max_v_iters);
@@ -33,8 +33,8 @@ struct phys_sys // sizeof=0x0
         environment_rigid_body *b2);
     void __cdecl fixup_wheel_constraints(rigid_body *const rb);
     void __cdecl update_constraint_infos();
-    rigid_body *__cdecl create_rigid_body(int no_error);
-    rigid_body_constraint_point *__cdecl create_rbc_point(
+    static rigid_body *__cdecl create_rigid_body(int no_error);
+    static rigid_body_constraint_point *__cdecl create_rbc_point(
         environment_rigid_body *b1,
         environment_rigid_body *b2,
         int no_error);
@@ -46,25 +46,25 @@ struct phys_sys // sizeof=0x0
         environment_rigid_body *b1,
         environment_rigid_body *b2,
         int no_error);
-    void __cdecl destroy(rigid_body_constraint_point *const rbc);
-    void __cdecl destroy(rigid_body_constraint_hinge *const rbc);
-    void __cdecl destroy(rigid_body_constraint_distance *const rbc);
-    void __cdecl destroy(rigid_body_constraint_ragdoll *const rbc);
-    void __cdecl destroy(rigid_body_constraint_wheel *const rbc);
-    void __cdecl destroy(rigid_body_constraint_angular_actuator *const rbc);
-    void __cdecl destroy(rigid_body_constraint_upright *const rbc);
-    void __cdecl destroy(rigid_body_constraint_custom_orientation *const rbc);
-    void __cdecl destroy(rigid_body_constraint_custom_path *const rbc);
-    void __cdecl destroy_all_rbc_point();
-    void __cdecl destroy_all_rbc_hinge();
-    void __cdecl destroy_all_rbc_dist();
-    void __cdecl destroy_all_rbc_ragdoll();
-    void __cdecl destroy_all_rbc_wheel();
-    void __cdecl destroy_all_rbc_angular_actuator();
-    void __cdecl destroy_all_rbc_upright();
-    void __cdecl destroy_all_rbc_custom_orientation();
-    void __cdecl destroy_all_rbc_custom_path();
-    void __cdecl destroy_all_unused_user_rigid_body();
+    static void __cdecl destroy(rigid_body_constraint_point *const rbc);
+    static void __cdecl destroy(rigid_body_constraint_hinge *const rbc);
+    static void __cdecl destroy(rigid_body_constraint_distance *const rbc);
+    static void __cdecl destroy(rigid_body_constraint_ragdoll *const rbc);
+    static void __cdecl destroy(rigid_body_constraint_wheel *const rbc);
+    static void __cdecl destroy(rigid_body_constraint_angular_actuator *const rbc);
+    static void __cdecl destroy(rigid_body_constraint_upright *const rbc);
+    static void __cdecl destroy(rigid_body_constraint_custom_orientation *const rbc);
+    static void __cdecl destroy(rigid_body_constraint_custom_path *const rbc);
+    static void __cdecl destroy_all_rbc_point();
+    static void __cdecl destroy_all_rbc_hinge();
+    static void __cdecl destroy_all_rbc_dist();
+    static void __cdecl destroy_all_rbc_ragdoll();
+    static void __cdecl destroy_all_rbc_wheel();
+    static void __cdecl destroy_all_rbc_angular_actuator();
+    static void __cdecl destroy_all_rbc_upright();
+    static void __cdecl destroy_all_rbc_custom_orientation();
+    static void __cdecl destroy_all_rbc_custom_path();
+    static void __cdecl destroy_all_unused_user_rigid_body();
     user_rigid_body *__cdecl create_user_rigid_body(int no_error);
     rigid_body_constraint_hinge *__cdecl create_rbc_hinge(
         environment_rigid_body *b1,

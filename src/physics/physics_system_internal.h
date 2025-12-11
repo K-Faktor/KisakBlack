@@ -83,6 +83,7 @@ struct rbint // sizeof=0x0
     void collision_prolog(user_rigid_body *rb, float delta_t);
     void take_next_step(user_rigid_body *rb, float delta_t);
     void collision_prolog(rigid_body *const rb, float delta_t);
+    void setup_constraint(rigid_body *rb, pulse_sum_node *psn);
 };
 
 

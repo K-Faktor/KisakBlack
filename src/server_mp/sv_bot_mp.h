@@ -40,7 +40,6 @@ double __cdecl Bot_UpdateYaw(float currentYaw, float targetYaw, bool forceSlow, 
 void __cdecl Bot_UpdateMantle(bot_info_t *botInfo, const client_t *bot, usercmd_s *cmd);
 void __cdecl Bot_UpdateSpeed(bot_info_t *botInfo, const client_t *bot, usercmd_s *cmd);
 void __cdecl Bot_StrafeOnPath(const playerState_s *ps, const path_t *path, usercmd_s *cmd);
-void __cdecl Vec3Rotate(const float *in, const float (*matrix)[3], float *out);
 void __cdecl Bot_SetTimedAction(
                 unsigned int button,
                 int *timedAction,

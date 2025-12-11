@@ -1,4 +1,7 @@
 #include "ragdoll_quat.h"
+#include <universal/assertive.h>
+#include <universal/com_math.h>
+#include <universal/q_shared.h>
 
 void __cdecl Ragdoll_QuatMul(const float *qa, const float *qb, float *dest)
 {
@@ -33,9 +36,12 @@ void __cdecl Ragdoll_QuatMulInvSecond(const float *qa, const float *qb, float *d
 
 void __cdecl Ragdoll_QuatConjugate(const float *src, float *dest)
 {
-    *(unsigned int *)dest = *(unsigned int *)src ^ _mask__NegFloat_;
-    *((unsigned int *)dest + 1) = *((unsigned int *)src + 1) ^ _mask__NegFloat_;
-    *((unsigned int *)dest + 2) = *((unsigned int *)src + 2) ^ _mask__NegFloat_;
+    //*(unsigned int *)dest = *(unsigned int *)src ^ _mask__NegFloat_;
+    //*((unsigned int *)dest + 1) = *((unsigned int *)src + 1) ^ _mask__NegFloat_;
+    //*((unsigned int *)dest + 2) = *((unsigned int *)src + 2) ^ _mask__NegFloat_;
+    dest[0] = -src[0];
+    dest[1] = -src[1];
+    dest[2] = -src[2];
     dest[3] = src[3];
 }
 
@@ -55,9 +61,12 @@ void __cdecl Ragdoll_QuatInverse(const float *src, float *dest)
                         v2) )
             __debugbreak();
     }
-    *(unsigned int *)dest = *(unsigned int *)src ^ _mask__NegFloat_;
-    *((unsigned int *)dest + 1) = *((unsigned int *)src + 1) ^ _mask__NegFloat_;
-    *((unsigned int *)dest + 2) = *((unsigned int *)src + 2) ^ _mask__NegFloat_;
+    //*(unsigned int *)dest = *(unsigned int *)src ^ _mask__NegFloat_;
+    //*((unsigned int *)dest + 1) = *((unsigned int *)src + 1) ^ _mask__NegFloat_;
+    //*((unsigned int *)dest + 2) = *((unsigned int *)src + 2) ^ _mask__NegFloat_;
+    dest[0] = -src[0];
+    dest[1] = -src[1];
+    dest[2] = -src[2];
     dest[3] = src[3];
 }
 
@@ -138,7 +147,8 @@ void __cdecl Ragdoll_QuatToAxisAngle(const float *quat, float *axisAngle)
     float v4; // [esp+Ch] [ebp-14h]
 
     v4 = Q_acos(quat[3]);
-    __libm_sse2_sin(v2);
+    //__libm_sse2_sin(v2);
+    v4 = sin(v4);
     if ( fabs(v4) <= 0.000001 )
     {
         *axisAngle = 0.0f;

@@ -4,6 +4,35 @@
 #include "r_gfx.h"
 #include <database/db_registry.h>
 
+enum surfaceType_t : __int32
+{                                       // XREF: ?R_AddXModelSurfacesCamera@@YAXPIAUXModelDrawInfo@@PIBUXModel@@QAMIIIHHQAPIATGfxDrawSurf@@3III@Z/r
+                                        // R_GetXSurface/r ...
+    SF_TRIANGLES            = 0x0,
+    SF_TRIANGLES_PRETESS    = 0x1,
+    SF_BEGIN_STATICMODEL    = 0x2,
+    SF_STATICMODEL_RIGID    = 0x2,
+    SF_STATICMODEL_PRETESS  = 0x3,
+    SF_STATICMODEL_CACHED   = 0x4,
+    SF_STATICMODEL_SKINNED  = 0x5,
+    SF_END_STATICMODEL      = 0x6,
+    SF_BMODEL               = 0x6,
+    SF_BEGIN_XMODEL         = 0x7,
+    SF_XMODEL_RIGID         = 0x7,
+    SF_XMODEL_RIGID_SKINNED = 0x8,
+    SF_XMODEL_SKINNED       = 0x9,
+    SF_XMODEL_WATER         = 0xA,
+    SF_END_XMODEL           = 0xB,
+    SF_BEGIN_FX             = 0xB,
+    SF_CODE_MESH            = 0xB,
+    SF_MARK_MESH            = 0xC,
+    SF_PARTICLE_CLOUD       = 0xD,
+    SF_ROPE_MESH            = 0xE,
+    SF_GLASS_MESH           = 0xF,
+    SF_END_FX               = 0x10,
+    SF_NUM_SURFACE_TYPES    = 0x10,
+    SF_FORCE_32_BITS        = 0xFFFFFFFF,
+};
+
 enum GfxDepthRangeType : __int32
 {                                       // XREF: GfxCmdBufState/r
                                         // ?R_ChangeDepthRange@@YAXPAUGfxCmdBufState@@W4GfxDepthRangeType@@@Z/r ...

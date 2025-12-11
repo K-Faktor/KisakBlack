@@ -10,6 +10,13 @@ enum rope_constraint_e : __int32
     ROPE_CENTITY_CONSTRAINT = 0x3,
 };
 
+struct contact_t // sizeof=0x1C
+{                                       // XREF: .data:contact_t * g_contacts/r
+    float point[3];
+    float normal[3];
+    int particle_index;
+};
+
 struct par_t // sizeof=0x28
 {                                       // XREF: rope_t/r
     float p[3];

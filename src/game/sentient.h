@@ -1,4 +1,77 @@
 #pragma once
+#include "teams.h"
+#include "enthandle.h"
+#include "pathnode.h"
+
+struct vis_cache_t // sizeof=0xC
+{                                       // XREF: sentient_info_t/r
+    bool bVisible;
+    // padding byte
+    // padding byte
+    // padding byte
+    int iLastUpdateTime;
+    int iLastVisTime;
+};
+
+struct sentient_info_t // sizeof=0x28
+{                                       // XREF: actor_s/r
+    vis_cache_t VisCache;
+    int iLastAttackMeTime;
+    int lastKnownPosTime;
+    int attackTime;
+    float vLastKnownPos[3];
+    pathnode_t *pLastKnownNode;
+};
+
+struct __declspec(align(4)) sentient_s // sizeof=0x90
+{                                       // XREF: sentient_t/r
+    gentity_s *ent;
+    team_t eTeam;
+    EntHandle scriptOwner;
+    int iThreatBias;
+    int iThreatBiasGroupIndex;
+    bool bIgnoreMe;
+    bool bIgnoreAll;
+    bool bIgnoreForFriendlyFire;
+    bool originChanged;
+    float oldOrigin[3];
+    float maxVisibleDist;
+    int iEnemyNotifyTime;
+    int attackerCount;
+    EntHandle lastAttacker;
+    EntHandle syncedMeleeEnt;
+    EntHandle targetEnt;
+    EntHandle scriptTargetEnt;
+    unsigned __int16 scriptTargetTag;
+    // padding byte
+    // padding byte
+    float entityTargetThreat;
+    int meleeAttackerSpot[4];
+    float attackerAccuracy;
+    bool ignoreRandomBulletDamage;
+    bool turretInvulnerability;
+    // padding byte
+    // padding byte
+    pathnode_t *pClaimedNode;
+    pathnode_t *pPrevClaimedNode;
+    pathnode_t *pActualChainPos;
+    int iActualChainPosTime;
+    pathnode_t *pNearestNode;
+    unsigned __int8 bNearestNodeValid;
+    unsigned __int8 bNearestNodeBad;
+    // padding byte
+    // padding byte
+    float vNearestNodeCheckPos[3];
+    bool inuse;
+    // padding byte
+    // padding byte
+    // padding byte
+    int banNodeTime;
+    bool bInMeleeCharge;
+    // padding byte
+    // padding byte
+    // padding byte
+};
 
 sentient_s *__cdecl Sentient_Alloc();
 void __cdecl Sentient_Free(sentient_s *sentient);

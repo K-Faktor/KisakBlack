@@ -1,5 +1,8 @@
 #include "phys_main.h"
 
+cdl_proftimer proftimer_physics_frame_advance;
+PhysGlob physGlob;
+
 void __cdecl destroy_gjk_geom(gjk_aabb_t *geom)
 {
     switch ( geom->get_type(geom) )

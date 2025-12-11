@@ -1,4 +1,32 @@
 #pragma once
+#include "common.h"
+
+/* 596 */
+enum RadiantCommandType : __int32
+{
+    RADIANT_COMMAND_SELECT = 0x0,
+    RADIANT_COMMAND_DESELECT = 0x1,
+    RADIANT_COMMAND_UPDATE_SELECTED = 0x2,
+    RADIANT_COMMAND_UPDATE = 0x3,
+    RADIANT_COMMAND_CREATE = 0x4,
+    RADIANT_COMMAND_DELETE = 0x5,
+    RADIANT_COMMAND_CAMERA = 0x6,
+};
+
+struct RadiantCommand // sizeof=0x208
+{                                       // XREF: .data:cgCommands/r
+    RadiantCommandType type;            // XREF: AddSavedCommand(RadiantCommand const &)+8D/r
+    int liveUpdateId;                   // XREF: AddSavedCommand(RadiantCommand const &)+56/r
+    char strCommand[512];               // XREF: AddSavedCommand(RadiantCommand const &)+76/o
+};
+
+struct RadaintToGameMapping // sizeof=0x10
+{                                       // XREF: .data:RadaintToGameMapping * gObjectMapping/r
+    int fromRadiantId;
+    int liveUpdateId;
+    int gameId;                         // XREF: G_AssignGameIdMapping(int,int)+15/w
+    int cg_gameId;                      // XREF: CG_AssignGameIdMapping(int,int)+15/w
+};
 
 char *__cdecl GetPairValue(const SpawnVar *spawnVar, const char *key);
 void __cdecl AddSavedCommand(const RadiantCommand *command);
@@ -8,7 +36,7 @@ int __cdecl G_GetGameIdMapping(int liveUpdateId);
 void __cdecl CG_AssignGameIdMapping(int liveUpdateId, int gameId);
 int __cdecl CG_GetGameIdMapping(int liveUpdateId);
 void __cdecl RadiantRemoteInit();
-gentity_s *__cdecl FindEntity(const SpawnVar *spawnVar, int gameId);
+struct gentity_s *__cdecl FindEntity(const SpawnVar *spawnVar, int gameId);
 bool __cdecl IsEntityType(const SpawnVar *spawnVar);
 void __cdecl G_ClearSelectedEntity();
 void __cdecl G_ProcessEntityCommand(const RadiantCommand *command, SpawnVar *spawnVar);

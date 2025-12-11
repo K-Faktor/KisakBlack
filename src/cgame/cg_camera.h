@@ -64,7 +64,6 @@ void __cdecl CG_Calc3rdPersonSpringDamp(
                 float *newPos);
 double __cdecl GetPitchOffsetRelativeToADirection(float *angles, float *direction);
 void __cdecl CG_Calc3rdPersonVehicleViewValues(int localClientNum);
-double __cdecl Vec3Distance(const float *v1, const float *v2);
 void __cdecl RotatePoint(const float *v, const float *q, float *out);
 void __cdecl CG_OffsetVehicleView(int localClientNum, CameraMode camMode);
 double __cdecl ThirdPersonViewTrace(
@@ -75,7 +74,6 @@ double __cdecl ThirdPersonViewTrace(
                 float *result,
                 bool pitch_up,
                 bool ignoreStartSolid);
-void __cdecl Vec3NormalizeFast(float *v);
 void __cdecl ThirdPerson_TraceCalcEndpos(const float *start, const float *end, float fraction, float *endpos);
 void __cdecl MovieCameraViewTrace(int localClientNum, int contentMask);
 int __cdecl CG_ScrCamActive(int localClientNum);

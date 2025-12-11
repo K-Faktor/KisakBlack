@@ -1,4 +1,6 @@
 #pragma once
+#include <qcommon/common.h>
+#include "pathnode.h"
 
 int __cdecl NodeVisCacheEntry(int i, int j);
 int __cdecl ExpandedNodeVisCacheEntry(int i, int j);

@@ -1,4 +1,9 @@
 #include "com_loadutils.h"
+#include "q_shared.h"
+#include <qcommon/common.h>
+#include "com_files.h"
+#include <string.h>
+#include <database/db_registry.h>
 
 char *__cdecl Com_LoadInfoString(char *fileName, const char *fileDesc, const char *ident, char *loadBuffer)
 {
@@ -9,7 +14,7 @@ char *__cdecl Com_LoadInfoString(char *fileName, const char *fileDesc, const cha
     else
         buffer = Com_LoadInfoString_LoadObj(fileName, fileDesc, ident, loadBuffer);
     if ( !Info_Validate(buffer) )
-        Com_Error(ERR_DROP, &byte_CD30A8, fileName, fileDesc);
+        Com_Error(ERR_DROP, "File [%s] is not a valid %s", fileName, fileDesc);
     return buffer;
 }
 
@@ -21,14 +26,14 @@ char *__cdecl Com_LoadInfoString_LoadObj(char *fileName, const char *fileDesc, c
 
     fileLen = FS_FOpenFileByMode(fileName, &fileHandle, FS_READ);
     if ( fileLen < 0 )
-        Com_Error(ERR_DROP, &byte_CD310C, fileDesc, fileName);
+        Com_Error(ERR_DROP, "Could not load %s [%s]", fileDesc, fileName);
     v5 = strlen(ident);
     FS_Read((unsigned __int8 *)loadBuffer, v5, fileHandle);
     loadBuffer[v5] = 0;
     if ( strncmp(loadBuffer, ident, v5) )
-        Com_Error(ERR_DROP, &byte_CD30F4, fileName, fileDesc);
+        Com_Error(ERR_DROP, "File [%s] is not a %s", fileName, fileDesc);
     if ( (int)(fileLen - v5) >= 0x4000 )
-        Com_Error(ERR_DROP, &byte_CD30C8, fileName, fileDesc);
+        Com_Error(ERR_DROP, "File [%s] is too long of a %s to parse", fileName, fileDesc);
     FS_Read((unsigned __int8 *)loadBuffer, fileLen - v5, fileHandle);
     loadBuffer[fileLen - v5] = 0;
     FS_FCloseFile(fileHandle);
@@ -41,13 +46,13 @@ const char *__cdecl Com_LoadInfoString_FastFile(const char *fileName, const char
     const char *buffer; // [esp+14h] [ebp-Ch]
     RawFile *rawfile; // [esp+1Ch] [ebp-4h]
 
-    rawfile = DB_FindXAssetHeader(ASSET_TYPE_RAWFILE, fileName, 1, -1).rawfile;
+    rawfile = DB_FindXAssetHeader(ASSET_TYPE_RAWFILE, (char*)fileName, 1, -1).rawfile;
     if ( !rawfile )
-        Com_Error(ERR_DROP, &byte_CD3148, fileDesc, fileName);
+        Com_Error(ERR_DROP, "Could not load %s file [%s]", fileDesc, fileName);
     buffer = rawfile->buffer;
     v4 = strlen(ident);
     if ( strncmp(buffer, ident, v4) )
-        Com_Error(ERR_DROP, &byte_CD3128, fileName, fileDesc);
+        Com_Error(ERR_DROP, "File [%s] is not a %s file", fileName, fileDesc);
     return &buffer[v4];
 }
 
@@ -69,13 +74,13 @@ char *__cdecl Com_LoadRawTextFile_LoadObj(const char *fullpath)
         return 0;
 }
 
-XModelPiece *__cdecl Com_LoadRawTextFile_FastFile(const char *fullpath)
+char *__cdecl Com_LoadRawTextFile_FastFile(const char *fullpath)
 {
     RawFile *rawfile; // [esp+4h] [ebp-4h]
 
-    rawfile = DB_FindXAssetHeader(ASSET_TYPE_RAWFILE, fullpath, 1, -1).rawfile;
+    rawfile = DB_FindXAssetHeader(ASSET_TYPE_RAWFILE, (char*)fullpath, 1, -1).rawfile;
     if ( rawfile )
-        return (XModelPiece *)rawfile->buffer;
+        return (char *)rawfile->buffer;
     else
         return 0;
 }

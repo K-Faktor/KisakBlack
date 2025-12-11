@@ -1,5 +1,17 @@
 #include "aabbtree.h"
 
+#include <cstring>
+#include "assertive.h"
+#include "com_math.h"
+#include <cstdlib>
+#include <cfloat>
+#include <qcommon/common.h>
+
+float *sortedMins;
+float *sortedMaxs;
+float *sortedCoplanar;
+int aabbTreeCount;
+
 int __cdecl BuildAabbTree(const GenericAabbTreeOptions *options)
 {
     float *v2; // [esp+4h] [ebp-454h]

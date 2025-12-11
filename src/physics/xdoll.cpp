@@ -1,4 +1,21 @@
 #include "xdoll.h"
+#include "phys_main.h"
+#include <qcommon/threads.h>
+#include <cgame_mp/cg_local_mp.h>
+#include <qcommon/dobj_management.h>
+#include <cgame_mp/cg_ents_mp.h>
+#include "physics_system.h"
+#include <xanim/dobj_utils.h>
+#include <qcommon/common.h>
+#include <xanim/xmodel_utils.h>
+#include <xanim/xmodel.h>
+#include <win32/win_common.h>
+#include "phys_broad_phase.h"
+#include <clientscript/cscr_stringlist.h>
+#include <bgame/bg_misc.h>
+
+int xdollTime;
+XDollBody xdollBodies[128];
 
 bool __cdecl XDoll_IsXDollConstraint(ConstraintType type)
 {
@@ -20,7 +37,8 @@ void __cdecl XDoll_SetCollides(XDollBone *bone, bool collides)
         userData = (PhysObjUserData *)bone->rigidBody;
         if ( (userData->m_bpb->m_flags & 1) != 0 )
         {
-            bpi = broad_phase_base::get_bpi(userData->m_bpb);
+            //bpi = broad_phase_base::get_bpi(userData->m_bpb);
+            bpi = userData->m_bpb->get_bpi();
             flags = bpi->m_env_collision_flags;
             if ( collides )
                 flagsa = flags | 3;
@@ -30,7 +48,7 @@ void __cdecl XDoll_SetCollides(XDollBone *bone, bool collides)
         }
         else
         {
-            for ( i = broad_phase_base::get_bpg(userData->m_bpb)->m_list_bpi_head; i; i = (broad_phase_info *)i->m_list_bpb_next )
+            for ( i = (userData->m_bpb)->get_bpg()->m_list_bpi_head; i; i = (broad_phase_info *)i->m_list_bpb_next)
             {
                 m_env_collision_flags = i->m_env_collision_flags;
                 if ( collides )
@@ -145,7 +163,7 @@ void __cdecl XDoll_Update(int msec)
                     if ( body->userBodyBoneHash )
                     {
                         if ( CG_DObjGetWorldTagMatrix(&cent->pose, obj, body->userBodyBoneHash, mat, origin) )
-                            Phys_SetUserBody((int)&savedregs, body->userBody, origin);
+                            Phys_SetUserBody(body->userBody, origin);
                     }
                 }
                 else
@@ -388,11 +406,11 @@ char __cdecl XDoll_CreatePhysObj(
             Com_PrintWarning(14, "XDoll: Failed to model physPreset\n");
         gjk_geom_list.m_first_geom = 0;
         gjk_geom_list.m_geom_count = 0;
-        collision_visitor.__vftable = (create_gjk_geom_collision_visitor_vtbl *)&create_gjk_geom_collision_visitor::`vftable';
+        //collision_visitor.__vftable = (create_gjk_geom_collision_visitor_vtbl *)&create_gjk_geom_collision_visitor::`vftable';
         collision_visitor.gjk_geom_list = &gjk_geom_list;
         if ( model && XModelHasCollmap(model) && !bone->index )
         {
-            create_xmodel_gjk_geom(model, &collision_visitor, -1, (unsigned int)&cls.recentServers[7546].city[57], 1, 0, 0);
+            create_xmodel_gjk_geom(model, &collision_visitor, -1, 0x280EC93u, 1, 0, 0);
         }
         else if ( XModelGetCollmapForBoneIndex(model, bone->index) )
         {
@@ -405,12 +423,12 @@ char __cdecl XDoll_CreatePhysObj(
             else
                 surfFlags = (int)"t";
             aabb_gjk_geom = create_aabb_gjk_geom(
-                                                COERCE_FLOAT(&savedregs),
                                                 model->mins,
                                                 model->maxs,
-                                                (unsigned __int8)((int)((unsigned int)&bg_vehicleInfos[11].rotorTailStartFx[20] & surfFlags) >> 20),
+                                                (surfFlags & 0x3F00000) >> 20,
                                                 &g_empty_collision_visitor);
-            gjk_geom_list_t::add_geom(&gjk_geom_list, aabb_gjk_geom);
+            //gjk_geom_list_t::add_geom(&gjk_geom_list, aabb_gjk_geom);
+            gjk_geom_list.add_geom(aabb_gjk_geom);
         }
         Sys_EnterCriticalSection(CRITSECT_PHYSICS);
         bone->physPreset = physPreset;
@@ -555,10 +573,10 @@ int __cdecl XDoll_CreateXDollForConstraints(
     {
         if ( CG_DObjGetWorldTagMatrix(&cent->pose, obj, body->userBodyBoneHash, mat, origin) )
         {
-            UserBody = Phys_CreateUserBody(COERCE_FLOAT(&savedregs), origin, entity_index, PHYS_GEOM_CAPSULE);
+            UserBody = Phys_CreateUserBody(origin, entity_index, PHYS_GEOM_CAPSULE);
             body->userBody = (int)UserBody;
             if ( body->userBody )
-                Phys_SetUserBody((int)&savedregs, body->userBody, origin);
+                Phys_SetUserBody(body->userBody, origin);
         }
     }
     return xdoll_handle;
@@ -630,7 +648,7 @@ void __cdecl XDoll_UpdateHealth(int xdoll_handle, int health)
                              && (body->constraintInfos[ci].timer < 1000 * constraintsDef->data[ci].timeout
                                 || !constraintsDef->data[ci].timeout) )
                 {
-                    XDoll_CreateConstraint((PhysObjUserData *)&savedregs, body, &constraintsDef->data[ci], cinfo);
+                    XDoll_CreateConstraint(body, &constraintsDef->data[ci], cinfo);
                     XDoll_SetCollides(body, 0);
                 }
             }
@@ -639,7 +657,6 @@ void __cdecl XDoll_UpdateHealth(int xdoll_handle, int health)
 }
 
 void    XDoll_CreateConstraint(
-                PhysObjUserData *a1@<ebp>,
                 XDollBody *body,
                 const PhysConstraint *constraint,
                 XDoll_ConstraintInfo *cinfo)

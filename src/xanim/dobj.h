@@ -9,6 +9,13 @@ struct DObjAnimMat // sizeof=0x20
         float transWeight;                                    // XREF: CG_DoBaseOriginController+23B/w
 };
 
+struct DObjSkelMat // sizeof=0x40
+{                                       // XREF: FX_GenerateMarkVertsForMark_MatrixFromPlacement/r
+                                        // FX_GenerateMarkVertsForMark_MatrixFromAnim/r ...
+    float axis[3][4];
+    float origin[4];
+};
+
 struct DSkelPartBits // sizeof=0x3C
 {                                                                             // XREF: DSkel/r
         //int anim[5];                                                // XREF: DObjCalcBaseSkel(DObj const *,DObjAnimMat *,int * const)+A0/w

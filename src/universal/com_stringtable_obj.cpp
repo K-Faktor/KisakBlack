@@ -1,4 +1,16 @@
 #include "com_stringtable_obj.h"
+#include <server_mp/sv_bot_mp.h>
+#include "com_stringtable.h"
+#include "com_loadutils.h"
+#include <qcommon/common.h>
+#include <string.h>
+#include "q_parse.h"
+#include <ui/ui_utils.h>
+#include <stringed/stringed_ingame.h>
+#include <cstdlib>
+#include "com_memory.h"
+
+StringTable *s_sortTable;
 
 int __cdecl StringTable_HashString(const char *string)
 {

@@ -1,5 +1,7 @@
 #include "com_math_anglevectors.h"
 
+#include <cmath>
+
 void __cdecl AngleVectors(const float *angles, float *forward, float *right, float *up)
 {
     float cy; // [esp+18h] [ebp-1Ch]

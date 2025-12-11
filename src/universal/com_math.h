@@ -210,8 +210,13 @@ void __cdecl AxisCopy(const float (*in)[3], float (*out)[3]);
 
 float __cdecl Vec2Length(const float *v);
 
+float __cdecl Vec3LengthSq(const float *v);
+void __cdecl Vec3NormalizeFast(float *v);
+void __cdecl Vec3Rotate(const float *in, const float (*matrix)[3], float *out);
 void __cdecl Vec3Lerp(const float *start, const float *end, float fraction, float *endpos);
 float __cdecl Vec3DistanceSq(const float *p1, const float *p2);
+float __cdecl Vec3Distance(const float *v1, const float *v2);
+
 float __cdecl Vec3Normalize(float *v);
 float __cdecl Vec3NormalizeTo(const vec3r v, vec3r out);
 float __cdecl Vec2Normalize(float *v);
@@ -321,4 +326,6 @@ constexpr float identityMatrix44[4][4] =
   { 0.0, 0.0, 1.0, 0.0 },
   { 0.0, 0.0, 0.0, 1.0 }
 };
+
+constexpr float quatZRot[4] = { 0.0, 0.0, 1.0, 0.0 };
 

@@ -1,4 +1,7 @@
 #pragma once
+#include "sentient.h"
+
+struct gentity_s;
 
 void __cdecl Turret_RegisterDvars();
 void __cdecl G_InitTurrets();

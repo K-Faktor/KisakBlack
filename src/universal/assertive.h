@@ -8,6 +8,19 @@ enum AssertOccurance : __int32
         RECURSIVE = 0x1,
 };
 
+struct AddressInfo_s // sizeof=0x110
+{                                       // XREF: .data:g_assertAddress/r
+                                        // AddressInfo/r
+    unsigned int address;               // XREF: Assert_DoStackTrace(char *,int,int,void *)+96/w
+    char moduleName[64];
+    char bestFunction[64];
+    char bestFunctionFilename[64];
+    unsigned int bestFunctionAddress;
+    char bestLineFilename[64];
+    unsigned int bestLineAddress;
+    unsigned int bestLineNumber;
+};
+
 void __cdecl FixWindowsDesktop();
 int __cdecl Assert_DoStackTrace(char *msg, int nIgnore, int type, int *context);
 int __cdecl LoadMapFiles(char *msg);

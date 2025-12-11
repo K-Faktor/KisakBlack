@@ -59,6 +59,15 @@ struct Material;
 struct Font_s;
 struct snd_alias_list_t;
 
+struct pc_token_s // sizeof=0x410
+{                                       // XREF: pc_token_t/r
+    int type;                           // XREF: PC_Int_Parse:loc_7774F4/r
+    int subtype;                        // XREF: PC_EventScript_Parse+6FC/r
+    int intvalue;                       // XREF: PC_Int_Parse+AC/r
+    float floatvalue;                   // XREF: PC_Float_Parse+B2/r
+    char string[1024];                  // XREF: PC_String_Parse:loc_77741E/o
+};
+
 struct CachedAssets_t // sizeof=0x58
 {                                       // XREF: sharedUiInfo_t/r
     Material *scrollBarArrowUp;         // XREF: UI_AssetCache+4E/w

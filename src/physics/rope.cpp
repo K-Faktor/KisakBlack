@@ -1,4 +1,28 @@
 #include "rope.h"
+#include <qcommon/cm_load.h>
+#include "physconstraints_load_obj.h"
+#include <qcommon/common.h>
+#include <gfx_d3d/r_rope_render.h>
+#include <cgame_mp/cg_main_mp.h>
+#include <bgame/bg_wind.h>
+#include <DynEntity/DynEntity_load_obj.h>
+#include <universal/com_math_anglevectors.h>
+#include <qcommon/dobj_management.h>
+#include <cgame_mp/cg_ents_mp.h>
+#include <client/splitscreen.h>
+#include <universal/curve.h>
+
+int g_max_ropes;
+rope_t *g_ropes;
+int g_rope_sys_time;
+int g_ropesWithEntsAnchorsCount;
+int g_ropeCount;
+int g_totalRopeCount;
+int g_mapRopeCount;
+int g_ropesWithEntsAnchors[10];
+int g_num_contacts;
+int g_update_count;
+contact_t g_contacts[600];
 
 bool __cdecl Rope_IsValid(int rope_index)
 {
@@ -272,6 +296,7 @@ void __cdecl Rope_RemoveAnchor(int rope_index, int particle_index)
     Rope_Activate(rope_index);
 }
 
+static const float denom = 25.0f;
 void __cdecl Rope_Create(
                 int rope_index,
                 const float *start,
@@ -465,8 +490,8 @@ void __cdecl Rope_UpdateInternal(const RopeUpdateCmdData *cmd)
         if ( cmd->ropes[ri].m_in_use )
             Rope_Tick(cmd, ri, 17.0 * 0.001, 0);
     }
-    if ( GetCurrentThreadId() == g_DXDeviceThread )
-        D3DPERF_EndEvent();
+    //if ( GetCurrentThreadId() == g_DXDeviceThread )
+    //    D3DPERF_EndEvent();
 }
 
 void __cdecl Rope_Tick(const RopeUpdateCmdData *cmd, int rope_index, float dt, bool force_update)
@@ -560,6 +585,9 @@ void __cdecl Rope_Tick(const RopeUpdateCmdData *cmd, int rope_index, float dt, b
     }
 }
 
+static const float base_fric = 0.01f;
+static const float col_fric = 0.9f;
+static const float wall_col_fric = 0.2f;
 void __cdecl Rope_ApplyPhysics(int rope_index, float dt)
 {
     int v2; // eax
@@ -590,7 +618,7 @@ void __cdecl Rope_ApplyPhysics(int rope_index, float dt)
     }
     rope = &g_ropes[rope_index];
     ++g_update_count;
-    gravity = FLOAT_N800_0;
+    gravity = -800.0f;
     BG_GetVariantWindVector(rope_index % 16, wind_vector);
     wind_vector[0] = (float)((float)(rand() % 101) / 100.0) * wind_vector[0];
     wind_vector[1] = (float)((float)(rand() % 101) / 100.0) * wind_vector[1];

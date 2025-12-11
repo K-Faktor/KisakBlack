@@ -1,5 +1,39 @@
 #pragma once
 
+#include "com_expressions.h"
+#include <ddl/ddl_api.h>
+#include <live/live_stats.h>
+#include "com_stringtable.h"
+#include <ui/ui_main.h>
+
+enum milestoneTableColumns_t : __int32
+{                                       // XREF: ?GetStatsMilestoneData@@YAPBDW4milestoneTableColumns_t@@PBD01010@Z/r
+                                        // ?GetStatsMilestoneData@@YAPBDW4milestoneTableColumns_t@@PBD01010@Z/r ...
+    MILESTONE_COLUMN_INDEX       = 0x0,
+    MILESTONE_COLUMN_TIERID      = 0x1,
+    MILESTONE_COLUMN_TARGETVALUE = 0x2,
+    MILESTONE_COLUMN_STATTYPE    = 0x3,
+    MILESTONE_COLUMN_STATNAME    = 0x4,
+    MILESTONE_COLUMN_STRING      = 0x5,
+    MILESTONE_COLUMN_XPEARNED    = 0x6,
+    MILESTONE_COLUMN_CPEARNED    = 0x7,
+    MILESTONE_COLUMN_EXCLUDE     = 0x8,
+    MILESTONE_COLUMN_UNLOCKITEM  = 0x9,
+    MILESTONE_COLUMN_PERKNAME    = 0xA,
+};
+
+struct OperandList // sizeof=0x54
+{                                       // XREF: OperandStack/r
+    Operand operands[10];               // XREF: IsAttachmentAllowedOnItemIndex+5B/r
+    int operandCount;                   // XREF: GetAttachmentsFormatted+4D/r
+};
+
+struct OperandStack // sizeof=0x13B4
+{
+    OperandList stack[60];
+    int numOperandLists;
+};
+
 bool __cdecl IsVisible(char flags);
 char __cdecl GetTwoOperands(OperandStack *dataStack, Operand *data1, Operand *data2);
 char __cdecl GetOperand(OperandStack *dataStack, Operand *data);

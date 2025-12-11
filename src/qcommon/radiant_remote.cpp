@@ -1,4 +1,15 @@
 #include "radiant_remote.h"
+#include <clientscript/cscr_stringlist.h>
+#include <game_mp/g_main_mp.h>
+#include <game_mp/g_spawn_mp.h>
+#include <game_mp/actor_mp.h>
+
+bool runningSavedCommands;
+int savedCommandCount;
+RadiantCommand savedCommands[128];
+RadaintToGameMapping gObjectMapping[128];
+int gObjectMappingCount;
+gentity_s *g_radiant_selected_ent;
 
 char *__cdecl GetPairValue(const SpawnVar *spawnVar, const char *key)
 {

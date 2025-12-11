@@ -1,4 +1,11 @@
 #include "com_constantconfigstrings.h"
+#include "com_stringtable.h"
+#include <qcommon/common.h>
+#include <qcommon/com_gamemodes.h>
+#include <stdlib.h>
+
+const StringTable *configStringTable;
+int configStringTableChecksum;
 
 void __cdecl CCS_ClearConstantConfigStrings()
 {

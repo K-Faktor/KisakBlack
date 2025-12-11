@@ -2398,16 +2398,6 @@ void __cdecl CG_Calc3rdPersonVehicleViewValues(int localClientNum)
     }
 }
 
-double __cdecl Vec3Distance(const float *v1, const float *v2)
-{
-    float dir[3]; // [esp+4h] [ebp-Ch] BYREF
-
-    dir[0] = *v2 - *v1;
-    dir[1] = v2[1] - v1[1];
-    dir[2] = v2[2] - v1[2];
-    return Abs(dir);
-}
-
 void __cdecl RotatePoint(const float *v, const float *q, float *out)
 {
     float t4; // [esp+0h] [ebp-24h]
@@ -2605,16 +2595,6 @@ double __cdecl ThirdPersonViewTrace(
         result[2] = start[2] + dir[2];
         return 0.0;
     }
-}
-
-void __cdecl Vec3NormalizeFast(float *v)
-{
-    float invLength; // [esp+1Ch] [ebp-4h]
-
-    invLength = I_rsqrt(COERCE_INT((float)((float)(*v * *v) + (float)(v[1] * v[1])) + (float)(v[2] * v[2])));
-    *v = *v * invLength;
-    v[1] = v[1] * invLength;
-    v[2] = v[2] * invLength;
 }
 
 void __cdecl ThirdPerson_TraceCalcEndpos(const float *start, const float *end, float fraction, float *endpos)

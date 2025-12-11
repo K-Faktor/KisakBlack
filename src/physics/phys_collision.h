@@ -59,6 +59,45 @@ struct __declspec(align(8)) broad_phase_base // sizeof=0x50
         // padding byte
         // padding byte
         // padding byte
+
+        broad_phase_info *get_bpi()
+        {
+            return (broad_phase_info*)this;
+        }
+
+        struct broad_phase_group *get_bpg()
+        {
+            return (broad_phase_group *)this;
+        }
+
+        broad_phase_info *get_bpi_env()
+        {
+            return get_bpi();
+        }
+
+        void get_aabb(phys_vec3 *aabb)
+        {
+            const phys_vec3 *v4; // eax
+            const phys_vec3 *v5; // eax
+            phys_vec3 v6; // [esp-20h] [ebp-2Ch] BYREF
+            phys_vec3 v7; // [esp-10h] [ebp-1Ch] BYREF
+            void *retaddr; // [esp+Ch] [ebp+0h]
+
+            v7.x = this->m_trace_translation.x + this->m_trace_aabb_min_whace.x;
+            v7.y = this->m_trace_translation.y + this->m_trace_aabb_min_whace.y;
+            v7.z = this->m_trace_translation.z + this->m_trace_aabb_min_whace.z;
+            v4 = phys_min(&v6, &this->m_trace_aabb_min_whace, &v7);
+            aabb->x = v4->x;
+            aabb->y = v4->y;
+            aabb->z = v4->z;
+            v7.x = this->m_trace_aabb_max_whace.x + this->m_trace_translation.x;
+            v7.y = this->m_trace_aabb_max_whace.y + this->m_trace_translation.y;
+            v7.z = this->m_trace_aabb_max_whace.z + this->m_trace_translation.z;
+            v5 = phys_max(&v6, &this->m_trace_aabb_max_whace, &v7);
+            aabb[1].x = v5->x;
+            aabb[1].y = v5->y;
+            aabb[1].z = v5->z;
+        }
 };
 
 struct __declspec(align(8)) broad_phase_info : broad_phase_base // sizeof=0x70

@@ -1,4 +1,537 @@
 #include "com_expressions.h"
+#include "com_memory.h"
+#include "q_parse.h"
+#include "q_shared.h"
+#include <qcommon/common.h>
+#include "com_expressions_eval.h"
+#include <server_mp/sv_bot_mp.h>
+#include <ui/l_precomp.h>
+#include "com_loadutils.h"
+#include <ui/ui_shared.h>
+
+expressionRpn prog[150];
+
+int s_operatorPrecedence[] =
+{
+  2147483647,
+  0,
+  11,
+  11,
+  11,
+  13,
+  13,
+  9,
+  9,
+  15,
+  15,
+  15,
+  15,
+  16,
+  16,
+  25,
+  25,
+  99,
+  80,
+  17,
+  18,
+  9,
+  14,
+  14
+};
+
+const char *g_expOperatorNames[] =
+{
+  "NOOP",
+  ")",
+  "*",
+  "/",
+  "%",
+  "+",
+  "-",
+  "-",
+  "!",
+  "<",
+  "<=",
+  ">",
+  ">=",
+  "==",
+  "!=",
+  "&&",
+  "||",
+  "(",
+  ",",
+  "&",
+  "|",
+  "~",
+  "<<",
+  ">>"
+};
+
+const char *g_expFunctionNames[457] =
+{
+  "INVALID",
+  "sin",
+  "cos",
+  "min",
+  "max",
+  "milliseconds",
+  "dvar",
+  "dvarint",
+  "dvarbool",
+  "dvarfloat",
+  "dvarstring",
+  "ui_active",
+  "flashbanged",
+  "scoped",
+  "scoreboard_visible",
+  "inkillcam",
+  "isdualwield",
+  "isfuelweapon",
+  "player",
+  "selecting_location",
+  "team",
+  "otherteam",
+  "marinesfield",
+  "opforfield",
+  "menuisopen",
+  "writingdata",
+  "inlobby",
+  "inprivateparty",
+  "privatepartyhost",
+  "privatepartyhostinlobby",
+  "aloneinparty",
+  "sameclanmembersinparty",
+  "aloneinlobby",
+  "adsjavelin",
+  "weaplockblink",
+  "weapattacktop",
+  "weapattackdirect",
+  "secondsastime",
+  "tablelookup",
+  "statstablelookup",
+  "getclassbonus",
+  "locstring",
+  "localvarint",
+  "localvarbool",
+  "localvarfloat",
+  "localvarstring",
+  "timeleft",
+  "secondsascountdown",
+  "gamemsgwndactive",
+  "int",
+  "string",
+  "float",
+  "gametypename",
+  "gametype",
+  "gametypedescription",
+  "scoreatrank",
+  "friendsonline",
+  "spectatingclient",
+  "keybinding",
+  "actionslotusable",
+  "hudfade",
+  "maxrecommendedplayers",
+  "acceptinginvite",
+  "gamehost",
+  "isvisibilitybitset",
+  "issplitscreen",
+  "issplitscreenhost",
+  "splitscreennum",
+  "iscinematicfinished",
+  "isselectinglocationalkillstreak",
+  "isselectingairstrike",
+  "isselectingartillery",
+  "isselectingnapalm",
+  "isselectingmortar",
+  "isselectingcomlink",
+  "hasfriends",
+  "haspendingfriends",
+  "hasinvites",
+  "partyismissingmappack",
+  "partymissingmappackerror",
+  "anynewmappacks",
+  "isintermission",
+  "issuperuser",
+  "isautojoindevuser",
+  "isitemlocked",
+  "isitemdualwieldlocked",
+  "isitemdualwieldpurchased",
+  "isitemnew",
+  "getitemref",
+  "getitemname",
+  "getitemimage",
+  "getitemunlocklevel",
+  "getitemunlockplevel",
+  "getitemdesc",
+  "getitemindex",
+  "getitemdualwieldindex",
+  "getitemdualwieldbaseindex",
+  "getItemCost",
+  "getitemdualwieldcost",
+  "getItemSellPrice",
+  "getItemCount",
+  "getitemgroup",
+  "getstatbyname",
+  "isclanowner",
+  "isclanadmin",
+  "isclanmember",
+  "getclanrank",
+  "getxuid",
+  "getselfgamertag",
+  "getrankbyxuid",
+  "getprestigebyxuid",
+  "getcodpointsbyxuid",
+  "getdisplaylevelbyxuid",
+  "getclanshortdescription",
+  "getclanlongdescription",
+  "getclandatefounded",
+  "getclanmembercount",
+  "getclanonlinemembercount",
+  "getclanname",
+  "getclanmotd",
+  "getclantagandname",
+  "getrecommendedplayercount",
+  "getMutedStatus",
+  "getUIRect",
+  "getFeederData",
+  "hasFocus",
+  "isVisible",
+  "getRank",
+  "getPrestige",
+  "getPlayerCardTitle",
+  "getdefaultclassslot",
+  "getcacFactionNameWithButtons",
+  "getitemattachment",
+  "getstatforfriendorself",
+  "getsortedstatsforfriendorself",
+  "getFloatAsFormattedString",
+  "changeSortedStatsPivot",
+  "canScrollUpOrDown",
+  "getCurrentScrollBarPosition",
+  "getCombatRecordInfoBarWidth",
+  "getCombatRecordInfoBarText",
+  "getCombatRecordInfoBarTagText",
+  "getCombatRecordHistogramHeight",
+  "getCombatRecordPieChartText",
+  "getCombatRecordMinMaxScore",
+  "getCombatRecordFailedContracts",
+  "getCombatRecordLockedString",
+  "getNumWagerMatchesPlayed",
+  "getNumWagerMatchesWon",
+  "getAfterActionReportAwardsInfo",
+  "getNumPersonalBests",
+  "getPersonalBestName",
+  "getPersonalBestValue",
+  "getPersonalBestDelta",
+  "getPersonalBestPrefix",
+  "getNumWeaponUnlocks",
+  "getNumFeatureUnlocks",
+  "getUnlockedWeaponItemIndex",
+  "getUnlockedFeatureItemIndex",
+  "getNumStatsMilestones",
+  "getStatsMilestoneValue",
+  "getStatsMilestoneName",
+  "getCurrentChallengeXpReward",
+  "getCurrentChallengeCpReward",
+  "getCurrentChallengeProgress",
+  "isCurrentChallengeItemClassified",
+  "getNumChallenges",
+  "getTotalMatchesPlayed",
+  "getCopyClassConfirmationText",
+  "getCopyClassDialogTitle",
+  "isFileshareDataSummaryValid",
+  "getFileshareRecentGamesCount",
+  "getFileshareGameMap",
+  "getFileshareGameMapName",
+  "getFileshareGameType",
+  "getFileshareGameTypeName",
+  "getFileshareGameDate",
+  "getFileshareFileName",
+  "getFileshareFileId",
+  "getFileshareFileSize",
+  "getImageWidth",
+  "getTextWidth",
+  "getTextHeight",
+  "getcomposite",
+  "iscompositevalid",
+  "isSignedIn",
+  "isProfileSignedIn",
+  "gettoastpopupwidth",
+  "gettoastpopupicon",
+  "gettoastpopuptitle",
+  "gettoastpopupdescription",
+  "getNumLives",
+  "playersAlive",
+  "getPlaylistMaxPartySize",
+  "getTime",
+  "getBombTime",
+  "canSpecCycle",
+  "canSpecFree",
+  "getDStat",
+  "getDStatForPreviousMatch",
+  "isStableStatsBufferInitialized",
+  "getClientInPlace",
+  "getClientName",
+  "toOrdinal",
+  "getScoreForClient",
+  "isDemoPlaying",
+  "isDemoClipRecording",
+  "isDemoClipPlaying",
+  "isDemoMovieRendering",
+  "isDemoThirdPersonCamera",
+  "isDemoMovieCamera",
+  "isDisplayingPartyScoreboard",
+  "getDemoTitleName",
+  "getDemoTitleDescription",
+  "getDemoAuthor",
+  "getDemoTimeInfo",
+  "getDemoDuration",
+  "getDemoSegmentCount",
+  "getDemoSegmentInformation",
+  "isClipModified",
+  "canStartDemoPlayback",
+  "getDemoSaveScreenName",
+  "getDemoSaveScreenDescription",
+  "getTheaterFilmNotSelectedMessage",
+  "isItemPurchased",
+  "isCurrentItemPurchased",
+  "isCurrentItemAttachmentPurchased",
+  "isCurrentItemOptionPurchased",
+  "isItemAttachmentPointPurchased",
+  "getCurrentItemCost",
+  "getCurrentItemSellPrice",
+  "getCurrentItemAttachmentCost",
+  "getCurrentItemName",
+  "getCurrentItemIndex",
+  "getCurrentItemAttachmentName",
+  "getCurrentItemAttachmentDesc",
+  "getCurrentItemNumAttachments",
+  "getCurrentItemAttachmentNum",
+  "getCurrentItemAttachmentPoint",
+  "getItemNumAttachmentsEquipped",
+  "getItemEquippedAttachment",
+  "PlaylistPlayerCount",
+  "CategoryPlayerCountForPlaylist",
+  "TotalPlayersInPlaylists",
+  "GetPlayersRegisteredOnline",
+  "getCurrentMapName",
+  "getLeaderboardMinReqText",
+  "getBaseLbMenuName",
+  "getCurrentGameType",
+  "getPreviousMapName",
+  "getPreviousGameType",
+  "isPartyReady",
+  "isExtraCamActive",
+  "getCurrentWeapon",
+  "ShowZombieMap",
+  "getattachmentname",
+  "getattachmentimage",
+  "getattachmentdesc",
+  "getweaponoptionimage",
+  "getweaponoptionname",
+  "isplayerjoinable",
+  "isplayerinvitable",
+  "isrecommendedplayerinvitable",
+  "isextracamstatic",
+  "getnumitemattachmentswithattachpoint",
+  "getcurrentitemoption",
+  "getweaponoptioncost",
+  "isitemgroupnew",
+  "select",
+  "choose",
+  "hastacticalmaskoverlay",
+  "invehicle",
+  "getnumactivecontracts",
+  "getcurrentcontractindex",
+  "getcontractname",
+  "getcontractdesc",
+  "getcontractprogress",
+  "getcontractrequiredcount",
+  "getcontractcost",
+  "iscontractactive",
+  "getindexforactivecontract",
+  "getindexfornthactivecontract",
+  "iscontractinprogress",
+  "iscontractexpired",
+  "iscontractcomplete",
+  "getcontractcombattimeleft",
+  "menuhasfocus",
+  "getcustomclassloadoutitem",
+  "getcustomclassmodifier",
+  "getcustomclassname",
+  "getCACItemIndex",
+  "getMachineID",
+  "approxequals",
+  "lbval",
+  "statval",
+  "areStatsFetched",
+  "isSignedInToLive",
+  "getlocalclientnum",
+  "isprimarylocalclient",
+  "getselltext",
+  "getitemprice",
+  "isguest",
+  "isfriendfromxuid",
+  "randomintrange",
+  "getselectedemblemlayer",
+  "getgroupscount",
+  "isgroup",
+  "GetWeaponOptionGroupIndex",
+  "getDownloadProgress",
+  "getUploadProgress",
+  "getUploadTimeRemaining",
+  "IsCurrentSortedItemEquipped",
+  "IsCurrentItemEquippedInAnyCustomClass",
+  "IsItemEquipped",
+  "getfeedercount",
+  "IsCurrentItemClassified",
+  "GetCurrentItemClassifiedHintText",
+  "arecontractsfetched",
+  "istimesynced",
+  "iscontractlocked",
+  "gettimescontractpurchased",
+  "gettimescontractpurchasable",
+  "getcontractcooldowntime",
+  "getremainingcontractcooldowntime",
+  "getcontractunlocklevel",
+  "getcontractrewardtext",
+  "getcontractexpirationtype",
+  "getcontractexpirationdata",
+  "isTaskInProgress",
+  "getPlaceWithTiesForScore",
+  "getissuperuser",
+  "isinguidedmissile",
+  "isingame",
+  "emblemLayerState",
+  "emblemLayerName",
+  "emblemLayerCanOutline",
+  "emblemLayerCanDuplicate",
+  "emblemSelectedLayer",
+  "emblemLayerCost",
+  "emblemLayerUnlockLevel",
+  "emblemIconName",
+  "emblemIconUnlockDesc",
+  "emblemIcon",
+  "emblemIconCost",
+  "emblemIconState",
+  "emblemIsModified",
+  "emblemPurchasedLayerCount",
+  "emblemBackgroundCount",
+  "emblemBackgroundIsLocked",
+  "emblemBackgroundIsClassified",
+  "emblemBackgroundIsPurchased",
+  "emblemBackgroundMaterial",
+  "emblemPlayerBackgroundMaterial",
+  "emblemSelectedBackground",
+  "emblemBackgroundCost",
+  "emblemBackgroundName",
+  "emblemBackgroundUnlockDesc",
+  "emblemStateDisplay",
+  "emblemCategoryDisplay",
+  "emblemFilterCount",
+  "emblemFilterIconID",
+  "itemhasdualwield",
+  "itemisdualwield",
+  "getdemofileid",
+  "getfilesharerating",
+  "getautojoinlobbystatus",
+  "getcountertotal",
+  "showbusydotsindicator",
+  "canratefilmintheater",
+  "getattachmentsformatted",
+  "isclantagfeaturelocked",
+  "isclantagfeaturepurchased",
+  "getCurrentClanTagFeature",
+  "GetClanTagFeatureCost",
+  "GetClanTagFeatureName",
+  "IsItemOptionPurchasedByName",
+  "GetItemOptionByName",
+  "GetFaceCamoIndex",
+  "howmanyreadiesneeded",
+  "GetLiveGroupCount",
+  "getUserTagFromIndex",
+  "getFileShareFilterList",
+  "canRenderClip",
+  "canShowContentFromUser",
+  "isContentRatingAllowed",
+  "isDemonwareFetchingDone",
+  "GetIndexIntoMatchScoreboard",
+  "GetWagerPlaceForMatchScoreboard",
+  "GetWagerGametypeNameFromEnum",
+  "GetCollectiblesCount",
+  "anySignedIn",
+  "anySignedInToLive",
+  "anySignedInToLiveAndStatsFetched",
+  "isProItemVersionUnlocked",
+  "isProItemVersion",
+  "getFlagCarrierForTeam",
+  "getFlagStatusForTeam",
+  "getChallengeProgressString",
+  "getChallengeName",
+  "getName",
+  "getProgressString",
+  "getXpReward",
+  "getCpReward",
+  "getDescription",
+  "getChallengeDescription",
+  "toUpper",
+  "getPlaylistName",
+  "getTimeUntilNewContracts",
+  "needToPerformCommunitySearch",
+  "getLbTypeWithButtons",
+  "getLBFilter",
+  "getLBTypeByDuration",
+  "getScoreboardColumnHeader",
+  "getProItemVersionCost",
+  "getNumSortedItemsEquipped",
+  "getGameInvitesCount",
+  "getMySlotInfo",
+  "isAttachmentAllowedOnItemIndex",
+  "isCurrentOrPreviousMapEntryAvailable",
+  "getFileShareTotalVotes",
+  "GridMove",
+  "getPooledFileDetails",
+  "GetClanTagFeaturePlevel",
+  "GetWeaponOptionUnlockLvl",
+  "GetWeaponOptionUnlockPLevel",
+  "Add64",
+  "Sub64",
+  "Div64",
+  "Mul64",
+  "IsPremiumSubscriber",
+  "GetUserFileRating",
+  "HostMigrationWaitingForPlayers",
+  "IsItemUnlocked",
+  "IsWeaponItemUnlocked",
+  "IsWeaponItemPurchased",
+  "IsWeaponItemClassified",
+  "GetWeaponName",
+  "IsGuestByXUID",
+  "canSwitchToLobby",
+  "getMapIndexByName",
+  "getGamemodeIndexByName",
+  "aloneinpartyignoresplitscreen",
+  "aloneinlobbyignoresplitscreen",
+  "serverSort",
+  "serverSortDirection",
+  "isViewportLarge",
+  "IsChallengeItemPurchased",
+  "GetChallengeAttachmentName",
+  "isItemLockedForAll",
+  "getServerCounts",
+  "GetLowestLocalCP",
+  "isWagerServer",
+  "getContextHeight",
+  "GetCurrentItemMultiText",
+  "getCopyCustomGametypeClassConfirmationText",
+  "getCopyCustomGametypeClassDialogTitle",
+  NULL
+};
+
+
+
+
+
 
 void __cdecl Expression_Free(ExpressionStatement *statement)
 {
@@ -21,122 +554,122 @@ expressionRpn *__cdecl MakeRPN(expressionEntry *entry, int *length)
 
     idxProg = 0;
     idxOper = 0;
-    while ( entry )
+    while (entry)
     {
-        if ( entry->type == 1 )
+        if (entry->type == 1)
         {
-            if ( (unsigned int)idxProg >= 0x96
+            if ((unsigned int)idxProg >= 0x96
                 && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
-                            238,
-                            0,
-                            "%s",
-                            "idxProg < ARRAY_COUNT( prog )") )
+                    "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
+                    238,
+                    0,
+                    "%s",
+                    "idxProg < ARRAY_COUNT( prog )"))
             {
                 __debugbreak();
             }
             prog[idxProg].type = 0;
-            v2.intVal = (int)entry->data.operand.internals;
-            v3 = 3 * idxProg;
-            dword_99CEF6C[v3] = entry->data.op;
-            dword_99CEF70[v3] = v2.intVal;
+            v2.intVal = entry->data.operand.internals.intVal;
+            v3 = idxProg;
+            prog[v3].data.cmdIdx = entry->data.op;
+            prog[v3].data.constant.internals = v2;
             ++idxProg;
         }
         else
         {
-            if ( entry->type
+            if (entry->type
                 && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
-                            243,
-                            0,
-                            "%s",
-                            "entry->type == OPERATOR") )
+                    "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
+                    243,
+                    0,
+                    "%s",
+                    "entry->type == OPERATOR"))
             {
                 __debugbreak();
             }
-            if ( entry->data.op == OP_LEFTPAREN )
+            if (entry->data.op == OP_LEFTPAREN)
             {
-                if ( idxOper >= 0x96
+                if (idxOper >= 0x96
                     && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
-                                246,
-                                0,
-                                "%s",
-                                "idxOper < ARRAY_COUNT( oper )") )
+                        "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
+                        246,
+                        0,
+                        "%s",
+                        "idxOper < ARRAY_COUNT( oper )"))
                 {
                     __debugbreak();
                 }
                 oper[idxOper++] = entry;
             }
-            else if ( entry->data.op == OP_RIGHTPAREN )
+            else if (entry->data.op == OP_RIGHTPAREN)
             {
-                if ( !idxOper
+                if (!idxOper
                     && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
-                                252,
-                                0,
-                                "%s",
-                                "idxOper") )
+                        "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
+                        252,
+                        0,
+                        "%s",
+                        "idxOper"))
                 {
                     __debugbreak();
                 }
-                while ( idxOper
-                         && oper[idxOper - 1]->data.op != OP_LEFTPAREN
-                         && oper[idxOper - 1]->data.op < NUM_EXPRESSION_OPERATORS )
+                while (idxOper
+                    && oper[idxOper - 1]->data.op != OP_LEFTPAREN
+                    && oper[idxOper - 1]->data.op < NUM_EXPRESSION_OPERATORS)
                 {
-                    if ( (unsigned int)idxProg >= 0x96
+                    if ((unsigned int)idxProg >= 0x96
                         && !Assert_MyHandler(
-                                    "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
-                                    254,
-                                    0,
-                                    "%s",
-                                    "idxProg < ARRAY_COUNT( prog )") )
+                            "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
+                            254,
+                            0,
+                            "%s",
+                            "idxProg < ARRAY_COUNT( prog )"))
                     {
                         __debugbreak();
                     }
                     prog[idxProg].type = 1;
-                    dword_99CEF6C[3 * idxProg++] = oper[--idxOper]->data.op;
+                    prog[idxProg++].data.cmdIdx = oper[--idxOper]->data.op;
                 }
-                if ( oper[idxOper - 1]->data.op != OP_LEFTPAREN
+                if (oper[idxOper - 1]->data.op != OP_LEFTPAREN
                     && oper[idxOper - 1]->data.op < NUM_EXPRESSION_OPERATORS
                     && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
-                                258,
-                                0,
-                                "%s",
-                                "oper[idxOper-1]->data.op == OP_LEFTPAREN || oper[idxOper-1]->data.op >= NUM_EXPRESSION_OPERATORS") )
+                        "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
+                        258,
+                        0,
+                        "%s",
+                        "oper[idxOper-1]->data.op == OP_LEFTPAREN || oper[idxOper-1]->data.op >= NUM_EXPRESSION_OPERATORS"))
                 {
                     __debugbreak();
                 }
-                if ( oper[idxOper - 1]->data.op == OP_LEFTPAREN )
+                if (oper[idxOper - 1]->data.op == OP_LEFTPAREN)
                 {
                     --idxOper;
                 }
                 else
                 {
-                    if ( (unsigned int)idxProg >= 0x96
+                    if ((unsigned int)idxProg >= 0x96
                         && !Assert_MyHandler(
-                                    "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
-                                    262,
-                                    0,
-                                    "%s",
-                                    "idxProg < ARRAY_COUNT( prog )") )
+                            "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
+                            262,
+                            0,
+                            "%s",
+                            "idxProg < ARRAY_COUNT( prog )"))
                     {
                         __debugbreak();
                     }
                     prog[idxProg].type = 1;
-                    dword_99CEF6C[3 * idxProg++] = oper[--idxOper]->data.op;
+                    prog[idxProg++].data.cmdIdx = oper[--idxOper]->data.op;
                 }
             }
-            else if ( entry->data.op >= NUM_EXPRESSION_OPERATORS )
+            else if (entry->data.op >= NUM_EXPRESSION_OPERATORS)
             {
-                if ( idxOper >= 0x96
+                if (idxOper >= 0x96
                     && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
-                                282,
-                                0,
-                                "%s",
-                                "idxOper < ARRAY_COUNT( oper )") )
+                        "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
+                        282,
+                        0,
+                        "%s",
+                        "idxOper < ARRAY_COUNT( oper )"))
                 {
                     __debugbreak();
                 }
@@ -144,30 +677,30 @@ expressionRpn *__cdecl MakeRPN(expressionEntry *entry, int *length)
             }
             else
             {
-                while ( idxOper
-                         && oper[idxOper - 1]->data.op < NUM_EXPRESSION_OPERATORS
-                         && s_operatorPrecedence[oper[idxOper - 1]->data.op] <= s_operatorPrecedence[entry->data.op] )
+                while (idxOper
+                    && oper[idxOper - 1]->data.op < NUM_EXPRESSION_OPERATORS
+                    && s_operatorPrecedence[oper[idxOper - 1]->data.op] <= s_operatorPrecedence[entry->data.op])
                 {
-                    if ( (unsigned int)idxProg >= 0x96
+                    if ((unsigned int)idxProg >= 0x96
                         && !Assert_MyHandler(
-                                    "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
-                                    272,
-                                    0,
-                                    "%s",
-                                    "idxProg < ARRAY_COUNT( prog )") )
+                            "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
+                            272,
+                            0,
+                            "%s",
+                            "idxProg < ARRAY_COUNT( prog )"))
                     {
                         __debugbreak();
                     }
                     prog[idxProg].type = 1;
-                    dword_99CEF6C[3 * idxProg++] = oper[--idxOper]->data.op;
+                    prog[idxProg++].data.cmdIdx = oper[--idxOper]->data.op;
                 }
-                if ( idxOper >= 0x96
+                if (idxOper >= 0x96
                     && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
-                                276,
-                                0,
-                                "%s",
-                                "idxOper < ARRAY_COUNT( oper )") )
+                        "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
+                        276,
+                        0,
+                        "%s",
+                        "idxOper < ARRAY_COUNT( oper )"))
                 {
                     __debugbreak();
                 }
@@ -176,28 +709,28 @@ expressionRpn *__cdecl MakeRPN(expressionEntry *entry, int *length)
         }
         entry = entry->next;
     }
-    while ( idxOper && oper[idxOper - 1]->data.op != OP_LEFTPAREN )
+    while (idxOper && oper[idxOper - 1]->data.op != OP_LEFTPAREN)
     {
-        if ( (unsigned int)idxProg >= 0x96
+        if ((unsigned int)idxProg >= 0x96
             && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
-                        286,
-                        0,
-                        "%s",
-                        "idxProg < ARRAY_COUNT( prog )") )
+                "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
+                286,
+                0,
+                "%s",
+                "idxProg < ARRAY_COUNT( prog )"))
         {
             __debugbreak();
         }
         prog[idxProg].type = 1;
-        dword_99CEF6C[3 * idxProg++] = oper[--idxOper]->data.op;
+        prog[idxProg++].data.cmdIdx = oper[--idxOper]->data.op;
     }
-    if ( (unsigned int)idxProg >= 0x96
+    if ((unsigned int)idxProg >= 0x96
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
-                    290,
-                    0,
-                    "%s",
-                    "idxProg < ARRAY_COUNT( prog )") )
+            "C:\\projects_pc\\cod\\codsrc\\src\\universal\\com_expressions.cpp",
+            290,
+            0,
+            "%s",
+            "idxProg < ARRAY_COUNT( prog )"))
     {
         __debugbreak();
     }
@@ -205,7 +738,6 @@ expressionRpn *__cdecl MakeRPN(expressionEntry *entry, int *length)
     *length = idxProg;
     return prog;
 }
-
 char __cdecl Expression_Parse(
                 const char **text,
                 ExpressionStatement *statement,
@@ -235,7 +767,9 @@ char __cdecl Expression_Parse(
 
     allocState = 0;
     lastOp = OP_NOOP;
-    lastOperand = 0;
+    //lastOperand = 0;
+    lastOperand.dataType = VAL_INT;
+    lastOperand.internals.intVal = 0;
     lastType = 2;
     if ( compileBuffer )
     {
@@ -267,7 +801,7 @@ char __cdecl Expression_Parse(
         if ( tokenType == PARSE_TOKEN_STRING )
             op = OP_NOOP;
         else
-            op = Expression_ParseOperatorToken(token->token);
+            op = (expOperationEnum)Expression_ParseOperatorToken(token->token);
         if ( op == OP_NOOP )
         {
             switch ( tokenType )
@@ -302,7 +836,7 @@ char __cdecl Expression_Parse(
                     newExpression = Expression_HashOperand(token->token, allocState);
 LABEL_39:
                     lastType = 1;
-                    lastOperand = (Operand)newExpression->data;
+                    lastOperand = newExpression->data.operand;
                     goto LABEL_40;
                 default:
                     Com_PrintError(
@@ -595,7 +1129,7 @@ void __cdecl Expression_Init()
     }
     else
     {
-        Com_Error(ERR_DROP, &byte_C754E4, "expressions/functions.txt");
+        Com_Error(ERR_DROP, "Couldn't load file '%s'", "expressions/functions.txt");
     }
 }
 

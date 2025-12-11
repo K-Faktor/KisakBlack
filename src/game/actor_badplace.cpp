@@ -1,4 +1,5 @@
 #include "actor_badplace.h"
+#include <universal/assertive.h>
 
 void __cdecl Path_UpdateBadPlaceCount(badplace_t *place, int delta)
 {

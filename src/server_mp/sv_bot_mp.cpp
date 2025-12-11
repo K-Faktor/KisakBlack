@@ -1950,21 +1950,6 @@ void __cdecl Bot_StrafeOnPath(const playerState_s *ps, const path_t *path, userc
     cmd->rightmove = (int)(float)(-127.0 * vDir[1]);
 }
 
-void __cdecl Vec3Rotate(const float *in, const float (*matrix)[3], float *out)
-{
-    if ( in == out
-        && !Assert_MyHandler("c:\\projects_pc\\cod\\codsrc\\src\\universal\\com_vector.h", 525, 0, "%s", "in != out") )
-    {
-        __debugbreak();
-    }
-    *out = (float)((float)(*in * (*matrix)[0]) + (float)(in[1] * (float)(*matrix)[1]))
-             + (float)(in[2] * (float)(*matrix)[2]);
-    out[1] = (float)((float)(*in * (float)(*matrix)[3]) + (float)(in[1] * (float)(*matrix)[4]))
-                 + (float)(in[2] * (float)(*matrix)[5]);
-    out[2] = (float)((float)(*in * (float)(*matrix)[6]) + (float)(in[1] * (float)(*matrix)[7]))
-                 + (float)(in[2] * (float)(*matrix)[8]);
-}
-
 void __cdecl Bot_SetTimedAction(
                 unsigned int button,
                 int *timedAction,

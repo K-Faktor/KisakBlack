@@ -1,4 +1,35 @@
 #include "ragdoll_update.h"
+#include <cgame/cg_drawtools.h>
+#include "ragdoll_controller.h"
+#include <xanim/dobj_utils.h>
+#include <xanim/xmodel.h>
+#include <cgame_mp/cg_local_mp.h>
+#include <bgame/bg_misc.h>
+#include <gfx_d3d/r_dpvs.h>
+#include <DynEntity/DynEntity_client.h>
+#include "ragdoll_quat.h"
+#include <universal/com_math_anglevectors.h>
+#include <cgame_mp/cg_ents_mp.h>
+#include <win32/win_common.h>
+#include <physics/phys_broad_phase.h>
+#include <physics/physpreset_load_obj.h>
+#include <physics/phys_assert.h>
+#include <qcommon/threads.h>
+#include <cgame_mp/cg_main_mp.h>
+#include <physics/phys_render.h>
+#include <physics/physics_system.h>
+
+StateEnt stateEntries[6] =
+{
+  { Ragdoll_EnterDead, Ragdoll_ExitDead, NULL },
+  { Ragdoll_EnterDobjWait, Ragdoll_ExitDObjWait, Ragdoll_UpdateDObjWait },
+  { NULL, NULL, Ragdoll_UpdateVelocityCapture },
+  { Ragdoll_EnterTunnelTest, NULL, NULL },
+  { NULL, NULL, Ragdoll_UpdateRunning },
+  { Ragdoll_EnterIdle, Ragdoll_ExitIdle, NULL }
+};
+
+
 
 void __cdecl Ragdoll_AnimMatToMat43(const DObjAnimMat *mat, float (*out)[3])
 {
@@ -388,7 +419,7 @@ void __cdecl Ragdoll_ExplosionEvent(
                                     hitForce[0] = v11 * hitForce[0];
                                     hitForce[1] = v11 * hitForce[1];
                                     hitForce[2] = v11 * hitForce[2];
-                                    Phys_ObjAddForce((int)&savedregs, bone->rigidBody, centerOfMass, hitForce, 0);
+                                    Phys_ObjAddForce(bone->rigidBody, centerOfMass, hitForce, 0);
                                 }
                             }
                         }
@@ -498,7 +529,7 @@ void __cdecl Ragdoll_LaunchUpdate(RagdollBody *body)
                             centerOfMass[1] = v2 + centerOfMass[1];
                             v3 = flrand(-1.0, 1.0);
                             centerOfMass[2] = v3 + centerOfMass[2];
-                            Phys_ObjAddForce((int)&savedregs, body->bones[bi].rigidBody, centerOfMass, hitForce, 0);
+                            Phys_ObjAddForce(body->bones[bi].rigidBody, centerOfMass, hitForce, 0);
                         }
                     }
                 }
@@ -516,7 +547,7 @@ void __cdecl Ragdoll_LaunchUpdate(RagdollBody *body)
                         centerOfMass[1] = v5 + centerOfMass[1];
                         v6 = flrand(-1.0, 1.0);
                         centerOfMass[2] = v6 + centerOfMass[2];
-                        Phys_ObjAddForce((int)&savedregs, body->bones[boneIdx].rigidBody, centerOfMass, hitForce, 0);
+                        Phys_ObjAddForce(body->bones[boneIdx].rigidBody, centerOfMass, hitForce, 0);
                     }
                 }
             }
@@ -552,7 +583,7 @@ void __cdecl Ragdoll_AttachUpdate(RagdollBody *body)
         Ragdoll_BodyNewState(body, BS_RUNNING);
 }
 
-char __cdecl Ragdoll_EnterTunnelTest(RagdollBody *body)
+bool __cdecl Ragdoll_EnterTunnelTest(RagdollBody *body, RagdollBodyState prevState, RagdollBodyState curState)
 {
     BoneOrientation *v2; // eax
     BoneOrientation *v3; // eax
@@ -568,7 +599,7 @@ char __cdecl Ragdoll_EnterTunnelTest(RagdollBody *body)
         v2 = Ragdoll_BodyBoneOrientations(body);
         Ragdoll_SetCurrentPoseFromSnapshot(body, v2);
         Ragdoll_EstimateInitialVelocities(body);
-        tunnelPassed = Ragdoll_TunnelTest((cStaticModel_s *)&savedregs, body);
+        tunnelPassed = Ragdoll_TunnelTest(body);
         pose = Ragdoll_BodyPose(body);
         v3 = Ragdoll_BodyBoneOrientations(body);
         body->poseOffset[0] = pose->pose.origin[0] - v3->origin[0];
@@ -778,7 +809,8 @@ void __cdecl Ragdoll_SetCurrentPoseFromSnapshot(RagdollBody *body, BoneOrientati
             id = (rigid_body_constraint_ragdoll *)body->joints[j].joint;
             if ( id )
             {
-                error_sq = rigid_body_constraint_ragdoll::pull_together(id, (int)&savedregs);
+                //error_sq = rigid_body_constraint_ragdoll::pull_together(id, (int)&savedregs);
+                error_sq = id->pull_together();
                 if ( error_sq > max_error_sq )
                     max_error_sq = error_sq;
             }
@@ -900,7 +932,7 @@ char __cdecl Ragdoll_CreatePhysJoint(RagdollBody *body, JointDef *jointDef, Join
         parentBone = &body->bones[bone->parentBone];
     if ( !bone->rigidBody )
         return 1;
-    Phys_ObjGetPosition((int)&savedregs, bone->rigidBody, anchor, tAxis);
+    Phys_ObjGetPosition(bone->rigidBody, anchor, tAxis);
     AxisTranspose(tAxis, axis);
     if ( !jointDef->numLimitAxes )
     {
@@ -908,8 +940,8 @@ char __cdecl Ragdoll_CreatePhysJoint(RagdollBody *body, JointDef *jointDef, Join
         jointDef->limitAxes[0][1] = 0.0f;
         jointDef->limitAxes[0][2] = 1.0f;
         jointDef->axisFriction[0] = 0.0f;
-        jointDef->minAngles[0] = FLOAT_N1_5707964;
-        jointDef->maxAngles[0] = 1.5f707964;
+        jointDef->minAngles[0] = -1.5707964;
+        jointDef->maxAngles[0] = 1.5707964;
         ++jointDef->numLimitAxes;
     }
     for ( i = 0; i < jointDef->numLimitAxes; ++i )
@@ -921,7 +953,6 @@ char __cdecl Ragdoll_CreatePhysJoint(RagdollBody *body, JointDef *jointDef, Join
     if ( type == RAGDOLL_JOINT_HINGE )
     {
         joint->joint = (int)Phys_CreateHinge(
-                                                    (rigid_body_constraint_ragdoll *)&savedregs,
                                                     bone->rigidBody,
                                                     parentBone->rigidBody,
                                                     anchor,
@@ -935,7 +966,6 @@ char __cdecl Ragdoll_CreatePhysJoint(RagdollBody *body, JointDef *jointDef, Join
     else if ( type == RAGDOLL_JOINT_SWIVEL )
     {
         joint->joint = (int)Phys_CreateSwivel(
-                                                    (rigid_body_constraint_ragdoll *)&savedregs,
                                                     bone->rigidBody,
                                                     parentBone->rigidBody,
                                                     anchor,
@@ -969,8 +999,8 @@ char __cdecl Ragdoll_CreatePhysObjs(RagdollBody *body)
     {
         __debugbreak();
     }
-    if ( physGlob.objects_by_world[0].m_alloc_count / 12 >= 5 )
-        cdl_proftimer::start_capture(&proftimer_physics_frame_advance);
+    if (physGlob.objects_by_world[0].m_alloc_count / 12 >= 5)
+        proftimer_physics_frame_advance.start_capture();
     def = Ragdoll_BodyDef(body);
     if ( !def && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\ragdoll\\ragdoll_update.cpp", 646, 0, "%s", "def") )
         __debugbreak();
@@ -1015,16 +1045,18 @@ char __cdecl Ragdoll_CreatePhysObjs(RagdollBody *body)
             bpcp = create_broad_phase_collision_pair();
             if ( bpcp )
             {
-                bpi = broad_phase_base::get_bpi(userData1->m_bpb);
-                bpcp->m_bpi1 = broad_phase_base::get_bpi(userData0->m_bpb);
-                bpcp->m_bpi2 = bpi;
+                //bpi = broad_phase_base::get_bpi(userData1->m_bpb);
+                //bpcp->m_bpi1 = broad_phase_base::get_bpi(userData0->m_bpb);
+                bpcp->m_bpi1 = userData0->m_bpb->get_bpi();
+                bpcp->m_bpi2 = userData1->m_bpb->get_bpi();
                 bpcp->m_next_bpcp = body->m_list_bpcp;
                 body->m_list_bpcp = bpcp;
             }
         }
     }
     body->m_bpg = create_broad_phase_group();
-    broad_phase_group::set(body->m_bpg);
+    //broad_phase_group::set(body->m_bpg);
+    body->m_bpg->set();
     for ( ia = 0; ia < body->numBones; ++ia )
     {
         if ( body->bones[ia].rigidBody )
@@ -1043,8 +1075,10 @@ char __cdecl Ragdoll_CreatePhysObjs(RagdollBody *body)
             userData->m_bpb->m_env_collision_flags &= ~0x80u;
             userData->m_bpb->m_my_collision_type_flags |= 0x200u;
             environment_collision_list_remove(userData->m_bpb);
-            v2 = broad_phase_base::get_bpi(userData->m_bpb);
-            broad_phase_group::add_bpi(body->m_bpg, v2);
+            //v2 = broad_phase_base::get_bpi(userData->m_bpb);
+            v2 = userData->m_bpb->get_bpi();
+            //broad_phase_group::add_bpi(body->m_bpg, v2);
+            body->m_bpg->add_bpi(v2);
             userData->m_bpb = 0;
         }
     }
@@ -1183,14 +1217,14 @@ char __cdecl Ragdoll_CreatePhysObj(RagdollBody *body, BoneDef *boneDef, Bone *bo
     gjk_geom_list.m_first_geom = 0;
     gjk_geom_list.m_geom_count = 0;
     capsule_gjk_geom = create_capsule_gjk_geom(
-                                             COERCE_FLOAT(&savedregs),
                                              bone->center,
                                              boneDef->radius,
                                              hlength,
                                              0,
                                              7,
                                              &g_empty_collision_visitor);
-    gjk_geom_list_t::add_geom(&gjk_geom_list, capsule_gjk_geom);
+    //gjk_geom_list_t::add_geom(&gjk_geom_list, capsule_gjk_geom);
+    gjk_geom_list.add_geom(capsule_gjk_geom);
     bone->rigidBody = (int)Phys_ObjCreate(2, b0Origin, b0Quat, vec3_origin, &preset, &gjk_geom_list, 0, -1);
     cent = CG_GetEntity(body->localClientNum, body->dobj);
     if ( bone->rigidBody )
@@ -1351,10 +1385,14 @@ void __cdecl Ragdoll_EstimateInitialVelocities(RagdollBody *body)
                 }
                 else
                 {
-                    LODWORD(prevRot[0]) = LODWORD(prevOrientation->orientation[0]) ^ _mask__NegFloat_;
-                    LODWORD(prevRot[1]) = LODWORD(prevOrientation->orientation[1]) ^ _mask__NegFloat_;
-                    LODWORD(prevRot[2]) = LODWORD(prevOrientation->orientation[2]) ^ _mask__NegFloat_;
-                    LODWORD(prevRot[3]) = LODWORD(prevOrientation->orientation[3]) ^ _mask__NegFloat_;
+                    //LODWORD(prevRot[0]) = LODWORD(prevOrientation->orientation[0]) ^ _mask__NegFloat_;
+                    //LODWORD(prevRot[1]) = LODWORD(prevOrientation->orientation[1]) ^ _mask__NegFloat_;
+                    //LODWORD(prevRot[2]) = LODWORD(prevOrientation->orientation[2]) ^ _mask__NegFloat_;
+                    //LODWORD(prevRot[3]) = LODWORD(prevOrientation->orientation[3]) ^ _mask__NegFloat_;
+                    prevRot[0] = -prevOrientation->orientation[0];
+                    prevRot[1] = -prevOrientation->orientation[1];
+                    prevRot[2] = -prevOrientation->orientation[2];
+                    prevRot[3] = -prevOrientation->orientation[3];
                 }
                 curRot[0] = curOrientation->orientation[0];
                 curRot[1] = curOrientation->orientation[1];
@@ -1373,7 +1411,7 @@ void __cdecl Ragdoll_EstimateInitialVelocities(RagdollBody *body)
                 posOffset[0] = timeScale * posOffset[0];
                 posOffset[1] = timeScale * posOffset[1];
                 posOffset[2] = timeScale * posOffset[2];
-                Phys_ObjSetAngularVelocityRaw((int)&savedregs, bone->rigidBody, angleOffset);
+                Phys_ObjSetAngularVelocityRaw(bone->rigidBody, angleOffset);
                 len2 = (float)((float)(posOffset[0] * posOffset[0]) + (float)(posOffset[1] * posOffset[1]))
                          + (float)(posOffset[2] * posOffset[2]);
                 if ( len2 > (float)(600.0 * 600.0) )
@@ -1383,9 +1421,10 @@ void __cdecl Ragdoll_EstimateInitialVelocities(RagdollBody *body)
                     posOffset[1] = v1 * posOffset[1];
                     posOffset[2] = v1 * posOffset[2];
                 }
+                static const float clamp = 50.0f;;
                 if ( posOffset[2] > clamp )
                     posOffset[2] = clamp;
-                Phys_ObjSetVelocity((int)&savedregs, bone->rigidBody, posOffset);
+                Phys_ObjSetVelocity(bone->rigidBody, posOffset);
             }
             ++i;
             ++curOrientation;
@@ -1395,7 +1434,7 @@ void __cdecl Ragdoll_EstimateInitialVelocities(RagdollBody *body)
     }
 }
 
-char    Ragdoll_TunnelTest@<al>(cStaticModel_s *a1@<ebp>, RagdollBody *body)
+char    Ragdoll_TunnelTest(RagdollBody *body)
 {
     float *v3; // [esp+44h] [ebp-1D0h]
     float v4; // [esp+70h] [ebp-1A4h]
@@ -1587,7 +1626,7 @@ char __cdecl Ragdoll_BoneTrace(trace_t *trace, trace_t *revTrace, const float *s
 {
     col_context_t context; // [esp+0h] [ebp-28h] BYREF
 
-    col_context_t::col_context_t(&context);
+    //col_context_t::col_context_t(&context);
     CM_BoxTrace(trace, start, end, vec3_origin, vec3_origin, (int)&cls.recentServers[7546].city[57], &context);
     if ( trace->startsolid )
     {
@@ -1633,7 +1672,7 @@ void __cdecl Ragdoll_PrintTunnelFail(RagdollBody *body)
     }
 }
 
-void __cdecl Ragdoll_UpdateVelocityCapture(RagdollBody *body)
+void __cdecl Ragdoll_UpdateVelocityCapture(RagdollBody *body, int __formal)
 {
     BoneOrientation *snapshot; // [esp+0h] [ebp-4h]
     BoneOrientation *snapshota; // [esp+0h] [ebp-4h]
@@ -1742,7 +1781,7 @@ char __cdecl Ragdoll_GetDObjWorldBoneOriginQuat(
     return 1;
 }
 
-char __cdecl Ragdoll_EnterDead(RagdollBody *body)
+bool __cdecl Ragdoll_EnterDead(RagdollBody *body, RagdollBodyState s1, RagdollBodyState s2)
 {
     int references; // [esp+0h] [ebp-8h]
     int ragdollDef; // [esp+4h] [ebp-4h]
@@ -1774,7 +1813,7 @@ void __cdecl Ragdoll_RemoveBodyPhysics(RagdollBody *body)
     body->hang_point = 0;
 }
 
-char __cdecl Ragdoll_ExitDead(RagdollBody *body)
+bool __cdecl Ragdoll_ExitDead(RagdollBody *body, RagdollBodyState s1, RagdollBodyState s2)
 {
     RagdollDef *def; // [esp+0h] [ebp-4h]
 
@@ -1792,7 +1831,7 @@ char __cdecl Ragdoll_ExitDead(RagdollBody *body)
     return 1;
 }
 
-char __cdecl Ragdoll_ExitDObjWait(RagdollBody *body, RagdollBodyState prevState, RagdollBodyState curState)
+bool __cdecl Ragdoll_ExitDObjWait(RagdollBody *body, RagdollBodyState prevState, RagdollBodyState curState)
 {
     RagdollDef *def; // [esp+0h] [ebp-18h]
     DObj *obj; // [esp+4h] [ebp-14h]
@@ -1853,7 +1892,7 @@ char __cdecl Ragdoll_ExitDObjWait(RagdollBody *body, RagdollBodyState prevState,
     return 1;
 }
 
-char __cdecl Ragdoll_ExitIdle(RagdollBody *body, RagdollBodyState curState, RagdollBodyState newState)
+bool __cdecl Ragdoll_ExitIdle(RagdollBody *body, RagdollBodyState curState, RagdollBodyState newState)
 {
     BoneOrientation *v4; // eax
 
@@ -1875,7 +1914,7 @@ char __cdecl Ragdoll_ExitIdle(RagdollBody *body, RagdollBodyState curState, Ragd
     return 1;
 }
 
-char __cdecl Ragdoll_EnterIdle(RagdollBody *body)
+bool __cdecl Ragdoll_EnterIdle(RagdollBody *body, RagdollBodyState prevState, RagdollBodyState curState)
 {
     BoneOrientation *v1; // eax
 
@@ -1952,7 +1991,7 @@ void __cdecl Ragdoll_SnapshotBonePositions(RagdollBody *body, BoneOrientation *b
     }
 }
 
-void __cdecl Ragdoll_UpdateDObjWait(RagdollBody *body)
+void __cdecl Ragdoll_UpdateDObjWait(RagdollBody *body, int __formal)
 {
     if ( !body
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\ragdoll\\ragdoll_update.cpp", 1992, 0, "%s", "body") )
@@ -1974,9 +2013,9 @@ void __cdecl Ragdoll_UpdateDObjWait(RagdollBody *body)
     }
 }
 
-char __cdecl Ragdoll_EnterDobjWait(RagdollBody *body)
+bool __cdecl Ragdoll_EnterDobjWait(RagdollBody *body, RagdollBodyState s1, RagdollBodyState s2)
 {
-    Ragdoll_UpdateDObjWait(body);
+    Ragdoll_UpdateDObjWait(body, 0);
     return 1;
 }
 
@@ -1999,7 +2038,7 @@ void __cdecl Ragdoll_UpdateRunning(RagdollBody *body, int msec)
         Ragdoll_UpdateFriction(body);
         Ragdoll_LaunchUpdate(body);
         Ragdoll_AttachUpdate(body);
-        Ragdoll_DebugRender((int)&savedregs, body);
+        Ragdoll_DebugRender(body);
     }
 }
 
@@ -2036,6 +2075,9 @@ void __cdecl Ragdoll_UpdateFriction(RagdollBody *body)
     else
         v2 = 0.0f;
     lerpScale = v2 + 1.0;
+
+    static const float waterFrictionScale = 0.01f;
+
     if ( (body->flags & 2) != 0 )
         lerpScale = waterFrictionScale;
     i = 0;
@@ -2061,10 +2103,12 @@ void __cdecl Ragdoll_UpdateFriction(RagdollBody *body)
     }
 }
 
-void    Ragdoll_DebugRender(int a1@<ebp>, RagdollBody *body)
+static const int hangBone = 3;
+static const int renderflag = 255;
+void    Ragdoll_DebugRender(RagdollBody *body)
 {
     int joint2; // edx
-    environment_rigid_body *environment_rigid_body; // eax
+    environment_rigid_body *envRigBody; // eax
     phys_vec3 v4; // [esp-2Ch] [ebp-6Ch] BYREF
     float v5; // [esp-10h] [ebp-50h]
     unsigned int v6[2]; // [esp-Ch] [ebp-4Ch] BYREF
@@ -2093,7 +2137,7 @@ void    Ragdoll_DebugRender(int a1@<ebp>, RagdollBody *body)
                 joint2 = body->joints[i].joint2;
                 v15 = body->joints[i].joint;
                 v16 = joint2;
-                Phys_JointDebugRender((rigid_body *)&joint, v15);
+                Phys_JointDebugRender(v15);
             }
         }
         for ( id = 0; id < body->numBones; ++id )
@@ -2102,7 +2146,7 @@ void    Ragdoll_DebugRender(int a1@<ebp>, RagdollBody *body)
             {
                 userData = (PhysObjUserData *)body->bones[id].rigidBody;
                 body1 = (rigid_body *)userData;
-                debug_render((int)&joint, userData);
+                debug_render(userData);
             }
         }
     }
@@ -2112,7 +2156,8 @@ void    Ragdoll_DebugRender(int a1@<ebp>, RagdollBody *body)
     {
         if ( body->debug_hang_point )
         {
-            rigid_body::set_flag(body->debug_hang_point->b1, 0x40u, 0);
+            //rigid_body::set_flag(body->debug_hang_point->b1, 0x40u, 0);
+            body->debug_hang_point->b1->set_flag(0x40, 0);
             phys_sys::destroy(body->debug_hang_point);
             body->debug_hang_point = 0;
         }
@@ -2126,11 +2171,12 @@ void    Ragdoll_DebugRender(int a1@<ebp>, RagdollBody *body)
         world_pos.x = v9->m_mat.w.w;
         v5 = z;
         z = z + 60.0;
-        environment_rigid_body = phys_sys::get_environment_rigid_body();
-        body->debug_hang_point = phys_sys::create_rbc_point(v9, environment_rigid_body, 0);
+        envRigBody = phys_sys::get_environment_rigid_body();
+        body->debug_hang_point = phys_sys::create_rbc_point(v9, envRigBody, 0);
         memset(&v4, 0, 12);
         rigid_body_constraint_point::set(body->debug_hang_point, &v4, (const phys_vec3 *)v6);
-        rigid_body::set_flag(v9, 0x40u, 1);
+        //rigid_body::set_flag(v9, 0x40u, 1);
+        v9->set_flag(0x40, 1);
     }
 }
 

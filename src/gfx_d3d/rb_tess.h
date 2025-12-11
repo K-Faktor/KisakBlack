@@ -1,4 +1,14 @@
 #pragma once
+#include "rb_state.h"
+#include <xanim/xanim.h>
+#include "rb_backend.h"
+
+struct GfxDrawPrimArgs // sizeof=0xC
+{                                       // XREF: R_DrawBspTris/r
+    int vertexCount;                    // XREF: R_DrawPointLitSurfs+88/w
+    int triCount;                       // XREF: R_DrawPointLitSurfs+8F/w
+    int baseIndex;                      // XREF: R_DrawPointLitSurfs+81/w
+};
 
 void __cdecl RB_ShowTess(GfxCmdBufContext context, const float *center, const char *tessName, const float *color);
 void __cdecl R_SetVertexDeclTypeNormal(GfxCmdBufState *state, MaterialVertexDeclType vertDeclType);

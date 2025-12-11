@@ -522,10 +522,11 @@ rigid_body_constraint_point *__cdecl phys_sys::create_rbc_point(
     p_m_list_rbc_point = &g_physics_system->m_list_rbc_point;
     physics_system::validate_member(g_physics_system, b1);
     physics_system::validate_member(g_physics_system, b2);
-    result = phys_free_list<rigid_body_constraint_point>::add(
-                         p_m_list_rbc_point,
-                         no_error,
-                         "OUT_OF_MEMORY, rbc_point, INCREASE phys_mem_info::m_num_rbc_point.");
+    //result = phys_free_list<rigid_body_constraint_point>::add(
+    //                     p_m_list_rbc_point,
+    //                     no_error,
+    //                     "OUT_OF_MEMORY, rbc_point, INCREASE phys_mem_info::m_num_rbc_point.");
+    result = p_m_list_rbc_point->add(no_error, "OUT_OF_MEMORY, rbc_point, INCREASE phys_mem_info::m_num_rbc_point.");
     if ( result )
     {
         result->b1 = b1;

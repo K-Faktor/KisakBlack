@@ -1,5 +1,7 @@
 #pragma once
 
+struct StringTable;
+
 int __cdecl StringTable_HashString(const char *string);
 void __cdecl StringTable_ParseFileIntoTable(const char *filename, StringTable *table);
 unsigned __int8 *__cdecl StringTable_Alloc(unsigned int size);

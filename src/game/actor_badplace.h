@@ -1,5 +1,50 @@
 #pragma once
 
+enum ai_badplace_t : __int32
+{                                       // XREF: actor_s/r
+    AI_BADPLACE_NONE      = 0x0,
+    AI_BADPLACE_NORMAL    = 0x1,
+    AI_BADPLACE_REALLYBAD = 0x2,
+};
+
+struct badplace_brush_t // sizeof=0x8
+{                                       // XREF: badplace_parms_t/r
+    struct gentity_s *volume;
+    float radius;
+};
+
+union badplace_parms_t // sizeof=0x1C
+{                                       // XREF: badplace_t/r
+                                        // _pendedBadPlace/r
+    badplace_arc_t arc;
+    badplace_brush_t brush;
+};
+
+struct badplace_arc_t // sizeof=0x1C
+{                                       // XREF: badplace_parms_t/r
+    float origin[3];
+    float radius;
+    float halfheight;
+    float angle0;
+    float angle1;
+};
+
+struct badplace_t // sizeof=0x2C
+{
+    int endtime;
+    int pingTime;
+    unsigned __int16 name;
+    unsigned __int8 type;
+    unsigned __int8 teamflags;
+    int depth;
+    badplace_parms_t parms;
+};
+
+struct actor_s;
+struct pathsort_t;
+struct pathnode_t;
+enum ai_state_t : __int32;
+
 void __cdecl Path_UpdateBadPlaceCount(badplace_t *place, int delta);
 void __cdecl Path_UpdateBadPlaces();
 void __cdecl Path_FreeBadPlace(int index);

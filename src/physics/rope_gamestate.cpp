@@ -2,6 +2,7 @@
 #include <game_mp/g_main_mp.h>
 #include <qcommon/cm_load.h>
 #include <DynEntity/DynEntity_client.h>
+#include "physconstraints_load_obj.h"
 
 int __cdecl GetEntityIndex(const unsigned __int16 *targetname)
 {

@@ -1,4 +1,7 @@
 #include "com_convexhull.h"
+#include "assertive.h"
+#include "com_math.h"
+#include <cstring>
 
 unsigned int __cdecl Com_ConvexHull(float (*points)[64][2], unsigned int pointCount, float (*hull)[2])
 {
@@ -43,11 +46,13 @@ unsigned int __cdecl Com_ConvexHull(float (*points)[64][2], unsigned int pointCo
     {
         __debugbreak();
     }
-    LODWORD(offset[0]) = LODWORD((*points)[0][0]) ^ _mask__NegFloat_;
-    LODWORD(offset[1]) = LODWORD((*points)[0][1]) ^ _mask__NegFloat_;
-    Com_TranslatePoints((float (*)[2])points, pointCount, offset);
-    Com_InitialHull((const float (*)[2])points, pointOrder, pointCount, hullOrder);
-    hullPointCount = Com_GrowInitialHull((const float (*)[2])points, pointOrder, pointCount - 2, hullOrder);
+    //LODWORD(offset[0]) = LODWORD((*points)[0][0]) ^ _mask__NegFloat_;
+    //LODWORD(offset[1]) = LODWORD((*points)[0][1]) ^ _mask__NegFloat_;
+    offset[0] = -(*points[0][0]);
+    offset[1] = -(*points[0][1]);
+    Com_TranslatePoints(points, pointCount, offset);
+    Com_InitialHull(points, pointOrder, pointCount, hullOrder);
+    hullPointCount = Com_GrowInitialHull(points, pointOrder, pointCount - 2, hullOrder);
     for ( hullPointIter = 0; hullPointIter < hullPointCount; ++hullPointIter )
     {
         v4 = &(*hull)[2 * hullPointIter];
@@ -154,7 +159,7 @@ unsigned int __cdecl Com_GrowInitialHull(
     topIndex = pointCount - 1;
     frontDist = 0.001f;
     frontIndex = -1;
-    backDist = -0.0f01;
+    backDist = -0.001f;
     backIndex = -1;
     while ( botIndex <= topIndex )
     {

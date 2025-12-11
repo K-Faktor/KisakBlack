@@ -3609,54 +3609,6 @@ void __userpurge gjk_polygon_cylinder_t::calc_aabb(
     aabb_max->z = v7;
 }
 
-const phys_vec3 *__cdecl phys_min(const phys_vec3 *result, const phys_vec3 *v1, const phys_vec3 *v2)
-{
-    float x; // [esp+0h] [ebp-24h]
-    float y; // [esp+4h] [ebp-20h]
-    float z; // [esp+8h] [ebp-1Ch]
-
-    if ( v2->z < v1->z )
-        z = v2->z;
-    else
-        z = v1->z;
-    if ( v2->y < v1->y )
-        y = v2->y;
-    else
-        y = v1->y;
-    if ( v2->x < v1->x )
-        x = v2->x;
-    else
-        x = v1->x;
-    result->x = x;
-    result->y = y;
-    result->z = z;
-    return result;
-}
-
-const phys_vec3 *__cdecl phys_max(const phys_vec3 *result, const phys_vec3 *v1, const phys_vec3 *v2)
-{
-    float x; // [esp+0h] [ebp-24h]
-    float y; // [esp+4h] [ebp-20h]
-    float z; // [esp+8h] [ebp-1Ch]
-
-    if ( v1->z < v2->z )
-        z = v2->z;
-    else
-        z = v1->z;
-    if ( v1->y < v2->y )
-        y = v2->y;
-    else
-        y = v1->y;
-    if ( v1->x < v2->x )
-        x = v2->x;
-    else
-        x = v1->x;
-    result->x = x;
-    result->y = y;
-    result->z = z;
-    return result;
-}
-
 void __cdecl gjk_polygon_cylinder_t::calc_disc_aabb(
                 const phys_vec3 *axis,
                 float radius,
@@ -5032,22 +4984,5 @@ void __thiscall phys_inplace_avl_tree<phys_gjk_geom_id_pair_key,phys_heap_gjk_ca
 bool __thiscall gjk_collision_visitor::is_query(gjk_collision_visitor *this)
 {
     return 0;
-}
-
-const phys_vec3 *__cdecl phys_multiply(const phys_vec3 *result, const phys_mat44 *mat, const phys_vec3 *v)
-{
-    float v4; // [esp-ACh] [ebp-B8h]
-    float v5; // [esp-A8h] [ebp-B4h]
-    float y; // [esp-34h] [ebp-40h]
-    float z; // [esp-4h] [ebp-10h]
-
-    z = v->z;
-    y = v->y;
-    v5 = (float)((float)(v->x * mat->x.y) + (float)(y * mat->y.y)) + (float)(z * mat->z.y);
-    v4 = (float)((float)(v->x * mat->x.z) + (float)(y * mat->y.z)) + (float)(z * mat->z.z);
-    result->x = (float)((float)(v->x * mat->x.x) + (float)(y * mat->y.x)) + (float)(z * mat->z.x);
-    result->y = v5;
-    result->z = v4;
-    return result;
 }
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "rigid_body.h"
 
 void __cdecl create_broad_phase_info(rigid_body *body);
 void __cdecl destroy_broad_phase_info(rigid_body *body);

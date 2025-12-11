@@ -1,4 +1,179 @@
 #pragma once
+#include "enthandle.h"
+#include <clientscript/cscr_main.h>
+#include <physics/phys_local.h>
+#include <qcommon/common.h>
+#include "teams.h"
+#include "actor_badplace.h"
+
+enum nearestNodeHeightCheck : __int32
+{                                       // XREF: ?Path_NearestNode@@YAPAUpathnode_t@@QBMPAUpathsort_t@@HMPAHHW4nearestNodeHeightCheck@@@Z/r
+                                        // ?Path_NearestNodeNotCrossPlanes@@YAPAUpathnode_t@@QBMPAUpathsort_t@@HMQAY01MQAMHPAHHW4nearestNodeHeightCheck@@@Z/r
+    NEAREST_NODE_DO_HEIGHT_CHECK = 0x0,
+    NEAREST_NODE_DONT_DO_HEIGHT_CHECK = 0x1,
+};
+
+enum ai_stance_e : __int32
+{                                       // XREF: actor_s/r
+                                        // ai_stance_t/r ...
+    STANCE_BAD    = 0x0,
+    STANCE_STAND  = 0x1,
+    STANCE_CROUCH = 0x2,
+    STANCE_PRONE  = 0x4,
+    STANCE_ANY    = 0x7,
+};
+
+enum nodeType : __int32
+{                                       // XREF: pathnode_constant_t/r
+                                        // nodespawn_t/r ...
+    NODE_BADNODE             = 0x0,
+    NODE_PATHNODE            = 0x1,     // XREF: .rdata:nodespawns/s
+    NODE_COVER_STAND         = 0x2,     // XREF: .rdata:nodespawns/s
+                                        // .data:priorityAllowedNodes/s
+    NODE_COVER_CROUCH        = 0x3,     // XREF: .rdata:nodespawns/s
+                                        // .data:priorityAllowedNodes/s
+    NODE_COVER_CROUCH_WINDOW = 0x4,     // XREF: .rdata:nodespawns/s
+    NODE_COVER_PRONE         = 0x5,     // XREF: .rdata:nodespawns/s
+                                        // .data:priorityAllowedNodes/s
+    NODE_COVER_RIGHT         = 0x6,     // XREF: .rdata:nodespawns/s
+                                        // .data:priorityAllowedNodes/s
+    NODE_COVER_LEFT          = 0x7,     // XREF: .rdata:nodespawns/s
+                                        // .data:priorityAllowedNodes/s
+    NODE_COVER_WIDE_RIGHT    = 0x8,     // XREF: .rdata:nodespawns/s
+    NODE_COVER_WIDE_LEFT     = 0x9,     // XREF: .rdata:nodespawns/s
+    NODE_COVER_PILLAR        = 0xA,     // XREF: .rdata:nodespawns/s
+                                        // .data:priorityAllowedNodes/s
+    NODE_CONCEALMENT_STAND   = 0xB,     // XREF: .rdata:nodespawns/s
+                                        // .data:priorityAllowedNodes/s
+    NODE_CONCEALMENT_CROUCH  = 0xC,     // XREF: .rdata:nodespawns/s
+                                        // .data:priorityAllowedNodes/s
+    NODE_CONCEALMENT_PRONE   = 0xD,     // XREF: .rdata:nodespawns/s
+                                        // .data:priorityAllowedNodes/s
+    NODE_REACQUIRE           = 0xE,     // XREF: .rdata:nodespawns/s
+    NODE_BALCONY             = 0xF,     // XREF: .rdata:nodespawns/s
+    NODE_SCRIPTED            = 0x10,    // XREF: .rdata:nodespawns/s
+    NODE_NEGOTIATION_BEGIN   = 0x11,    // XREF: .rdata:nodespawns/s
+    NODE_NEGOTIATION_END     = 0x12,    // XREF: .rdata:nodespawns/s
+    NODE_TURRET              = 0x13,    // XREF: .rdata:nodespawns/s
+                                        // .data:priorityAllowedNodes/s
+    NODE_GUARD               = 0x14,    // XREF: .rdata:nodespawns/s
+    NODE_NUMTYPES            = 0x15,
+    NODE_DONTLINK            = 0x15,
+};
+
+struct pathnode_dynamic_t // sizeof=0x20
+{                                       // XREF: pathnode_t/r
+    SentientHandle pOwner;
+    int iFreeTime;
+    int iValidTime[3];
+    int inPlayerLOSTime;
+    __int16 wLinkCount;
+    __int16 wOverlapCount;
+    __int16 turretEntNumber;
+    __int16 userCount;
+};
+
+struct pathlink_s // sizeof=0xC
+{                                       // XREF: .data:pathlink_s * g_tempPathNodeLinks/r
+                                        // pathlink_t/r ...
+    float fDist;                        // XREF: Path_ConnectPath_0+B5/w
+                                        // Path_ConnectPath_0+FB/r ...
+    unsigned __int16 nodeNum;           // XREF: Path_ConnectPath_0+BB/w
+                                        // Path_ConnectPath_0+100/r ...
+    unsigned __int8 disconnectCount;
+    unsigned __int8 negotiationLink;
+    unsigned __int8 ubBadPlaceCount[4]; // XREF: Path_ConnectPath_0+C1/w
+                                        // Path_ConnectPath_0+106/r ...
+};
+
+struct pathnode_constant_t // sizeof=0x44
+{                                       // XREF: pathnode_t/r
+    nodeType type;
+    unsigned __int16 spawnflags;
+    unsigned __int16 targetname;        // XREF: G_FindPathNode(SpawnVar *,nodeType,int)+194/r
+    unsigned __int16 script_linkName;
+    unsigned __int16 script_noteworthy; // XREF: G_FindPathNode(SpawnVar *,nodeType,int)+1C6/r
+    unsigned __int16 target;            // XREF: G_FindPathNode(SpawnVar *,nodeType,int)+165/r
+    unsigned __int16 animscript;
+    int animscriptfunc;
+    float vOrigin[3];                   // XREF: G_FindPathNode(SpawnVar *,nodeType,int)+B8/r
+                                        // G_FindPathNode(SpawnVar *,nodeType,int)+CF/r
+    float fAngle;
+    float forward[2];
+    float fRadius;
+    float minUseDistSq;
+    __int16 wOverlapNode[2];
+    __int16 wChainId;
+    __int16 wChainDepth;
+    __int16 wChainParent;
+    unsigned __int16 totalLinkCount;
+    pathlink_s *Links;
+};
+
+struct pathnode_transient_t // sizeof=0x1C
+{                                       // XREF: pathnode_t/r
+    int iSearchFrame;
+    pathnode_t *pNextOpen;              // XREF: Path_AStarAlgorithm_CustomSearchInfo_FindCloseNode_+129/w
+                                        // Path_AStarAlgorithm_CustomSearchInfo_FindCloseNode_:loc_90E13C/r ...
+    pathnode_t *pPrevOpen;
+    pathnode_t *pParent;
+    float fCost;
+    float fHeuristic;
+    float costFactor;
+};
+
+struct pathnode_t // sizeof=0x80
+{                                       // XREF: ?Path_UpdateLimitedDepthArcBadPlaceCount@@YAXPAUbadplace_arc_t@@HHH@Z/r
+                                        // ?G_FindPathNode@@YAPAUpathnode_t@@PAUSpawnVar@@W4nodeType@@H@Z/r ...
+    pathnode_constant_t constant;       // XREF: G_FindPathNode(SpawnVar *,nodeType,int)+B8/r
+                                        // G_FindPathNode(SpawnVar *,nodeType,int)+CF/r ...
+    pathnode_dynamic_t dynamic;
+    pathnode_transient_t transient;     // XREF: Path_AStarAlgorithm_CustomSearchInfo_FindCloseNode_+129/w
+                                        // Path_AStarAlgorithm_CustomSearchInfo_FindCloseNode_:loc_90E13C/r ...
+};
+
+struct pathnode_parent_t // sizeof=0x18
+{                                       // XREF: .data:node_parent_world/r
+    float origin_loc[3];                // XREF: get_pathnode_parent(pathnode_t const *)+17/w
+                                        // get_pathnode_parent(pathnode_t const *)+27/w ...
+    int entnum;                         // XREF: get_pathnode_parent(pathnode_t const *)+3F/w
+    pathnode_t *m_node;                 // XREF: get_pathnode_parent(pathnode_t const *)+49/w
+    pathnode_parent_t *m_next;          // XREF: get_pathnode_parent(pathnode_t const *)+53/w
+};
+
+struct pathbasenode_t // sizeof=0x10
+{
+    float vOrigin[3];
+    unsigned int type;
+};
+
+struct pathsort_t // sizeof=0xC
+{                                       // XREF: ?Sentient_NearestNode@@YIPAUpathnode_t@@PAUsentient_s@@@Z/r
+                                        // ?Sentient_NearestNodeSuppressed@@YIPAUpathnode_t@@PAUsentient_s@@QAY01MQAMH@Z/r ...
+    pathnode_t *node;                   // XREF: Actor_BadPlace_AttemptEscape+116/r
+                                        // Actor_BadPlace_FindSafeNodeOutsideBadPlace+134/r ...
+    float metric;
+    float distMetric;
+};
+
+struct pathnode_tree_nodes_t // sizeof=0x8
+{                                       // XREF: pathnode_tree_info_t/r
+    int nodeCount;
+    unsigned __int16 *nodes;
+};
+
+union pathnode_tree_info_t // sizeof=0x8
+{                                       // XREF: pathnode_tree_t/r
+    pathnode_tree_t *child[2];
+    pathnode_tree_nodes_t s;
+};
+
+struct pathnode_tree_t // sizeof=0x10
+{
+    int axis;
+    float dist;
+    pathnode_tree_info_t u;
+};
 
 void __cdecl Path_GetType(pathnode_t *node);
 void __cdecl Scr_SetPathnodeField(unsigned int entnum, unsigned int offset);
@@ -6,12 +181,12 @@ void __cdecl Path_ReadOnly(int offset);
 void __cdecl Scr_GetPathnodeField(unsigned int entnum, unsigned int offset);
 void __cdecl Path_CallFunctionForNodes(scriptInstance_t inst, void (__cdecl *function)(scriptInstance_t, pathnode_t *));
 void __cdecl GScr_SetDynamicPathnodeField(pathnode_t *node, unsigned int index);
-void    parented_pathnode_list_update(generic_avl_map_node_t *a1@<ebp>, gentity_s *gent, const phys_mat44 *mat);
+void    parented_pathnode_list_update(gentity_s *gent, const phys_mat44 *mat);
 const pathnode_parent_t *__cdecl get_pathnode_parent(const pathnode_t *node);
 void __cdecl G_UpdateTrackExtraNodes();
 void __cdecl G_DropPathNodeToFloor(unsigned int nodeIndex);
 // local variable allocation has failed, the output may be wrong!
-void    node_droptofloor(cStaticModel_s *a1@<ebp>, pathnode_t *node);
+void    node_droptofloor(pathnode_t *node);
 void __cdecl setup_pathnode_parent(pathnode_t *node, int entnum, const float *origin_loc);
 bool __cdecl is_moving_entity(gentity_s *gent);
 void __cdecl G_InitPathBaseNode(pathbasenode_t *pbnode, const pathnode_t *pnode);
@@ -117,7 +292,7 @@ void __cdecl Path_ConnectPathsForEntity(gentity_s *ent);
 void __cdecl Path_ConnectPath(pathnode_t *node, int toNodeNum);
 void __cdecl Path_DisconnectPathsForEntity(gentity_s *ent);
 void __cdecl Path_DisconnectPath(gentity_s *ent, pathnode_t *node, pathlink_s *link);
-void    Path_UpdateArcBadPlaceCount(float a1@<ebp>, badplace_arc_t *arc, int teamflags, int delta);
+void    Path_UpdateArcBadPlaceCount(badplace_arc_t *arc, int teamflags, int delta);
 void __cdecl Path_UpdateBadPlaceCountForLink(pathlink_s *link, int teamflags, int delta);
 void __cdecl Path_CheckForInwardLinks(
                 pathnode_t *node,
@@ -133,9 +308,7 @@ void __cdecl Path_CheckForInwardLinks(
                 float *side1,
                 int teamflags,
                 int delta);
-// local variable allocation has failed, the output may be wrong!
 void    Path_UpdateLimitedDepthArcBadPlaceCount(
-                float a1@<ebp>,
                 badplace_arc_t *arc,
                 int teamflags,
                 int delta,
@@ -152,5 +325,3 @@ bool __cdecl IsNodeEnabled(const pathnode_t *pNode);
 pathnode_t *__cdecl G_FindPathNode(SpawnVar *spawnVar, nodeType type, int gameId);
 void __cdecl G_ProcessPathnodeCommand(const RadiantCommand *command, SpawnVar *spawnVar);
 void __cdecl G_ClearSelectedPathNode();
-pathnode_parent_t *__thiscall phys_simple_allocator<pathnode_parent_t>::allocate(
-                phys_simple_allocator<pathnode_parent_t> *this);

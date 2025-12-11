@@ -1,4 +1,7 @@
 #pragma once
+#include <xanim/xanim.h>
+#include <xanim/dobj.h>
+#include "r_buffers.h"
 
 void __cdecl R_SkinXSurfaceSkinned(
                 const XSurface *xsurf,
@@ -46,6 +49,9 @@ void __cdecl R_SkinXSurfaceRigid(
                 int totalVertCount,
                 const DObjSkelMat *boneMatrix,
                 GfxPackedVertex *vertices);
+void    R_SkinXModelCmd(struct SkinXModelCmd *data);
+void __cdecl R_MultiplySkelMat(const DObjSkelMat *mat0, const DObjSkelMat *mat1, DObjSkelMat *out);
+
 void __cdecl R_SkinXSurfaceSkinnedSse(
                 const XSurface *xsurf,
                 const DObjSkelMat *boneMatrix,
@@ -71,26 +77,24 @@ void __cdecl R_SkinXSurfaceWeightSseInOut(
                 GfxPackedVertexNormal *outVertNormals,
                 GfxPackedVertex *outVerts);
 void    R_SkinXSurfaceRigidSse(
-                GfxPackedVertex *a1@<ebp>,
                 const XSurface *surf,
                 int totalVertCount,
                 const DObjSkelMat *boneMatrix,
                 GfxPackedVertex *dstVerts);
-__m128 * _mm_cvtpu16_ps@<eax>(int a1@<ebp>);
 void    R_SkinXSurfaceRigidSseOut(
-                GfxPackedVertex *a1@<ebp>,
                 const XSurface *surf,
                 int totalVertCount,
                 const DObjSkelMat *boneMatrix,
-                __m64 *dstVertNormals,
+    GfxPackedVertexNormal *dstVertNormals,
                 GfxPackedVertex *dstVerts);
 void __cdecl R_SkinXSurfaceRigidSseInOut(
                 const XSurface *surf,
                 int totalVertCount,
                 const DObjSkelMat *boneMatrix,
-                __m64 *srcVertNormals,
-                __m64 *dstVertNormals,
+    GfxPackedVertexNormal *srcVertNormals,
+    GfxPackedVertexNormal *dstVertNormals,
                 GfxPackedVertex *dstVerts);
-void    R_SkinXModelCmd(int a1@<ebp>, SkinXModelCmd *data);
-void __cdecl R_MultiplySkelMat(const DObjSkelMat *mat0, const DObjSkelMat *mat1, DObjSkelMat *out);
-__m128 * _mm_cvtpu8_ps@<eax>(int a1@<ebp>);
+
+
+//__m128 * _mm_cvtpu8_ps@<eax>(int a1@<ebp>);
+//__m128 *_mm_cvtpu16_ps@<eax>(int a1@<ebp>);

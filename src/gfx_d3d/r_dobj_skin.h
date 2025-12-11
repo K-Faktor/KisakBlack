@@ -1,4 +1,41 @@
 #pragma once
+#include <xanim/dobj.h>
+#include <xanim/xanim.h>
+
+struct __declspec(align(2)) GfxModelSurfaceInfo // sizeof=0xC
+{                                       // XREF: GfxModelSkinnedSurface/r
+    //$428C0DFD0D9970E1A3749A5754AD806F ___u0;
+    union //$428C0DFD0D9970E1A3749A5754AD806F // sizeof=0x4
+    {                                       // XREF: GfxModelSurfaceInfo/r
+        const DObjAnimMat *baseMat;
+        const DObjAnimMat *baseMat_local;
+    };
+    unsigned __int8 boneIndex;
+    unsigned __int8 boneCount;
+    unsigned __int16 gfxEntIndex;
+    unsigned __int16 lightingHandle;
+    unsigned __int8 dobjModelIndex;
+    // padding byte
+};
+
+struct GfxModelSkinnedSurface // sizeof=0x18
+{                                       // XREF: GfxModelRigidSurface/r
+    int skinnedCachedOffset;
+    XSurface *xsurf;
+    GfxModelSurfaceInfo info;
+    //$BFB86953EFC7B86272823EA22BE25520 ___u3;
+    union //$BFB86953EFC7B86272823EA22BE25520 // sizeof=0x4
+    {                                       // XREF: GfxModelSkinnedSurface/r
+        GfxPackedVertex *skinnedVert;
+        int oldSkinnedCachedOffset;
+    };
+};
+
+struct GfxModelRigidSurface // sizeof=0x38
+{
+    GfxModelSkinnedSurface surf;
+    GfxScaledPlacement placement;
+};
 
 void __cdecl R_FlagXModelAsSkinned(GfxSceneEntity *sceneEnt, unsigned int surfaceCount);
 void __cdecl R_SkinSceneDObj(

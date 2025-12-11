@@ -132,6 +132,13 @@ struct __declspec(align(8)) pulse_sum_wheel : phys_link_list_base<pulse_sum_whee
     // padding byte
     // padding byte
     // padding byte
+
+    void SOLVER_solver_intermediate(float delta_t);
+    bool pulse_chain_within_limits();
+    char clamp_pulse_sum_pulse_chain(float *ps1_, float *ps2_);
+    void addp_pulse_chain();
+    void SOLVER_apply_relaxation(float *error_sq);
+    void SOLVER_solver_prolog(float delta_t);
 };
 
 struct pulse_sum_angular : phys_link_list_base<pulse_sum_angular> // sizeof=0x90
@@ -318,6 +325,7 @@ struct pulse_sum_contact : phys_link_list_base<pulse_sum_contact> // sizeof=0x60
 
     //void pulse_sum_contact::set(rigid_body *const b1, rigid_body *const b2, contact_point_info *cpi, float delta_t);
     void set(rigid_body *const b1, rigid_body *const b2, contact_point_info *cpi, float delta_t);
+    void SOLVER_solver_intermediate(float delta_t);
 };
 
 struct __declspec(align(16)) pulse_sum_contact_point // sizeof=0xD0
@@ -379,6 +387,43 @@ struct __declspec(align(16)) pulse_sum_contact_point // sizeof=0xD0
 
 struct pulse_sum_constraint_solver // sizeof=0x84
 {                                       // XREF: ?phys_jq_constraint_solver_batch_function@@YAHPAUjqBatch@@@Z/r
+    struct solver_info // sizeof=0x14
+    {                                       // XREF: pulse_sum_constraint_solver/r
+        int m_max_vel_iters;
+        int m_max_vel_pos_iters;
+        float m_max_vel_error_sq;
+        float m_max_vel_pos_error_sq;
+        float m_delta_t;
+    };
+
+    struct __declspec(align(16)) temp_user_rigid_body : user_rigid_body, phys_link_list_base<pulse_sum_constraint_solver::temp_user_rigid_body> // sizeof=0x1D0
+    {
+        struct avl_tree_accessor
+        {
+
+        };
+        user_rigid_body *m_avl_key;
+        phys_inplace_avl_tree_node<pulse_sum_constraint_solver::temp_user_rigid_body> m_avl_tree_node;
+        // padding byte
+        // padding byte
+        // padding byte
+        // padding byte
+        // padding byte
+        // padding byte
+        // padding byte
+        // padding byte
+        // padding byte
+        // padding byte
+        // padding byte
+        // padding byte
+    };
+
+    struct user_rigid_body_restore_info : phys_link_list_base<pulse_sum_constraint_solver::user_rigid_body_restore_info> // sizeof=0xC
+    {
+        user_rigid_body **m_rbc_urb;
+        user_rigid_body *m_original_urb;
+    };
+
     float m_outside_delta_t;            // XREF: phys_jq_constraint_solver_batch_function(jqBatch *)+43/w
     int m_psys_max_vel_iters;           // XREF: phys_jq_constraint_solver_batch_function(jqBatch *)+4F/w
     int m_psys_max_vel_pos_iters;       // XREF: phys_jq_constraint_solver_batch_function(jqBatch *)+49/w
@@ -393,51 +438,26 @@ struct pulse_sum_constraint_solver // sizeof=0x84
     phys_link_list<pulse_sum_wheel> m_list_pulse_sum_wheel;
     phys_link_list<pulse_sum_contact> m_list_pulse_sum_contact;
 
-    void __thiscall pulse_sum_constraint_solver::solve_iterative(int max_iters, float max_error_sq);
-    void __thiscall pulse_sum_constraint_solver::add_urb(
+    ~pulse_sum_constraint_solver();
+    pulse_sum_constraint_solver();
+
+    void solve_constraints(rigid_body *const head);
+    void execute_constraint_solver(rigid_body *const head);
+
+    void solve_iterative(int max_iters, float max_error_sq);
+    void add_urb(
         phys_inplace_avl_tree<user_rigid_body *, pulse_sum_constraint_solver::temp_user_rigid_body, pulse_sum_constraint_solver::temp_user_rigid_body::avl_tree_accessor> *turb_search_tree,
         phys_simple_link_list<pulse_sum_constraint_solver::temp_user_rigid_body> *list_turb,
         phys_simple_link_list<pulse_sum_constraint_solver::user_rigid_body_restore_info> *list_urbri,
         rigid_body_constraint *rbc);
 };
 
+
+
+
 void __cdecl orthonormalize(phys_mat44 *mat);
-
-
-
-
 void __cdecl constraint_solver_process(
                 phys_transient_allocator *transient_buffer,
                 physics_system *psys,
                 float outside_delta_t);
-
-int __cdecl phys_jq_constraint_solver_batch_function(jqBatch *pBatch);
-
-
-
-
-void __thiscall pulse_sum_wheel::SOLVER_solver_intermediate(pulse_sum_wheel *this, float delta_t);
-
-void __cdecl rbint::setup_constraint(rigid_body *rb, pulse_sum_node *psn);
-void __thiscall pulse_sum_constraint_solver::~pulse_sum_constraint_solver(pulse_sum_constraint_solver *this);
-void __thiscall rigid_body::update_last_position(rigid_body *this);
-
-user_rigid_body *__thiscall user_rigid_body::operator=(user_rigid_body *this, const user_rigid_body *__that);
-
-void __thiscall rigid_body_constraint_contact::update_smallest_lambda(rigid_body_constraint_contact *this);
-
-bool __thiscall pulse_sum_wheel::pulse_chain_within_limits(pulse_sum_wheel *this);
-char __thiscall pulse_sum_wheel::clamp_pulse_sum_pulse_chain(pulse_sum_wheel *this, float *ps1_, float *ps2_);
-void __thiscall pulse_sum_wheel::addp_pulse_chain(pulse_sum_wheel *this);
-void __thiscall pulse_sum_wheel::SOLVER_apply_relaxation(pulse_sum_wheel *this, float *error_sq);
-void __thiscall pulse_sum_wheel::SOLVER_solver_prolog(pulse_sum_wheel *this, float delta_t);
-
-void __thiscall pulse_sum_contact::SOLVER_solver_intermediate(pulse_sum_contact *this, float delta_t);
-pulse_sum_constraint_solver *__thiscall pulse_sum_constraint_solver::pulse_sum_constraint_solver(
-                pulse_sum_constraint_solver *this);
-void __thiscall pulse_sum_constraint_solver::solve_constraints(
-                pulse_sum_constraint_solver *this,
-                rigid_body *const head);
-void __thiscall pulse_sum_constraint_solver::execute_constraint_solver(
-                pulse_sum_constraint_solver *this,
-                rigid_body *const head);
+int __cdecl phys_jq_constraint_solver_batch_function(struct jqBatch *pBatch);

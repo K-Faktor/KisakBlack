@@ -1,5 +1,19 @@
 #include "r_scene.h"
 
+#include <Windows.h>
+#include "r_dvars.h"
+#include "r_warn.h"
+#include "r_stream.h"
+#include <universal/com_math_anglevectors.h>
+#include <qcommon/threads.h>
+#include <xanim/dobj_utils.h>
+#include <xanim/xmodel.h>
+#include "r_shader_constant_set.h"
+#include <cgame_mp/cg_ents_mp.h>
+#include <ragdoll/ragdoll_controller.h>
+
+GfxScene scene;
+
 GfxScene *__cdecl R_GetScene()
 {
     return &scene;
@@ -337,9 +351,9 @@ void __cdecl R_AddDObjToScene(
                 CG_GetPoseOrigin(pose, sceneEnt->placement.base.origin);
                 CG_GetPoseQuat(pose, sceneEnt->placement.base.quat);
                 sceneEnt->placement.scale = scale;
-                sceneEnt->cull.mins[0] = sceneEnt->placement.base.origin[0] + COERCE_FLOAT(LODWORD(radiusa) ^ _mask__NegFloat_);
-                sceneEnt->cull.mins[1] = sceneEnt->placement.base.origin[1] + COERCE_FLOAT(LODWORD(radiusa) ^ _mask__NegFloat_);
-                sceneEnt->cull.mins[2] = sceneEnt->placement.base.origin[2] + COERCE_FLOAT(LODWORD(radiusa) ^ _mask__NegFloat_);
+                sceneEnt->cull.mins[0] = sceneEnt->placement.base.origin[0] + -radiusa);
+                sceneEnt->cull.mins[1] = sceneEnt->placement.base.origin[1] + -radiusa);
+                sceneEnt->cull.mins[2] = sceneEnt->placement.base.origin[2] + -radiusa);
                 sceneEnt->cull.maxs[0] = sceneEnt->placement.base.origin[0] + radiusa;
                 sceneEnt->cull.maxs[1] = sceneEnt->placement.base.origin[1] + radiusa;
                 sceneEnt->cull.maxs[2] = sceneEnt->placement.base.origin[2] + radiusa;

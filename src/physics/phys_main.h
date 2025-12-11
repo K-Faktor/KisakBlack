@@ -15,6 +15,17 @@ enum PhysicsGeomType : __int32
     PHYS_GEOM_POINT          = 0x6,
     PHYS_GEOM_COUNT          = 0x7,
 };
+inline PhysicsGeomType &operator++(PhysicsGeomType &t)
+{
+    t = static_cast<PhysicsGeomType>((static_cast<int>(t) + 1));
+    return t;
+}
+inline PhysicsGeomType operator++(PhysicsGeomType &t, int)
+{
+    PhysicsGeomType old = t;
+    t = static_cast<PhysicsGeomType>((static_cast<int>(t) + 1));
+    return old;
+}
 
 enum Phys_SurfaceType : __int32
 {                                       // XREF: Phys_GetSoundAliasIndex/r
@@ -441,3 +452,7 @@ void __cdecl Phys_CalcPreset(PhysPreset *physPreset, float *dims, int surfaceTyp
 int __cdecl Phys_GetCurrentTime();
 broad_phase_info *__cdecl create_broad_phase_info();
 void __cdecl destroy_broad_phase_info(broad_phase_info *bpi);
+
+
+extern cdl_proftimer proftimer_physics_frame_advance;
+extern PhysGlob physGlob;

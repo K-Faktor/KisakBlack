@@ -35,6 +35,48 @@ struct    rigid_body_constraint_point : rigid_body_constraint // sizeof=0x50
         // padding byte
         // padding byte
         // padding byte
+
+        void set(const phys_vec3 *b1_r_loc, const phys_vec3 *b2_r_loc)
+        {
+            this->m_b1_r_loc.x = b1_r_loc->x;
+            this->m_b1_r_loc.y = b1_r_loc->y;
+            this->m_b1_r_loc.z = b1_r_loc->z;
+
+            this->m_b2_r_loc.x = b2_r_loc->x;
+            this->m_b2_r_loc.y = b2_r_loc->y;
+            this->m_b2_r_loc.z = b2_r_loc->z;
+        }
+
+        void epilog_vel_constaint(float __formal)
+        {
+            this->m_stress = this->m_ps_cache_list[1].m_pulse_sum * this->m_ps_cache_list[1].m_pulse_sum
+                + this->m_ps_cache_list[0].m_pulse_sum * this->m_ps_cache_list[0].m_pulse_sum
+                + this->m_ps_cache_list[2].m_pulse_sum * this->m_ps_cache_list[2].m_pulse_sum;
+        }
+        void setup_constaint(struct pulse_sum_constraint_solver *phys, float delta_t)
+        {
+            rigid_body *b2; // edi
+            phys_vec3 v6; // [esp+20h] [ebp-3Ch] BYREF
+            phys_vec3 v7; // [esp+30h] [ebp-2Ch] BYREF
+            rigid_body *b1; // [esp+4Ch] [ebp-10h]
+            void *retaddr; // [esp+5Ch] [ebp+0h]
+
+            b2 = this->b2;
+            phys_multiply(&v7, &b2->m_mat, &this->m_b2_r_loc);
+            b1 = this->b1;
+            phys_multiply(&v6, &b1->m_mat, &this->m_b1_r_loc);
+            pulse_sum_constraint_solver::create_point(
+                psys,
+                b1,
+                &v6,
+                b2,
+                &v7,
+                this->m_ps_cache_list,
+                delta_t,
+                this->m_spring_enabled,
+                this->m_spring_k,
+                this->m_damp_k);
+        }
 };
 
 struct    __declspec(align(16)) rigid_body_constraint_hinge : rigid_body_constraint // sizeof=0xD0
@@ -138,6 +180,20 @@ struct    __declspec(align(16)) rigid_body_constraint_ragdoll : rigid_body_const
         // padding byte
         // padding byte
         // padding byte
+
+        void set(const phys_vec3 *b1_r_loc, const phys_vec3 *b2_r_loc);
+        void set_snider_style(const phys_vec3 *b1_axis_loc, const phys_vec3 *b1_ref_loc);
+        void set_damp_k(float damp_k);
+        void set_theta_min_max(const phys_vec3 *b2_ref_loc, float theta_min, float theta_max);
+        void set_hinge(const phys_vec3 *b1_axis_loc, const phys_vec3 *b2_axis_loc, const phys_vec3 *b1_ref_loc, const phys_vec3 *b2_ref_loc, float theta_min, float theta_max);
+        void set_swivel(const phys_vec3 *b1_axis_loc, const phys_vec3 *b2_axis_loc, const phys_vec3 *b1_ref_loc, const phys_vec3 *b2_ref_loc, float theta_min, float theta_max);
+        void add_joint_limit(const phys_vec3 *b1_ud_loc, float theta_limit);
+        float pull_together();
+        void setup_hinge(struct pulse_sum_constraint_solver *psys,
+            const phys_vec3 *b1_ref,
+            const phys_vec3 *b2_axis,
+            float delta_t);
+        void setup_constraint(pulse_sum_constraint_solver *psys, float delta_t);
 };
 
 struct    rigid_body_constraint_wheel : rigid_body_constraint // sizeof=0xD0
@@ -173,9 +229,9 @@ struct    rigid_body_constraint_wheel : rigid_body_constraint // sizeof=0xD0
         unsigned int m_wheel_state;
         unsigned int m_wheel_flags;
         pulse_sum_cache m_ps_cache_list[4];
-        pulse_sum_normal *m_ps_suspension;
-        pulse_sum_normal *m_ps_side_fric;
-        pulse_sum_normal *m_ps_fwd_fric;
+        struct pulse_sum_normal *m_ps_suspension;
+        struct pulse_sum_normal *m_ps_side_fric;
+        struct pulse_sum_normal *m_ps_fwd_fric;
 };
 
 struct    __declspec(align(16)) rigid_body_constraint_angular_actuator : rigid_body_constraint // sizeof=0xC0
@@ -272,6 +328,11 @@ struct    user_rigid_body : rigid_body // sizeof=0x1B0
         // padding byte
         // padding byte
         phys_mat44 m_dictator_mat;
+
+        user_rigid_body &operator=(const user_rigid_body *__that);
+
+        void set(const phys_mat44 *const dictator);
+        void setPosition(const phys_mat44 *const dictator);
 };
 
 struct    __declspec(align(16)) rigid_body_constraint_custom_path : rigid_body_constraint // sizeof=0x80
@@ -321,6 +382,8 @@ struct rigid_body_constraint_contact : rigid_body_constraint // sizeof=0x2C
         contact_point_info *cpi,
         environment_rigid_body *b1_,
         environment_rigid_body *b2_);
+
+    void update_smallest_lambda();
 };
 
 struct rb_inplace_partition_node // sizeof=0x38
@@ -376,7 +439,9 @@ public:
 
         rigid_body& operator=(const rigid_body *__that);
 
-        void swap_last_position(rigid_body *this);
+        void swap_last_position();
+        void update_last_position();
+
 
 
         phys_vec3 m_last_position;

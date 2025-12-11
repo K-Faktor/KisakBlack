@@ -14,6 +14,7 @@
 #include <gfx_d3d/r_image.h>
 #include <xanim/xmodel.h>
 #include <clientscript/cscr_stringlist.h>
+#include <gfx_d3d/r_dvars.h>
 
 hunkUsed_t hunk_low;
 unsigned __int8 *s_hunkData;
@@ -24,7 +25,12 @@ fileData_s *com_fileDataHashTable[1024];
 fileData_s *com_hunkData;
 
 
-
+struct AssetList // sizeof=0xC
+{                                       // XREF: DB_GetAllXAssetOfType_LoadObj/r
+    int assetCount;                     // XREF: DB_GetAllXAssetOfType_LoadObj+C/w
+    int maxCount;                       // XREF: DB_GetAllXAssetOfType_LoadObj+16/w
+    XAssetHeader *assets;               // XREF: DB_GetAllXAssetOfType_LoadObj+9/w
+};
 
 
 

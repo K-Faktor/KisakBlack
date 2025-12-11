@@ -1,4 +1,5 @@
 #pragma once
+#include "ragdoll.h"
 
 void __cdecl Ragdoll_Clear_f();
 void __cdecl Ragdoll_ResetBodiesUsingDef();

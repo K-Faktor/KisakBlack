@@ -1,8 +1,12 @@
 #include "ragdoll_controller.h"
+#include "ragdoll.h"
+#include <bgame/bg_local.h>
+#include <xanim/dobj_utils.h>
 
-const cpose_t *__cdecl Ragdoll_HandleBody(const cpose_t *pose)
+//const cpose_t *__cdecl Ragdoll_HandleBody(const cpose_t *pose)
+unsigned short __cdecl Ragdoll_HandleBody(const cpose_t *pose)
 {
-    return pose;
+    return pose->lightingHandle;
 }
 
 BoneOrientation *__cdecl Ragdoll_BodyBoneOrientations(RagdollBody *body)

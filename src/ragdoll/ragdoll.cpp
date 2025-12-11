@@ -1,25 +1,37 @@
 #include "ragdoll.h"
+#include <cgame/cg_drawtools.h>
+#include <client/screen_placement.h>
+#include <qcommon/dobj_management.h>
+#include <cgame_mp/cg_ents_mp.h>
+#include "ragdoll_controller.h"
+#include "ragdoll_update.h"
+#include <clientscript/cscr_stringlist.h>
+#include <qcommon/threads.h>
+#include "ragdoll_cmds.h"
+#include <qcommon/com_clients.h>
+#include <qcommon/cmd.h>
 
-void __thiscall phys_free_list<RagdollBody>::remove(
-                phys_free_list<RagdollBody> *this,
-                phys_free_list<RagdollBody>::T_internal *data)
-{
-    phys_free_list<RagdollBody>::T_internal_base *next; // [esp+14h] [ebp-8h]
-    phys_free_list<RagdollBody>::T_internal_base *prev; // [esp+18h] [ebp-4h]
+const dvar_t *ragdoll_enable;
+const dvar_t *ragdoll_debug;
+const dvar_t *ragdoll_fps;
+const dvar_t *ragdoll_max_life;
+const dvar_t *ragdoll_max_simulating;
+const dvar_t *ragdoll_explode_force;
+const dvar_t *ragdoll_explode_upbias;
+const dvar_t *ragdoll_bullet_force;
+const dvar_t *ragdoll_bullet_upbias;
+const dvar_t *ragdoll_baselerp_time;
+const dvar_t *ragdoll_jointlerp_time;
+const dvar_t *ragdoll_rotvel_scale;
+const dvar_t *ragdoll_jitter_scale;
+const dvar_t *ragdoll_self_collision_scale;
+const dvar_t *ragdoll_dump_anims;
 
-    if ( !data
-        && _tlAssert("c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h", 477, "data", "") )
-    {
-        __debugbreak();
-    }
-    --this->m_list_count;
-    phys_free_list<RagdollBody>::debug_remove(this, data);
-    next = data->m_next_T_internal;
-    prev = data->m_prev_T_internal;
-    prev->m_next_T_internal = next;
-    next->m_prev_T_internal = prev;
-    PMM_FREE((unsigned __int8 *)data, 0xA34u, 4u);
-}
+phys_free_list<RagdollBody> g_ragdoll_body_pool;
+
+RagdollDef ragdollDefs[2];
+
+bool ragdollInited;
 
 void __cdecl Ragdoll_DebugDraw()
 {
@@ -262,7 +274,8 @@ RagdollBody *__cdecl Ragdoll_GetUnusedBody()
 
     if ( g_ragdoll_body_pool.m_list_count >= 32 )
         return 0;
-    body = phys_free_list<RagdollBody>::add(&g_ragdoll_body_pool, 0, "phys_free_list error: out of memory.");
+    //body = phys_free_list<RagdollBody>::add(&g_ragdoll_body_pool, 0, "phys_free_list error: out of memory.");
+    body = g_ragdoll_body_pool.add(0, "phys_free_list error: out of memory.");
     if ( !body )
         return 0;
     Ragdoll_InitBody(body);
@@ -439,7 +452,8 @@ void __cdecl Ragdoll_FreeBody(const cpose_t *ragdollBody)
     }
     Ragdoll_BodyNewState(body, BS_DEAD);
     body->references = 0;
-    phys_free_list<RagdollBody>::remove(&g_ragdoll_body_pool, body);
+    //phys_free_list<RagdollBody>::remove(&g_ragdoll_body_pool, body);
+    g_ragdoll_body_pool.remove(body);
 }
 
 void __cdecl Ragdoll_InitDvars()
@@ -527,6 +541,7 @@ void __cdecl Ragdoll_InitDvars()
     ragdoll_dump_anims = _Dvar_RegisterBool("ragdoll_dump_anims", 0, 0, "Dump animation data when ragdoll fails");
 }
 
+bool ragdollFirstInit;
 void __cdecl Ragdoll_Register()
 {
     int ControllerIndex; // eax
@@ -544,7 +559,7 @@ void __cdecl Ragdoll_Register()
     Ragdoll_InitDvars();
     Ragdoll_InitCommands();
     ControllerIndex = Com_LocalClient_GetControllerIndex(0);
-    Cmd_ExecuteSingleCommand(0, ControllerIndex, "exec ragdoll.cfg");
+    Cmd_ExecuteSingleCommand(0, ControllerIndex, (char*)"exec ragdoll.cfg");
     ragdollFirstInit = 1;
 }
 
@@ -566,7 +581,7 @@ void __cdecl Ragdoll_Init()
     {
         for ( i = 0; i < 2; ++i )
         {
-            byte_9C3B091[3848 * i] = 0;
+            ragdollDefs[i].bound = 0;
             ragdollDefs[i].inUse = 0;
         }
         ragdollInited = 1;
@@ -582,64 +597,3 @@ void __cdecl Ragdoll_Shutdown()
     }
     ragdollInited = 0;
 }
-
-RagdollBody *__thiscall phys_free_list<RagdollBody>::add(
-                phys_free_list<RagdollBody> *this,
-                int no_error,
-                const char *error_msg)
-{
-    phys_free_list<RagdollBody>::T_internal *ptr; // [esp+1Ch] [ebp-4h]
-
-    ptr = (phys_free_list<RagdollBody>::T_internal *)PMM_ALLOC(0xA34u, 4u);
-    if ( ptr )
-    {
-        ptr->m_prev_T_internal = &this->m_dummy_head;
-        ptr->m_next_T_internal = this->m_dummy_head.m_next_T_internal;
-        this->m_dummy_head.m_next_T_internal->m_prev_T_internal = ptr;
-        this->m_dummy_head.m_next_T_internal = ptr;
-        ++this->m_list_count;
-        phys_free_list<RagdollBody>::debug_add(this, ptr);
-        return &ptr->m_data;
-    }
-    else
-    {
-        if ( !no_error )
-        {
-            if ( _tlAssert("c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h", 470, "no_error", error_msg) )
-                __debugbreak();
-        }
-        return 0;
-    }
-}
-
-void __thiscall phys_free_list<RagdollBody>::remove(phys_free_list<RagdollBody> *this, RagdollBody *data_)
-{
-    if ( data_ )
-    {
-        PMM_VALIDATE((char *)&data_[-1].rope_id, 0xA34u, 4u);
-        phys_free_list<RagdollBody>::remove(this, (phys_free_list<RagdollBody>::T_internal *)&data_[-1].rope_id);
-    }
-}
-
-void __thiscall phys_free_list<RagdollBody>::debug_add(
-                phys_free_list<RagdollBody> *this,
-                phys_free_list<RagdollBody>::T_internal *T_i)
-{
-    int m_list_count; // [esp+0h] [ebp-10h]
-
-    if ( this->m_list_count_high_water <= this->m_list_count )
-        m_list_count = this->m_list_count;
-    else
-        m_list_count = this->m_list_count_high_water;
-    this->m_list_count_high_water = m_list_count;
-    if ( this->m_ptr_list_count >= 256 )
-    {
-        T_i->m_ptr_list_index = -1;
-    }
-    else
-    {
-        T_i->m_ptr_list_index = this->m_ptr_list_count;
-        this->m_ptr_list[this->m_ptr_list_count++] = &T_i->m_data;
-    }
-}
-

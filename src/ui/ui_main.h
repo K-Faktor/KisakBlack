@@ -86,32 +86,6 @@ struct ScriptCondition // sizeof=0x10
         ScriptCondition *next;
 };
 
-union expressionRpnDataUnion // sizeof=0x8
-{                                                                             // XREF: expressionRpn/r
-        Operand constant;
-        void *cmd;
-        int cmdIdx;
-};
-
-struct expressionRpn // sizeof=0xC
-{
-        int type;
-        expressionRpnDataUnion data;
-};
-
-struct ExpressionStatement // sizeof=0x10
-{                                                                             // XREF: textExp_s/r
-                                                                                // GenericEventScript/r ...
-        char *filename;                                         // XREF: PC_CndStackPush(int,ExpressionStatement,bool,bool,int,int,int)+47/r
-                                                                                // PC_EventScript_Parse+398/r ...
-        int line;                                                     // XREF: PC_CndStackPush(int,ExpressionStatement,bool,bool,int,int,int)+4C/r
-                                                                                // PC_EventScript_Parse+3A0/r ...
-        int numRpn;                                                 // XREF: PC_CndStackPush(int,ExpressionStatement,bool,bool,int,int,int)+52/r
-                                                                                // PC_EventScript_Parse+3A9/r ...
-        expressionRpn *rpn;                                 // XREF: PC_CndStackPush(int,ExpressionStatement,bool,bool,int,int,int)+58/r
-                                                                                // PC_EventScript_Parse+3B2/r ...
-};
-
 struct GenericEventScript // sizeof=0x2C
 {                                                                             // XREF: GenericEventScriptNext/r
         ScriptCondition *prerequisites;

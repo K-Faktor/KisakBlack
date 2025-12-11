@@ -4,6 +4,7 @@
 #include "r_buffers.h"
 #include <cgame/cg_visionsets.h>
 #include <client_mp/cl_main_mp.h>
+#include "r_scene.h"
 
 enum GfxProjectionTypes : __int32
 {                                       // XREF: GfxCmdProjectionSet/r
@@ -216,17 +217,6 @@ struct GfxCullViewInfo // sizeof=0x170
     GfxViewport sceneViewport;
     GfxViewport displayViewport;
     GfxViewport scissorViewport;
-};
-
-struct GfxSceneDef // sizeof=0x14
-{                                       // XREF: GfxViewInfo/r
-                                        // GfxCmdBufSourceState/r ...
-    int time;                           // XREF: R_SetLodOrigin(refdef_s const *)+80/w
-                                        // R_SetLodOrigin(refdef_s const *)+86/r ...
-    float floatTime;                    // XREF: R_SetLodOrigin(refdef_s const *)+96/w
-                                        // R_RenderScene(refdef_s const *,int)+264/r ...
-    float viewOffset[3];                // XREF: R_SetLodOrigin(refdef_s const *)+52/w
-                                        // R_SetLodOrigin(refdef_s const *)+62/w ...
 };
 
 struct jqBatchGroup // sizeof=0x8
@@ -712,23 +702,32 @@ const struct __declspec(align(32)) GfxBackEndData // sizeof=0x186300
     unsigned int shadowableLightHasShadowMap[8];
     unsigned int frameCount;
     int drawSurfCount;
-    volatile int surfPos;
-    volatile int gfxEntCount;
+    //volatile int surfPos;
+    volatile unsigned int surfPos;
+    //volatile int gfxEntCount;
+    volatile unsigned int gfxEntCount;
     GfxEntity gfxEnts[256];
-    volatile int shaderConstantSetCount;
+    //volatile int shaderConstantSetCount;
+    volatile unsigned int shaderConstantSetCount;
     ShaderConstantSet shaderConstantSets[128];
-    volatile int textureOverrideCount;
+    //volatile int textureOverrideCount;
+    volatile unsigned int textureOverrideCount;
     GfxTextureOverride textureOverrides[256];
-    volatile int cloudCount;
-    volatile int codeMeshCount;
-    volatile int codeMeshArgsCount;
-    volatile int markMeshCount;
+    //volatile int cloudCount;
+    //volatile int codeMeshCount;
+    //volatile int codeMeshArgsCount;
+    //volatile int markMeshCount;
+    volatile unsigned int cloudCount;
+    volatile unsigned int codeMeshCount;
+    volatile unsigned int codeMeshArgsCount;
+    volatile unsigned int markMeshCount;
     FxMarkMeshData markMeshes[1536];
     volatile unsigned int *dynamicBufferCurrentFrame;
     GfxVertexBufferState *skinnedCacheVb;
     IDirect3DQuery9 *endFence;
     unsigned __int8 *tempSkinBuf;
-    volatile int tempSkinPos;
+    //volatile int tempSkinPos;
+    volatile unsigned int tempSkinPos;
     GfxIndexBufferState *preTessIb;
     int viewParmCount;
     GfxFog fogSettings;

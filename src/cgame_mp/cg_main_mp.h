@@ -1,4 +1,5 @@
 #pragma once
+#include "cg_local_mp.h"
 #include <win32/win_common.h>
 #include <bgame/bg_local.h>
 #include <clientscript/cscr_main.h>

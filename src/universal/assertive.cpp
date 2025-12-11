@@ -1,6 +1,30 @@
 #include "assertive.h"
 
 #include <Windows.h>
+#include "com_buildinfo.h"
+#include "q_shared.h"
+#include <win32/win_common.h>
+#include <qcommon/common.h>
+#include <win32/win_mini_dumper.h>
+
+HWND__ *g_hwndGame[4];
+int g_hiddenCount;
+bool g_inStackTrace;
+AddressInfo_s g_assertAddress[32];
+int g_assertAddressCount;
+unsigned __int8 *lineBufferEndPos;
+int lineBufferStartPos;
+char lineBuffer[4096];
+char message[1024];
+int isHandlingAssert;
+int lastAssertType;
+char assertMessage[4096];
+char g_module[260];
+char *startOfStackTrace;
+bool shouldQuitOnError;
+
+void(__cdecl *AssertCallback)(const char *);
+void(__cdecl *MonkeyAssertCallback)(const char *);
 
 static HINSTANCE__ *__cdecl GetModuleBase(char *name)
 {
@@ -50,7 +74,7 @@ static int __stdcall HideWindowCallback(HWND__ *hwnd, int lParam)
 
 void __cdecl FixWindowsDesktop()
 {
-    unsigned intCurrentThreadId; // eax
+    DWORD CurrentThreadId; // eax
     HDC__ *hdc; // [esp+0h] [ebp-614h]
     _WORD ramp[770]; // [esp+4h] [ebp-610h] BYREF
     unsigned __int16 i; // [esp+60Ch] [ebp-8h]
@@ -58,10 +82,10 @@ void __cdecl FixWindowsDesktop()
 
     ChangeDisplaySettingsA(0, 0);
     CurrentThreadId = GetCurrentThreadId();
-    EnumThreadWindows(CurrentThreadId, HideWindowCallback, 0);
+    EnumThreadWindows(CurrentThreadId, (WNDENUMPROC)HideWindowCallback, 0);
     hwndDesktop = GetDesktopWindow();
     hdc = GetDC(hwndDesktop);
-    for ( i = 0; i < 0x100u; ++i )
+    for (i = 0; i < 0x100u; ++i)
     {
         ramp[i] = 257 * i;
         ramp[i + 256] = 257 * i;
@@ -214,14 +238,14 @@ void __cdecl LoadMapFilesForDir(const char *dir)
 
 char __cdecl ParseMapFile(_iobuf *fp, unsigned int baseAddress, const char *mapName)
 {
-    int v4; // eax
+    const char *v4; // eax
     const char *v5; // eax
     char *v6; // eax
     const char *v7; // eax
     const char *v8; // eax
     char *v9; // eax
     const char *v10; // eax
-    unsigned __int8 *v11; // eax
+    char *v11; // eax
     char *v12; // eax
     const char *v13; // eax
     char *pszNameStop; // [esp+14h] [ebp-878h]
@@ -281,7 +305,7 @@ char __cdecl ParseMapFile(_iobuf *fp, unsigned int baseAddress, const char *mapN
     {
         if ( !ReadLine(fp) )
             return 0;
-        strstr((unsigned __int8 *)lineBuffer, "Publics by Value");
+        v4 = strstr(lineBuffer, "Publics by Value");
     }
     while ( !v4 );
     if ( !SkipLines(1, fp) )
@@ -297,7 +321,7 @@ char __cdecl ParseMapFile(_iobuf *fp, unsigned int baseAddress, const char *mapN
             ParseError("Unknown line format in the public symbols section");
             return 0;
         }
-        strrchr((unsigned __int8 *)lineBuffer, 0x20u);
+        v5 = strrchr(lineBuffer, 0x20u);
         filenameSubStr = v5;
         if ( !v5 || sscanf(filenameSubStr + 1, "%s", filenameBuffer) != 1 )
         {
@@ -318,11 +342,11 @@ char __cdecl ParseMapFile(_iobuf *fp, unsigned int baseAddress, const char *mapN
                 if ( function[0] == 95 || *funcName == 63 )
                     ++funcName;
                 I_strncpyz(addressInfo->bestFunction, funcName, 64);
-                strchr((unsigned __int8 *)addressInfo->bestFunction, 0x40u);
+                v6 = strchr(addressInfo->bestFunction, 0x40u);
                 atChar = v6;
                 if ( v6 )
                     *atChar = 0;
-                strrchr((unsigned __int8 *)filenameBuffer, 0x5Cu);
+                v7 = strrchr(filenameBuffer, 0x5Cu);
                 filename = v7;
                 if ( v7 )
                     ++filename;
@@ -347,7 +371,7 @@ char __cdecl ParseMapFile(_iobuf *fp, unsigned int baseAddress, const char *mapN
             ParseError("Unknown line format in the static symbols section");
             return 0;
         }
-        strrchr((unsigned __int8 *)lineBuffer, 0x20u);
+        v8 = strrchr(lineBuffer, 0x20u);
         filenameSubStr = v8;
         if ( !v8 || sscanf(filenameSubStr + 1, "%s", filenameBuffer) != 1 )
         {
@@ -368,11 +392,11 @@ char __cdecl ParseMapFile(_iobuf *fp, unsigned int baseAddress, const char *mapN
                 if ( function[0] == 95 || *funcName == 63 )
                     ++funcName;
                 I_strncpyz(addressInfo->bestFunction, funcName, 64);
-                strchr((unsigned __int8 *)addressInfo->bestFunction, 0x40u);
+                v9 = strchr(addressInfo->bestFunction, 0x40u);
                 atChar = v9;
                 if ( v9 )
                     *atChar = 0;
-                strrchr((unsigned __int8 *)filenameBuffer, 0x5Cu);
+                v10 = strrchr(filenameBuffer, 0x5Cu);
                 filename = v10;
                 if ( v10 )
                     ++filename;
@@ -390,22 +414,22 @@ LABEL_91:
             ParseError("Expected line number section");
             return 0;
         }
-        strchr((unsigned __int8 *)lineBuffer, 0x28u);
+        v11 = strchr(lineBuffer, 0x28u);
         pszNameStart = (char *)v11;
         if ( !v11 )
         {
             ParseError("Couldn't find '(' for the name of the source file in line number section");
             return 0;
         }
-        strchr(v11, 0x29u);
+        v12 = strchr(v11, 0x29u);
         pszNameStop = v12;
         if ( !v12 )
         {
             ParseError("Couldn't find ')' for the name of the source file in line number section");
             return 0;
         }
-        strncpy((unsigned __int8 *)filenameBuffer, (unsigned __int8 *)pszNameStart + 1, v12 - pszNameStart - 1);
-        *((_BYTE *)&lineOffset[3] + pszNameStop - pszNameStart + 3) = 0;
+        strncpy(filenameBuffer, pszNameStart + 1, v12 - pszNameStart - 1);
+        *((_BYTE *)&lineOffset[3] + (int)pszNameStop - (int)pszNameStart + 3) = 0;
         filenameSubStr = filenameBuffer;
         if ( !SkipLines(1, fp) )
             return 0;
@@ -444,7 +468,7 @@ LABEL_91:
                     {
                         addressInfo->bestLineAddress = relAddress;
                         addressInfo->bestLineNumber = lineNumber[i];
-                        strrchr((unsigned __int8 *)filenameSubStr, 0x5Cu);
+                        v13 = strrchr(filenameSubStr, 0x5Cu);
                         filename = v13;
                         if ( v13 )
                             ++filename;
@@ -569,7 +593,7 @@ bool Assert_MyHandler(const char *filename, int line, int type, const char *fmt,
         Com_Printf(16, v4);
         CopyMessageToClipboard();
         AssertNotify(lastAssertType, RECURSIVE);
-        Assert_BuildAssertMessage(message, filename, line, type, 1, assertMessage);
+        Assert_BuildAssertMessage(message, (char*)filename, line, type, 1, assertMessage);
         if ( isHandlingAssert == 1 )
         {
             isHandlingAssert = 2;
@@ -582,7 +606,7 @@ bool Assert_MyHandler(const char *filename, int line, int type, const char *fmt,
     lastAssertType = type;
     isHandlingAssert = 1;
     FixWindowsDesktop();
-    Assert_BuildAssertMessage(message, filename, line, type, 1, assertMessage);
+    Assert_BuildAssertMessage(message, (char*)filename, line, type, 1, assertMessage);
     Com_Printf(16, "ASSERTBEGIN -------------------------------------------------------------------\n");
     Com_Printf(16, "%s", assertMessage);
     Com_Printf(16, "ASSERTEND ---------------------------------------------------------------------\n");

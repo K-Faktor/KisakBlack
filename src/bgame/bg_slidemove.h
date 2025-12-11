@@ -196,8 +196,6 @@ void __userpurge gjk_polygon_cylinder_t::calc_aabb(
                 const phys_mat44 *xform,
                 phys_vec3 *aabb_min,
                 phys_vec3 *aabb_max);
-const phys_vec3 *__cdecl phys_min(const phys_vec3 *result, const phys_vec3 *v1, const phys_vec3 *v2);
-const phys_vec3 *__cdecl phys_max(const phys_vec3 *result, const phys_vec3 *v1, const phys_vec3 *v2);
 void __cdecl gjk_polygon_cylinder_t::calc_disc_aabb(
                 const phys_vec3 *axis,
                 float radius,
@@ -276,4 +274,3 @@ void __thiscall phys_inplace_avl_tree<phys_gjk_geom_id_pair_key,phys_heap_gjk_ca
                 phys_inplace_avl_tree<phys_gjk_geom_id_pair_key,phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal,phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal::avl_tree_accessor> *this,
                 phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal **root);
 bool __thiscall gjk_collision_visitor::is_query(gjk_collision_visitor *this);
-const phys_vec3 *__cdecl phys_multiply(const phys_vec3 *result, const phys_mat44 *mat, const phys_vec3 *v);

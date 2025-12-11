@@ -1,4 +1,5 @@
 #include "com_expressions_eval.h"
+#include "assertive.h"
 
 bool __cdecl IsVisible(char flags)
 {
@@ -23,7 +24,7 @@ char __cdecl GetOperand(OperandStack *dataStack, Operand *data)
         list = &dataStack->stack[dataStack->numOperandLists - 1];
         if ( list->operandCount == 1 )
         {
-            v4.intVal = (int)list->operands[0].internals;
+            v4.intVal = list->operands[0].internals.intVal;
             data->dataType = list->operands[0].dataType;
             data->internals = v4;
             --dataStack->numOperandLists;

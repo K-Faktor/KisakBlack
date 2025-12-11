@@ -1,4 +1,28 @@
 #include "ragdoll_cmds.h"
+#include <qcommon/cmd.h>
+#include "ragdoll_update.h"
+#include <clientscript/cscr_stringlist.h>
+
+const char *geomNames[6] =
+{ "n", "box", "brushmodel", "brush", "cyl", "cap" };
+
+const char *jointNames[3] =
+{ "none", "hinge", "swivel" };
+
+struct $226EAEAF211E69CAF5BF90DB1F921A0C // sizeof=0x10
+{                                       // XREF: .data:axisTable/r
+    const char *name;                   // XREF: Ragdoll_ReadAxis+A6/r
+    float axis[3];                      // XREF: Ragdoll_ReadAxis+C3/o
+};
+$226EAEAF211E69CAF5BF90DB1F921A0C axisTable[4] =
+{
+  { "x", { 1.0, 0.0, 0.0 } },
+  { "y", { 0.0, 1.0, 0.0 } },
+  { "z", { 0.0, 0.0, 1.0 } },
+  { "n", { 0.0, 0.0, 0.0 } }
+};
+
+
 
 void __cdecl Ragdoll_Clear_f()
 {
@@ -48,6 +72,13 @@ bool __cdecl Ragdoll_BodyBound(RagdollBody *body)
     return body->state >= BS_VELOCITY_CAPTURE;
 }
 
+cmd_function_s Ragdoll_Clear_f_VAR;
+cmd_function_s Ragdoll_Bone_f_VAR;
+cmd_function_s Ragdoll_BaseLerpBone_f_VAR;
+cmd_function_s Ragdoll_PinBone_f_VAR;
+cmd_function_s Ragdoll_Joint_f_VAR;
+cmd_function_s Ragdoll_Limit_f_VAR;
+cmd_function_s Ragdoll_Selfpair_f_VAR;
 void __cdecl Ragdoll_InitCommands()
 {
     Cmd_AddCommandInternal("ragdoll_clear", Ragdoll_Clear_f, &Ragdoll_Clear_f_VAR);
@@ -289,21 +320,21 @@ void __cdecl Ragdoll_Limit_f()
                             if ( (float)(v12 - 3.1415927) < 0.0 )
                                 v13 = def->jointDefs[jointNum].minAngles[def->jointDefs[jointNum].numLimitAxes];
                             else
-                                v13 = FLOAT_3_1415927;
+                                v13 = M_PI;
                             if ( (float)(-3.1415927 - v12) < 0.0 )
                                 v6 = v13;
                             else
-                                v6 = FLOAT_N3_1415927;
+                                v6 = -M_PI;
                             def->jointDefs[jointNum].minAngles[def->jointDefs[jointNum].numLimitAxes] = v6;
                             v10 = def->jointDefs[jointNum].maxAngles[def->jointDefs[jointNum].numLimitAxes];
                             if ( (float)(v10 - 3.1415927) < 0.0 )
                                 v11 = def->jointDefs[jointNum].maxAngles[def->jointDefs[jointNum].numLimitAxes];
                             else
-                                v11 = FLOAT_3_1415927;
+                                v11 = M_PI;
                             if ( (float)(-3.1415927 - v10) < 0.0 )
                                 v5 = v11;
                             else
-                                v5 = FLOAT_N3_1415927;
+                                v5 = -M_PI;
                             def->jointDefs[jointNum].maxAngles[def->jointDefs[jointNum].numLimitAxes++] = v5;
                             Ragdoll_ResetBodiesUsingDef();
                         }
@@ -358,9 +389,12 @@ char __cdecl Ragdoll_ReadAxis(int arg, float *dest)
         dest[2] = axis[2];
         if ( negate )
         {
-            *(unsigned int *)dest ^= _mask__NegFloat_;
-            *((unsigned int *)dest + 1) ^= _mask__NegFloat_;
-            *((unsigned int *)dest + 2) ^= _mask__NegFloat_;
+            //*(unsigned int *)dest ^= _mask__NegFloat_;
+            //*((unsigned int *)dest + 1) ^= _mask__NegFloat_;
+            //*((unsigned int *)dest + 2) ^= _mask__NegFloat_;
+            dest[0] = -dest[0];
+            dest[1] = -dest[1];
+            dest[2] = -dest[2];
         }
         return 1;
     }
