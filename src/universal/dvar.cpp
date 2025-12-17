@@ -1,16 +1,69 @@
 #include "dvar.h"
 #include <database/db_registry.h>
 
+#include <algorithm>
+
+#include <gfx_d3d/r_material_load_obj.h>
+#include <ctype.h>
+#include "assertive.h"
+#include "q_shared.h"
+#include <qcommon/common.h>
+#include <server_mp/sv_bot_mp.h>
+#include <win32/win_common.h>
+#include <win32/win_net.h>
+#include "com_memory.h"
+#include "q_parse.h"
+#include <qcommon/dvar_cmds.h>
+
+int dvar_modifiedFlags;
+FastCriticalSection g_dvarCritSect;
+bool areDvarsSorted;
+
+const dvar_s *sortedDvars[4096];
+dvar_s *dvarHashTable[1024];
+dvar_s dvarPool[4096];
+const dvar_s *dvar_cheats;
+const dvar_s *dvar_restoreDvarsOnLive;
+int dvarCount;
+bool isLoadingAutoExecGlobalFlag;
+bool isDvarSystemActive;
+
+dvar_s *__cdecl Dvar_FindMalleableVar_0(int dvarHash)
+{
+    dvar_s *var; // [esp+0h] [ebp-4h]
+
+    _InterlockedExchangeAdd(&g_dvarCritSect.readCount, 1u);
+    while (g_dvarCritSect.writeCount)
+        NET_Sleep(0);
+    for (var = dvarHashTable[dvarHash & 0x3FF]; var; var = var->hashNext)
+    {
+        if (var->hash == dvarHash)
+        {
+            Sys_UnlockRead(&g_dvarCritSect);
+            return var;
+        }
+    }
+    Sys_UnlockRead(&g_dvarCritSect);
+    return 0;
+}
+
 void __cdecl Dvar_Sort()
 {
     Sys_LockWrite(&g_dvarCritSect);
     if ( !areDvarsSorted )
     {
-        std::_Sort<Material * *,int,bool (__cdecl *)(Material const *,Material const *)>(
-            (const GfxStaticModelDrawInst **)sortedDvars,
-            (const GfxStaticModelDrawInst **)(4 * dvarCount + 161434600),
-            (4 * dvarCount + 161434600 - (int)sortedDvars) >> 2,
-            (bool (__cdecl *)(const GfxStaticModelDrawInst *, const GfxStaticModelDrawInst *))Material_CachedShaderTextLess);
+        //std::_Sort<Material * *,int,bool (__cdecl *)(Material const *,Material const *)>(
+        //    (const GfxStaticModelDrawInst **)sortedDvars,
+        //    (const GfxStaticModelDrawInst **)(4 * dvarCount + 161434600),
+        //    (4 * dvarCount + 161434600 - (int)sortedDvars) >> 2,
+        //    (bool (__cdecl *)(const GfxStaticModelDrawInst *, const GfxStaticModelDrawInst *))Material_CachedShaderTextLess);
+
+        std::sort(
+            sortedDvars,
+            sortedDvars + dvarCount,
+            Material_CachedShaderTextLess
+        );
+
         areDvarsSorted = 1;
     }
     Sys_UnlockWrite(&g_dvarCritSect);
@@ -584,7 +637,7 @@ bool __cdecl Dvar_ValuesEqual(dvarType_t type, DvarValue val0, DvarValue val1)
     const char *v4; // eax
     bool v5; // [esp+14h] [ebp-1Ch]
     bool v6; // [esp+18h] [ebp-18h]
-    bool v7; // [esp+1Ch] [ebp-14h]
+    bool dvarValue; // [esp+1Ch] [ebp-14h]
 
     switch ( type )
     {
@@ -595,8 +648,8 @@ bool __cdecl Dvar_ValuesEqual(dvarType_t type, DvarValue val0, DvarValue val1)
             result = val0.value == val1.value;
             break;
         case DVAR_TYPE_FLOAT_2:
-            v7 = val0.value == val1.value && val0.vector[1] == val1.vector[1];
-            result = v7;
+            dvarValue = val0.value == val1.value && val0.vector[1] == val1.vector[1];
+            result = dvarValue;
             break;
         case DVAR_TYPE_FLOAT_3:
         case DVAR_TYPE_LINEAR_COLOR_RGB:
@@ -691,14 +744,14 @@ void __cdecl Dvar_ClearModified(const dvar_s *dvar)
 {
     if ( !dvar && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\universal\\dvar.cpp", 1201, 0, "%s", "dvar") )
         __debugbreak();
-    dvar->modified = 0;
+    ((dvar_s*)dvar)->modified = 0;
 }
 
 void __cdecl Dvar_SetModified(const dvar_s *dvar)
 {
     if ( !dvar && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\universal\\dvar.cpp", 1208, 0, "%s", "dvar") )
         __debugbreak();
-    dvar->modified = 1;
+    ((dvar_s *)dvar)->modified = 1;
 }
 
 void __cdecl Dvar_UpdateEnumDomain(dvar_s *dvar, const char **stringTable)
@@ -1185,37 +1238,37 @@ void __cdecl Dvar_StringToColor(const char *string, unsigned __int8 *color)
     float v4; // [esp+8h] [ebp-78h]
     float v5; // [esp+Ch] [ebp-74h]
     float v6; // [esp+24h] [ebp-5Ch]
-    float v7; // [esp+3Ch] [ebp-44h]
-    float v8; // [esp+54h] [ebp-2Ch]
-    float v9; // [esp+6Ch] [ebp-14h]
+    float dvarValue; // [esp+3Ch] [ebp-44h]
+    float dvarValue; // [esp+54h] [ebp-2Ch]
+    float dvarDomain; // [esp+6Ch] [ebp-14h]
     float colorVec[4]; // [esp+70h] [ebp-10h] BYREF
 
     memset(colorVec, 0, sizeof(colorVec));
     sscanf(string, "%g %g %g %g", colorVec, &colorVec[1], &colorVec[2], &colorVec[3]);
     if ( (float)(colorVec[0] - 1.0) < 0.0 )
-        v9 = colorVec[0];
+        dvarDomain = colorVec[0];
     else
-        v9 = 1.0f;
-    if ( (float)(0.0 - v9) < 0.0 )
-        v5 = v9;
+        dvarDomain = 1.0f;
+    if ( (float)(0.0 - dvarDomain) < 0.0 )
+        v5 = dvarDomain;
     else
         v5 = 0.0f;
     *color = (int)((float)(255.0 * v5) + 9.313225746154785e-10);
     if ( (float)(colorVec[1] - 1.0) < 0.0 )
-        v8 = colorVec[1];
+        dvarValue = colorVec[1];
     else
-        v8 = 1.0f;
-    if ( (float)(0.0 - v8) < 0.0 )
-        v4 = v8;
+        dvarValue = 1.0f;
+    if ( (float)(0.0 - dvarValue) < 0.0 )
+        v4 = dvarValue;
     else
         v4 = 0.0f;
     color[1] = (int)((float)(255.0 * v4) + 9.313225746154785e-10);
     if ( (float)(colorVec[2] - 1.0) < 0.0 )
-        v7 = colorVec[2];
+        dvarValue = colorVec[2];
     else
-        v7 = 1.0f;
-    if ( (float)(0.0 - v7) < 0.0 )
-        v3 = v7;
+        dvarValue = 1.0f;
+    if ( (float)(0.0 - dvarValue) < 0.0 )
+        v3 = dvarValue;
     else
         v3 = 0.0f;
     color[2] = (int)((float)(255.0 * v3) + 9.313225746154785e-10);
@@ -1744,7 +1797,7 @@ const dvar_s *__cdecl _Dvar_RegisterBool(const char *dvarName, bool value, unsig
 
     dvarValue.integer = value;
     memset(&v5, 0, sizeof(v5));
-    return Dvar_RegisterVariant(dvarName, DVAR_TYPE_BOOL, flags, dvarValue, v5, description);
+    return Dvar_RegisterVariant((char*)dvarName, DVAR_TYPE_BOOL, flags, dvarValue, v5, description);
 }
 
 const dvar_s *__cdecl Dvar_RegisterVariant(
@@ -1785,9 +1838,9 @@ void __cdecl Dvar_Reregister(
                 DvarLimits domain,
                 const char *description)
 {
-    const char *v7; // eax
-    const char *v8; // eax
-    const char *v9; // eax
+    const char *dvarValue; // eax
+    const char *dvarValue; // eax
+    const char *dvarDomain; // eax
     const char *v10; // eax
     const char *v11; // [esp-4h] [ebp-8h]
 
@@ -1800,14 +1853,14 @@ void __cdecl Dvar_Reregister(
     }
     if ( dvar->type != type && (dvar->flags & 0x4000) == 0 )
     {
-        v7 = va("%s: %i != %i", dvarName, dvar->type, type);
+        dvarValue = va("%s: %i != %i", dvarName, dvar->type, type);
         if ( !Assert_MyHandler(
                         "C:\\projects_pc\\cod\\codsrc\\src\\universal\\dvar.cpp",
                         1819,
                         0,
                         "%s\n\t%s",
                         "dvar->type == type || (dvar->flags & DVAR_EXTERNAL)",
-                        v7) )
+                        dvarValue) )
             __debugbreak();
     }
     if ( ((dvar->flags ^ flags) & 0x4000) != 0 )
@@ -1816,14 +1869,14 @@ void __cdecl Dvar_Reregister(
     {
         if ( dvar->type != DVAR_TYPE_STRING )
         {
-            v8 = va("dvar %s, type %i", dvar->name, dvar->type);
+            dvarValue = va("dvar %s, type %i", dvar->name, dvar->type);
             if ( !Assert_MyHandler(
                             "C:\\projects_pc\\cod\\codsrc\\src\\universal\\dvar.cpp",
                             1826,
                             0,
                             "%s\n\t%s",
                             "dvar->type == DVAR_TYPE_STRING",
-                            v8) )
+                            dvarValue) )
                 __debugbreak();
         }
         Dvar_MakeExplicitType(dvar, dvarName, type, flags, resetValue, domain);
@@ -1842,8 +1895,8 @@ void __cdecl Dvar_Reregister(
     if ( (dvar->flags & 0x9200) == 0 && !Dvar_ValuesEqual(type, dvar->reset, resetValue) )
     {
         v11 = Dvar_ValueToString(dvar, resetValue);
-        v9 = Dvar_DisplayableResetValue(dvar);
-        v10 = va("dvar %s, %s != %s", dvarName, v9, v11);
+        dvarDomain = Dvar_DisplayableResetValue(dvar);
+        v10 = va("dvar %s, %s != %s", dvarName, dvarDomain, v11);
         if ( !Assert_MyHandler(
                         "C:\\projects_pc\\cod\\codsrc\\src\\universal\\dvar.cpp",
                         1831,
@@ -1874,8 +1927,8 @@ void __cdecl Dvar_MakeExplicitType(
                 DvarLimits domain)
 {
     bool v6; // [esp+0h] [ebp-64h]
-    DvarValue v7; // [esp+4h] [ebp-60h] BYREF
-    DvarValue v8; // [esp+14h] [ebp-50h]
+    DvarValue dvarValue; // [esp+4h] [ebp-60h] BYREF
+    DvarValue dvarValue; // [esp+14h] [ebp-50h]
     DvarValue result; // [esp+24h] [ebp-40h] BYREF
     DvarValue v10; // [esp+34h] [ebp-30h]
     bool wasString; // [esp+4Bh] [ebp-19h]
@@ -1902,8 +1955,8 @@ void __cdecl Dvar_MakeExplicitType(
     {
         v10 = *Dvar_StringToValue(&result, dvar->type, dvar->domain, dvar->current.string);
         castValue = v10;
-        v8 = *Dvar_ClampValueToDomain(&v7, type, v10, resetValue, domain);
-        castValue = v8;
+        dvarValue = *Dvar_ClampValueToDomain(&dvarValue, type, v10, resetValue, domain);
+        castValue = dvarValue;
     }
     v6 = dvar->type == DVAR_TYPE_STRING && castValue.integer;
     wasString = v6;
@@ -2103,13 +2156,13 @@ void __cdecl Dvar_ReinterpretDvar(
                 DvarLimits domain)
 {
     DvarValue result; // [esp+0h] [ebp-38h] BYREF
-    DvarValue v7; // [esp+10h] [ebp-28h]
+    DvarValue dvarValue; // [esp+10h] [ebp-28h]
     DvarValue resetValue; // [esp+20h] [ebp-18h]
 
     if ( (dvar->flags & 0x4000) != 0 && (flags & 0x4000) == 0 )
     {
-        v7 = *Dvar_GetReinterpretedResetValue(&result, dvar, value);
-        resetValue = v7;
+        dvarValue = *Dvar_GetReinterpretedResetValue(&result, dvar, value);
+        resetValue = dvarValue;
         Dvar_PerformUnregistration(dvar);
         Dvar_FreeNameString(dvar->name);
         dvar->name = dvarName;
@@ -2252,17 +2305,15 @@ const dvar_s *__cdecl _Dvar_RegisterInt(
                 unsigned __int16 flags,
                 const char *description)
 {
-    DvarLimits v7; // [esp-14h] [ebp-3Ch]
-    __int64 dvarDomain_4; // [esp+4h] [ebp-24h]
-    int dvarDomain_12; // [esp+Ch] [ebp-1Ch]
+    DvarLimits dvarDomain; // [esp-14h] [ebp-3Ch]
     DvarValue dvarValue; // [esp+10h] [ebp-18h]
 
     dvarValue.integer = value;
-    LODWORD(dvarDomain_4) = max;
-    v7.enumeration.stringCount = min;
-    *(_QWORD *)&v7.value.max = dvarDomain_4;
-    *((unsigned int *)&v7.vector + 3) = dvarDomain_12;
-    return Dvar_RegisterVariant(dvarName, DVAR_TYPE_INT, flags, dvarValue, v7, description);
+
+    dvarDomain.integer.min = min;
+    dvarDomain.integer.max = max;
+
+    return Dvar_RegisterVariant((char*)dvarName, DVAR_TYPE_INT, flags, dvarValue, dvarDomain, description);
 }
 
 const dvar_s *__cdecl _Dvar_RegisterInt64(
@@ -2273,15 +2324,15 @@ const dvar_s *__cdecl _Dvar_RegisterInt64(
                 unsigned __int16 flags,
                 const char *description)
 {
-    DvarValue v7; // [esp-24h] [ebp-4Ch]
-    DvarLimits v8; // [esp-14h] [ebp-3Ch]
-    __int64 dvarValue_8; // [esp+18h] [ebp-10h]
+    DvarValue dvarValue; // [esp-24h] [ebp-4Ch]
+    DvarLimits dvarDomain; // [esp-14h] [ebp-3Ch]
 
-    v8.integer64.min = min;
-    v8.integer64.max = max;
-    v7.integer64 = value;
-    *((_QWORD *)&v7.string + 1) = dvarValue_8;
-    return Dvar_RegisterVariant(dvarName, DVAR_TYPE_INT64, flags, v7, v8, description);
+    dvarDomain.integer64.min = min;
+    dvarDomain.integer64.max = max;
+
+    dvarValue.integer64 = value;
+
+    return Dvar_RegisterVariant(dvarName, DVAR_TYPE_INT64, flags, dvarValue, dvarDomain, description);
 }
 
 const dvar_s *__cdecl _Dvar_RegisterFloat(
@@ -2292,17 +2343,15 @@ const dvar_s *__cdecl _Dvar_RegisterFloat(
                 unsigned __int16 flags,
                 const char *description)
 {
-    DvarLimits v7; // [esp-14h] [ebp-3Ch]
-    __int64 dvarDomain_4; // [esp+4h] [ebp-24h]
-    int dvarDomain_12; // [esp+Ch] [ebp-1Ch]
+    DvarLimits dvarDomain; // [esp-14h] [ebp-3Ch]
     DvarValue dvarValue; // [esp+10h] [ebp-18h]
 
     dvarValue.value = value;
-    *(float *)&dvarDomain_4 = max;
-    v7.value.min = min;
-    *(_QWORD *)&v7.value.max = dvarDomain_4;
-    *((unsigned int *)&v7.vector + 3) = dvarDomain_12;
-    return Dvar_RegisterVariant(dvarName, DVAR_TYPE_FLOAT, flags, dvarValue, v7, description);
+
+    dvarDomain.value.min = min;
+    dvarDomain.value.max = max;
+
+    return Dvar_RegisterVariant((char*)dvarName, DVAR_TYPE_FLOAT, flags, dvarValue, dvarDomain, description);
 }
 
 const dvar_s *__cdecl _Dvar_RegisterVec2(
@@ -2314,19 +2363,16 @@ const dvar_s *__cdecl _Dvar_RegisterVec2(
                 unsigned __int16 flags,
                 const char *description)
 {
-    DvarValue v8; // [esp-24h] [ebp-4Ch]
-    DvarLimits v9; // [esp-14h] [ebp-3Ch]
-    __int64 dvarDomain_4; // [esp+4h] [ebp-24h]
-    int dvarDomain_12; // [esp+Ch] [ebp-1Ch]
-    __int64 dvarValue_8; // [esp+18h] [ebp-10h]
+    DvarValue dvarValue; // [esp-24h] [ebp-4Ch]
+    DvarLimits dvarDomain; // [esp-14h] [ebp-3Ch]
 
-    *(float *)&dvarDomain_4 = max;
-    v9.value.min = min;
-    *(_QWORD *)&v9.value.max = dvarDomain_4;
-    *((unsigned int *)&v9.vector + 3) = dvarDomain_12;
-    v8.integer64 = __PAIR64__(y, x);
-    *((_QWORD *)&v8.string + 1) = dvarValue_8;
-    return Dvar_RegisterVariant(dvarName, DVAR_TYPE_FLOAT_2, flags, v8, v9, description);
+    dvarValue.vector[0] = x;
+    dvarValue.vector[1] = x;
+
+    dvarDomain.vector.min = min;
+    dvarDomain.vector.max = max;
+
+    return Dvar_RegisterVariant((char*)dvarName, DVAR_TYPE_FLOAT_2, flags, dvarValue, dvarDomain, description);
 }
 
 const dvar_s *__cdecl _Dvar_RegisterVec3(
@@ -2339,23 +2385,17 @@ const dvar_s *__cdecl _Dvar_RegisterVec3(
                 unsigned __int16 flags,
                 const char *description)
 {
-    DvarValue v9; // [esp-24h] [ebp-4Ch]
-    DvarLimits v10; // [esp-14h] [ebp-3Ch]
-    __int64 dvarDomain_4; // [esp+4h] [ebp-24h]
-    int dvarDomain_12; // [esp+Ch] [ebp-1Ch]
-    unsigned int dvarValue_12; // [esp+1Ch] [ebp-Ch]
+    DvarValue dvarValue; // [esp-24h] [ebp-4Ch]
+    DvarLimits dvarDomain; // [esp-14h] [ebp-3Ch]
 
-    //*(float *)&dvarDomain_4 = max;
-    //v10.value.min = min;
-    //*(_QWORD *)&v10.value.max = dvarDomain_4;
-    //*((unsigned int *)&v10.vector + 3) = dvarDomain_12;
-    //v9.integer64 = __PAIR64__(y, x);
-    //*((_QWORD *)&v9.string + 1) = __PAIR64__(dvarValue_12, z);
+    dvarValue.vector[0] = x;
+    dvarValue.vector[1] = y;
+    dvarValue.vector[2] = z;
 
-    v9.vector[0] = x;
-    v9.vector[1] = y;
-    v9.vector[2] = z;
-    return Dvar_RegisterVariant(dvarName, DVAR_TYPE_FLOAT_3, flags, v9, v10, description);
+    dvarDomain.vector.min = min;
+    dvarDomain.vector.max = max;
+
+    return Dvar_RegisterVariant((char*)dvarName, DVAR_TYPE_FLOAT_3, flags, dvarValue, dvarDomain, description);
 }
 
 const dvar_s *__cdecl _Dvar_RegisterVec4(
@@ -2369,18 +2409,18 @@ const dvar_s *__cdecl _Dvar_RegisterVec4(
                 unsigned __int16 flags,
                 const char *description)
 {
-    DvarValue v10; // [esp-24h] [ebp-4Ch]
-    DvarLimits v11; // [esp-14h] [ebp-3Ch]
-    __int64 dvarDomain_4; // [esp+4h] [ebp-24h]
-    int dvarDomain_12; // [esp+Ch] [ebp-1Ch]
+    DvarValue dvarValue; // [esp-24h] [ebp-4Ch]
+    DvarLimits dvarDomain; // [esp-14h] [ebp-3Ch]
 
-    *(float *)&dvarDomain_4 = max;
-    v11.value.min = min;
-    *(_QWORD *)&v11.value.max = dvarDomain_4;
-    *((unsigned int *)&v11.vector + 3) = dvarDomain_12;
-    v10.integer64 = __PAIR64__(y, x);
-    *((_QWORD *)&v10.string + 1) = __PAIR64__(w, z);
-    return Dvar_RegisterVariant(dvarName, DVAR_TYPE_FLOAT_4, flags, v10, v11, description);
+    dvarValue.vector[0] = x;
+    dvarValue.vector[1] = y;
+    dvarValue.vector[2] = z;
+    dvarValue.vector[3] = w;
+
+    dvarDomain.vector.min = min;
+    dvarDomain.vector.max = max;
+
+    return Dvar_RegisterVariant((char*)dvarName, DVAR_TYPE_FLOAT_4, flags, dvarValue, dvarDomain, description);
 }
 
 const dvar_s *__cdecl _Dvar_RegisterString(
@@ -2400,7 +2440,7 @@ const dvar_s *__cdecl _Dvar_RegisterString(
     if ( !value && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\universal\\dvar.cpp", 2044, 0, "%s", "value") )
         __debugbreak();
     if ( (flags & 0x4000) == 0
-        && !CanKeepStringPointer(value)
+        && !CanKeepStringPointer((char*)value)
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\universal\\dvar.cpp",
                     2045,
@@ -2413,7 +2453,7 @@ const dvar_s *__cdecl _Dvar_RegisterString(
     }
     dvarValue.integer = (int)value;
     memset(&v5, 0, sizeof(v5));
-    return Dvar_RegisterVariant(dvarName, DVAR_TYPE_STRING, flags, dvarValue, v5, description);
+    return Dvar_RegisterVariant((char*)dvarName, DVAR_TYPE_STRING, flags, dvarValue, v5, description);
 }
 
 const dvar_s *__cdecl _Dvar_RegisterEnum(
@@ -2426,37 +2466,24 @@ const dvar_s *__cdecl _Dvar_RegisterEnum(
     DvarLimits dvarDomain; // [esp+0h] [ebp-28h]
     DvarValue dvarValue; // [esp+10h] [ebp-18h]
 
-    if ( !dvarName
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\universal\\dvar.cpp", 2058, 0, "%s", "dvarName") )
-    {
-        __debugbreak();
-    }
-    if ( !valueList
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\universal\\dvar.cpp", 2059, 0, "%s", "valueList") )
-    {
-        __debugbreak();
-    }
+    iassert(dvarName);
+    iassert(valueList);
+
+
     dvarValue.integer = defaultIndex;
-    dvarDomain.integer.max = (int)valueList;
-    for ( dvarDomain.enumeration.stringCount = 0;
+
+    dvarDomain.enumeration.strings = valueList;
+
+    for (dvarDomain.enumeration.stringCount = 0;
                 valueList[dvarDomain.enumeration.stringCount];
                 ++dvarDomain.enumeration.stringCount )
     {
         ;
     }
-    if ( (defaultIndex < 0 || defaultIndex >= dvarDomain.enumeration.stringCount)
-        && defaultIndex
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\universal\\dvar.cpp",
-                    2065,
-                    0,
-                    "%s\n\t(dvarName) = %s",
-                    "(defaultIndex >= 0 && defaultIndex < dvarDomain.enumeration.stringCount || defaultIndex == 0)",
-                    dvarName) )
-    {
-        __debugbreak();
-    }
-    return Dvar_RegisterVariant(dvarName, DVAR_TYPE_ENUM, flags, dvarValue, dvarDomain, description);
+
+    iassert((defaultIndex >= 0 && defaultIndex < dvarDomain.enumeration.stringCount || defaultIndex == 0));
+
+    return Dvar_RegisterVariant((char*)dvarName, DVAR_TYPE_ENUM, flags, dvarValue, dvarDomain, description);
 }
 
 const dvar_s *__cdecl _Dvar_RegisterColor(
@@ -2468,8 +2495,8 @@ const dvar_s *__cdecl _Dvar_RegisterColor(
                 unsigned __int16 flags,
                 const char *description)
 {
-    DvarLimits v8; // [esp-14h] [ebp-ACh] BYREF
-    float v9; // [esp+0h] [ebp-98h]
+    DvarLimits dvarDomain; // [esp-14h] [ebp-ACh] BYREF
+    float v17; // [esp+0h] [ebp-98h]
     float v10; // [esp+4h] [ebp-94h]
     float v11; // [esp+8h] [ebp-90h]
     float v12; // [esp+Ch] [ebp-8Ch]
@@ -2508,15 +2535,19 @@ const dvar_s *__cdecl _Dvar_RegisterColor(
     else
         v13 = 1.0f;
     if ( (float)(0.0 - v13) < 0.0 )
-        v9 = v13;
+        v17 = v13;
     else
-        v9 = 0.0f;
-    dvarValue.color[3] = (int)((float)((float)(255.0 * v9) + 0.001) + 9.313225746154785e-10);
-    memset(&v8, 0, sizeof(v8));
-    dvarValue.enabled = (int)((float)((float)(255.0 * v12) + 0.001) + 9.313225746154785e-10);
-    dvarValue.color[1] = (int)((float)((float)(255.0 * v11) + 0.001) + 9.313225746154785e-10);
-    dvarValue.color[2] = (int)((float)((float)(255.0 * v10) + 0.001) + 9.313225746154785e-10);
-    return Dvar_RegisterVariant(dvarName, DVAR_TYPE_COLOR, flags, dvarValue, v8, description);
+        v17 = 0.0f;
+
+    memset(&dvarValue, 0, sizeof(dvarValue));
+
+    dvarValue.color[0] = (int)((float)((float)(255.0 * v11) + 0.001) + 9.313225746154785e-10);
+    dvarValue.color[1] = (int)((float)((float)(255.0 * v10) + 0.001) + 9.313225746154785e-10);
+    dvarValue.color[2] = (int)((float)((float)(255.0 * v17) + 0.001) + 9.313225746154785e-10);
+    dvarValue.color[3]  = (int)((float)((float)(255.0 * v12) + 0.001) + 9.313225746154785e-10);
+
+
+    return Dvar_RegisterVariant((char*)dvarName, DVAR_TYPE_COLOR, flags, dvarValue, dvarDomain, description);
 }
 
 const dvar_s *__cdecl _Dvar_RegisterLinearRGB(
@@ -2529,19 +2560,17 @@ const dvar_s *__cdecl _Dvar_RegisterLinearRGB(
                 unsigned __int16 flags,
                 const char *description)
 {
-    DvarValue v9; // [esp-24h] [ebp-4Ch]
-    DvarLimits v10; // [esp-14h] [ebp-3Ch]
-    __int64 dvarDomain_4; // [esp+4h] [ebp-24h]
-    int dvarDomain_12; // [esp+Ch] [ebp-1Ch]
-    unsigned int dvarValue_12; // [esp+1Ch] [ebp-Ch]
+    DvarValue dvarValue; // [esp-24h] [ebp-4Ch]
+    DvarLimits dvarDomain; // [esp-14h] [ebp-3Ch]
 
-    *(float *)&dvarDomain_4 = max;
-    v10.value.min = min;
-    *(_QWORD *)&v10.value.max = dvarDomain_4;
-    *((unsigned int *)&v10.vector + 3) = dvarDomain_12;
-    v9.integer64 = __PAIR64__(y, x);
-    *((_QWORD *)&v9.string + 1) = __PAIR64__(dvarValue_12, z);
-    return Dvar_RegisterVariant(dvarName, DVAR_TYPE_LINEAR_COLOR_RGB, flags, v9, v10, description);
+    dvarValue.color[0] = x;
+    dvarValue.color[1] = y;
+    dvarValue.color[2] = z;
+
+    dvarDomain.value.min = min;
+    dvarDomain.value.max = max;
+
+    return Dvar_RegisterVariant(dvarName, DVAR_TYPE_LINEAR_COLOR_RGB, flags, dvarValue, dvarDomain, description);
 }
 
 const dvar_s *__cdecl _Dvar_RegisterColorXYZ(
@@ -2554,19 +2583,17 @@ const dvar_s *__cdecl _Dvar_RegisterColorXYZ(
                 unsigned __int16 flags,
                 const char *description)
 {
-    DvarValue v9; // [esp-24h] [ebp-4Ch]
-    DvarLimits v10; // [esp-14h] [ebp-3Ch]
-    __int64 dvarDomain_4; // [esp+4h] [ebp-24h]
-    int dvarDomain_12; // [esp+Ch] [ebp-1Ch]
-    unsigned int dvarValue_12; // [esp+1Ch] [ebp-Ch]
+    DvarValue dvarValue; // [esp-24h] [ebp-4Ch]
+    DvarLimits dvarDomain; // [esp-14h] [ebp-3Ch]
 
-    *(float *)&dvarDomain_4 = max;
-    v10.value.min = min;
-    *(_QWORD *)&v10.value.max = dvarDomain_4;
-    *((unsigned int *)&v10.vector + 3) = dvarDomain_12;
-    v9.integer64 = __PAIR64__(y, x);
-    *((_QWORD *)&v9.string + 1) = __PAIR64__(dvarValue_12, z);
-    return Dvar_RegisterVariant(dvarName, DVAR_TYPE_COLOR_XYZ, flags, v9, v10, description);
+    dvarValue.color[0] = x;
+    dvarValue.color[1] = y;
+    dvarValue.color[2] = z;
+
+    dvarDomain.value.min = min;
+    dvarDomain.value.max = max;
+
+    return Dvar_RegisterVariant((char*)dvarName, DVAR_TYPE_COLOR_XYZ, flags, dvarValue, dvarDomain, description);
 }
 
 void __cdecl Dvar_SetDvarValueFromSource(dvar_s *dvar, DvarValue newValue, DvarSetSource source)
@@ -2879,9 +2906,9 @@ void __cdecl Dvar_SetVec4FromSource(
 void __cdecl Dvar_SetColorFromSource(dvar_s *dvar, float r, float g, float b, float a, DvarSetSource source)
 {
     float v6; // [esp+20h] [ebp-108h]
-    float v7; // [esp+24h] [ebp-104h]
-    float v8; // [esp+28h] [ebp-100h]
-    float v9; // [esp+2Ch] [ebp-FCh]
+    float dvarValue; // [esp+24h] [ebp-104h]
+    float dvarValue; // [esp+28h] [ebp-100h]
+    float dvarDomain; // [esp+2Ch] [ebp-FCh]
     float v10; // [esp+44h] [ebp-E4h]
     float v11; // [esp+5Ch] [ebp-CCh]
     float v12; // [esp+74h] [ebp-B4h]
@@ -2917,28 +2944,28 @@ void __cdecl Dvar_SetColorFromSource(dvar_s *dvar, float r, float g, float b, fl
             else
                 v13 = 1.0f;
             if ( (float)(0.0 - v13) < 0.0 )
-                v9 = v13;
+                dvarDomain = v13;
             else
-                v9 = 0.0f;
-            newValue.enabled = (int)((float)(255.0 * v9) + 9.313225746154785e-10);
+                dvarDomain = 0.0f;
+            newValue.enabled = (int)((float)(255.0 * dvarDomain) + 9.313225746154785e-10);
             if ( (float)(g - 1.0) < 0.0 )
                 v12 = g;
             else
                 v12 = 1.0f;
             if ( (float)(0.0 - v12) < 0.0 )
-                v8 = v12;
+                dvarValue = v12;
             else
-                v8 = 0.0f;
-            newValue.color[1] = (int)((float)(255.0 * v8) + 9.313225746154785e-10);
+                dvarValue = 0.0f;
+            newValue.color[1] = (int)((float)(255.0 * dvarValue) + 9.313225746154785e-10);
             if ( (float)(b - 1.0) < 0.0 )
                 v11 = b;
             else
                 v11 = 1.0f;
             if ( (float)(0.0 - v11) < 0.0 )
-                v7 = v11;
+                dvarValue = v11;
             else
-                v7 = 0.0f;
-            newValue.color[2] = (int)((float)(255.0 * v7) + 9.313225746154785e-10);
+                dvarValue = 0.0f;
+            newValue.color[2] = (int)((float)(255.0 * dvarValue) + 9.313225746154785e-10);
             if ( (float)(a - 1.0) < 0.0 )
                 v10 = a;
             else
@@ -3283,7 +3310,7 @@ void __cdecl Dvar_AddFlags(const dvar_s *dvar, int flags)
     {
         __debugbreak();
     }
-    dvar->flags |= flags;
+    ((dvar_s*)(dvar))->flags |= flags;
 }
 
 void __cdecl Dvar_Reset(dvar_s *dvar, DvarSetSource setSource)

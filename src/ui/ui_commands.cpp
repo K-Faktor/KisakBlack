@@ -1,4 +1,7 @@
 #include "ui_commands.h"
+#include <universal/dvar.h>
+#include <client_mp/cl_main_mp.h>
+#include <win32/win_gamerprofile.h>
 
 void __cdecl UI_SetClanName_f()
 {

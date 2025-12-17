@@ -3,6 +3,7 @@
 #include <qcommon/common.h>
 #include <live/live.h>
 #include "physicalmemory.h"
+#include <minilzo/minilzo.h>
 
 bool s_isLzoInitialized;
 
@@ -15,7 +16,8 @@ void __cdecl MemFile_CommonInit(
 {
     if ( !s_isLzoInitialized )
     {
-        __lzopro_lzo_init_v2(0x2020u, 2, 4, 4, 4, 4, 4, 4, 4, 24); // KISAKTODO: find this
+        //__lzopro_lzo_init_v2(0x2020u, 2, 4, 4, 4, 4, 4, 4, 4, 24);
+        lzo_init(0x2020u, 2, 4, 4, 4, 4, 4, 4, 4, 24);
         s_isLzoInitialized = 1;
     }
     if ( !memFile
@@ -179,11 +181,12 @@ void __cdecl MemFile_EndSegment(MemoryFile *memFile)
                 workmem = workmem_large_local.GetBuf(); // LargeLocal::GetBuf(&workmem_large_local);
                 out_len = (unsigned int *)&memFile->buffer[memFile->bytesUsed];
                 memFile->bytesUsed += 4;
-                lzopro_lzo1x_1_11_compress(
+                //lzopro_lzo1x_1_11_compress(
+                lzo1x_1_compress(
                     memFile->cacheBuffer,
                     memFile->cacheBufferUsed,
                     &memFile->buffer[memFile->bytesUsed],
-                    out_len,
+                    (lzo_uint*)out_len,
                     workmem);
                 memFile->cacheBufferUsed = 0;
                 memFile->bytesUsed += *out_len;
@@ -353,11 +356,12 @@ LABEL_14:
         workmem = workmem_large_local.GetBuf(); // LargeLocal::GetBuf(&workmem_large_local);
         len = (unsigned int *)&memFile->buffer[memFile->bytesUsed];
         memFile->bytesUsed += 4;
-        lzopro_lzo1x_1_11_compress(
+        //lzopro_lzo1x_1_11_compress(
+        lzo1x_1_compress(
             memFile->cacheBuffer,
             memFile->cacheBufferUsed,
             &memFile->buffer[memFile->bytesUsed],
-            len,
+            (lzo_uint*)len,
             workmem);
         memFile->cacheBufferUsed = 0;
         memFile->bytesUsed += *len;
@@ -510,7 +514,8 @@ void __cdecl MemFile_ReadData(MemoryFile *memFile, int byteCount, unsigned __int
                 {
                     in_len = *(unsigned int *)&memFile->buffer[memFile->bytesUsed];
                     memFile->bytesUsed += 4;
-                    lzopro_lzo1x_decompress(&memFile->buffer[memFile->bytesUsed], 0, memFile->cacheBuffer, &len);
+                    //lzopro_lzo1x_decompress(&memFile->buffer[memFile->bytesUsed], 0, memFile->cacheBuffer, &len);
+                    lzo1x_decompress(&memFile->buffer[memFile->bytesUsed], 0, memFile->cacheBuffer, (lzo_uint*)&len, NULL);
                     memFile->cacheBufferAvail = len;
                     memFile->cacheBufferUsed = 0;
                     memFile->bytesUsed += in_len;

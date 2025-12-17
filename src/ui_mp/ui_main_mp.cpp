@@ -1,4 +1,73 @@
 #include "ui_main_mp.h"
+#include <cstddef>
+#include <ui/ui_shared.h>
+#include <gfx_d3d/r_material.h>
+#include <qcommon/com_clients.h>
+#include <client/cl_keys.h>
+#include <ui/ui_emblem.h>
+#include <client/splitscreen.h>
+#include <ui/ui_viewer.h>
+#include <ui/ui_utils.h>
+#include <ui/ui_feeders.h>
+#include <game_mp/g_main_mp.h>
+#include <ui/ui_shared_obj.h>
+#include <gfx_d3d/r_rendercmds.h>
+#include <universal/com_stringtable.h>
+#include <ragdoll/ragdoll_controller.h>
+#include <universal/com_memory.h>
+#include <gfx_d3d/r_image.h>
+#include <DW/MatchRecorder.h>
+#include <live/live_win.h>
+#include <gfx_d3d/rb_resource.h>
+#include <live/live_stats.h>
+#include <ui/ui_atoms.h>
+#include <universal/com_expressions_eval.h>
+#include <live/live_fileshare.h>
+#include <ui/ui_screenshot.h>
+#include <client_mp/cl_cgame_mp.h>
+#include <gfx_d3d/r_ui3d.h>
+#include <live/live_combatrecord.h>
+
+const dvar_t *ui_ignoreMousePos;
+const dvar_t *ui_prevTextEntryBox;
+const dvar_t *ui_blurAmount;
+const dvar_t *ui_blurDarkenAmount;
+const dvar_t *ui_mapCount;
+const dvar_t *ui_browserHardcore;
+const dvar_t *ui_showEndOfGame;
+const dvar_t *ui_serverBrowserMenu;
+const dvar_t *ui_showAllContracts;
+const dvar_t *ui_hud_hardcore;
+const dvar_t *ui_radar_client;
+const dvar_t *ui_allow_classchange;
+const dvar_t *ui_allow_teamchange;
+const dvar_t *ui_map_killstreak;
+const dvar_t *ui_hud_visible;
+const dvar_t *ui_party_download_bar_height;
+const dvar_t *ui_party_download_bar_color;
+const dvar_t *ui_closeAfterPurchase;
+const dvar_t *ui_classesCurrentItemEquippedIn;
+const dvar_t *ui_heatMapColor;
+const dvar_t *ui_heatMapColorForPlayer;
+
+const char *serverBrowserMenus[7] =
+{
+  "server_browser_ranked",
+  "server_browser_unranked",
+  "server_browser_wager",
+  "server_browser_friends",
+  "server_browser_favorites",
+  "server_browser_history",
+  NULL
+};
+
+char g_mapname[64];
+char s_gametype[64];
+bool g_showLoadingScreenMenu;
+
+int currIndex;
+int startIndex;
+int endIndex;
 
 void __cdecl UI_Project_RegisterDvars()
 {
@@ -69,10 +138,10 @@ void __cdecl UI_Project_RegisterDvars()
                                                                      "Height of each download progress bar.");
     ui_party_download_bar_color = _Dvar_RegisterVec4(
                                                                     "ui_party_download_bar_color",
-                                                                    COERCE_UNSIGNED_INT(0.69999999),
-                                                                    COERCE_UNSIGNED_INT(0.69999999),
-                                                                    COERCE_UNSIGNED_INT(0.69999999),
-                                                                    COERCE_UNSIGNED_INT(0.2),
+                                                                    (0.69999999),
+                                                                    (0.69999999),
+                                                                    (0.69999999),
+                                                                    (0.2),
                                                                     0.0,
                                                                     1.0,
                                                                     0,
@@ -100,8 +169,8 @@ void __cdecl UI_Project_RegisterDvars()
 
 void __cdecl UI_Project_AssetCache()
 {
-    sharedUiInfo.assets.blur = Material_RegisterHandle("ui_blur", 3);
-    sharedUiInfo.assets.lineGraph = Material_RegisterHandle("ui_line_graph", 3);
+    sharedUiInfo.assets.blur = Material_RegisterHandle((char*)"ui_blur", 3);
+    sharedUiInfo.assets.lineGraph = Material_RegisterHandle((char *)"ui_line_graph", 3);
 }
 
 void __cdecl UI_Project_Refresh(int localClientNum)
@@ -338,13 +407,14 @@ void __cdecl UI_GenerateHeatMapTexture(int controllerIndex)
     const char *String; // eax
     unsigned __int64 v2; // rax
     unsigned __int8 *pixels; // [esp+0h] [ebp-1Ch]
-    LargeLocal heatmap_large_local; // [esp+4h] [ebp-18h] BYREF
+    LargeLocal heatmap_large_local(0x10000); // [esp+4h] [ebp-18h] BYREF
     unsigned __int8 (*heatmap)[65536]; // [esp+Ch] [ebp-10h]
     GfxImage *img; // [esp+10h] [ebp-Ch]
     unsigned __int64 xuid; // [esp+14h] [ebp-8h]
 
-    LargeLocal::LargeLocal(&heatmap_large_local, 0x10000);
-    heatmap = (unsigned __int8 (*)[65536])LargeLocal::GetBuf(&heatmap_large_local);
+    //LargeLocal::LargeLocal(&heatmap_large_local, 0x10000);
+    //heatmap = (unsigned __int8 (*)[65536])LargeLocal::GetBuf(&heatmap_large_local);
+    heatmap = (unsigned __int8 (*)[65536])heatmap_large_local.GetBuf();
     img = Image_Register("heatmap", 0, 3);
     pixels = (unsigned __int8 *)Z_VirtualAlloc(4 * img->height * img->width, "UI_GenerateHeatMapTexture", 19);
     img->pixels = pixels;

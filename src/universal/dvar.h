@@ -391,3 +391,6 @@ int __cdecl Com_LoadDvarsFromBufferOptional(
 void __cdecl Dvar_SetBoolIfChanged(dvar_s *dvar, bool value);
 void __cdecl Dvar_SetIntIfChanged(dvar_s *dvar, int value);
 void __cdecl Dvar_SetFloatIfChanged(dvar_s *dvar, float value);
+
+
+extern int dvar_modifiedFlags;

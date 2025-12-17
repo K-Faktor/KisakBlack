@@ -1,4 +1,49 @@
 #include "ui_emblem.h"
+#include <client/cl_compositing.h>
+#include <client/cl_main.h>
+#include "ui_utils.h"
+#include <universal/com_expressions_eval.h>
+#include <live/live_pcache.h>
+#include <qcommon/com_clients.h>
+#include "ui_shared.h"
+#include <client/cl_keys.h>
+#include <live/live_win.h>
+#include <live/live_pcache_profile.h>
+#include <live/live_counter.h>
+
+CompositeEmblemLayer s_emblem[12];
+CompositeEmblemLayer *s_selected;
+
+bool s_emblemMoveDownRepeatEnabled;
+bool s_emblemMoveUpRepeatEnabled;
+bool s_emblemMoveLeftRepeatEnabled;
+bool s_emblemMoveRightRepeatEnabled;
+
+bool s_emblemScaleUpRepeatEnabled;
+bool s_emblemScaleDownRepeatEnabled;
+bool s_emblemRotateLeftRepeatEnabled;
+bool s_emblemRotateRightRepeatEnabled;
+
+int s_mouseOverColorIdx;
+
+bool s_emblemIsTranslating;
+bool s_emblemIsRotating;
+bool s_emblemIsScaling;
+
+float s_emblemOffsetX;
+float s_emblemOffsetY;
+
+int s_selectedLayer;
+
+__int16 s_backgroundID = -1;
+
+EmblemFilterState s_filterStates[4] =
+{
+  { "MENU_EMBLEM_ALL", 0u, 0u },
+  { "MENU_EMBLEM_UNLOCKED", 0u, 1u },
+  { "MENU_EMBLEM_PURCHASED", 2u, 0u },
+  { "MENU_EMBLEM_AFFORDABLE", 4u, 1u }
+};
 
 void __cdecl UI_DrawCustomEmblem(int contextIndex, const rectDef_s *rect, const float *color)
 {
@@ -24,7 +69,7 @@ void __cdecl UI_DrawCustomEmblemInternal(
     w = rect->w;
     h = rect->h;
     ScrPlace_ApplyRect(&scrPlaceView[contextIndex], &x, &y, &w, &h, rect->horzAlign, rect->vertAlign);
-    if ( !CL_CompositeDrawEmblemPhysical((GfxColor)&savedregs, x, y, w, h, color, layers, layerCount) && withSpinner )
+    if ( !CL_CompositeDrawEmblemPhysical(x, y, w, h, color, layers, layerCount) && withSpinner )
         CL_DrawSpinnerPhysical(x, y, w, h, color);
 }
 
@@ -147,7 +192,7 @@ void __cdecl UI_DrawPlayerEmblemByXuid(
             PCache_Lock();
             emblem = (PCachePlayerEmblem *)PCache_GetComponent(controllerIndex, xuid, 1u);
             if ( (!PCache_TouchComponent(&emblem->c)
-                 || !CL_CompositeDrawEmblemPhysical((GfxColor)&savedregs, x, y, w, h, color, emblem->layers, 12))
+                 || !CL_CompositeDrawEmblemPhysical(x, y, w, h, color, emblem->layers, 12))
                 && (emblem->c.state & 0x20) == 0 )
             {
                 CL_DrawSpinnerPhysical(x, y, w, h, color);
@@ -197,7 +242,7 @@ void __cdecl UI_DrawEmblemColors(int contextIndex, const rectDef_s *rect)
     dispY = rect->y;
     dispW = rect->w;
     dispH = rect->h * 4.0;
-    mat = Material_RegisterHandle("emblem_lut_2d", 3);
+    mat = Material_RegisterHandle((char*)"emblem_lut_2d", 3);
     ScrPlace_ApplyRect(&scrPlaceView[contextIndex], &dispX, &dispY, &dispW, &dispH, rect->horzAlign, rect->vertAlign);
     dc = (UiContext *)UI_GetInfo(0);
     mouseX = ScrPlace_ApplyX(&scrPlaceView[contextIndex], dc->cursor.x, 4);
@@ -271,7 +316,7 @@ void __cdecl UI_EmblemUpdate(int localClientNum)
     float deltaY; // [esp+90h] [ebp-8h]
     menuDef_t *emblemMenu; // [esp+94h] [ebp-4h]
 
-    ANGULAR_VELOCITY = FLOAT_72_0;
+    ANGULAR_VELOCITY = 72.0f;
     MOVEMENT_VELOCITY = 0.4f;
     SCALE_VELOCITY = 0.8f;
     uiInfo = UI_GetInfo(localClientNum);
@@ -287,7 +332,8 @@ void __cdecl UI_EmblemUpdate(int localClientNum)
     }
     else if ( Key_IsDown(localClientNum, 200) && s_emblemMoveUpRepeatEnabled )
     {
-        v2 = va("emblemMove 0 %f", (float)(COERCE_FLOAT(LODWORD(MOVEMENT_VELOCITY) ^ _mask__NegFloat_) * timeScale));
+        //v2 = va("emblemMove 0 %f", (float)(COERCE_FLOAT(LODWORD(MOVEMENT_VELOCITY) ^ _mask__NegFloat_) * timeScale));
+        v2 = va("emblemMove 0 %f", -MOVEMENT_VELOCITY * timeScale));
         Cmd_ExecuteSingleCommand(localClientNum, controllerIndex, v2);
         s_emblemMoveDownRepeatEnabled = 0;
     }
@@ -304,7 +350,8 @@ void __cdecl UI_EmblemUpdate(int localClientNum)
     }
     else if ( Key_IsDown(localClientNum, 200) && s_emblemMoveLeftRepeatEnabled )
     {
-        v4 = va("emblemMove %f 0", (float)(COERCE_FLOAT(LODWORD(MOVEMENT_VELOCITY) ^ _mask__NegFloat_) * timeScale));
+        //v4 = va("emblemMove %f 0", (float)(COERCE_FLOAT(LODWORD(MOVEMENT_VELOCITY) ^ _mask__NegFloat_) * timeScale));
+        v4 = va("emblemMove %f 0", -MOVEMENT_VELOCITY * timeScale);
         Cmd_ExecuteSingleCommand(localClientNum, controllerIndex, v4);
         s_emblemMoveRightRepeatEnabled = 0;
     }
@@ -323,8 +370,10 @@ void __cdecl UI_EmblemUpdate(int localClientNum)
     {
         v6 = va(
                      "emblemScale %f %f",
-                     (float)(COERCE_FLOAT(LODWORD(SCALE_VELOCITY) ^ _mask__NegFloat_) * timeScale),
-                     (float)(COERCE_FLOAT(LODWORD(SCALE_VELOCITY) ^ _mask__NegFloat_) * timeScale));
+                     //(float)(COERCE_FLOAT(LODWORD(SCALE_VELOCITY) ^ _mask__NegFloat_) * timeScale),
+                     -SCALE_VELOCITY * timeScale,
+                     //(float)(COERCE_FLOAT(LODWORD(SCALE_VELOCITY) ^ _mask__NegFloat_) * timeScale));
+                     -SCALE_VELOCITY * timeScale);
         Cmd_ExecuteSingleCommand(localClientNum, controllerIndex, v6);
         s_emblemScaleUpRepeatEnabled = 0;
     }
@@ -571,6 +620,7 @@ bool __cdecl UI_EmblemCanDuplicateLayer(int controllerIndex)
     return emptyCount > 0 && emptyCount < purchasedCount;
 }
 
+static char sTemp[64];
 void __cdecl UI_EmblemDuplicate_f()
 {
     int purchasedCount; // [esp+8h] [ebp-8h]
@@ -1015,13 +1065,13 @@ void __cdecl UI_EmblemEndEdit_f()
     Key_RemoveCatcher(0, -129);
 }
 
-void __cdecl UI_EmblemSet//Profile_f()
+void __cdecl UI_EmblemSetProfile_f()
 {
     LiveCounter_IncrementCounterValueByName("global_emblem_created", 1u);
     PCache_SetProfileEmblem(0, s_emblem, 12, s_backgroundID);
 }
 
-void __cdecl UI_EmblemGet//Profile_f()
+void __cdecl UI_EmblemGetProfile_f()
 {
     unsigned __int64 v0; // rax
     PCachePublicProfile *profile; // [esp+4h] [ebp-4h]
@@ -1146,6 +1196,44 @@ void __cdecl UI_EmblemRepeatBttnsLooseFocus_f()
     s_emblemRotateRightRepeatEnabled = 0;
 }
 
+
+cmd_function_s UI_EmblemSelect_f_VAR;
+cmd_function_s UI_EmblemReset_f_VAR;
+cmd_function_s UI_EmblemClearAll_f_VAR;
+cmd_function_s UI_EmblemClear_f_VAR;
+cmd_function_s UI_EmblemRotate_f_VAR;
+cmd_function_s UI_EmblemToggleFlip_f_VAR;
+cmd_function_s UI_EmblemFlip_f_VAR;
+cmd_function_s UI_EmblemMove_f_VAR;
+cmd_function_s UI_EmblemScale_f_VAR;
+cmd_function_s UI_EmblemIcon_f_VAR;
+cmd_function_s UI_EmblemPalette_f_VAR;
+cmd_function_s UI_EmblemOutline_f_VAR;
+cmd_function_s UI_EmblemToggleOutline_f_VAR;
+cmd_function_s UI_EmblemMoveLayer_f_VAR;
+cmd_function_s UI_EmblemMoveLayerRelative_f_VAR;
+cmd_function_s UI_EmblemCopy_f_VAR;
+cmd_function_s UI_EmblemBeginEdit_f_VAR;
+cmd_function_s UI_EmblemEndEdit_f_VAR;
+cmd_function_s UI_EmblemDuplicate_f_VAR;
+cmd_function_s UI_EmblemPaletteCycle_f_VAR;
+cmd_function_s UI_EmblemGetProfile_f_VAR;
+cmd_function_s UI_EmblemSetProfile_f_VAR;
+cmd_function_s UI_EmblemSelectBackground_f_VAR;
+cmd_function_s UI_EmblemDump_f_VAR;
+cmd_function_s UI_EmblemClearDefaults_f_VAR;
+cmd_function_s UI_EmblemSetAsDefault_f_VAR;
+cmd_function_s UI_EmblemMoveUpRepeatEnabled_f_VAR;
+cmd_function_s UI_EmblemMoveDownRepeatEnabled_f_VAR;
+cmd_function_s UI_EmblemMoveLeftRepeatEnabled_f_VAR;
+cmd_function_s UI_EmblemMoveRightRepeatEnabled_f_VAR;
+cmd_function_s UI_EmblemScaleUpRepeatEnabled_f_VAR;
+cmd_function_s UI_EmblemScaleDownRepeatEnabled_f_VAR;
+cmd_function_s UI_EmblemRotateLeftRepeatEnabled_f_VAR;
+cmd_function_s UI_EmblemRotateRightRepeatEnabled_f_VAR;
+cmd_function_s UI_EmblemRepeatBttnsLooseFocus_f_VAR;
+cmd_function_s UI_EmblemPalettePick_f_VAR;
+
 void __cdecl UI_EmblemRegisterCmds()
 {
     Cmd_AddCommandInternal("emblemSelect", UI_EmblemSelect_f, &UI_EmblemSelect_f_VAR);
@@ -1168,8 +1256,8 @@ void __cdecl UI_EmblemRegisterCmds()
     Cmd_AddCommandInternal("emblemEndEdit", UI_EmblemEndEdit_f, &UI_EmblemEndEdit_f_VAR);
     Cmd_AddCommandInternal("emblemDuplicate", UI_EmblemDuplicate_f, &UI_EmblemDuplicate_f_VAR);
     Cmd_AddCommandInternal("emblemPaletteCycle", UI_EmblemPaletteCycle_f, &UI_EmblemPaletteCycle_f_VAR);
-    Cmd_AddCommandInternal("emblemGetProfile", UI_EmblemGet//Profile_f, &UI_EmblemGet//Profile_f_VAR);
-    Cmd_AddCommandInternal("emblemSetProfile", UI_EmblemSet//Profile_f, &UI_EmblemSet//Profile_f_VAR);
+    Cmd_AddCommandInternal("emblemGetProfile", UI_EmblemGetProfile_f, &UI_EmblemGetProfile_f_VAR);
+    Cmd_AddCommandInternal("emblemSetProfile", UI_EmblemSetProfile_f, &UI_EmblemSetProfile_f_VAR);
     Cmd_AddCommandInternal("emblemSelectBackground", UI_EmblemSelectBackground_f, &UI_EmblemSelectBackground_f_VAR);
     Cmd_AddCommandInternal("emblemDump", UI_EmblemDump_f, &UI_EmblemDump_f_VAR);
     Cmd_AddCommandInternal("emblemClearDefaults", UI_EmblemClearDefaults_f, &UI_EmblemClearDefaults_f_VAR);

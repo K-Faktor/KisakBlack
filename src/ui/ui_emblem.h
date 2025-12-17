@@ -1,4 +1,58 @@
 #pragma once
+#include "ui_main.h"
+#include <bgame/bg_emblems.h>
+
+struct EmblemFilterState // sizeof=0xC
+{                                       // XREF: .data:s_filterStates/r
+    const char *loc;                    // XREF: UI_EmblemGetStateDisplay(int,int)+2A/r
+    unsigned int include;               // XREF: UI_EmblemGetFilterCount(int,int,int)+6B/r
+                                        // UI_EmblemGetFilterCount(int,int,int)+89/r ...
+    unsigned int exclude;               // XREF: UI_EmblemGetFilterCount(int,int,int)+98/r
+                                        // UI_EmblemGetFilterIconID(int,int,int,int)+98/r
+};
+
+struct __declspec(align(8)) PCacheComponent // sizeof=0x20
+{                                       // XREF: PCachePublicProfile/r
+                                        // PCachePlayerEmblem/r
+    unsigned __int64 xuid;
+    int controllerIndex;
+    int type;
+    unsigned int updateTime;
+    unsigned int touchTime;
+    unsigned int state;
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+};
+
+struct PCachePublicProfile // sizeof=0x120
+{                                       // XREF: .data:s_publicProfiles/r
+    PCacheComponent c;
+    char ddl[256];
+};
+
+struct PCacheEntry // sizeof=0x20
+{                                       // XREF: .data:s_entries/r
+    unsigned __int64 xuid;              // XREF: PCache_Init(void)+96/w
+    int controllerIndex;
+    unsigned int neighborhood;
+    unsigned int hash;
+    unsigned int touchTime;
+    PCacheComponent *components[2];
+};
+
+struct PCachePlayerEmblem // sizeof=0x1B0
+{                                       // XREF: .data:s_playerEmblems/r
+    PCacheComponent c;
+    CompositeEmblemLayer layers[12];
+    int jobID;
+    GfxImage *image;
+    __int16 backgroundID;
+    // padding byte
+    // padding byte
+    Material *background;
+};
 
 void __cdecl UI_DrawCustomEmblem(int contextIndex, const rectDef_s *rect, const float *color);
 void __cdecl UI_DrawCustomEmblemInternal(
@@ -71,8 +125,8 @@ void __cdecl UI_EmblemMoveLayerRelative_f();
 void __cdecl UI_EmblemCopy_f();
 void __cdecl UI_EmblemBeginEdit_f();
 void __cdecl UI_EmblemEndEdit_f();
-void __cdecl UI_EmblemSet//Profile_f();
-void __cdecl UI_EmblemGet//Profile_f();
+void __cdecl UI_EmblemSetProfile_f();
+void __cdecl UI_EmblemGetProfile_f();
 void __cdecl UI_EmblemSelectBackground_f();
 void __cdecl UI_EmblemDump_f();
 void __cdecl UI_EmblemClearDefaults_f();

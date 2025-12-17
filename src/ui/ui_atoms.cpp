@@ -1,4 +1,13 @@
 #include "ui_atoms.h"
+#include <gfx_d3d/r_material.h>
+#include <client_mp/cl_cgame_mp.h>
+#include <client/cl_main.h>
+#include <universal/com_memory.h>
+#include <universal/q_shared.h>
+#include <database/db_file_load.h>
+#include "ui_shared.h"
+
+int com_expectedHunkUsage;
 
 void __cdecl UI_DrawHandlePic(
                 const ScreenPlacement *scrPlace,
@@ -23,7 +32,8 @@ void __cdecl UI_DrawHandlePic(
     }
     else
     {
-        LODWORD(w) ^= _mask__NegFloat_;
+        //LODWORD(w) ^= _mask__NegFloat_;
+        w = -w;
         s0 = 1.0f;
         s1 = 0.0f;
     }
@@ -34,7 +44,8 @@ void __cdecl UI_DrawHandlePic(
     }
     else
     {
-        LODWORD(h) ^= _mask__NegFloat_;
+        //LODWORD(h) ^= _mask__NegFloat_;
+        h = -h;
         t0 = 1.0f;
         t1 = 0.0f;
     }
@@ -65,7 +76,8 @@ void __cdecl UI_DrawHandlePicRotated(
     }
     else
     {
-        LODWORD(w) ^= _mask__NegFloat_;
+        //LODWORD(w) ^= _mask__NegFloat_;
+        w = -w;
         s0 = 1.0f;
         s1 = 0.0f;
     }
@@ -76,7 +88,8 @@ void __cdecl UI_DrawHandlePicRotated(
     }
     else
     {
-        LODWORD(h) ^= _mask__NegFloat_;
+        //LODWORD(h) ^= _mask__NegFloat_;
+        h = -h;
         t0 = 1.0f;
         t1 = 0.0f;
     }

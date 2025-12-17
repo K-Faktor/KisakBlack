@@ -1,4 +1,8 @@
 #include "ui_feeders.h"
+#include <qcommon/com_clients.h>
+#include "ui_server.h"
+#include "ui_main_pc.h"
+#include <qcommon/com_gamemodes.h>
 
 const char *__cdecl UI_FeederCount(int localClientNum, int contextIndex, float feederID, listBoxDef_s *listPtr)
 {

@@ -1,4 +1,5 @@
 #pragma once
+#include <client/screen_placement.h>
 
 void __cdecl UI_DrawHandlePic(
                 const ScreenPlacement *scrPlace,

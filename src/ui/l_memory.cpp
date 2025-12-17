@@ -1,4 +1,5 @@
 #include "l_memory.h"
+#include <universal/com_memory.h>
 
 unsigned int *__cdecl GetMemory(unsigned int size)
 {

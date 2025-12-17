@@ -1,5 +1,8 @@
 #pragma once
 
+#include <universal/dvar.h>
+#include <ui/ui_main.h>
+
 void __cdecl UI_Project_RegisterDvars();
 void __cdecl UI_Project_AssetCache();
 void __cdecl UI_Project_Refresh(int localClientNum);
@@ -175,3 +178,26 @@ bool __cdecl UI_ShouldDrawCrosshair();
 char *__cdecl UI_GetGameTypeDisplayNameCaps(const char *pszGameType);
 char *__cdecl UI_GetMapDisplayNameCaps(const char *pszMap);
 void __cdecl UI_DrawConnectScreen(int localClientNum);
+
+
+extern const dvar_t *ui_ignoreMousePos;
+extern const dvar_t *ui_prevTextEntryBox;
+extern const dvar_t *ui_blurAmount;
+extern const dvar_t *ui_blurDarkenAmount;
+extern const dvar_t *ui_mapCount;
+extern const dvar_t *ui_browserHardcore;
+extern const dvar_t *ui_showEndOfGame;
+extern const dvar_t *ui_serverBrowserMenu;
+extern const dvar_t *ui_showAllContracts;
+extern const dvar_t *ui_hud_hardcore;
+extern const dvar_t *ui_radar_client;
+extern const dvar_t *ui_allow_classchange;
+extern const dvar_t *ui_allow_teamchange;
+extern const dvar_t *ui_map_killstreak;
+extern const dvar_t *ui_hud_visible;
+extern const dvar_t *ui_party_download_bar_height;
+extern const dvar_t *ui_party_download_bar_color;
+extern const dvar_t *ui_closeAfterPurchase;
+extern const dvar_t *ui_classesCurrentItemEquippedIn;
+extern const dvar_t *ui_heatMapColor;
+extern const dvar_t *ui_heatMapColorForPlayer;
