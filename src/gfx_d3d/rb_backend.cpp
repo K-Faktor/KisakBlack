@@ -438,12 +438,10 @@ void __fastcall R_ResolveIntZ_PC(bool a1)
     }
 }
 
-NVDX_ObjectHandle__ *__thiscall R_GetIntZHandles(NVDX_ObjectHandle__ *this)
+NVDX_ObjectHandle__ * R_GetIntZHandles(NVDX_ObjectHandle__ *h)
 {
     NVDX_ObjectHandle__ *result; // eax
-    NVDX_ObjectHandle__ *h; // [esp+0h] [ebp-4h] BYREF
 
-    h = this;
     result = (NVDX_ObjectHandle__ *)NvAPI_D3D9_GetCurrentZBufferHandle(dx.device, &h);
     if ( !result )
     {

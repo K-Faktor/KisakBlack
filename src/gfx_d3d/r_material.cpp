@@ -1,4 +1,419 @@
 #include "r_material.h"
+#include <universal/com_memory.h>
+#include "r_dvars.h"
+#include <qcommon/com_profilemapload.h>
+#include <qcommon/threads.h>
+#include "r_singlethreaded_device_pc.h"
+#include "r_init.h"
+#include "rb_resource.h"
+#include <database/db_file_load.h>
+#include "rb_logfile.h"
+#include "r_utils.h"
+#include "r_material_load_obj.h"
+#include <xanim/xmodel.h>
+#include <cgame/cg_drawtools.h>
+#include "r_image.h"
+#include "rb_state.h"
+#include <universal/com_files.h>
+#include <algorithm>
+
+const stream_source_info_t s_streamSourceInfo[18][10] =
+{
+  {
+    { 0u, 0u, 3u },
+    { 0u, 16u, 4u },
+    { 0u, 20u, 1u },
+    { 0u, 28u, 5u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u }
+  },
+  {
+    { 0u, 0u, 3u },
+    { 0u, 16u, 4u },
+    { 0u, 20u, 5u },
+    { 0u, 24u, 5u },
+    { 0u, 28u, 5u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u }
+  },
+  {
+    { 0u, 0u, 3u },
+    { 0u, 16u, 4u },
+    { 0u, 20u, 3u },
+    { 0u, 36u, 5u },
+    { 0u, 40u, 5u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 2u, 0u, 15u }
+  },
+  {
+    { 0u, 0u, 3u },
+    { 0u, 16u, 4u },
+    { 0u, 20u, 3u },
+    { 0u, 36u, 5u },
+    { 0u, 40u, 5u },
+    { 1u, 0u, 1u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 2u, 0u, 15u }
+  },
+  {
+    { 0u, 0u, 3u },
+    { 0u, 16u, 4u },
+    { 0u, 20u, 3u },
+    { 0u, 36u, 5u },
+    { 0u, 40u, 5u },
+    { 1u, 0u, 1u },
+    { 255u, 0u, 0u },
+    { 1u, 8u, 8u },
+    { 255u, 0u, 0u },
+    { 2u, 0u, 15u }
+  },
+  {
+    { 0u, 0u, 3u },
+    { 0u, 16u, 4u },
+    { 0u, 20u, 3u },
+    { 0u, 36u, 5u },
+    { 0u, 40u, 5u },
+    { 1u, 0u, 3u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 2u, 0u, 15u }
+  },
+  {
+    { 0u, 0u, 3u },
+    { 0u, 16u, 4u },
+    { 0u, 20u, 3u },
+    { 0u, 36u, 5u },
+    { 0u, 40u, 5u },
+    { 1u, 0u, 3u },
+    { 255u, 0u, 0u },
+    { 1u, 16u, 8u },
+    { 255u, 0u, 0u },
+    { 2u, 0u, 15u }
+  },
+  {
+    { 0u, 0u, 3u },
+    { 0u, 16u, 4u },
+    { 0u, 20u, 3u },
+    { 0u, 36u, 5u },
+    { 0u, 40u, 5u },
+    { 1u, 0u, 3u },
+    { 255u, 0u, 0u },
+    { 1u, 16u, 8u },
+    { 1u, 20u, 8u },
+    { 2u, 0u, 15u }
+  },
+  {
+    { 0u, 0u, 3u },
+    { 0u, 16u, 4u },
+    { 0u, 20u, 3u },
+    { 0u, 36u, 5u },
+    { 0u, 40u, 5u },
+    { 1u, 0u, 3u },
+    { 1u, 16u, 1u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 2u, 0u, 15u }
+  },
+  {
+    { 0u, 0u, 3u },
+    { 0u, 16u, 4u },
+    { 0u, 20u, 3u },
+    { 0u, 36u, 5u },
+    { 0u, 40u, 5u },
+    { 1u, 0u, 3u },
+    { 1u, 16u, 1u },
+    { 1u, 24u, 8u },
+    { 255u, 0u, 0u },
+    { 2u, 0u, 15u }
+  },
+  {
+    { 0u, 0u, 3u },
+    { 0u, 16u, 4u },
+    { 0u, 20u, 3u },
+    { 0u, 36u, 5u },
+    { 0u, 40u, 5u },
+    { 1u, 0u, 3u },
+    { 1u, 16u, 1u },
+    { 1u, 24u, 8u },
+    { 1u, 28u, 8u },
+    { 2u, 0u, 15u }
+  },
+  {
+    { 0u, 0u, 3u },
+    { 0u, 16u, 4u },
+    { 0u, 20u, 3u },
+    { 0u, 36u, 5u },
+    { 0u, 40u, 5u },
+    { 1u, 0u, 3u },
+    { 1u, 16u, 3u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 2u, 0u, 15u }
+  },
+  {
+    { 0u, 0u, 3u },
+    { 0u, 16u, 4u },
+    { 0u, 20u, 3u },
+    { 0u, 36u, 5u },
+    { 0u, 40u, 5u },
+    { 1u, 0u, 3u },
+    { 1u, 16u, 3u },
+    { 1u, 32u, 8u },
+    { 255u, 0u, 0u },
+    { 2u, 0u, 15u }
+  },
+  {
+    { 0u, 0u, 3u },
+    { 0u, 16u, 4u },
+    { 0u, 20u, 3u },
+    { 0u, 36u, 5u },
+    { 0u, 40u, 5u },
+    { 1u, 0u, 3u },
+    { 1u, 16u, 3u },
+    { 1u, 32u, 8u },
+    { 1u, 36u, 8u },
+    { 2u, 0u, 15u }
+  },
+  {
+    { 0u, 0u, 3u },
+    { 255u, 0u, 0u },
+    { 0u, 12u, 1u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u }
+  },
+  {
+    { 0u, 0u, 2u },
+    { 0u, 12u, 4u },
+    { 0u, 16u, 5u },
+    { 0u, 20u, 5u },
+    { 0u, 24u, 5u },
+    { 0u, 28u, 5u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u }
+  },
+  {
+    { 0u, 0u, 5u },
+    { 0u, 8u, 4u },
+    { 0u, 12u, 5u },
+    { 0u, 4u, 5u },
+    { 255u, 0u, 0u },
+    { 1u, 0u, 5u },
+    { 255u, 0u, 0u },
+    { 1u, 4u, 5u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u }
+  },
+  {
+    { 0u, 0u, 10u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u },
+    { 255u, 0u, 0u }
+  }
+};
+
+const PerMapMaterialTable s_permapMaterials[3] =
+{
+  { "flamethrowerfx_color_distort_overlay_bloom", &rgp.permapAssets.flameThrowerFXMaterial },
+  { "zombie_electric_shock_overlay", &rgp.permapAssets.electrifiedFXMaterial },
+  { "zombie_transporter_overlay", &rgp.permapAssets.transportedFXMaterial }
+};
+
+// generated with aislop from rdata
+const BuiltInMaterialTable s_builtInMaterials[122] =
+{
+    { "$default", &rgp.defaultMaterial },
+    { "white", &rgp.whiteMaterial },
+    { "$additive", &rgp.additiveMaterial },
+    { "$additive_nodepth", &rgp.additiveMaterialNoDepth },
+    { "$glare_blind", &rgp.glareBlindMaterial },
+    { "$point", &rgp.pointMaterial },
+    { "$line", &rgp.lineMaterial },
+    { "$line_nodepth", &rgp.lineMaterialNoDepth },
+    { "$blend", &rgp.blendMaterial },
+    { "$blend_nodepth", &rgp.blendMaterialNoDepth },
+    { "debug_sphere_exterior", &rgp.whiteDebugExteriorMaterial },
+    { "debug_sphere_interior", &rgp.whiteDepthInteriorMaterial },
+    { "light_corona", &rgp.lightCoronaMaterial },
+    { "clear_alpha", &rgp.clearAlphaMaterial },
+    { "clear_alpha_stencil", &rgp.clearAlphaStencilMaterial },
+    { "set_alpha", &rgp.setAlphaMaterial },
+    { "depthprepass", &rgp.depthPrepassMaterial },
+    { "shadowclear", &rgp.shadowClearMaterial },
+    { "shadowcaster", &rgp.shadowCasterMaterial },
+    { "shadowoverlay", &rgp.shadowOverlayMaterial },
+    { "stencilshadow", &rgp.stencilShadowMaterial },
+    { "stencildisplay", &rgp.stencilDisplayMaterial },
+    { "floatz_display", &rgp.floatZDisplayMaterial },
+
+    { "$floatz_donotremove", &rgp.dummyMaterial },
+    { "$processed_floatz_donotremove", &rgp.dummyMaterial },
+
+    { "shellshock", &rgp.shellShockBlurredMaterial },
+    { "shellshock_flashed", &rgp.shellShockFlashedMaterial },
+
+    { "color_channel_mixer", &rgp.colorChannelMixerMaterial },
+    { "frame_color_debug", &rgp.frameColorDebugMaterial },
+    { "frame_alpha_debug", &rgp.frameAlphaDebugMaterial },
+
+    { "feedbackblend", &rgp.feedbackBlendMaterial },
+    { "feedbackfilmblend", &rgp.feedbackFilmBlendMaterial },
+    { "feedbackreplace", &rgp.feedbackReplaceMaterial },
+
+    { "cinematic", &rgp.cinematicMaterial },
+
+    { "$ps3_aadownsample_donotremove", &rgp.dummyMaterial },
+
+    { "dof_downsample", &rgp.dofDownsampleMaterial },
+    { "dof_downsample_nv_intz", &rgp.dofDownsampleNvIntzMaterial },
+    { "dof_near_coc", &rgp.dofNearCocMaterial },
+    { "small_blur", &rgp.smallBlurMaterial },
+    { "postfx_dof", &rgp.postFxDofMaterial },
+    { "postfx_dof_nv_intz", &rgp.postFxDofNvIntzMaterial },
+    { "postfx_dof_color", &rgp.postFxDofColorMaterial },
+    { "postfx_dof_color_nv_intz", &rgp.postFxDofColorNvIntzMaterial },
+
+    { "motionblurfilter1", &rgp.motionblur1Material },
+    { "motionblurfilter2", &rgp.motionblur2Material },
+    { "motionblurfilter3", &rgp.motionblur3Material },
+    { "motionblurfilter4", &rgp.motionblur4Material },
+    { "motionblurfilter5", &rgp.motionblur5Material },
+    { "motionblurfilter6", &rgp.motionblur6Material },
+    { "motionblurfilter7", &rgp.motionblur7Material },
+    { "motionblurfilter8", &rgp.motionblur8Material },
+    { "motionblurradial", &rgp.motionblurRadialMaterial },
+    { "motionblurframebased", &rgp.motionblurFrameBasedMaterial },
+
+    { "particle_blend_donotremove", &rgp.dummyMaterial },
+    { "particle_zdownsample_donotremove", &rgp.dummyMaterial },
+
+    { "watersheeting_color_distort_blur", &rgp.waterSheetingFXMaterial },
+    { "revivefx", &rgp.reviveFXMaterial },
+
+    { "postfx_color", &rgp.postFxColorMaterial },
+
+    { "postfx_lut_0", &rgp.postFxLutMaterial[0] },
+    { "postfx_lut_1", &rgp.postFxLutMaterial[1] },
+    { "postfx_lut_2", &rgp.postFxLutMaterial[2] },
+    { "postfx_lut_3", &rgp.postFxLutMaterial[3] },
+    { "postfx_lut_4", &rgp.postFxLutMaterial[4] },
+    { "postfx_lut_5", &rgp.postFxLutMaterial[5] },
+    { "postfx_lut_6", &rgp.postFxLutMaterial[6] },
+    { "postfx_lut_7", &rgp.postFxLutMaterial[7] },
+    { "postfx_lut_8", &rgp.postFxLutMaterial[8] },
+    { "postfx_lut_9", &rgp.postFxLutMaterial[9] },
+
+    { "postfx", &rgp.postFxMaterial },
+
+    { "glow_consistent_setup", &rgp.glowConsistentSetupMaterial },
+    { "glow_apply_bloom", &rgp.glowApplyBloomMaterial },
+    { "glow_godrays", &rgp.godRaysFilterMaterial },
+
+    { "filter_symmetric_1", &rgp.symmetricFilterMaterial[0] },
+    { "filter_symmetric_2", &rgp.symmetricFilterMaterial[1] },
+    { "filter_symmetric_3", &rgp.symmetricFilterMaterial[2] },
+    { "filter_symmetric_4", &rgp.symmetricFilterMaterial[3] },
+    { "filter_symmetric_5", &rgp.symmetricFilterMaterial[4] },
+    { "filter_symmetric_6", &rgp.symmetricFilterMaterial[5] },
+    { "filter_symmetric_7", &rgp.symmetricFilterMaterial[6] },
+    { "filter_symmetric_8", &rgp.symmetricFilterMaterial[7] },
+
+    { "pixel_cost_add_depth_always", &rgp.pixelCostAddDepthAlwaysMaterial },
+    { "pixel_cost_add_depth_disable", &rgp.pixelCostAddDepthDisableMaterial },
+    { "pixel_cost_add_depth_equal", &rgp.pixelCostAddDepthEqualMaterial },
+    { "pixel_cost_add_depth_less", &rgp.pixelCostAddDepthLessMaterial },
+    { "pixel_cost_add_depthwrite", &rgp.pixelCostAddDepthWriteMaterial },
+    { "pixel_cost_add_nodepthwrite", &rgp.pixelCostAddNoDepthWriteMaterial },
+    { "pixel_cost_color_code", &rgp.pixelCostColorCodeMaterial },
+
+    { "poison", &rgp.poisonFXMaterial },
+    { "rope", &rgp.ropeMaterial },
+
+    { "redact1", &rgp.redactMaterial1 },
+    { "redact2", &rgp.redactMaterial2 },
+    { "redact3", &rgp.redactMaterial3 },
+
+    { "resample_final", &rgp.resampleFinal },
+    { "resample_shift", &rgp.resampleShift },
+
+    { "bloom_downsample_ldr", &rgp.bloomDownsampleLDR },
+    { "bloom_downsample_hdr", &rgp.bloomDownsampleHDR },
+    { "bloom_downsample_convolution", &rgp.bloomDownsampleConvolution },
+    { "bloom_remap", &rgp.bloomRemap },
+    { "bloom_expansion", &rgp.bloomExpansion },
+    { "bloom_remap_streak", &rgp.bloomRemapStreak },
+    { "bloom_streak_x", &rgp.bloomStreakX },
+    { "bloom_streak_y", &rgp.bloomStreakY },
+    { "bloom_apply_streak", &rgp.bloomApplyStreak },
+    { "bloom_blur_x", &rgp.bloomBlurX },
+    { "bloom_blur_y", &rgp.bloomBlurY },
+    { "bloom_mip3_blur", &rgp.bloomMip3Blur },
+    { "bloom_apply_hdr", &rgp.bloomApplyHDR },
+    { "bloom_apply_ldr", &rgp.bloomApplyLDR },
+    { "bloom_smooth_a", &rgp.bloomSmoothA },
+    { "bloom_smooth_b", &rgp.bloomSmoothB },
+
+    { "generic_filter_superflare_apply", &rgp.superFlareApply },
+    { "generic_filter_superflare_occluder", &rgp.superFlareOccluder },
+    { "generic_filter_superflare_occluder_debug", &rgp.superFlareOccluderDebug },
+    { "generic_filter_superflare_occluder_noz", &rgp.superFlareOccluderNoZ },
+    { "generic_filter_superflare_occluder_noz_debug", &rgp.superFlareOccluderNoZDebug },
+
+    { "create_lut2d", &rgp.createLut2d },
+    { "create_lut2dv", &rgp.createLut2dv },
+    { "apply_lut2d", &rgp.applyLut2d },
+    { "apply_lut3d", &rgp.applyLut3d },
+
+    { "$ps3_reload_zcull_donotremove", &rgp.dummyMaterial },
+
+    { "composite_result", &rgp.compositeResult },
+    { "infrared_white", &rgp.infraredWhite },
+};
+
+
+struct $5803DA4EE1143C7EE9D14DA3FE11ED2E // sizeof=0x2004
+{                                       // XREF: .data:materialGlobals/r
+    int techniqueSetCount;
+    MaterialTechniqueSet *techniqueSetHashTable[2048];
+};
+$5803DA4EE1143C7EE9D14DA3FE11ED2E materialGlobals;
+
+bool g_alwaysUseDefaultMaterial;
+bool skipShaderCreationHack;
+bool g_generateOverrideTechniques = true;
+HRESULT g_hr;
+int mem;
+Material *Current_Edit_Material;
+MaterialConstantDef *MaterialParameterConstantEntry;
+dvar_s *MaterialParameterDvar;
+MaterialConstantDef MaterialParameterConstantEntry_save;
+
+char desc[256];
 
 void __cdecl Material_FreeTechniqueSet(XAssetHeader header)
 {
@@ -31,11 +446,11 @@ void __cdecl Load_CreateMaterialPixelShader(GfxPixelShaderLoadDef *loadDef, Mate
         if ( Sys_IsRenderThread() )
         {
             semaphore = R_AcquireDXDeviceOwnership(0);
-            hr = dx.device->CreatePixelShader(dx.device, loadDef->program, (IDirect3DPixelShader9 **)&mtlShader->prog);
+            hr = dx.device->CreatePixelShader((DWORD*)loadDef->program, (IDirect3DPixelShader9 **)&mtlShader->prog);
             if ( hr < 0 )
             {
                 g_hr = hr;
-                mem = dx.device->GetAvailableTextureMem(dx.device);
+                mem = dx.device->GetAvailableTextureMem();
             }
             if ( semaphore )
                 R_ReleaseDXDeviceOwnership();
@@ -81,7 +496,7 @@ void __cdecl Load_CreateMaterialVertexShader(GfxVertexShaderLoadDef *loadDef, Ma
             if ( r_logFile && r_logFile->current.integer )
                 RB_LogPrint("dx.device->CreateVertexShader( loadDef->program, &mtlShader->prog.vs )\n");
             v3 = R_AcquireDXDeviceOwnership(0);
-            hr = dx.device->CreateVertexShader(dx.device, loadDef->program, (IDirect3DVertexShader9 **)&mtlShader->prog);
+            hr = dx.device->CreateVertexShader(loadDef->program, (IDirect3DVertexShader9 **)&mtlShader->prog);
             if ( v3 )
                 R_ReleaseDXDeviceOwnership();
             if ( hr < 0 )
@@ -100,7 +515,7 @@ void __cdecl Load_CreateMaterialVertexShader(GfxVertexShaderLoadDef *loadDef, Ma
         }
         else
         {
-            RB_Resource_CreateVertexShader(loadDef->program, &mtlShader->prog.vs);
+            RB_Resource_CreateVertexShader((unsigned int*)loadDef->program, &mtlShader->prog.vs);
             RB_Resource_Flush();
         }
         DB_LoadedExternalData(0x2710u);
@@ -208,7 +623,7 @@ IDirect3DVertexDeclaration9 *__cdecl Material_BuildVertexDecl(
             if ( r_logFile && r_logFile->current.integer )
                 RB_LogPrint("dx.device->CreateVertexDeclaration( elemTable, &decl )\n");
             v7 = R_AcquireDXDeviceOwnership(0);
-            hr = dx.device->CreateVertexDeclaration(dx.device, elemTable, &decl);
+            hr = dx.device->CreateVertexDeclaration(elemTable, &decl);
             if ( v7 )
                 R_ReleaseDXDeviceOwnership();
             if ( hr < 0 )
@@ -257,7 +672,7 @@ MaterialTechniqueSet *__cdecl Material_FindTechniqueSet_LoadObj(
         return materialGlobals.techniqueSetHashTable[hashIndex];
     if ( notFoundBehavior == MTL_TECHSET_NOT_FOUND_RETURN_NULL )
         return 0;
-    defaultTechSet = Material_RegisterTechniqueSet("default");
+    defaultTechSet = Material_RegisterTechniqueSet((char*)"default");
     if ( !defaultTechSet
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_material.cpp", 1076, 0, "%s", "defaultTechSet") )
     {
@@ -292,7 +707,7 @@ MaterialTechniqueSet *__cdecl Material_FindTechniqueSet_FastFile(
 {
     XAssetHeader header; // [esp+4h] [ebp-4h]
 
-    header.xmodelPieces = DB_FindXAssetHeader(ASSET_TYPE_TECHNIQUE_SET, name, 1, -1).xmodelPieces;
+    header.xmodelPieces = DB_FindXAssetHeader(ASSET_TYPE_TECHNIQUE_SET, (char*)name, 1, -1).xmodelPieces;
     if ( notFoundBehavior || !DB_IsXAssetDefault(ASSET_TYPE_TECHNIQUE_SET, name) )
         return (MaterialTechniqueSet *)header.xmodelPieces;
     else
@@ -565,21 +980,21 @@ Material *__cdecl Material_Duplicate(Material *mtlCopy, char *name)
         v3 = strlen(name);
         mtlNew = Material_Alloc(v3 + 193);
         memcpy(mtlNew, mtlCopy, 0xC0u);
-        *(unsigned int *)mtlNew = mtlNew + 192;
+        *(unsigned int *)mtlNew = (unsigned int)(mtlNew + 192);
         memcpy(*(unsigned __int8 **)mtlNew, (unsigned __int8 *)name, v3 + 1);
         stateBitsTableSize = 8 * mtlCopy->stateBitsCount;
-        *((unsigned int *)mtlNew + 47) = Material_Alloc(stateBitsTableSize);
+        *((unsigned int *)mtlNew + 47) = (unsigned int)Material_Alloc(stateBitsTableSize);
         memcpy(*((unsigned __int8 **)mtlNew + 47), (unsigned __int8 *)mtlCopy->stateBitsTable, stateBitsTableSize);
         if ( mtlCopy->textureTable )
         {
             textureTableSize = 16 * mtlCopy->textureCount;
-            *((unsigned int *)mtlNew + 45) = Material_Alloc(textureTableSize);
+            *((unsigned int *)mtlNew + 45) = (unsigned int)Material_Alloc(textureTableSize);
             memcpy(*((unsigned __int8 **)mtlNew + 45), (unsigned __int8 *)mtlCopy->textureTable, textureTableSize);
         }
         if ( mtlCopy->localConstantTable )
         {
             constantTableSize = 32 * mtlCopy->constantCount;
-            *((unsigned int *)mtlNew + 46) = Material_Alloc(constantTableSize);
+            *((unsigned int *)mtlNew + 46) = (unsigned int)Material_Alloc(constantTableSize);
             memcpy(*((unsigned __int8 **)mtlNew + 46), (unsigned __int8 *)mtlCopy->localConstantTable, constantTableSize);
         }
         Material_Add((Material *)mtlNew, hashIndex[0]);
@@ -647,7 +1062,7 @@ bool __cdecl Material_IsDefault(const Material *material)
 
 void __cdecl Material_GetHashIndex(const char *name, unsigned __int16 *hashIndex, bool *exists)
 {
-    _BYTE *v3; // eax
+    char *v3; // eax
     int v4; // [esp+4h] [ebp-1Ch]
     unsigned __int16 beginHashIndex; // [esp+1Ch] [ebp-4h]
 
@@ -669,7 +1084,7 @@ void __cdecl Material_GetHashIndex(const char *name, unsigned __int16 *hashIndex
     {
         if ( !rg.materialHashTable[*hashIndex] )
             break;
-        strchr((unsigned __int8 *)rg.materialHashTable[*hashIndex]->info.name, 0x28u);
+        v3 = (char*)strchr(rg.materialHashTable[*hashIndex]->info.name, 0x28u);
         if ( v3 )
             *v3 = 0;
         v4 = strcmp(rg.materialHashTable[*hashIndex]->info.name, name);
@@ -749,7 +1164,7 @@ Material *__cdecl Material_MakeDefault(char *name)
 
 Material *__cdecl Material_Register_FastFile(const char *name)
 {
-    return DB_FindXAssetHeader(ASSET_TYPE_MATERIAL, name, 1, -1).material;
+    return DB_FindXAssetHeader(ASSET_TYPE_MATERIAL, (char*)name, 1, -1).material;
 }
 
 Material *__cdecl Material_RegisterHandle(char *name, int imageTrack)
@@ -776,7 +1191,7 @@ Material *__cdecl Material_RegisterHandle(char *name, int imageTrack)
 
 void __cdecl R_MaterialList_f()
 {
-    char *fmt; // [esp+8h] [ebp-8150h]
+    const char *fmt; // [esp+8h] [ebp-8150h]
     unsigned int i; // [esp+138h] [ebp-8020h]
     const char **p_name; // [esp+13Ch] [ebp-801Ch]
     int v3; // [esp+140h] [ebp-8018h]
@@ -789,11 +1204,15 @@ void __cdecl R_MaterialList_f()
     Com_Printf(8, "-----------------------\n");
     inData = 0;
     DB_EnumXAssets(ASSET_TYPE_MATERIAL, (void (__cdecl *)(XAssetHeader, void *))R_GetMaterialList, &inData, 0);
-    std::_Sort<RagdollSortStruct *,int,bool (__cdecl *)(RagdollSortStruct const &,RagdollSortStruct const &)>(
-        v6,
-        &v6[inData],
-        (int)(8 * inData) >> 3,
-        (bool (__cdecl *)(const MaterialMemory *, const MaterialMemory *))R_MaterialCompare);
+
+    //std::_Sort<RagdollSortStruct *,int,bool (__cdecl *)(RagdollSortStruct const &,RagdollSortStruct const &)>(
+    //    v6,
+    //    &v6[inData],
+    //    (int)(8 * inData) >> 3,
+    //    (bool (__cdecl *)(const MaterialMemory *, const MaterialMemory *))R_MaterialCompare);
+
+    std::sort(v6, &v6[inData], R_MaterialCompare);
+
     Com_Printf(8, "geo KB     name\n");
     for ( i = 0; i < inData; ++i )
     {
@@ -865,7 +1284,7 @@ bool __cdecl R_MaterialCompare(const MaterialMemory *material0, const MaterialMe
 
 void __cdecl R_MaterialEdit_f()
 {
-    int v0; // eax
+    const char *v0; // eax
     char name[16]; // [esp+50h] [ebp-24h] BYREF
     MaterialConstantDef *ct; // [esp+64h] [ebp-10h]
     const char *search; // [esp+68h] [ebp-Ch]
@@ -881,7 +1300,7 @@ void __cdecl R_MaterialEdit_f()
     {
         if ( *rgp.sortedMaterials[i]->info.name != 42 )
         {
-            strstr((unsigned __int8 *)rgp.sortedMaterials[i]->info.name, (unsigned __int8 *)search);
+            v0 = strstr(rgp.sortedMaterials[i]->info.name, search);
             if ( v0 )
             {
                 Com_Printf(8, "%s\n", rgp.sortedMaterials[i]->info.name);
@@ -901,7 +1320,7 @@ void __cdecl R_MaterialEdit_f()
         for ( i = 0; i < Current_Edit_Material->constantCount; ++i )
         {
             ct = &Current_Edit_Material->localConstantTable[i];
-            strncpy((unsigned __int8 *)name, (unsigned __int8 *)ct->name, 0xCu);
+            strncpy(name, ct->name, 0xCu);
             name[12] = 0;
             Com_Printf(
                 8,
@@ -928,14 +1347,14 @@ void __cdecl R_MaterialParameterEdit_f()
     dvar_s *hack; // [esp+68h] [ebp-48h]
     MaterialConstantDef *v4; // [esp+6Ch] [ebp-44h]
     unsigned int hash; // [esp+70h] [ebp-40h]
-    unsigned __int8 dest[16]; // [esp+74h] [ebp-3Ch] BYREF
+    char dest[16]; // [esp+74h] [ebp-3Ch] BYREF
     MaterialConstantDef *ct; // [esp+84h] [ebp-2Ch]
     const char *param; // [esp+88h] [ebp-28h]
     const char *name; // [esp+8Ch] [ebp-24h]
     int index; // [esp+90h] [ebp-20h]
     int i; // [esp+94h] [ebp-1Ch]
     MaterialConstantDef *cte; // [esp+98h] [ebp-18h]
-    unsigned __int8 NameBuf[16]; // [esp+9Ch] [ebp-14h] BYREF
+    char NameBuf[16]; // [esp+9Ch] [ebp-14h] BYREF
 
     if ( Current_Edit_Material )
     {
@@ -946,7 +1365,7 @@ void __cdecl R_MaterialParameterEdit_f()
             index = atoi(name);
             if ( index && index <= Current_Edit_Material->constantCount )
             {
-                strncpy(NameBuf, (unsigned __int8 *)Current_Edit_Material->localConstantTable[index - 1].name, 0xCu);
+                strncpy(NameBuf, Current_Edit_Material->localConstantTable[index - 1].name, 0xCu);
                 NameBuf[12] = 0;
                 param = (const char *)NameBuf;
             }
@@ -1042,7 +1461,7 @@ void __cdecl R_MaterialParameterEdit_f()
             for ( i = 0; i < Current_Edit_Material->constantCount; ++i )
             {
                 ct = &Current_Edit_Material->localConstantTable[i];
-                strncpy(dest, (unsigned __int8 *)ct->name, 0xCu);
+                strncpy(dest, ct->name, 0xCu);
                 dest[12] = 0;
                 Com_Printf(
                     8,
@@ -1066,7 +1485,7 @@ void __cdecl R_MaterialParameterTweak_f()
 {
     const char *v0; // eax
     const char *v1; // eax
-    const dvar_s *v2; // eax
+    dvar_s *v2; // eax
     __int64 dvarDomain_4; // [esp+74h] [ebp-64h]
     int dvarDomain_12; // [esp+7Ch] [ebp-5Ch]
     dvar_s *hack; // [esp+80h] [ebp-58h]
@@ -1074,7 +1493,7 @@ void __cdecl R_MaterialParameterTweak_f()
     float val; // [esp+88h] [ebp-50h]
     MaterialConstantDef *v8; // [esp+8Ch] [ebp-4Ch]
     unsigned int hash; // [esp+90h] [ebp-48h]
-    unsigned __int8 dest[16]; // [esp+94h] [ebp-44h] BYREF
+    char dest[16]; // [esp+94h] [ebp-44h] BYREF
     MaterialConstantDef *ct; // [esp+A4h] [ebp-34h]
     float max; // [esp+A8h] [ebp-30h]
     const char *param; // [esp+ACh] [ebp-2Ch]
@@ -1083,7 +1502,7 @@ void __cdecl R_MaterialParameterTweak_f()
     float min; // [esp+B8h] [ebp-20h]
     int i; // [esp+BCh] [ebp-1Ch]
     MaterialConstantDef *cte; // [esp+C0h] [ebp-18h]
-    unsigned __int8 NameBuf[16]; // [esp+C4h] [ebp-14h] BYREF
+    char NameBuf[16]; // [esp+C4h] [ebp-14h] BYREF
 
     MaterialParameterConstantEntry = 0;
     if ( Current_Edit_Material )
@@ -1095,7 +1514,7 @@ void __cdecl R_MaterialParameterTweak_f()
             index = atoi(name);
             if ( index && index <= Current_Edit_Material->constantCount )
             {
-                strncpy(NameBuf, (unsigned __int8 *)Current_Edit_Material->localConstantTable[index - 1].name, 0xCu);
+                strncpy(NameBuf, Current_Edit_Material->localConstantTable[index - 1].name, 0xCu);
                 NameBuf[12] = 0;
                 param = (const char *)NameBuf;
             }
@@ -1153,12 +1572,12 @@ void __cdecl R_MaterialParameterTweak_f()
                     if ( v6 > max )
                         max = v6;
                 }
-                v2 = _Dvar_RegisterVec4(
+                v2 = (dvar_s*)_Dvar_RegisterVec4(
                              "r_MaterialParameterTweak",
-                             COERCE_UNSIGNED_INT(cte->literal[0]),
-                             COERCE_UNSIGNED_INT(cte->literal[1]),
-                             COERCE_UNSIGNED_INT(cte->literal[2]),
-                             COERCE_UNSIGNED_INT(cte->literal[3]),
+                             (cte->literal[0]),
+                             (cte->literal[1]),
+                             (cte->literal[2]),
+                             (cte->literal[3]),
                              min,
                              max,
                              0x280u,
@@ -1191,7 +1610,7 @@ void __cdecl R_MaterialParameterTweak_f()
             for ( i = 0; i < Current_Edit_Material->constantCount; ++i )
             {
                 ct = &Current_Edit_Material->localConstantTable[i];
-                strncpy(dest, (unsigned __int8 *)ct->name, 0xCu);
+                strncpy(dest, ct->name, 0xCu);
                 dest[12] = 0;
                 Com_Printf(
                     8,
@@ -1297,7 +1716,7 @@ void __cdecl Material_Init()
         Material_PreLoadAllShaderText();
     }
     Material_LoadBuiltIn(s_builtInMaterials, 122);
-    Material_Register("statmon_warning_tris", 1);
+    Material_Register((char*)"statmon_warning_tris", 1);
 }
 
 void __cdecl Material_LoadBuiltIn(const BuiltInMaterialTable *mtlTable, int mtlTableCount)

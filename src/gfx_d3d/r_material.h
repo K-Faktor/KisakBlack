@@ -128,7 +128,7 @@ struct MaterialVertexDeclaration // sizeof=0x6C
 
 struct __declspec(align(4)) GfxVertexShaderLoadDef // sizeof=0x8
 {                                                                             // XREF: MaterialVertexShaderProgram/r
-        unsigned int *program;
+        DWORD *program;
         unsigned __int16 programSize;
         // padding byte
         // padding byte
@@ -190,30 +190,28 @@ struct MaterialShaderArgument // sizeof=0x8
         MaterialArgumentDef u;
 };
 
-union $DC376F3ECA4A0877231069DAD65BD3EF // sizeof=0x4
-{                                                                             // XREF: MaterialPass/r
-        MaterialPixelShader *pixelShader;
-        MaterialPixelShader *localPixelShader;
-};
-
-union $852269A6FD668DA4A9FB8DA442445F23 // sizeof=0x4
-{                                                                             // XREF: MaterialPass/r
-        MaterialShaderArgument *localArgs;
-        MaterialShaderArgument *args;
-};
-
 struct MaterialPass // sizeof=0x14
 {                                                                             // XREF: MaterialTechnique/r
                                                                                 // Material_LoadTechnique/r
         MaterialVertexDeclaration *vertexDecl;
                                                                                 // XREF: Material_LoadTechnique+3A6/r
         MaterialVertexShader *vertexShader;
-        $DC376F3ECA4A0877231069DAD65BD3EF ___u2;
+        //$DC376F3ECA4A0877231069DAD65BD3EF ___u2;
+        union //$DC376F3ECA4A0877231069DAD65BD3EF // sizeof=0x4
+        {                                                                             // XREF: MaterialPass/r
+            MaterialPixelShader *pixelShader;
+            MaterialPixelShader *localPixelShader;
+        };
         unsigned __int8 perPrimArgCount;
         unsigned __int8 perObjArgCount;
         unsigned __int8 stableArgCount;
         unsigned __int8 customSamplerFlags;
-        $852269A6FD668DA4A9FB8DA442445F23 ___u7;
+        //$852269A6FD668DA4A9FB8DA442445F23 ___u7;
+        union //$852269A6FD668DA4A9FB8DA442445F23 // sizeof=0x4
+        {                                                                             // XREF: MaterialPass/r
+            MaterialShaderArgument *localArgs;
+            MaterialShaderArgument *args;
+        };
 };
 
 struct MaterialTechnique // sizeof=0x1C
@@ -425,6 +423,19 @@ struct BuiltInMaterialTable // sizeof=0x8
 {                                                                             // XREF: .rdata:s_builtInMaterials/r
         const char *name;
         Material **material;
+};
+
+struct stream_source_info_t // sizeof=0x3
+{                                       // XREF: .rdata:s_streamSourceInfo/r
+    unsigned __int8 Stream;
+    unsigned __int8 Offset;
+    unsigned __int8 Type;
+};
+
+struct stream_dest_info_t // sizeof=0x2
+{                                       // XREF: .rdata:s_streamDestInfo/r
+    unsigned __int8 Usage;
+    unsigned __int8 UsageIndex;
 };
 
 void __cdecl Material_FreeTechniqueSet(XAssetHeader header);

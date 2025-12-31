@@ -1,8 +1,10 @@
 #include "r_model_pose.h"
+#include <xanim/xmodel.h>
+#include <xanim/dobj_utils.h>
+#include "r_dvars.h"
 
 // local variable allocation has failed, the output may be wrong!
-DObjAnimMat * R_UpdateSceneEntBounds@<eax>(
-                GfxSceneEntity *a1@<ebp>,
+DObjAnimMat * R_UpdateSceneEntBounds(
                 GfxSceneEntity *sceneEnt,
                 GfxSceneEntity **pLocalSceneEnt,
                 const DObj **pObj,

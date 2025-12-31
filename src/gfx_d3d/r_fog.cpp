@@ -1,5 +1,8 @@
 #include "r_fog.h"
 
+#include <cstring>
+#include "r_init.h"
+
 void __cdecl R_ClearFogs()
 {
     unsigned int i; // [esp+0h] [ebp-4h]

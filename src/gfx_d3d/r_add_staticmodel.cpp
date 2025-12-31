@@ -1,4 +1,15 @@
 #include "r_add_staticmodel.h"
+#include "r_gfx.h"
+#include <xanim/xanim.h>
+#include "r_rendercmds.h"
+#include <xanim/xmodel.h>
+#include "r_model_lighting.h"
+#include "r_dvars.h"
+#include <xanim/xmodel_utils.h>
+#include "r_staticmodelcache.h"
+#include "r_add_bsp.h"
+#include "r_primarylights.h"
+#include <physics/rope.h>
 
 void __cdecl R_AddDelayedStaticModelDrawSurf(
                 GfxDelayedCmdBuf *delayedCmdBuf,

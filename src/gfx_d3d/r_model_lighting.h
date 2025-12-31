@@ -1,9 +1,38 @@
 #pragma once
+#include "rb_state.h"
+
+enum GfxModelLightExtrapolation : __int32
+{                                       // XREF: CalcLightingCmd/r
+                                        // R_CalcModelLighting/r ...
+    GFX_MODELLIGHT_EXTRAPOLATE  = 0x0,
+    GFX_MODELLIGHT_SHOW_MISSING = 0x1,
+};
+
+struct CalcLightingCmd // sizeof=0x2C
+{                                       // XREF: R_AllocModelLighting/r
+    unsigned int entryIndex;            // XREF: R_AllocModelLighting+44F/w
+    float lightingOrigin[3];            // XREF: R_AllocModelLighting+459/w
+                                        // R_AllocModelLighting+466/w ...
+    unsigned int nonSunPrimaryLightIndex;
+                                        // XREF: R_AllocModelLighting+47B/w
+    GfxModelLightExtrapolation extrapolateBehavior;
+                                        // XREF: R_AllocModelLighting+47E/w
+    bool useHeroLighting;               // XREF: R_AllocModelLighting+488/w
+    // padding byte
+    // padding byte
+    // padding byte
+    unsigned __int8 *primaryLightIndex1;
+                                        // XREF: R_AllocModelLighting+48E/w
+    unsigned __int8 *primaryLightIndex2;
+                                        // XREF: R_AllocModelLighting+49D/w
+    unsigned __int8 *pixels;            // XREF: R_AllocModelLighting+4A8/w
+    unsigned __int8 *modelLightGlobPrimaryLightIndex;
+};
 
 GfxModelLightingPatch *__cdecl R_BackEndDataAllocAndClearModelLightingPatch(GfxBackEndData *frontEndDataOut);
 void __cdecl R_SetModelLightingCoords(unsigned __int16 handle, float *out);
 unsigned int __cdecl R_ModelLightingIndexFromHandle(unsigned __int16 handle);
-char __cdecl R_AllocStaticModelLighting(const GfxStaticModelDrawInst *smodelDrawInst, unsigned int smodelIndex);
+char __cdecl R_AllocStaticModelLighting(GfxStaticModelDrawInst *smodelDrawInst, unsigned int smodelIndex);
 unsigned int __cdecl R_AllocModelLighting_DynEnts(
                 float *lightingOrigin,
                 unsigned int dynEntId,

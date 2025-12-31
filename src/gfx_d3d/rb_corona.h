@@ -1,4 +1,33 @@
 #pragma once
+#include "rb_backend.h"
+
+struct Corona // sizeof=0x48
+{                                       // XREF: CoronaState/r
+                                        // CoronaState/r
+    bool inUse;
+    // padding byte
+    // padding byte
+    // padding byte
+    GfxLightCorona *info;
+    int timeSinceSpawned;
+    float currentVisibility;
+    float targetVisibility;
+    int hitNum;
+    bool wasEverVisible;
+    bool queryIssued[5];
+    // padding byte
+    // padding byte
+    IDirect3DQuery9 *query[5];
+    IDirect3DQuery9 *queryMax[5];
+};
+
+struct CoronaState // sizeof=0x908
+{                                       // XREF: .data:CoronaState * coronaState/r
+    unsigned int numActive;
+    unsigned int numPending;
+    Corona active[16];
+    Corona pending[16];
+};
 
 void __cdecl RB_DrawCoronas(unsigned int localClientNum);
 GfxLightCorona *__cdecl RB_FindBestCoronaToSpawn(CoronaState *state);

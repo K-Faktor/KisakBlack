@@ -4,6 +4,11 @@
 #include <qcommon/threads.h>
 #include "r_light.h"
 #include "r_add_staticmodel.h"
+#include "r_pretess.h"
+#include "r_skybox.h"
+#include <physics/rope.h>
+#include "r_drawsurf.h"
+#include "r_world_lod.h"
 
 void __cdecl R_InitBspDrawSurf(GfxSModelDrawSurfLightingData *surfData)
 {
@@ -101,9 +106,7 @@ char __cdecl R_PreTessBspDrawSurfs(
         }
         Com_Memcpy(&preTessIndices[copyIndex], &rgp.world->draw.indices[tris->tris.baseIndex], 6 * tris->tris.triCount);
         copyIndex += 3 * tris->tris.triCount;
-        *((_WORD *)&copyIndex + 2 * simplifiedCount + 1) = truncate_cast<unsigned short>(
-                                                                                                                 tris->tris.triCount
-                                                                                                             + *((unsigned __int16 *)&copyIndex + 2 * simplifiedCount + 1));
+        *((_WORD *)&copyIndex + 2 * simplifiedCount + 1) = truncate_cast<unsigned short>(tris->tris.triCount + *((unsigned __int16 *)&copyIndex + 2 * simplifiedCount + 1));
     }
     HIDWORD(drawSurf.packed) = HIDWORD(drawSurf.packed) & 0xFF87FFFF | 0x80000;
     if ( R_AllocDrawSurf(&surfData->delayedCmdBuf, drawSurf, &surfData->drawSurfList, simplifiedCount + 2) )
@@ -235,9 +238,9 @@ void __cdecl R_AddAllBspDrawSurfacesRangeCamera(
             surfaceFlags = GetSurfaceFlags(sortedSurfIndex);
             if ( (surfaceFlags & 8) == 0 )
             {
-                packed_high = HIDWORD(surfaceMaterials[sortedSurfIndex].packed);
-                *(unsigned int *)&drawSurf.fields = surfaceMaterials[sortedSurfIndex].fields;
-                HIDWORD(drawSurf.packed) = packed_high;
+                //packed_high = HIDWORD(surfaceMaterials[sortedSurfIndex].packed);
+                drawSurf.packed = surfaceMaterials[sortedSurfIndex].packed;
+                //HIDWORD(drawSurf.packed) = packed_high;
                 if ( !hasSkyBoxModel || (surfaceFlags & 4) == 0 )
                 {
                     fade = 0;
@@ -385,7 +388,7 @@ void __cdecl R_AddAllBspDrawSurfacesCameraNonlit(
         if ( surfaceVisData[sortedSurfIndex] )
         {
             packed_high = HIDWORD(surfaceMaterials[sortedSurfIndex].packed);
-            *(unsigned int *)&drawSurf.fields = surfaceMaterials[sortedSurfIndex].fields;
+            drawSurf.packed = surfaceMaterials[sortedSurfIndex].packed;
             HIDWORD(drawSurf.packed) = packed_high;
             if ( drawSurf.packed != prevDrawSurf.packed )
             {
@@ -536,13 +539,14 @@ void __cdecl R_AddAllBspDrawSurfacesRangeSunShadow(
                 && (surfaceCastsSunShadow[sortedSurfIndex >> 5] & (1 << (sortedSurfIndex & 0x1F))) != 0
                 && R_WorldLod_GetLodVal(sortedSurfIndex, localClientNum) == 255 )
             {
-                packed_high = HIDWORD(surfaceMaterials[sortedSurfIndex].packed);
-                *(unsigned int *)&drawSurf.fields = surfaceMaterials[sortedSurfIndex].fields;
-                HIDWORD(drawSurf.packed) = packed_high;
+                //packed_high = HIDWORD(surfaceMaterials[sortedSurfIndex].packed);
+                //*(unsigned int *)&drawSurf.fields = surfaceMaterials[sortedSurfIndex].fields;
+                drawSurf.packed = surfaceMaterials[sortedSurfIndex].packed;
+                //HIDWORD(drawSurf.packed) = packed_high;
                 if ( drawSurf.packed != prevDrawSurf.packed )
                 {
                     if ( triSurfCount )
-                        R_AddBspDrawSurfs(prevDrawSurf, triSurfList, triSurfCount, &surfData);
+                        R_AddBspDrawSurfs(prevDrawSurf, (unsigned char*)triSurfList, triSurfCount, &surfData);
                     prevDrawSurf.fields = drawSurf.fields;
                     triSurfCount = 0;
                 }
@@ -560,7 +564,7 @@ void __cdecl R_AddAllBspDrawSurfacesRangeSunShadow(
                 }
                 if ( ++triSurfCount >= 0x80 )
                 {
-                    R_AddBspDrawSurfs(drawSurf, triSurfList, triSurfCount, &surfData);
+                    R_AddBspDrawSurfs(drawSurf, (unsigned char *)triSurfList, triSurfCount, &surfData);
                     triSurfCount = 0;
                 }
             }
@@ -572,9 +576,10 @@ void __cdecl R_AddAllBspDrawSurfacesRangeSunShadow(
         {
             if ( surfaceVisData[sortedSurfIndex] && R_WorldLod_GetLodVal(sortedSurfIndex, localClientNum) == 255 )
             {
-                v5 = HIDWORD(surfaceMaterials[sortedSurfIndex].packed);
-                *(unsigned int *)&drawSurf.fields = surfaceMaterials[sortedSurfIndex].fields;
-                HIDWORD(drawSurf.packed) = v5;
+                //v5 = HIDWORD(surfaceMaterials[sortedSurfIndex].packed);
+                //*(unsigned int *)&drawSurf.fields = surfaceMaterials[sortedSurfIndex].fields;
+                drawSurf.packed = surfaceMaterials[sortedSurfIndex].packed;
+                //HIDWORD(drawSurf.packed) = v5;
                 if ( drawSurf.packed != prevDrawSurf.packed )
                 {
                     if ( triSurfCount )
@@ -589,7 +594,7 @@ void __cdecl R_AddAllBspDrawSurfacesRangeSunShadow(
                         {
                             __debugbreak();
                         }
-                        R_AddBspDrawSurfs(prevDrawSurf, triSurfList, triSurfCount, &surfData);
+                        R_AddBspDrawSurfs(prevDrawSurf, (unsigned char *)triSurfList, triSurfCount, &surfData);
                     }
                     prevDrawSurf.fields = drawSurf.fields;
                     skipMaterial = (drawSurf.packed & 0x100000) == 0;
@@ -611,7 +616,7 @@ void __cdecl R_AddAllBspDrawSurfacesRangeSunShadow(
                     }
                     if ( ++triSurfCount >= 0x80 )
                     {
-                        R_AddBspDrawSurfs(drawSurf, triSurfList, triSurfCount, &surfData);
+                        R_AddBspDrawSurfs(drawSurf, (unsigned char *)triSurfList, triSurfCount, &surfData);
                         triSurfCount = 0;
                     }
                 }
@@ -625,7 +630,7 @@ void __cdecl R_AddAllBspDrawSurfacesRangeSunShadow(
         {
             __debugbreak();
         }
-        R_AddBspDrawSurfs(prevDrawSurf, triSurfList, triSurfCount, &surfData);
+        R_AddBspDrawSurfs(prevDrawSurf, (unsigned char *)triSurfList, triSurfCount, &surfData);
     }
     R_EndCmdBuf(&surfData.delayedCmdBuf);
     scene.drawSurfCount[stage] = surfData.drawSurfList.current - scene.drawSurfs[stage];
@@ -664,9 +669,10 @@ void __cdecl R_AddAllBspDrawSurfacesSpotShadow(unsigned int spotShadowIndex, uns
     for ( surfIter = 0; surfIter < shadowGeom->surfaceCount; ++surfIter )
     {
         sortedSurfIndex = shadowGeom->sortedSurfIndex[surfIter];
-        packed_high = HIDWORD(surfaceMaterials[sortedSurfIndex].packed);
-        *(unsigned int *)&drawSurf.fields = surfaceMaterials[sortedSurfIndex].fields;
-        HIDWORD(drawSurf.packed) = packed_high;
+        //packed_high = HIDWORD(surfaceMaterials[sortedSurfIndex].packed);
+        //*(unsigned int *)&drawSurf.fields = surfaceMaterials[sortedSurfIndex].fields;
+        drawSurf.packed = surfaceMaterials[sortedSurfIndex].packed;
+        //HIDWORD(drawSurf.packed) = packed_high;
         if ( drawSurf.packed != prevDrawSurf.packed )
         {
             if ( triSurfCount )

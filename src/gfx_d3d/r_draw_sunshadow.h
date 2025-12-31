@@ -1,7 +1,8 @@
 #pragma once
+#include "r_rendercmds.h"
+#include "rb_state.h"
 
 void    R_DrawSunShadowMap(
-                int a1@<ebp>,
                 const GfxViewInfo *viewInfo,
                 unsigned int partitionIndex,
                 GfxCmdBuf *cmdBuf);

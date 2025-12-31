@@ -1,4 +1,13 @@
 #include "r_extracam.h"
+#include <database/db_registry.h>
+#include <qcommon/common.h>
+#include <universal/physicalmemory.h>
+#include "r_init.h"
+#include "r_singlethreaded_device_pc.h"
+#include "r_rendertarget.h"
+#include "r_dvars.h"
+
+ExtraCamConfig g_extraCamConfig;
 
 double __cdecl R_ExtraCam_AspectRatio()
 {
@@ -16,12 +25,12 @@ void __cdecl R_ExtraCam_Init(int location)
         requestedRes = EXTRACAM_RES_NORMAL;
         if ( useFastFile->current.enabled )
         {
-            xGlobals = DB_FindXAssetHeader(ASSET_TYPE_XGLOBALS, "xGlobalsSingleton", 0, -1).xGlobals;
+            xGlobals = DB_FindXAssetHeader(ASSET_TYPE_XGLOBALS, (char*)"xGlobalsSingleton", 0, -1).xGlobals;
             if ( xGlobals )
                 extracamResolution = xGlobals->extracamResolution;
             else
                 extracamResolution = 1;
-            requestedRes = extracamResolution;
+            requestedRes = (eExtraCamResolution)extracamResolution;
         }
         if ( requestedRes )
         {

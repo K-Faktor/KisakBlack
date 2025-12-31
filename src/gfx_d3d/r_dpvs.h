@@ -53,11 +53,111 @@ struct GfxPortal // sizeof=0x44
     float hullAxis[2][3];
 };
 
+struct DpvsGlob_sunShadow // sizeof=0x14
+{                                       // XREF: DpvsGlob/r
+    float viewDir[3];                   // XREF: R_SetupWorldSurfacesDpvs(GfxViewParms const *,uint)+163/w
+                                        // R_SetupWorldSurfacesDpvs(GfxViewParms const *,uint)+176/w ...
+    float viewDirDist;                  // XREF: R_SetupWorldSurfacesDpvs(GfxViewParms const *,uint)+1C9/w
+    float sunShadowDrawDist;            // XREF: R_GetSceneExtentsAlongDir+15/r
+                                        // R_GetSceneExtentsAlongDir+E6/r ...
+};
+
+struct DpvsView // sizeof=0x120
+{                                       // XREF: DpvsGlob/r
+    unsigned int renderFxFlagsCull;
+    DpvsPlane frustumPlanes[14];        // XREF: R_CullDynamicSpotLightInCameraView(void)+11/o
+                                        // R_CullDynamicPointLightsInCameraView(void)+11/o ...
+    int frustumPlaneCount;              // XREF: R_CullDynamicSpotLightInCameraView(void)+25/r
+};
+
+struct PortalHeapNode // sizeof=0x8
+{                                       // XREF: R_VisitPortalsNoFrustum/r
+    GfxPortal *portal;
+    float dist;
+};
+
+struct DpvsGlob // sizeof=0xC320
+{                                       // XREF: .data:DpvsGlob dpvsGlob/r
+    DpvsPlane nearPlane;                // XREF: R_GenerateShadowMapCasterCells(void)+190/w
+                                        // R_GenerateShadowMapCasterCells(void)+1A0/w ...
+    DpvsPlane farPlane;                 // XREF: R_ChopPortal+11E/o
+                                        // R_SetupWorldSurfacesDpvs(GfxViewParms const *,uint)+357/w ...
+    bool farPlaneEnabled;               // XREF: R_GenerateShadowMapCasterCells(void)+1C8/w
+                                        // R_ChopPortal:loc_A44C0E/r ...
+    // padding byte
+    // padding byte
+    // padding byte
+    const GfxMatrix *viewProjMtx;       // XREF: R_SetupWorldSurfacesDpvs(GfxViewParms const *,uint)+C9/w
+                                        // R_ProjectPortal+B9/r ...
+    const GfxMatrix *invViewProjMtx;    // XREF: R_SetupWorldSurfacesDpvs(GfxViewParms const *,uint)+D8/w
+                                        // R_UnprojectPoint+3/r ...
+    const GfxMatrix *projMtx;           // XREF: R_SetupWorldSurfacesDpvs(GfxViewParms const *,uint)+E4/w
+    float viewOrg[4];                   // XREF: R_GenerateShadowMapCasterCells(void)+127/w
+                                        // R_GenerateShadowMapCasterCells(void)+13E/w ...
+    int viewOrgIsDir;                   // XREF: R_GenerateShadowMapCasterCells(void)+16D/w
+                                        // R_GetSidePlaneNormals:loc_A43D48/r ...
+    DpvsGlob_sunShadow sunShadow;       // XREF: R_SetupWorldSurfacesDpvs(GfxViewParms const *,uint)+163/w
+                                        // R_SetupWorldSurfacesDpvs(GfxViewParms const *,uint)+176/w ...
+    int queuedCount;                    // XREF: R_VisitPortalsNoFrustum+D6/w
+                                        // R_VisitPortalsNoFrustum:loc_A43756/r ...
+    PortalHeapNode *portalQueue;        // XREF: R_VisitPortalsNoFrustum+D0/w
+                                        // R_NextQueuedPortal:loc_A43FBC/r ...
+    GfxHullPointsPool *nextFreeHullPoints;
+                                        // XREF: R_VisitPortalsNoFrustum+C5/w
+                                        // R_FreeHullPoints+3B/r ...
+    float cullDist;                     // XREF: R_GetFarPlaneDist(void):loc_A4AF45/r
+                                        // R_SetCullDist(float)+19/w ...
+    DpvsPlane childPlanes[2048];        // XREF: R_VisitPortalsNoFrustum:loc_A43A0C/o
+                                        // R_VisitPortals+541/o
+    DpvsView views[4][3];               // XREF: R_DrawAllSceneEnt(GfxViewInfo const *)+8E/o
+                                        // R_FilterXModelIntoScene(XModel const *,GfxScaledPlacement const *,ushort,ushort *,float)+116/o ...
+    DpvsPlane *sideFrustumPlanes;       // XREF: R_SetupWorldSurfacesDpvs(GfxViewParms const *,uint)+444/w
+                                        // R_SetupShadowSurfacesDpvs(GfxViewParms const *,float const (* const)[4],uint,int)+2DA/r ...
+    unsigned int *entVisBits[4];        // XREF: R_DrawAllSceneEnt(GfxViewInfo const *)+C/r
+                                        // R_UnfilterEntFromCells(int,uint)+18F/r ...
+    unsigned int *cellCasterBitsForCell;
+                                        // XREF: R_GenerateShadowMapCasterCells(void)+21C/w
+                                        // R_VisitPortalsForCellNoFrustum+6/r ...
+    unsigned int cellVisibleBits[32];   // XREF: R_AddWorldSurfacesFrustumOnly(uint)+F3/r
+                                        // R_AddWorldSurfacesPortalWalk+8C/o ...
+    unsigned int cellForceInvisibleBits[32];
+                                        // XREF: R_AddWorldSurfacesPortalWalk+255/o
+                                        // R_AddWorldSurfacesPortalWalk+269/o ...
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    float occluderPlanes[320][4];       // XREF: R_SetupWorldSurfacesDpvs(GfxViewParms const *,uint)+657/o
+                                        // R_AddCellStaticSurfacesInFrustum+161/o ...
+    int numOccluders;                   // XREF: R_SetupWorldSurfacesDpvs(GfxViewParms const *,uint)+44A/w
+                                        // R_SetupWorldSurfacesDpvs(GfxViewParms const *,uint)+661/w ...
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+};
+
 struct GfxWorldDraw;
 struct GfxLightingInfo;
 struct BModelDrawInfo;
 struct FilterEntInfo;
-struct mnode_t;
+struct mnode_t // sizeof=0x4
+{
+    unsigned __int16 cellIndex;
+    unsigned __int16 rightChildOffset;
+};
 struct GfxAabbTree;
 struct GfxPortal;
 struct GfxHullPointsPool;

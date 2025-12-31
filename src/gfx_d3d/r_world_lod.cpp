@@ -1,5 +1,7 @@
 #include "r_world_lod.h"
 
+unsigned __int8 *s_lodVals;
+
 void __thiscall LodChainState::Init(LodChainState *this, const GfxWorldLodChain *lodChain, int localClientNum)
 {
     int i; // [esp+10h] [ebp-4h]

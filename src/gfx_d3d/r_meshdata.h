@@ -1,4 +1,18 @@
 #pragma once
+#include "r_rendercmds.h"
+#include "rb_state.h"
+
+struct GfxMeshData // sizeof=0x24
+{                                       // XREF: .data:GfxMeshData * g_codeMesh/r
+                                        // GfxQuadMeshData/r ...
+    GfxMeshData *thisPtr;
+    unsigned int indexCount;
+    unsigned int totalIndexCount;
+    unsigned __int16 *indices;
+    GfxVertexBufferState vb;            // XREF: R_InitRenderBuffers(void)+5D/w
+    // R_InitGlassRenderBuffers(int,int,int)+64/w ...
+    unsigned int vertSize;
+};
 
 void __cdecl R_BeginMeshVerts(GfxMeshData *mesh);
 void __cdecl R_EndMeshVerts(GfxMeshData *mesh);

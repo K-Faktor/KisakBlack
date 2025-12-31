@@ -2,6 +2,14 @@
 #include "r_material.h"
 #include "r_dpvs.h"
 
+struct GfxShadowGeometry // sizeof=0xC
+{
+    unsigned __int16 surfaceCount;
+    unsigned __int16 smodelCount;
+    unsigned __int16 *sortedSurfIndex;
+    unsigned __int16 *smodelIndex;
+};
+
 struct GfxStreamingAabbTree // sizeof=0x20
 {
     unsigned __int16 firstItem;

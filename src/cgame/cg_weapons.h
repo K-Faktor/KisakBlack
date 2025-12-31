@@ -13,7 +13,11 @@ struct GfxScaledPlacement;
 struct refdef_s;
 struct localEntity_s;
 
-
+struct AnimRateOffset // sizeof=0x8
+{                                       // XREF: .data:g_animRateOffsets/r
+    int fromWeaponDef;
+    int fromWeaponVariantDef;
+};
 
 struct weaponInfo_s // sizeof=0x24
 {                                       // XREF: weaponInfo_t/r

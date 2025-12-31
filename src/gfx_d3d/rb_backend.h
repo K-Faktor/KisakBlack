@@ -7,6 +7,11 @@
 #include "r_font.h"
 #include "r_rendertarget.h"
 
+struct NVDX_ObjectHandle__ // sizeof=0x4
+{
+    int unused;
+};
+
 //enum $93E05B02D75CB8D5BD679C8A761DAE10 : __int32
 enum ThreadContext_t : __int32 // not a real enum name
 {
@@ -153,7 +158,7 @@ void __cdecl RB_ColoredFilter(const Material *material, const GfxViewInfo *viewI
 void __cdecl RB_SplitScreenFilter(const Material *material, const GfxViewInfo *viewInfo, unsigned int color);
 void __cdecl RB_SplitScreenTexCoords(float x, float y, float w, float h, float *s0, float *t0, float *s1, float *t1);
 void __fastcall R_ResolveIntZ_PC(bool a1);
-NVDX_ObjectHandle__ *__thiscall R_GetIntZHandles(NVDX_ObjectHandle__ *this);
+NVDX_ObjectHandle__ *R_GetIntZHandles(NVDX_ObjectHandle__ *h);
 void __cdecl R_Resolve(GfxCmdBufContext context, GfxImage *image);
 void __cdecl RB_StretchCompositeCmd(GfxRenderCommandExecState *execState);
 void __cdecl R_SetCodeImageSamplerState(

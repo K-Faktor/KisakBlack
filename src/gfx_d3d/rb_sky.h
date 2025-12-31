@@ -1,4 +1,22 @@
 #pragma once
+#include "rb_backend.h"
+
+struct SunFlareDynamic // sizeof=0x2C
+{                                       // XREF: .data:SunFlareDynamic * sunFlareArray/r
+    float flareIntensity;
+    float sunVisibilityAdjust;
+    float currentBlind;
+    float currentGlare;
+    int lastTime;
+    float lastVisibility;
+    float lastDot;
+    bool error;
+    bool sunQueryIssued[2];             // XREF: RB_AllocSunSpriteQueries(void)+59/w
+    // padding byte
+    IDirect3DQuery9 *sunQuery[2];       // XREF: RB_CalcSunSpriteSamples(void):loc_B0161A/r
+                                        // RB_AllocSunSpriteQueries(void)+49/w ...
+    int hitNum;
+};
 
 double __cdecl R_UpdateOverTime(float fCurrent, float fGoal, int frametime);
 GfxVertex *__cdecl RB_SetTessQuad(GfxColor color);

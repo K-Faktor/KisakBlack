@@ -1,5 +1,13 @@
 #include "r_outdoor.h"
+#include "r_bsp.h"
 #include <universal/assertive.h>
+#include "r_image.h"
+#include <universal/com_memory.h>
+#include "r_image_load_obj.h"
+
+OutdoorGlob outdoorGlob;
+
+const int outdoorMapSize[3] = { 512, 512, 256 };
 
 void __cdecl R_RegisterOutdoorImage(GfxWorld *world, const float *outdoorMin, const float *outdoorMax)
 {
@@ -11,7 +19,7 @@ void __cdecl R_RegisterOutdoorImage(GfxWorld *world, const float *outdoorMin, co
         Outdoor_ApplyBoundingBox(outdoorMin, outdoorMax);
     Outdoor_UpdateTransforms();
     Outdoor_SetRendererOutdoorLookupMatrix(world);
-    world->outdoorImage = Image_Register("$outdoor", 1u, 0);
+    world->outdoorImage = Image_Register((char*)"$outdoor", 1u, 0);
     if ( !world->outdoorImage
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_outdoor.cpp",
@@ -88,8 +96,8 @@ int Outdoor_UpdateTransforms()
         outdoorGlob.scale[dimension] = (float)(outdoorMapSize[dimension] - 1)
                                                                  / (float)(outdoorGlob.scale[dimension - 3] - outdoorGlob.bbox[0][dimension]);
         outdoorGlob.invScale[dimension] = 1.0 / outdoorGlob.scale[dimension];
-        outdoorGlob.add[dimension] = COERCE_FLOAT(LODWORD(outdoorGlob.bbox[0][dimension]) ^ _mask__NegFloat_)
-                                                             * outdoorGlob.scale[dimension];
+        //outdoorGlob.add[dimension] = COERCE_FLOAT(LODWORD(outdoorGlob.bbox[0][dimension]) ^ _mask__NegFloat_) * outdoorGlob.scale[dimension];
+        outdoorGlob.add[dimension] = -((outdoorGlob.bbox[0][dimension])) * outdoorGlob.scale[dimension];
         result = dimension + 1;
     }
     return result;
@@ -104,8 +112,8 @@ void __cdecl Outdoor_SetRendererOutdoorLookupMatrix(GfxWorld *world)
     for ( dimIter = 0; dimIter != 3; ++dimIter )
     {
         outdoorScale[dimIter] = 1.0 / (float)(outdoorGlob.scale[dimIter - 3] - outdoorGlob.bbox[0][dimIter]);
-        outdoorTranslate[dimIter] = COERCE_FLOAT(LODWORD(outdoorGlob.bbox[0][dimIter]) ^ _mask__NegFloat_)
-                                                            * outdoorScale[dimIter];
+        //outdoorTranslate[dimIter] = COERCE_FLOAT(LODWORD(outdoorGlob.bbox[0][dimIter]) ^ _mask__NegFloat_) * outdoorScale[dimIter];
+        outdoorTranslate[dimIter] = -((outdoorGlob.bbox[0][dimIter])) * outdoorScale[dimIter];
     }
     MatrixIdentity44(world->outdoorLookupMatrix);
     world->outdoorLookupMatrix[0][0] = outdoorScale[0];

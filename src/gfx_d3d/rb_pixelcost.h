@@ -1,4 +1,6 @@
 #pragma once
+#include "r_material.h"
+#include "rb_state.h"
 
 const Material *__cdecl R_PixelCost_GetAccumulationMaterial(const Material *material);
 void __cdecl R_PixelCost_BeginSurface(GfxCmdBufContext context);

@@ -1,4 +1,6 @@
 #pragma once
+#include "r_marks.h"
+#include "r_bsp.h"
 
 void __cdecl R_SortDrawSurfs(GfxDrawSurf *drawSurfList, int surfCount);
 void __cdecl R_ReverseSortDrawSurfs(GfxDrawSurf *drawSurfList, int surfCount);

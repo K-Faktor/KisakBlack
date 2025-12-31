@@ -1,6 +1,8 @@
 #include "r_pretess.h"
 #include <universal/q_shared.h>
 #include "r_warn.h"
+#include "r_singlethreaded_device_pc.h"
+#include <win32/win_net.h>
 
 void __cdecl R_InitDrawSurfListInfo(GfxDrawSurfListInfo *info)
 {
@@ -99,8 +101,8 @@ void __cdecl R_MergeAndEmitDrawSurfLists(unsigned int firstStage, unsigned int s
             if ( dstStageIndex == 1 )
             {
                 R_EmitDrawSurfList(drawSurfs[0], drawSurfCount[0], data);
-                if ( g_DXDeviceThread != GetCurrentThreadId() )
-                    return;
+                //if ( g_DXDeviceThread != GetCurrentThreadId() )
+                //    return;
                 goto LABEL_31;
             }
             primarySortKey = (drawSurfs[0]->packed >> 58) & 0x3F;
@@ -122,8 +124,8 @@ void __cdecl R_MergeAndEmitDrawSurfLists(unsigned int firstStage, unsigned int s
                 dstStageIndex += drawSurfCount[dstStageIndex] != 0;
             }
         }
-        if ( g_DXDeviceThread != GetCurrentThreadId() )
-            return;
+        //if ( g_DXDeviceThread != GetCurrentThreadId() )
+        //    return;
 LABEL_31:
         //D3DPERF_EndEvent();
     }

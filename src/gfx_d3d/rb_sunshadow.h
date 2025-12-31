@@ -1,4 +1,5 @@
 #pragma once
+#include "r_rendercmds.h"
 
 void __cdecl RB_SunShadowMaps(const GfxBackEndData *data, const GfxViewInfo *viewInfo);
 void __cdecl RB_GetShadowOverlayDepthBounds(float *nearDepth, float *farDepth);

@@ -2,6 +2,7 @@
 
 void __cdecl R_Track_Init()
 {
+#if 0
     g_mem_track_filename = "r_bsp_load_obj";
     TRACK_r_bsp_load_obj();
     g_mem_track_filename = "rb_sky";
@@ -60,5 +61,6 @@ void __cdecl R_Track_Init()
     TRACK_rb_sunshadow();
     g_mem_track_filename = "rb_tess";
     //BLOPS_NULLSUB();
+#endif
 }
 

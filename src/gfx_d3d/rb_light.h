@@ -1,4 +1,78 @@
 #pragma once
+#include "r_utils.h"
+#include "r_rendercmds.h"
+#include "r_pointlights.h"
+#include "r_primarylights.h"
+
+enum GfxSortedHistoryAdd : __int32
+{                                       // XREF: R_SortedHistoryEntry/r
+    SH_ADD_NEVER  = 0x0,
+    SH_ADD_IF_NEW = 0x1,
+};
+
+enum GfxModelLightExtrapolation : __int32
+{                                       // XREF: CalcLightingCmd/r
+                                        // R_CalcModelLighting/r ...
+    GFX_MODELLIGHT_EXTRAPOLATE  = 0x0,
+    GFX_MODELLIGHT_SHOW_MISSING = 0x1,
+};
+
+struct GfxCompressedLightGridColors // sizeof=0xA8
+{                                       // XREF: R_LoadLightGridPoints_Version15/r
+    unsigned __int8 rgb[56][3];
+};
+
+struct GfxLightGridEntry // sizeof=0x4
+{                                       // XREF: AnnotatedLightGridPoint/r
+    unsigned __int16 colorsIndex;
+    unsigned __int8 primaryLightIndex;  // XREF: std::_Insertion_sort1<AnnotatedLightGridPoint *,bool (*)(AnnotatedLightGridPoint const &,AnnotatedLightGridPoint const &),AnnotatedLightGridPoint>(AnnotatedLightGridPoint *,AnnotatedLightGridPoint *,bool (*)(AnnotatedLightGridPoint const &,AnnotatedLightGridPoint const &),AnnotatedLightGridPoint *)+4F/w
+                                        // std::_Insertion_sort1<AnnotatedLightGridPoint *,bool (*)(AnnotatedLightGridPoint const &,AnnotatedLightGridPoint const &),AnnotatedLightGridPoint>(AnnotatedLightGridPoint *,AnnotatedLightGridPoint *,bool (*)(AnnotatedLightGridPoint const &,AnnotatedLightGridPoint const &),AnnotatedLightGridPoint *)+93/r ...
+    unsigned __int8 needsTrace;
+};
+
+struct GfxLightGrid // sizeof=0x38
+{                                       // XREF: GfxWorld/r
+    bool hasLightRegions;               // XREF: R_LoadLightRegions+41/w
+                                        // R_LoadLightRegions+47/r
+    // padding byte
+    // padding byte
+    // padding byte
+    unsigned int sunPrimaryLightIndex;  // XREF: R_LoadLightGridPoints_Version15+1A8/w
+                                        // R_LoadLightGridPoints_Version15+2C2/r ...
+    unsigned __int16 mins[3];           // XREF: R_LoadLightGridPoints_Version15+1B3/w
+                                        // R_LoadLightGridPoints_Version15+1BE/w ...
+    unsigned __int16 maxs[3];           // XREF: R_LoadLightGridPoints_Version15+1D3/w
+                                        // R_LoadLightGridPoints_Version15+1DB/w ...
+    unsigned int rowAxis;               // XREF: R_LoadLightGridPoints_Version15+72E/w
+                                        // R_LoadLightGridPoints_Version15:loc_A93BA4/w ...
+    unsigned int colAxis;               // XREF: R_LoadLightGridPoints_Version15+738/w
+                                        // R_LoadLightGridPoints_Version15+74E/w ...
+    unsigned __int16 *rowDataStart;     // XREF: R_LoadLightGridPoints_Version15+886/w
+                                        // R_LoadLightGridPoints_Version15+896/r ...
+    unsigned int rawRowDataSize;        // XREF: R_LoadLightGridRowData+4/o
+                                        // R_LoadLightGridRowData+18/r ...
+    unsigned __int8 *rawRowData;        // XREF: R_LoadLightGridRowData+21/w
+                                        // R_LoadLightGridRowData+42/w ...
+    unsigned int entryCount;            // XREF: R_LoadLightGridPoints_Version15+8E5/w
+                                        // R_LoadLightGridPoints_Version15+906/w ...
+    GfxLightGridEntry *entries;         // XREF: R_LoadLightGridPoints_Version15+8E0/w
+                                        // R_EmitDefaultLightGridEntry_Version15+B/r ...
+    unsigned int colorCount;            // XREF: R_LoadLightGridPoints_Version15+207/r
+                                        // R_LoadLightGridPoints_Version15+21C/r ...
+    GfxCompressedLightGridColors *colors;
+                                        // XREF: R_LoadLightGridPoints_Version15+650/r
+                                        // R_LoadLightGridPoints_Version15+663/r ...
+};
+
+struct __declspec(align(8)) htab // sizeof=0x10
+{
+    unsigned __int64 value;
+    htab *next;
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+};
 
 void __cdecl R_ShowLightVisCachePoints(const float *viewOrigin, const DpvsPlane *clipPlanes, int clipPlaneCount);
 bool __cdecl R_SortedHistoryEntry(

@@ -1,4 +1,6 @@
 #pragma once
+#include "rb_state.h"
+#include "rb_backend.h"
 
 void __cdecl R_TrackPrims(GfxCmdBufPrimState *state, GfxPrimStatsTarget target);
 void __cdecl RB_TrackImmediatePrims(GfxCmdBufPrimState *state, GfxPrimStatsTarget target);

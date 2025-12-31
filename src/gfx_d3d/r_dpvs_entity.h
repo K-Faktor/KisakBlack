@@ -1,4 +1,5 @@
 #pragma once
+#include "r_dpvs.h"
 
 void __cdecl R_AddEntitySurfacesInFrustumCmd(unsigned __int16 *data);
 bool __cdecl R_BoundsInCell(mnode_t *node, int findCellIndex, const float *mins, const float *maxs);

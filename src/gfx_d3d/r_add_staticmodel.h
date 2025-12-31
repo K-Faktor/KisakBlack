@@ -1,5 +1,17 @@
 #pragma once
 
+struct GfxStaticModelId // sizeof=0x4
+{                                       // XREF: ?R_GetStaticModelId@@YA?AUGfxStaticModelId@@HH@Z/r
+    unsigned __int16 surfType;          // XREF: R_GetStaticModelLightSurfs(GfxLight const *,int)+3A4/w
+    unsigned __int16 objectId;          // XREF: R_GetStaticModelLightSurfs(GfxLight const *,int):loc_B060F8/r
+};
+
+struct GfxSModelDrawSurfData // sizeof=0x18
+{                                       // XREF: ?R_GetStaticModelLightSurfs@@YAXPBUGfxLight@@H@Z/r
+    GfxDelayedCmdBuf delayedCmdBuf;
+    GfxDrawSurfList drawSurfList;       // XREF: R_GetStaticModelLightSurfs(GfxLight const *,int)+282/w
+};
+
 void __cdecl R_AddDelayedStaticModelDrawSurf(
                 GfxDelayedCmdBuf *delayedCmdBuf,
                 XSurface *xsurf,

@@ -1,5 +1,7 @@
 #include "r_rendertarget.h"
 
+GfxRenderTarget rt;
+
 int __cdecl R_GetDepthStencilFormat(_D3DFORMAT renderTargetFormat)
 {
     if ( R_IsDepthStencilFormatOk(renderTargetFormat, D3DFMT_D24FS8) )

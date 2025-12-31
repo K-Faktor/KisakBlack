@@ -4,6 +4,113 @@
 #include <bgame/bg_weapons.h>
 #include <bgame/bg_weapons_def.h>
 #include "cg_camera.h"
+#include <bgame/bg_perks.h>
+#include <ui_mp/ui_gametype_variants_mp.h>
+#include <cgame_mp/cg_main_mp.h>
+#include <bgame/bg_mantle.h>
+#include <client/splitscreen.h>
+#include <client_mp/cl_cgame_mp.h>
+#include <xanim/dobj_utils.h>
+#include <clientscript/cscr_stringlist.h>
+#include <qcommon/dobj_management.h>
+#include <client_mp/cl_scrn_mp.h>
+#include <stringed/stringed_hooks.h>
+#include <gfx_d3d/r_stream.h>
+#include <bgame/bg_misc.h>
+#include <qcommon/threads.h>
+#include <clientscript/scr_const.h>
+#include <demo/demo_playback.h>
+#include "cg_event.h"
+#include <gfx_d3d/r_model.h>
+#include <cgame_mp/cg_ents_mp.h>
+#include <sound/snd_bank.h>
+#include "cg_sound.h"
+#include <sound/snd_dvar.h>
+#include <cgame_mp/cg_view_mp.h>
+#include <cgame_mp/cg_vehicles_mp.h>
+#include <sound/snd_public_async.h>
+#include <win32/win_shared.h>
+#include <game_mp/g_main_mp.h>
+#include "cg_drawtools.h"
+#include <DynEntity/DynEntity_client.h>
+#include <gfx_d3d/r_dpvs.h>
+#include <server_mp/sv_init_mp.h>
+#include <cgame_mp/cg_pose_mp.h>
+#include <game/g_debug.h>
+#include "cg_world.h"
+#include <universal/com_math_anglevectors.h>
+
+AnimRateOffset g_animRateOffsets[66] =
+{
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { 956, -1 },
+  { -1, -1 },
+  { 948, -1 },
+  { 964, -1 },
+  { 968, -1 },
+  { -1, 36 },
+  { 972, -1 },
+  { -1, 40 },
+  { 1004, -1 },
+  { 1012, -1 },
+  { -1, 44 },
+  { -1, 48 },
+  { 1020, -1 },
+  { 1036, -1 },
+  { 1016, -1 },
+  { -1, 60 },
+  { 1024, -1 },
+  { 1032, -1 },
+  { 1028, -1 },
+  { 1040, -1 },
+  { 1044, -1 },
+  { 1048, -1 },
+  { 1052, -1 },
+  { 1056, -1 },
+  { 1048, -1 },
+  { 1052, -1 },
+  { 1056, -1 },
+  { 1060, -1 },
+  { 1064, -1 },
+  { 1068, -1 },
+  { 1072, -1 },
+  { 1076, -1 },
+  { 1080, -1 },
+  { 1100, -1 },
+  { 1104, -1 },
+  { -1, -1 },
+  { 1108, -1 },
+  { 1120, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { 1084, -1 },
+  { 1088, -1 },
+  { 1092, -1 },
+  { 1084, -1 },
+  { 1088, -1 },
+  { 1092, -1 },
+  { 1096, -1 },
+  { -1, -1 },
+  { 1052, -1 },
+  { 1084, -1 },
+  { 1088, -1 },
+  { 1092, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, -1 },
+  { -1, 40 },
+  { -1, 36 },
+  { -1, -1 },
+  { -1, -1 }
+};
+
+
 
 bool __cdecl CG_JavelinADS(int localClientNum)
 {
@@ -471,6 +578,7 @@ void __cdecl CG_FreeWeapons(int localClientNum)
     memset((unsigned __int8 *)cg_weaponsArray[localClientNum], 0, 0x12000u);
 }
 
+int removeMeWhenMPStopsCrashingInHere;
 void __cdecl CG_RegisterWeapon(int localClientNum, unsigned int weaponNum)
 {
     unsigned int NumWeapons; // eax
@@ -531,7 +639,7 @@ void __cdecl CG_RegisterWeapon(int localClientNum, unsigned int weaponNum)
                 cgMedia.stanceMaterials[weaponNum - 2049] = weapDef->hudIcon;
             else
                 cgMedia.stanceMaterials[weaponNum - 2049] = cgMedia.hintMaterials[3];
-            weapInfo->translatedDisplayName = SEH_StringEd_GetString(weapVariantDef->szDisplayName);
+            weapInfo->translatedDisplayName = SEH_StringEd_GetString((char*)weapVariantDef->szDisplayName);
             if ( !weapInfo->translatedDisplayName )
             {
                 if ( loc_warnings->current.enabled )
@@ -551,7 +659,7 @@ void __cdecl CG_RegisterWeapon(int localClientNum, unsigned int weaponNum)
                 }
                 weapInfo->translatedDisplayName = weapVariantDef->szDisplayName;
             }
-            weapInfo->translatedModename = SEH_StringEd_GetString(weapDef->szModeName);
+            weapInfo->translatedModename = SEH_StringEd_GetString((char *)weapDef->szModeName);
             if ( !weapInfo->translatedModename )
             {
                 if ( loc_warnings->current.enabled )
@@ -571,7 +679,7 @@ void __cdecl CG_RegisterWeapon(int localClientNum, unsigned int weaponNum)
                 }
                 weapInfo->translatedModename = weapDef->szModeName;
             }
-            weapInfo->translatedAIOverlayDescription = SEH_StringEd_GetString(weapDef->szOverlayName);
+            weapInfo->translatedAIOverlayDescription = SEH_StringEd_GetString((char *)weapDef->szOverlayName);
             if ( !weapInfo->translatedAIOverlayDescription )
             {
                 if ( loc_warnings->current.enabled )
@@ -655,21 +763,21 @@ void __cdecl CG_UpdateWeaponViewmodels(int localClientNum)
 }
 
 void __cdecl ChangeViewmodelDobj(
-                int localClientNum,
-                const playerState_s *ps,
-                unsigned int weaponNum,
-                unsigned __int8 weaponModel,
-                XModel *newHands,
-                XModel *newGoggles,
-                XModel *newRocket,
-                bool updateClientInfo,
-                bool forceRebuildTree)
+    int localClientNum,
+    const playerState_s *ps,
+    unsigned int weaponNum,
+    unsigned __int8 weaponModel,
+    XModel *newHands,
+    XModel *newGoggles,
+    XModel *newRocket,
+    bool updateClientInfo,
+    bool forceRebuildTree)
 {
     unsigned int NumWeapons; // eax
-    const WeaponVariantDef *WeaponVariantDef; // eax
+    const WeaponVariantDef *weapVarDef; // eax
     DObj *blendTime; // [esp+14h] [ebp-60h]
     unsigned __int16 tag_knife_attach; // [esp+1Eh] [ebp-56h]
-    bool shouldRebuildTree; // [esp+20h] [ebp-54h]
+    bool v13; // [esp+20h] [ebp-54h]
     const WeaponDef *weapDefDW; // [esp+2Ch] [ebp-48h]
     weaponInfo_s *weapInfo; // [esp+30h] [ebp-44h]
     const WeaponVariantDef *weapVariantDefDW; // [esp+34h] [ebp-40h]
@@ -681,57 +789,56 @@ void __cdecl ChangeViewmodelDobj(
     const WeaponDef *weapDef; // [esp+50h] [ebp-24h]
     DObjModel_s dobjModels[4]; // [esp+54h] [ebp-20h] BYREF
 
-    if ( !ps && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp", 1645, 0, "%s", "ps") )
+    if (!ps && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp", 1645, 0, "%s", "ps"))
         __debugbreak();
-    if ( !Sys_IsMainThread()
+    if (!Sys_IsMainThread()
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",
-                    1647,
-                    0,
-                    "%s",
-                    "Sys_IsMainThread()") )
+            "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",
+            1647,
+            0,
+            "%s",
+            "Sys_IsMainThread()"))
     {
         __debugbreak();
     }
-    if ( weaponNum )
+    if (weaponNum)
     {
-        if ( weaponNum >= BG_GetNumWeapons() )
+        if (weaponNum >= BG_GetNumWeapons())
         {
             NumWeapons = BG_GetNumWeapons();
-            if ( !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",
-                            1652,
-                            0,
-                            "weaponNum doesn't index BG_GetNumWeapons()\n\t%i not in [0, %i)",
-                            weaponNum,
-                            NumWeapons) )
+            if (!Assert_MyHandler(
+                "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",
+                1652,
+                0,
+                "weaponNum doesn't index BG_GetNumWeapons()\n\t%i not in [0, %i)",
+                weaponNum,
+                NumWeapons))
                 __debugbreak();
         }
-        if ( !newHands
-            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp", 1653, 0, "%s", "newHands") )
+        if (!newHands
+            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp", 1653, 0, "%s", "newHands"))
         {
             __debugbreak();
         }
         weapVariantDef = BG_GetWeaponVariantDef(weaponNum);
         weapDef = BG_GetWeaponDef(weaponNum);
         weapVariantDefDW = 0;
-        if ( weapDef->gunXModel[weaponModel] )
+        if (weapDef->gunXModel[weaponModel])
         {
             CG_RegisterWeapon(localClientNum, weaponNum);
             weapInfo = CG_GetLocalClientWeaponInfo(localClientNum, weaponNum);
             viewModelInfo = CG_GetLocalClientViewModelInfo(localClientNum);
             weapInfo->handModel = newHands;
             weapInfo->weapModelIdx = weaponModel;
-            if ( weaponNum == BG_GetViewmodelWeaponIndex(ps) )
+            if (weaponNum == BG_GetViewmodelWeaponIndex(ps))
             {
-                shouldRebuildTree = forceRebuildTree
-                                                 || ShouldRebuildTree(localClientNum, weapInfo, weaponNum, weaponModel, newHands);
+                v13 = forceRebuildTree || ShouldRebuildTree(localClientNum, weapInfo, weaponNum, weaponModel, newHands);
                 weapInfo->gogglesModel = newGoggles;
                 weapInfo->rocketModel = newRocket;
                 dobjModels[0].boneName = 0;
                 dobjModels[0].ignoreCollision = 0;
                 dobjModels[0].model = weapInfo->handModel;
-                if ( weapDef->weapType == WEAPTYPE_MELEE )
+                if (weapDef->weapType == WEAPTYPE_MELEE)
                     tag_knife_attach = scr_const.tag_knife_attach;
                 else
                     tag_knife_attach = scr_const.tag_weapon;
@@ -739,7 +846,7 @@ void __cdecl ChangeViewmodelDobj(
                 dobjModels[1].ignoreCollision = 0;
                 dobjModels[1].model = weapDef->gunXModel[weaponModel];
                 mdlIdx = 2;
-                if ( weapDef->bDualWield )
+                if (weapDef->bDualWield)
                 {
                     weapVariantDefDW = BG_GetWeaponVariantDef(weapDef->dualWieldWeaponIndex);
                     weapDefDW = BG_GetWeaponDef(weapDef->dualWieldWeaponIndex);
@@ -748,94 +855,94 @@ void __cdecl ChangeViewmodelDobj(
                     dobjModels[2].model = *weapDefDW->gunXModel;
                     mdlIdx = 3;
                 }
-                if ( weapInfo->gogglesModel )
+                if (weapInfo->gogglesModel)
                 {
-                    if ( overrideNVGModelWithKnife->current.enabled )
+                    if (overrideNVGModelWithKnife->current.enabled)
                         dobjModels[mdlIdx].boneName = scr_const.tag_gasmask2;
                     else
                         dobjModels[mdlIdx].boneName = scr_const.tag_gasmask;
                     dobjModels[mdlIdx].model = weapInfo->gogglesModel;
                     dobjModels[mdlIdx++].ignoreCollision = 0;
                 }
-                if ( weapInfo->rocketModel )
+                if (weapInfo->rocketModel)
                 {
                     dobjModels[mdlIdx].boneName = scr_const.tag_clip;
                     dobjModels[mdlIdx].ignoreCollision = 0;
                     dobjModels[mdlIdx++].model = weapInfo->rocketModel;
                 }
-                dobjHandle = CG_WeaponDObjHandle(localClientNum);// dobjHandle
-                if ( viewModelInfo->viewModelDObj )
+                dobjHandle = CG_WeaponDObjHandle(localClientNum);
+                if (viewModelInfo->viewModelDObj)
                     Com_SafeClientDObjFree(dobjHandle, localClientNum);
-                if ( shouldRebuildTree && viewModelInfo->tree )
+                if (v13 && viewModelInfo->tree)
                 {
                     XAnimFreeTree(viewModelInfo->tree, 0, SCRIPTINSTANCE_SERVER);
                     viewModelInfo->tree = 0;
                 }
-                if ( ShouldRebuildAnims(localClientNum, viewModelInfo, weaponNum) )
+                if (ShouldRebuildAnims(localClientNum, viewModelInfo, weaponNum))
                     CG_CreateWeaponViewModelXAnim(viewModelInfo, weapVariantDef);
                 created_tree = 0;
-                if ( !viewModelInfo->tree )
+                if (!viewModelInfo->tree)
                 {
-                    if ( !viewModelInfo->anims
+                    if (!viewModelInfo->anims
                         && !Assert_MyHandler(
-                                    "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",
-                                    1752,
-                                    0,
-                                    "%s",
-                                    "viewModelInfo->anims") )
+                            "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",
+                            1752,
+                            0,
+                            "%s",
+                            "viewModelInfo->anims"))
                     {
                         __debugbreak();
                     }
-                    viewModelInfo->tree = XAnimCreateTree(viewModelInfo->anims, Hunk_AllocXAnimClient);
-                    if ( !viewModelInfo->tree
+                    viewModelInfo->tree = XAnimCreateTree(viewModelInfo->anims, (void*(*)(int))Hunk_AllocXAnimClient);
+                    if (!viewModelInfo->tree
                         && !Assert_MyHandler(
-                                    "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",
-                                    1754,
-                                    0,
-                                    "%s",
-                                    "viewModelInfo->tree") )
+                            "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",
+                            1754,
+                            0,
+                            "%s",
+                            "viewModelInfo->tree"))
                     {
                         __debugbreak();
                     }
                     created_tree = 1;
-                }                                                                             // end if(!tree)
-                if ( !viewModelInfo->tree
+                }
+                if (!viewModelInfo->tree
                     && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",
-                                1757,
-                                0,
-                                "%s",
-                                "viewModelInfo->tree") )
+                        "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",
+                        1757,
+                        0,
+                        "%s",
+                        "viewModelInfo->tree"))
                 {
                     __debugbreak();
                 }
-                if ( mdlIdx > 4
+                if (mdlIdx > 4
                     && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",
-                                1759,
-                                0,
-                                "%s",
-                                "mdlIdx <= MYMODELCOUNT") )
+                        "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",
+                        1759,
+                        0,
+                        "%s",
+                        "mdlIdx <= MYMODELCOUNT"))
                 {
                     __debugbreak();
                 }
                 viewModelInfo->viewModelDObj = Com_ClientDObjCreate(
-                                                                                 dobjModels,
-                                                                                 mdlIdx,
-                                                                                 viewModelInfo->tree,
-                                                                                 dobjHandle,
-                                                                                 localClientNum);
-                if ( created_tree )
+                    dobjModels,
+                    mdlIdx,
+                    viewModelInfo->tree,
+                    dobjHandle,
+                    localClientNum);
+                if (created_tree)
                 {
                     viewModelInfo->hand[0].iPrevAnim = -1;
                     viewModelInfo->hand[1].iPrevAnim = -1;
                     XAnimClearTreeGoalWeights(viewModelInfo->tree, 0, 0.0, -1);
                     XAnimSetGoalWeight(viewModelInfo->viewModelDObj, 0, 1.0, 0.0, 1.0, 0, 1u, 0, -1);
-                    if ( BG_GetAmmoInClip(ps, weaponNum) )
+                    if (BG_GetAmmoInClip(ps, weaponNum))
                         XAnimSetGoalWeight(viewModelInfo->viewModelDObj, 1u, 1.0, 0.0, 1.0, 0, 1u, 0, -1);
                     else
                         XAnimSetGoalWeight(viewModelInfo->viewModelDObj, 2u, 1.0, 0.0, 1.0, 0, 1u, 0, -1);
-                    if ( **((_BYTE **)weapVariantDef->szXAnims + 65) )
+                    if (**((_BYTE **)weapVariantDef->szXAnims + 65))
                     {
                         XAnimSetGoalWeight(viewModelInfo->viewModelDObj, 0x41u, 1.0, 0.0, 0.0, 0, 1u, 0, -1);
                         XAnimSetTime(viewModelInfo->tree, 0x41u, 1.0, -1);
@@ -846,30 +953,31 @@ void __cdecl ChangeViewmodelDobj(
                 viewModelInfo->partBits[2] = 0;
                 viewModelInfo->partBits[3] = 0;
                 viewModelInfo->partBits[4] = 0;
-                if ( weapDef->inventoryType == WEAPINVENTORY_ALTMODE )
+                if (weapDef->inventoryType == WEAPINVENTORY_ALTMODE)
                 {
                     blendTime = viewModelInfo->viewModelDObj;
-                    WeaponVariantDef = BG_GetWeaponVariantDef(ps->lastWeaponAltModeSwitch);
-                    CG_SetWeaponHidePartBits(WeaponVariantDef, viewModelInfo, blendTime, -1);
+                    //weapVarDef = BG_GetWeaponVariantDef(*((_DWORD *)ps + 82));
+                    weapVarDef = BG_GetWeaponVariantDef(ps->lastWeaponAltModeSwitch);
+                    CG_SetWeaponHidePartBits(weapVarDef, viewModelInfo, blendTime, -1);
                 }
                 else
                 {
                     CG_SetWeaponHidePartBits(weapVariantDef, viewModelInfo, viewModelInfo->viewModelDObj, -1);
                 }
-                if ( weapDef->bDualWield )
+                if (weapDef->bDualWield)
                     CG_SetWeaponHidePartBits(weapVariantDefDW, viewModelInfo, viewModelInfo->viewModelDObj, 2);
                 DObjSetHidePartBits(viewModelInfo->viewModelDObj, viewModelInfo->partBits);
-                if ( updateClientInfo )
+                if (updateClientInfo)
                     DObjUpdateClientInfo(viewModelInfo->viewModelDObj, 0.050000001, 0);
-                if ( viewModelInfo
+                if (viewModelInfo
                     && viewModelInfo->tree
                     && viewModelInfo->tree->anims != viewModelInfo->anims
                     && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",
-                                1813,
-                                0,
-                                "%s",
-                                "viewModelInfo->tree->anims == viewModelInfo->anims") )
+                        "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",
+                        1813,
+                        0,
+                        "%s",
+                        "viewModelInfo->tree->anims == viewModelInfo->anims"))
                 {
                     __debugbreak();
                 }
@@ -911,7 +1019,7 @@ void __cdecl CG_CreateWeaponViewModelXAnim(ViewModelInfo *viewModelInfo, const W
     }
     if ( !viewModelInfo->anims )
     {
-        pAnims = XAnimCreateAnims("VIEWMODEL", 66, Hunk_AllocXAnimClient);
+        pAnims = XAnimCreateAnims("VIEWMODEL", 66, (void*(*)(int))Hunk_AllocXAnimClient);
         if ( !pAnims
             && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp", 1344, 0, "%s", "pAnims") )
         {
@@ -942,17 +1050,17 @@ void __cdecl CG_CreateWeaponViewModelXAnim(ViewModelInfo *viewModelInfo, const W
         }
     }
     if ( **((_BYTE **)weapVariantDef->szXAnims + 64) && XAnimIsLooped(pAnimsa, 0x40u) )
-        Com_Error(ERR_DROP, &byte_C94EF0, *((unsigned int *)weapVariantDef->szXAnims + 64));
+        Com_Error(ERR_DROP, "CG_RegisterWeapon: ADS anim [%s] cannot be looping", *((unsigned int *)weapVariantDef->szXAnims + 64));
     if ( **((_BYTE **)weapVariantDef->szXAnims + 65) && XAnimIsLooped(pAnimsa, 0x41u) )
-        Com_Error(ERR_DROP, &byte_C94EF0, *((unsigned int *)weapVariantDef->szXAnims + 65));
+        Com_Error(ERR_DROP, "CG_RegisterWeapon: ADS anim [%s] cannot be looping", *((unsigned int *)weapVariantDef->szXAnims + 65));
     for ( animIndexa = 53; animIndexa <= 57; ++animIndexa )
     {
         if ( *weapVariantDef->szXAnims[animIndexa] )
         {
             if ( !XAnimHasBone(pAnimsa, animIndexa, scr_const.tag_camera) )
-                Com_Error(ERR_DROP, &byte_C94EB0, weapVariantDef->szXAnims[animIndexa]);
+                Com_Error(ERR_DROP, "G_RegisterWeapon: Camera anim [%s] missing tag_camera bone", weapVariantDef->szXAnims[animIndexa]);
             if ( XAnimGetBoneCount(pAnimsa, animIndexa) > 1u )
-                Com_Error(ERR_DROP, &byte_C94E68, weapVariantDef->szXAnims[animIndexa]);
+                Com_Error(ERR_DROP, "CG_RegisterWeapon: Camera anim [%s] can only have a tag_camera bone", weapVariantDef->szXAnims[animIndexa]);
         }
     }
     if ( viewModelInfo
@@ -1030,16 +1138,7 @@ void __cdecl CG_UpdateHandViewmodels(int localClientNum)
 
 void __cdecl CG_RegisterItemVisuals(int localClientNum, unsigned int weapIdx)
 {
-    if ( bg_itemlist[weapIdx] != 1
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",
-                    2214,
-                    0,
-                    "%s",
-                    "bg_itemlist[ weapIdx ].giType == IT_WEAPON") )
-    {
-        __debugbreak();
-    }
+    iassert(bg_itemlist[weapIdx].giType == IT_WEAPON);
     CG_RegisterWeapon(localClientNum, weapIdx);
 }
 
@@ -1161,16 +1260,7 @@ void __cdecl CG_UpdateMinigunSpin(int localClientNum, cg_s *cgameGlob, centity_s
                     v7 = 1.0f;
                 lerpRate = -v7;
             }
-            if ( (LODWORD(lerpRate) & 0x7F800000) == 0x7F800000
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",
-                            2527,
-                            0,
-                            "%s",
-                            "!IS_NAN(lerpRate)") )
-            {
-                __debugbreak();
-            }
+            iassert(!IS_NAN(lerpRate));
             ci->lastWeaponSpinLerp = ci->weaponSpinLerp;
             v10 = (float)((float)cgameGlob->frametime * lerpRate) + ci->weaponSpinLerp;
             if ( (float)(v10 - 1.0) < 0.0 )
@@ -1182,16 +1272,7 @@ void __cdecl CG_UpdateMinigunSpin(int localClientNum, cg_s *cgameGlob, centity_s
             else
                 v6 = 0.0f;
             ci->weaponSpinLerp = v6;
-            if ( (LODWORD(ci->weaponSpinLerp) & 0x7F800000) == 0x7F800000
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",
-                            2530,
-                            0,
-                            "%s",
-                            "!IS_NAN(ci->weaponSpinLerp)") )
-            {
-                __debugbreak();
-            }
+            iassert(!IS_NAN(ci->weaponSpinLerp));
             inc = ci->weaponSpinLerp * weaponDef->spinRate;
             if ( inc < 5.0 && ci->weaponSpinLerp > 0.0099999998 )
                 inc = 5.0f;
@@ -1309,7 +1390,7 @@ void __cdecl CG_UpdateMinigunSounds(int localClientNum, cg_s *cgameGlob, centity
             if ( ci->attachedVehSeat >= 1 && ci->attachedVehSeat <= 4 )
             {
                 vehObj = Com_GetClientDObj(vehCent->nextState.number, localClientNum);
-                info = CG_GetVehicleInfo(vehCent->nextState.un2.vehicleState.vehicleInfoIndex);
+                info = CG_GetVehicleInfo(vehCent->nextState.vehicleState.vehicleInfoIndex);
                 if ( BG_GetWeaponDef(*(unsigned __int16 *)&info->gunnerWeapon[3][2 * ci->attachedVehSeat + 62])->fireType == WEAPON_FIRETYPE_MINIGUN )
                 {
                     if ( vehObj )
@@ -1325,18 +1406,7 @@ void __cdecl CG_UpdateMinigunSounds(int localClientNum, cg_s *cgameGlob, centity
                 }
             }
         }
-        if ( ((LODWORD(sndOrigin[0]) & 0x7F800000) == 0x7F800000
-             || (LODWORD(sndOrigin[1]) & 0x7F800000) == 0x7F800000
-             || (LODWORD(sndOrigin[2]) & 0x7F800000) == 0x7F800000)
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",
-                        2467,
-                        0,
-                        "%s",
-                        "!IS_NAN((sndOrigin)[0]) && !IS_NAN((sndOrigin)[1]) && !IS_NAN((sndOrigin)[2])") )
-        {
-            __debugbreak();
-        }
+        iassert(!IS_NAN(sndOrigin[0]) && !IS_NAN(sndOrigin[1]) && !IS_NAN(sndOrigin[2]));
         if ( ci->weaponSpinLerp > snd_minigun_loop_start->current.value )
         {
             if ( v10 )
@@ -1486,8 +1556,7 @@ void __cdecl CG_UpdateViewModelStackCounter(
             __libm_sse2_sin(v5);
             *(float *)&v4 = v4;
             __libm_sse2_sin(v6);
-            inc = (float)(cgameGlob->counterSpinTarget - cgameGlob->counterSpinAngle)
-                    * (float)((float)((float)(*(float *)&v4 / (float)2.356194496154785) + 1.0) / 2.0);
+            inc = (float)(cgameGlob->counterSpinTarget - cgameGlob->counterSpinAngle) * (float)((float)((float)(*(float *)&v4 / (float)2.356194496154785) + 1.0) / 2.0);
         }
         angles[0] = cgameGlob->counterSpinAngle + inc;
         angles[1] = 0.0f;
@@ -1679,8 +1748,8 @@ void __cdecl FireBulletPenetrate(
     isPlayerOnTurret = cgameGlob->predictedPlayerState.viewlocked_entNum == attacker->nextState.number;
     if ( !isPlayer && !isPlayerOnTurret )
         CG_SoundWhizby(localClientNum, weapDef, bp->start, bp->dir, br->hitPos);
-    if ( sv_hitFXFrustumCutoff
-        && R_CullPoint(br->hitPos, COERCE_FLOAT(sv_hitFXFrustumCutoff->current.integer ^ _mask__NegFloat_)) )
+    //if ( sv_hitFXFrustumCutoff && R_CullPoint(br->hitPos, COERCE_FLOAT(sv_hitFXFrustumCutoff->current.integer ^ _mask__NegFloat_)) )
+    if ( sv_hitFXFrustumCutoff && R_CullPoint(br->hitPos, -sv_hitFXFrustumCutoff->current.value) )
     {
         //if ( g_DXDeviceThread == GetCurrentThreadId() )
             //D3DPERF_EndEvent();
@@ -1750,14 +1819,14 @@ void __cdecl FireBulletPenetrate(
     }
     if ( weapDef->penetrateType == PENETRATE_TYPE_NONE || br->trace.startsolid )
     {
-        if ( GetCurrentThreadId() != g_DXDeviceThread )
-            return;
+        //if ( GetCurrentThreadId() != g_DXDeviceThread )
+        //    return;
         goto LABEL_147;
     }
     if ( weapDef->bBulletImpactExplode )
     {
-        if ( g_DXDeviceThread != GetCurrentThreadId() )
-            return;
+        //if ( g_DXDeviceThread != GetCurrentThreadId() )
+        //    return;
         goto LABEL_147;
     }
     max_penetrations = sv_penetrationCount->current.integer;
@@ -1789,9 +1858,12 @@ void __cdecl FireBulletPenetrate(
         revBp.end[1] = (float)(0.0099999998 * revBp.dir[1]) + lastHitPos[1];
         revBp.end[2] = (float)(0.0099999998 * revBp.dir[2]) + lastHitPos[2];
         Com_Memcpy(&revBr, br, 80);
-        revBr.trace.normal.vec.u[0] ^= _mask__NegFloat_;
-        revBr.trace.normal.vec.u[1] ^= _mask__NegFloat_;
-        revBr.trace.normal.vec.u[2] ^= _mask__NegFloat_;
+        //revBr.trace.normal.vec.u[0] ^= _mask__NegFloat_;
+        //revBr.trace.normal.vec.u[1] ^= _mask__NegFloat_;
+        //revBr.trace.normal.vec.u[2] ^= _mask__NegFloat_;
+        revBr.trace.normal.vec.v[0] = -revBr.trace.normal.vec.v[0];
+        revBr.trace.normal.vec.v[1] = -revBr.trace.normal.vec.v[1];
+        revBr.trace.normal.vec.v[2] = -revBr.trace.normal.vec.v[2];
         if ( traceHitb )
             BG_AdvanceTrace(&revBp, &revBr, 0.0099999998);
         revTraceHit = BulletTrace(localClientNum, &revBp, weapDef, attacker, &revBr, revBr.depthSurfaceType);
@@ -2010,7 +2082,7 @@ char __cdecl BulletTrace(
         bp->start,
         bp->end,
         bp->ignoreEntIndex,
-        (int)&cls.recentServers[7543].countrycode[1],
+        0x280E833,
         attacker->nextState.eType == 1,
         0);
     if ( br->trace.hitType )
@@ -2031,11 +2103,11 @@ char __cdecl BulletTrace(
                     case 2:
                     case 0x11:
                     case 0x13:
-                        br->trace.sflags = (int)&off_700000;
+                        br->trace.sflags = 0x700000;
                         break;
                     case 6:
                         if ( Entity->nextState.surfType == 7 )
-                            br->trace.sflags = (int)&off_700000;
+                            br->trace.sflags = 0x700000;
                         break;
                     default:
                         break;
@@ -2043,8 +2115,7 @@ char __cdecl BulletTrace(
             }
             br->ignoreHitEnt = ShouldIgnoreHitEntity(attacker->nextState.number, hitEntId);
         }
-        br->depthSurfaceType = (unsigned __int8)((int)((unsigned int)&bg_vehicleInfos[11].rotorTailStartFx[20]
-                                                                                                 & br->trace.sflags) >> 20);
+        br->depthSurfaceType = (br->trace.sflags & 0x3F00000) >> 20;
         if ( (br->trace.sflags & 0x100) != 0 )
         {
             br->depthSurfaceType = 0;
@@ -2082,17 +2153,17 @@ bool __cdecl IsEntityNotDoingClientSideBullets(int localClientNum, int entityNum
 
 bool __cdecl CG_IsPlayerCrouching(clientInfo_t *ci, const centity_s *cent)
 {
-    return BG_IsCrouchingAnim(ci, cent->nextState.un2.animState.state);
+    return BG_IsCrouchingAnim(ci, cent->nextState.animState.state);
 }
 
 bool __cdecl CG_IsPlayerProne(clientInfo_t *ci, const centity_s *cent)
 {
-    return BG_IsProneAnim(ci, cent->nextState.un2.animState.state);
+    return BG_IsProneAnim(ci, cent->nextState.animState.state);
 }
 
 bool __cdecl CG_IsPlayerADS(clientInfo_t *ci, const centity_s *cent)
 {
-    return BG_IsAds(ci, cent->nextState.un2.animState.state);
+    return BG_IsAds(ci, cent->nextState.animState.state);
 }
 
 void __cdecl CG_GuessSpreadForWeapon(
@@ -2175,7 +2246,7 @@ char __cdecl CG_GetPlayerViewOrigin(int localClientNum, const playerState_s *ps,
         attachedEnt = CG_GetEntity(localClientNum, ps->viewlocked_entNum);
         obj = Com_GetClientDObj(attachedEnt->nextState.number, localClientNum);
         if ( !obj )
-            Com_Error(ERR_DROP, &byte_C95178, attachedEnt->nextState.number);
+            Com_Error(ERR_DROP, "CG_GetPlayerViewOrigin: Unable to get DObj for turret entity %i", attachedEnt->nextState.number);
         if ( CG_DObjGetWorldTagPos(&attachedEnt->pose, obj, scr_const.tag_player, origin) )
         {
             weapon = CG_GetPlayerWeapon(ps, localClientNum);
@@ -2204,7 +2275,7 @@ char __cdecl CG_GetPlayerViewOrigin(int localClientNum, const playerState_s *ps,
         }
         else
         {
-            Com_Error(ERR_DROP, &byte_C95138);
+            Com_Error(ERR_DROP, "CG_GetPlayerViewOrigin: Couldn't find [tag_player] on turret");
             *origin = ps->origin[0];
             origin[1] = ps->origin[1];
             origin[2] = ps->origin[2];
@@ -2272,7 +2343,7 @@ char __cdecl CG_GetPlayerViewOrigin(int localClientNum, const playerState_s *ps,
         }
         else
         {
-            Com_Error(ERR_DROP, &byte_C950F8);
+            Com_Error(ERR_DROP, "CG_GetPlayerViewOrigin: Couldn't find [tag_player] on vehicle");
             *origin = ps->origin[0];
             origin[1] = ps->origin[1];
             origin[2] = ps->origin[2];

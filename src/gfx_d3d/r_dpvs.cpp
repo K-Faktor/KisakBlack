@@ -1,5 +1,7 @@
 #include "r_dpvs.h"
 
+DpvsGlob dpvsGlob;
+
 void __cdecl R_FrustumClipPlanes(
                 const GfxMatrix *viewProjMtx,
                 const float (*sidePlanes)[4],

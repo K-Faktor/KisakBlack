@@ -2,6 +2,7 @@
 #include "rb_state.h"
 #include <xanim/xanim.h>
 #include "rb_backend.h"
+#include "r_dobj_skin.h"
 
 struct GfxDrawPrimArgs // sizeof=0xC
 {                                       // XREF: R_DrawBspTris/r

@@ -1,4 +1,7 @@
 #pragma once
+#include "r_rendercmds.h"
+#include "r_dobj_skin.h"
+#include "rb_state.h"
 
 char __cdecl R_DrawXModelSurfCheckBreak(
                 unsigned int gfxEntIndex,

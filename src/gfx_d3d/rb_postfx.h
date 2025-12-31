@@ -1,4 +1,5 @@
 #pragma once
+#include "r_rendercmds.h"
 
 bool __cdecl RB_UsingDepthOfFieldFX(const GfxViewInfo *viewInfo);
 bool __cdecl RB_UsingFlameFX(const GfxViewInfo *viewInfo);
@@ -13,13 +14,13 @@ void __cdecl RB_BloomStreak(const GfxViewInfo *viewInfo, unsigned __int8 *srcRt,
 void __cdecl RB_SetBlurConstants(float radius, float textureScaler);
 void __cdecl RB_SetFilmCurveConstants(const GfxViewInfo *viewInfo);
 // local variable allocation has failed, the output may be wrong!
-void    RB_SetVisionSetColorCorrection(int a1@<ebp>, const GfxViewInfo *viewInfo);
+void    RB_SetVisionSetColorCorrection(const GfxViewInfo *viewInfo);
 void __cdecl RB_BloomLDR(const GfxViewInfo *viewInfo);
 bool __cdecl R_UsingDoubleVision(const GfxViewInfo *viewInfo);
 bool __cdecl RB_UsingColorManipulation(const GfxViewInfo *viewInfo);
 void __cdecl RB_PoisonFX(const GfxViewInfo *viewInfo);
 // local variable allocation has failed, the output may be wrong!
-void    RB_GenericFilterFX(const GfxMatrix *a1@<ebp>, const GfxViewInfo *viewInfo);
+void    RB_GenericFilterFX(const GfxViewInfo *viewInfo);
 void __cdecl RB_FlameFX(const GfxViewInfo *viewInfo);
 void __cdecl RB_ElectrifiedFX(const GfxViewInfo *viewInfo);
 void __cdecl RB_TransportedFX(const GfxViewInfo *viewInfo);
@@ -30,7 +31,7 @@ bool __cdecl RB_UsingPoison(const GfxViewInfo *viewInfo);
 bool __cdecl RB_UsingPostEffects(const GfxViewInfo *viewInfo);
 bool __cdecl RB_UsingMergedPostEffects(const GfxViewInfo *viewInfo);
 void RB_GetResolvedScene();
-void    RB_ApplyDepthOfField(float a1@<ebp>, const GfxViewInfo *viewInfo);
+void    RB_ApplyDepthOfField(const GfxViewInfo *viewInfo);
 void __cdecl RB_GetSceneDepthOfFieldEquation(
                 float nearOutOfFocus,
                 float nearInFocus,

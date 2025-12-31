@@ -1,4 +1,7 @@
 #pragma once
+#include "r_material.h"
+#include "rb_state.h"
+#include "rb_tess.h"
 
 void __cdecl RB_ClearPixelShader();
 void __cdecl R_HW_SetPixelShader(IDirect3DDevice9 *device, const MaterialPixelShader *mtlShader);

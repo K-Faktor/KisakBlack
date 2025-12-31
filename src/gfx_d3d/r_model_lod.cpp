@@ -1,4 +1,6 @@
 #include "r_model_lod.h"
+#include <universal/com_math.h>
+#include "r_init.h"
 
 double __cdecl R_GetBaseLodDist(const float *origin)
 {

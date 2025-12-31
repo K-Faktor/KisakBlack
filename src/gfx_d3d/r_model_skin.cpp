@@ -1,4 +1,10 @@
 #include "r_model_skin.h"
+#include "r_dvars.h"
+#include <win32/win_common.h>
+#include "r_dobj_skin.h"
+
+bool TensionUsage[4];
+float TensionBuffer[4][4000];
 
 void __cdecl R_SkinXSurfaceSkinned(
                 const XSurface *xsurf,
@@ -492,7 +498,6 @@ void __cdecl R_SkinXSurfaceSkinnedSse(
         else
         {
             R_SkinXSurfaceRigidSseOut(
-                (GfxPackedVertex *)&savedregs,
                 xsurf,
                 xsurf->vertCount,
                 boneMatrix,
@@ -711,7 +716,6 @@ void __cdecl R_SkinXSurfaceWeightSseInOut(
 }
 
 void    R_SkinXSurfaceRigidSse(
-                GfxPackedVertex *a1@<ebp>,
                 const XSurface *surf,
                 int totalVertCount,
                 const DObjSkelMat *boneMatrix,

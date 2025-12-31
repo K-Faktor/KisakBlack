@@ -227,6 +227,10 @@ int __cdecl BG_SaveShellShockDvars(const char *name);
 shellshock_parms_t *__cdecl BG_GetShellshockParms(unsigned int index);
 bool __cdecl BG_IsShellshockAnim(const playerState_s *ps);
 void __cdecl BG_CreateXAnim(XAnim_s *anims, unsigned int animIndex, char *name);
+inline void BG_CreateXAnim(XAnim_s *anims, unsigned int animIndex, const char *name)
+{
+    BG_CreateXAnim(anims, animIndex, (char *)name);
+}
 void __cdecl BG_CheckThread();
 int __cdecl BG_GetMaxSprintTime(const playerState_s *ps);
 bool __cdecl BG_ClipMoveToDobj(const entityState_s *es);

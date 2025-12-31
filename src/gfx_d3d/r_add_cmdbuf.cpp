@@ -1,5 +1,6 @@
 #include "r_add_cmdbuf.h"
 #include <universal/q_shared.h>
+#include "r_rendercmds.h"
 
 void __cdecl R_InitDelayedCmdBuf(GfxDelayedCmdBuf *delayedCmdBuf)
 {

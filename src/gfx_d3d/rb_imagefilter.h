@@ -1,4 +1,32 @@
 #pragma once
+#include "r_material.h"
+
+struct __declspec(align(4)) GfxImageFilterPass // sizeof=0x9C
+{                                       // XREF: GfxImageFilter/r
+    const Material *material;
+    float srcWidth;
+    float srcHeight;
+    int dstWidth;
+    int dstHeight;
+    int tapHalfCount;
+    float tapOffsetsAndWeights[8][4];
+    unsigned __int8 src;
+    unsigned __int8 dst;
+    // padding byte
+    // padding byte
+};
+
+struct __declspec(align(4)) GfxImageFilter // sizeof=0x138C
+{                                       // XREF: ?RB_GaussianFilterImage@@YAXMEEH@Z/r
+    int passCount;                      // XREF: RB_GaussianFilterImage(float,uchar,uchar,int)+E0/w
+                                        // RB_GaussianFilterImage(float,uchar,uchar,int)+E6/r
+    GfxImageFilterPass passes[32];      // XREF: RB_GaussianFilterImage(float,uchar,uchar,int)+9F/o
+    GfxImage *sourceImage;              // XREF: RB_GaussianFilterImage(float,uchar,uchar,int)+96/w
+    unsigned __int8 finalTarget;        // XREF: RB_GaussianFilterImage(float,uchar,uchar,int)+9C/w
+    // padding byte
+    // padding byte
+    // padding byte
+};
 
 void __cdecl RB_GaussianFilterImage(float radius, unsigned __int8 srcRenderTargetId, unsigned __int8 dstRenderTargetId);
 void __cdecl RB_VirtualToSceneRadius(float radius, float *radiusX, float *radiusY);

@@ -3,6 +3,7 @@
 #include "r_dvars.h"
 
 #include <cstring>
+#include "r_init.h"
 
 float gridBasisDirs[56][3];
 

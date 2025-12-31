@@ -1,4 +1,15 @@
 #pragma once
+#include "r_gfx.h"
+
+struct GfxViewInfo;
+struct DObj;
+struct GfxLight;
+
+struct LightGlobals // sizeof=0x104
+{                                       // XREF: .data:lightGlob/r
+    int defCount;                       // XREF: R_RegisterLightDef_LoadObj+44/r
+    GfxLightDef *defs[64];              // XREF: R_RegisterLightDef_LoadObj+53/r
+};
 
 GfxLightDef *__cdecl R_RegisterLightDef(const char *name);
 GfxLightDef *__cdecl R_RegisterLightDef_LoadObj(const char *name);

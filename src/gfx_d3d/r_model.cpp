@@ -1,10 +1,27 @@
 #include "r_model.h"
+#include <xanim/xmodel.h>
+#include <universal/com_memory.h>
+#include <qcommon/common.h>
+#include "r_staticmodel.h"
+#include <DynEntity/DynEntity_load_obj.h>
+#include <xanim/xmodel_utils.h>
+#include "r_dvars.h"
+#include <xanim/dobj_utils.h>
+#include <cgame_mp/cg_pose_mp.h>
+#include "r_debug.h"
+#include "r_buffers.h"
+#include <qcommon/threads.h>
+#include "r_singlethreaded_device_pc.h"
+#include "r_rendercmds.h"
+#include <win32/win_net.h>
+#include "r_model_lod.h"
+#include <EffectsCore/fx_beam.h>
 
 void __cdecl R_ModelList_f()
 {
     const char *Name; // eax
-    char *v1; // [esp+8h] [ebp-212Ch]
-    char *fmt; // [esp+Ch] [ebp-2128h]
+    const char *v1; // [esp+8h] [ebp-212Ch]
+    const char *fmt; // [esp+Ch] [ebp-2128h]
     int inData; // [esp+104h] [ebp-2030h] BYREF
     XModel *v4[2050]; // [esp+108h] [ebp-202Ch] BYREF
     XModel *model; // [esp+2110h] [ebp-24h]

@@ -103,18 +103,6 @@ struct GfxParticleCloud // sizeof=0x40
     unsigned __int8 pad[3];
 };
 
-struct GfxMeshData // sizeof=0x24
-{                                       // XREF: .data:GfxMeshData * g_codeMesh/r
-                                        // GfxQuadMeshData/r ...
-    GfxMeshData *thisPtr;
-    unsigned int indexCount;
-    unsigned int totalIndexCount;
-    unsigned __int16 *indices;
-    GfxVertexBufferState vb;            // XREF: R_InitRenderBuffers(void)+5D/w
-                                        // R_InitGlassRenderBuffers(int,int,int)+64/w ...
-    unsigned int vertSize;
-};
-
 struct GfxModelLightingPatch // sizeof=0x4C
 {                                       // XREF: GfxBackEndData/r
     unsigned __int16 modelLightingIndex;
@@ -345,6 +333,15 @@ struct GfxUI3DBackend // sizeof=0xE0
     float blurRadius;
 };
 
+struct DynSModelClient // sizeof=0x14
+{                                       // XREF: R_GenerateSortedDrawSurfs/r
+    int localClientNum;                 // XREF: R_GenerateSortedDrawSurfs+16E3/w
+    unsigned int *visBitsCamera;        // XREF: R_GenerateSortedDrawSurfs+16E6/w
+    unsigned int *visBitsSunShadow;     // XREF: R_GenerateSortedDrawSurfs+16ED/w
+    unsigned int numDynSModel;          // XREF: R_GenerateSortedDrawSurfs+1730/w
+    unsigned int numDynSModelInMap;     // XREF: R_GenerateSortedDrawSurfs+173F/w
+};
+
 struct DynSModelClientView // sizeof=0x11F4
 {                                       // XREF: .data:g_dynSModelClientView/r
     unsigned __int16 drawStateIndex[2048];
@@ -364,7 +361,7 @@ struct DynSModelGfxState // sizeof=0x180C
 {                                       // XREF: GfxBackEndData/r
     unsigned int maxDynSModelIndex;
     unsigned int maxDynSModelIndexInMap;
-    volatile int drawStateCount;
+    volatile unsigned int drawStateCount;
     DynSModelDrawState drawState[512];
 };
 
@@ -681,7 +678,7 @@ const struct __declspec(align(32)) GfxBackEndData // sizeof=0x186300
     unsigned int smcPatchCount;
     unsigned int smcPatchVertsUsed;
     GfxModelLightingPatch modelLightingPatchList[4096];
-    volatile int modelLightingPatchCount;
+    volatile unsigned int modelLightingPatchCount;
     GfxBackEndPrimitiveData prim;
     unsigned int shadowableLightHasShadowMap[8];
     unsigned int frameCount;

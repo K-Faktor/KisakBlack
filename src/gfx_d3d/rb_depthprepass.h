@@ -1,7 +1,8 @@
 #pragma once
+#include "r_rendercmds.h"
+#include "rb_state.h"
 
 void    R_DepthPrepass(
-                int a1@<ebp>,
                 unsigned __int8 renderTargetId,
                 const GfxViewInfo *viewInfo,
                 GfxCmdBuf *cmdBuf);

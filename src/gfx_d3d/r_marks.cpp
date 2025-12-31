@@ -1,4 +1,6 @@
 #include "r_marks.h"
+#include "r_dpvs.h"
+
 
 void    R_BoxSurfaces(
                 const float *mins,

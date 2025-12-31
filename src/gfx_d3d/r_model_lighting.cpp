@@ -1,4 +1,90 @@
 #include "r_model_lighting.h"
+#include "r_rendercmds.h"
+#include "r_dvars.h"
+#include "r_staticmodelcache.h"
+#include "r_debug.h"
+#include "r_dpvs.h"
+
+struct $ACD36BF6C142509D89D5FAE1478EBC2D // sizeof=0x64
+{                                       // XREF: .data:modelLightGlob/r
+    float invImageHeight;               // XREF: R_SetModelLightingCoords(ushort,float * const)+63/r
+                                        // R_SetModelLightingLookupScale(GfxCmdBufInput *)+1B/r ...
+    struct
+    {
+        unsigned int baseIndex;
+    } xmodel;
+                                        // R_AllocModelLighting:loc_AF584E/r ...
+    unsigned int totalEntryLimit;       // XREF: R_ModelLightingIndexFromHandle+10/r
+                                        // R_ModelLightingIndexFromHandle:loc_AF51C8/r ...
+    unsigned int entryBitsY;            // XREF: R_InitModelLightingGlobals(void)+C5/w
+                                        // R_InitModelLightingGlobals(void)+CA/r
+    unsigned int imageHeight;           // XREF: R_GetPackedStaticModelLightingCoords(uint,PackedLightingCoords *)+46/r
+                                        // R_GetPackedStaticModelLightingCoords(uint,PackedLightingCoords *)+4E/r ...
+    const GfxEntity *entities;
+    unsigned int modFrameCount;         // XREF: R_ToggleModelLightingFrame(void)+11/r
+                                        // R_ToggleModelLightingFrame(void)+22/w ...
+    GfxImage *image;                    // XREF: R_AllocModelLighting+4A0/r
+                                        // RB_PatchModelLighting(GfxModelLightingPatch const * const,uint)+4B/r ...
+    unsigned int xmodelEntryLimit;      // XREF: R_AllocModelLighting+37A/r
+                                        // R_AllocModelLighting+382/r ...
+    GfxLightingInfo *lightingInfo;      // XREF: R_AllocModelLighting+21B/r
+                                        // R_AllocModelLighting+23C/r ...
+    float (*lightingOrigins)[3];        // XREF: R_AllocModelLighting+13D/r
+                                        // R_AllocModelLighting+1A1/r ...
+    int allocModelFail;                 // XREF: R_AllocModelLighting:loc_AF574E/r
+                                        // R_AllocModelLighting+321/w ...
+    unsigned int *pixelFreeBits[4];     // XREF: R_ToggleModelLightingFrame(void)+43/r
+                                        // R_ToggleModelLightingFrame(void)+61/r ...
+    unsigned int *prevPrevPixelFreeBits;
+                                        // XREF: R_AllocModelLighting+2E1/r
+                                        // R_ToggleModelLightingFrame(void)+4A/w
+    unsigned int *prevPixelFreeBits;    // XREF: R_AllocModelLighting+2D2/r
+                                        // R_ToggleModelLightingFrame(void)+68/w
+    unsigned int *currPixelFreeBits;    // XREF: R_AllocModelLighting+200/r
+                                        // R_AllocModelLighting+20F/r ...
+    unsigned int pixelFreeBitsSize;     // XREF: R_ToggleModelLightingFrame(void)+89/r
+                                        // R_InitModelLightingGlobals(void)+147/w ...
+    unsigned int pixelFreeBitsWordCount;
+                                        // XREF: R_AllocModelLighting+30D/r
+                                        // R_InitModelLightingGlobals(void)+155/w
+    unsigned int pixelFreeRover;        // XREF: R_AllocModelLighting:loc_AF575E/r
+                                        // R_AllocModelLighting+319/r ...
+    _D3DLOCKED_BOX lockedBox;           // XREF: RB_PatchModelLighting(GfxModelLightingPatch const * const,uint):loc_AF6351/r
+                                        // RB_PatchModelLighting(GfxModelLightingPatch const * const,uint)+44/o ...
+};
+
+struct GfxSmodelLightGlob // sizeof=0xA080
+{                                       // XREF: .data:smodelLightGlob/r
+    unsigned __int16 freeableHandles[4096];
+                                        // XREF: R_AllocStaticModelLighting(GfxStaticModelDrawInst const *,uint)+131/r
+                                        // R_ToggleModelLightingFrame(void)+EB/w
+    unsigned int lightingBits[2048];    // XREF: R_AllocStaticModelLighting(GfxStaticModelDrawInst const *,uint)+B7/r
+                                        // R_AllocStaticModelLighting(GfxStaticModelDrawInst const *,uint)+C4/w ...
+    //GfxSmodelLightGlob::<unnamed_type_local> local;
+    struct //GfxSmodelLightGlob::<unnamed_type_local> // sizeof=0x6080
+    {                                       // XREF: GfxSmodelLightGlob/r
+        unsigned __int16 smodelIndex[4096]; // XREF: R_AllocStaticModelLighting(GfxStaticModelDrawInst const *,uint)+162/r
+                                            // R_AllocStaticModelLighting(GfxStaticModelDrawInst const *,uint)+1DF/w ...
+        unsigned int usedFrameCount[4096];  // XREF: R_AllocStaticModelLighting(GfxStaticModelDrawInst const *,uint)+156/r
+                                            // R_AllocStaticModelLighting(GfxStaticModelDrawInst const *,uint)+25C/w ...
+        unsigned int entryLimit;            // XREF: R_AllocStaticModelLighting(GfxStaticModelDrawInst const *,uint)+E0/r
+                                            // R_InitModelLightingGlobals(void)+44/w ...
+        unsigned int assignedCount;         // XREF: R_AllocStaticModelLighting(GfxStaticModelDrawInst const *,uint):loc_AF52DA/r
+                                            // R_AllocStaticModelLighting(GfxStaticModelDrawInst const *,uint)+E8/r ...
+        unsigned int freeableCount;         // XREF: R_AllocStaticModelLighting(GfxStaticModelDrawInst const *,uint):loc_AF530D/r
+                                            // R_AllocStaticModelLighting(GfxStaticModelDrawInst const *,uint):loc_AF531D/r ...
+        unsigned int frameCount;            // XREF: R_AllocStaticModelLighting(GfxStaticModelDrawInst const *,uint)+150/r
+                                            // R_AllocStaticModelLighting(GfxStaticModelDrawInst const *,uint)+256/r ...
+        int anyNewLighting;                 // XREF: R_AllocStaticModelLighting(GfxStaticModelDrawInst const *,uint)+CB/w
+                                            // R_AllocStaticModelLighting(GfxStaticModelDrawInst const *,uint)+249/w ...
+        unsigned int pad[27];
+    } local;
+                                        // XREF: R_AllocStaticModelLighting(GfxStaticModelDrawInst const *,uint)+CB/w
+                                        // R_AllocStaticModelLighting(GfxStaticModelDrawInst const *,uint):loc_AF52DA/r ...
+};
+
+$ACD36BF6C142509D89D5FAE1478EBC2D modelLightGlob;
+GfxSmodelLightGlob smodelLightGlob;
 
 GfxModelLightingPatch *__cdecl R_BackEndDataAllocAndClearModelLightingPatch(GfxBackEndData *frontEndDataOut)
 {
@@ -46,7 +132,7 @@ unsigned int __cdecl R_ModelLightingIndexFromHandle(unsigned __int16 handle)
     return handle - 1;
 }
 
-char __cdecl R_AllocStaticModelLighting(const GfxStaticModelDrawInst *smodelDrawInst, unsigned int smodelIndex)
+char __cdecl R_AllocStaticModelLighting(GfxStaticModelDrawInst *smodelDrawInst, unsigned int smodelIndex)
 {
     unsigned __int16 handle; // [esp+0h] [ebp-10h]
     unsigned __int16 handlea; // [esp+0h] [ebp-10h]

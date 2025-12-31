@@ -1,4 +1,7 @@
 #pragma once
+#include <xanim/dobj.h>
+#include <bgame/bg_local.h>
+#include "r_dpvs.h"
 
 enum MarkFragmentsAgainstEnum : __int32
 {                                       // XREF: MarkInfo/r

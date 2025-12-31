@@ -1,4 +1,6 @@
 #pragma once
+#include "r_rendercmds.h"
+#include "rb_backend.h"
 
 void __cdecl RB_AllocSuperFlareQueries();
 void __cdecl RB_FreeSuperFlareQueries();

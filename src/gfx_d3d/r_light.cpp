@@ -1,4 +1,12 @@
 #include "r_light.h"
+#include <qcommon/common.h>
+#include "r_light_load_obj.h"
+#include <database/db_registry.h>
+#include "r_scene.h"
+#include "r_dvars.h"
+#include "r_add_bsp.h"
+
+LightGlobals lightGlob;
 
 GfxLightDef *__cdecl R_RegisterLightDef(const char *name)
 {
@@ -69,7 +77,7 @@ GfxLightDef *__cdecl R_RegisterLightDef_LoadObj(const char *name)
 
 GfxLightDef *__cdecl R_RegisterLightDef_FastFile(const char *name)
 {
-    return DB_FindXAssetHeader(ASSET_TYPE_LIGHT_DEF, name, 1, -1).lightDef;
+    return DB_FindXAssetHeader(ASSET_TYPE_LIGHT_DEF, (char*)name, 1, -1).lightDef;
 }
 
 void __cdecl R_InitLightDefs()

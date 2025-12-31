@@ -1,4 +1,37 @@
 #include "r_foliage.h"
+#include <xanim/xmodel_utils.h>
+#include "r_dvars.h"
+#include "r_debug.h"
+#include <universal/com_workercmds.h>
+#include "r_warn.h"
+#include "r_shade.h"
+
+unsigned int g_fullySquashedModelBits[64];
+ModelHashTable<ActiveModelNode, 63, 128> g_activeModelsHash;
+unsigned int g_modelInfoCount;
+unsigned int g_numDynSModelInMap;
+unsigned int g_isFoliageModel[64];
+ClientFoliageInfo g_foliageInfo[4];
+
+FoliageShakeParams fsp_GrenadeExplosion = { 3.0, 200.0, 25.0, 10.0, 0.0 };
+FoliageShakeParams fsp_WeaponFiring = { 1.5, 50.0, 6.0, 20.0, 20.0 };
+FoliageShakeParams fsp_FlameThrower = { 2.0, 125.0, 25.0, 10.0, 40.0 };
+
+float grassForceRad = 32.0f;
+float grassForceVehicleRad = 100.0f;
+float grassForceStrengthPlayerPos = 20.0f;
+float grassForceStrengthVehiclePos = 30.0f;
+
+const float MAX_SQUASH_AMOUNT = 0.5f;
+const float COLOR_MULTIPLIER_AT_FULLSQUASH = 0.3f;
+
+volatile unsigned int dyn_smodel_drawstateLimit = 1;
+jqModule dyn_smodel_drawstateModule;
+jqWorkerCmd dyn_smodel_drawstateWorkerCmd = { &dyn_smodel_drawstateModule, 36u, 0, 0, &dyn_smodel_drawstateLimit, NULL, 0u };
+
+DrawStateWorkerSharedBuffer g_drawStateWorkerSharedBuffer;
+
+unsigned int g_mainThreadFoliageInfo;
 
 bool __cdecl ModelIsFullySquashed(unsigned int drawInstIndex)
 {
@@ -19,7 +52,7 @@ void __cdecl SetModelIsFullySquashed(unsigned int drawInstIndex)
 
 double __cdecl GetFoliageSquashFromHash(unsigned int drawInstIndex)
 {
-    ModelHashTable<ActiveModelNode,63,128> *n; // [esp+Ch] [ebp-Ch]
+    ActiveModelNode *n; // [esp+Ch] [ebp-Ch]
     float squashAmt; // [esp+10h] [ebp-8h]
 
     if ( drawInstIndex >= 0x10000
@@ -39,9 +72,10 @@ double __cdecl GetFoliageSquashFromHash(unsigned int drawInstIndex)
     }
     else
     {
-        n = ModelHashTable<ActiveModelNode,63,128>::FindByKey(&g_activeModelsHash, drawInstIndex);
+        //n = ModelHashTable<ActiveModelNode,63,128>::FindByKey(&g_activeModelsHash, drawInstIndex);
+        n = g_activeModelsHash.FindByKey(drawInstIndex);
         if ( n )
-            return n->m_nodes[0].curSquashValue;
+            return n->curSquashValue;
     }
     return squashAmt;
 }
@@ -147,46 +181,87 @@ void __cdecl R_FoliageShutdown()
 
 void __cdecl R_FoliageSetInitialBurnState()
 {
-    ModelHashTable<ActiveModelNode,63,128>::Init(&g_activeModelsHash);
+    //ModelHashTable<ActiveModelNode,63,128>::Init(&g_activeModelsHash);
+    g_activeModelsHash.Init();
     memset((unsigned __int8 *)g_fullySquashedModelBits, 0, sizeof(g_fullySquashedModelBits));
 }
 
-double __cdecl R_GetWindBestStrength(
-                const GrassWindForce *windForces,
-                unsigned int numWindForces,
-                const float *modelPlacement)
-{
-    long double v4; // [esp+0h] [ebp-20h]
-    const GrassWindForce *gforce; // [esp+8h] [ebp-18h]
-    float ratio; // [esp+10h] [ebp-10h]
-    unsigned int i; // [esp+14h] [ebp-Ch]
-    int best; // [esp+18h] [ebp-8h]
-    float best_str; // [esp+1Ch] [ebp-4h]
+//double __cdecl R_GetWindBestStrength(
+//                const GrassWindForce *windForces,
+//                unsigned int numWindForces,
+//                const float *modelPlacement)
+//{
+//    long double v4; // [esp+0h] [ebp-20h]
+//    const GrassWindForce *gforce; // [esp+8h] [ebp-18h]
+//    float ratio; // [esp+10h] [ebp-10h]
+//    unsigned int i; // [esp+14h] [ebp-Ch]
+//    int best; // [esp+18h] [ebp-8h]
+//    float best_str; // [esp+1Ch] [ebp-4h]
+//
+//    best = -1;
+//    best_str = 0.0f;
+//    for ( i = 0; i < numWindForces; ++i )
+//    {
+//        ratio = (float)((float)((float)(*modelPlacement - windForces[i].worldPosition[0])
+//                                                    * (float)(*modelPlacement - windForces[i].worldPosition[0]))
+//                                    + (float)((float)(modelPlacement[1] - windForces[i].worldPosition[1])
+//                                                    * (float)(modelPlacement[1] - windForces[i].worldPosition[1])))
+//                    * windForces[i].inverseRadiusSquared;
+//        if ( ratio <= 1.0 )
+//        {
+//            __libm_sse2_sin(v4);
+//            *(float *)&v4 = (float)(ratio * 3.1415927) / 2.0;
+//            gforce = &windForces[i];
+//            *((float *)&v4 + 1) = (float)(1.0 - *(float *)&v4) * gforce->strength;
+//            if ( *((float *)&v4 + 1) > best_str || best == -1 )
+//            {
+//                best = i;
+//                best_str = (float)(1.0 - *(float *)&v4) * gforce->strength;
+//            }
+//        }
+//    }
+//    return best_str;
+//}
 
-    best = -1;
-    best_str = 0.0f;
-    for ( i = 0; i < numWindForces; ++i )
+float R_GetWindBestStrength(
+    const GrassWindForce *windForces,
+    unsigned int numWindForces,
+    const float *modelPlacement)
+{
+    int best = -1;
+    float bestStrength = 0.0f;
+
+    const float x = modelPlacement[0];
+    const float y = modelPlacement[1];
+
+    for (unsigned int i = 0; i < numWindForces; ++i)
     {
-        ratio = (float)((float)((float)(*modelPlacement - windForces[i].worldPosition[0])
-                                                    * (float)(*modelPlacement - windForces[i].worldPosition[0]))
-                                    + (float)((float)(modelPlacement[1] - windForces[i].worldPosition[1])
-                                                    * (float)(modelPlacement[1] - windForces[i].worldPosition[1])))
-                    * windForces[i].inverseRadiusSquared;
-        if ( ratio <= 1.0 )
+        const GrassWindForce &force = windForces[i];
+
+        const float dx = x - force.worldPosition[0];
+        const float dy = y - force.worldPosition[1];
+
+        const float distSq = dx * dx + dy * dy;
+        const float ratio = distSq * force.inverseRadiusSquared;
+
+        if (ratio <= 1.0f)
         {
-            __libm_sse2_sin(v4);
-            *(float *)&v4 = (float)(ratio * 3.1415927) / 2.0;
-            gforce = &windForces[i];
-            *((float *)&v4 + 1) = (float)(1.0 - *(float *)&v4) * gforce->strength;
-            if ( *((float *)&v4 + 1) > best_str || best == -1 )
+            const float t = (ratio * float(M_PI)) * 0.5f;
+            const float s = sinf(t);
+
+            const float strength = (1.0f - s) * force.strength;
+
+            if (best == -1 || strength > bestStrength)
             {
                 best = i;
-                best_str = (float)(1.0 - *(float *)&v4) * gforce->strength;
+                bestStrength = strength;
             }
         }
     }
-    return best_str;
+
+    return bestStrength;
 }
+
 
 bool __cdecl R_StaticModelNeedsCharredTech(unsigned int modelDrawInstIndex)
 {
@@ -205,6 +280,7 @@ bool __cdecl R_StaticModelNeedsCharredTech(unsigned int modelDrawInstIndex)
     return squashAmt > 0.0;
 }
 
+int draw_burn_foliage_debug;
 void __cdecl R_FoliageNotifyBurn(float *loc, float rad, int *models, int models_count, bool instant)
 {
     unsigned int dynamicSModelCount; // [esp+8h] [ebp-4C8h]
@@ -265,12 +341,13 @@ void __cdecl R_FoliageNotifyBurn(float *loc, float rad, int *models, int models_
                     {
                         SetModelIsFullySquashed(modelIndex);
                     }
-                    else if ( !ModelIsFullySquashed(modelIndex)
-                                 && !ModelHashTable<ActiveModelNode,63,128>::FindByKey(&g_activeModelsHash, key) )
+                    //else if ( !ModelIsFullySquashed(modelIndex) && !ModelHashTable<ActiveModelNode,63,128>::FindByKey(&g_activeModelsHash, key) )
+                    else if ( !ModelIsFullySquashed(modelIndex) && !g_activeModelsHash.FindByKey(key) )
                     {
                         n.curSquashValue = 0.0f;
                         n.modelIndex = key;
-                        ModelHashTable<ActiveModelNode,63,128>::Add(&g_activeModelsHash, &n);
+                        //ModelHashTable<ActiveModelNode,63,128>::Add(&g_activeModelsHash, &n);
+                        g_activeModelsHash.Add(n);
                     }
                     if ( draw_burn_foliage_debug )
                         R_AddDebugBox(&frontEndDataOut->debugGlobals, smodelInst->mins, smodelInst->maxs, colorGreen);
@@ -304,12 +381,12 @@ void __cdecl R_FoliageNotifyBurn(float *loc, float rad, int *models, int models_
             {
                 SetModelIsFullySquashed(drawInstIndex);
             }
-            else if ( !ModelIsFullySquashed(drawInstIndex)
-                         && !ModelHashTable<ActiveModelNode,63,128>::FindByKey(&g_activeModelsHash, v7) )
+            //else if ( !ModelIsFullySquashed(drawInstIndex) && !ModelHashTable<ActiveModelNode,63,128>::FindByKey(&g_activeModelsHash, v7) )
+            else if ( !ModelIsFullySquashed(drawInstIndex) && !g_activeModelsHash.FindByKey(v7) )
             {
                 newNode.curSquashValue = 0.0f;
                 newNode.modelIndex = v7;
-                ModelHashTable<ActiveModelNode,63,128>::Add(&g_activeModelsHash, &newNode);
+                g_activeModelsHash.Add(newNode);
             }
         }
     }
@@ -398,13 +475,13 @@ void __cdecl AddNearMuzzleShakeForce(
                     {
                         if ( force->shakeForceState )
                         {
-                            if ( force->shakeForceState == MAINTAINING )
+                            if ( force->shakeForceState == GrassPersistForce::ShakeForceState::MAINTAINING )
                             {
                                 force->age = 0.0f;
                             }
-                            else if ( force->shakeForceState == DECAYING )
+                            else if ( force->shakeForceState == GrassPersistForce::ShakeForceState::DECAYING )
                             {
-                                force->shakeForceState = GAINING;
+                                force->shakeForceState = GrassPersistForce::ShakeForceState::GAINING;
                             }
                         }
                     }
@@ -412,10 +489,10 @@ void __cdecl AddNearMuzzleShakeForce(
                     {
                         force->id = id;
                         force->age = 0.0f;
-                        force->forceType = NEAR_MUZZLE_SHAKE;
+                        force->forceType = GrassPersistForce::ForceType::NEAR_MUZZLE_SHAKE;
                         force->strength = 0.0f;
                         force->trgForcePercent = 1.0f;
-                        force->shakeForceState = GAINING;
+                        force->shakeForceState = GrassPersistForce::ShakeForceState::GAINING;
                         force->curForcePercent = 0.0f;
                         SetGrassPersistForceToActive(force);
                         force->maxStrength = params->strength;
@@ -438,6 +515,7 @@ void __cdecl SetGrassPersistForceToActive(GrassPersistForce *force)
     force->isActive = 1;
 }
 
+int draw_explosion_foliage_debug;
 void __cdecl R_FoliageNotifyGrenadeExplosion(int localClientNum, float *loc)
 {
     unsigned int v2; // [esp+Ch] [ebp-46Ch]
@@ -584,6 +662,7 @@ void __cdecl AddInstantForce(const GrassForce *force)
     }
 }
 
+int drawGrassForceBox;
 void __cdecl R_FoliageNotifyVehiclePosition(int localClientNum, const float *vehiclePos)
 {
     float mins[3]; // [esp+0h] [ebp-3Ch] BYREF
@@ -1059,10 +1138,11 @@ void __cdecl R_DynSModelBuildClientView(
         {
             while ( 1 )
             {
-                if ( !_BitScanReverse((unsigned int *)&v4, visBits) )
-                    v4 = `CountLeadingZeros'::`2'::notFound;
-                indexLow = v4 ^ 0x1F;
-                if ( (v4 ^ 0x1Fu) >= 0x20 )
+                //if ( !_BitScanReverse((unsigned int *)&v4, visBits) )
+                //    v4 = `CountLeadingZeros'::`2'::notFound;
+                //indexLow = v4 ^ 0x1F;
+                indexLow = 31u - __builtin_clz(visBits); // trash
+                if (indexLow >= 32 )
                     break;
                 bitIndex = 31 - indexLow;
                 visBits &= ~(1 << (31 - indexLow));
@@ -1145,7 +1225,7 @@ void __cdecl R_FoliageSetStaticModelShaderConstants(
     int v19; // eax
     float v20; // [esp+44h] [ebp-A8h]
     float windForceStrength; // [esp+48h] [ebp-A4h]
-    float *v22; // [esp+50h] [ebp-9Ch]
+    const float *v22; // [esp+50h] [ebp-9Ch]
     float value[4]; // [esp+68h] [ebp-84h] BYREF
     const DynSModelDrawState *drawState; // [esp+78h] [ebp-74h]
     FoliageShaderConstantBlock constBlock; // [esp+7Ch] [ebp-70h] BYREF
@@ -1367,57 +1447,7 @@ void __cdecl R_DynSModelGetCounts(unsigned int *numDynSModelInMap, unsigned int 
     *maxNumDynSModel = 2048;
 }
 
-void __thiscall ModelHashTable<ActiveModelNode,63,128>::Init(ModelHashTable<ActiveModelNode,63,128> *this)
-{
-    unsigned __int16 j; // [esp+4h] [ebp-8h]
-    unsigned __int16 i; // [esp+8h] [ebp-4h]
-
-    for ( i = 0; i < 0x7Fu; ++i )
-        this->m_nodes[i].nextNode = i + 1;
-    this->m_nodes[127].nextNode = -1;
-    this->m_firstFreeNode = 0;
-    for ( j = 0; j < 0x3Fu; ++j )
-        this->m_table[j] = -1;
-}
-
-char __thiscall ModelHashTable<ActiveModelNode,63,128>::Add(
-                ModelHashTable<ActiveModelNode,63,128> *this,
-                const ActiveModelNode *newNode)
-{
-    int v3; // ecx
-    ActiveModelNode *v4; // edx
-    unsigned int hash; // [esp+8h] [ebp-Ch]
-    unsigned __int16 freeNodeIndex; // [esp+Ch] [ebp-8h]
-
-    if ( this->m_firstFreeNode == 0xFFFF )
-        return 0;
-    freeNodeIndex = this->m_firstFreeNode;
-    this->m_firstFreeNode = this->m_nodes[freeNodeIndex].nextNode;
-    hash = newNode->modelIndex % 63;
-    v3 = *(unsigned int *)&newNode->modelIndex;
-    v4 = &this->m_nodes[freeNodeIndex];
-    v4->curSquashValue = newNode->curSquashValue;
-    *(unsigned int *)&v4->modelIndex = v3;
-    v4->nextNode = this->m_table[hash];
-    this->m_table[hash] = freeNodeIndex;
-    return 1;
-}
-
-ModelHashTable<ActiveModelNode,63,128> *__thiscall ModelHashTable<ActiveModelNode,63,128>::FindByKey(
-                ModelHashTable<ActiveModelNode,63,128> *this,
-                unsigned __int16 key)
-{
-    unsigned __int16 index; // [esp+Ch] [ebp-4h]
-
-    for ( index = this->m_table[key % 63]; index != 0xFFFF; index = this->m_nodes[index].nextNode )
-    {
-        if ( this->m_nodes[index].modelIndex == key )
-            return (ModelHashTable<ActiveModelNode,63,128> *)((char *)this + 8 * index);
-    }
-    return 0;
-}
-
-ClientFoliageInfo *__thiscall ClientFoliageInfo::ClientFoliageInfo(ClientFoliageInfo *this)
+ClientFoliageInfo::ClientFoliageInfo()
 {
     int v2; // [esp+8h] [ebp-10h]
     GrassPersistForce *j; // [esp+Ch] [ebp-Ch]
@@ -1442,6 +1472,6 @@ ClientFoliageInfo *__thiscall ClientFoliageInfo::ClientFoliageInfo(ClientFoliage
     this->clientPlayerPos[0] = 0.0f;
     this->clientPlayerPos[1] = 0.0f;
     this->clientPlayerPos[2] = 0.0f;
-    return this;
+    //return this;
 }
 

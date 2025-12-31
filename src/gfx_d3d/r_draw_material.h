@@ -1,4 +1,8 @@
 #pragma once
+#include "r_gfx.h"
+#include "r_material.h"
+#include "rb_state.h"
+#include "r_rendercmds.h"
 
 unsigned __int8 __cdecl RemoveSunShadowTech(unsigned __int8 srcTech);
 unsigned int __cdecl R_GfxDrawSurf_GetFade(const GfxDrawSurf *drawSurf);

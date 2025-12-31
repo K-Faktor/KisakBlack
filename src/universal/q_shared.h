@@ -494,3 +494,12 @@ __forceinline T _Pow_int(T base, int exp)
 {
     return (T)powf(base, exp);
 }
+
+template <typename T, typename U>
+inline constexpr T truncate_cast(U value)
+{
+    static_assert(std::is_integral_v<T>, "truncate_cast target must be integral");
+    static_assert(std::is_integral_v<U>, "truncate_cast source must be integral");
+
+    return static_cast<T>(value);
+}
