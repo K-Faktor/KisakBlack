@@ -11,6 +11,20 @@
 #include <cgame_mp/cg_ents_mp.h>
 #include <client/splitscreen.h>
 #include <universal/curve.h>
+#include <gfx_d3d/r_dpvs.h>
+#include <bgame/bg_misc.h>
+#include <game/g_debug.h>
+#include <cgame/cg_drawtools.h>
+#include <game/g_mover.h>
+#include <cgame/cg_world.h>
+
+static const float sc = 20.0f;
+
+
+int g_ropesRendered;
+
+pmove_t cg_pmove[1];
+cCurve g_ropeCurve;
 
 int g_max_ropes;
 rope_t *g_ropes;
@@ -727,12 +741,9 @@ void __cdecl Rope_ApplyContactConstraint(int rope_index, int contact_index)
     {
         p = rope->m_particles[contact->particle_index].p;
         particle_index = contact->particle_index;
-        *p = (float)(COERCE_FLOAT(LODWORD(d) ^ _mask__NegFloat_) * contact->normal[0])
-             + rope->m_particles[particle_index].p[0];
-        p[1] = (float)(COERCE_FLOAT(LODWORD(d) ^ _mask__NegFloat_) * contact->normal[1])
-                 + rope->m_particles[particle_index].p[1];
-        p[2] = (float)(COERCE_FLOAT(LODWORD(d) ^ _mask__NegFloat_) * contact->normal[2])
-                 + rope->m_particles[particle_index].p[2];
+        *p = (float)((-(d)) * contact->normal[0]) + rope->m_particles[particle_index].p[0];
+        p[1] = (float)((-(d)) * contact->normal[1]) + rope->m_particles[particle_index].p[1];
+        p[2] = (float)((-(d)) * contact->normal[2]) + rope->m_particles[particle_index].p[2];
     }
     da = (float)((float)((float)(rope->m_particles[contact->particle_index].p0[0] - contact->point[0]) * contact->normal[0])
                          + (float)((float)(rope->m_particles[contact->particle_index].p0[1] - contact->point[1]) * contact->normal[1]))
@@ -740,9 +751,9 @@ void __cdecl Rope_ApplyContactConstraint(int rope_index, int contact_index)
     if ( da <= 0.0 )
     {
         p0 = rope->m_particles[contact->particle_index].p0;
-        *p0 = (float)(COERCE_FLOAT(LODWORD(da) ^ _mask__NegFloat_) * contact->normal[0]) + *p0;
-        p0[1] = (float)(COERCE_FLOAT(LODWORD(da) ^ _mask__NegFloat_) * contact->normal[1]) + p0[1];
-        p0[2] = (float)(COERCE_FLOAT(LODWORD(da) ^ _mask__NegFloat_) * contact->normal[2]) + p0[2];
+        p0[0] = (float)((-(da)) * contact->normal[0]) + *p0;
+        p0[1] = (float)((-(da)) * contact->normal[1]) + p0[1];
+        p0[2] = (float)((-(da)) * contact->normal[2]) + p0[2];
     }
 }
 
@@ -869,7 +880,7 @@ LABEL_16:
         p2[1] = (float)(l1 * v[1]) + p1[1];
         p2[2] = (float)(l1 * v[2]) + p1[2];
         v2 = -l1;
-        *p1 = (float)(COERCE_FLOAT(LODWORD(l1) ^ _mask__NegFloat_) * v[0]) + temp;
+        p1[0] = (float)((-(l1)) * v[0]) + temp;
         p1[1] = (float)(v2 * v[1]) + temp_4;
         p1[2] = (float)(v2 * v[2]) + temp_8;
     }
@@ -1015,20 +1026,29 @@ void __cdecl Rope_BuildCurve(const RopeUpdateCmdData *cmd, int rope_index)
             rope->m_client_verts.frame_index = 1 - rope->m_client_verts.frame_index;
             verts = &rope->m_client_verts.frame_verts[rope->m_client_verts.frame_index];
             verts->num_verts = numSegments;
-            cCurve::Reinit(&g_ropeCurve);
-            for ( i = 0; i < rope->m_num_particles; ++i )
-                cCurve::AddNode(&g_ropeCurve, rope->m_particles[i].p);
-            if ( g_ropeCurve.mCurveType != CURVE_BSPLINE )
-                g_ropeCurve.mCurveType = CURVE_BSPLINE;
-            cCurve::Build(&g_ropeCurve);
+            g_ropeCurve.Reinit();
+
+            for (i = 0; i < rope->m_num_particles; ++i)
+            {
+                //cCurve::AddNode(&g_ropeCurve, rope->m_particles[i].p);
+                g_ropeCurve.AddNode(rope->m_particles[i].p);
+            }
+
+            if ( g_ropeCurve.mCurveType != cCurve::eCurveType::CURVE_BSPLINE )
+                g_ropeCurve.mCurveType = cCurve::eCurveType::CURVE_BSPLINE;
+
+            //cCurve::Build(&g_ropeCurve);
+            g_ropeCurve.Build();
             segLength = 1.0 / (float)numSegments;
             segDist = 0.0f;
             for ( segCount = 0; segCount < numSegments; ++segCount )
             {
-                cCurve::GetPos(&g_ropeCurve, segDist, verts->v[segCount]);
+                //cCurve::GetPos(&g_ropeCurve, segDist, verts->v[segCount]);
+                g_ropeCurve.GetPos(segDist, verts->v[segCount]);
                 segDist = segDist + segLength;
             }
-            cCurve::GetPos(&g_ropeCurve, 1.0, verts->v[segCount]);
+            //cCurve::GetPos(&g_ropeCurve, 1.0, verts->v[segCount]);
+            g_ropeCurve.GetPos(1.0, verts->v[segCount]);
             if ( !rope->m_client_verts.frame_index )
                 rope->m_flags |= 4u;
             if ( debug_rope->current.enabled )
@@ -1041,67 +1061,127 @@ void __cdecl Rope_BuildCurve(const RopeUpdateCmdData *cmd, int rope_index)
 }
 
 // local variable allocation has failed, the output may be wrong!
-void    Rope_Update(int a1@<ebp>, int localClientNum, int curtime)
-{
-    _BYTE v3[208]; // [esp+20h] [ebp-17Ch] OVERLAPPED BYREF
-    __int128 viewAxis_24; // [esp+108h] [ebp-94h] OVERLAPPED BYREF
-    const cg_s *cgameGlob; // [esp+118h] [ebp-84h]
-    RopeUpdateCmdData cmd; // [esp+11Ch] [ebp-80h] BYREF
-    int v7; // [esp+188h] [ebp-14h]
-    const char *v8; // [esp+18Ch] [ebp-10h]
-    int v9; // [esp+190h] [ebp-Ch]
-    int delta_t; // [esp+194h] [ebp-8h]
-    int retaddr; // [esp+19Ch] [ebp+0h]
+//void    Rope_Update(int localClientNum, int curtime)
+//{
+//    _BYTE v3[208]; // [esp+20h] [ebp-17Ch] OVERLAPPED BYREF
+//    __int128 viewAxis_24; // [esp+108h] [ebp-94h] OVERLAPPED BYREF
+//    const cg_s *cgameGlob; // [esp+118h] [ebp-84h]
+//    RopeUpdateCmdData cmd; // [esp+11Ch] [ebp-80h] BYREF
+//    int v7; // [esp+188h] [ebp-14h]
+//    const char *v8; // [esp+18Ch] [ebp-10h]
+//    //int v9; // [esp+190h] [ebp-Ch]
+//    //int delta_t; // [esp+194h] [ebp-8h]
+//    //int retaddr; // [esp+19Ch] [ebp+0h]
+//
+//    //v9 = a1;
+//    //delta_t = retaddr;
+//    if ( !Com_IsMenuLevel(0) )
+//    {
+//        v8 = va("Rope_Update %i/%i", g_update_count, g_ropeCount);
+//        //PIXBeginNamedEvent(-1, v8);
+//        g_update_count = 0;
+//        v7 = curtime - g_rope_sys_time;
+//        if ( curtime - g_rope_sys_time > 0 )
+//        {
+//            if ( RETURN_ZERO32() == localClientNum )
+//            {
+//                LODWORD(cmd.viewOrg[0]) = g_ropeCount;
+//                LODWORD(cmd.screenMtx[3][1]) = g_ropes;
+//                DWORD1(viewAxis_24) = CG_GetLocalClientGlobals(localClientNum);
+//                LODWORD(viewAxis_24) = DWORD1(viewAxis_24) + 274140;
+//                *((_QWORD *)&viewAxis_24 + 1) = *(_QWORD *)(DWORD1(viewAxis_24) + 274140);
+//                cgameGlob = *(const cg_s **)(DWORD1(viewAxis_24) + 274148);
+//                LODWORD(cmd.viewOrg[0]) = g_ropeCount;
+//                LODWORD(cmd.screenMtx[3][1]) = g_ropes;
+//                AnglesToAxis((const float *)(DWORD1(viewAxis_24) + 373712), (float (*)[3])&v3[196]);
+//                MatrixForViewer(
+//                    (const float *)(DWORD1(viewAxis_24) + 274140),
+//                    (const float (*)[3])&v3[196],
+//                    (float (*)[4])&v3[128]);
+//                InfinitePerspectiveMatrix(
+//                    *(float *)(DWORD1(viewAxis_24) + 274128),
+//                    *(float *)(DWORD1(viewAxis_24) + 274132),
+//                    1.0,
+//                    (float (*)[4])&v3[64]);
+//                MatrixMultiply44((const float (*)[4])&v3[128], (const float (*)[4])&v3[64], (float (*)[4])v3);
+//                MatrixTranspose44((const float *)v3, &cmd.viewOrg[1]);
+//                Rope_UpdateInternal((const RopeUpdateCmdData *)((char *)&viewAxis_24 + 8));
+//                g_rope_sys_time = curtime;
+//                //if ( GetCurrentThreadId() == g_DXDeviceThread )
+//                    //D3DPERF_EndEvent();
+//            }
+//            else //if ( GetCurrentThreadId() == g_DXDeviceThread )
+//            {
+//                goto LABEL_4;
+//            }
+//        }
+//        else //if ( GetCurrentThreadId() == g_DXDeviceThread )
+//        {
+//LABEL_4:
+//            //D3DPERF_EndEvent();
+//        }
+//    }
+//}
 
-    v9 = a1;
-    delta_t = retaddr;
-    if ( !Com_IsMenuLevel(0) )
-    {
-        v8 = va("Rope_Update %i/%i", g_update_count, g_ropeCount);
-        //PIXBeginNamedEvent(-1, v8);
-        g_update_count = 0;
-        v7 = curtime - g_rope_sys_time;
-        if ( curtime - g_rope_sys_time > 0 )
-        {
-            if ( RETURN_ZERO32() == localClientNum )
-            {
-                LODWORD(cmd.viewOrg[0]) = g_ropeCount;
-                LODWORD(cmd.screenMtx[3][1]) = g_ropes;
-                DWORD1(viewAxis_24) = CG_GetLocalClientGlobals(localClientNum);
-                LODWORD(viewAxis_24) = DWORD1(viewAxis_24) + 274140;
-                *((_QWORD *)&viewAxis_24 + 1) = *(_QWORD *)(DWORD1(viewAxis_24) + 274140);
-                cgameGlob = *(const cg_s **)(DWORD1(viewAxis_24) + 274148);
-                LODWORD(cmd.viewOrg[0]) = g_ropeCount;
-                LODWORD(cmd.screenMtx[3][1]) = g_ropes;
-                AnglesToAxis((const float *)(DWORD1(viewAxis_24) + 373712), (float (*)[3])&v3[196]);
-                MatrixForViewer(
-                    (const float *)(DWORD1(viewAxis_24) + 274140),
-                    (const float (*)[3])&v3[196],
-                    (float (*)[4])&v3[128]);
-                InfinitePerspectiveMatrix(
-                    *(float *)(DWORD1(viewAxis_24) + 274128),
-                    *(float *)(DWORD1(viewAxis_24) + 274132),
-                    1.0,
-                    (float (*)[4])&v3[64]);
-                MatrixMultiply44((const float (*)[4])&v3[128], (const float (*)[4])&v3[64], (float (*)[4])v3);
-                MatrixTranspose44((const float *)v3, &cmd.viewOrg[1]);
-                Rope_UpdateInternal((const RopeUpdateCmdData *)((char *)&viewAxis_24 + 8));
-                g_rope_sys_time = curtime;
-                //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                    //D3DPERF_EndEvent();
-            }
-            else //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            {
-                goto LABEL_4;
-            }
-        }
-        else //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        {
-LABEL_4:
-            //D3DPERF_EndEvent();
-        }
-    }
+// aislop
+void Rope_Update(int localClientNum, int curtime)
+{
+    int delta_t;
+    cg_s *cg;
+    RopeUpdateCmdData cmd;
+
+    float viewAxis[3][3];
+    float viewMtx[4][4];
+    float projMtx[4][4];
+    float screenMtx[4][4];
+
+    if (Com_IsMenuLevel(0))
+        return;
+
+    //PIXBeginNamedEvent(-1, va("Rope_Update %i/%i", g_update_count, g_ropeCount));
+
+    g_update_count = 0;
+
+    delta_t = curtime - g_rope_sys_time;
+    if (delta_t <= 0)
+        return;
+
+    if (localClientNum != 0)
+        return;
+
+    cmd.ropeCount = g_ropeCount;
+    cmd.ropes = g_ropes;
+
+    cg = CG_GetLocalClientGlobals(localClientNum);
+
+    cmd.viewOrg[0] = cg->refdef.vieworg[0];
+    cmd.viewOrg[1] = cg->refdef.vieworg[1];
+    cmd.viewOrg[2] = cg->refdef.vieworg[2];
+
+    AnglesToAxis(cg->refdefViewAngles, viewAxis);
+
+    MatrixForViewer(cg->refdef.vieworg, viewAxis, viewMtx);
+
+    InfinitePerspectiveMatrix(
+        cg->refdef.tanHalfFovX,
+        cg->refdef.tanHalfFovY,
+        1.0f,
+        projMtx
+    );
+
+    MatrixMultiply44(viewMtx, projMtx, screenMtx);
+    MatrixTranspose44(screenMtx, cmd.screenMtx);
+
+    Rope_UpdateInternal(&cmd);
+
+    g_rope_sys_time = curtime;
+
+//end_event:
+//    if (GetCurrentThreadId() == g_DXDeviceThread)
+//        D3DPERF_EndEvent();
 }
+
+
 
 void __cdecl Rope_Render(unsigned int localClientNum)
 {
@@ -1144,9 +1224,9 @@ void __cdecl Rope_DebugDraw(int rope_index)
     rope_t *rope; // [esp+34h] [ebp-10h]
     float maxs[3]; // [esp+38h] [ebp-Ch]
 
-    mins[0] = FLOAT_N2_5;
-    mins[1] = FLOAT_N2_5;
-    mins[2] = FLOAT_N2_5;
+    mins[0] = -2.5f;
+    mins[1] = -2.5f;
+    mins[2] = -2.5f;
     maxs[0] = 2.5f;
     maxs[1] = 2.5f;
     maxs[2] = 2.5f;
@@ -1230,6 +1310,8 @@ void __cdecl Rope_Draw(int rope_index, unsigned int localClientNum)
         }
     }
 }
+
+bool doSettle = true;
 
 void __cdecl Rope_Settle(int rope_index)
 {
@@ -1432,7 +1514,7 @@ int __cdecl trace_point_through_sphere(
     discr = (float)(b * b) - c;
     if ( discr < 0.0 )
         return 0;
-    *t = COERCE_FLOAT(LODWORD(b) ^ _mask__NegFloat_) - sqrtf(discr);
+    *t = (-(b)) - sqrtf(discr);
     if ( *t < 0.0 )
         *t = 0.0f;
     v7 = *t;
@@ -1441,6 +1523,11 @@ int __cdecl trace_point_through_sphere(
     hitp[2] = (float)(v7 * ud[2]) + p[2];
     return 1;
 }
+
+static const float radius_0 = 5.0f;
+static const float local_scale = 20.0f;
+
+
 
 void __cdecl Rope_Trace(const float *p0, const float *p1)
 {
@@ -1540,6 +1627,11 @@ void __cdecl Rope_Trace(const float *p0, const float *p1)
     }
 }
 
+static const float ex = 10.0f;
+static const float fudge = 0.01f;
+
+
+
 void __cdecl Rope_CollideWorld(int rope_index)
 {
     float v1; // xmm2_4
@@ -1574,16 +1666,17 @@ void __cdecl Rope_CollideWorld(int rope_index)
     trace_t trace1; // [esp+824h] [ebp-3Ch] BYREF
 
     rope = &g_ropes[rope_index];
-    colgeom_visitor_t::colgeom_visitor_t(&visitor);
-    visitor.__vftable = (colgeom_visitor_inlined_t<200>_vtbl *)&colgeom_visitor_inlined_t<200>::`vftable';
-    colgeom_visitor_inlined_t<500>::reset(&visitor);
-    mask = (int)&cls.recentServers[7546].city[57];
+    //colgeom_visitor_t::colgeom_visitor_t(&visitor);
+    //visitor.__vftable = (colgeom_visitor_inlined_t<200>_vtbl *)&colgeom_visitor_inlined_t<200>::`vftable';
+    //colgeom_visitor_inlined_t<500>::reset(&visitor);
+    mask = 0x280EC93;
     memset(&trace, 0, 16);
     memset(&trace1, 0, 16);
     //col_context_t::col_context_t(&context);
     if ( rope->m_in_use )
     {
-        colgeom_visitor_inlined_t<500>::reset(&visitor);
+        //colgeom_visitor_inlined_t<500>::reset(&visitor);
+        visitor.reset();
         fudge_vec[0] = ex;
         fudge_vec[1] = ex;
         fudge_vec[2] = ex;
@@ -1600,7 +1693,8 @@ void __cdecl Rope_CollideWorld(int rope_index)
         expand_vec[0] = 1.0f;
         expand_vec[1] = 1.0f;
         expand_vec[2] = 1.0f;
-        colgeom_visitor_inlined_t<200>::update(&visitor, rope->m_min, rope->m_max, mask, expand_vec);
+        //colgeom_visitor_inlined_t<200>::update(&visitor, rope->m_min, rope->m_max, mask, expand_vec);
+        visitor.update(rope->m_min, rope->m_max, mask, expand_vec);
         context.prims = visitor.prims;
         context.nprims = visitor.nprims;
         for ( i = 0; i < rope->m_num_particles; ++i )
@@ -1635,12 +1729,9 @@ void __cdecl Rope_CollideWorld(int rope_index)
                                              + (float)((float)(p1[1] - pi[1]) * trace.normal.vec.v[1]))
                              + (float)((float)(p1[2] - pi[2]) * trace.normal.vec.v[2]);
                         d = v1 - (float)(fabs(v1) * 0.0099999998);
-                        dir[0] = (float)(COERCE_FLOAT(LODWORD(d) ^ _mask__NegFloat_) * trace.normal.vec.v[0])
-                                     + (float)(p1[0] - pi[0]);
-                        dir[1] = (float)(COERCE_FLOAT(LODWORD(d) ^ _mask__NegFloat_) * trace.normal.vec.v[1])
-                                     + (float)(p1[1] - pi[1]);
-                        dir[2] = (float)(COERCE_FLOAT(LODWORD(d) ^ _mask__NegFloat_) * trace.normal.vec.v[2])
-                                     + (float)(p1[2] - pi[2]);
+                        dir[0] = (float)((-(d)) * trace.normal.vec.v[0]) + (float)(p1[0] - pi[0]);
+                        dir[1] = (float)((-(d)) * trace.normal.vec.v[1]) + (float)(p1[1] - pi[1]);
+                        dir[2] = (float)((-(d)) * trace.normal.vec.v[2]) + (float)(p1[2] - pi[2]);
                         p2[0] = pi[0] + dir[0];
                         p2[1] = pi[1] + dir[1];
                         p2[2] = pi[2] + dir[2];
@@ -1682,6 +1773,10 @@ void __cdecl Rope_CollideWorld(int rope_index)
         }
     }
 }
+
+static const float radius_1 = 20.0f;
+static const float force_scale = 5.0f;
+
 
 void __cdecl Rope_CollideEntitiesHelper(int rope_index, float *origin)
 {
@@ -1749,7 +1844,7 @@ void __cdecl Rope_CollideEntities(int rope_index)
     {
         if ( CL_LocalClient_IsActive(0) && cg_pmove[0].ps )
             Rope_CollideEntitiesHelper(rope_index, cg_pmove[0].ps->origin);
-        numEnts = CG_AreaEntities(rope->m_min, rope->m_max, entitylist, 16, (int)&cls.wagerServers[5418].city[54]);
+        numEnts = CG_AreaEntities(rope->m_min, rope->m_max, entitylist, 16, 0x2008000);
         for ( i = 0; i < numEnts; ++i )
         {
             cent = CG_GetEntity(0, entitylist[i]);

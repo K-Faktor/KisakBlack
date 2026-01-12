@@ -250,10 +250,6 @@ struct gjk_query_output : gjk_collision_visitor // sizeof=0x150
 
 struct gjk_collision_visitor // sizeof=0x4
 {                                                                             // XREF: create_gjk_geom_collision_visitor/r
-                                                                                // gjk_physics_collision_visitor/r ...
-        //gjk_collision_visitor_vtbl *__vftable;
-                                                                                // XREF: DynEntCl_CreatePhysObj(DynEntityDef const *,DynEntityClient *,GfxPlacement const *)+D7/w
-                                                                                // DynEntCl_CreatePhysObj(DynEntityDef const *,DynEntityClient *,GfxPlacement const *)+DE/w ...
     virtual void *allocate(const int, const int, const bool) = 0;
     virtual bool is_query()
     {
@@ -265,16 +261,24 @@ struct gjk_collision_visitor // sizeof=0x4
         //    __debugbreak();
         iassert(0);
     }
-    virtual bool query_create_prolog(const void *) = 0;
-    virtual void query_create_epilog(gjk_base_t *) = 0;
-    virtual bool query_create_prolog_1(const float *, const float *, const void *)
+    virtual bool query_create_prolog(const void *)
     {
         return true;
     }
-    virtual void query_create_epilog_1(gjk_base_t *)
+    virtual void query_create_epilog(gjk_base_t *gjk_geom)
     {
         ;
     }
+
+    // LWSS: no heckin clue why these are here, just cloned because of the default virtual impl? Maybe some macro crap
+    //virtual bool query_create_prolog_1(const float *, const float *, const void *)
+    //{
+    //    return true;
+    //}
+    //virtual void query_create_epilog_1(gjk_base_t *)
+    //{
+    //    ;
+    //}
 };
 
 struct create_gjk_geom_collision_visitor : gjk_collision_visitor // sizeof=0x8
@@ -293,14 +297,13 @@ struct create_gjk_geom_collision_visitor : gjk_collision_visitor // sizeof=0x8
         return 0;
     }
 
-    bool query_create_prolog(const void *geom)
+    bool query_create_prolog(const void *geom) override
     {
         return 1;
     }
 
-    void query_create_epilog_1(gjk_base_t *gjk_geom)
+    void query_create_epilog(gjk_base_t *gjk_geom) override
     {
-        //gjk_geom_list_t::add_geom(this->gjk_geom_list, gjk_geom);
         this->gjk_geom_list->add_geom(gjk_geom);
     }
 };

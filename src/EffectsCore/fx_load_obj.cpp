@@ -1,4 +1,222 @@
 #include "fx_load_obj.h"
+#include <universal/com_memory.h>
+#include <gfx_d3d/r_model.h>
+#include <universal/q_parse.h>
+#include <qcommon/common.h>
+#include "FxCurve_load_obj.h"
+#include <universal/com_files.h>
+#include "fx_convert.h"
+
+const FxFlagDef s_allFlagDefs[60] =
+{
+  { "looping", 0, 1, 1 },
+  { "useRandColor", 0, 2, 2 },
+  { "useRandAlpha", 0, 4, 4 },
+  { "useRandSize0", 0, 8, 8 },
+  { "useRandSize1", 0, 16, 16 },
+  { "useRandScale", 0, 32, 32 },
+  { "useRandRotDelta", 0, 64, 64 },
+  { "modColorByAlpha", 0, 128, 128 },
+  { "useRandVel0", 0, 256, 256 },
+  { "useRandVel1", 0, 512, 512 },
+  { "useBackCompatVel", 0, 1024, 1024 },
+  { "absVel0", 0, 2048, 2048 },
+  { "absVel1", 0, 4096, 4096 },
+  { "playOnTouch", 0, 8192, 8192 },
+  { "playOnDeath", 0, 16384, 16384 },
+  { "playOnRun", 0, 32768, 32768 },
+  { "playAttached", 0, 262144, 262144 },
+  { "boundingSphere", 0, 65536, 65536 },
+  { "useItemClip", 1, 8192, 8192 },
+  { "isMatureContent", 1, 2147483648, 2147483648 },
+  { "disabled", 0, 2147483648, 2147483648 },
+  { "spawnRelative", 1, 2, 2 },
+  { "spawnRelativeType0", 1, 0, 0 },
+  { "spawnRelativeType1", 1, 16384, 16384 },
+  { "spawnRelativeType2", 1, 32768, 32768 },
+  { "spawnRelativeType3", 1, 49152, 49152 },
+  { "spawnRelativeType4", 1, 65536, 65536 },
+  { "spawnRelativeType5", 1, 81920, 81920 },
+  { "spawnFrustumCull", 1, 4, 4 },
+  { "runnerUsesRandRot", 1, 8, 8 },
+  { "spawnOffsetNone", 1, 48, 0 },
+  { "spawnOffsetSphere", 1, 48, 16 },
+  { "spawnOffsetCylinder", 1, 48, 32 },
+  { "runRelToWorld", 1, 192, 0 },
+  { "runRelToSpawn", 1, 192, 64 },
+  { "runRelToEffect", 1, 192, 128 },
+  { "runRelToOffset", 1, 192, 192 },
+  { "useCollision", 1, 256, 256 },
+  { "dieOnTouch", 1, 512, 512 },
+  { "drawPastFog", 1, 1024, 1024 },
+  { "drawWithViewModel", 1, 2048, 2048 },
+  { "blocksSight", 1, 4096, 4096 },
+  { "modelUsesPhysics", 1, 134217728, 134217728 },
+  { "nonUniformScale", 1, 268435456, 268435456 },
+  { "startFixed", 2, 3, 0 },
+  { "startFixedRange", 2, 3, 3 },
+  { "startRandom", 2, 3, 1 },
+  { "startIndexed", 2, 3, 2 },
+  { "playOverLife", 2, 4, 4 },
+  { "loopOnlyNTimes", 2, 8, 8 },
+  { "flamechunk", 1, 536870912, 536870912 },
+  { "hasReflection", 1, 1073741824, 1073741824 },
+  { "useRotationAxis", 1, 8388608, 8388608 },
+  { "useGaussianCloud", 1, 4194304, 4194304 },
+  { "useBillboardPivot", 1, 2097152, 2097152 },
+  { "useWorldUp", 1, 524288, 524288 },
+  { "alignViewpoint", 1, 1048576, 1048576 },
+  { "efUseBoundingBox", 3, 4, 4 },
+  { "efLocalBoundingBox", 3, 8, 8 },
+  { NULL, 0, 0, 0 }
+};
+
+const FxElemField s_elemFields[85] =
+{
+  { "name", FX_ParseName },
+  { "editorFlags", FX_ParseNonAtlasFlags },
+  { "flags", FX_ParseNonAtlasFlags },
+  { "spawnRange", FX_ParseSpawnRange },
+  { "fadeInRange", FX_ParseFadeInRange },
+  { "fadeOutRange", FX_ParseFadeOutRange },
+  { "spawnFrustumCullRadius", FX_ParseSpawnFrustumCullRadius },
+  { "spawnLooping", FX_ParseSpawnDefLooping },
+  { "spawnOneShot", FX_ParseSpawnDefOneShot },
+  { "spawnDelayMsec", FX_ParseSpawnDelayMsec },
+  { "lifeSpanMsec", FX_ParseLifeSpanMsec },
+  { "spawnOrgX", FX_ParseSpawnOrgX },
+  { "spawnOrgY", FX_ParseSpawnOrgY },
+  { "spawnOrgZ", FX_ParseSpawnOrgZ },
+  { "spawnOffsetRadius", FX_ParseSpawnOffsetRadius },
+  { "spawnOffsetHeight", FX_ParseSpawnOffsetHeight },
+  { "spawnAnglePitch", FX_ParseSpawnAnglePitch },
+  { "spawnAngleYaw", FX_ParseSpawnAngleYaw },
+  { "spawnAngleRoll", FX_ParseSpawnAngleRoll },
+  { "angleVelPitch", FX_ParseAngleVelPitch },
+  { "angleVelYaw", FX_ParseAngleVelYaw },
+  { "angleVelRoll", FX_ParseAngleVelRoll },
+  { "initialRot", FX_ParseInitialRot },
+  { "rotationAxis", FX_ParseRotationAxis },
+  { "gravity", FX_ParseGravity },
+  { "elasticity", FX_ParseElasticity },
+  { "windinfluence", FX_ParseWindinfluence },
+  { "atlasBehavior", FX_ParseAtlasBehavior },
+  { "atlasIndex", FX_ParseAtlasIndex },
+  { "atlasFps", FX_ParseAtlasFps },
+  { "atlasLoopCount", FX_ParseAtlasLoopCount },
+  { "atlasColIndexBits", FX_ParseAtlasColIndexBits },
+  { "atlasRowIndexBits", FX_ParseAtlasRowIndexBits },
+  { "atlasEntryCount", FX_ParseAtlasEntryCount },
+  { "atlasIndexRange", FX_ParseAtlasIndexRange },
+  { "velGraph0X", FX_ParseVelGraph0X },
+  { "velGraph0Y", FX_ParseVelGraph0Y },
+  { "velGraph0Z", FX_ParseVelGraph0Z },
+  { "velGraph1X", FX_ParseVelGraph1X },
+  { "velGraph1Y", FX_ParseVelGraph1Y },
+  { "velGraph1Z", FX_ParseVelGraph1Z },
+  { "rotGraph", FX_ParseRotGraph },
+  { "sizeGraph0", FX_ParseSizeGraph0 },
+  { "sizeGraph1", FX_ParseSizeGraph1 },
+  { "scaleGraph", FX_ParseScaleGraph },
+  { "colorGraph", FX_ParseColorGraph },
+  { "alphaGraph", FX_ParseAlphaGraph },
+  { "lightingFrac", FX_ParseLightingFrac },
+  { "collOffset", FX_ParseCollOffset },
+  { "collRadius", FX_ParseCollRadius },
+  { "fxOnImpact", FX_ParseFxOnImpact },
+  { "fxOnDeath", FX_ParseFxOnDeath },
+  { "sortOrder", FX_ParseSortOrder },
+  { "efPriority", FX_ParsePriority },
+  { "emission", FX_ParseEmission },
+  { "emitDist", FX_ParseEmitDist },
+  { "emitDistVariance", FX_ParseEmitDistVariance },
+  { "attachment", FX_ParseAttachment },
+  { "trailRepeatTime", FX_ParseTrailRepeatTime },
+  { "trailSplitDist", FX_ParseTrailSplitDist },
+  { "trailScrollTime", FX_ParseTrailScrollTime },
+  { "trailRepeatDist", FX_ParseTrailRepeatDist },
+  { "trailDef", FX_ParseTrailDef },
+  { "billboardSprite", FX_ParseBillboardSprite },
+  { "orientedSprite", FX_ParseOrientedSprite },
+  { "rotatedSprite", FX_ParseRotatedSprite },
+  { "cloud", FX_ParseCloud },
+  { "tail", FX_ParseTail },
+  { "line", FX_ParseLine },
+  { "trail", FX_ParseTrail },
+  { "decal", FX_ParseDecal },
+  { "model", FX_ParseModel },
+  { "light", FX_ParseLight },
+  { "spotLight", FX_ParseSpotLight },
+  { "runner", FX_ParseRunner },
+  { "sound", FX_ParseSound },
+  { "alphafadetimemsec", FX_ParseAlphaFadeTimeMsec },
+  { "maxwind_mag", FX_ParseMaxWindMagnitude },
+  { "maxwind_life", FX_ParseMaxWindLife },
+  { "maxwind_interval", FX_ParseMaxWindInterval },
+  { "billboardTopWidth", FX_ParseBillboardTopWidth },
+  { "billboardBottomWidth", FX_ParseBillboardBottomWidth },
+  { "elemSpawnSound", FX_ParseElemSpawnSound },
+  { "cloudDensity", FX_ParseCloudDensityRange },
+  { "billboardPivot", FX_ParseBillboardPivot }
+};
+
+const FxEffectField s_effectFields[4] =
+{
+  { "efBoundingBoxDim", &FX_ParseEffectBoundingBoxDim },
+  { "efBoundingBoxCentre", &FX_ParseEffectBoundingBoxCentre },
+  { "efFlags", &FX_ParseEffectFlags },
+  { "efPriority", &FX_ParseEffectPriority }
+};
+
+
+
+
+struct// $5F2A149FFFCA11AA1F641100FCD058F6 // sizeof=0xA08
+{                                       // XREF: .data:fx_load/r
+    int effectDefCount;
+    const FxEffectDef *effectDefs[512]; // XREF: FX_Register_LoadObj+48/w
+                                        // FX_Register_LoadObj+9B/r ...
+    unsigned __int8 effectStatus[512];  // XREF: FX_Register_LoadObj+24/r
+                                        // FX_Register_LoadObj+32/w ...
+    const FxEffectDef *defaultEffect;   // XREF: FX_LoadFailed+6/r
+                                        // FX_LoadFailed+3C/r ...
+} fx_load;
+
+int curPriority;
+
+
+
+char __cdecl FX_ParseAssetArray_FxElemVisuals_32_(
+    const char **parse,
+    unsigned __int8 elemType,
+    FxEditorElemDef *edElemDef,
+    FxElemVisuals(*visualsArray)[32],
+    bool(__cdecl *RegisterAsset)(const char *, FxElemVisuals *))
+{
+    char name[264]; // [esp+0h] [ebp-110h] BYREF
+    const char *token; // [esp+10Ch] [ebp-4h]
+
+    if (!FX_SetEditorElemType(edElemDef, elemType))
+        return 0;
+    if (!Com_MatchToken(parse, "{", 1))
+        return 0;
+    for (edElemDef->visualCount = 0; ; ++edElemDef->visualCount)
+    {
+        token = Com_Parse(parse)->token;
+        if (*token == 125)
+            return 1;
+        if (edElemDef->visualCount == 32)
+        {
+            Com_ScriptError("More than %i visuals in array\n", 32);
+            return 0;
+        }
+        I_strncpyz(name, token, 260);
+        if (!RegisterAsset(name, &(*visualsArray)[edElemDef->visualCount]))
+            break;
+    }
+    return 0;
+}
+
 
 void __cdecl FX_UnregisterAll()
 {
@@ -18,16 +236,6 @@ PhysPreset *__cdecl FX_RegisterPhysPreset(const char *name)
         __debugbreak();
     }
     return PhysPresetPrecache(name, (void *(__cdecl *)(int))Hunk_AllocPhysPresetPrecache);
-}
-
-unsigned __int8 *__cdecl Hunk_AllocPhysPresetPrecache(int size)
-{
-    if ( size <= 0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\EffectsCore\\fx_load_obj.cpp", 292, 0, "%s", "size > 0") )
-    {
-        __debugbreak();
-    }
-    return Hunk_Alloc(size, "Hunk_AllocPhysPresetPrecache", 22);
 }
 
 XModel *__cdecl FX_RegisterModel(char *modelName)
@@ -59,14 +267,45 @@ bool __cdecl FX_RegisterMarkMaterials(const char *materialName, Material **mater
     return success;
 }
 
+char __cdecl FX_ParseAssetArray_FxElemMarkVisuals_16_(
+    const char **parse,
+    unsigned __int8 elemType,
+    FxEditorElemDef *edElemDef,
+    FxElemMarkVisuals(*visualsArray)[16],
+    bool(__cdecl *RegisterAsset)(const char *, FxElemMarkVisuals *))
+{
+    char name[264]; // [esp+0h] [ebp-110h] BYREF
+    const char *token; // [esp+10Ch] [ebp-4h]
+
+    if (!FX_SetEditorElemType(edElemDef, elemType))
+        return 0;
+    if (!Com_MatchToken(parse, "{", 1))
+        return 0;
+    for (edElemDef->visualCount = 0; ; ++edElemDef->visualCount)
+    {
+        token = Com_Parse(parse)->token;
+        if (*token == 125)
+            return 1;
+        if (edElemDef->visualCount == 16)
+        {
+            Com_ScriptError("More than %i visuals in array\n", 16);
+            return 0;
+        }
+        I_strncpyz(name, token, 260);
+        if (!RegisterAsset(name, &(*visualsArray)[edElemDef->visualCount]))
+            break;
+    }
+    return 0;
+}
+
 Material *__cdecl FX_RegisterMaterial(char *material)
 {
     if ( !strcmp(material, "$default") )
-        material = "$default3d";
+        material = (char*)"$default3d";
     return Material_RegisterHandle(material, 6);
 }
 
-char __cdecl FX_ParseName(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseName(const char **parse, FxEditorElemDef *edElemDef)
 {
     parseInfo_t *token; // [esp+0h] [ebp-4h]
 
@@ -75,7 +314,7 @@ char __cdecl FX_ParseName(const char **parse, FxEditorElemDef *edElemDef)
     return 1;
 }
 
-char __cdecl FX_ParseNonAtlasFlags(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseNonAtlasFlags(const char **parse, FxEditorElemDef *edElemDef)
 {
     FxFlagOutputSet flagOutputSet; // [esp+0h] [ebp-10h] BYREF
 
@@ -86,7 +325,7 @@ char __cdecl FX_ParseNonAtlasFlags(const char **parse, FxEditorElemDef *edElemDe
     return FX_ParseFlagsField(parse, &flagOutputSet);
 }
 
-char __cdecl FX_ParseFlagsField(const char **parse, FxFlagOutputSet *flagOutputSet)
+bool __cdecl FX_ParseFlagsField(const char **parse, FxFlagOutputSet *flagOutputSet)
 {
     parseInfo_t *token; // [esp+0h] [ebp-4h]
 
@@ -103,7 +342,7 @@ char __cdecl FX_ParseFlagsField(const char **parse, FxFlagOutputSet *flagOutputS
     return 0;
 }
 
-char __cdecl FX_ParseSingleFlag(const char *token, FxFlagOutputSet *flagOutputSet)
+bool __cdecl FX_ParseSingleFlag(const char *token, FxFlagOutputSet *flagOutputSet)
 {
     int *outputFlag; // [esp+0h] [ebp-8h]
     const FxFlagDef *flagDef; // [esp+4h] [ebp-4h]
@@ -139,7 +378,7 @@ bool __cdecl FX_ParseVector2(const char **parse, float *value)
     return FX_ParseFloat(parse, value) && FX_ParseFloat(parse, value + 1) != 0;
 }
 
-char __cdecl FX_ParseFloat(const char **parse, float *value)
+bool __cdecl FX_ParseFloat(const char **parse, float *value)
 {
     *value = Com_ParseFloat(parse);
     return 1;
@@ -155,7 +394,7 @@ bool __cdecl FX_ParseFadeOutRange(const char **parse, FxEditorElemDef *edElemDef
     return FX_ParseVector2(parse, &edElemDef->fadeOutRange.base);
 }
 
-char __cdecl FX_ParseSpawnFrustumCullRadius(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseSpawnFrustumCullRadius(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseFloat(parse, &edElemDef->spawnFrustumCullRadius);
 }
@@ -166,7 +405,7 @@ bool __cdecl FX_ParseSpawnDefLooping(const char **parse, FxEditorElemDef *edElem
             && FX_ParseInt(parse, &edElemDef->spawnLooping.count) != 0;
 }
 
-char __cdecl FX_ParseInt(const char **parse, int *value)
+bool __cdecl FX_ParseInt(const char **parse, int *value)
 {
     *value = Com_ParseInt(parse);
     return 1;
@@ -262,12 +501,12 @@ bool __cdecl FX_ParseElasticity(const char **parse, FxEditorElemDef *edElemDef)
     return FX_ParseVector2(parse, &edElemDef->elasticity.base);
 }
 
-char __cdecl FX_ParseWindinfluence(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseWindinfluence(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseFloat(parse, &edElemDef->windInfluence);
 }
 
-char __cdecl FX_ParseAtlasBehavior(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseAtlasBehavior(const char **parse, FxEditorElemDef *edElemDef)
 {
     FxFlagOutputSet flagOutputSet; // [esp+0h] [ebp-10h] BYREF
 
@@ -277,37 +516,37 @@ char __cdecl FX_ParseAtlasBehavior(const char **parse, FxEditorElemDef *edElemDe
     return FX_ParseFlagsField(parse, &flagOutputSet);
 }
 
-char __cdecl FX_ParseAtlasIndex(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseAtlasIndex(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseInt(parse, &edElemDef->atlas.index);
 }
 
-char __cdecl FX_ParseAtlasIndexRange(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseAtlasIndexRange(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseInt(parse, &edElemDef->atlas.indexRange);
 }
 
-char __cdecl FX_ParseAtlasFps(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseAtlasFps(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseInt(parse, &edElemDef->atlas.fps);
 }
 
-char __cdecl FX_ParseAtlasLoopCount(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseAtlasLoopCount(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseInt(parse, &edElemDef->atlas.loopCount);
 }
 
-char __cdecl FX_ParseAtlasColIndexBits(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseAtlasColIndexBits(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseInt(parse, &edElemDef->atlas.colIndexBits);
 }
 
-char __cdecl FX_ParseAtlasRowIndexBits(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseAtlasRowIndexBits(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseInt(parse, &edElemDef->atlas.rowIndexBits);
 }
 
-char __cdecl FX_ParseAtlasEntryCount(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseAtlasEntryCount(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseInt(parse, &edElemDef->atlas.entryCount);
 }
@@ -336,7 +575,7 @@ bool __cdecl FX_ParseGraphRange(
     return 0;
 }
 
-char __cdecl FX_ParseCurve(const char **parse, int dimCount, float minValue, float maxValue, const FxCurve **shape)
+bool __cdecl FX_ParseCurve(const char **parse, int dimCount, float minValue, float maxValue, const FxCurve **shape)
 {
     long double v6; // st7
     float v7; // [esp+10h] [ebp-820h]
@@ -490,22 +729,22 @@ bool __cdecl FX_ParseVector(const char **parse, float *value)
     return 0;
 }
 
-char __cdecl FX_ParseLightingFrac(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseLightingFrac(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseFloat(parse, &edElemDef->lightingFrac);
 }
 
-char __cdecl FX_ParseCollRadius(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseCollRadius(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseFloat(parse, &edElemDef->collRadius);
 }
 
-char __cdecl FX_ParseFxOnImpact(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseFxOnImpact(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseEffectRef(parse, &edElemDef->effectOnImpact);
 }
 
-char __cdecl FX_ParseEffectRef(const char **parse, const FxEffectDef **fx)
+bool __cdecl FX_ParseEffectRef(const char **parse, const FxEffectDef **fx)
 {
     parseInfo_t *token; // [esp+0h] [ebp-4h]
 
@@ -517,42 +756,42 @@ char __cdecl FX_ParseEffectRef(const char **parse, const FxEffectDef **fx)
     return 1;
 }
 
-char __cdecl FX_ParseFxOnDeath(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseFxOnDeath(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseEffectRef(parse, &edElemDef->effectOnDeath);
 }
 
-char __cdecl FX_ParseSortOrder(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseSortOrder(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseInt(parse, &edElemDef->sortOrder);
 }
 
-char __cdecl FX_ParsePriority(const char **parse)
+bool __cdecl FX_ParsePriority(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseInt(parse, &curPriority);
 }
 
-char __cdecl FX_ParseAlphaFadeTimeMsec(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseAlphaFadeTimeMsec(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseInt(parse, &edElemDef->alphaFadeTimeMsec);
 }
 
-char __cdecl FX_ParseMaxWindMagnitude(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseMaxWindMagnitude(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseInt(parse, &edElemDef->maxWindMagnitude);
 }
 
-char __cdecl FX_ParseMaxWindLife(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseMaxWindLife(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseInt(parse, &edElemDef->lifespanAtMaxWind);
 }
 
-char __cdecl FX_ParseMaxWindInterval(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseMaxWindInterval(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseInt(parse, &edElemDef->spawnIntervalAtMaxWind);
 }
 
-char __cdecl FX_ParseEmission(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseEmission(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseEffectRef(parse, &edElemDef->emission);
 }
@@ -567,40 +806,40 @@ bool __cdecl FX_ParseEmitDistVariance(const char **parse, FxEditorElemDef *edEle
     return FX_ParseVector2(parse, &edElemDef->emitDistVariance.base);
 }
 
-char __cdecl FX_ParseAttachment(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseAttachment(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseEffectRef(parse, &edElemDef->attachment);
 }
 
-char __cdecl FX_ParseTrailRepeatTime(const char **parse)
+bool __cdecl FX_ParseTrailRepeatTime(const char **parse, FxEditorElemDef *edElemDef)
 {
     float deprecated; // [esp+0h] [ebp-4h] BYREF
 
     return FX_ParseFloat(parse, &deprecated);
 }
 
-char __cdecl FX_ParseTrailSplitDist(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseTrailSplitDist(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseInt(parse, &edElemDef->trailSplitDist);
 }
 
-char __cdecl FX_ParseTrailScrollTime(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseTrailScrollTime(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseFloat(parse, &edElemDef->trailScrollTime);
 }
 
-char __cdecl FX_ParseTrailRepeatDist(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseTrailRepeatDist(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseInt(parse, &edElemDef->trailRepeatDist);
 }
 
-char __cdecl FX_ParseBillboardSprite(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseBillboardSprite(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseAssetArray_FxElemVisuals_32_(
                      parse,
                      0,
                      edElemDef,
-                     (FxElemVisuals (*)[32])&edElemDef->692,
+                     &edElemDef->visuals,
                      (bool (__cdecl *)(const char *, FxElemVisuals *))FX_RegisterAsset_Material);
 }
 
@@ -610,67 +849,67 @@ bool __cdecl FX_RegisterAsset_Material(char *name, FxElemVisuals *visuals)
     return visuals->anonymous != 0;
 }
 
-char __cdecl FX_ParseOrientedSprite(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseOrientedSprite(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseAssetArray_FxElemVisuals_32_(
                      parse,
                      1u,
                      edElemDef,
-                     (FxElemVisuals (*)[32])&edElemDef->692,
+                     &edElemDef->visuals,
                      (bool (__cdecl *)(const char *, FxElemVisuals *))FX_RegisterAsset_Material);
 }
 
-char __cdecl FX_ParseRotatedSprite(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseRotatedSprite(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseAssetArray_FxElemVisuals_32_(
                      parse,
                      2u,
                      edElemDef,
-                     (FxElemVisuals (*)[32])&edElemDef->692,
+                     &edElemDef->visuals,
                      (bool (__cdecl *)(const char *, FxElemVisuals *))FX_RegisterAsset_Material);
 }
 
-char __cdecl FX_ParseCloud(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseCloud(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseAssetArray_FxElemVisuals_32_(
                      parse,
                      6u,
                      edElemDef,
-                     (FxElemVisuals (*)[32])&edElemDef->692,
+                     &edElemDef->visuals,
                      (bool (__cdecl *)(const char *, FxElemVisuals *))FX_RegisterAsset_Material);
 }
 
-char __cdecl FX_ParseTail(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseTail(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseAssetArray_FxElemVisuals_32_(
                      parse,
                      3u,
                      edElemDef,
-                     (FxElemVisuals (*)[32])&edElemDef->692,
+                     &edElemDef->visuals,
                      (bool (__cdecl *)(const char *, FxElemVisuals *))FX_RegisterAsset_Material);
 }
 
-char __cdecl FX_ParseLine(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseLine(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseAssetArray_FxElemVisuals_32_(
                      parse,
                      4u,
                      edElemDef,
-                     (FxElemVisuals (*)[32])&edElemDef->692,
+                     &edElemDef->visuals,
                      (bool (__cdecl *)(const char *, FxElemVisuals *))FX_RegisterAsset_Material);
 }
 
-char __cdecl FX_ParseTrail(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseTrail(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseAssetArray_FxElemVisuals_32_(
                      parse,
                      5u,
                      edElemDef,
-                     (FxElemVisuals (*)[32])&edElemDef->692,
+                     &edElemDef->visuals,
                      (bool (__cdecl *)(const char *, FxElemVisuals *))FX_RegisterAsset_Material);
 }
 
-char __cdecl FX_ParseTrailDef(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseTrailDef(const char **parse, FxEditorElemDef *edElemDef)
 {
     int index; // [esp+0h] [ebp-Ch] BYREF
     FxTrailVertex *trailVertex; // [esp+4h] [ebp-8h]
@@ -728,13 +967,13 @@ char __cdecl FX_ParseTrailDef(const char **parse, FxEditorElemDef *edElemDef)
     return 1;
 }
 
-char __cdecl FX_ParseDecal(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseDecal(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseAssetArray_FxElemMarkVisuals_16_(
                      parse,
                      0xBu,
                      edElemDef,
-                     (FxElemMarkVisuals (*)[16])&edElemDef->692,
+                     &edElemDef->markVisuals,
                      FX_RegisterAsset_DecalMaterials);
 }
 
@@ -743,13 +982,13 @@ bool __cdecl FX_RegisterAsset_DecalMaterials(const char *name, FxElemMarkVisuals
     return FX_RegisterMarkMaterials(name, visuals->materials);
 }
 
-char __cdecl FX_ParseModel(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseModel(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseAssetArray_FxElemVisuals_32_(
                      parse,
                      7u,
                      edElemDef,
-                     (FxElemVisuals (*)[32])&edElemDef->692,
+                     &edElemDef->visuals,
                      (bool (__cdecl *)(const char *, FxElemVisuals *))FX_RegisterAsset_Model);
 }
 
@@ -759,12 +998,12 @@ bool __cdecl FX_RegisterAsset_Model(char *name, FxElemVisuals *visuals)
     return visuals->anonymous != 0;
 }
 
-char __cdecl FX_ParseLight(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseLight(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_SetEditorElemType(edElemDef, 8u);
 }
 
-char __cdecl FX_SetEditorElemType(FxEditorElemDef *edElemDef, unsigned __int8 type)
+bool __cdecl FX_SetEditorElemType(FxEditorElemDef *edElemDef, unsigned __int8 type)
 {
     if ( edElemDef->elemType == 13 )
     {
@@ -778,18 +1017,18 @@ char __cdecl FX_SetEditorElemType(FxEditorElemDef *edElemDef, unsigned __int8 ty
     }
 }
 
-char __cdecl FX_ParseSpotLight(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseSpotLight(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_SetEditorElemType(edElemDef, 9u);
 }
 
-char __cdecl FX_ParseRunner(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseRunner(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseAssetArray_FxElemVisuals_32_(
                      parse,
                      0xCu,
                      edElemDef,
-                     (FxElemVisuals (*)[32])&edElemDef->692,
+                     &edElemDef->visuals,
                      (bool (__cdecl *)(const char *, FxElemVisuals *))FX_RegisterAsset_EffectDef);
 }
 
@@ -799,28 +1038,28 @@ bool __cdecl FX_RegisterAsset_EffectDef(char *name, FxElemVisuals *visuals)
     return visuals->anonymous != 0;
 }
 
-char __cdecl FX_ParseSound(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseSound(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseAssetArray_FxElemVisuals_32_(
                      parse,
                      0xAu,
                      edElemDef,
-                     (FxElemVisuals (*)[32])&edElemDef->692,
+                     &edElemDef->visuals,
                      (bool (__cdecl *)(const char *, FxElemVisuals *))FX_RegisterAsset_SoundAliasName);
 }
 
-char __cdecl FX_RegisterAsset_SoundAliasName(char *name, FxElemVisuals *visuals)
+bool __cdecl FX_RegisterAsset_SoundAliasName(char *name, FxElemVisuals *visuals)
 {
     ReplaceString((const char **)visuals, name, "FX_RegisterAsset_SoundAliasName", 11, SCRIPTINSTANCE_SERVER);
     return 1;
 }
 
-char __cdecl FX_ParseElemSpawnSound(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseElemSpawnSound(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseElemSpawnSoundAsset(parse, edElemDef);
 }
 
-char __cdecl FX_ParseElemSpawnSoundAsset(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseElemSpawnSoundAsset(const char **parse, FxEditorElemDef *edElemDef)
 {
     char name[264]; // [esp+0h] [ebp-110h] BYREF
     const char *token; // [esp+10Ch] [ebp-4h]
@@ -844,12 +1083,12 @@ char __cdecl FX_ParseElemSpawnSoundAsset(const char **parse, FxEditorElemDef *ed
     return 0;
 }
 
-char __cdecl FX_ParseBillboardTopWidth(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseBillboardTopWidth(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseFloat(parse, &edElemDef->billboardTopWidth);
 }
 
-char __cdecl FX_ParseBillboardBottomWidth(const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseBillboardBottomWidth(const char **parse, FxEditorElemDef *edElemDef)
 {
     return FX_ParseFloat(parse, &edElemDef->billboardBottomWidth);
 }
@@ -885,7 +1124,7 @@ bool __cdecl FX_ParseEffectBoundingBoxCentre(const char **parse, FxEditorEffectD
     return FX_ParseVector(parse, edEffectDef->boundingBoxCentre);
 }
 
-char __cdecl FX_ParseEffectFlags(const char **parse, FxEditorEffectDef *edEffectDef)
+bool __cdecl FX_ParseEffectFlags(const char **parse, FxEditorEffectDef *edEffectDef)
 {
     char ret; // [esp+3h] [ebp-15h]
     FxFlagOutputSet flagOutputSet; // [esp+4h] [ebp-14h] BYREF
@@ -899,7 +1138,7 @@ char __cdecl FX_ParseEffectFlags(const char **parse, FxEditorEffectDef *edEffect
     return ret;
 }
 
-char __cdecl FX_ParseEffectPriority(const char **parse, FxEditorEffectDef *edEffectDef)
+bool __cdecl FX_ParseEffectPriority(const char **parse, FxEditorEffectDef *edEffectDef)
 {
     char result; // al
 
@@ -913,7 +1152,7 @@ bool __cdecl FX_ParseBillboardPivot(const char **parse, FxEditorElemDef *edElemD
     return FX_ParseVector2(parse, edElemDef->billboardPivot);
 }
 
-char __cdecl FX_ParseEditorElem(int version, const char **parse, FxEditorElemDef *edElemDef)
+bool __cdecl FX_ParseEditorElem(int version, const char **parse, FxEditorElemDef *edElemDef)
 {
     parseInfo_t *token; // [esp+4h] [ebp-4h]
 
@@ -1007,7 +1246,7 @@ bool __cdecl FX_ParseEditorElemField(const char **parse, FxEditorElemDef *edElem
     return 0;
 }
 
-char __cdecl FX_LoadEditorEffectFromBuffer(
+bool __cdecl FX_LoadEditorEffectFromBuffer(
                 const char *buffer,
                 const char *parseSessionName,
                 FxEditorEffectDef *edEffectDef)
@@ -1034,7 +1273,7 @@ char __cdecl FX_LoadEditorEffectFromBuffer(
     return success;
 }
 
-char __cdecl FX_ParseEditorEffect(const char **parse, FxEditorEffectDef *edEffectDef)
+bool __cdecl FX_ParseEditorEffect(const char **parse, FxEditorEffectDef *edEffectDef)
 {
     int version; // [esp+8h] [ebp-8h]
     parseInfo_t *token; // [esp+Ch] [ebp-4h]
@@ -1239,7 +1478,7 @@ const FxEffectDef *__cdecl FX_LoadFailed(const char *name)
     baseBytesNeeded = fx_load.defaultEffect->totalSize - (v5 - fx_load.defaultEffect->name);
     effectDef = FX_AllocMem(fx_load.defaultEffect->totalSize - (v5 - (fx_load.defaultEffect->name + 1)) + strlen(name));
     memcpy(effectDef, (unsigned __int8 *)fx_load.defaultEffect, baseBytesNeeded);
-    *(unsigned int *)effectDef = &effectDef[baseBytesNeeded];
+    *(unsigned int *)effectDef = (unsigned int) & effectDef[baseBytesNeeded];
     v4 = name;
     v3 = *(_BYTE **)effectDef;
     do
@@ -1281,7 +1520,7 @@ const FxEffectDef *__cdecl FX_Register_FastFile(const char *name)
     {
         __debugbreak();
     }
-    return DB_FindXAssetHeader(ASSET_TYPE_FX, name, 1, -1).fx;
+    return DB_FindXAssetHeader(ASSET_TYPE_FX, (char*)name, 1, -1).fx;
 }
 
 const FxEffectDef *__cdecl FX_Register_LoadObj(char *name)
@@ -1378,11 +1617,20 @@ int __cdecl FX_HashName(char *name)
 
 void __cdecl FX_RegisterDefaultEffect()
 {
-    fx_load.defaultEffect = FX_Register("misc/missing_fx");
+    fx_load.defaultEffect = FX_Register((char*)"misc/missing_fx");
 }
 
-unsigned __int8 *__cdecl Hunk_AllocPhysPresetPrecache(unsigned int size)
+void *__cdecl Hunk_AllocPhysPresetPrecache(unsigned int size)
 {
     return Hunk_Alloc(size, "PhysPresetPrecache", 30);
 }
 
+void *__cdecl Hunk_AllocPhysPresetPrecache(int size)
+{
+    if (size <= 0
+        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\EffectsCore\\fx_load_obj.cpp", 292, 0, "%s", "size > 0"))
+    {
+        __debugbreak();
+    }
+    return Hunk_Alloc(size, "Hunk_AllocPhysPresetPrecache", 22);
+}

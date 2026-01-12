@@ -1,6 +1,10 @@
 #pragma once
 #include "r_rendercmds.h"
 
+static const float cull_thresh = -100.0f;
+static const float dist_thresh2 = 6.4e7f;
+
+
 enum DpvsClipChildren : __int32
 {                                       // XREF: R_VisitPortals/r
                                         // R_VisitPortalsForCell/r

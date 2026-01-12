@@ -28,7 +28,7 @@ struct __declspec(align(8)) broad_phase_base // sizeof=0x50
     // padding byte
     // padding byte
 
-    broad_phase_info *get_bpi()
+    struct broad_phase_info *get_bpi()
     {
         return (broad_phase_info *)this;
     }
@@ -38,7 +38,7 @@ struct __declspec(align(8)) broad_phase_base // sizeof=0x50
         return (broad_phase_group *)this;
     }
 
-    broad_phase_info *get_bpi_env()
+    struct broad_phase_info *get_bpi_env()
     {
         return get_bpi();
     }
@@ -335,3 +335,8 @@ broad_phase_memory *__thiscall broad_phase_memory::broad_phase_memory(broad_phas
 void __cdecl process_cluster_environment_collision(broad_phase_base *bpb, broad_phase_base_list::node *bpeqr);
 void __thiscall broad_phase_memory::~broad_phase_memory(broad_phase_memory *this);
 broad_phase_memory *__cdecl broad_phase_memory::allocate_buffer(const broad_phase_memory_info *bpmi);
+
+
+void calc_largest_vel_sq(broad_phase_info *bpi);
+
+extern broad_phase_memory *G_BPM;

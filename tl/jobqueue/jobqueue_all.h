@@ -31,22 +31,6 @@ struct tlAtomicMutexLocker // sizeof=0x4
     tlAtomicMutex *Mutex;
 };
 
-struct __declspec(align(8)) tlAtomicReadWriteMutex // sizeof=0x18
-{                                       // XREF: .data:tlAtomicReadWriteMutex g_auto_rigid_body_map_mutex/r
-                                        // broad_phase_memory/r
-    volatile unsigned __int64 WriteThreadId;
-    // XREF: _dynamic_initializer_for__g_auto_rigid_body_map_mutex__+3/w
-    // _dynamic_initializer_for__g_auto_rigid_body_map_mutex__+D/w
-    volatile int ReadLockCount;         // XREF: _dynamic_initializer_for__g_auto_rigid_body_map_mutex__+17/w
-    volatile int WriteLockCount;        // XREF: _dynamic_initializer_for__g_auto_rigid_body_map_mutex__+21/w
-    tlAtomicReadWriteMutex *ThisPtr;    // XREF: auto_rigid_body::add(centity_s const *,gjk_physics_collision_visitor *,int)+15B/r
-    // _dynamic_initializer_for__g_auto_rigid_body_map_mutex__+2B/w ...
-// padding byte
-// padding byte
-// padding byte
-// padding byte
-};
-
 struct jqAtomicHeap // sizeof=0x110
 {                                       // XREF: jqBatchPool/r
 

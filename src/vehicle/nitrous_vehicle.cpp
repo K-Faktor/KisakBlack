@@ -1,6 +1,23 @@
 #include "nitrous_vehicle.h"
+#include <xanim/dobj.h>
+#include <bgame/bg_public.h>
+#include <game/g_scr_vehicle.h>
+#include <qcommon/dobj_management.h>
+#include <xanim/dobj_utils.h>
+#include <physics/phys_assert.h>
+#include <client_mp/cl_main_mp.h>
+#include <cgame_mp/cg_actors_mp.h>
+#include <cgame_mp/cg_ents_mp.h>
+#include <cgame_mp/cg_vehicles_mp.h>
+#include <physics/physpreset_load_obj.h>
+#include <physics/phys_broad_phase.h>
 
-VehicleParameter *__thiscall VehicleParameter::VehicleParameter(VehicleParameter *this)
+float mass_z_offset = 20.0f;
+
+VehicleParameter g_default_params;
+
+
+VehicleParameter::VehicleParameter()
 {
     float *m_buoyancybox_max; // ecx
 
@@ -49,10 +66,9 @@ VehicleParameter *__thiscall VehicleParameter::VehicleParameter(VehicleParameter
     m_buoyancybox_max[1] = 0.0f;
     m_buoyancybox_max[2] = 0.0f;
     this->m_mass_center_offset[2] = mass_z_offset;
-    return this;
 }
 
-NitrousVehicle *__thiscall NitrousVehicle::NitrousVehicle(NitrousVehicle *this)
+NitrousVehicle::NitrousVehicle()
 {
     int k; // [esp+18h] [ebp-10h]
     int v3; // [esp+1Ch] [ebp-Ch]
@@ -87,10 +103,9 @@ NitrousVehicle *__thiscall NitrousVehicle::NitrousVehicle(NitrousVehicle *this)
     this->m_flags &= ~2u;
     for ( i = 0; i < 6; ++i )
         this->m_wheels[i] = 0;
-    return this;
 }
 
-void __thiscall NitrousVehicle::init(NitrousVehicle *this, gentity_s *owner, const VehicleParameter *parameter)
+void NitrousVehicle::init(gentity_s *owner, const VehicleParameter *parameter)
 {
     DObj *ServerDObj; // eax
     float axis[9]; // [esp+28h] [ebp-44h] BYREF
@@ -106,7 +121,8 @@ void __thiscall NitrousVehicle::init(NitrousVehicle *this, gentity_s *owner, con
 
     if ( !parameter )
         parameter = &g_default_params;
-    NitrousVehicle::pause_physics(this, 0);
+    //NitrousVehicle::pause_physics(this, 0);
+    this->pause_physics(false);
     this->m_owner = owner;
     this->m_entnum = owner->s.number;
     this->m_vehicle_info = BG_GetVehicleInfo(owner->scr_vehicle->infoIdx);
@@ -115,7 +131,8 @@ void __thiscall NitrousVehicle::init(NitrousVehicle *this, gentity_s *owner, con
     this->m_parameter = parameter;
     this->m_hand_brake = 0.0f;
     this->m_brake = 0.0f;
-    NitrousVehicle::set_throttle(this, 0.0);
+    //NitrousVehicle::set_throttle(this, 0.0);
+    this->set_throttle(0.0f);
     this->m_steer_factor = 0.0f;
     this->m_forward_vel = 0.0f;
     this->m_script_brake = 0.0f;
@@ -161,7 +178,8 @@ void __thiscall NitrousVehicle::init(NitrousVehicle *this, gentity_s *owner, con
     {
         phys_exec_debug_callback(0);
     }
-    NitrousVehicle::_setup_wheels(this, (DObj *)&savedregs, 0);
+    //NitrousVehicle::_setup_wheels(this, (DObj *)&savedregs, 0);
+    this->_setup_wheels(0);
     for ( i = 0; i < 4; ++i )
     {
         this->m_wheel_state[i].m_state = WHEEL_STATE_AIRBORN;
@@ -171,7 +189,7 @@ void __thiscall NitrousVehicle::init(NitrousVehicle *this, gentity_s *owner, con
     }
 }
 
-void __thiscall NitrousVehicle::set_throttle(NitrousVehicle *this, float throttle)
+void NitrousVehicle::set_throttle(float throttle)
 {
     if ( (throttle < -1.0 || throttle > 1.0)
         && !Assert_MyHandler(
@@ -187,8 +205,7 @@ void __thiscall NitrousVehicle::set_throttle(NitrousVehicle *this, float throttl
     this->m_throttle = throttle;
 }
 
-void __thiscall NitrousVehicle::init(
-                NitrousVehicle *this,
+void NitrousVehicle::init(
                 int localClientNum,
                 centity_s *owner,
                 const VehicleParameter *parameter)
@@ -225,11 +242,12 @@ void __thiscall NitrousVehicle::init(
         this->m_xmodel = DObjGetModel(obj, 0);
         this->m_owner = 0;
         this->m_entnum = owner->nextState.number;
-        this->m_vehicle_info = CG_GetVehicleInfo(owner->nextState.un2.vehicleState.vehicleInfoIndex);
+        this->m_vehicle_info = CG_GetVehicleInfo(owner->nextState.vehicleState.vehicleInfoIndex);
         this->m_parameter = parameter;
         this->m_hand_brake = 0.0f;
         this->m_brake = 0.0f;
-        NitrousVehicle::set_throttle(this, 0.0);
+        //NitrousVehicle::set_throttle(this, 0.0);
+        this->set_throttle(0.0f);
         this->m_steer_factor = 0.0f;
         this->m_forward_vel = 0.0f;
         this->m_script_brake = 0.0f;
@@ -270,7 +288,8 @@ void __thiscall NitrousVehicle::init(
         {
             phys_exec_debug_callback(0);
         }
-        NitrousVehicle::_setup_wheels(this, (DObj *)&savedregs, localClientNum);
+        //NitrousVehicle::_setup_wheels(this, (DObj *)&savedregs, localClientNum);
+        this->_setup_wheels(localClientNum);
         for ( i = 0; i < 4; ++i )
         {
             this->m_wheel_state[i].m_state = WHEEL_STATE_AIRBORN;
@@ -343,10 +362,11 @@ PhysObjUserData *__cdecl Phys_ObjCreateNitrousVehicle(
     state.buoyancy = (int)v6;
     state.underwater = 0;
     state.id = -1;
-    return Phys_CreateBodyFromState((int)&savedregs, 0, &state, gjk_geom_list, 1);
+    //return Phys_CreateBodyFromState((int)&savedregs, 0, &state, gjk_geom_list, 1);
+    return Phys_CreateBodyFromState(0, &state, gjk_geom_list, 1);
 }
 
-void    NitrousVehicle::unpause_physics(NitrousVehicle *this@<ecx>, int a2@<ebp>)
+void    NitrousVehicle::unpause_physics()
 {
     PhysObjUserData *NitrousVehicle; // eax
     float *v3; // [esp-54h] [ebp-104h]

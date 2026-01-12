@@ -108,6 +108,9 @@ struct pulse_sum_normal : phys_link_list_base<pulse_sum_normal> // sizeof=0xA0
         float *error_sq,
         const bool add_error);
     void SOLVER_solver_prolog(float delta_t);
+
+    void set_pulse_sum_limits_parent_ratio(float limit_ratio, pulse_sum_normal *const parent);
+    void setup_vel_uni_standard(float delta_t, float max_penalty_restitution_vel);
 };
 
 struct __declspec(align(8)) pulse_sum_wheel : phys_link_list_base<pulse_sum_wheel> // sizeof=0xC0
@@ -139,6 +142,8 @@ struct __declspec(align(8)) pulse_sum_wheel : phys_link_list_base<pulse_sum_whee
     void addp_pulse_chain();
     void SOLVER_apply_relaxation(float *error_sq);
     void SOLVER_solver_prolog(float delta_t);
+
+    void set_side_fwd_ratios(float side_ratio, float fwd_ratio, float side_fric_max);
 };
 
 struct pulse_sum_angular : phys_link_list_base<pulse_sum_angular> // sizeof=0x90
@@ -450,6 +455,9 @@ struct pulse_sum_constraint_solver // sizeof=0x84
         phys_simple_link_list<pulse_sum_constraint_solver::temp_user_rigid_body> *list_turb,
         phys_simple_link_list<pulse_sum_constraint_solver::user_rigid_body_restore_info> *list_urbri,
         rigid_body_constraint *rbc);
+
+    pulse_sum_normal *create_pulse_sum_wheel_fwd(pulse_sum_wheel *psw);
+    pulse_sum_wheel *create_pulse_sum_wheel();
 };
 
 

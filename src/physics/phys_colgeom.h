@@ -237,7 +237,7 @@ struct phys_gjk_geom // sizeof=0x4
 };
 
 
-class gjk_base_t : phys_gjk_geom // sizeof=0x50
+struct gjk_base_t : public phys_gjk_geom // sizeof=0x50
 {                                                                             // XREF: gjk_brush_t/r
 public:
         // padding byte

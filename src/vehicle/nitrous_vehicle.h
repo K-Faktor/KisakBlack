@@ -289,7 +289,7 @@ struct NitrousVehicle // sizeof=0x440
 {                                       // XREF: phys_free_list<NitrousVehicle>::T_internal/r
     NitrousVehicle();
 
-    void init(gentity_s *owner, const VehicleParameter *parameter);
+    void init(struct gentity_s *owner, const struct VehicleParameter *parameter);
     void init(
         int localClientNum,
         struct centity_s *owner,

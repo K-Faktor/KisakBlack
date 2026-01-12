@@ -232,6 +232,34 @@ struct    rigid_body_constraint_wheel : rigid_body_constraint // sizeof=0xD0
         struct pulse_sum_normal *m_ps_suspension;
         struct pulse_sum_normal *m_ps_side_fric;
         struct pulse_sum_normal *m_ps_fwd_fric;
+
+        void set_wheel_state_accelerating(float desired_speed_k, float acceleration_factor_k);
+        void get_wheel_state_accelerating(float *desired_speed_k, float *acceleration_factor_k);
+        void set_wheel_state_braking(float braking_factor_k);
+        void set_no_collision();
+        void set_collision(
+            rigid_body *const rb,
+            const phys_vec3 *hitp_loc,
+            const phys_vec3 *hitn_loc);
+        void set(
+            const phys_vec3 *wheel_center_loc,
+            const phys_vec3 *suspension_dir_loc,
+            const phys_vec3 *wheel_axis_loc,
+            float wheel_radius,
+            float fwd_fric_k,
+            float side_fric_k,
+            float suspension_stiffness_k,
+            float suspension_damp_k,
+            float hard_limit_dist,
+            float roll_stability_factor,
+            float pitch_stability_factor,
+            float side_fric_max);
+        void get_wheel_collide_segment(
+            const phys_mat44 *b1_mat,
+            phys_vec3 *const p0,
+            phys_vec3 *const p1);
+        void epilog_vel_constraint(float delta_t);
+        void setup_constraint(pulse_sum_constraint_solver *psys, float delta_t);
 };
 
 struct    __declspec(align(16)) rigid_body_constraint_angular_actuator : rigid_body_constraint // sizeof=0xC0
@@ -487,6 +515,7 @@ public:
 
 struct environment_rigid_body : rigid_body // sizeof=0x160
 {                                       // XREF: physics_system/r
+    void set();
 };
 
 //void __thiscall rigid_body::add_force(rigid_body *this, const phys_vec3 *force);

@@ -130,9 +130,9 @@ void    SpotLightViewMatrixDir3(
                 const float *dirz,
                 float (*mtx)[4]);
 void __cdecl SpotLightProjectionMatrix(float cosFov, float zNear, float zFar, float (*mtx)[4]);
-void __cdecl InfinitePerspectiveMatrix(float (*mtx)[4], float tanHalfFovX, float tanHalfFovY, float zNear);
+void __cdecl InfinitePerspectiveMatrix(float tanHalfFovX, float tanHalfFovY, float zNear, float (*mtx)[4]);
 
-void __cdecl MatrixForViewer(mat4x4 &mtx, const vec3r origin, const mat3x3 &axis);
+void __cdecl MatrixForViewer(const float *origin, const float (*axis)[3], float (*mtx)[4]);
 void __cdecl AnglesSubtract(const float *v1, const float *v2, float *v3);
 double __cdecl AngleNormalize360(float angle);
 double __cdecl AngleDelta(float angle1, float angle2);

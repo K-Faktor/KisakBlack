@@ -2744,7 +2744,7 @@ void    IK_Layer_PlayerPitch(float a1@<ebp>, IKState *ikState, bool preControlle
             {
                 ofsUpCrouch[0] = 5.0f999999;
                 ofsUpCrouch[1] = 0.0f;
-                ofsUpCrouch[2] = FLOAT_N2_5;
+                ofsUpCrouch[2] = -2.5f;
                 ofsDn[1] = 5.0f999999;
                 ofsDn[2] = 0.0f;
                 v187 = FLOAT_4_5;

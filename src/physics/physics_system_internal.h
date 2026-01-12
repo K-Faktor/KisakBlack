@@ -66,24 +66,24 @@ struct __declspec(align(16)) physics_system // sizeof=0x32C0
 
 struct rbint // sizeof=0x0
 {
-    void __cdecl take_last_step(user_rigid_body *rb);
-    const phys_vec3 *inv_L(
+    static void __cdecl take_last_step(user_rigid_body *rb);
+    static const phys_vec3 *inv_L(
         const phys_vec3 *result,
         const rigid_body *rb,
         const phys_vec3 *t,
         float delta_t);
-    void update_stability(rigid_body *const rb, float delta_t);
-    const phys_vec3 *__cdecl gtv(const phys_vec3 *result, rigid_body *const b, const phys_vec3 *r);
-    void substep(user_rigid_body *rb, float delta_t);
-    void solver_prolog(rigid_body *rb, float delta_t);
-    void euler_integrate_velocity(rigid_body *const rb, float delta_t);
-    void euler_integrate_pos(rigid_body *const rb, float delta_t);
-    void add_vel(rigid_body *rb, const phys_vec3 *t, const phys_vec3 *a);
-    void prolog_frame_advance(user_rigid_body *rb, float delta_t);
-    void collision_prolog(user_rigid_body *rb, float delta_t);
-    void take_next_step(user_rigid_body *rb, float delta_t);
-    void collision_prolog(rigid_body *const rb, float delta_t);
-    void setup_constraint(rigid_body *rb, pulse_sum_node *psn);
+    static void update_stability(rigid_body *const rb, float delta_t);
+    static const phys_vec3 *__cdecl gtv(const phys_vec3 *result, rigid_body *const b, const phys_vec3 *r);
+    static void substep(user_rigid_body *rb, float delta_t);
+    static void solver_prolog(rigid_body *rb, float delta_t);
+    static void euler_integrate_velocity(rigid_body *const rb, float delta_t);
+    static void euler_integrate_pos(rigid_body *const rb, float delta_t);
+    static void add_vel(rigid_body *rb, const phys_vec3 *t, const phys_vec3 *a);
+    static void prolog_frame_advance(user_rigid_body *rb, float delta_t);
+    static void collision_prolog(user_rigid_body *rb, float delta_t);
+    static void collision_prolog(rigid_body *const rb, float delta_t);
+    static void take_next_step(user_rigid_body *rb, float delta_t);
+    static void setup_constraint(rigid_body *rb, pulse_sum_node *psn);
 };
 
 

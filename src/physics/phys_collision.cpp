@@ -1,7 +1,6 @@
 #include "phys_collision.h"
 
 void __thiscall contact_point_info::get_closest_psc(
-                contact_point_info *this,
                 const phys_vec3 *normal,
                 const phys_vec3 *b1_r_loc,
                 const phys_vec3 *b2_r_loc,
@@ -1174,3 +1173,258 @@ LABEL_69:
     }
 }
 
+void create_entity_bpi(gjk_physics_collision_visitor *collision_visitor, int mask)
+{
+    void *cent; // eax
+    broad_phase_environment_info *bpei_mt; // edi
+    _DWORD *v5; // eax
+    bool v6; // zf
+    phys_mat44 *ent_mat; // eax
+    phys_auto_activate_callback *ent_aac; // eax
+    LONG v9; // ecx
+    void *m_data; // edi
+    const void *glass; // edi
+    rigid_body *rb; // eax
+    __int64 v13; // xmm0_8
+    const broad_phase_environment_query_input *bpeqi; // eax
+    float z; // xmm2_4
+    float v16; // xmm1_4
+    const phys_mat44 *cg_to_world_xform; // eax
+    float v18; // xmm2_4
+    float v19; // xmm3_4
+    float v20; // xmm4_4
+    float v21; // xmm5_4
+    float v22; // xmm1_4
+    const centity_t *v23; // eax
+    LocalClientNum_t Primary; // eax
+    const Glass *v25; // eax
+    const centity_t *v26; // [esp-48h] [ebp-54h]
+    __int64 v27; // [esp-20h] [ebp-2Ch]
+    float v28; // [esp-18h] [ebp-24h]
+    LONG v29[3]; // [esp-4h] [ebp-10h] BYREF
+    LONG retaddr; // [esp+Ch] [ebp+0h]
+
+    v29[1] = a1;
+    v29[2] = retaddr;
+    cent = (void *)collision_visitor->cent;
+    if (!cent)
+    {
+        cent = (void *)collision_visitor->glass;
+        if (!cent)
+        {
+            if (!collision_visitor->dynEntDef
+                && !Assert_MyHandler(
+                    "c:\\t6\\code\\src\\physics\\phys_collision.cpp",
+                    425,
+                    0,
+                    "(collision_visitor->dynEntDef)",
+                    (const char *)&pBlock))
+            {
+                __debugbreak();
+            }
+            cent = (void *)collision_visitor->dynEntDef;
+        }
+    }
+    bpei_mt = bpei_database_t::get_bpei_mt(&G_BPM->g_bpei_database, (const bpei_database_id)(unsigned int)cent);
+    if (!bpei_mt->m_data)
+    {
+        while (_InterlockedCompareExchange((volatile signed __int32 *)&bpei_mt->m_mutex, 1, 0))
+            ;
+        v29[0] = 0;
+        InterlockedExchange(v29, 0);
+        if (!bpei_mt->m_data)
+        {
+            v5 = (_DWORD *)collision_visitor->allocate(collision_visitor, 8, 4, 0);
+            v6 = (collision_visitor->rb->m_flags & 0x10) == 0;
+            v29[0] = (LONG)v5;
+            if (v6)
+            {
+                *v5 = 0;
+            }
+            else
+            {
+                ent_mat = create_ent_mat(collision_visitor);
+                *(_DWORD *)v29[0] = ent_mat;
+            }
+            ent_aac = create_ent_aac(collision_visitor);
+            v9 = v29[0];
+            *(_DWORD *)(v29[0] + 4) = ent_aac;
+            bpei_mt->m_data = (void *)v9;
+        }
+        minspec_mutex::Unlock(&bpei_mt->m_mutex);
+        if (!bpei_mt->m_data
+            && !Assert_MyHandler(
+                "c:\\t6\\code\\src\\physics\\phys_collision.cpp",
+                465,
+                0,
+                "(bpei->m_data)",
+                (const char *)&pBlock))
+        {
+            __debugbreak();
+        }
+    }
+    m_data = bpei_mt->m_data;
+    if ((collision_visitor->rb->m_flags & 0x10) != 0)
+    {
+        if (collision_visitor->cg_to_world_xform
+            && !Assert_MyHandler(
+                "c:\\t6\\code\\src\\physics\\phys_collision.cpp",
+                470,
+                0,
+                "(collision_visitor->cg_to_world_xform == 0)",
+                (const char *)&pBlock))
+        {
+            __debugbreak();
+        }
+        if (collision_visitor->cg_to_rb_xform
+            && !Assert_MyHandler(
+                "c:\\t6\\code\\src\\physics\\phys_collision.cpp",
+                471,
+                0,
+                "(collision_visitor->cg_to_rb_xform == 0)",
+                (const char *)&pBlock))
+        {
+            __debugbreak();
+        }
+        if (!*(_DWORD *)m_data
+            && !Assert_MyHandler(
+                "c:\\t6\\code\\src\\physics\\phys_collision.cpp",
+                472,
+                0,
+                "(ebpih->m_mat)",
+                (const char *)&pBlock))
+        {
+            __debugbreak();
+        }
+        collision_visitor->cg_to_world_xform = *(const phys_mat44 **)m_data;
+        collision_visitor->cg_to_rb_xform = *(const phys_mat44 **)m_data;
+    }
+    v6 = collision_visitor->rb_to_world_xform == 0;
+    collision_visitor->auto_activate_callback = (phys_auto_activate_callback *)*((_DWORD *)m_data + 1);
+    if (v6
+        && !Assert_MyHandler(
+            "c:\\t6\\code\\src\\physics\\phys_collision.cpp",
+            479,
+            0,
+            "(collision_visitor->rb_to_world_xform)",
+            (const char *)&pBlock))
+    {
+        __debugbreak();
+    }
+    if (!collision_visitor->cg_to_world_xform
+        && !Assert_MyHandler(
+            "c:\\t6\\code\\src\\physics\\phys_collision.cpp",
+            480,
+            0,
+            "(collision_visitor->cg_to_world_xform)",
+            (const char *)&pBlock))
+    {
+        __debugbreak();
+    }
+    if (!collision_visitor->cg_to_rb_xform
+        && !Assert_MyHandler(
+            "c:\\t6\\code\\src\\physics\\phys_collision.cpp",
+            481,
+            0,
+            "(collision_visitor->cg_to_rb_xform)",
+            (const char *)&pBlock))
+    {
+        __debugbreak();
+    }
+    glass = collision_visitor->cent;
+    if (!glass)
+    {
+        glass = collision_visitor->glass;
+        if (!glass)
+        {
+            if (!collision_visitor->dynEntDef
+                && !Assert_MyHandler(
+                    "c:\\t6\\code\\src\\physics\\phys_collision.cpp",
+                    412,
+                    0,
+                    "(collision_visitor->dynEntDef)",
+                    (const char *)&pBlock))
+            {
+                __debugbreak();
+            }
+            glass = collision_visitor->dynEntDef;
+        }
+    }
+    phys_calc_local_aabb(
+        &collision_visitor->bpeqi->trace_aabb_min_wace,
+        &collision_visitor->bpeqi->trace_aabb_max_wace,
+        collision_visitor->cg_to_world_xform,
+        &collision_visitor->m_local_query_trace_aabb_min,
+        &collision_visitor->m_local_query_trace_aabb_max);
+    rb = collision_visitor->rb;
+    v27 = *(_QWORD *)&rb->m_moved_vec.x;
+    v13 = *(_QWORD *)&rb->m_moved_vec.z;
+    bpeqi = collision_visitor->bpeqi;
+    z = bpeqi->trace_translation.z;
+    v16 = bpeqi->trace_translation.y - *((float *)&v27 + 1);
+    v28 = *(float *)&v13;
+    *(float *)&v13 = bpeqi->trace_translation.x;
+    cg_to_world_xform = collision_visitor->cg_to_world_xform;
+    *(float *)&v13 = *(float *)&v13 - *(float *)&v27;
+    v18 = z - v28;
+    v19 = (float)((float)(cg_to_world_xform->x.y * v16) + (float)(cg_to_world_xform->x.x * *(float *)&v13))
+        + (float)(cg_to_world_xform->x.z * v18);
+    v20 = (float)((float)(cg_to_world_xform->y.y * v16) + (float)(cg_to_world_xform->y.x * *(float *)&v13))
+        + (float)(cg_to_world_xform->y.z * v18);
+    v21 = cg_to_world_xform->z.y * v16;
+    v22 = cg_to_world_xform->z.x * *(float *)&v13;
+    *(float *)&v13 = cg_to_world_xform->z.z * v18;
+    collision_visitor->m_local_query_trace_translation.x = v19;
+    collision_visitor->m_local_query_trace_translation.y = v20;
+    collision_visitor->m_local_query_trace_translation.z = (float)(v21 + v22) + *(float *)&v13;
+    v23 = collision_visitor->cent;
+    collision_visitor->m_local_entity = glass;
+    if (v23)
+    {
+        v26 = v23;
+        Primary = Com_LocalClients_GetPrimary();
+        create_gjk_geom(Primary, v26, collision_visitor, 0, mask, 0, 1);
+    }
+    else
+    {
+        v25 = collision_visitor->glass;
+        if (v25)
+        {
+            create_gjk_geom(v25, collision_visitor, mask);
+        }
+        else
+        {
+            if (!collision_visitor->dynEntDef
+                && !Assert_MyHandler(
+                    "c:\\t6\\code\\src\\physics\\phys_collision.cpp",
+                    494,
+                    0,
+                    "(collision_visitor->dynEntDef)",
+                    (const char *)&pBlock))
+            {
+                __debugbreak();
+            }
+            create_gjk_geom(collision_visitor->dynEntDef, collision_visitor, mask);
+        }
+    }
+}
+
+void __cdecl phys_aabb_add_hace(phys_vec3 *aabb_min, phys_vec3 *aabb_max)
+{
+    aabb_min->x = aabb_min->x - 0.50999999;
+    aabb_min->y = aabb_min->y - 0.50999999;
+    aabb_min->z = aabb_min->z - 0.50999999;
+    aabb_max->x = aabb_max->x + 0.50999999;
+    aabb_max->y = aabb_max->y + 0.50999999;
+    aabb_max->z = aabb_max->z + 0.50999999;
+}
+
+void __cdecl set_bp_standard_query()
+{
+    G_BPM->g_broad_phase_terrain_query_callback = &g_standard_query;
+}
+
+void __cdecl set_debug_callback()
+{
+    phys_set_debug_callback(debug_callback);
+}

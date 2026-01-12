@@ -1928,6 +1928,7 @@
     <ClInclude Include="src\zlib\zconf.h" />
     <ClInclude Include="src\zlib\zlib.h" />
     <ClInclude Include="src\zlib\zutil.h" />
+    <ClInclude Include="tl\base\tl_thread.h" />
     <ClInclude Include="tl\jobqueue\jobqueue_all.h" />
     <ClInclude Include="tl\physics\rbc_def_contact.h" />
     <ClInclude Include="tl\physics\rbc_def_custom.h" />

@@ -1,6 +1,9 @@
 #include "rigid_body.h"
+#include "phys_assert.h"
+#include "physics_system_internal.h"
+#include <tl/physics/rbc_def_generic.h>
 
-void __thiscall rigid_body::add_force(rigid_body *this, const phys_vec3 *force)
+void rigid_body::add_force(const phys_vec3 *force)
 {
     this->m_force_sum.x = this->m_force_sum.x + force->x;
     this->m_force_sum.y = this->m_force_sum.y + force->y;
@@ -13,34 +16,28 @@ void __thiscall rigid_body::add_force(rigid_body *this, const phys_vec3 *force)
     }
 }
 
-void __thiscall rigid_body::set_inertia(rigid_body *this, const phys_vec3 *inertia)
+void rigid_body::set_inertia(const phys_vec3 *inertia)
 {
-    float v3; // [esp-10h] [ebp-1Ch]
-    float v4; // [esp-Ch] [ebp-18h]
-    float v5; // [esp-8h] [ebp-14h]
-
     if ( inertia->x <= 0.000001 && _tlAssert("source/rigid_body.cpp", 8, "inertia.GetX() > 0.000001f", "") )
         __debugbreak();
     if ( inertia->y <= 0.000001 && _tlAssert("source/rigid_body.cpp", 9, "inertia.GetY() > 0.000001f", "") )
         __debugbreak();
     if ( inertia->z <= 0.000001 && _tlAssert("source/rigid_body.cpp", 10, "inertia.GetZ() > 0.000001f", "") )
         __debugbreak();
-    v3 = 1.0 / inertia->x;
-    v4 = 1.0 / inertia->y;
-    v5 = 1.0 / inertia->z;
-    this->m_inv_inertia.x = v3;
-    this->m_inv_inertia.y = v4;
-    this->m_inv_inertia.z = v5;
+
+    this->m_inv_inertia.x = (1.0 / inertia->x);
+    this->m_inv_inertia.y = (1.0 / inertia->y);
+    this->m_inv_inertia.z = (1.0 / inertia->z);
 }
 
-void __thiscall rigid_body::set_mass(rigid_body *this, float mass)
+void rigid_body::set_mass(float mass)
 {
     if ( mass <= 0.000001 && _tlAssert("source/rigid_body.cpp", 17, "mass > 0.000001f", "") )
         __debugbreak();
     this->m_inv_mass = 1.0 / mass;
 }
 
-void __thiscall user_rigid_body::setPosition(user_rigid_body *this, const phys_mat44 *const dictator)
+void user_rigid_body::setPosition(const phys_mat44 *const dictator)
 {
     this->m_dictator_mat.x.x = dictator->x.x;
     this->m_dictator = &this->m_dictator_mat;
@@ -58,7 +55,6 @@ void __thiscall user_rigid_body::setPosition(user_rigid_body *this, const phys_m
 }
 
 void __thiscall rigid_body::set(
-                rigid_body *this,
                 float mass,
                 const phys_vec3 *inertia,
                 const phys_mat44 *mat,
@@ -90,8 +86,8 @@ void __thiscall rigid_body::set(
     float v29; // [esp+10h] [ebp-10h]
     float v30; // [esp+10h] [ebp-10h]
 
-    rigid_body::set_mass(this, mass);
-    rigid_body::set_inertia(this, inertia);
+    rigid_body::set_mass(mass);
+    rigid_body::set_inertia(inertia);
     this->m_mat.x.x = mat->x.x;
     this->m_mat.x.y = mat->x.y;
     this->m_mat.x.z = mat->x.z;
@@ -120,9 +116,9 @@ void __thiscall rigid_body::set(
         phys_exec_debug_callback(this);
         v8 = 100000.0;
     }
-    this->m_moved_vec.x = PHYS_ZERO_VEC_77.x;
-    this->m_moved_vec.y = PHYS_ZERO_VEC_77.y;
-    this->m_moved_vec.z = PHYS_ZERO_VEC_77.z;
+    this->m_moved_vec.x = PHYS_ZERO_VEC.x;
+    this->m_moved_vec.y = PHYS_ZERO_VEC.y;
+    this->m_moved_vec.z = PHYS_ZERO_VEC.z;
     v9 = 0.0;
     this->m_smallest_lambda = 0.0;
     this->m_t_vel.x = t_vel->x;
@@ -146,12 +142,12 @@ void __thiscall rigid_body::set(
         v9 = 0.0;
     }
     this->m_stable_min_contact_count = stable_min_contact_count;
-    this->m_force_sum.x = PHYS_ZERO_VEC_77.x;
-    this->m_force_sum.y = PHYS_ZERO_VEC_77.y;
-    this->m_force_sum.z = PHYS_ZERO_VEC_77.z;
-    this->m_torque_sum.x = PHYS_ZERO_VEC_77.x;
-    this->m_torque_sum.y = PHYS_ZERO_VEC_77.y;
-    this->m_torque_sum.z = PHYS_ZERO_VEC_77.z;
+    this->m_force_sum.x =  PHYS_ZERO_VEC.x;
+    this->m_force_sum.y =  PHYS_ZERO_VEC.y;
+    this->m_force_sum.z =  PHYS_ZERO_VEC.z;
+    this->m_torque_sum.x = PHYS_ZERO_VEC.x;
+    this->m_torque_sum.y = PHYS_ZERO_VEC.y;
+    this->m_torque_sum.z = PHYS_ZERO_VEC.z;
     this->m_last_t_vel.x = this->m_t_vel.x;
     this->m_last_t_vel.y = this->m_t_vel.y;
     this->m_last_t_vel.z = this->m_t_vel.z;
@@ -185,13 +181,16 @@ void __thiscall rigid_body::set(
     this->m_stable_energy_time = v12;
     this->m_t_drag_coef = v12;
     this->m_a_drag_coef = v12;
-    if ( (g_physics_system->m_flags & 1) != 0 )
+
+    if ((g_physics_system->m_flags & 1) != 0)
+    {
         rbint::collision_prolog(this, g_physics_system->m_outside_sub_delta_t);
+    }
+
     PHYS_ASSERT_ORTHONORMAL(&this->m_mat);
 }
 
 void __thiscall rigid_body::add_force(
-                rigid_body *this,
                 const phys_vec3 *force,
                 const phys_vec3 *point,
                 float torque_mult)
@@ -242,7 +241,7 @@ void __thiscall rigid_body::add_force(
         phys_exec_debug_callback(this);
 }
 
-void __thiscall user_rigid_body::set(user_rigid_body *this, const phys_mat44 *const dictator)
+void __thiscall user_rigid_body::set(const phys_mat44 *const dictator)
 {
     double v3; // st7
     float dictatora; // [esp+14h] [ebp+8h]
@@ -254,7 +253,8 @@ void __thiscall user_rigid_body::set(user_rigid_body *this, const phys_mat44 *co
 
     if ( dictator )
     {
-        phys_mat44::operator=(&this->m_mat, dictator);
+        //phys_mat44::operator=(&this->m_mat, dictator);
+        this->m_mat = dictator;
         this->m_dictator = dictator;
     }
     else
@@ -280,30 +280,30 @@ void __thiscall user_rigid_body::set(user_rigid_body *this, const phys_mat44 *co
     {
         phys_exec_debug_callback(this);
     }
-    this->m_moved_vec.x = PHYS_ZERO_VEC_77.x;
-    this->m_moved_vec.y = PHYS_ZERO_VEC_77.y;
-    this->m_moved_vec.z = PHYS_ZERO_VEC_77.z;
+    this->m_moved_vec.x = PHYS_ZERO_VEC.x;
+    this->m_moved_vec.y = PHYS_ZERO_VEC.y;
+    this->m_moved_vec.z = PHYS_ZERO_VEC.z;
     this->m_flags = 0;
     this->m_smallest_lambda = 0.0;
     this->m_inv_mass = 0.0;
-    this->m_inv_inertia.x = PHYS_ZERO_VEC_77.x;
-    this->m_inv_inertia.y = PHYS_ZERO_VEC_77.y;
-    this->m_inv_inertia.z = PHYS_ZERO_VEC_77.z;
-    this->m_t_vel.x = PHYS_ZERO_VEC_77.x;
-    this->m_t_vel.y = PHYS_ZERO_VEC_77.y;
-    this->m_t_vel.z = PHYS_ZERO_VEC_77.z;
-    this->m_a_vel.x = PHYS_ZERO_VEC_77.x;
-    this->m_a_vel.y = PHYS_ZERO_VEC_77.y;
-    this->m_a_vel.z = PHYS_ZERO_VEC_77.z;
-    this->m_last_t_vel.x = PHYS_ZERO_VEC_77.x;
-    this->m_last_t_vel.y = PHYS_ZERO_VEC_77.y;
-    this->m_last_t_vel.z = PHYS_ZERO_VEC_77.z;
-    this->m_last_a_vel.x = PHYS_ZERO_VEC_77.x;
-    this->m_last_a_vel.y = PHYS_ZERO_VEC_77.y;
-    this->m_last_a_vel.z = PHYS_ZERO_VEC_77.z;
-    this->m_gravity_acc_vec.x = PHYS_ZERO_VEC_77.x;
-    this->m_gravity_acc_vec.y = PHYS_ZERO_VEC_77.y;
-    this->m_gravity_acc_vec.z = PHYS_ZERO_VEC_77.z;
+    this->m_inv_inertia.x = PHYS_ZERO_VEC.x;
+    this->m_inv_inertia.y = PHYS_ZERO_VEC.y;
+    this->m_inv_inertia.z = PHYS_ZERO_VEC.z;
+    this->m_t_vel.x = PHYS_ZERO_VEC.x;
+    this->m_t_vel.y = PHYS_ZERO_VEC.y;
+    this->m_t_vel.z = PHYS_ZERO_VEC.z;
+    this->m_a_vel.x = PHYS_ZERO_VEC.x;
+    this->m_a_vel.y = PHYS_ZERO_VEC.y;
+    this->m_a_vel.z = PHYS_ZERO_VEC.z;
+    this->m_last_t_vel.x = PHYS_ZERO_VEC.x;
+    this->m_last_t_vel.y = PHYS_ZERO_VEC.y;
+    this->m_last_t_vel.z = PHYS_ZERO_VEC.z;
+    this->m_last_a_vel.x = PHYS_ZERO_VEC.x;
+    this->m_last_a_vel.y = PHYS_ZERO_VEC.y;
+    this->m_last_a_vel.z = PHYS_ZERO_VEC.z;
+    this->m_gravity_acc_vec.x = PHYS_ZERO_VEC.x;
+    this->m_gravity_acc_vec.y = PHYS_ZERO_VEC.y;
+    this->m_gravity_acc_vec.z = PHYS_ZERO_VEC.z;
     this->m_flags |= 0x20u;
     this->m_max_delta_t = 0.033898305;
     this->m_node = 0;
@@ -312,7 +312,7 @@ void __thiscall user_rigid_body::set(user_rigid_body *this, const phys_mat44 *co
         rbint::collision_prolog(this, g_physics_system->m_outside_sub_delta_t);
 }
 
-void __thiscall environment_rigid_body::set(environment_rigid_body *this)
+void environment_rigid_body::set()
 {
     float v2; // [esp+4h] [ebp-4h]
     float v3; // [esp+4h] [ebp-4h]
@@ -320,9 +320,9 @@ void __thiscall environment_rigid_body::set(environment_rigid_body *this)
 
     this->m_inv_mass = 0.0;
     this->m_flags = 0;
-    this->m_inv_inertia.x = PHYS_ZERO_VEC_77.x;
-    this->m_inv_inertia.y = PHYS_ZERO_VEC_77.y;
-    this->m_inv_inertia.z = PHYS_ZERO_VEC_77.z;
+    this->m_inv_inertia.x = PHYS_ZERO_VEC.x;
+    this->m_inv_inertia.y = PHYS_ZERO_VEC.y;
+    this->m_inv_inertia.z = PHYS_ZERO_VEC.z;
     SetIdentity(&this->m_mat);
     this->m_last_position.x = this->m_mat.w.x;
     this->m_last_position.y = this->m_mat.w.y;
@@ -334,25 +334,25 @@ void __thiscall environment_rigid_body::set(environment_rigid_body *this)
     {
         phys_exec_debug_callback(this);
     }
-    this->m_moved_vec.x = PHYS_ZERO_VEC_77.x;
-    this->m_moved_vec.y = PHYS_ZERO_VEC_77.y;
-    this->m_moved_vec.z = PHYS_ZERO_VEC_77.z;
+    this->m_moved_vec.x = PHYS_ZERO_VEC.x;
+    this->m_moved_vec.y = PHYS_ZERO_VEC.y;
+    this->m_moved_vec.z = PHYS_ZERO_VEC.z;
     this->m_smallest_lambda = 0.0;
-    this->m_t_vel.x = PHYS_ZERO_VEC_77.x;
-    this->m_t_vel.y = PHYS_ZERO_VEC_77.y;
-    this->m_t_vel.z = PHYS_ZERO_VEC_77.z;
-    this->m_a_vel.x = PHYS_ZERO_VEC_77.x;
-    this->m_a_vel.y = PHYS_ZERO_VEC_77.y;
-    this->m_a_vel.z = PHYS_ZERO_VEC_77.z;
-    this->m_last_t_vel.x = PHYS_ZERO_VEC_77.x;
-    this->m_last_t_vel.y = PHYS_ZERO_VEC_77.y;
-    this->m_last_t_vel.z = PHYS_ZERO_VEC_77.z;
-    this->m_last_a_vel.x = PHYS_ZERO_VEC_77.x;
-    this->m_last_a_vel.y = PHYS_ZERO_VEC_77.y;
-    this->m_last_a_vel.z = PHYS_ZERO_VEC_77.z;
-    this->m_gravity_acc_vec.x = PHYS_ZERO_VEC_77.x;
-    this->m_gravity_acc_vec.y = PHYS_ZERO_VEC_77.y;
-    this->m_gravity_acc_vec.z = PHYS_ZERO_VEC_77.z;
+    this->m_t_vel.x = PHYS_ZERO_VEC.x;
+    this->m_t_vel.y = PHYS_ZERO_VEC.y;
+    this->m_t_vel.z = PHYS_ZERO_VEC.z;
+    this->m_a_vel.x = PHYS_ZERO_VEC.x;
+    this->m_a_vel.y = PHYS_ZERO_VEC.y;
+    this->m_a_vel.z = PHYS_ZERO_VEC.z;
+    this->m_last_t_vel.x = PHYS_ZERO_VEC.x;
+    this->m_last_t_vel.y = PHYS_ZERO_VEC.y;
+    this->m_last_t_vel.z = PHYS_ZERO_VEC.z;
+    this->m_last_a_vel.x = PHYS_ZERO_VEC.x;
+    this->m_last_a_vel.y = PHYS_ZERO_VEC.y;
+    this->m_last_a_vel.z = PHYS_ZERO_VEC.z;
+    this->m_gravity_acc_vec.x = PHYS_ZERO_VEC.x;
+    this->m_gravity_acc_vec.y = PHYS_ZERO_VEC.y;
+    this->m_gravity_acc_vec.z = PHYS_ZERO_VEC.z;
     this->m_flags |= 0x10u;
     this->m_max_delta_t = 0.033898305;
     this->m_node = 0;

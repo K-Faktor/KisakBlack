@@ -5426,6 +5426,9 @@
     <ClInclude Include="src\qcommon\md4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tl\base\tl_thread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\CubeMapGenLib\resource.rc">

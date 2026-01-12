@@ -1,14 +1,33 @@
 #include "physpreset_load_obj.h"
+#include <universal/assertive.h>
+#include <universal/com_memory.h>
+#include <universal/com_files.h>
+#include <qcommon/common.h>
 
-unsigned __int8 *__cdecl Hunk_AllocPhysPresetPrecache(int size)
+cspField_t physPresetFields[19] =
 {
-    if ( size <= 0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\EffectsCore\\fx_load_obj.cpp", 292, 0, "%s", "size > 0") )
-    {
-        __debugbreak();
-    }
-    return Hunk_Alloc(size, "Hunk_AllocPhysPresetPrecache", 22);
-}
+  { "mass", 0, 7 },
+  { "bounce", 4, 7 }, // bouncin' back off the captain... Index numba 3 sir.
+  { "friction", 8, 7 },
+  { "isFrictionInfinity", 12, 6 },
+  { "bulletForceScale", 16, 7 },
+  { "explosiveForceScale", 20, 7 },
+  { "piecesSpreadFraction", 24, 7 },
+  { "piecesUpwardVelocity", 28, 7 },
+  { "canFloat", 32, 4 },
+  { "gravityScale", 36, 7 },
+  { "massOffsetX", 40, 7 },
+  { "massOffsetY", 44, 7 },
+  { "massOffsetZ", 48, 7 },
+  { "buoyancyMinX", 52, 7 },
+  { "buoyancyMinY", 56, 7 },
+  { "buoyancyMinZ", 60, 7 },
+  { "buoyancyMaxX", 64, 7 },
+  { "buoyancyMaxY", 68, 7 },
+  { "buoyancyMaxZ", 72, 7 }
+};
+
+void *(__cdecl *physAlloc)(int);
 
 PhysPreset *__cdecl PhysPresetLoadFile(const char *name, void *(__cdecl *Alloc)(int))
 {
@@ -24,7 +43,7 @@ PhysPreset *__cdecl PhysPresetLoadFile(const char *name, void *(__cdecl *Alloc)(
     char buffer[16388]; // [esp+80h] [ebp-4070h] BYREF
     unsigned __int8 dst[84]; // [esp+4088h] [ebp-68h] BYREF
     float *v14; // [esp+40DCh] [ebp-14h]
-    char *last; // [esp+40E0h] [ebp-10h]
+    const char *last; // [esp+40E0h] [ebp-10h]
     signed int v16; // [esp+40E4h] [ebp-Ch]
     int f; // [esp+40E8h] [ebp-8h] BYREF
     int len; // [esp+40ECh] [ebp-4h]
@@ -68,7 +87,7 @@ PhysPreset *__cdecl PhysPresetLoadFile(const char *name, void *(__cdecl *Alloc)(
                             if ( (float)(*(float *)dst - 2000.0) < 0.0 )
                                 v10 = *(float *)dst;
                             else
-                                v10 = FLOAT_2000_0;
+                                v10 = 2000.0f;
                             if ( (float)(1.0 - *(float *)dst) < 0.0 )
                                 v5 = v10;
                             else
@@ -86,7 +105,7 @@ PhysPreset *__cdecl PhysPresetLoadFile(const char *name, void *(__cdecl *Alloc)(
                             v14[2] = *(float *)dst * 0.001;
                             v14[3] = *(float *)&dst[4];
                             if ( *(unsigned int *)&dst[12] )
-                                v3 = 1.0fe10;
+                                v3 = 1.0e10f;
                             else
                                 v3 = *(float *)&dst[8];
                             v14[4] = v3;
@@ -166,11 +185,11 @@ void __cdecl PhysPreset_Strcpy(unsigned __int8 *member, const char *keyValue)
             *v3++ = *v4++;
         }
         while ( v2 );
-        *(unsigned int *)member = buf;
+        *(unsigned int *)member = (unsigned int)buf;
     }
     else
     {
-        *(unsigned int *)member = "";
+        *(unsigned int *)member = (unsigned int)"";
     }
 }
 
@@ -205,11 +224,6 @@ PhysPreset *__cdecl PhysPresetPrecache(const char *name, void *(__cdecl *Alloc)(
     }
 }
 
-unsigned __int8 *__cdecl Hunk_AllocPhysPresetPrecache(unsigned int size)
-{
-    return Hunk_Alloc(size, "PhysPresetPrecache", 30);
-}
-
 PhysPreset *__cdecl PhysPreset_Register(const char *name)
 {
     if ( useFastFile->current.enabled )
@@ -231,11 +245,11 @@ PhysPreset *__cdecl PhysPreset_Register_FastFile(const char *name)
     {
         __debugbreak();
     }
-    return DB_FindXAssetHeader(ASSET_TYPE_PHYSPRESET, name, 1, -1).physPreset;
+    return DB_FindXAssetHeader(ASSET_TYPE_PHYSPRESET, (char*)name, 1, -1).physPreset;
 }
 
 PhysPreset *__cdecl PhysPreset_Register_LoadObj(const char *name)
 {
-    return PhysPresetPrecache(name, (void *(__cdecl *)(int))Hunk_AllocPhysPresetPrecache);
+    return PhysPresetPrecache(name, Hunk_AllocPhysPresetPrecache);
 }
 

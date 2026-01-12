@@ -20,6 +20,8 @@
 #include <cgame_mp/cg_pose_mp.h>
 #include <cgame_mp/cg_ents_mp.h>
 #include <client_mp/cl_cgame_mp.h>
+#include <qcommon/dobj_management.h>
+#include <client/splitscreen.h>
 
 unsigned __int8 g_cgPieceArrayBuffer[73728];
 int s_num_destructible_gamestates[1];

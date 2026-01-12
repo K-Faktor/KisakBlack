@@ -1,5 +1,23 @@
 #include "phys_auto_rigid_body.h"
 
+#include <bgame/bg_local.h>
+#include <cgame_mp/cg_main_mp.h>
+#include <qcommon/dobj_management.h>
+#include <xanim/dobj_utils.h>
+#include <xanim/xmodel_utils.h>
+#include <tl/base/tl_thread.h>
+#include "physics_system.h"
+#include <universal/com_math_anglevectors.h>
+#include <cgame_mp/cg_ents_mp.h>
+#include "physics_system_internal.h"
+#include <tl/physics/rbc_def_vehicle.h>
+
+auto_rigid_body *g_auto_rigid_body_list;
+
+tlAtomicReadWriteMutex g_auto_rigid_body_map_mutex;
+phys_inplace_avl_tree<centity_s const *, auto_rigid_body, auto_rigid_body> g_auto_rigid_body_map;
+phys_simple_allocator<auto_rigid_body> g_auto_rigid_body_allocator;
+
 void __cdecl auto_rigid_body::add(const centity_s *cent, gjk_physics_collision_visitor *collision_visitor, int mask)
 {
     phys_mat44 *p_m_mat; // [esp+Ch] [ebp-BCh]
@@ -7,7 +25,7 @@ void __cdecl auto_rigid_body::add(const centity_s *cent, gjk_physics_collision_v
     float *inVector; // [esp+2Ch] [ebp-9Ch]
     float axis[13]; // [esp+34h] [ebp-94h] BYREF
     auto_rigid_body *m_right; // [esp+68h] [ebp-60h]
-    volatile int *p_ReadLockCount; // [esp+90h] [ebp-38h]
+    volatile unsigned int *p_ReadLockCount; // [esp+90h] [ebp-38h]
     auto_rigid_body *m_tree_root; // [esp+94h] [ebp-34h]
     DObj *obj; // [esp+B8h] [ebp-10h]
     XModel *model; // [esp+BCh] [ebp-Ch]
@@ -35,7 +53,8 @@ void __cdecl auto_rigid_body::add(const centity_s *cent, gjk_physics_collision_v
             || (obj = Com_GetClientDObj(cent->nextState.number, cent->pose.localClientNum)) != 0
             && ((model = DObjGetModel(obj, 0), XModelHasCollmap(model)) || cent->nextState.eType == 17) )
         {
-            tlAtomicReadWriteMutex::ReadLock(&g_auto_rigid_body_map_mutex);
+            //tlAtomicReadWriteMutex::ReadLock(&g_auto_rigid_body_map_mutex);
+            g_auto_rigid_body_map_mutex.ReadLock();
             m_tree_root = g_auto_rigid_body_map.m_tree_root;
             while ( m_tree_root && cent != m_tree_root->cent )
             {
@@ -49,7 +68,8 @@ void __cdecl auto_rigid_body::add(const centity_s *cent, gjk_physics_collision_v
             _InterlockedExchangeAdd(&g_auto_rigid_body_map_mutex.ThisPtr->ReadLockCount, 0xFFFFFFFF);
             if ( !m_tree_root )
             {
-                tlAtomicReadWriteMutex::WriteLock(&g_auto_rigid_body_map_mutex);
+                //tlAtomicReadWriteMutex::WriteLock(&g_auto_rigid_body_map_mutex);
+                g_auto_rigid_body_map_mutex.WriteLock();
                 m_right = g_auto_rigid_body_map.m_tree_root;
                 while ( m_right && cent != m_right->cent )
                 {
@@ -61,25 +81,27 @@ void __cdecl auto_rigid_body::add(const centity_s *cent, gjk_physics_collision_v
                 arb = m_right;
                 if ( !m_right )
                 {
-                    arb = phys_simple_allocator<auto_rigid_body>::allocate(&g_auto_rigid_body_allocator);
+                    //arb = phys_simple_allocator<auto_rigid_body>::allocate(&g_auto_rigid_body_allocator);
+                    arb = g_auto_rigid_body_allocator.allocate();
                     arb->cent = cent;
                     arb->frame_count = 3;
                     arb->rb = phys_sys::create_user_rigid_body(0);
                     outMat = &arb->rb->m_dictator_mat;
-                    inVector = cent->pose.origin;
+                    inVector = (float*)cent->pose.origin;
                     AnglesToAxis(cent->pose.angles, (float (*)[3])axis);
                     Phys_AxisToNitrousMat((float (*)[3])axis, outMat);
                     Phys_Vec3ToNitrousVec(inVector, &outMat->w);
-                    user_rigid_body::set(arb->rb, &arb->rb->m_dictator_mat);
-                    rigid_body::set_flag(arb->rb, 0x40u, 1);
+                    //user_rigid_body::set(arb->rb, &arb->rb->m_dictator_mat);
+                    arb->rb->set(&arb->rb->m_dictator_mat);
+                    //rigid_body::set_flag(arb->rb, 0x40u, 1);
+                    arb->rb->set_flag(0x40u, 1);
                     arb->next = g_auto_rigid_body_list;
                     g_auto_rigid_body_list = arb;
-                    phys_inplace_avl_tree<centity_s const *,auto_rigid_body,auto_rigid_body>::add(
-                        &g_auto_rigid_body_map,
-                        &cent,
-                        arb);
+                    //phys_inplace_avl_tree<centity_s const *,auto_rigid_body,auto_rigid_body>::add(&g_auto_rigid_body_map, &cent, arb);
+                    g_auto_rigid_body_map.add(&cent, arb);
                 }
-                tlAtomicReadWriteMutex::WriteUnlock(&g_auto_rigid_body_map_mutex);
+                //tlAtomicReadWriteMutex::WriteUnlock(&g_auto_rigid_body_map_mutex);
+                g_auto_rigid_body_map_mutex.WriteUnlock();
             }
             collision_visitor->cent = cent;
             collision_visitor->dynEntDef = 0;
@@ -94,12 +116,12 @@ void __cdecl auto_rigid_body::add(const centity_s *cent, gjk_physics_collision_v
                 collision_visitor->rb = arb->rb;
                 collision_visitor->rb_to_world_xform = p_m_mat;
                 collision_visitor->cg_to_world_xform = p_m_mat;
-                collision_visitor->cg_to_rb_xform = &PHYS_IDENTITY_MATRIX_38;
+                collision_visitor->cg_to_rb_xform = &PHYS_IDENTITY_MATRIX;
             }
             else
             {
                 collision_visitor->rb = phys_sys::get_environment_rigid_body();
-                collision_visitor->rb_to_world_xform = &PHYS_IDENTITY_MATRIX_38;
+                collision_visitor->rb_to_world_xform = &PHYS_IDENTITY_MATRIX;
                 collision_visitor->cg_to_world_xform = 0;
                 collision_visitor->cg_to_rb_xform = 0;
             }
@@ -109,114 +131,22 @@ void __cdecl auto_rigid_body::add(const centity_s *cent, gjk_physics_collision_v
     }
 }
 
-void __thiscall tlAtomicReadWriteMutex::WriteLock(tlAtomicReadWriteMutex *this)
-{
-    int Target; // [esp+30h] [ebp-24h] BYREF
-    volatile signed __int32 *p_WriteLockCount; // [esp+34h] [ebp-20h]
-    tlAtomicReadWriteMutex *v4; // [esp+38h] [ebp-1Ch]
-    volatile signed __int32 *p_ReadLockCount; // [esp+3Ch] [ebp-18h]
-    tlAtomicReadWriteMutex *v6; // [esp+40h] [ebp-14h]
-    tlAtomicReadWriteMutex *ThisPtr; // [esp+48h] [ebp-Ch]
-    unsigned __int64 CurThread; // [esp+4Ch] [ebp-8h]
-
-    CurThread = GetCurrentThreadId();
-    ThisPtr = this->ThisPtr;
-    if ( _InterlockedCompareExchange64((volatile signed __int64 *)ThisPtr, CurThread, CurThread) == CurThread )
-    {
-        _InterlockedExchangeAdd(&this->ThisPtr->WriteLockCount, 1u);
-        return;
-    }
-    while ( 1 )
-    {
-        v6 = this->ThisPtr;
-        if ( _InterlockedCompareExchange64((volatile signed __int64 *)v6, CurThread, 0) )
-            goto LABEL_4;
-        p_ReadLockCount = &this->ThisPtr->ReadLockCount;
-        if ( !_InterlockedCompareExchange(p_ReadLockCount, 0, 0) )
-            break;
-        do
-            v4 = this->ThisPtr;
-        while ( _InterlockedCompareExchange64((volatile signed __int64 *)v4, 0, CurThread) != CurThread );
-LABEL_4:
-        SwitchToThread();
-    }
-    p_WriteLockCount = &this->ThisPtr->WriteLockCount;
-    _InterlockedExchangeAdd(p_WriteLockCount, 1u);
-    Target = 0;
-    InterlockedExchange(&Target, 0);
-}
-
-void __thiscall tlAtomicReadWriteMutex::ReadLock(tlAtomicReadWriteMutex *this)
-{
-    int Target; // [esp+30h] [ebp-20h] BYREF
-    tlAtomicReadWriteMutex *v3; // [esp+34h] [ebp-1Ch]
-    volatile signed __int32 *v4; // [esp+38h] [ebp-18h]
-    tlAtomicReadWriteMutex *v5; // [esp+3Ch] [ebp-14h]
-    volatile signed __int32 *p_ReadLockCount; // [esp+40h] [ebp-10h]
-    tlAtomicReadWriteMutex *ThisPtr; // [esp+44h] [ebp-Ch]
-    unsigned __int64 CurThread; // [esp+48h] [ebp-8h]
-
-    CurThread = GetCurrentThreadId();
-    ThisPtr = this->ThisPtr;
-    if ( _InterlockedCompareExchange64((volatile signed __int64 *)ThisPtr, CurThread, CurThread) == CurThread )
-    {
-        p_ReadLockCount = &this->ThisPtr->ReadLockCount;
-        _InterlockedExchangeAdd(p_ReadLockCount, 1u);
-    }
-    else
-    {
-        while ( 1 )
-        {
-            v5 = this->ThisPtr;
-            if ( !_InterlockedCompareExchange64((volatile signed __int64 *)v5, CurThread, 0) )
-                break;
-            SwitchToThread();
-        }
-        v4 = &this->ThisPtr->ReadLockCount;
-        _InterlockedExchangeAdd(v4, 1u);
-        do
-            v3 = this->ThisPtr;
-        while ( _InterlockedCompareExchange64((volatile signed __int64 *)v3, 0, CurThread) != CurThread );
-    }
-    Target = 0;
-    InterlockedExchange(&Target, 0);
-}
-
-void __thiscall tlAtomicReadWriteMutex::WriteUnlock(tlAtomicReadWriteMutex *this)
-{
-    signed __int64 v1; // [esp+Ch] [ebp-20h]
-    int Target; // [esp+1Ch] [ebp-10h] BYREF
-    volatile signed __int32 *p_WriteLockCount; // [esp+20h] [ebp-Ch]
-    unsigned __int64 CurThread; // [esp+24h] [ebp-8h]
-
-    CurThread = GetCurrentThreadId();
-    p_WriteLockCount = &this->ThisPtr->WriteLockCount;
-    if ( !_InterlockedDecrement(p_WriteLockCount) )
-    {
-        Target = 0;
-        InterlockedExchange(&Target, 0);
-        do
-            v1 = _InterlockedCompareExchange64((volatile signed __int64 *)this->ThisPtr, 0, CurThread);
-        while ( v1 != CurThread );
-    }
-}
-
 // local variable allocation has failed, the output may be wrong!
-void    auto_rigid_body::update(auto_rigid_body *a1@<ebp>)
+void    auto_rigid_body::update()
 {
     _BYTE v1[12]; // [esp-Ch] [ebp-8Ch] BYREF
     _BYTE dictator_36[36]; // [esp+24h] [ebp-5Ch] OVERLAPPED BYREF
-    float *angles; // [esp+60h] [ebp-20h]
-    float *origin; // [esp+64h] [ebp-1Ch]
+    const float *angles; // [esp+60h] [ebp-20h]
+    const float *origin; // [esp+64h] [ebp-1Ch]
     auto_rigid_body *next; // [esp+68h] [ebp-18h]
     auto_rigid_body **p_next; // [esp+6Ch] [ebp-14h]
     auto_rigid_body *v7; // [esp+70h] [ebp-10h]
-    auto_rigid_body *iter_next; // [esp+74h] [ebp-Ch]
-    auto_rigid_body **prev_next; // [esp+78h] [ebp-8h]
-    auto_rigid_body **retaddr; // [esp+80h] [ebp+0h]
+    //auto_rigid_body *iter_next; // [esp+74h] [ebp-Ch]
+    //auto_rigid_body **prev_next; // [esp+78h] [ebp-8h]
+    //auto_rigid_body **retaddr; // [esp+80h] [ebp+0h]
 
-    iter_next = a1;
-    prev_next = retaddr;
+    //iter_next = a1;
+    //prev_next = retaddr;
     v7 = g_auto_rigid_body_list;
     p_next = &g_auto_rigid_body_list;
     while ( v7 )
@@ -226,11 +156,11 @@ void    auto_rigid_body::update(auto_rigid_body *a1@<ebp>)
             || v7->cent->nextState.lerp.pos.trType == 10 )
         {
             next = v7->next;
-            phys_inplace_avl_tree<centity_s const *,auto_rigid_body,auto_rigid_body>::remove(
-                &g_auto_rigid_body_map,
-                &v7->cent);
+            //phys_inplace_avl_tree<centity_s const *,auto_rigid_body,auto_rigid_body>::remove(&g_auto_rigid_body_map, &v7->cent);
+            g_auto_rigid_body_map.remove(&v7->cent);
             phys_sys::destroy(v7->rb);
-            phys_simple_allocator<auto_rigid_body>::free(&g_auto_rigid_body_allocator, v7);
+            //phys_simple_allocator<auto_rigid_body>::free(&g_auto_rigid_body_allocator, v7);
+            g_auto_rigid_body_allocator.free(v7);
             *p_next = next;
             v7 = next;
         }
@@ -241,7 +171,8 @@ void    auto_rigid_body::update(auto_rigid_body *a1@<ebp>)
             AnglesToAxis(angles, (float (*)[3])&dictator_36[24]);
             Phys_AxisToNitrousMat((float (*)[3])&dictator_36[24], (phys_mat44 *)v1);
             Phys_Vec3ToNitrousVec(origin, (phys_vec3 *)dictator_36);
-            user_rigid_body::setPosition(v7->rb, (const phys_mat44 *const)v1);
+            //user_rigid_body::setPosition(v7->rb, (const phys_mat44 *const)v1);
+            v7->rb->setPosition((const phys_mat44 *const)v1);
             p_next = &v7->next;
             v7 = v7->next;
         }
@@ -260,7 +191,8 @@ void __cdecl fixup_wheel_constraints_arb(auto_rigid_body *arb)
         if ( wci != (phys_free_list<rigid_body_constraint_wheel>::T_internal_base *)-16
             && wci[2].m_next_T_internal == (phys_free_list<rigid_body_constraint_wheel>::T_internal_base *)arb->rb )
         {
-            rigid_body_constraint_wheel::set_no_collision((rigid_body_constraint_wheel *)&wci[2]);
+            //rigid_body_constraint_wheel::set_no_collision((rigid_body_constraint_wheel *)&wci[2]);
+            ((rigid_body_constraint_wheel *)&wci[2])->set_no_collision();
         }
         wci = wci->m_next_T_internal;
     }
@@ -297,12 +229,12 @@ void __cdecl auto_rigid_body::remove_ent(const centity_s *cent)
             }
         }
         *prev_next = m_tree_root->next;
-        phys_inplace_avl_tree<centity_s const *,auto_rigid_body,auto_rigid_body>::remove(
-            &g_auto_rigid_body_map,
-            &m_tree_root->cent);
+        //phys_inplace_avl_tree<centity_s const *,auto_rigid_body,auto_rigid_body>::remove(&g_auto_rigid_body_map, &m_tree_root->cent);
+        g_auto_rigid_body_map.remove(&m_tree_root->cent);
         fixup_wheel_constraints_arb(m_tree_root);
         phys_sys::destroy(m_tree_root->rb);
-        phys_simple_allocator<auto_rigid_body>::free(&g_auto_rigid_body_allocator, m_tree_root);
+        //phys_simple_allocator<auto_rigid_body>::free(&g_auto_rigid_body_allocator, m_tree_root);
+        g_auto_rigid_body_allocator.free(m_tree_root);
     }
 }
 
@@ -323,28 +255,3 @@ user_rigid_body *__cdecl auto_rigid_body::ent_has_auto_rigid_body(const centity_
     m_tree_root->frame_count = 3;
     return m_tree_root->rb;
 }
-
-auto_rigid_body *__thiscall phys_simple_allocator<auto_rigid_body>::allocate(
-                phys_simple_allocator<auto_rigid_body> *this)
-{
-    char *slot; // [esp+14h] [ebp-4h]
-
-    slot = PMM_ALLOC(0x1Cu, 4u);
-    if ( !slot )
-        return 0;
-    ++this->m_count;
-    return (auto_rigid_body *)slot;
-}
-
-void __thiscall phys_simple_allocator<auto_rigid_body>::free(
-                phys_simple_allocator<auto_rigid_body> *this,
-                auto_rigid_body *slot)
-{
-    if ( slot )
-    {
-        PMM_VALIDATE((char *)slot, 0x1Cu, 4u);
-        --this->m_count;
-        PMM_FREE((unsigned __int8 *)slot, 0x1Cu, 4u);
-    }
-}
-

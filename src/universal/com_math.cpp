@@ -1751,7 +1751,7 @@ void __cdecl SpotLightProjectionMatrix(float cosFov, float zNear, float zFar, fl
     (*mtx)[14] = -Q * v4;
 }
 
-void __cdecl InfinitePerspectiveMatrix(float (*mtx)[4], float tanHalfFovX, float tanHalfFovY, float zNear)
+void __cdecl InfinitePerspectiveMatrix(float tanHalfFovX, float tanHalfFovY, float zNear, float (*mtx)[4])
 {
         iassert(mtx);
         iassert(zNear > 0);
@@ -1765,32 +1765,28 @@ void __cdecl InfinitePerspectiveMatrix(float (*mtx)[4], float tanHalfFovX, float
         (*mtx)[14] = -zNear * MAX_11BIT_FLT;
 }
 
-void __cdecl MatrixForViewer(mat4x4 &mtx, const vec3r origin, const mat3x3 &axis)
+void __cdecl MatrixForViewer(const float *origin, const float (*axis)[3], float (*mtx)[4])
 {
-        iassert(mtx);
-        iassert(origin);
-        iassert(axis);
+    iassert(mtx);
+    iassert(origin);
+    iassert(axis);
 
-        (mtx)[0][0] = -(axis)[1][0];
-        (mtx)[1][0] = -(axis)[1][1];
-        (mtx)[2][0] = -(axis)[1][2];
-        (mtx)[3][0] = -(*origin * (mtx)[0][0] + origin[1] * (mtx)[1][0] + origin[2] * (mtx)[2][0]);
-
-        (mtx)[0][1] = (axis)[2][0];
-        (mtx)[1][1] = (axis)[2][1];
-        (mtx)[2][1] = (axis)[2][2];
-        (mtx)[3][1] = -(*origin * (mtx)[0][1] + origin[1] * (mtx)[1][1] + origin[2] * (mtx)[2][1]);
-
-        (mtx)[0][2] = (axis)[0][0];
-
-        (mtx)[1][2] = (axis)[0][1];
-        (mtx)[2][2] = (axis)[0][2];
-        (mtx)[3][2] = -(*origin * (mtx)[0][2] + origin[1] * (mtx)[1][2] + origin[2] * (mtx)[2][2]);
-
-        (mtx)[0][3] = 0.0f;
-        (mtx)[1][3] = 0.0f;
-        (mtx)[2][3] = 0.0f;
-        (mtx)[3][3] = 1.0f;
+    ((*mtx)[0]) = -((*axis)[3]);
+    ((*mtx)[4]) = -((*axis)[4]);
+    ((*mtx)[8]) = -((*axis)[5]);
+    ((*mtx)[12]) = -((float)((float)(*origin * (*mtx)[0]) + (float)(origin[1] * (*mtx)[4])) + (float)(origin[2] * (*mtx)[8]));
+    (*mtx)[1] = (*axis)[6];
+    (*mtx)[5] = (*axis)[7];
+    (*mtx)[9] = (*axis)[8];
+    ((*mtx)[13]) = -((float)((float)(*origin * (*mtx)[1]) + (float)(origin[1] * (*mtx)[5])) + (float)(origin[2] * (*mtx)[9]));
+    (*mtx)[2] = (*axis)[0];
+    (*mtx)[6] = (*axis)[1];
+    (*mtx)[10] = (*axis)[2];
+    ((*mtx)[14]) = -((float)((float)(*origin * (*mtx)[2]) + (float)(origin[1] * (*mtx)[6])) + (float)(origin[2] * (*mtx)[10]));
+    (*mtx)[3] = 0.0f;
+    (*mtx)[7] = 0.0f;
+    (*mtx)[11] = 0.0f;
+    (*mtx)[15] = 1.0f;
 }
 
 void __cdecl AnglesSubtract(const float *v1, const float *v2, float *v3)

@@ -1,4 +1,7 @@
 #include "phys_broad_phase.h"
+#include "phys_main.h"
+
+broad_phase_memory *G_BPM;
 
 void __cdecl create_broad_phase_info(rigid_body *body)
 {
@@ -6,7 +9,7 @@ void __cdecl create_broad_phase_info(rigid_body *body)
     unsigned int geom_id; // eax
     gjk_base_t **p_m_first_geom; // [esp+4h] [ebp-2Ch]
     gjk_base_t **v4; // [esp+10h] [ebp-20h]
-    broad_phase_info *broad_phase_info; // [esp+18h] [ebp-18h]
+    broad_phase_info *new_bpi; // [esp+18h] [ebp-18h]
     gjk_base_t *gjk_geom; // [esp+1Ch] [ebp-14h]
     broad_phase_info *bpi; // [esp+20h] [ebp-10h]
     broad_phase_group *bpg; // [esp+24h] [ebp-Ch]
@@ -14,37 +17,19 @@ void __cdecl create_broad_phase_info(rigid_body *body)
     PhysObjUserData *userData; // [esp+2Ch] [ebp-4h]
 
     userData = (PhysObjUserData *)body->m_userdata;
-    if ( gjk_geom_list_t::get_geom_count(&userData->m_gjk_geom_list) <= 1 )
+    //if (gjk_geom_list_t::get_geom_count(&userData->m_gjk_geom_list) <= 1)
+    if (userData->m_gjk_geom_list.get_geom_count() <= 1)
     {
-        if ( gjk_geom_list_t::get_geom_count(&userData->m_gjk_geom_list) != 1
-            && _tlAssert(
-                     "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-                     429,
-                     "userData->m_gjk_geom_list.get_geom_count() == 1",
-                     "") )
-        {
-            __debugbreak();
-        }
+        iassert(userData->m_gjk_geom_list.get_geom_count() == 1);
+
         p_m_first_geom = &userData->m_gjk_geom_list.m_first_geom;
-        if ( userData->m_gjk_geom_list.m_geom_count < 0
-            && _tlAssert(
-                     "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
-                     1035,
-                     "m_geom_count >= 0",
-                     "") )
-        {
-            __debugbreak();
-        }
+        iassert(userData->m_gjk_geom_list.m_geom_count >= 0);
         gjk_geom = *p_m_first_geom;
-        if ( !*p_m_first_geom
-            && _tlAssert("C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp", 431, "gjk_geom", "") )
-        {
-            __debugbreak();
-        }
-        broad_phase_info = create_broad_phase_info();
-        geom_id = gjk_base_t::get_geom_id(gjk_geom);
-        broad_phase_info::set(
-            broad_phase_info,
+        iassert(gjk_geom);
+        new_bpi = create_broad_phase_info();
+        //geom_id = gjk_base_t::get_geom_id(gjk_geom);
+        geom_id = gjk_geom->get_geom_id();
+            new_bpi->set(
             body,
             &body->m_mat,
             &userData->cg2w,
@@ -55,33 +40,39 @@ void __cdecl create_broad_phase_info(rigid_body *body)
             31,
             0,
             0x1C7u);
-        userData->m_bpb = broad_phase_info;
-        if ( rigid_body::get_flag(body, 0x20u) )
-            broad_phase_info->m_env_collision_flags &= ~1u;
+
+        userData->m_bpb = new_bpi;
+
+        //if (rigid_body::get_flag(body, 0x20u))
+        if (body->get_flag(0x20u))
+            new_bpi->m_env_collision_flags &= ~1u;
     }
     else
     {
         bpg = create_broad_phase_group();
-        broad_phase_group::set(bpg);
+        //broad_phase_group::set(bpg);
+        bpg->set();
         v4 = &userData->m_gjk_geom_list.m_first_geom;
-        if ( userData->m_gjk_geom_list.m_geom_count < 0
+
+        if (userData->m_gjk_geom_list.m_geom_count < 0
             && _tlAssert(
-                     "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
-                     1035,
-                     "m_geom_count >= 0",
-                     "") )
+                "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
+                1035,
+                "m_geom_count >= 0",
+                ""))
         {
             __debugbreak();
         }
         geom = *v4;
-        if ( !*v4 && _tlAssert("C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp", 417, "geom", "") )
+        if (!*v4 && _tlAssert("C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp", 417, "geom", ""))
             __debugbreak();
-        while ( geom )
+        while (geom)
         {
             bpi = create_broad_phase_info();
-            v1 = gjk_base_t::get_geom_id(geom);
-            broad_phase_info::set(bpi, body, &body->m_mat, &userData->cg2w, &userData->cg2rb, geom, v1, 1, 31, 0, 0x1C7u);
-            broad_phase_group::add_bpi(bpg, bpi);
+            //v1 = gjk_base_t::get_geom_id(geom);
+            v1 = geom->get_geom_id();
+            bpi->set(body, &body->m_mat, &userData->cg2w, &userData->cg2rb, geom, v1, 1, 31, 0, 0x1C7u);
+            bpg->add_bpi(bpi);
             geom = geom->m_next_geom;
         }
         userData->m_bpb = bpg;
@@ -4386,3 +4377,138 @@ broad_phase_memory *__cdecl broad_phase_memory::allocate_buffer(const broad_phas
     return v2;
 }
 
+void calc_largest_vel_sq(broad_phase_info *bpi)
+{
+    rigid_body *m_rb; // esi
+    double v3; // st7
+    double w; // st7
+    double v5; // st5
+    double v6; // st1
+    const phys_mat44 *m_rb_to_world_xform; // edi
+    const phys_vec3 *v8; // eax
+    float *p_m_largest_vel_sq; // edx
+    double v10; // st7
+    float z; // ecx
+    _BYTE v12[12]; // [esp-Ch] [ebp-6Ch] BYREF
+    phys_vec3 support_pt_loc; // [esp+0h] [ebp-60h] BYREF
+    phys_vec3 dir_loc; // [esp+10h] [ebp-50h] BYREF
+    float v15; // [esp+24h] [ebp-3Ch] BYREF
+    float v16; // [esp+28h] [ebp-38h]
+    float v17; // [esp+2Ch] [ebp-34h]
+    phys_vec3 support_pt; // [esp+30h] [ebp-30h] BYREF
+    phys_vec3 dir; // [esp+40h] [ebp-20h]
+    float v20; // [esp+50h] [ebp-10h]
+    float lvs; // [esp+54h] [ebp-Ch]
+    float t_vel_sq; // [esp+58h] [ebp-8h]
+    float retaddr; // [esp+60h] [ebp+0h]
+
+    lvs = a1;
+    t_vel_sq = retaddr;
+    if ((bpi->m_flags & 4) != 0
+        && _tlAssert("source/phys_broad_phase.cpp", 694, "!bpi->is_bpi_env()", (const char *)&pBlock))
+    {
+        __debugbreak();
+    }
+    m_rb = bpi->m_rb;
+    if ((m_rb->m_flags & 0x30) != 0
+        && _tlAssert(
+            "source/phys_broad_phase.cpp",
+            696,
+            "!rb->get_flag(rigid_body::FLAG_ENVIRONMENT_RIGID_BODY|rigid_body::FLAG_USER_RIGID_BODY)",
+            (const char *)&pBlock))
+    {
+        __debugbreak();
+    }
+    dir.z = m_rb->m_a_vel.y * m_rb->m_a_vel.y + m_rb->m_a_vel.x * m_rb->m_a_vel.x + m_rb->m_a_vel.z * m_rb->m_a_vel.z;
+    dir.w = m_rb->m_t_vel.y * m_rb->m_t_vel.y + m_rb->m_t_vel.x * m_rb->m_t_vel.x + m_rb->m_t_vel.z * m_rb->m_t_vel.z;
+    v3 = 0.0000010000001;
+    if (dir.z >= 0.0000010000001)
+    {
+        support_pt.y = m_rb->m_t_vel.y * m_rb->m_a_vel.z - m_rb->m_t_vel.z * m_rb->m_a_vel.y;
+        support_pt.z = m_rb->m_t_vel.z * m_rb->m_a_vel.x - m_rb->m_t_vel.x * m_rb->m_a_vel.z;
+        support_pt.w = m_rb->m_t_vel.x * m_rb->m_a_vel.y - m_rb->m_t_vel.y * m_rb->m_a_vel.x;
+        v20 = support_pt.z * support_pt.z + support_pt.y * support_pt.y + support_pt.w * support_pt.w;
+        if (v20 < 0.0000010000001)
+        {
+            v15 = m_rb->m_a_vel.y * 0.0 - m_rb->m_a_vel.z * 0.0;
+            v5 = m_rb->m_a_vel.x * 0.0;
+            v16 = m_rb->m_a_vel.z - v5;
+            v17 = v5 - m_rb->m_a_vel.y;
+            dir_loc.y = m_rb->m_t_vel.x + v15;
+            dir_loc.z = m_rb->m_t_vel.y + v16;
+            dir_loc.w = m_rb->m_t_vel.z + v17;
+            v15 = dir_loc.z * m_rb->m_a_vel.z - dir_loc.w * m_rb->m_a_vel.y;
+            v16 = dir_loc.w * m_rb->m_a_vel.x - m_rb->m_a_vel.z * dir_loc.y;
+            v17 = dir_loc.y * m_rb->m_a_vel.y - dir_loc.z * m_rb->m_a_vel.x;
+            support_pt.y = v15;
+            support_pt.z = v16;
+            support_pt.w = v17;
+            v20 = v17 * v17 + v16 * v16 + v15 * v15;
+            if (v20 >= 0.0000010000001)
+            {
+                v3 = 0.0000010000001;
+            }
+            else
+            {
+                v6 = m_rb->m_a_vel.y * 0.0;
+                dir_loc.y = v6 - m_rb->m_a_vel.z * 2.0;
+                dir_loc.z = 0.0 * m_rb->m_a_vel.z - v5;
+                v3 = 0.0000010000001;
+                dir_loc.w = 2.0 * m_rb->m_a_vel.x - v6;
+                v15 = m_rb->m_t_vel.x + dir_loc.y;
+                v16 = m_rb->m_t_vel.y + dir_loc.z;
+                v17 = m_rb->m_t_vel.z + dir_loc.w;
+                dir_loc.y = v16 * m_rb->m_a_vel.z - v17 * m_rb->m_a_vel.y;
+                dir_loc.z = v17 * m_rb->m_a_vel.x - m_rb->m_a_vel.z * v15;
+                dir_loc.w = v15 * m_rb->m_a_vel.y - v16 * m_rb->m_a_vel.x;
+                support_pt.y = dir_loc.y;
+                support_pt.z = dir_loc.z;
+                support_pt.w = dir_loc.w;
+                v20 = dir_loc.w * dir_loc.w + dir_loc.z * dir_loc.z + dir_loc.y * dir_loc.y;
+            }
+        }
+        if (v3 > v20)
+        {
+            w = dir.w + dir.z;
+        }
+        else
+        {
+            phys_inv_multiply((phys_vec3 *)&support_pt_loc.y, bpi->m_cg_to_world_xform, (phys_vec3 *)&support_pt.y);
+            bpi->m_gjk_geom->support(
+                bpi->m_gjk_geom,
+                (phys_vec3 *)&support_pt_loc.y,
+                (phys_vec3 *)v12,
+                (phys_vec3 *)&dir_loc.y);
+            m_rb_to_world_xform = bpi->m_rb_to_world_xform;
+            LODWORD(dir.z) = bpi->m_cg_to_world_xform;
+            v8 = phys_multiply((const phys_vec3 *)&v15, (const phys_mat44 *)LODWORD(dir.z), (const phys_vec3 *)v12);
+            dir_loc.y = v8->x + *(float *)(LODWORD(dir.z) + 48);
+            dir_loc.z = v8->y + *(float *)(LODWORD(dir.z) + 52);
+            dir_loc.w = v8->z + *(float *)(LODWORD(dir.z) + 56);
+            v15 = dir_loc.y - m_rb_to_world_xform->w.x;
+            v16 = dir_loc.z - m_rb_to_world_xform->w.y;
+            v17 = dir_loc.w - m_rb_to_world_xform->w.z;
+            dir_loc.y = v17 * m_rb->m_a_vel.y - v16 * m_rb->m_a_vel.z;
+            dir_loc.z = v15 * m_rb->m_a_vel.z - v17 * m_rb->m_a_vel.x;
+            dir_loc.w = v16 * m_rb->m_a_vel.x - v15 * m_rb->m_a_vel.y;
+            v15 = m_rb->m_t_vel.x + dir_loc.y;
+            v16 = m_rb->m_t_vel.y + dir_loc.z;
+            v17 = m_rb->m_t_vel.z + dir_loc.w;
+            w = v15 * v15 + v16 * v16 + v17 * v17;
+        }
+    }
+    else
+    {
+        w = dir.w;
+    }
+    v20 = w;
+    p_m_largest_vel_sq = &m_rb->m_largest_vel_sq;
+    v10 = v20;
+    do
+    {
+        dir.z = *p_m_largest_vel_sq;
+        if (dir.z > v10)
+            break;
+        z = dir.z;
+    } while (_InterlockedCompareExchange((volatile signed __int32 *)p_m_largest_vel_sq, SLODWORD(v20), SLODWORD(dir.z)) != LODWORD(z));
+}

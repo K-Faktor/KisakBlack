@@ -10,6 +10,23 @@ enum rope_constraint_e : __int32
     ROPE_CENTITY_CONSTRAINT = 0x3,
 };
 
+struct __declspec(align(4)) VisualRope // sizeof=0x20
+{                                       // XREF: RopeRenderInfo/r
+                                        // Rope_Draw/r
+    float beginRadius;                  // XREF: Rope_Draw+DD/w
+    float endRadius;                    // XREF: Rope_Draw+F5/w
+    const Material *material;           // XREF: Rope_Draw+103/w
+    int segmentCount;                   // XREF: Rope_Draw+114/w
+    float *segmentVerts;                // XREF: Rope_Draw+10C/w
+    GfxDrawSurf *drawSurf;
+    unsigned __int16 *lightingHandle;   // XREF: Rope_Draw+120/w
+    unsigned __int8 visibilityFlags;    // XREF: Rope_Draw+89/w
+                                        // Rope_Draw+8C/r
+    // padding byte
+    // padding byte
+    // padding byte
+};
+
 struct contact_t // sizeof=0x1C
 {                                       // XREF: .data:contact_t * g_contacts/r
     float point[3];

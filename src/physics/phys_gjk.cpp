@@ -2,7 +2,6 @@
 
 // local variable allocation has failed, the output may be wrong!
 void    phys_full_inv_multiply_mat(
-                int a1@<ebp>,
                 phys_mat44 *dest,
                 const phys_mat44 *left,
                 const phys_mat44 *right)
@@ -87,11 +86,11 @@ void __cdecl set_simplex(
     gjk_ci->m_support_count = BIT_COUNT[w_set];
 }
 
-int __thiscall phys_gjk_info::gjk_subalgorithm(phys_gjk_info *this, int w_set, int new_index)
+int __thiscall phys_gjk_info::gjk_subalgorithm(int w_set, int new_index)
 {
     int savedregs; // [esp+0h] [ebp+0h] BYREF
 
-    return backup1(COERCE_FLOAT(&savedregs), this, new_index, 0);
+    return backup1(this, new_index, 0);
 }
 
 int __userpurge phys_gjk_info::seed_simplex@<eax>(phys_gjk_info *this@<ecx>, int a2@<ebp>, int cached_vert_count)

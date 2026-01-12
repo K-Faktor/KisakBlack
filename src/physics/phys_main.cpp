@@ -1,5 +1,28 @@
 #include "phys_main.h"
 #include "phys_effects.h"
+#include <tl/tl_system.h>
+#include "phys_mem_new.h"
+#include "phys_task_manager.h"
+#include "physics_system.h"
+#include <universal/surfaceflags.h>
+#include <gfx_d3d/rb_debug.h>
+#include "phys_render.h"
+
+const char *g_debugRenderMaskNames[10] =
+{
+  "All",
+  "Player",
+  "PlayerClip Only",
+  "Vehicle",
+  "AI Collision",
+  "AI Sight",
+  "Weapon",
+  "Mantle",
+  "Physics",
+  NULL
+};
+
+void *G_PHYSICS_TOTAL_MEMORY_BUFFER;
 
 const dvar_t *phys_gravity;
 const dvar_t *phys_gravity_dir;
@@ -61,6 +84,7 @@ const dvar_t *phys_fluid;
 cdl_proftimer proftimer_physics_frame_advance;
 PhysGlob physGlob;
 
+static bool physInited = false;
 void __cdecl Phys_Init()
 {
     phys_surface_type_info v0; // [esp+30h] [ebp-68h] BYREF
@@ -71,7 +95,6 @@ void __cdecl Phys_Init()
     float surfaceFriction; // [esp+80h] [ebp-18h]
     float surfaceBounce; // [esp+84h] [ebp-14h]
     int i; // [esp+88h] [ebp-10h]
-    broad_phase_memory_info bpmi; // [esp+8Ch] [ebp-Ch] BYREF
 
     physGlob.timeLastSnapshot = 0;
     physGlob.timeLastUpdate = 0;
@@ -347,7 +370,10 @@ void __cdecl Phys_Init()
         phys_memory_manager_init(G_PHYSICS_TOTAL_MEMORY_BUFFER, 3670016);
         phys_task_manager_init();
         phys_sys::phys_init();
-        broad_phase_memory_info::broad_phase_memory_info(&bpmi);
+
+        broad_phase_memory_info bpmi; // [esp+8Ch] [ebp-Ch] BYREF
+
+        //broad_phase_memory_info::broad_phase_memory_info(&bpmi);
         bpmi.m_max_num_gjk_ci = 2048;
         bpmi.m_max_num_sap_active_pairs = 2048;
         bpmi.m_max_num_surface_types = 35;
