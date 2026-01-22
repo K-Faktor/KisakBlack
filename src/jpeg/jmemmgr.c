@@ -1018,6 +1018,19 @@ self_destruct (j_common_ptr cinfo)
   jpeg_mem_term(cinfo);		/* system-dependent cleanup */
 }
 
+// LWSS ADD 
+struct jpeg_alloc jpeg_alloc_overrides;
+struct jpeg_alloc *jpeg_get_jpeg_alloc()
+{
+    return &jpeg_alloc_overrides;
+}
+
+void __cdecl jpeg_set_jpeg_alloc(void *(__cdecl *malloc_fn_ptr)(unsigned int), void(__cdecl *free_fn_ptr)(void *))
+{
+    jpeg_alloc_overrides.malloc = malloc_fn_ptr;
+    jpeg_alloc_overrides.free = free_fn_ptr;
+}
+// LWSS END
 
 /*
  * Memory manager initialization.

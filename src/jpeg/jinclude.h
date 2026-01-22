@@ -31,6 +31,19 @@
  * You can remove those references if you want to compile without <stdio.h>.
  */
 
+// LWSS ADD - move this here
+typedef struct {
+    struct jpeg_destination_mgr pub; /* public fields */
+
+    FILE *outfile;		/* target stream */
+    //JOCTET *buffer;		/* start of buffer */
+    int size;
+} my_destination_mgr;
+
+void __cdecl jpeg_memory_src(j_decompress_ptr cinfo, const unsigned __int8 *pubData, int iBytes);
+
+// LWSS END
+
 #ifdef HAVE_STDDEF_H
 #include <stddef.h>
 #endif

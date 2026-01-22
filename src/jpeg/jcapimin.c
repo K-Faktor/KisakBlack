@@ -57,6 +57,11 @@ jpeg_CreateCompress (j_compress_ptr cinfo, int version, size_t structsize)
   /* Initialize a memory manager instance for this object */
   jinit_memory_mgr((j_common_ptr) cinfo);
 
+  // LWSS ADD
+  cinfo->mem->alloc.malloc = jpeg_get_jpeg_alloc()->malloc;
+  cinfo->mem->alloc.free = jpeg_get_jpeg_alloc()->free;
+  // LWSS END
+
   /* Zero out pointers to permanent structures. */
   cinfo->progress = NULL;
   cinfo->dest = NULL;

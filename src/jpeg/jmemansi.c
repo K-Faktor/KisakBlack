@@ -35,13 +35,42 @@ extern void free JPP((void *ptr));
 GLOBAL(void *)
 jpeg_get_small (j_common_ptr cinfo, size_t sizeofobject)
 {
-  return (void *) malloc(sizeofobject);
+  //return (void *) malloc(sizeofobject);
+  // LWSS: rework for blops
+  struct jpeg_alloc *alloc; // [esp+4h] [ebp-4h]
+
+  if (cinfo->mem && cinfo->mem->alloc.malloc)
+      return cinfo->mem->alloc.malloc(sizeofobject);
+  alloc = jpeg_get_jpeg_alloc();
+  if (alloc && alloc->malloc)
+      return alloc->malloc(sizeofobject);
+  else
+      return 0;
 }
 
 GLOBAL(void)
 jpeg_free_small (j_common_ptr cinfo, void * object, size_t sizeofobject)
 {
-  free(object);
+  //free(object);
+  // LWSS: rework for blops
+
+  void(__cdecl * free_fn_ptr)(void *); // [esp+0h] [ebp-8h]
+  struct jpeg_alloc *alloc; // [esp+4h] [ebp-4h]
+  
+  if (cinfo->mem && cinfo->mem->alloc.free)
+  {
+      cinfo->mem->alloc.free(object);
+  }
+  else
+  {
+      alloc = jpeg_get_jpeg_alloc();
+      if (alloc)
+      {
+          free_fn_ptr = alloc->free;
+          if (free_fn_ptr)
+              free_fn_ptr(object);
+      }
+  }
 }
 
 

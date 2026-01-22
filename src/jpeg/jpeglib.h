@@ -235,6 +235,13 @@ typedef enum {
 	JDITHER_FS		/* Floyd-Steinberg error diffusion dither */
 } J_DITHER_MODE;
 
+// LWSS ADD
+struct jpeg_alloc // sizeof=0x8
+{                                       // XREF: .data:_jpeg_alloc_overrides/r
+    void *(__cdecl *malloc)(unsigned int);
+    void(__cdecl *free)(void *);       // XREF: _jpeg_set_jpeg_alloc+E/w
+};
+// LWSS END
 
 /* Common fields between JPEG compression and decompression master structs. */
 
@@ -244,7 +251,8 @@ typedef enum {
   struct jpeg_progress_mgr * progress; /* Progress monitor, or NULL if none */\
   void * client_data;		/* Available for use by application */\
   boolean is_decompressor;	/* So common code can tell which is which */\
-  int global_state		/* For checking call sequence validity */
+  int global_state;		/* For checking call sequence validity */\
+  struct jpeg_alloc alloc // LWSS ADD FOR BLOPS
 
 /* Routines that are to be used by both halves of the library are declared
  * to receive a pointer to this structure.  There are no actual instances of
@@ -693,6 +701,11 @@ struct jpeg_error_mgr {
   const char * const * addon_message_table; /* Non-library errors */
   int first_addon_message;	/* code for first string in addon table */
   int last_addon_message;	/* code for last string in addon table */
+
+  // LWSS ADD
+  void (*exit)();
+  void (*printf)(char *);
+  // LWSS END
 };
 
 
@@ -752,7 +765,6 @@ struct jpeg_source_mgr {
 typedef struct jvirt_sarray_control * jvirt_sarray_ptr;
 typedef struct jvirt_barray_control * jvirt_barray_ptr;
 
-
 struct jpeg_memory_mgr {
   /* Method pointers */
   JMETHOD(void *, alloc_small, (j_common_ptr cinfo, int pool_id,
@@ -801,6 +813,9 @@ struct jpeg_memory_mgr {
   /* Maximum allocation request accepted by alloc_large. */
   long max_alloc_chunk;
 
+  // LWSS ADD
+  struct jpeg_alloc alloc;
+  // LWSS END
 };
 
 
@@ -882,8 +897,10 @@ typedef JMETHOD(boolean, jpeg_marker_parser_method, (j_decompress_ptr cinfo));
 
 
 /* Default error-management setup */
-EXTERN(struct jpeg_error_mgr *) jpeg_std_error
-	JPP((struct jpeg_error_mgr * err));
+//EXTERN(struct jpeg_error_mgr *) jpeg_std_error
+//	JPP((struct jpeg_error_mgr * err));
+// LWSS EDIT
+struct jpeg_error_mgr *jpeg_std_error(struct jpeg_error_mgr *err, void (*exit)(), void(__cdecl *printf)(char *))
 
 /* Initialization of JPEG compression objects.
  * jpeg_create_compress() and jpeg_create_decompress() are the exported
@@ -1093,5 +1110,11 @@ struct jpeg_color_quantizer { long dummy; };
 #include "jpegint.h"		/* fetch private declarations */
 #include "jerror.h"		/* fetch error codes too */
 #endif
+
+
+ // LWSS ADD 
+struct jpeg_alloc *jpeg_get_jpeg_alloc();
+void __cdecl jpeg_set_jpeg_alloc(void *(__cdecl *malloc_fn_ptr)(unsigned int), void(__cdecl *free_fn_ptr)(void *));
+// LWSS END
 
 #endif /* JPEGLIB_H */

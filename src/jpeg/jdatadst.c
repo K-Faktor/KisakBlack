@@ -22,12 +22,12 @@
 
 /* Expanded data destination object for stdio output */
 
-typedef struct {
-  struct jpeg_destination_mgr pub; /* public fields */
-
-  FILE * outfile;		/* target stream */
-  JOCTET * buffer;		/* start of buffer */
-} my_destination_mgr;
+//typedef struct {
+//  struct jpeg_destination_mgr pub; /* public fields */
+//
+//  FILE * outfile;		/* target stream */
+//  JOCTET * buffer;		/* start of buffer */
+//} my_destination_mgr;
 
 typedef my_destination_mgr * my_dest_ptr;
 
@@ -42,15 +42,22 @@ typedef my_destination_mgr * my_dest_ptr;
 METHODDEF(void)
 init_destination (j_compress_ptr cinfo)
 {
-  my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
+  //my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
+  //
+  ///* Allocate the output buffer --- it will be released when done with image */
+  //dest->buffer = (JOCTET *)
+  //    (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_IMAGE,
+	//			  OUTPUT_BUF_SIZE * SIZEOF(JOCTET));
+  //
+  //dest->pub.next_output_byte = dest->buffer;
+  //dest->pub.free_in_buffer = OUTPUT_BUF_SIZE;
 
-  /* Allocate the output buffer --- it will be released when done with image */
-  dest->buffer = (JOCTET *)
-      (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_IMAGE,
-				  OUTPUT_BUF_SIZE * SIZEOF(JOCTET));
+  // LWSS: rework
+  my_destination_mgr *dest; // [esp+0h] [ebp-4h]
 
-  dest->pub.next_output_byte = dest->buffer;
-  dest->pub.free_in_buffer = OUTPUT_BUF_SIZE;
+  dest = (my_destination_mgr *)cinfo->dest;
+  dest->pub.next_output_byte = dest->outfile;
+  dest->pub.free_in_buffer = dest->size;
 }
 
 
@@ -77,20 +84,21 @@ init_destination (j_compress_ptr cinfo)
  * write it out when emptying the buffer externally.
  */
 
-METHODDEF(boolean)
-empty_output_buffer (j_compress_ptr cinfo)
-{
-  my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
-
-  if (JFWRITE(dest->outfile, dest->buffer, OUTPUT_BUF_SIZE) !=
-      (size_t) OUTPUT_BUF_SIZE)
-    ERREXIT(cinfo, JERR_FILE_WRITE);
-
-  dest->pub.next_output_byte = dest->buffer;
-  dest->pub.free_in_buffer = OUTPUT_BUF_SIZE;
-
-  return TRUE;
-}
+// LWSS: remove
+//METHODDEF(boolean)
+//empty_output_buffer (j_compress_ptr cinfo)
+//{
+//  my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
+//
+//  if (JFWRITE(dest->outfile, dest->buffer, OUTPUT_BUF_SIZE) !=
+//      (size_t) OUTPUT_BUF_SIZE)
+//    ERREXIT(cinfo, JERR_FILE_WRITE);
+//
+//  dest->pub.next_output_byte = dest->buffer;
+//  dest->pub.free_in_buffer = OUTPUT_BUF_SIZE;
+//
+//  return TRUE;
+//}
 
 
 /*
@@ -102,22 +110,28 @@ empty_output_buffer (j_compress_ptr cinfo)
  * for error exit.
  */
 
+// LWSS EDIT
+extern int hackSize;
+
 METHODDEF(void)
 term_destination (j_compress_ptr cinfo)
 {
-  my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
-  size_t datacount = OUTPUT_BUF_SIZE - dest->pub.free_in_buffer;
+  //my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
+  //size_t datacount = OUTPUT_BUF_SIZE - dest->pub.free_in_buffer;
+  //
+  ///* Write any data remaining in the buffer */
+  //if (datacount > 0) {
+  //  if (JFWRITE(dest->outfile, dest->buffer, datacount) != datacount)
+  //    ERREXIT(cinfo, JERR_FILE_WRITE);
+  //}
+  //fflush(dest->outfile);
+  ///* Make sure we wrote the output file OK */
+  //if (ferror(dest->outfile))
+  //  ERREXIT(cinfo, JERR_FILE_WRITE);
 
-  /* Write any data remaining in the buffer */
-  if (datacount > 0) {
-    if (JFWRITE(dest->outfile, dest->buffer, datacount) != datacount)
-      ERREXIT(cinfo, JERR_FILE_WRITE);
-  }
-  fflush(dest->outfile);
-  /* Make sure we wrote the output file OK */
-  if (ferror(dest->outfile))
-    ERREXIT(cinfo, JERR_FILE_WRITE);
+  hackSize = cinfo->dest[1].free_in_buffer - cinfo->dest->free_in_buffer;
 }
+// LWSS END
 
 
 /*
@@ -126,26 +140,27 @@ term_destination (j_compress_ptr cinfo)
  * for closing it after finishing compression.
  */
 
-GLOBAL(void)
-jpeg_stdio_dest (j_compress_ptr cinfo, FILE * outfile)
-{
-  my_dest_ptr dest;
-
-  /* The destination object is made permanent so that multiple JPEG images
-   * can be written to the same file without re-executing jpeg_stdio_dest.
-   * This makes it dangerous to use this manager and a different destination
-   * manager serially with the same JPEG object, because their private object
-   * sizes may be different.  Caveat programmer.
-   */
-  if (cinfo->dest == NULL) {	/* first time for this JPEG object? */
-    cinfo->dest = (struct jpeg_destination_mgr *)
-      (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
-				  SIZEOF(my_destination_mgr));
-  }
-
-  dest = (my_dest_ptr) cinfo->dest;
-  dest->pub.init_destination = init_destination;
-  dest->pub.empty_output_buffer = empty_output_buffer;
-  dest->pub.term_destination = term_destination;
-  dest->outfile = outfile;
-}
+// LWSS REMOVE
+//GLOBAL(void)
+//jpeg_stdio_dest (j_compress_ptr cinfo, FILE * outfile)
+//{
+//  my_dest_ptr dest;
+//
+//  /* The destination object is made permanent so that multiple JPEG images
+//   * can be written to the same file without re-executing jpeg_stdio_dest.
+//   * This makes it dangerous to use this manager and a different destination
+//   * manager serially with the same JPEG object, because their private object
+//   * sizes may be different.  Caveat programmer.
+//   */
+//  if (cinfo->dest == NULL) {	/* first time for this JPEG object? */
+//    cinfo->dest = (struct jpeg_destination_mgr *)
+//      (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
+//				  SIZEOF(my_destination_mgr));
+//  }
+//
+//  dest = (my_dest_ptr) cinfo->dest;
+//  dest->pub.init_destination = init_destination;
+//  dest->pub.empty_output_buffer = empty_output_buffer;
+//  dest->pub.term_destination = term_destination;
+//  dest->outfile = outfile;
+//}

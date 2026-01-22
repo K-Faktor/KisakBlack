@@ -365,6 +365,7 @@ EXTERN(void) jinit_1pass_quantizer JPP((j_decompress_ptr cinfo));
 EXTERN(void) jinit_2pass_quantizer JPP((j_decompress_ptr cinfo));
 EXTERN(void) jinit_merged_upsampler JPP((j_decompress_ptr cinfo));
 /* Memory manager initialization */
+
 EXTERN(void) jinit_memory_mgr JPP((j_common_ptr cinfo));
 
 /* Utility routines in jutils.c */

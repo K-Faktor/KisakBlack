@@ -1,14 +1,17 @@
+/* jconfig.h.  Generated automatically by configure.  */
 /* jconfig.cfg --- source file edited by configure script */
 /* see jconfig.doc for explanations */
 
-#undef HAVE_PROTOTYPES
-#undef HAVE_UNSIGNED_CHAR
-#undef HAVE_UNSIGNED_SHORT
+// LWSS: ripped from a random github project
+
+#define HAVE_PROTOTYPES 
+#define HAVE_UNSIGNED_CHAR 
+#define HAVE_UNSIGNED_SHORT 
 #undef void
 #undef const
 #undef CHAR_IS_UNSIGNED
-#undef HAVE_STDDEF_H
-#undef HAVE_STDLIB_H
+#define HAVE_STDDEF_H 
+#define HAVE_STDLIB_H 
 #undef NEED_BSD_STRINGS
 #undef NEED_SYS_TYPES_H
 #undef NEED_FAR_POINTERS
@@ -16,10 +19,11 @@
 /* Define this if you get warnings about undefined structures. */
 #undef INCOMPLETE_TYPES_BROKEN
 
+#define NO_GETENV 1 // LWSS
+
 #ifdef JPEG_INTERNALS
 
 #undef RIGHT_SHIFT_IS_UNSIGNED
-#undef INLINE
 /* These are for configuring the JPEG memory manager. */
 #undef DEFAULT_MAX_MEM
 #undef NO_MKTEMP
@@ -42,3 +46,14 @@
 #undef PROGRESS_REPORT
 
 #endif /* JPEG_CJPEG_DJPEG */
+
+// Work-around conflicting definition of INLINE on GCC in s3eTypes.h & jmorecfg.h
+#if !defined INLINE && !defined S3E_NO_INLINE
+
+#ifdef __GNUC__
+#define INLINE __inline__
+#else
+#define INLINE S3E_INLINE
+#endif
+
+#endif

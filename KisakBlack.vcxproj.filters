@@ -3363,24 +3363,6 @@
     <ClCompile Include="src\libjpeg\wrtarga.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\jpeg\ansi2knr.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\cdjpeg.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\cjpeg.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\ckconfig.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\djpeg.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\example.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\jpeg\jcapimin.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -3507,9 +3489,6 @@
     <ClCompile Include="src\jpeg\jmemansi.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\jpeg\jmemdos.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\jpeg\jmemmac.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -3532,51 +3511,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\jpeg\jutils.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\rdbmp.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\rdcolmap.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\rdgif.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\rdjpgcom.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\rdppm.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\rdrle.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\rdswitch.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\rdtarga.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\transupp.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\wrbmp.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\wrgif.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\wrjpgcom.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\wrppm.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\wrrle.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\wrtarga.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -6044,12 +5978,6 @@
     <ClInclude Include="src\libjpeg\transupp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\jpeg\cderror.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\jpeg\cdjpeg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\jpeg\jchuff.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -6080,7 +6008,7 @@
     <ClInclude Include="src\jpeg\jversion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\jpeg\transupp.h">
+    <ClInclude Include="src\jpeg\jconfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -6091,9 +6019,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="src\libjpeg\jmemdosa.asm">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="src\jpeg\jmemdosa.asm">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

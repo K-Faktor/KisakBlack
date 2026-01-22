@@ -75,7 +75,8 @@ error_exit (j_common_ptr cinfo)
   /* Let the memory manager delete any temp files before we die */
   jpeg_destroy(cinfo);
 
-  exit(EXIT_FAILURE);
+  //exit(EXIT_FAILURE);
+  cinfo->err->exit(); // LWSS ADD
 }
 
 
@@ -102,14 +103,17 @@ output_message (j_common_ptr cinfo)
   /* Create the message */
   (*cinfo->err->format_message) (cinfo, buffer);
 
-#ifdef USE_WINDOWS_MESSAGEBOX
-  /* Display it in a message dialog box */
-  MessageBox(GetActiveWindow(), buffer, "JPEG Library Error",
-	     MB_OK | MB_ICONERROR);
-#else
-  /* Send it to stderr, adding a newline */
-  fprintf(stderr, "%s\n", buffer);
-#endif
+//#ifdef USE_WINDOWS_MESSAGEBOX
+//  /* Display it in a message dialog box */
+//  MessageBox(GetActiveWindow(), buffer, "JPEG Library Error",
+//	     MB_OK | MB_ICONERROR);
+//#else
+//  /* Send it to stderr, adding a newline */
+//  fprintf(stderr, "%s\n", buffer);
+//#endif
+
+  // LWSS ADD
+  cinfo->err->printf(buffer);
 }
 
 
@@ -228,7 +232,7 @@ reset_error_mgr (j_common_ptr cinfo)
  */
 
 GLOBAL(struct jpeg_error_mgr *)
-jpeg_std_error (struct jpeg_error_mgr * err)
+jpeg_std_error (struct jpeg_error_mgr * err, void (*exit)(), void(__cdecl *printf)(char *)) // LWSS: change prototype
 {
   err->error_exit = error_exit;
   err->emit_message = emit_message;
@@ -247,6 +251,11 @@ jpeg_std_error (struct jpeg_error_mgr * err)
   err->addon_message_table = NULL;
   err->first_addon_message = 0;	/* for safety */
   err->last_addon_message = 0;
+
+  // LWSS ADD
+  err->exit = exit;
+  err->printf = printf;
+  // LWSS END
 
   return err;
 }
