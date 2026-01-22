@@ -1,4 +1,11 @@
 #pragma once
+#include "r_material.h"
+
+struct BuiltinImageConstructorTable // sizeof=0x8
+{                                       // XREF: .rdata:constructorTable/r
+    const char *name;                   // XREF: Image_LoadBuiltin+2B/r
+    void (__cdecl *LoadCallback)(GfxImage *);
+};
 
 char __cdecl Image_ValidateHeader(GfxImageFileHeader *imageFile, const char *filepath);
 void __cdecl Image_LoadFromData(GfxImage *image, GfxImageFileHeader *fileHeader, unsigned __int8 *srcData);

@@ -71,3 +71,4 @@ extern jqWorkerCmd r_model_skinWorkerCmd;
 extern jqWorkerCmd nuge_physicsWorkerCmd;
 extern jqWorkerCmd r_skin_cached_staticmodelWorkerCmd;
 extern jqWorkerCmd fx_update_remaining_ppuWorkerCmd;
+extern jqWorkerCmd r_model_lightingWorkerCmd;

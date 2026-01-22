@@ -9,6 +9,19 @@ enum LightHasShadowMap : __int32
     LIGHT_HAS_NO_SHADOWMAP = 0x1,
 };
 
+enum GfxLightType : __int32
+{
+    GFX_LIGHT_TYPE_NONE           = 0x0,
+    GFX_LIGHT_TYPE_DIR            = 0x1,
+    GFX_LIGHT_TYPE_SPOT           = 0x2,
+    GFX_LIGHT_TYPE_OMNI           = 0x3,
+    GFX_LIGHT_TYPE_COUNT          = 0x4,
+    GFX_LIGHT_TYPE_DIR_SHADOWMAP  = 0x4,
+    GFX_LIGHT_TYPE_SPOT_SHADOWMAP = 0x5,
+    GFX_LIGHT_TYPE_OMNI_SHADOWMAP = 0x6,
+    GFX_LIGHT_TYPE_COUNT_WITH_SHADOWMAP_VERSIONS = 0x7,
+};
+
 // local variable allocation has failed, the output may be wrong!
 void    R_SetLightProperties(
                 GfxCmdBufSourceState *source,

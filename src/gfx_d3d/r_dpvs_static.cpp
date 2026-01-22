@@ -1,4 +1,9 @@
 #include "r_dpvs_static.h"
+#include "r_dvars.h"
+#include "r_debug.h"
+#include <qcommon/threads.h>
+
+float4 g_keepXYZ{ -1, -1, -1, 0 };
 
 char __cdecl TestOccluders(const float (*bounds)[3], int numOccluders, float (*plane)[4])
 {
@@ -957,34 +962,34 @@ float (*__cdecl TestOccludersPartial(const float (*bounds)[3], int *numOccluders
             v13 = (__int64 *)&(*plane)[20 * *numOccludersPtr + 16];
             t5 = *v13;
             t5_8 = v13[1];
-            v14 = &(*plane)[20 * *numOccludersPtr];
+            v14 = (uint64_t*)&(*plane)[20 * *numOccludersPtr];
             *v14 = p1;
             v14[1] = p1_8;
-            v15 = &(*plane)[20 * idx + 4];
+            v15 = (uint64_t *)&(*plane)[20 * idx + 4];
             *v15 = p2;
             v15[1] = p2_8;
-            v16 = &(*plane)[20 * idx + 8];
+            v16 = (uint64_t *)&(*plane)[20 * idx + 8];
             *v16 = p3;
             v16[1] = p3_8;
-            v17 = &(*plane)[20 * idx + 12];
+            v17 = (uint64_t *)&(*plane)[20 * idx + 12];
             *v17 = p4;
             v17[1] = p4_8;
-            v18 = &(*plane)[20 * idx + 16];
+            v18 = (uint64_t *)&(*plane)[20 * idx + 16];
             *v18 = p5;
             v18[1] = p5_8;
-            v19 = &(*plane)[20 * planeIdx];
+            v19 = (uint64_t *)&(*plane)[20 * planeIdx];
             *v19 = t1;
             v19[1] = t1_8;
-            v20 = &(*plane)[20 * planeIdx + 4];
+            v20 = (uint64_t *)&(*plane)[20 * planeIdx + 4];
             *v20 = t2;
             v20[1] = t2_8;
-            v21 = &(*plane)[20 * planeIdx + 8];
+            v21 = (uint64_t *)&(*plane)[20 * planeIdx + 8];
             *v21 = t3;
             v21[1] = t3_8;
-            v22 = &(*plane)[20 * planeIdx + 12];
+            v22 = (uint64_t *)&(*plane)[20 * planeIdx + 12];
             *v22 = t4;
             v22[1] = t4_8;
-            v23 = &(*plane)[20 * planeIdx + 16];
+            v23 = (uint64_t *)&(*plane)[20 * planeIdx + 16];
             *v23 = t5;
             v23[1] = t5_8;
         }
@@ -1018,7 +1023,8 @@ bool __cdecl R_CalcSurfaceNoDynamicShadow(unsigned int bits, GfxSurface *localSu
                                                      + (float)(localSurfaces[indexLow].bounds[index2][2] * dpvsGlob.sunShadow.viewDir[2]))
                                      - dpvsGlob.sunShadow.viewDirDist) > dpvsGlob.sunShadow.sunShadowDrawDist) << 25)
                  | HIDWORD(surfaceMaterials->packed) & 0xFDFFFFFF;
-            *(unsigned int *)&surfaceMaterials->fields = surfaceMaterials->fields;
+            //*(unsigned int *)&surfaceMaterials->fields = surfaceMaterials->fields;
+            surfaceMaterials->packed = surfaceMaterials->packed;
             HIDWORD(surfaceMaterials->packed) = v3;
         }
         ++indexLow;
@@ -1032,8 +1038,8 @@ void __cdecl R_AddCellStaticSurfacesInFrustumCmd(DpvsStaticCellCmd *data)
     unsigned int viewIndex; // [esp+4h] [ebp-4h]
 
     viewIndex = data->viewIndex;
-    *(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8336) = g_worldDpvs->smodelVisData[viewIndex];
-    *(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8340) = g_worldDpvs->surfaceVisData[viewIndex];
+    g_smodelVisData = g_worldDpvs->smodelVisData[viewIndex];
+    g_surfaceVisData = g_worldDpvs->surfaceVisData[viewIndex];
     R_AddCellStaticSurfacesInFrustum(data);
     if ( rg.drawWorld )
         R_AddCellCullGroupsInFrustum(data);
@@ -1064,38 +1070,38 @@ int __cdecl R_AddCellStaticSurfacesInFrustum(DpvsStaticCellCmd *dpvsCell)
     v20 = 0;
     cell = dpvsCell->cell;
     aabbTree = cell->aabbTree;
-    if ( !aabbTree )
+    if (!aabbTree)
         return v20;
     planeCount = dpvsCell->planeCount;
-    if ( planeCount > 16
+    if (planeCount > 16
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_dpvs_static.cpp",
-                    1137,
-                    0,
-                    "%s\n\t(planes.count) = %i",
-                    "(planes.count <= (10 + 4 + 2))",
-                    planeCount) )
+            "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_dpvs_static.cpp",
+            1137,
+            0,
+            "%s\n\t(planes.count) = %i",
+            "(planes.count <= (10 + 4 + 2))",
+            planeCount))
     {
         __debugbreak();
     }
-    if ( !planeCount
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_dpvs_static.cpp", 1138, 0, "%s", "planes.count") )
+    if (!planeCount
+        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_dpvs_static.cpp", 1138, 0, "%s", "planes.count"))
     {
         __debugbreak();
     }
     planes = dpvsCell->planes;
     tree = aabbTree;
-    for ( i = 0; i < planeCount; ++i )
+    for (i = 0; i < planeCount; ++i)
         R_CopyClipPlanes(&planes[i], &out.planes[i]);
     out.count = planeCount;
-    if ( dpvsCell->viewIndex )
+    if (dpvsCell->viewIndex)
     {
         v20 = R_AddAabbTreeSurfacesInFrustum_r(tree, &out, 1, 0, dpvsGlob.occluderPlanes);
     }
     else
     {
-        occluderPlanes = (float (*)[4])&v9;
-        for ( j = 0; j < 5 * dpvsGlob.numOccluders; ++j )
+        occluderPlanes = (float (*)[4]) & v9;
+        for (j = 0; j < 5 * dpvsGlob.numOccluders; ++j)
         {
             v3 = occluderPlanes[j];
             v4 = dpvsGlob.occluderPlanes[j];
@@ -1107,32 +1113,29 @@ int __cdecl R_AddCellStaticSurfacesInFrustum(DpvsStaticCellCmd *dpvsCell)
         v20 = R_AddAabbTreeSurfacesInFrustum_r(tree, &out, 1, dpvsGlob.numOccluders, occluderPlanes);
     }
     v17 = g_worldDpvs->staticSurfaceCount >> 5;
-    for ( k = 0; k < v17; ++k )
+    for (k = 0; k < v17; ++k)
     {
-        bits = *(unsigned __int8 *)(*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8340)
-                                                            + k);
-        if ( bits )
+        bits = g_surfaceVisData[k];
+        if (bits)
             R_CalcSurfaceNoDynamicShadow(bits, &g_worldDpvs->surfaces[32 * k], &g_worldDpvs->surfaceMaterials[32 * k]);
     }
     v14 = g_worldDpvs->staticSurfaceCount % 0x20;
-    if ( v14 )
+    if (v14)
     {
         v5 = g_worldDpvs->staticSurfaceCount >> 5;
-        v2 = *(unsigned __int8 *)(*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8340)
-                                                        + v5)
-             & (-1 << (32 - v14));
-        if ( v2 )
+        v2 = g_surfaceVisData[v5] & (-1 << (32 - v14));
+        if (v2)
             R_CalcSurfaceNoDynamicShadow(v2, &g_worldDpvs->surfaces[32 * v5], &g_worldDpvs->surfaceMaterials[32 * v5]);
     }
     return v20;
 }
 
 int __cdecl R_AddAabbTreeSurfacesInFrustum_r(
-                const GfxAabbTree *tree,
-                const DpvsClipPlanes *planes,
-                int treeDepth,
-                int numOccluders,
-                float (*occluderPlanes)[4])
+    const GfxAabbTree *tree,
+    const DpvsClipPlanes *planes,
+    int treeDepth,
+    int numOccluders,
+    float (*occluderPlanes)[4])
 {
     int v6; // [esp+8h] [ebp-1C8h]
     int v7; // [esp+Ch] [ebp-1C4h]
@@ -1164,26 +1167,26 @@ int __cdecl R_AddAabbTreeSurfacesInFrustum_r(
     unsigned int smodelIndex; // [esp+1CCh] [ebp-4h]
 
     finalTreeDepth = treeDepth;
-    if ( numOccluders )
+    if (numOccluders)
     {
         occluderPlanes = TestOccludersPartial((const float (*)[3])tree, &numOccluders, occluderPlanes);
-        if ( occluderPlanes )
+        if (occluderPlanes)
         {
-            if ( !numOccluders && r_showOccluders->current.integer >= 3 )
+            if (!numOccluders && r_showOccluders->current.integer >= 3)
                 R_AddDebugBox(&frontEndDataOut->debugGlobals, tree->mins, tree->maxs, colorCyan);
         }
     }
-    if ( occluderPlanes )
+    if (occluderPlanes)
     {
         clipPlanes.count = 0;
         planeCount = planes->count;
         planeIndex = 0;
         plane = (const DpvsPlane *)planes;
-        while ( planeIndex < planeCount )
+        while (planeIndex < planeCount)
         {
-            if ( R_DpvsPlaneMaxSignedDistToBox(plane, tree->mins) <= 0.0 )
+            if (R_DpvsPlaneMaxSignedDistToBox(plane, tree->mins) <= 0.0)
                 return finalTreeDepth;
-            if ( R_DpvsPlaneMinSignedDistToBox(plane, tree->mins) < 0.0 )
+            if (R_DpvsPlaneMinSignedDistToBox(plane, tree->mins) < 0.0)
                 clipPlanes.planes[clipPlanes.count++] = *plane;
             ++planeIndex;
             ++plane;
@@ -1193,79 +1196,75 @@ int __cdecl R_AddAabbTreeSurfacesInFrustum_r(
     {
         clipPlanes.count = 0;
     }
-    if ( occluderPlanes )
+    if (occluderPlanes)
     {
-        if ( clipPlanes.count || numOccluders )
+        if (clipPlanes.count || numOccluders)
         {
-            if ( tree->childCount )
+            if (tree->childCount)
             {
                 children = (const GfxAabbTree *)((char *)tree + tree->childrenOffset);
                 childCount = tree->childCount;
-                for ( childIndex = 0; childIndex < childCount; ++childIndex )
+                for (childIndex = 0; childIndex < childCount; ++childIndex)
                     R_AddAabbTreeSurfacesInFrustum_r(&children[childIndex], &clipPlanes, 0, numOccluders, occluderPlanes);
             }
             else
             {
-                if ( r_showAabbTrees->current.integer )
+                if (r_showAabbTrees->current.integer)
                     R_AddDebugBox(&frontEndDataOut->debugGlobals, tree->mins, tree->maxs, colorOrange);
-                if ( rg.drawSModels )
+                if (rg.drawSModels)
                 {
                     v18 = tree->smodelIndexCount;
-                    if ( tree->smodelIndexCount )
+                    if (tree->smodelIndexCount)
                     {
                         smodelIndexes = tree->smodelIndexes;
-                        for ( smodelChildIndex = 0; smodelChildIndex < v18; ++smodelChildIndex )
+                        for (smodelChildIndex = 0; smodelChildIndex < v18; ++smodelChildIndex)
                         {
                             v9 = numOccluders;
                             v10 = smodelIndexes[smodelChildIndex];
-                            if ( !*(_BYTE *)(*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8336)
-                                                         + v10) )
+                            if (!g_smodelVisData[v10])
                             {
                                 minmax = &g_worldDpvs->smodelInsts[v10];
-                                if ( !R_CullBoxLeaf(minmax->mins, &clipPlanes) )
+                                if (!R_CullBoxLeaf(minmax->mins, &clipPlanes))
                                 {
-                                    if ( TestOccluders((const float (*)[3])minmax, v9, occluderPlanes) )
+                                    if (TestOccluders((const float (*)[3])minmax, v9, occluderPlanes))
                                     {
-                                        if ( r_showOccluders->current.integer >= 2 )
+                                        if (r_showOccluders->current.integer >= 2)
                                             R_AddDebugBox(&frontEndDataOut->debugGlobals, minmax->mins, minmax->maxs, colorOrange);
                                     }
                                     else
                                     {
-                                        *(_BYTE *)(*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8336)
-                                                         + v10) = 1;
+                                        g_smodelVisData[v10] = 1;
                                     }
                                 }
                             }
                         }
                     }
                 }
-                if ( rg.drawWorld )
+                if (rg.drawWorld)
                 {
                     v15 = tree->surfaceCount;
-                    if ( tree->surfaceCount )
+                    if (tree->surfaceCount)
                     {
                         v16 = &g_worldDpvs->sortedSurfIndex[tree->startSurfIndex];
-                        for ( i = 0; i < v15; ++i )
+                        for (i = 0; i < v15; ++i)
                         {
                             v6 = numOccluders;
                             v7 = v16[i];
-                            if ( !*(_BYTE *)(*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8340)
-                                                         + v7) )
+                            if (!g_surfaceVisData[v7])
                             {
                                 v8 = &g_worldDpvs->surfaces[v7];
-                                if ( !R_CullBoxLeaf(v8->bounds[0], &clipPlanes) )
+                                if (!R_CullBoxLeaf(v8->bounds[0], &clipPlanes))
                                 {
-                                    if ( TestOccluders(v8->bounds, v6, occluderPlanes) )
+                                    if (TestOccluders(v8->bounds, v6, occluderPlanes))
                                     {
-                                        if ( r_showOccluders->current.integer >= 2 )
+                                        if (r_showOccluders->current.integer >= 2)
                                             R_AddDebugBox(&frontEndDataOut->debugGlobals, v8->bounds[0], v8->bounds[1], colorOrange);
                                     }
                                     else
                                     {
-                                        if ( (r_showAabbTrees->current.integer & 2) != 0 )
+                                        if ((r_showAabbTrees->current.integer & 2) != 0)
                                             R_AddDebugBox(&frontEndDataOut->debugGlobals, v8->bounds[0], v8->bounds[1], colorGreen);
-                                        *(_BYTE *)(*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8340)
-                                                         + v7) = 1;
+                                        g_surfaceVisData[v7] = 1;
                                     }
                                 }
                             }
@@ -1276,39 +1275,37 @@ int __cdecl R_AddAabbTreeSurfacesInFrustum_r(
         }
         else
         {
-            if ( r_showAabbTrees->current.integer )
+            if (r_showAabbTrees->current.integer)
                 R_AddDebugBox(&frontEndDataOut->debugGlobals, tree->mins, tree->maxs, colorYellow);
-            if ( rg.drawSModels )
+            if (rg.drawSModels)
             {
                 smodelIndexCount = tree->smodelIndexCount;
-                if ( tree->smodelIndexCount )
+                if (tree->smodelIndexCount)
                 {
                     indices = tree->smodelIndexes;
-                    for ( smodelIndexIter = 0; smodelIndexIter < smodelIndexCount; ++smodelIndexIter )
+                    for (smodelIndexIter = 0; smodelIndexIter < smodelIndexCount; ++smodelIndexIter)
                     {
                         smodelIndex = indices[smodelIndexIter];
-                        *(_BYTE *)(*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8336)
-                                         + smodelIndex) = 1;
+                        g_smodelVisData[smodelIndex] = 1;
                     }
                 }
             }
-            if ( rg.drawWorld )
+            if (rg.drawWorld)
             {
                 surfaceCount = tree->surfaceCount;
-                if ( tree->surfaceCount )
+                if (tree->surfaceCount)
                 {
                     v22 = &g_worldDpvs->sortedSurfIndex[tree->startSurfIndex];
-                    for ( surfNodeIndex = 0; surfNodeIndex < surfaceCount; ++surfNodeIndex )
+                    for (surfNodeIndex = 0; surfNodeIndex < surfaceCount; ++surfNodeIndex)
                     {
                         surfIndex = v22[surfNodeIndex];
-                        *(_BYTE *)(*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8340)
-                                         + surfIndex) = 1;
+                        g_surfaceVisData[surfIndex] = 1;
                     }
                 }
             }
         }
     }
-    else if ( r_showOccluders->current.integer >= 2 )
+    else if (r_showOccluders->current.integer >= 2)
     {
         R_AddDebugBox(&frontEndDataOut->debugGlobals, tree->mins, tree->maxs, colorBlue);
     }
@@ -1363,14 +1360,14 @@ void __cdecl R_AddCellCullGroupsInFrustum(DpvsStaticCellCmd *dpvsCell)
     planes = dpvsCell->planes;
     planeCount = dpvsCell->planeCount;
     groupCount = cell->cullGroupCount;
-    for ( cullGroup = cell->cullGroups; groupCount; ++cullGroup )
+    for (cullGroup = cell->cullGroups; groupCount; ++cullGroup)
     {
         group = &g_worldDpvs->cullGroups[*cullGroup];
         v3 = 0;
         plane = (DpvsPlane *)planes;
-        while ( v3 < planeCount )
+        while (v3 < planeCount)
         {
-            if ( R_DpvsPlaneMaxSignedDistToBox(plane, group->mins) <= 0.0 )
+            if (R_DpvsPlaneMaxSignedDistToBox(plane, group->mins) <= 0.0)
             {
                 v1 = 1;
                 goto LABEL_9;
@@ -1379,16 +1376,16 @@ void __cdecl R_AddCellCullGroupsInFrustum(DpvsStaticCellCmd *dpvsCell)
             ++plane;
         }
         v1 = 0;
-LABEL_9:
-        if ( v1 )
+    LABEL_9:
+        if (v1)
             break;
-        if ( (r_showPortals->current.integer & 1) != 0 )
+        if ((r_showPortals->current.integer & 1) != 0)
             R_AddDebugBox(&frontEndDataOut->debugGlobals, group->mins, group->maxs, colorLtYellow);
-        if ( !group->surfaceCount )
+        if (!group->surfaceCount)
             break;
         indices = &g_worldDpvs->sortedSurfIndex[group->startSurfIndex];
-        for ( count = 0; count < group->surfaceCount; ++count )
-            *(_BYTE *)(*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8340) + indices[count]) = 1;
+        for (count = 0; count < group->surfaceCount; ++count)
+            g_surfaceVisData[indices[count]] = 1;
         --groupCount;
     }
 }
@@ -1402,43 +1399,42 @@ void __cdecl R_AddSkySurfacesDpvs(const DpvsPlane *planes, int planeCount)
     int surfIndex; // [esp+160h] [ebp-8h]
     int planeIndex; // [esp+164h] [ebp-4h]
 
-    if ( !Sys_IsMainThread()
+    if (!Sys_IsMainThread()
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_dpvs_static.cpp",
-                    1630,
-                    0,
-                    "%s",
-                    "Sys_IsMainThread()") )
+            "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_dpvs_static.cpp",
+            1630,
+            0,
+            "%s",
+            "Sys_IsMainThread()"))
     {
         __debugbreak();
     }
-    *(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8336) = rgp.world->dpvs.smodelVisData[0];
-    *(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8340) = rgp.world->dpvs.surfaceVisData[0];
-    for ( planeIndex = 0; planeIndex < planeCount; ++planeIndex )
+    g_smodelVisData = rgp.world->dpvs.smodelVisData[0];
+    g_surfaceVisData = rgp.world->dpvs.surfaceVisData[0];
+    for (planeIndex = 0; planeIndex < planeCount; ++planeIndex)
         R_CopyClipPlanes(&planes[planeIndex], &clipPlanes.planes[planeIndex]);
     clipPlanes.count = planeCount;
-    for ( surfIndex = 0; surfIndex < rgp.world->skySurfCount; ++surfIndex )
+    for (surfIndex = 0; surfIndex < rgp.world->skySurfCount; ++surfIndex)
     {
         numOccluders = dpvsGlob.numOccluders;
         v3 = rgp.world->skyStartSurfs[surfIndex];
-        if ( !*(_BYTE *)(*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8340) + v3) )
+        if (!g_surfaceVisData[v3])
         {
             v4 = &g_worldDpvs->surfaces[v3];
-            if ( !R_CullBoxLeaf(v4->bounds[0], &clipPlanes) )
+            if (!R_CullBoxLeaf(v4->bounds[0], &clipPlanes))
             {
-                if ( TestOccluders(v4->bounds, numOccluders, dpvsGlob.occluderPlanes) )
+                if (TestOccluders(v4->bounds, numOccluders, dpvsGlob.occluderPlanes))
                 {
-                    if ( r_showOccluders->current.integer >= 2 )
+                    if (r_showOccluders->current.integer >= 2)
                         R_AddDebugBox(&frontEndDataOut->debugGlobals, v4->bounds[0], v4->bounds[1], colorOrange);
                 }
                 else
                 {
-                    if ( (r_showAabbTrees->current.integer & 2) != 0 )
+                    if ((r_showAabbTrees->current.integer & 2) != 0)
                         R_AddDebugBox(&frontEndDataOut->debugGlobals, v4->bounds[0], v4->bounds[1], colorGreen);
-                    *(_BYTE *)(*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8340) + v3) = 1;
+                    g_surfaceVisData[v3] = 1;
                 }
             }
         }
     }
 }
-

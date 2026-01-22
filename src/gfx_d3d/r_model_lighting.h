@@ -1,5 +1,6 @@
 #pragma once
 #include "rb_state.h"
+#include "r_rendercmds.h"
 
 enum GfxModelLightExtrapolation : __int32
 {                                       // XREF: CalcLightingCmd/r
@@ -106,3 +107,5 @@ void __cdecl R_InitModelLightingImage();
 void __cdecl R_ShutdownModelLightingImage();
 void __cdecl R_InitStaticModelLighting();
 void __cdecl R_SetModelLightingCoordsForSource(unsigned __int16 handle, GfxCmdBufSourceState *source);
+
+extern GfxLightingInfo lightingInfo[1024];

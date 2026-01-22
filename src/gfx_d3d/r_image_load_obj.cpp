@@ -1,4 +1,32 @@
 #include "r_image_load_obj.h"
+#include <qcommon/common.h>
+#include "r_image.h"
+#include "r_image_wavelet.h"
+#include "r_image_load_common.h"
+#include <universal/com_memory.h>
+#include <universal/com_files.h>
+#include <qcommon/threads.h>
+#include "rb_resource.h"
+#include "r_pixelcost_load_obj.h"
+#include "r_outdoor.h"
+
+const BuiltinImageConstructorTable constructorTable[12] =
+{
+  { "$white", &Image_LoadWhite },
+  { "$black", &Image_LoadBlack },
+  { "$blank", &Image_LoadBlackTransparent },
+  { "$g16r16", &Image_LoadG16R16 },
+  { "$r5g6b5", &Image_LoadR5G6B5 },
+  { "$gray", &Image_LoadGray },
+  { "$identitynormalmap", &Image_LoadIdentityNormalMap },
+  { "$whitetransparent", &Image_LoadWhiteTransparent },
+  { "$blacktransparent", &Image_LoadBlackTransparent },
+  { "$outdoor", &R_GenerateOutdoorImage },
+  { "$pixelcostcolorcode", &Image_LoadPixelCostColorCode },
+  { "$white_r32f", &Image_LoadWhiteR32F }
+};
+
+FastCriticalSection s_imageLoadLock;
 
 char __cdecl Image_ValidateHeader(GfxImageFileHeader *imageFile, const char *filepath)
 {
@@ -161,7 +189,7 @@ void __cdecl Image_LoadWavelet(
             from[faceIndex] = to[faceIndex];
             to[faceIndex] = &pixels[faceIndex][totalSize - sizeForLevel];
             Wavelet_DecompressLevel(from[faceIndex], to[faceIndex], &decode);
-            face = Image_CubemapFace(faceIndex);
+            face = (_D3DCUBEMAP_FACES)Image_CubemapFace(faceIndex);
             Image_UploadData(image, format, face, decode.mipLevel - picmip, to[faceIndex]);
         }
         --decode.mipLevel;
@@ -224,30 +252,29 @@ unsigned int __cdecl Image_CountMipmapsForFile(const GfxImageFileHeader *fileHea
                      fileHeader->dimensions[2]);
 }
 
+unsigned int s_imageLoadBytesUsed;
+unsigned __int8 *s_imageLoadBuf;
 unsigned __int8 *__cdecl Image_AllocTempMemory(int bytes)
 {
     unsigned __int8 *mem; // [esp+10h] [ebp-4h]
     unsigned int bytesa; // [esp+1Ch] [ebp+8h]
 
     bytesa = (bytes + 3) & 0xFFFFFFFC;
-    if ( bytesa + s_imageLoadBytesUsed > (unsigned int)&cls.rankedServers[711].game[35] )
+    if (bytesa + s_imageLoadBytesUsed > 0x1000000)
         Com_Error(
             ERR_DROP,
             "Needed to allocate at least %.1f MB to load images",
             (double)(bytesa + s_imageLoadBytesUsed) * 0.00000095367432);
-    if ( !s_imageLoadBuf )
+    if (!s_imageLoadBuf)
     {
-        s_imageLoadBuf = (unsigned __int8 *)Z_VirtualAlloc(
-                                                                                    (int)&cls.rankedServers[711].game[35],
-                                                                                    "Image_AllocTempMemory",
-                                                                                    19);
-        if ( !s_imageLoadBuf
+        s_imageLoadBuf = (unsigned __int8 *)Z_VirtualAlloc(0x1000000, "Image_AllocTempMemory", 19);
+        if (!s_imageLoadBuf
             && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_image_load_obj.cpp",
-                        267,
-                        0,
-                        "%s",
-                        "s_imageLoadBuf") )
+                "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_image_load_obj.cpp",
+                267,
+                0,
+                "%s",
+                "s_imageLoadBuf"))
         {
             __debugbreak();
         }
@@ -336,7 +363,7 @@ void __cdecl Image_LoadBitmap(
             v5 = 1;
         for ( faceIndex = 0; faceIndex < faceCount; ++faceIndex )
         {
-            face = Image_CubemapFace(faceIndex);
+            face = (D3DCUBEMAP_FACES)Image_CubemapFace(faceIndex);
             if ( format == D3DFMT_X8R8G8B8 )
             {
                 Image_ExpandBgr(data, v5 * v6 * v7, expandedData);
@@ -454,7 +481,7 @@ void __cdecl Image_LoadDxtc(
             v5 = 1;
         for ( faceIndex = 0; faceIndex < faceCount; ++faceIndex )
         {
-            face = Image_CubemapFace(faceIndex);
+            face = (_D3DCUBEMAP_FACES)Image_CubemapFace(faceIndex);
             Image_UploadData(image, format, face, mipLevel - picmip, data);
             data += bytesPerBlock * ((int)(v5 + 3) >> 2) * ((int)(v6 + 3) >> 2);
         }
@@ -623,6 +650,24 @@ void __cdecl Image_PrintTruncatedFileError(const char *filepath)
     Com_PrintError(8, "ERROR: image '%s' is truncated.    Delete the file and run converter to fix.\n", filepath);
 }
 
+struct __declspec(align(4))// $3429FE2B485ED1F097C487ED1F67B3DD // sizeof=0x10
+{                                       // XREF: .data:callbackParams/r
+    GfxImage *image;                    // XREF: readCallback(void)+11/r
+                                        // Image_LoadFromFileWithReader+12/w
+    bool loadHighmip;                   // XREF: readCallback(void)+9/r
+                                        // Image_LoadFromFileWithReader+1B/w
+    // padding byte
+    // padding byte
+    // padding byte
+    int (__cdecl *OpenFileRead)(const char *, int *);
+                                        // XREF: readCallback(void)+3/r
+                                        // Image_LoadFromFileWithReader+24/w
+    bool ret;                           // XREF: readCallback(void)+20/w
+                                        // Image_LoadFromFileWithReader+3B/r
+    // padding byte
+    // padding byte
+    // padding byte
+} callbackParams;
 void __cdecl readCallback()
 {
     callbackParams.ret = Image_LoadFromFileWithReader(
@@ -919,7 +964,7 @@ void __cdecl Image_GenerateCube(
     }
     for ( faceIndex = 0; faceIndex < 6; ++faceIndex )
     {
-        face = Image_CubemapFace(faceIndex);
+        face = (_D3DCUBEMAP_FACES)Image_CubemapFace(faceIndex);
         for ( mipIndex = 0; mipIndex < mipCount; ++mipIndex )
             Image_UploadData(image, imageFormat, face, mipIndex, (unsigned __int8 *)(&(*pixels)[15 * faceIndex])[mipIndex]);
     }

@@ -27,6 +27,31 @@ struct __declspec(align(4)) GfxDrawMethod // sizeof=0x1C8
 struct GfxMatrix // sizeof=0x40
 {                                       // ...
     float m[4][4];                      // ...
+
+    inline GfxMatrix &operator=(const vector4 &rhs)
+    {
+        m[0][0] = rhs.x.v[0];
+        m[0][1] = rhs.x.v[1];
+        m[0][2] = rhs.x.v[2];
+        m[0][3] = rhs.x.v[3];
+
+        m[1][0] = rhs.y.v[0];
+        m[1][1] = rhs.y.v[1];
+        m[1][2] = rhs.y.v[2];
+        m[1][3] = rhs.y.v[3];
+
+        m[2][0] = rhs.z.v[0];
+        m[2][1] = rhs.z.v[1];
+        m[2][2] = rhs.z.v[2];
+        m[2][3] = rhs.z.v[3];
+
+        m[3][0] = rhs.w.v[0];
+        m[3][1] = rhs.w.v[1];
+        m[3][2] = rhs.w.v[2];
+        m[3][3] = rhs.w.v[3];
+
+        return *this;
+    }
 };
 
 struct GfxDrawSurfFields // sizeof=0x8

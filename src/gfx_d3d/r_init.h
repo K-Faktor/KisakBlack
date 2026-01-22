@@ -3,6 +3,8 @@
 #include <d3d9.h>
 #include "r_bsp.h"
 
+#define MAX_TOTAL_ENT_COUNT 0x2000
+
 struct GfxWindowTarget // sizeof=0x10
 {                                       // XREF: DxGlobals/r
     HWND__ *hwnd;                       // XREF: R_ReleaseForShutdownOrReset(void)+28/r
@@ -86,6 +88,7 @@ struct __declspec(align(8)) DxGlobals // sizeof=0x2D00
                                         // R_SetupAntiAliasing+EE/w ...
     int sunSpriteSamples;               // XREF: R_Init(void)+4F/w
                                         // R_Init(void)+54/r ...
+    int sunShadowmapSize; // not a real name, not in IDA for some reason
     struct IDirect3DSurface9 *singleSampleDepthStencilSurface;
                                         // XREF: R_GenerateSortedDrawSurfs+381/r
                                         // R_GenerateSortedDrawSurfs:loc_A62FDD/r ...

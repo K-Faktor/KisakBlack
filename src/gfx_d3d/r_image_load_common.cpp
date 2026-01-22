@@ -1,4 +1,9 @@
 #include "r_image_load_common.h"
+#include <universal/q_shared.h>
+#include "r_init.h"
+#include "r_singlethreaded_device_pc.h"
+#include "r_dvars.h"
+#include "rb_logfile.h"
 
 void __cdecl Image_TrackFullscreenTexture(
                 GfxImage *image,
@@ -378,12 +383,13 @@ void __cdecl Image_Upload2D_CopyData_PC(
         if ( r_logFile && r_logFile->current.integer )
             RB_LogPrint("image->texture.map->LockRect( mipLevel, &lockedRect, 0, 0 )\n");
         semaphore = R_AcquireDXDeviceOwnership(0);
-        hr = ((int (__stdcall *)(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int))image->texture.basemap->__vftable[1].Release)(
-                     (GfxTexture)image->texture.basemap,
-                     mipLevel,
-                     &lockedRect,
-                     0,
-                     0);
+        hr = image->texture.map->LockRect(mipLevel, &lockedRect, 0, 0);
+        //hr = ((int (__stdcall *)(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int))image->texture.basemap->__vftable[1].Release)(
+        //             (GfxTexture)image->texture.basemap,
+        //             mipLevel,
+        //             &lockedRect,
+        //             0,
+        //             0);
         if ( semaphore )
             R_ReleaseDXDeviceOwnership();
         if ( hr < 0 )
@@ -402,7 +408,8 @@ void __cdecl Image_Upload2D_CopyData_PC(
         if ( r_logFile && r_logFile->current.integer )
             RB_LogPrint("image->texture.map->UnlockRect( mipLevel )\n");
         v15 = R_AcquireDXDeviceOwnership(0);
-        v16 = image->texture.basemap->__vftable[1].GetDevice(image->texture.basemap, (IDirect3DDevice9 **)mipLevel);
+        v16 = image->texture.map->UnlockRect(mipLevel);
+        //v16 = image->texture.basemap->__vftable[1].GetDevice(image->texture.basemap, (IDirect3DDevice9 **)mipLevel);
         if ( v15 )
             R_ReleaseDXDeviceOwnership();
         if ( v16 < 0 )
@@ -455,13 +462,14 @@ void __cdecl Image_Upload2D_CopyData_PC(
         if ( r_logFile && r_logFile->current.integer )
             RB_LogPrint("image->texture.cubemap->LockRect( face, mipLevel, &lockedRect, 0, 0 )\n");
         v13 = R_AcquireDXDeviceOwnership(0);
-        v14 = ((int (__stdcall *)(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int))image->texture.basemap->__vftable[1].Release)(
-                        (GfxTexture)image->texture.basemap,
-                        face,
-                        mipLevel,
-                        &lockedRect,
-                        0,
-                        0);
+        //v14 = ((int (__stdcall *)(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int))image->texture.basemap->__vftable[1].Release)(
+        //                (GfxTexture)image->texture.basemap,
+        //                face,
+        //                mipLevel,
+        //                &lockedRect,
+        //                0,
+        //                0);
+        v14 = image->texture.cubemap->LockRect(face, mipLevel, &lockedRect, 0, 0);
         if ( v13 )
             R_ReleaseDXDeviceOwnership();
         if ( v14 < 0 )
@@ -480,10 +488,11 @@ void __cdecl Image_Upload2D_CopyData_PC(
         if ( r_logFile && r_logFile->current.integer )
             RB_LogPrint("image->texture.cubemap->UnlockRect( face, mipLevel )\n");
         v11 = R_AcquireDXDeviceOwnership(0);
-        v12 = ((int (__stdcall *)(unsigned int, unsigned int, unsigned int))image->texture.basemap->__vftable[1].GetDevice)(
-                        (GfxTexture)image->texture.basemap,
-                        face,
-                        mipLevel);
+        //v12 = ((int (__stdcall *)(unsigned int, unsigned int, unsigned int))image->texture.basemap->__vftable[1].GetDevice)(
+        //                (GfxTexture)image->texture.basemap,
+        //                face,
+        //                mipLevel);
+        v12 = image->texture.cubemap->UnlockRect(face, mipLevel);
         if ( v11 )
             R_ReleaseDXDeviceOwnership();
         if ( v12 < 0 )
@@ -669,12 +678,13 @@ void __cdecl Image_Upload3D_CopyData_PC(
     if ( r_logFile && r_logFile->current.integer )
         RB_LogPrint("image->texture.volmap->LockBox( mipLevel, &lockedBox, 0, 0 )\n");
     semaphore = R_AcquireDXDeviceOwnership(0);
-    hr = ((int (__stdcall *)(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int))image->texture.basemap->__vftable[1].Release)(
-                 (GfxTexture)image->texture.basemap,
-                 mipLevel,
-                 &lockedBox,
-                 0,
-                 0);
+    //hr = ((int (__stdcall *)(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int))image->texture.basemap->__vftable[1].Release)(
+    //             (GfxTexture)image->texture.basemap,
+    //             mipLevel,
+    //             &lockedBox,
+    //             0,
+    //             0);
+    image->texture.volmap->LockBox(mipLevel, &lockedBox, 0, 0);
     if ( semaphore )
         R_ReleaseDXDeviceOwnership();
     if ( hr < 0 )
@@ -699,7 +709,8 @@ void __cdecl Image_Upload3D_CopyData_PC(
     if ( r_logFile && r_logFile->current.integer )
         RB_LogPrint("image->texture.volmap->UnlockBox( mipLevel )\n");
     v9 = R_AcquireDXDeviceOwnership(0);
-    v10 = image->texture.basemap->__vftable[1].GetDevice(image->texture.basemap, (IDirect3DDevice9 **)mipLevel);
+    //v10 = image->texture.basemap->__vftable[1].GetDevice(image->texture.basemap, (IDirect3DDevice9 **)mipLevel);
+    v10 = image->texture.volmap->UnlockBox(mipLevel);
     if ( v9 )
         R_ReleaseDXDeviceOwnership();
     if ( v10 < 0 )
@@ -713,7 +724,7 @@ void __cdecl Image_Upload3D_CopyData_PC(
             852,
             v5);
     }
-    image->texture.basemap->PreLoad(image->texture.basemap);
+    image->texture.basemap->PreLoad();
 }
 
 int __cdecl Image_SourceBytesPerSlice_PC(_D3DFORMAT format, int width, int height)
@@ -793,10 +804,17 @@ void __cdecl Image_GetPicmip(const GfxImage *image, Picmip *picmip)
     {
         __debugbreak();
     }
-    if ( image->noPicmip )
-        *picmip = 0;
+
+    if (image->noPicmip)
+    {
+        //*picmip = 0;
+        picmip->platform[0] = 0;
+        picmip->platform[1] = 0;
+    }
     else
+    {
         Image_PicmipForSemantic(image->semantic, picmip);
+    }
 }
 
 void __cdecl Image_Setup(GfxImage *image, int width, int height, int depth, int imageFlags, _D3DFORMAT imageFormat)

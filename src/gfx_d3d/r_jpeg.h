@@ -1,5 +1,7 @@
 #pragma once
 
+#include <mjpeg/mjpeg.h>
+
 void __cdecl R_SaveJpg(
                 char *filename,
                 int quality,

@@ -12,8 +12,7 @@ void __cdecl R_XModelDebugBoxes(const DObj *obj, int *partBits);
 void __cdecl R_XModelDebugAxes(const DObj *obj, int *partBits);
 void __cdecl R_LockSkinnedCache();
 void __cdecl R_UnlockSkinnedCache();
-int    R_SkinXModel@<eax>(
-                int a1@<ebp>,
+int    R_SkinXModel(
                 XModelDrawInfo *modelInfo,
                 const XModel *model,
                 const DObj *obj,

@@ -1,4 +1,298 @@
 #include "r_drawsurf.h"
+#include "r_bsp_load_obj.h"
+#include "r_draw_method.h"
+#include "r_warn.h"
+#include "r_dvars.h"
+#include "r_material_load_obj.h"
+
+volatile int g_processCodeMesh;
+volatile int g_processMarkMesh;
+
+// KISAKTODO: nasty, nasty funcs
+void __cdecl ShortSortArray_GfxSortDrawSurfsInterface_GfxDrawSurf_(GfxDrawSurf *lo, GfxDrawSurf *hi)
+{
+    int packed_high; // eax
+    unsigned __int64 packed; // [esp+0h] [ebp-24h]
+    GfxDrawSurf *max; // [esp+8h] [ebp-1Ch]
+    unsigned __int64 maxKey; // [esp+Ch] [ebp-18h]
+    unsigned __int64 walkKey; // [esp+14h] [ebp-10h]
+    GfxDrawSurf *walk; // [esp+20h] [ebp-4h]
+
+    while (hi > lo)
+    {
+        max = lo;
+        maxKey = lo->packed;
+        for (walk = lo + 1; walk <= hi; ++walk)
+        {
+            walkKey = walk->packed;
+            if (HIDWORD(maxKey) <= HIDWORD(walk->packed)
+                && (HIDWORD(maxKey) < HIDWORD(walkKey) || (unsigned int)maxKey < (unsigned int)walkKey))
+            {
+                maxKey = walk->packed;
+                max = walk;
+            }
+        }
+        packed = max->packed;
+        packed_high = HIDWORD(hi->packed);
+        *(_DWORD *)&max->fields = *(DWORD*)&hi->fields;
+        HIDWORD(max->packed) = packed_high;
+        hi->packed = packed;
+        --hi;
+    }
+}
+
+void __cdecl qsortArray_GfxSortDrawSurfsInterface_GfxDrawSurf_(GfxDrawSurf *elems, int count)
+{
+    int packed_high; // edx
+    GfxDrawSurf *v3; // eax
+    int v4; // edx
+    int v5; // eax
+    GfxDrawSurf *v6; // ecx
+    GfxDrawSurf v7; // [esp+0h] [ebp-158h]
+    int fields; // [esp+8h] [ebp-150h]
+    int v9; // [esp+Ch] [ebp-14Ch]
+    GfxDrawSurf v10; // [esp+10h] [ebp-148h]
+    unsigned __int64 pivotKey; // [esp+38h] [ebp-120h]
+    GfxDrawSurf *loWalk; // [esp+48h] [ebp-110h]
+    int sortCount; // [esp+4Ch] [ebp-10Ch]
+    GfxDrawSurf *hiEnd; // [esp+50h] [ebp-108h]
+    GfxDrawSurf *hiWalk; // [esp+54h] [ebp-104h]
+    GfxDrawSurf *loStack[30]; // [esp+58h] [ebp-100h]
+    GfxDrawSurf *hiStack[30]; // [esp+D0h] [ebp-88h]
+    int stackPos; // [esp+14Ch] [ebp-Ch]
+    GfxDrawSurf *loEnd; // [esp+150h] [ebp-8h]
+    GfxDrawSurf *mid; // [esp+154h] [ebp-4h]
+
+    if (count >= 2)
+    {
+        stackPos = 0;
+        loEnd = elems;
+        hiEnd = &elems[count - 1];
+        while (1)
+        {
+            while (1)
+            {
+                sortCount = hiEnd - loEnd + 1;
+                if (sortCount <= 8)
+                {
+                    ShortSortArray_GfxSortDrawSurfsInterface_GfxDrawSurf_(loEnd, hiEnd);
+                    goto LABEL_22;
+                }
+                mid = &loEnd[sortCount / 2];
+                v10.fields = mid->fields;
+                packed_high = HIDWORD(loEnd->packed);
+                v3 = mid;
+                *(_DWORD *)&mid->fields = *(DWORD*)&loEnd->fields;
+                HIDWORD(v3->packed) = packed_high;
+                loEnd->fields = v10.fields;
+                loWalk = loEnd;
+                hiWalk = hiEnd + 1;
+                pivotKey = loEnd->packed;
+                while (1)
+                {
+                    do
+                        ++loWalk;
+                    while (loWalk <= hiEnd && loWalk->packed <= pivotKey);
+                    do
+                        --hiWalk;
+                    while (loEnd < hiWalk && pivotKey <= hiWalk->packed);
+                    if (hiWalk < loWalk)
+                        break;
+                    fields = *(int*)&loWalk->fields;
+                    v9 = HIDWORD(loWalk->packed);
+                    v4 = HIDWORD(hiWalk->packed);
+                    *(_DWORD *)&loWalk->fields = *(DWORD*)&hiWalk->fields;
+                    HIDWORD(loWalk->packed) = v4;
+                    *(_DWORD *)&hiWalk->fields = fields;
+                    HIDWORD(hiWalk->packed) = v9;
+                }
+                v7.fields = loEnd->fields;
+                v5 = HIDWORD(hiWalk->packed);
+                v6 = loEnd;
+                *(_DWORD *)&loEnd->fields = *(DWORD*)&hiWalk->fields;
+                HIDWORD(v6->packed) = v5;
+                hiWalk->fields = v7.fields;
+                if (&hiWalk[-1] - loEnd >= hiEnd - loWalk)
+                    break;
+                if (loWalk < hiEnd)
+                {
+                    loStack[stackPos] = loWalk;
+                    hiStack[stackPos++] = hiEnd;
+                }
+                if (loEnd >= &hiWalk[-1])
+                {
+                LABEL_22:
+                    if (--stackPos < 0)
+                        return;
+                    loEnd = loStack[stackPos];
+                    hiEnd = hiStack[stackPos];
+                }
+                else
+                {
+                    hiEnd = hiWalk - 1;
+                }
+            }
+            if (loEnd <= hiWalk)
+            {
+                loStack[stackPos] = loEnd;
+                hiStack[stackPos++] = hiWalk - 1;
+            }
+            if (loWalk >= hiEnd)
+                goto LABEL_22;
+            loEnd = loWalk;
+        }
+    }
+}
+
+void __cdecl ShortSortArray_GfxReverseSortDrawSurfsInterface_GfxDrawSurf_(GfxDrawSurf *lo, GfxDrawSurf *hi)
+{
+    int packed_high; // edx
+    unsigned __int64 v3; // [esp+4h] [ebp-34h]
+    unsigned __int64 packed; // [esp+Ch] [ebp-2Ch]
+    GfxDrawSurf *max; // [esp+1Ch] [ebp-1Ch]
+    unsigned __int64 maxKey; // [esp+20h] [ebp-18h]
+    GfxDrawSurf *walk; // [esp+34h] [ebp-4h]
+
+    while (hi > lo)
+    {
+        max = lo;
+        LODWORD(maxKey) = *(DWORD*)&lo->fields;
+        HIDWORD(maxKey) = ((~((lo->packed >> 58) & 0x3F) & 0x3F) << 26) | HIDWORD(lo->packed) & 0x3FFFFFF;
+        for (walk = lo + 1; walk <= hi; ++walk)
+        {
+            packed = walk->packed;
+            HIDWORD(packed) = ((~((walk->packed >> 58) & 0x3F) & 0x3F) << 26) | HIDWORD(walk->packed) & 0x3FFFFFF;
+            if (maxKey < packed)
+            {
+                LODWORD(maxKey) = *(DWORD*)&walk->fields;
+                HIDWORD(maxKey) = ((~((walk->packed >> 58) & 0x3F) & 0x3F) << 26) | HIDWORD(walk->packed) & 0x3FFFFFF;
+                max = walk;
+            }
+        }
+        v3 = max->packed;
+        packed_high = HIDWORD(hi->packed);
+        *(_DWORD *)&max->fields = *(DWORD*)&hi->fields;
+        HIDWORD(max->packed) = packed_high;
+        hi->packed = v3;
+        --hi;
+    }
+}
+
+void __cdecl qsortArray_GfxReverseSortDrawSurfsInterface_GfxDrawSurf_(GfxDrawSurf *elems, int count)
+{
+    int packed_high; // edx
+    GfxDrawSurf *v3; // eax
+    int v4; // eax
+    int v5; // ecx
+    GfxDrawSurf *v6; // edx
+    GfxDrawSurf v7; // [esp+4h] [ebp-180h]
+    int fields; // [esp+Ch] [ebp-178h]
+    int v9; // [esp+10h] [ebp-174h]
+    GfxDrawSurf v10; // [esp+14h] [ebp-170h]
+    GfxDrawSurf v11; // [esp+1Ch] [ebp-168h]
+    GfxDrawSurf v12; // [esp+2Ch] [ebp-158h]
+    unsigned __int64 pivotKey; // [esp+64h] [ebp-120h]
+    GfxDrawSurf *loWalk; // [esp+74h] [ebp-110h]
+    int sortCount; // [esp+78h] [ebp-10Ch]
+    GfxDrawSurf *hiEnd; // [esp+7Ch] [ebp-108h]
+    GfxDrawSurf *hiWalk; // [esp+80h] [ebp-104h]
+    GfxDrawSurf *loStack[30]; // [esp+84h] [ebp-100h]
+    GfxDrawSurf *hiStack[30]; // [esp+FCh] [ebp-88h]
+    int stackPos; // [esp+178h] [ebp-Ch]
+    GfxDrawSurf *loEnd; // [esp+17Ch] [ebp-8h]
+    GfxDrawSurf *mid; // [esp+180h] [ebp-4h]
+
+    if (count >= 2)
+    {
+        stackPos = 0;
+        loEnd = elems;
+        hiEnd = &elems[count - 1];
+        while (1)
+        {
+            while (1)
+            {
+                sortCount = hiEnd - loEnd + 1;
+                if (sortCount <= 8)
+                {
+                    ShortSortArray_GfxReverseSortDrawSurfsInterface_GfxDrawSurf_(loEnd, hiEnd);
+                    goto LABEL_22;
+                }
+                mid = &loEnd[sortCount / 2];
+                v12.fields = mid->fields;
+                packed_high = HIDWORD(loEnd->packed);
+                v3 = mid;
+                *(_DWORD *)&mid->fields = *(DWORD*)&loEnd->fields;
+                HIDWORD(v3->packed) = packed_high;
+                loEnd->fields = v12.fields;
+                loWalk = loEnd;
+                hiWalk = hiEnd + 1;
+                LODWORD(pivotKey) = *(DWORD *)&loEnd->fields;
+                HIDWORD(pivotKey) = ((~((loEnd->packed >> 58) & 0x3F) & 0x3F) << 26) | HIDWORD(loEnd->packed) & 0x3FFFFFF;
+                while (1)
+                {
+                    do
+                    {
+                        if (++loWalk > hiEnd)
+                            break;
+                        v11.fields = loWalk->fields;
+                        HIDWORD(v11.packed) = ((~((loWalk->packed >> 58) & 0x3F) & 0x3F) << 26)
+                            | HIDWORD(loWalk->packed) & 0x3FFFFFF;
+                    } while (v11.packed <= pivotKey);
+                    do
+                    {
+                        if (loEnd >= --hiWalk)
+                            break;
+                        v10.fields = hiWalk->fields;
+                        HIDWORD(v10.packed) = ((~((hiWalk->packed >> 58) & 0x3F) & 0x3F) << 26)
+                            | HIDWORD(hiWalk->packed) & 0x3FFFFFF;
+                    } while (pivotKey <= v10.packed);
+                    if (hiWalk < loWalk)
+                        break;
+                    fields = *(DWORD *)&loWalk->fields;
+                    v9 = HIDWORD(loWalk->packed);
+                    v4 = HIDWORD(hiWalk->packed);
+                    *(_DWORD *)&loWalk->fields = *(DWORD *)&hiWalk->fields;
+                    HIDWORD(loWalk->packed) = v4;
+                    *(_DWORD *)&hiWalk->fields = fields;
+                    HIDWORD(hiWalk->packed) = v9;
+                }
+                v7.fields = loEnd->fields;
+                v5 = HIDWORD(hiWalk->packed);
+                v6 = loEnd;
+                *(_DWORD *)&loEnd->fields = *(DWORD *)&hiWalk->fields;
+                HIDWORD(v6->packed) = v5;
+                hiWalk->fields = v7.fields;
+                if (&hiWalk[-1] - loEnd >= hiEnd - loWalk)
+                    break;
+                if (loWalk < hiEnd)
+                {
+                    loStack[stackPos] = loWalk;
+                    hiStack[stackPos++] = hiEnd;
+                }
+                if (loEnd >= &hiWalk[-1])
+                {
+                LABEL_22:
+                    if (--stackPos < 0)
+                        return;
+                    loEnd = loStack[stackPos];
+                    hiEnd = hiStack[stackPos];
+                }
+                else
+                {
+                    hiEnd = hiWalk - 1;
+                }
+            }
+            if (loEnd <= hiWalk)
+            {
+                loStack[stackPos] = loEnd;
+                hiStack[stackPos++] = hiWalk - 1;
+            }
+            if (loWalk >= hiEnd)
+                goto LABEL_22;
+            loEnd = loWalk;
+        }
+    }
+}
 
 void __cdecl R_SortDrawSurfs(GfxDrawSurf *drawSurfList, int surfCount)
 {
@@ -96,7 +390,7 @@ GfxDrawSurf __cdecl R_GetWorldDrawSurf(GfxSurface *worldSurf)
     GfxDrawSurf drawSurf; // [esp+14h] [ebp-8h]
 
     material = worldSurf->material;
-    *(unsigned int *)&drawSurf.fields = material->info.drawSurf.fields;
+    *(unsigned int *)&drawSurf.fields = *(DWORD *)&material->info.drawSurf.fields;
     HIDWORD(drawSurf.packed) = (worldSurf->primaryLightIndex << 11) | HIDWORD(material->info.drawSurf.packed) & 0xFFF807FF;
     if ( (unsigned __int8)(drawSurf.packed >> 43) != worldSurf->primaryLightIndex
         && !Assert_MyHandler(
@@ -217,10 +511,10 @@ void __cdecl R_AddCodeMeshDrawSurf(
                 packed_high = HIDWORD(drawSurf->packed);
                 *(unsigned int *)&drawSurf->fields = (unsigned __int16)codeMeshIndex | *(unsigned int *)&drawSurf->fields & 0xFFFF0000;
                 HIDWORD(drawSurf->packed) = packed_high;
-                v8 = (unsigned int)&loc_580000 | HIDWORD(drawSurf->packed) & 0xFF87FFFF;
-                *(unsigned int *)&drawSurf->fields = drawSurf->fields;
+                v8 = (unsigned int)0x580000 | HIDWORD(drawSurf->packed) & 0xFF87FFFF;
+                *(unsigned int *)&drawSurf->fields = *(DWORD*)&drawSurf->fields;
                 HIDWORD(drawSurf->packed) = v8;
-                *(unsigned int *)&drawSurf->fields = drawSurf->fields;
+                *(unsigned int *)&drawSurf->fields = *(DWORD *)&drawSurf->fields;
                 HIDWORD(drawSurf->packed) = HIDWORD(drawSurf->packed);
                 if ( ((drawSurf->packed >> 55) & 3) != 2
                     && !Assert_MyHandler(
@@ -276,11 +570,11 @@ GfxDrawSurf *__cdecl R_AllocFxDrawSurf(unsigned int region)
     signed int maxCount; // [esp+4h] [ebp-8h]
     int drawSurfCount; // [esp+8h] [ebp-4h]
 
-    drawSurfCount = _InterlockedExchangeAdd((volatile signed __int32 *)(4 * region + 177797148), 1u);
+    drawSurfCount = _InterlockedExchangeAdd(&scene.drawSurfCount[region], 1u);
     maxCount = scene.maxDrawSurfCount[region];
-    if ( drawSurfCount < maxCount )
+    if (drawSurfCount < maxCount)
         return &scene.drawSurfs[region][drawSurfCount];
-    _InterlockedExchangeAdd((volatile signed __int32 *)(4 * region + 177797148), 0xFFFFFFFF);
+    _InterlockedExchangeAdd(&scene.drawSurfCount[region], 0xFFFFFFFF);
     R_WarnOncePerFrame(R_WARN_MAX_FX_DRAWSURFS, maxCount, region);
     return 0;
 }
@@ -403,16 +697,16 @@ void __cdecl R_AddRopeCodeMeshDrawSurf(
             packed_high = HIDWORD(drawSurf->packed);
             *(unsigned int *)&drawSurf->fields = (unsigned __int16)codeMeshIndex | *(unsigned int *)&drawSurf->fields & 0xFFFF0000;
             HIDWORD(drawSurf->packed) = packed_high;
-            v9 = (unsigned int)&off_700000 | HIDWORD(drawSurf->packed) & 0xFF87FFFF;
-            *(unsigned int *)&drawSurf->fields = drawSurf->fields;
+            v9 = (unsigned int)0x700000 | HIDWORD(drawSurf->packed) & 0xFF87FFFF;
+            *(unsigned int *)&drawSurf->fields = *(DWORD*)&drawSurf->fields;
             HIDWORD(drawSurf->packed) = v9;
-            v10 = (unsigned int)&cls.rankedServers[711].game[35] | HIDWORD(drawSurf->packed) & 0xFE7FFFFF;
-            *(unsigned int *)&drawSurf->fields = drawSurf->fields;
+            v10 = HIDWORD(drawSurf->packed) & 0xFE7FFFFF | 0x1000000;
+            *(unsigned int *)&drawSurf->fields = *(DWORD *)&drawSurf->fields;
             HIDWORD(drawSurf->packed) = v10;
             v11 = (primaryLightIndex << 11) | HIDWORD(drawSurf->packed) & 0xFFF807FF;
-            *(unsigned int *)&drawSurf->fields = drawSurf->fields;
+            *(unsigned int *)&drawSurf->fields = *(DWORD *)&drawSurf->fields;
             HIDWORD(drawSurf->packed) = v11;
-            *(unsigned int *)&drawSurf->fields = drawSurf->fields;
+            *(unsigned int *)&drawSurf->fields = *(DWORD *)&drawSurf->fields;
             HIDWORD(drawSurf->packed) = HIDWORD(drawSurf->packed);
         }
     }
@@ -479,20 +773,20 @@ void __cdecl R_AddGlassDrawSurf(
             packed_high = HIDWORD(drawSurf->packed);
             *(unsigned int *)&drawSurf->fields = (unsigned __int16)codeMeshIndex | *(unsigned int *)&drawSurf->fields & 0xFFFF0000;
             HIDWORD(drawSurf->packed) = packed_high;
-            v9 = (unsigned int)&loc_780000 | HIDWORD(drawSurf->packed);
-            *(unsigned int *)&drawSurf->fields = drawSurf->fields;
+            v9 = (unsigned int)0x780000 | HIDWORD(drawSurf->packed);
+            *(unsigned int *)&drawSurf->fields = *(DWORD*)&drawSurf->fields;
             HIDWORD(drawSurf->packed) = v9;
-            v10 = (unsigned int)&cls.rankedServers[711].game[35] | HIDWORD(drawSurf->packed) & 0xFE7FFFFF;
-            *(unsigned int *)&drawSurf->fields = drawSurf->fields;
+            v10 = HIDWORD(drawSurf->packed) & 0xFE7FFFFF | 0x1000000;
+            *(unsigned int *)&drawSurf->fields = *(DWORD *)&drawSurf->fields;
             HIDWORD(drawSurf->packed) = v10;
             v11 = (primaryLightIndex << 11) | HIDWORD(drawSurf->packed) & 0xFFF807FF;
-            *(unsigned int *)&drawSurf->fields = drawSurf->fields;
+            *(unsigned int *)&drawSurf->fields = *(DWORD *)&drawSurf->fields;
             HIDWORD(drawSurf->packed) = v11;
             v12 = (unsigned __int64)(reflectionProbeIndex & 7) << 25;
             v13 = HIDWORD(v12) | HIDWORD(drawSurf->packed);
             *(unsigned int *)&drawSurf->fields = v12 | *(unsigned int *)&drawSurf->fields & 0xF1FFFFFF;
             HIDWORD(drawSurf->packed) = v13;
-            *(unsigned int *)&drawSurf->fields = drawSurf->fields;
+            *(unsigned int *)&drawSurf->fields = *(DWORD *)&drawSurf->fields;
             HIDWORD(drawSurf->packed) = HIDWORD(drawSurf->packed);
         }
     }
@@ -564,7 +858,8 @@ void __cdecl R_AddMarkMeshDrawSurf(
             drawSurf = R_AllocFxDrawSurf(region);
             if ( drawSurf )
             {
-                drawSurf->fields = (GfxDrawSurfFields)material->info.drawSurf;
+                //drawSurf->fields = (GfxDrawSurfFields)material->info.drawSurf;
+                drawSurf->packed = material->info.drawSurf.packed;
                 packed_high = HIDWORD(drawSurf->packed);
                 *(unsigned int *)&drawSurf->fields = (unsigned __int16)markMeshIndex | *(unsigned int *)&drawSurf->fields & 0xFFFF0000;
                 HIDWORD(drawSurf->packed) = packed_high;
@@ -572,18 +867,18 @@ void __cdecl R_AddMarkMeshDrawSurf(
                 v8 = HIDWORD(v7) | HIDWORD(drawSurf->packed);
                 *(unsigned int *)&drawSurf->fields = v7 | *(unsigned int *)&drawSurf->fields & 0xFE0FFFFF;
                 HIDWORD(drawSurf->packed) = v8;
-                HIDWORD(v7) = (unsigned int)&off_600000 | HIDWORD(drawSurf->packed) & 0xFF87FFFF;
-                *(unsigned int *)&drawSurf->fields = drawSurf->fields;
+                HIDWORD(v7) = (unsigned int)0x600000 | HIDWORD(drawSurf->packed) & 0xFF87FFFF;
+                *(unsigned int *)&drawSurf->fields = *(DWORD*)&drawSurf->fields;
                 HIDWORD(drawSurf->packed) = HIDWORD(v7);
-                LODWORD(v7) = (unsigned int)&cls.rankedServers[711].game[35] | HIDWORD(drawSurf->packed) & 0xFE7FFFFF;
-                *(unsigned int *)&drawSurf->fields = drawSurf->fields;
+                LODWORD(v7) = HIDWORD(drawSurf->packed) & 0xFE7FFFFF | 0x1000000;
+                *(unsigned int *)&drawSurf->fields = *(DWORD *)&drawSurf->fields;
                 HIDWORD(drawSurf->packed) = v7;
                 v9 = (unsigned __int64)(context->reflectionProbeIndex & 7) << 25;
                 v10 = HIDWORD(v9) | HIDWORD(drawSurf->packed);
                 *(unsigned int *)&drawSurf->fields = v9 | *(unsigned int *)&drawSurf->fields & 0xF1FFFFFF;
                 HIDWORD(drawSurf->packed) = v10;
                 v11 = (context->primaryLightIndex << 11) | HIDWORD(drawSurf->packed) & 0xFFF807FF;
-                *(unsigned int *)&drawSurf->fields = drawSurf->fields;
+                *(unsigned int *)&drawSurf->fields = *(DWORD *)&drawSurf->fields;
                 HIDWORD(drawSurf->packed) = v11;
                 v12 = (unsigned __int64)(visLightsMask & 1) << 29;
                 v13 = HIDWORD(v12) | HIDWORD(drawSurf->packed);
@@ -682,10 +977,10 @@ char __cdecl R_AddParticleCloudDrawSurf(volatile unsigned int cloudIndex, Materi
             packed_high = HIDWORD(drawSurf->packed);
             *(unsigned int *)&drawSurf->fields = (unsigned __int16)cloudIndex | *(unsigned int *)&drawSurf->fields & 0xFFFF0000;
             HIDWORD(drawSurf->packed) = packed_high;
-            v4 = (unsigned int)&loc_680000 | HIDWORD(drawSurf->packed) & 0xFF87FFFF;
-            *(unsigned int *)&drawSurf->fields = drawSurf->fields;
+            v4 = (unsigned int)0x680000 | HIDWORD(drawSurf->packed) & 0xFF87FFFF;
+            *(unsigned int *)&drawSurf->fields = *(DWORD *)&drawSurf->fields;
             HIDWORD(drawSurf->packed) = v4;
-            *(unsigned int *)&drawSurf->fields = drawSurf->fields;
+            *(unsigned int *)&drawSurf->fields = *(DWORD *)&drawSurf->fields;
             HIDWORD(drawSurf->packed) = HIDWORD(drawSurf->packed);
             if ( ((drawSurf->packed >> 55) & 3) != 2
                 && !Assert_MyHandler(

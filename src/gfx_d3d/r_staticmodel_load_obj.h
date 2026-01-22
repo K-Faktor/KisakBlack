@@ -40,3 +40,9 @@ void __cdecl R_CreateStaticModel(
                 GfxStaticModelDrawInst *smodelDrawInst,
                 GfxStaticModelInst *smodelInst,
                 unsigned int staticModelFlags);
+
+unsigned int __cdecl R_FindNearestReflectionProbe_0(const GfxWorld *world, const float *origin);
+unsigned int __cdecl R_FindNearestReflectionProbeInCell_0(
+    const GfxWorld *world,
+    const GfxCell *cell,
+    const float *origin);

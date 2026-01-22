@@ -52,6 +52,7 @@
 #include <win32/win_common.h>
 #include "rb_resource.h"
 #include "r_state_utils.h"
+#include "r_hw_nvidia.h"
 
 int g_destroy_window;
 
@@ -979,7 +980,7 @@ char __cdecl R_PreCreateWindow()
     {
         dx.vendorId = adapterId.VendorId;
         if ( adapterId.VendorId == 4318 )
-            dx.nvInitialized = NvAPI_Initialize(0) == 0;
+            dx.nvInitialized = NvAPI_Initialize() == 0;
     }
     return 1;
 }
@@ -1363,6 +1364,7 @@ char __cdecl R_InitHardware(const GfxWindowParms *wndParms)
         DB_LoadGraphicsAssetsForPC();
     R_UpdateGpuSyncType();
     dx.gpuCount = 1;
+#ifdef KISAK_MULTI_GPU
     if ( r_multiGpu->current.enabled )
     {
         if ( dx.vendorId == 4318 )
@@ -1398,6 +1400,7 @@ char __cdecl R_InitHardware(const GfxWindowParms *wndParms)
             dx.gpuCount = v3;
         }
     }
+#endif
     Com_Printf(8, "Using %d GPU(s).\n", dx.gpuCount);
     R_StoreWindowSettings(wndParms);
     RB_InitSceneViewport();
@@ -1994,11 +1997,11 @@ char __cdecl R_ResetDevice()
     Com_Printf(8, "Resetting %i x %i window.\n", d3dpp.BackBufferWidth, d3dpp.BackBufferHeight);
   else
     Com_Printf(8, "Resetting %i x %i fullscreen.\n", d3dpp.BackBufferWidth, d3dpp.BackBufferHeight);
-  if ( dx.device->Reset(dx.device, &d3dpp) )
+  if ( dx.device->Reset(&d3dpp) )
     return 0;
   if ( wndParms.fullscreen )
   {
-    SetWindowPos(wndParms.hwnd, HWND_MESSAGE|0x2, 0, 0, 0, 0, 3u);
+    SetWindowPos(wndParms.hwnd, (HWND)(/*HWND_MESSAGE*/-3|0x2), 0, 0, 0, 0, 3u);
   }
   else
   {

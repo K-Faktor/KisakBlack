@@ -117,11 +117,7 @@ bool __cdecl R_BoundsInCell_r(mnode_t *node, int findCellIndex, const float *min
         side = BoxOnPlaneSide(
                          mins2,
                          maxs2,
-                         plane,
-                         (const cplane_s *)LODWORD(localmaxs[0]),
-                         localmaxs[1],
-                         localmaxs[2],
-                         dist);
+                         plane);
         if ( side == 3 )
         {
             type = plane->type;
@@ -146,11 +142,7 @@ bool __cdecl R_BoundsInCell_r(mnode_t *node, int findCellIndex, const float *min
                 if ( BoxOnPlaneSide(
                              localmins,
                              maxs2,
-                             plane,
-                             (const cplane_s *)LODWORD(localmaxs[0]),
-                             localmaxs[1],
-                             localmaxs[2],
-                             dist) != 1
+                             plane) != 1
                     && !Assert_MyHandler(
                                 "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_dpvs_entity.cpp",
                                 201,

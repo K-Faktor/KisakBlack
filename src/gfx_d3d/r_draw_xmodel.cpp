@@ -109,13 +109,13 @@ unsigned int __cdecl R_DrawXModelSurfLitInternal(
         xsurf = modelSurf->surf.xsurf;
         R_GetWorldMatrixForModelSurf(modelSurf, eyeOffset, &worldMat);
         ActiveWorldMatrix = R_GetActiveWorldMatrix(commonSource);
-        ActiveWorldMatrix->matrices.matrix[0] = (GfxMatrix)worldMat;
+        ActiveWorldMatrix->matrices.matrix[0] = worldMat;
         R_SetModelLightingCoordsForSource(modelSurf->surf.info.lightingHandle, commonSource);
         R_SetReflectionProbe(context, (drawSurf.packed >> 25) & 7);
         R_DrawXModelRigidModelSurf(context, xsurf);
         if ( ++drawSurfIndex == drawSurfCount )
             break;
-        drawSurf.fields = (GfxDrawSurfFields)drawSurfList[drawSurfIndex];
+        drawSurf.packed = drawSurfList[drawSurfIndex].packed;
         if ( (drawSurfMask.packed & drawSurf.packed) != drawSurfKey )
             break;
         v4 = 4 * LOWORD(drawSurf.packed);
@@ -317,13 +317,14 @@ unsigned int __cdecl R_DrawXModelSurfCameraInternal(
         xsurf = modelSurf->surf.xsurf;
         R_GetWorldMatrixForModelSurf(modelSurf, eyeOffset, &worldMat);
         matrix = R_GetActiveWorldMatrix(commonSource);
-        matrix->matrices.matrix[0] = (GfxMatrix)worldMat;
+        matrix->matrices.matrix[0] = worldMat;
         if ( currTextureOverride >= 0 )
             R_TextureOverride(data, context, modelSurf->surf.info.dobjModelIndex, currTextureOverride);
         R_DrawXModelRigidModelSurf(context, xsurf);
         if ( ++drawSurfIndex == drawSurfCount )
             break;
-        drawSurf.fields = (GfxDrawSurfFields)drawSurfList[drawSurfIndex];
+        //drawSurf.fields = (GfxDrawSurfFields)drawSurfList[drawSurfIndex];
+        drawSurf.packed = drawSurfList[drawSurfIndex].packed;
         if ( (drawSurfMask.packed & drawSurf.packed) != drawSurfKey )
             break;
         v3 = 4 * LOWORD(drawSurf.packed);
@@ -358,9 +359,9 @@ unsigned int __cdecl R_DrawXModelSurf(
 }
 
 unsigned int __cdecl R_DrawXModelSurfInternal(
-                const GfxDrawSurf *drawSurfList,
-                unsigned int drawSurfCount,
-                GfxCmdBufContext context)
+    const GfxDrawSurf *drawSurfList,
+    unsigned int drawSurfCount,
+    GfxCmdBufContext context)
 {
     GfxCmdBufSourceState *ActiveWorldMatrix; // eax
     vector4 worldMat; // [esp+8Ch] [ebp-80h] BYREF
@@ -380,8 +381,8 @@ unsigned int __cdecl R_DrawXModelSurfInternal(
     drawSurfMask.packed = -267452416;
     drawSurfKey = drawSurf.packed & 0xFFFFFFFFF00F0000uLL;
     drawSurfIndex = 0;
-    *(_QWORD *)eyeOffset.v = *(_QWORD *)context.source->skinnedPlacement.base.origin;
-    eyeOffset.u[2] = LODWORD(context.source->skinnedPlacement.base.origin[2]);
+    *(_QWORD *)eyeOffset.v = *(_QWORD *)context.source->eyeOffset;
+    eyeOffset.u[2] = LODWORD(context.source->eyeOffset[2]);
     eyeOffset.v[0] = eyeOffset.v[0] - 0.0;
     eyeOffset.v[1] = eyeOffset.v[1] - 0.0;
     eyeOffset.v[2] = eyeOffset.v[2] - 0.0;
@@ -392,13 +393,11 @@ unsigned int __cdecl R_DrawXModelSurfInternal(
         xsurf = modelSurf->surf.xsurf;
         R_GetWorldMatrixForModelSurf(modelSurf, eyeOffset, &worldMat);
         ActiveWorldMatrix = R_GetActiveWorldMatrix(commonSource);
-        ActiveWorldMatrix->matrices.matrix[0] = (GfxMatrix)worldMat;
+        memcpy(&ActiveWorldMatrix->matrices.matrix[0], &worldMat, sizeof(GfxMatrix));
         R_DrawXModelRigidModelSurf(context, xsurf);
-        if ( ++drawSurfIndex == drawSurfCount )
+        if (++drawSurfIndex == drawSurfCount)
             break;
-        drawSurf.fields = (GfxDrawSurfFields)drawSurfList[drawSurfIndex];
-    }
-    while ( (drawSurfMask.packed & drawSurf.packed) == drawSurfKey );
+        drawSurf.packed = drawSurfList[drawSurfIndex].packed;
+    } while ((drawSurfMask.packed & drawSurf.packed) == drawSurfKey);
     return drawSurfIndex;
 }
-

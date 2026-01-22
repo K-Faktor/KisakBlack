@@ -115,6 +115,12 @@ jqWorkerCmd fx_update_remaining_ppuWorkerCmd =
 };
 
 
+volatile unsigned int r_model_lightingLimit = 1;
+jqModule r_model_lightingModule;
+jqWorkerCmd r_model_lightingWorkerCmd =
+{ &r_model_lightingModule, 44u, 0, 0, &r_model_lightingLimit, NULL, 0u };
+
+
 
 
 int __cdecl r_dpvs_entityCallback(jqBatch *batch)

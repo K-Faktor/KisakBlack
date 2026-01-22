@@ -1,5 +1,14 @@
 #include "r_draw_lit.h"
+#include "r_state_utils.h"
+#include "r_state.h"
+#include "r_wind.h"
+#include "rb_draw3d.h"
+#include "r_foliage.h"
+#include "r_adszscale.h"
+#include "rb_fog.h"
+#include "r_dvars.h"
 
+#if 0
 // local variable allocation has failed, the output may be wrong!
 void    R_SetDrawLitConstants(
                 GfxCmdBufSourceState *source,
@@ -12,7 +21,7 @@ void    R_SetDrawLitConstants(
     float v7; // [esp+40h] [ebp-9Ch]
     float v8; // [esp+44h] [ebp-98h]
     float v9; // [esp+48h] [ebp-94h]
-    int v10; // [esp+54h] [ebp-88h]
+    int state; // [esp+54h] [ebp-88h]
     float integer; // [esp+58h] [ebp-84h]
     _BYTE x[76]; // [esp+60h] [ebp-7Ch] OVERLAPPED BYREF
     float treeScatterAmount; // [esp+ACh] [ebp-30h]
@@ -43,7 +52,7 @@ void    R_SetDrawLitConstants(
     *((unsigned int *)v16 + 3) = v17;
     R_DirtyCodeConstant(source, 0x73u);
     R_SetADSZScaleConstants(viewInfo->localClientNum, source);
-    R_SetFrameFog(COERCE_FLOAT(v22), &source->input, viewInfo);
+    R_SetFrameFog(&source->input, viewInfo);
     p_sunParse = &rgp.world->sunParse;
     treeScatterIntensity = rgp.world->sunParse.treeScatterIntensity;
     treeScatterAmount = rgp.world->sunParse.treeScatterAmount;
@@ -55,11 +64,11 @@ void    R_SetDrawLitConstants(
     R_DirtyCodeConstant(source, 0x77u);
     colorTempMatrix((float (*)[4])x, r_skyColorTemp->current.value);
     integer = (float)r_treeScale->current.integer;
-    v10 = r_testScale->current.integer;
+    state = r_testScale->current.integer;
     LODWORD(source->input.consts[68][0]) = r_skyTransition->current.integer;
     source->input.consts[68][1] = 0.0f;
     source->input.consts[68][2] = integer;
-    LODWORD(source->input.consts[68][3]) = v10;
+    LODWORD(source->input.consts[68][3]) = state;
     R_DirtyCodeConstant(source, 0x44u);
     v9 = *(float *)&x[16];
     v8 = *(float *)&x[32];
@@ -80,49 +89,142 @@ void    R_SetDrawLitConstants(
     Vec4Set(source->input.consts[46], *(float *)&x[8], *(float *)&x[24], *(float *)&x[40], *(float *)&x[56]);
     R_DirtyCodeConstant(source, 0x2Eu);
 }
+#endif
 
-void    R_DrawCloakHDR(int a1@<ebp>, const GfxViewInfo *viewInfo, GfxCmdBuf *cmdBuf, CloakPhaseID phase)
+// aislop
+void R_SetDrawLitConstants(
+    GfxCmdBufSourceState *source,
+    const GfxViewInfo *viewInfo,
+    const GfxViewParms *viewParms)
 {
-    void *v4; // esp
-    float treeScatterAmount; // [esp-1AC0h] [ebp-1ACCh]
-    float v6; // [esp-1AB4h] [ebp-1AC0h]
-    unsigned int v7; // [esp-1AB0h] [ebp-1ABCh]
-    unsigned int v8; // [esp-1AACh] [ebp-1AB8h]
-    const float *CloudArea; // [esp-1AA4h] [ebp-1AB0h]
-    GfxCmdBufSourceState v10; // [esp-1AA0h] [ebp-1AACh] BYREF
-    unsigned int v11[3]; // [esp+0h] [ebp-Ch] BYREF
-    _UNKNOWN *retaddr; // [esp+Ch] [ebp+0h]
+    // --------------------------------------------------
+    // Wind + sun
+    // --------------------------------------------------
+    R_SetWindShaderConstants(source);
+    R_SetSunConstants(&source->input);
 
-    v11[0] = a1;
-    v11[1] = retaddr;
-    v4 = alloca(6864);
+    // --------------------------------------------------
+    // Cloud area (CONST 0x73)
+    // --------------------------------------------------
+    const float (*cloudArea)[4] = R_GetCloudArea();
+
+    float cloudX = (*cloudArea)[0] - viewParms->origin[0];
+    float cloudY = (*cloudArea)[1] - viewParms->origin[1];
+    float cloudZ = (*cloudArea)[2];
+    float cloudW = (*cloudArea)[3];
+
+    float *cloudConsts = source->input.consts[0x73];
+    cloudConsts[0] = cloudX;
+    cloudConsts[1] = cloudY;
+    cloudConsts[2] = cloudZ;
+    cloudConsts[3] = cloudW;
+
+    R_DirtyCodeConstant(source, 0x73);
+
+    // --------------------------------------------------
+    // ADSZ scale
+    // --------------------------------------------------
+    R_SetADSZScaleConstants(viewInfo->localClientNum, source);
+
+    // --------------------------------------------------
+    // Fog
+    // --------------------------------------------------
+    R_SetFrameFog(&source->input, viewInfo);
+
+    // --------------------------------------------------
+    // Tree scatter (CONST 0x77)
+    // --------------------------------------------------
+    const SunLightParseParams &sunParse = rgp.world->sunParse;
+
+    float *treeConsts = source->input.consts[0x77];
+    treeConsts[0] = sunParse.treeScatterIntensity;
+    treeConsts[1] = sunParse.treeScatterAmount;
+    treeConsts[2] = 0.0f;
+    treeConsts[3] = 0.0f;
+
+    R_DirtyCodeConstant(source, 0x77);
+
+    // --------------------------------------------------
+    // Sky color temperature matrix
+    // --------------------------------------------------
+    GfxMatrix skyColorMatrix;
+    colorTempMatrix(skyColorMatrix.m, r_skyColorTemp->current.value);
+
+    // --------------------------------------------------
+    // Sky transition / tree scale / test scale (CONST 0x44)
+    // --------------------------------------------------
+    float *skyParams = source->input.consts[0x44];
+    skyParams[0] = r_skyTransition->current.value;
+    skyParams[1] = 0.0f;
+    skyParams[2] = (float)r_treeScale->current.integer;
+    skyParams[3] = r_testScale->current.value;
+
+    R_DirtyCodeConstant(source, 0x44);
+
+    // --------------------------------------------------
+    // Sky color matrix rows
+    // --------------------------------------------------
+
+    // CONST 0x2C (row 1)
+    float *row1 = source->input.consts[0x2C];
+    row1[0] = skyColorMatrix.m[0][0];
+    row1[1] = skyColorMatrix.m[0][1];
+    row1[2] = skyColorMatrix.m[0][2];
+    row1[3] = skyColorMatrix.m[0][3];
+    R_DirtyCodeConstant(source, 0x2C);
+
+    // CONST 0x2D (row 2)
+    float *row2 = source->input.consts[0x2D];
+    row2[0] = skyColorMatrix.m[1][0];
+    row2[1] = skyColorMatrix.m[1][1];
+    row2[2] = skyColorMatrix.m[1][2];
+    row2[3] = skyColorMatrix.m[1][3];
+    R_DirtyCodeConstant(source, 0x2D);
+
+    // CONST 0x2E (row 3)
+    Vec4Set(
+        source->input.consts[0x2E],
+        skyColorMatrix.m[2][0],
+        skyColorMatrix.m[2][1],
+        skyColorMatrix.m[2][2],
+        skyColorMatrix.m[2][3]);
+
+    R_DirtyCodeConstant(source, 0x2E);
+}
+
+
+void R_DrawCloakHDR(const GfxViewInfo *viewInfo, GfxCmdBuf *cmdBuf, CloakPhaseID phase)
+{
+    const float *CloudArea; // [esp-1AA4h] [ebp-1AB0h]
+    GfxCmdBufSourceState state; // [esp-1AA0h] [ebp-1AACh] BYREF
+
     //PIXBeginNamedEvent(-1, "R_DrawCloak");
-    R_InitCmdBufSourceState(&v10, &viewInfo->input, 1);
-    R_SetRenderTargetSize(&v10, viewInfo->sceneComposition.mainSceneMSAA);
-    R_SetViewportStruct(&v10, &viewInfo->cullViewInfo.sceneViewport);
-    R_SetWindShaderConstants(&v10);
+    R_InitCmdBufSourceState(&state, &viewInfo->input, 1);
+    R_SetRenderTargetSize(&state, viewInfo->sceneComposition.mainSceneMSAA);
+    R_SetViewportStruct(&state, &viewInfo->cullViewInfo.sceneViewport);
+    R_SetWindShaderConstants(&state);
+
     CloudArea = (const float *)R_GetCloudArea();
-    *(float *)&v8 = CloudArea[1] - viewInfo->cullViewInfo.viewParms.origin[1];
-    v7 = *((unsigned int *)CloudArea + 2);
-    v6 = CloudArea[3];
-    v10.input.consts[115][0] = *CloudArea - viewInfo->cullViewInfo.viewParms.origin[0];
-    *(_QWORD *)&v10.gap0[1844] = __PAIR64__(v7, v8);
-    v10.input.consts[115][3] = v6;
-    R_DirtyCodeConstant(&v10, 0x73u);
-    treeScatterAmount = rgp.world->sunParse.treeScatterAmount;
-    v10.input.consts[119][0] = rgp.world->sunParse.treeScatterIntensity;
-    *(_QWORD *)&v10.gap0[1908] = __PAIR64__(0, LODWORD(treeScatterAmount));
-    v10.input.consts[119][3] = 0.0f;
-    R_DirtyCodeConstant(&v10, 0x77u);
-    R_SetADSZScaleConstants(viewInfo->localClientNum, &v10);
-    if ( phase )
+    state.input.consts[115][0] = *CloudArea - viewInfo->cullViewInfo.viewParms.origin[0];
+    state.input.consts[115][1] = CloudArea[1] - viewInfo->cullViewInfo.viewParms.origin[1];
+    state.input.consts[115][2] = CloudArea[2];
+    state.input.consts[115][3] = CloudArea[3];
+    R_DirtyCodeConstant(&state, 115);
+
+    state.input.consts[119][0] = rgp.world->sunParse.treeScatterIntensity;
+    state.input.consts[119][1] = rgp.world->sunParse.treeScatterAmount;
+    state.input.consts[119][2] = 0.0f;
+    state.input.consts[119][3] = 0.0f;
+    R_DirtyCodeConstant(&state, 119);
+
+    R_SetADSZScaleConstants(viewInfo->localClientNum, &state);
+    if (phase)
     {
-        if ( phase == CLOAK_PHASE_CLOAKED )
+        if (phase == CLOAK_PHASE_CLOAKED)
             R_DrawCall(
-                (int)v11,
-                (void (__cdecl *)(const void *, GfxCmdBufSourceState *, GfxCmdBufState *, GfxCmdBufSourceState *, GfxCmdBufState *))R_DrawCloakPostEmissiveCallbackHDR,
+                (void(__cdecl *)(const void *, GfxCmdBufSourceState *, GfxCmdBufState *, GfxCmdBufSourceState *, GfxCmdBufState *))R_DrawCloakPostEmissiveCallbackHDR,
                 viewInfo,
-                &v10,
+                &state,
                 viewInfo,
                 &viewInfo->drawList[6],
                 &viewInfo->cullViewInfo.viewParms,
@@ -132,18 +234,17 @@ void    R_DrawCloakHDR(int a1@<ebp>, const GfxViewInfo *viewInfo, GfxCmdBuf *cmd
     else
     {
         R_DrawCall(
-            (int)v11,
-            (void (__cdecl *)(const void *, GfxCmdBufSourceState *, GfxCmdBufState *, GfxCmdBufSourceState *, GfxCmdBufState *))R_DrawCloakPrePassCallbackHDR,
+            (void(__cdecl *)(const void *, GfxCmdBufSourceState *, GfxCmdBufState *, GfxCmdBufSourceState *, GfxCmdBufState *))R_DrawCloakPrePassCallbackHDR,
             viewInfo,
-            &v10,
+            &state,
             viewInfo,
             &viewInfo->drawList[6],
             &viewInfo->cullViewInfo.viewParms,
             cmdBuf,
             0);
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
+    //if (g_DXDeviceThread == GetCurrentThreadId())
+    //    D3DPERF_EndEvent();
 }
 
 void __cdecl R_DrawCloakPrePassCallbackHDR(
@@ -211,7 +312,6 @@ void __cdecl R_DrawCloakPostEmissiveCallbackHDR(
 }
 
 void    R_DrawLit(
-                int a1@<ebp>,
                 const GfxViewInfo *viewInfo,
                 GfxCmdBuf *cmdBuf,
                 GfxCmdBuf *prepassCmdBuf,
@@ -219,22 +319,16 @@ void    R_DrawLit(
 {
     void *v5; // esp
     GfxCmdBufSourceState v6; // [esp-1AA0h] [ebp-1AACh] BYREF
-    unsigned int v7[3]; // [esp+0h] [ebp-Ch] BYREF
-    _UNKNOWN *retaddr; // [esp+Ch] [ebp+0h]
 
-    v7[0] = a1;
-    v7[1] = retaddr;
-    v5 = alloca(6832);
     R_InitCmdBufSourceState(&v6, &viewInfo->input, 1);
     R_SetRenderTargetSize(&v6, viewInfo->sceneComposition.mainSceneMSAA);
     R_SetViewportStruct(&v6, &viewInfo->cullViewInfo.sceneViewport);
-    R_SetDrawLitConstants((int)v7, &v6, viewInfo, &viewInfo->cullViewInfo.viewParms);
+    R_SetDrawLitConstants(&v6, viewInfo, &viewInfo->cullViewInfo.viewParms);
     if ( phase )
     {
         if ( phase == LIT_PHASE_POST_RESOLVE )
         {
             R_DrawCall(
-                (int)v7,
                 (void (__cdecl *)(const void *, GfxCmdBufSourceState *, GfxCmdBufState *, GfxCmdBufSourceState *, GfxCmdBufState *))R_DrawLitPostResolveCallback,
                 viewInfo,
                 &v6,
@@ -252,7 +346,6 @@ void    R_DrawLit(
     else
     {
         R_DrawCall(
-            (int)v7,
             (void (__cdecl *)(const void *, GfxCmdBufSourceState *, GfxCmdBufState *, GfxCmdBufSourceState *, GfxCmdBufState *))R_DrawLitCallback,
             viewInfo,
             &v6,
@@ -266,75 +359,69 @@ void    R_DrawLit(
 
 void __cdecl R_DrawLitCallback(char *userData, GfxCmdBufContext context, GfxCmdBufContext prepassContext)
 {
-    R_SetRenderTarget(context, userData[13808]);
-    if ( prepassContext.state )
-        R_SetRenderTarget(prepassContext, userData[13808]);
-    if ( (*((unsigned int *)userData + 3464) & 7) == 0 )
+    const GfxViewInfo *viewInfo = (const GfxViewInfo *)userData;
+
+    R_SetRenderTarget(context, viewInfo->sceneComposition.mainSceneMSAA);
+    if (prepassContext.state)
+        R_SetRenderTarget(prepassContext, viewInfo->sceneComposition.mainSceneMSAA);
+    if ((viewInfo->sceneComposition.renderingMode & 7) == 0)
         R_HW_EnableScissor(
             context.state->prim.device,
-            *((unsigned int *)userData + 88),
-            *((unsigned int *)userData + 89),
-            *((unsigned int *)userData + 90),
-            *((unsigned int *)userData + 91));
-    R_DrawSurfs(context, prepassContext.state, (const GfxDrawSurfListInfo *)(userData + 8752));
-    if ( (*((unsigned int *)userData + 3464) & 7) == 0 )
+            viewInfo->cullViewInfo.scissorViewport.x,
+            viewInfo->cullViewInfo.scissorViewport.y,
+            viewInfo->cullViewInfo.scissorViewport.width,
+            viewInfo->cullViewInfo.scissorViewport.height);
+    R_DrawSurfs(context, prepassContext.state, viewInfo->drawList);
+    if ((viewInfo->sceneComposition.renderingMode & 7) == 0)
         R_HW_DisableScissor(context.state->prim.device);
 }
 
 void __cdecl R_DrawLitPostResolveCallback(char *userData, GfxCmdBufContext context, GfxCmdBufContext prepassContext)
 {
-    R_SetRenderTarget(context, userData[13808]);
-    if ( prepassContext.state )
-        R_SetRenderTarget(prepassContext, userData[13808]);
-    if ( (*((unsigned int *)userData + 3464) & 7) == 0 )
+    const GfxViewInfo *viewInfo = (const GfxViewInfo *)userData;
+
+    R_SetRenderTarget(context, viewInfo->sceneComposition.mainSceneMSAA);
+    if (prepassContext.state)
+        R_SetRenderTarget(prepassContext, viewInfo->sceneComposition.mainSceneMSAA);
+    if ((viewInfo->sceneComposition.renderingMode & 7) == 0)
         R_HW_EnableScissor(
             context.state->prim.device,
-            *((unsigned int *)userData + 88),
-            *((unsigned int *)userData + 89),
-            *((unsigned int *)userData + 90),
-            *((unsigned int *)userData + 91));
-    R_DrawSurfs(context, prepassContext.state, (const GfxDrawSurfListInfo *)(userData + 8832));
-    if ( (*((unsigned int *)userData + 3464) & 7) == 0 )
+            viewInfo->cullViewInfo.scissorViewport.x,
+            viewInfo->cullViewInfo.scissorViewport.y,
+            viewInfo->cullViewInfo.scissorViewport.width,
+            viewInfo->cullViewInfo.scissorViewport.height);
+    R_DrawSurfs(context, prepassContext.state, &viewInfo->drawList[1]);
+    if ((viewInfo->sceneComposition.renderingMode & 7) == 0)
         R_HW_DisableScissor(context.state->prim.device);
 }
 
-void    R_DrawDecal(int a1@<ebp>, const GfxViewInfo *viewInfo, GfxCmdBuf *cmdBuf, GfxCmdBuf *prepassCmdBuf)
+void R_DrawDecal(const GfxViewInfo *viewInfo, GfxCmdBuf *cmdBuf, GfxCmdBuf *prepassCmdBuf)
 {
-    void *v4; // esp
-    float treeScatterAmount; // [esp-1AC0h] [ebp-1ACCh]
-    float v6; // [esp-1AB4h] [ebp-1AC0h]
-    unsigned int v7; // [esp-1AB0h] [ebp-1ABCh]
-    unsigned int v8; // [esp-1AACh] [ebp-1AB8h]
     const float *CloudArea; // [esp-1AA4h] [ebp-1AB0h]
     GfxCmdBufSourceState v10; // [esp-1AA0h] [ebp-1AACh] BYREF
-    unsigned int v11[3]; // [esp+0h] [ebp-Ch] BYREF
-    _UNKNOWN *retaddr; // [esp+Ch] [ebp+0h]
 
-    v11[0] = a1;
-    v11[1] = retaddr;
-    v4 = alloca(6864);
     //PIXBeginNamedEvent(-1, "R_DrawDecal");
     R_InitCmdBufSourceState(&v10, &viewInfo->input, 1);
     R_SetRenderTargetSize(&v10, viewInfo->sceneComposition.mainSceneMSAA);
     R_SetViewportStruct(&v10, &viewInfo->cullViewInfo.sceneViewport);
     R_SetWindShaderConstants(&v10);
+
     CloudArea = (const float *)R_GetCloudArea();
-    *(float *)&v8 = CloudArea[1] - viewInfo->cullViewInfo.viewParms.origin[1];
-    v7 = *((unsigned int *)CloudArea + 2);
-    v6 = CloudArea[3];
-    v10.input.consts[115][0] = *CloudArea - viewInfo->cullViewInfo.viewParms.origin[0];
-    *(_QWORD *)&v10.gap0[1844] = __PAIR64__(v7, v8);
-    v10.input.consts[115][3] = v6;
-    R_DirtyCodeConstant(&v10, 0x73u);
-    treeScatterAmount = rgp.world->sunParse.treeScatterAmount;
+    v10.input.consts[115][0] = CloudArea[0] - viewInfo->cullViewInfo.viewParms.origin[0];
+    v10.input.consts[115][1] = CloudArea[1] - viewInfo->cullViewInfo.viewParms.origin[1];
+    v10.input.consts[115][2] = CloudArea[2];
+    v10.input.consts[115][3] = CloudArea[3];
+    R_DirtyCodeConstant(&v10, 115);
+
     v10.input.consts[119][0] = rgp.world->sunParse.treeScatterIntensity;
-    *(_QWORD *)&v10.gap0[1908] = __PAIR64__(0, LODWORD(treeScatterAmount));
+    v10.input.consts[119][1] = rgp.world->sunParse.treeScatterAmount;
+    v10.input.consts[119][2] = 0.0f;
     v10.input.consts[119][3] = 0.0f;
-    R_DirtyCodeConstant(&v10, 0x77u);
+    R_DirtyCodeConstant(&v10, 119);
+
     R_SetADSZScaleConstants(viewInfo->localClientNum, &v10);
     R_DrawCall(
-        (int)v11,
-        (void (__cdecl *)(const void *, GfxCmdBufSourceState *, GfxCmdBufState *, GfxCmdBufSourceState *, GfxCmdBufState *))R_DrawDecalCallback,
+        (void(__cdecl *)(const void *, GfxCmdBufSourceState *, GfxCmdBufState *, GfxCmdBufSourceState *, GfxCmdBufState *))R_DrawDecalCallback,
         viewInfo,
         &v10,
         viewInfo,
@@ -342,24 +429,26 @@ void    R_DrawDecal(int a1@<ebp>, const GfxViewInfo *viewInfo, GfxCmdBuf *cmdBuf
         &viewInfo->cullViewInfo.viewParms,
         cmdBuf,
         prepassCmdBuf);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
+    //if (g_DXDeviceThread == GetCurrentThreadId())
+    //    D3DPERF_EndEvent();
 }
 
 void __cdecl R_DrawDecalCallback(char *userData, GfxCmdBufContext context, GfxCmdBufContext prepassContext)
 {
-    R_SetRenderTarget(context, userData[13808]);
-    if ( prepassContext.state )
-        R_SetRenderTarget(prepassContext, userData[13808]);
-    if ( (*((unsigned int *)userData + 3464) & 7) == 0 )
+    const GfxViewInfo *viewInfo = (const GfxViewInfo *)userData;
+
+    R_SetRenderTarget(context, viewInfo->sceneComposition.mainSceneMSAA);
+    if (prepassContext.state)
+        R_SetRenderTarget(prepassContext, viewInfo->sceneComposition.mainSceneMSAA);
+    if ((viewInfo->sceneComposition.renderingMode & 7) == 0)
         R_HW_EnableScissor(
             context.state->prim.device,
-            *((unsigned int *)userData + 88),
-            *((unsigned int *)userData + 89),
-            *((unsigned int *)userData + 90),
-            *((unsigned int *)userData + 91));
-    R_DrawSurfs(context, prepassContext.state, (const GfxDrawSurfListInfo *)(userData + 8992));
-    if ( (*((unsigned int *)userData + 3464) & 7) == 0 )
+            viewInfo->cullViewInfo.scissorViewport.x,
+            viewInfo->cullViewInfo.scissorViewport.y,
+            viewInfo->cullViewInfo.scissorViewport.width,
+            viewInfo->cullViewInfo.scissorViewport.height);
+    R_DrawSurfs(context, prepassContext.state, &viewInfo->drawList[3]);
+    if ((viewInfo->sceneComposition.renderingMode & 7) == 0)
         R_HW_DisableScissor(context.state->prim.device);
 }
 

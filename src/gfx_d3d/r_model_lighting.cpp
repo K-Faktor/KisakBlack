@@ -86,6 +86,8 @@ struct GfxSmodelLightGlob // sizeof=0xA080
 $ACD36BF6C142509D89D5FAE1478EBC2D modelLightGlob;
 GfxSmodelLightGlob smodelLightGlob;
 
+GfxLightingInfo lightingInfo[1024];
+
 GfxModelLightingPatch *__cdecl R_BackEndDataAllocAndClearModelLightingPatch(GfxBackEndData *frontEndDataOut)
 {
     unsigned int patchIndex; // [esp+4h] [ebp-4h]

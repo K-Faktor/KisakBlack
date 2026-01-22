@@ -1,4 +1,7 @@
 #pragma once
+#include "r_gfx.h"
+#include "r_material.h"
+#include "r_image.h"
 
 void __cdecl Image_TrackFullscreenTexture(
                 GfxImage *image,

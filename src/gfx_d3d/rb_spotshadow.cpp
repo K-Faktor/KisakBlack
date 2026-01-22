@@ -11,8 +11,6 @@
 #include "rb_shade.h"
 #include "rb_sunshadow.h"
 
-const float shadowmapClearColor[4] = { 1.0, 1.0, 1.0, 1.0 };
-
 void __cdecl R_DrawSpotShadowMapCallback(const GfxSpotShadow **userData, GfxCmdBufContext context)
 {
     const GfxDrawSurfListInfo *drawList; // [esp+Ch] [ebp-8h]

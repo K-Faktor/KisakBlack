@@ -44,7 +44,7 @@ void __cdecl R_CullDynModelInCell(
                 int planeCount,
                 unsigned __int8 *dynEntVisData)
 {
-    int v7; // eax
+    DWORD v7; // eax
     unsigned int dynEntIndex; // [esp+1Ch] [ebp-10h]
     unsigned int bits; // [esp+20h] [ebp-Ch]
     unsigned int indexLow; // [esp+24h] [ebp-8h]
@@ -55,10 +55,10 @@ void __cdecl R_CullDynModelInCell(
         bits = dynEntCellBits[wordIndex];
         while ( 1 )
         {
-            if ( !_BitScanReverse((unsigned int *)&v7, bits) )
-                v7 = `CountLeadingZeros'::`2'::notFound;
+            if (!_BitScanReverse(&v7, bits))
+                v7 = 63;// `CountLeadingZeros'::`2': : notFound;
             indexLow = v7 ^ 0x1F;
-            if ( (v7 ^ 0x1Fu) >= 0x20 )
+            if ((v7 ^ 0x1Fu) >= 0x20)
                 break;
             dynEntIndex = indexLow + 32 * wordIndex;
             if ( ((0x80000000 >> indexLow) & bits) == 0
