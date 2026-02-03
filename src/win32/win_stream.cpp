@@ -1,4 +1,11 @@
 #include "win_stream.h"
+#include <universal/assertive.h>
+#include <qcommon/threads.h>
+#include <gfx_d3d/r_stream.h>
+#include <sound/snd_stream.h>
+#include <setjmp.h>
+
+bool g_streamReadThreadSpawned;
 
 char __cdecl Stream_Init()
 {
@@ -25,7 +32,9 @@ void __cdecl    Stream_Thread(unsigned int threadContext)
     }
     do
         Value = Sys_GetValue(2);
-    while ( _setjmp3(Value, 0) );
+    //while ( _setjmp3(Value, 0) );
+    while ( _setjmp((int*)Value) );
+
     while ( 1 )
     {
         Sys_StreamSleep();

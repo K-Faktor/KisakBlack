@@ -1,39 +1,53 @@
 #include "win_localize.h"
+#include <universal/com_fileaccess.h>
+#include <universal/assertive.h>
+#include <stringed/stringed_hooks.h>
+#include <universal/q_parse.h>
+#include <universal/q_shared.h>
+#include <cstring>
 
-int __cdecl Win_InitLocalization()
+struct// $8CB265A9D3778DFC1F2AA7A5F0192391 // sizeof=0x8
+{                                       // XREF: .data:localization/r
+    char *language;                     // XREF: Win_InitLocalization(void)+6/w
+    char *strings;                      // XREF: Win_InitLocalization(void)+10/w
+} localization;
+
+char language_buffer[4096];
+
+int Win_InitLocalization()
 {
     signed int size; // [esp+0h] [ebp-10h]
     int sizea; // [esp+0h] [ebp-10h]
-    _iobuf *fp; // [esp+4h] [ebp-Ch]
+    FILE *fp; // [esp+4h] [ebp-Ch]
     int i; // [esp+8h] [ebp-8h]
     int lang; // [esp+Ch] [ebp-4h] BYREF
 
     localization.language = 0;
     localization.strings = 0;
     fp = FS_FileOpenReadText("localization.txt");
-    if ( !fp )
+    if (!fp)
         return 0;
     size = FS_FileGetFileSize(fp);
-    if ( size >= 4096
+    if (size >= 4096
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\win32\\win_localize.cpp",
-                    39,
-                    0,
-                    "%s",
-                    "size < LANGUAGE_BUF_SIZE") )
+            "C:\\projects_pc\\cod\\codsrc\\src\\win32\\win_localize.cpp",
+            39,
+            0,
+            "%s",
+            "size < LANGUAGE_BUF_SIZE"))
     {
         __debugbreak();
     }
     localization.language = language_buffer;
     sizea = FS_FileRead(language_buffer, size, fp);
     FS_FileClose(fp);
-    if ( sizea )
+    if (sizea)
     {
         localization.language[sizea] = 0;
         lang = 0;
-        for ( i = 0; localization.language[i]; ++i )
+        for (i = 0; localization.language[i]; ++i)
         {
-            if ( localization.language[i] == 10 )
+            if (localization.language[i] == 10)
             {
                 localization.language[i] = 0;
                 localization.strings = &localization.language[i + 1];

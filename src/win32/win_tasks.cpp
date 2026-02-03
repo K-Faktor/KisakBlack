@@ -1,4 +1,5 @@
 #include "win_tasks.h"
+#include <DW/dwTasks.h>
 
 void __cdecl TaskManager_ClearOverlappedTasks(overlappedTask *overlappedTasks)
 {
@@ -17,7 +18,8 @@ overlappedTask *__cdecl TaskManager_GetOpenTaskSlot(overlappedTask *overlappedTa
     {
         if ( !overlappedTasks[i].active )
         {
-            bdReference<bdCommonAddr>::operator=(&overlappedTasks[i].overlappedIO, 0);
+            //bdReference<bdCommonAddr>::operator=(&overlappedTasks[i].overlappedIO, 0);
+            overlappedTasks[i].overlappedIO = 0;
             overlappedTasks[i].type = type;
             if ( controllerIndex )
             {
@@ -32,7 +34,7 @@ overlappedTask *__cdecl TaskManager_GetOpenTaskSlot(overlappedTask *overlappedTa
             }
             overlappedTasks[i].controllerIndex = (unsigned __int8)controllerIndex;
             overlappedTasks[i].active = 1;
-            overlappedTasks[i].finalStatus = BD_EMPTY;
+            overlappedTasks[i].finalStatus = bdRemoteTask::bdStatus::BD_EMPTY;
             return &overlappedTasks[i];
         }
     }
@@ -40,7 +42,8 @@ overlappedTask *__cdecl TaskManager_GetOpenTaskSlot(overlappedTask *overlappedTa
     {
         if ( !overlappedTasks[ia].active )
         {
-            bdReference<bdCommonAddr>::operator=(&overlappedTasks[ia].overlappedIO, 0);
+            //bdReference<bdCommonAddr>::operator=(&overlappedTasks[ia].overlappedIO, 0);
+            overlappedTasks[ia].overlappedIO = 0;
             overlappedTasks[ia].type = type;
             if ( controllerIndex
                 && !Assert_MyHandler(
@@ -55,7 +58,7 @@ overlappedTask *__cdecl TaskManager_GetOpenTaskSlot(overlappedTask *overlappedTa
             }
             overlappedTasks[ia].controllerIndex = (unsigned __int8)controllerIndex;
             overlappedTasks[ia].active = 1;
-            overlappedTasks[ia].finalStatus = BD_EMPTY;
+            overlappedTasks[ia].finalStatus = bdRemoteTask::bdStatus::BD_EMPTY;
             return &overlappedTasks[ia];
         }
     }
@@ -70,7 +73,7 @@ void __cdecl TaskManager_ClearTask(overlappedTask *task)
     if ( task )
     {
         task->overlappedIO.m_ptr = 0;
-        task->finalStatus = BD_EMPTY;
+        task->finalStatus = bdRemoteTask::bdStatus::BD_EMPTY;
         task->errorCode = BD_NO_ERROR;
         task->type = 0;
         *(unsigned int *)&task->active = 0;

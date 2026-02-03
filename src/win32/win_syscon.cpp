@@ -1,4 +1,11 @@
 #include "win_syscon.h"
+#include <universal/q_shared.h>
+#include "win_main.h"
+#include <client/cl_console.h>
+#include <qcommon/threads.h>
+
+WinConData s_wcd;
+unsigned int s_totalChars;
 
 LRESULT __stdcall InputLineWndProc(HWND__ *hWnd, UINT uMsg, HWND__ *wParam, LPARAM lParam)
 {
@@ -23,7 +30,7 @@ LRESULT __stdcall InputLineWndProc(HWND__ *hWnd, UINT uMsg, HWND__ *wParam, LPAR
         Sys_Print(displayBuffer);
         return 0;
     }
-    return CallWindowProcA(s_wcd.SysInputLineWndProc, hWnd, uMsg, (WPARAM)wParam, lParam);
+    return CallWindowProcA((WNDPROC)s_wcd.SysInputLineWndProc, hWnd, uMsg, (WPARAM)wParam, lParam);
 }
 
 void __cdecl Sys_CreateConsole(HINSTANCE__ *hInstance)
@@ -42,7 +49,7 @@ void __cdecl Sys_CreateConsole(HINSTANCE__ *hInstance)
     HDC hdc; // [esp+403Ch] [ebp-4024h]
     tagRECT Rect; // [esp+4040h] [ebp-4020h] BYREF
     int DeviceCaps; // [esp+4050h] [ebp-4010h]
-    unsigned intdwStyle; // [esp+4054h] [ebp-400Ch]
+    unsigned int dwStyle; // [esp+4054h] [ebp-400Ch]
     char text[16388]; // [esp+4058h] [ebp-4008h] BYREF
 
     dwStyle = -2134245376;

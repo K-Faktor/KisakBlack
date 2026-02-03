@@ -1,5 +1,7 @@
 #pragma once
 
+struct SessionData_s;
+
 bool __cdecl Voice_Init();
 void __cdecl Voice_StopClientSamples();
 void __cdecl Voice_Shutdown();

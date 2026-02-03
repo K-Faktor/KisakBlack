@@ -1,5 +1,16 @@
 #include "win_common.h"
 
+#include <Windows.h>
+#include <io.h>
+#include <direct.h>
+#include <universal/q_shared.h>
+#include <universal/com_shared.h>
+
+char cwd[256];
+char exePath[256];
+
+_RTL_CRITICAL_SECTION s_criticalSection[75];
+
 void __cdecl Sys_Mkdir(const char *path)
 {
     mkdir(path);
@@ -20,7 +31,7 @@ const char *__cdecl Sys_DefaultCDPath()
 char *__cdecl Sys_DefaultInstallPath()
 {
     char *v0; // eax
-    unsigned intlen; // [esp+0h] [ebp-8h]
+    unsigned int len; // [esp+0h] [ebp-8h]
     HINSTANCE__ *hinst; // [esp+4h] [ebp-4h]
 
     if ( !exePath[0] )
@@ -220,6 +231,7 @@ void __cdecl Sys_InitializeCriticalSections()
 {
     int critSect; // [esp+0h] [ebp-4h]
 
+    static int inited_1 = 0;
     if ( !inited_1 )
     {
         inited_1 = 1;

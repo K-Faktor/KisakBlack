@@ -1,4 +1,5 @@
 #pragma once
+#include <qcommon/common.h>
 
 int __cdecl Sys_SystemMemoryMB();
 void __cdecl Sys_DetectVideoCard(int descLimit, char *description);

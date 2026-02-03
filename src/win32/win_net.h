@@ -1,7 +1,24 @@
 #pragma once
 
-void __cdecl NET_Sleep(unsigned intmsec);
-char *__cdecl NET_ErrorString();
+#include <Windows.h>
+
+struct bdNetStartParams;
+
+struct socketpool_t // sizeof=0x10
+{                                       // XREF: .data:poolsockets/r
+    int sendtime;                       // XREF: Sys_CheckForNATOverflow(void)+9C/r
+    unsigned int m_sock;                // XREF: Sys_SocketPool_GetPacket(netadr_t *,msg_t *)+9E/r
+    int ready;                          // XREF: Sys_CheckForNATOverflow(void)+84/r
+                                        // Sys_CheckForNATOverflow(void)+102/w ...
+    int sendcount;
+};
+
+struct netadr_t;
+struct sockaddr;
+
+
+void __cdecl NET_Sleep(unsigned int msec);
+const char *__cdecl NET_ErrorString();
 int __cdecl Sys_StringToSockaddr(const char *s, sockaddr *sadr);
 void __cdecl SockadrToNetadr(sockaddr *s, netadr_t *a);
 int __cdecl Sys_StringToAdr(const char *s, netadr_t *a);

@@ -1,5 +1,9 @@
 #include "win_splash.h"
 
+#include <Windows.h>
+
+HWND g_splashWnd;
+
 void __cdecl Sys_DestroySplashWindow()
 {
     if ( g_splashWnd )

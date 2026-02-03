@@ -698,3 +698,4 @@ extern int rb_execCmdsMS;
 extern int rb_swapMS;
 
 extern int time;
+extern bool g_showCursor;

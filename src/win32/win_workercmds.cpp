@@ -1,4 +1,13 @@
 #include "win_workercmds.h"
+#include <tl/jobqueue/jobqueue_all.h>
+#include <universal/com_workercmds.h>
+#include <universal/q_shared.h>
+#include <qcommon/threads.h>
+
+volatile unsigned int nuge_physicsLimit = 1;
+jqModule nuge_physicsModule;
+jqWorkerCmd nuge_physicsWorkerCmd = { &nuge_physicsModule, 124u, 0, 0, &nuge_physicsLimit, NULL, 0u };
+jqModule setup_worker_threadsModule;
 
 int __cdecl nuge_physicsCallback(jqBatch *batch)
 {
@@ -40,8 +49,8 @@ void __cdecl R_InitWorkerCmds()
     jqEnableWorkers(0xCu);
     jqSetBatchDataHeapSize(0x4000u, 0x10u);
     jqStart();
-    jqBatch::jqBatch(&batch);
-    batch.Module = &`anonymous namespace'::setup_worker_threadsModule;
+    //jqBatch::jqBatch(&batch);
+    batch.Module = &setup_worker_threadsModule;// `anonymous namespace'::setup_worker_threadsModule;
     batch.ParamData[0] = 0;
     WorkerQueue = jqGetWorkerQueue(4);
     jqAddBatch(&batch, WorkerQueue);

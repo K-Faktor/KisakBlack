@@ -1,12 +1,27 @@
 #include "win_mini_dumper.h"
+#include <stdio.h>
+#include <ctime>
+#include <universal/q_shared.h>
+
+const char *BUILD_MACHINE = "CODPCAB-V64";
+const char *BUILD_TIME = "Fri Nov 05 11:33:52 2010";
+const int BUILD_NUMBER = 61;
+const int CHANGELIST_NUMBER = 794515;
+
+
+
+miniDumper *g_miniDumper;
+bool g_miniDumperStarted;
 
 void __cdecl Sys_StartMiniDump(bool prompt)
 {
+    static int _S1_10 = 0;
     if ( (_S1_10 & 1) == 0 )
     {
         _S1_10 |= 1u;
-        miniDumper::miniDumper(&g_miniDumper, prompt);
-        atexit(Sys_StartMiniDump_::_2_::_dynamic_atexit_destructor_for__g_miniDumper__);
+        //miniDumper::miniDumper(&g_miniDumper, prompt);
+        //atexit(Sys_StartMiniDump_::_2_::_dynamic_atexit_destructor_for__g_miniDumper__);
+        g_miniDumper = new miniDumper(prompt);
     }
     g_miniDumperStarted = 1;
 }
@@ -16,7 +31,7 @@ bool __cdecl Sys_IsMiniDumpStarted()
     return g_miniDumperStarted;
 }
 
-miniDumper *__thiscall miniDumper::miniDumper(miniDumper *this, bool bPromptUserForMiniDump)
+miniDumper::miniDumper(bool bPromptUserForMiniDump)
 {
     miniDumper::s_pMiniDumper = this;
     this->m_bPromptUserForMiniDump = bPromptUserForMiniDump;
@@ -24,10 +39,9 @@ miniDumper *__thiscall miniDumper::miniDumper(miniDumper *this, bool bPromptUser
     miniDumper::s_pCriticalSection = (LPCRITICAL_SECTION)operator new(0x18u);
     if ( miniDumper::s_pCriticalSection )
         InitializeCriticalSection(miniDumper::s_pCriticalSection);
-    return this;
 }
 
-void __thiscall miniDumper::~miniDumper(miniDumper *this)
+miniDumper::~miniDumper()
 {
     if ( miniDumper::s_pCriticalSection )
     {
@@ -36,15 +50,20 @@ void __thiscall miniDumper::~miniDumper(miniDumper *this)
     }
 }
 
-int __stdcall miniDumper::unhandledExceptionHandler(_EXCEPTION_POINTERS *pExceptionInfo)
+LONG __stdcall miniDumper::unhandledExceptionHandler(_EXCEPTION_POINTERS *pExceptionInfo)
 {
-    if ( miniDumper::s_pMiniDumper )
-        return miniDumper::writeMiniDump(miniDumper::s_pMiniDumper, pExceptionInfo);
+    if (miniDumper::s_pMiniDumper)
+    {
+        //return miniDumper::writeMiniDump(miniDumper::s_pMiniDumper, pExceptionInfo);
+        return miniDumper::s_pMiniDumper->writeMiniDump(pExceptionInfo);
+    }
     else
+    {
         return 0;
+    }
 }
 
-void __thiscall miniDumper::setMiniDumpFileName(miniDumper *this)
+void miniDumper::setMiniDumpFileName()
 {
     __int64 currentTime; // [esp+4h] [ebp-8h] BYREF
 
@@ -60,7 +79,7 @@ void __thiscall miniDumper::setMiniDumpFileName(miniDumper *this)
         (unsigned int)currentTime);
 }
 
-char __thiscall miniDumper::getImpersonationToken(miniDumper *this, void **phToken)
+char miniDumper::getImpersonationToken(void **phToken)
 {
     HANDLE CurrentThread; // eax
     HANDLE CurrentProcess; // eax
@@ -78,13 +97,12 @@ char __thiscall miniDumper::getImpersonationToken(miniDumper *this, void **phTok
     return 1;
 }
 
-bool __thiscall miniDumper::enablePrivilege(
-                miniDumper *this,
+bool miniDumper::enablePrivilege(
                 const char *pszPriv,
                 void *hToken,
                 _TOKEN_PRIVILEGES *ptpOld)
 {
-    unsigned int cbOld; // [esp+8h] [ebp-18h] BYREF
+    unsigned long cbOld; // [esp+8h] [ebp-18h] BYREF
     _TOKEN_PRIVILEGES tp; // [esp+Ch] [ebp-14h] BYREF
     int bOk; // [esp+1Ch] [ebp-4h]
 
@@ -100,14 +118,18 @@ bool __thiscall miniDumper::enablePrivilege(
     return bOk && GetLastError() != 1300;
 }
 
-bool __thiscall miniDumper::restorePrivilege(miniDumper *this, void *hToken, _TOKEN_PRIVILEGES *ptpOld)
+bool miniDumper::restorePrivilege(void *hToken, _TOKEN_PRIVILEGES *ptpOld)
 {
     return AdjustTokenPrivileges(hToken, 0, ptpOld, 0, 0, 0) && GetLastError() != 1300;
 }
 
-int __thiscall miniDumper::writeMiniDump(miniDumper *this, _EXCEPTION_POINTERS *pExceptionInfo)
+int miniDumper::writeMiniDump(_EXCEPTION_POINTERS *pExceptionInfo)
 {
-    int v3; // eax
+    return 0;
+
+    // LWSS: do I look like I care about minidumps in an open src project? no, not at the moment
+#if 0
+    char *v3; // eax
     HANDLE CurrentProcess; // eax
     unsigned intv5; // eax
     unsigned intLastError; // eax
@@ -144,7 +166,7 @@ int __thiscall miniDumper::writeMiniDump(miniDumper *this, _EXCEPTION_POINTERS *
     hModule = 0;
     if ( GetModuleFileNameA(0, this->m_szAppPath, 0x104u) )
     {
-        strrchr((unsigned __int8 *)this->m_szAppPath, 0x5Cu);
+        v3 = strrchr(this->m_szAppPath, 0x5Cu);
         v26 = v3;
         if ( v3 )
         {
@@ -253,5 +275,6 @@ int __thiscall miniDumper::writeMiniDump(miniDumper *this, _EXCEPTION_POINTERS *
     v7 = GetCurrentProcess();
     TerminateProcess(v7, 0);
     return v31;
+#endif
 }
 

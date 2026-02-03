@@ -1,4 +1,5 @@
 #include "win_libspeex_misc.h"
+#include <universal/com_memory.h>
 
 unsigned int *__cdecl speex_alloc(int size)
 {

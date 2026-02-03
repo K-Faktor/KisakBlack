@@ -42,7 +42,7 @@
 
 int time;
 bool assets_released;
-BOOL g_showCursor;
+bool g_showCursor;
 const float MY_OFFSETS[4][2] = { { -1.0, -1.0 }, { -1.0, 1.0 }, { 1.0, -1.0 }, { 1.0, 1.0 } };
 
 void(__cdecl *const RB_RenderCommandTable[29])(GfxRenderCommandExecState *) =

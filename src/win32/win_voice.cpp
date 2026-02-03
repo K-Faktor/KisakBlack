@@ -1,4 +1,33 @@
 #include "win_voice.h"
+#include <qcommon/common.h>
+#include <Windows.h>
+#include <cstring>
+#include <groupvoice/encode.h>
+#include <groupvoice/record.h>
+#include <groupvoice/decode.h>
+#include <groupvoice/play.h>
+#include <client/cl_main.h>
+#include "win_shared.h"
+#include <live/live_sessions_win.h>
+
+const dvar_t *winvoice_mic_mute;
+const dvar_t *winvoice_mic_reclevel;
+const dvar_t *winvoice_save_voice;
+const dvar_t *winvoice_mic_scaler;
+const dvar_t *AAAAAAAAAAAAAAAA;
+const dvar_t *AAAAAAAAAAAAAAAA;
+
+char old_rec_source[256];
+int mic_old_reclevel;
+int mic_current_reclevel;
+dsound_sample_t *s_clientSamples[32];
+int s_clientTalkTime[32];
+int g_voice_initialized;
+float levelSamples[6];
+int sampleCount;
+bool recording;
+float voice_current_scaler = 1.0f;
+
 
 bool __cdecl Voice_Init()
 {
@@ -119,6 +148,7 @@ int __cdecl Voice_GetLocalVoiceData()
     return 0;
 }
 
+bool playing;
 void __cdecl Voice_IncomingVoiceData(unsigned __int8 talker, unsigned __int8 *data, int packetDataSize)
 {
     int v3; // [esp+0h] [ebp-201Ch]
@@ -184,6 +214,8 @@ bool __cdecl Voice_IsClientTalking(unsigned int clientNum)
     return (int)(Sys_Milliseconds() - s_clientTalkTime[clientNum]) < 300;
 }
 
+dsound_sample_t *currentRecordingSample;
+int count_0;
 char __cdecl Voice_StartRecording()
 {
     if ( !recording )
@@ -331,7 +363,7 @@ int __cdecl mixerGetRecordSource(char *srcName)
     int iNumChannels; // [esp+24h] [ebp-E0h]
     int iMultipleItems; // [esp+28h] [ebp-DCh]
     HMIXER__ *phmx; // [esp+2Ch] [ebp-D8h] BYREF
-    tMIXERCONTROLDETAILS_boolEAN *lpListBool; // [esp+30h] [ebp-D4h]
+    tMIXERCONTROLDETAILS_BOOLEAN *lpListBool; // [esp+30h] [ebp-D4h]
     int ii; // [esp+34h] [ebp-D0h]
     tagMIXERCONTROLDETAILS_LISTTEXTA *lpListText; // [esp+38h] [ebp-CCh]
     tagMIXERLINEA mixerline; // [esp+3Ch] [ebp-C8h] BYREF
@@ -380,7 +412,7 @@ int __cdecl mixerGetRecordSource(char *srcName)
                 err = mixerGetControlDetailsA((HMIXEROBJ)phmx, &mxcd, 1u);
                 if ( !err )
                 {
-                    lpListBool = (tMIXERCONTROLDETAILS_boolEAN *)calloc(4 * iMultipleItems * iNumChannels, 1u);
+                    lpListBool = (tMIXERCONTROLDETAILS_BOOLEAN *)calloc(4 * iMultipleItems * iNumChannels, 1u);
                     mxcd.cbDetails = 4;
                     mxcd.paDetails = lpListBool;
                     err = mixerGetControlDetailsA((HMIXEROBJ)phmx, &mxcd, 0);
@@ -389,7 +421,7 @@ int __cdecl mixerGetRecordSource(char *srcName)
                         for ( jj = 0; jj < iMultipleItems; ++jj )
                         {
                             if ( lpListBool[jj].fValue == 1 )
-                                strncpy((unsigned __int8 *)srcName, (unsigned __int8 *)lpListText[jj].szName, 0xFFu);
+                                strncpy(srcName, lpListText[jj].szName, 0xFFu);
                         }
                         if ( lpmxc )
                             free(lpmxc);
@@ -426,7 +458,7 @@ int __cdecl mixerSetRecordSource(char *SrcName)
     int iNumChannels; // [esp+20h] [ebp-E0h]
     int iMultipleItems; // [esp+24h] [ebp-DCh]
     HMIXER__ *phmx; // [esp+28h] [ebp-D8h] BYREF
-    tMIXERCONTROLDETAILS_boolEAN *lpListBool; // [esp+2Ch] [ebp-D4h]
+    tMIXERCONTROLDETAILS_BOOLEAN *lpListBool; // [esp+2Ch] [ebp-D4h]
     int ii; // [esp+30h] [ebp-D0h]
     tagMIXERCONTROLDETAILS_LISTTEXTA *lpListText; // [esp+34h] [ebp-CCh]
     tagMIXERLINEA mixerline; // [esp+38h] [ebp-C8h] BYREF
@@ -475,7 +507,7 @@ int __cdecl mixerSetRecordSource(char *SrcName)
                 err = mixerGetControlDetailsA((HMIXEROBJ)phmx, &mxcd, 1u);
                 if ( !err )
                 {
-                    lpListBool = (tMIXERCONTROLDETAILS_boolEAN *)calloc(4 * iMultipleItems * iNumChannels, 1u);
+                    lpListBool = (tMIXERCONTROLDETAILS_BOOLEAN *)calloc(4 * iMultipleItems * iNumChannels, 1u);
                     mxcd.cbDetails = 4;
                     mxcd.paDetails = lpListBool;
                     err = mixerGetControlDetailsA((HMIXEROBJ)phmx, &mxcd, 0);
@@ -525,7 +557,7 @@ int __cdecl mixerSetMicrophoneMute(unsigned __int8 bMute)
     HMIXER__ *phmx; // [esp+B8h] [ebp-D0h] BYREF
     unsigned int ii; // [esp+BCh] [ebp-CCh]
     tagMIXERLINEA mixerline; // [esp+C0h] [ebp-C8h] BYREF
-    tMIXERCONTROLDETAILS_boolEAN newSetting; // [esp+16Ch] [ebp-1Ch] BYREF
+    tMIXERCONTROLDETAILS_BOOLEAN newSetting; // [esp+16Ch] [ebp-1Ch] BYREF
     tMIXERCONTROLDETAILS mxcd; // [esp+170h] [ebp-18h] BYREF
 
     if ( !waveInGetNumDevs() )

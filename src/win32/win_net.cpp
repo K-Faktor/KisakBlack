@@ -1,13 +1,58 @@
 #include "win_net.h"
+#include <universal/q_shared.h>
+#include <qcommon/net_chan_mp.h>
+#include <game_mp/g_main_mp.h>
+#include "win_shared.h"
+#include <qcommon/threads.h>
+#include <DW/dwNet.h>
+#include <DemonWare/bdCore/bdSocket/bdAddr.h>
+#include <clientscript/cscr_debugger.h>
+#include <universal/com_memory.h>
 
-void __cdecl NET_Sleep(unsigned intmsec)
+const dvar_t *ip;
+const dvar_t *port;
+
+const dvar_t *net_noudp;
+const dvar_t *net_socksEnabled;
+const dvar_t *net_socksServer;
+const dvar_t *net_socksPort;
+const dvar_t *net_socksUsername;
+const dvar_t *net_socksPassword;
+
+unsigned int ip_debugSocket[2];
+
+int numIP;
+unsigned __int8 localIP[16][4];
+unsigned __int8 g_debugPacket[1][8192];
+
+int g_debugServer;
+SOCKET ip_socket;
+SOCKET socks_socket;
+int cl_nat_overflow_detected;
+socketpool_t poolsockets[50];
+int cl_socketpool_lastpacket_time;
+int networkingEnabled;
+int g_debugClient;
+
+WSAData winsockdata;
+unsigned int ip_debugServerSocket[2];
+int sys_debugMessageType[1];
+int g_debugPacketPos[1];
+char *g_debugReadBytes;
+int g_debugReadBytesSent;
+int g_debugWriteBytes;
+int g_debugReadBytesRemote;
+int winsockInitialized;
+
+
+void __cdecl NET_Sleep(unsigned int msec)
 {
     Sleep(msec);
 }
 
-char *__cdecl NET_ErrorString()
+const char *__cdecl NET_ErrorString()
 {
-    char *result; // eax
+    const char *result; // eax
     int Error; // [esp+0h] [ebp-8h]
 
     Error = WSAGetLastError();
@@ -340,36 +385,40 @@ int __cdecl dwPlatformInit(bdNetStartParams *params)
     }
     if ( hostInfo->h_addrtype != 2 )
         return -1;
-    bdInetAddr::bdInetAddr(&bindAddr);
+    //bdInetAddr::bdInetAddr(&bindAddr);
     if ( ip && I_strcmp(ip->current.string, "localhost") )
     {
         params->m_useAnyIP = 0;
-        bdInetAddr::bdInetAddr(&forceAddr, (char *)ip->current.integer);
+        //bdInetAddr::bdInetAddr(&forceAddr, (char *)ip->current.integer);
         bindAddr = forceAddr;
-        bdInetAddr::~bdInetAddr(&forceAddr);
+        //bdInetAddr::~bdInetAddr(&forceAddr);
     }
     if ( port && port->current.integer )
         params->m_gamePort = port->current.unsignedInt;
-    if ( !bdInetAddr::isValid(&bindAddr) )
+    //if ( !bdInetAddr::isValid(&bindAddr) )
+    if ( !bindAddr.isValid() )
     {
         v4 = **(unsigned int **)hostInfo->h_addr_list;
-        bdInetAddr::bdInetAddr(&firstAddr, v4);
+        //bdInetAddr::bdInetAddr(&firstAddr, v4);
         bindAddr = firstAddr;
-        bdInetAddr::~bdInetAddr(&firstAddr);
+        //bdInetAddr::~bdInetAddr(&firstAddr);
     }
-    if ( !bdInetAddr::isValid(&bindAddr)
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\win32\\win_net.cpp", 1167, 0, "%s", "bindAddr.isValid()") )
-    {
-        __debugbreak();
-    }
-    if ( bdInetAddr::isValid(&bindAddr) )
+
+    //if ( !bdInetAddr::isValid(&bindAddr)
+    //    && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\win32\\win_net.cpp", 1167, 0, "%s", "bindAddr.isValid()") )
+    //{
+    //    __debugbreak();
+    //}
+    
+    //if ( bdInetAddr::isValid(&bindAddr) )
+    if ( bindAddr.isValid() )
     {
         memset(addrString, 0, sizeof(addrString));
         bdInetAddr::toString(&bindAddr, addrString, 0x10u);
         Com_Printf(0, "Binding to %s:%u\n", addrString, params->m_gamePort);
         bdArray<bdInetAddr>::pushBack(&params->m_localAddresses, &bindAddr);
     }
-    bdInetAddr::~bdInetAddr(&bindAddr);
+    //bdInetAddr::~bdInetAddr(&bindAddr);
     return 0;
 }
 
@@ -511,6 +560,7 @@ void __cdecl NET_Config(int enableNetworking)
     }
 }
 
+
 bool __cdecl NET_GetDvars()
 {
     bool modified; // [esp+0h] [ebp-4h]
@@ -556,6 +606,8 @@ void __cdecl NET_InitDebug()
     g_debugServer = 0;
     NET_InitDebugStreams();
 }
+
+
 
 int NET_InitDebugStreams()
 {
@@ -615,7 +667,7 @@ void __cdecl Sys_Listen_f()
             Com_Error(ERR_DROP, "Net connection already started");
         for ( i = 0; i < 2; ++i )
         {
-            ip_debugServerSocket[i] = NET_TCPIPSocket("127.0.0.1", i + 28970, 0);
+            ip_debugServerSocket[i] = NET_TCPIPSocket((char*)"127.0.0.1", i + 28970, 0);
             if ( !ip_debugServerSocket[i] )
             {
                 Sys_DebugSocketError("Sys_Listen_f: failed to connect");
@@ -777,7 +829,7 @@ int __cdecl Sys_IsRemoteDebugClient()
 
 void __cdecl Sys_Connect_f()
 {
-    char *v0; // [esp+0h] [ebp-1Ch]
+    const char *v0; // [esp+0h] [ebp-1Ch]
     int i; // [esp+18h] [ebp-4h]
 
     if ( g_debugClient || g_debugServer )
@@ -792,7 +844,7 @@ void __cdecl Sys_Connect_f()
             v0 = (char *)Cmd_Argv(1);
         for ( i = 0; i < 2; ++i )
         {
-            ip_debugSocket[i] = NET_TCPIPSocket(v0, i + 28970, 1);
+            ip_debugSocket[i] = NET_TCPIPSocket((char *)v0, i + 28970, 1);
             if ( !ip_debugSocket[i] )
             {
                 Sys_DebugSocketError("Sys_Connect_f: failed to connect");
@@ -831,7 +883,7 @@ void __cdecl NET_ShutdownDebug()
             ip_debugServerSocket[i] = 0;
         }
     }
-    if ( Sys_IsRemoteDebugClient() )
+    //if ( Sys_IsRemoteDebugClient() )
         //BLOPS_NULLSUB();
 }
 

@@ -32,3 +32,5 @@ void __cdecl Record_Frame();
 int __cdecl Record_Init();
 
 extern int(__cdecl *current_audioCallback)(audioSample_t *);
+
+extern float voice_current_voicelevel;

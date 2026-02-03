@@ -1,5 +1,21 @@
 #pragma once
 
+#include <Windows.h>
+
+struct __declspec(align(4)) WinMouseVars_t // sizeof=0x10
+{                                       // XREF: .data:s_wmv/r
+    int oldButtonState;                 // XREF: IN_MouseEvent(int)+16/r
+                                        // IN_MouseEvent(int)+89/w
+    tagPOINT oldPos;                    // XREF: IN_SetCursorPos(int,int)+33/w
+                                        // IN_SetCursorPos(int,int)+3B/w ...
+    bool mouseActive;                   // XREF: IN_ActivateMouse(int)+4C/w
+                                        // IN_ActivateMouse(int)+5B/r ...
+    bool mouseInitialized;              // XREF: IN_ActivateMouse(int)+3/r
+                                        // IN_DeactivateMouse(void)+3/r ...
+    // padding byte
+    // padding byte
+};
+
 void __cdecl IN_StartupGamepads();
 void __cdecl IN_RecenterMouse();
 bool __cdecl IN_IsForegroundWindow();

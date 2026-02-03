@@ -1,5 +1,10 @@
 #include "win_configure.h"
 
+#include <Windows.h>
+#include "win_localize.h"
+#include "win_main.h"
+#include <d3d9.h>
+
 int __cdecl Sys_SystemMemoryMB()
 {
     HWND ActiveWindow; // eax
@@ -22,7 +27,7 @@ int __cdecl Sys_SystemMemoryMB()
     {
         statusEx.dwLength = 64;
         MemStatEx(&statusEx);
-        if ( statusEx.ullAvailVirtual < (unsigned int)&g_hunk_track[370327].name[64] )
+        if (statusEx.ullAvailVirtual < 0x8000000)
         {
             v5 = Win_LocalizeRef("WIN_LOW_MEMORY_TITLE");
             v3 = Win_LocalizeRef("WIN_LOW_MEMORY_BODY");
@@ -43,7 +48,7 @@ int __cdecl Sys_SystemMemoryMB()
     {
         status.dwLength = 32;
         GlobalMemoryStatus(&status);
-        if ( status.dwAvailVirtual < (unsigned int)&g_hunk_track[370327].name[64] )
+        if (status.dwAvailVirtual < 0x8000000)
         {
             v6 = Win_LocalizeRef("WIN_LOW_MEMORY_TITLE");
             v4 = Win_LocalizeRef("WIN_LOW_MEMORY_BODY");
@@ -85,7 +90,7 @@ void __cdecl Sys_DetectVideoCard(int descLimit, char *description)
     d3d9 = Direct3DCreate9(0x20u);
     if ( d3d9 )
     {
-        if ( d3d9->GetAdapterIdentifier(d3d9, 0, 0, &id) >= 0 )
+        if ( d3d9->GetAdapterIdentifier(0, 0, &id) >= 0 )
         {
             v4 = id.Description;
             v3 = description;
@@ -96,12 +101,14 @@ void __cdecl Sys_DetectVideoCard(int descLimit, char *description)
             }
             while ( v2 );
         }
-        ((void (__thiscall *)(IDirect3D9 *, IDirect3D9 *))d3d9->Release)(d3d9, d3d9);
+        //((void (__thiscall *)(IDirect3D9 *, IDirect3D9 *))d3d9->Release)(d3d9, d3d9);
+        d3d9->Release();
     }
 }
 
 void __cdecl Sys_DetectCpuVendorAndName(char *vendor, char *name)
 {
+#if 0
     bool v12; // cf
     bool v13; // cf
     unsigned int v29[5]; // [esp+0h] [ebp-90h] BYREF
@@ -227,6 +234,10 @@ LABEL_18:
             strcpy(name, "Unknown Intel CPU");
         }
     }
+#endif
+    // KISAKTODO?
+    strcpy(name, "KisakTech KT-6500 (Black Edition)");
+    strcpy(vendor, "SwagHardware");
 }
 
 void __cdecl Sys_CopyCpuidString(char *dest, const char *source, unsigned int maxLen)
@@ -244,9 +255,10 @@ void __cdecl Sys_CopyCpuidString(char *dest, const char *source, unsigned int ma
 
 bool __cdecl Sys_SupportsSSE()
 {
-    _EAX = 1;
-    __asm { cpuid }
-    return ((unsigned int)&cls.wagerServers[5331].basictraining & _EDX) != 0;
+    return true;
+    //_EAX = 1;
+    //__asm { cpuid }
+    //return ((unsigned int)&cls.wagerServers[5331].basictraining & _EDX) != 0;
 }
 
 void __cdecl Sys_SetAutoConfigureGHz(SysInfo *sysInfo)
@@ -271,17 +283,18 @@ void __cdecl Sys_SetAutoConfigureGHz(SysInfo *sysInfo)
     }
     else if ( sysInfo->physicalCpuCount == 2 )
     {
-        multiCpuFactor = DOUBLE_1_75;
+        multiCpuFactor = 1.75;
     }
     else
     {
-        multiCpuFactor = DOUBLE_2_0;
+        multiCpuFactor = 2.0;
     }
     sysInfo->configureGHz = Sys_BenchmarkGHz() * multiCpuFactor;
 }
 
 void __cdecl Sys_GetPhysicalCpuCount(SysInfo *sysInfo)
 {
+#if 0
     bool v1; // cf
     int v8; // eax
     unsigned int v14[5]; // [esp+0h] [ebp-E8h] BYREF
@@ -422,6 +435,8 @@ LABEL_8:
             }
         }
     }
+#endif
+    // KISAKTODO?
 }
 
 unsigned int __cdecl Sys_AddApicIdIfUnique(
@@ -453,6 +468,8 @@ unsigned int __cdecl Sys_AddApicIdIfUnique(
 
 long double __cdecl Sys_BenchmarkGHz()
 {
+    // KISAKTODO
+#if 0
     unsigned int i; // ecx
     unsigned __int64 v1; // kr00_8
     int holdrand; // [esp+10h] [ebp-68h]
@@ -492,5 +509,6 @@ long double __cdecl Sys_BenchmarkGHz()
     }
     SetThreadPriority(thread, priority);
     return 0.1010328 / ((double)minTime * msecPerRawTimerTick);
+#endif
 }
 

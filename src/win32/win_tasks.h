@@ -1,5 +1,8 @@
 #pragma once
 
+#include <DemonWare/bdCore/bdReference/bdReferencable.h>
+#include <live/live_storage.h>
+
 struct overlappedTask // sizeof=0x24
 {                                       // XREF: .data:overlappedIO/r
     bdReference<bdRemoteTask> overlappedIO;

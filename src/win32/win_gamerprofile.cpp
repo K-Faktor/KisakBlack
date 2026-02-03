@@ -2,6 +2,19 @@
 #include <universal/dvar.h>
 #include <universal/assertive.h>
 #include <stringed/stringed_hooks.h>
+#include <qcommon/com_clients.h>
+#include <cstring>
+#include <qcommon/cmd.h>
+#include <gfx_d3d/r_dvars.h>
+#include <sound/snd_dvar.h>
+#include <qcommon/common.h>
+#include "win_gamepad.h"
+#include <client_mp/cl_main_mp.h>
+#include <cgame_mp/cg_local_mp.h>
+
+// need live/live_win for more of this file
+
+GamerSettingState gamerSettings[1];
 
 void __cdecl ResetCreateAClassNames(int controllerIndex)
 {
@@ -98,9 +111,9 @@ void __cdecl GamerProfile_SetPlaylistNum(int controllerIndex, int playlistNum)
 
 void __cdecl GamerProfile_ExecControllerBindings(int controllerIndex)
 {
-    GamerSettingState *v1; // eax
+    char *v1; // eax
     char *v2; // eax
-    GamerSettingState *v3; // eax
+    char *v3; // eax
     char *v4; // eax
     int localClientNum; // [esp+4h] [ebp-4h]
 
@@ -120,8 +133,8 @@ void __cdecl GamerProfile_ExecControllerBindings(int controllerIndex)
     {
         if ( gamerSettings[controllerIndex].gpadButtonsConfig[0] )
         {
-            strstr((unsigned __int8 *)gamerSettings[controllerIndex].gpadButtonsConfig, "buttons_");
-            if ( v1 == (GamerSettingState *)gamerSettings[controllerIndex].gpadButtonsConfig )
+            v1 = strstr(gamerSettings[controllerIndex].gpadButtonsConfig, "buttons_");
+            if ( v1 == gamerSettings[controllerIndex].gpadButtonsConfig )
             {
                 v2 = va("exec %s\n", gamerSettings[controllerIndex].gpadButtonsConfig);
                 Cmd_ExecuteSingleCommand(localClientNum, controllerIndex, v2);
@@ -129,14 +142,14 @@ void __cdecl GamerProfile_ExecControllerBindings(int controllerIndex)
         }
         if ( gamerSettings[controllerIndex].gpadSticksConfig[0] )
         {
-            strstr((unsigned __int8 *)gamerSettings[controllerIndex].gpadSticksConfig, "thumbstick_");
-            if ( v3 == (GamerSettingState *)gamerSettings[controllerIndex].gpadSticksConfig )
+            v3 = strstr(gamerSettings[controllerIndex].gpadSticksConfig, "thumbstick_");
+            if ( v3 == gamerSettings[controllerIndex].gpadSticksConfig )
             {
                 v4 = va("exec %s\n", gamerSettings[controllerIndex].gpadSticksConfig);
                 Cmd_ExecuteSingleCommand(localClientNum, controllerIndex, v4);
             }
         }
-        Cmd_ExecuteSingleCommand(localClientNum, controllerIndex, "updatevehiclebindings");
+        Cmd_ExecuteSingleCommand(localClientNum, controllerIndex, (char*)"updatevehiclebindings");
     }
 }
 
