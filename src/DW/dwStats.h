@@ -1,4 +1,5 @@
 #pragma once
+#ifdef KISAK_DW
 #include <win32/win_tasks.h>
 #include <live/live_win.h>
 
@@ -33,3 +34,4 @@ taskCompleteResults __cdecl dwFetchPerformanceValuesComplete(
                 PlayerRank *playerRanks,
                 int *numPlayerRanks);
 taskCompleteResults __cdecl dwWritePerformanceStatsComplete(int controllerIndex, overlappedTask *const task);
+#endif

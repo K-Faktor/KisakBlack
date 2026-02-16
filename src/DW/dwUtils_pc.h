@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef KISAK_DW
+
 #include <Windows.h>
 #include <DemonWare/bdCore/bdSingleton.h>
 #include <universal/dvar.h>
@@ -37,3 +39,5 @@ void __cdecl Com_IntToGametype(char *gametype_out, unsigned int gametype_in);
 extern unsigned __int64 g_bdUserID;
 
 extern const dvar_t *cl_senddwchallenge;
+
+#endif

@@ -1,5 +1,8 @@
 #pragma once
+
+#ifdef KISAK_DW
 #include <live/live_storage.h>
+#include <demo/demo_common.h>
 
 enum bdLobbyErrorCode : __int32
 {                                       // XREF: bdLobbyConnection::Status/r
@@ -452,3 +455,5 @@ unsigned int __cdecl dwFileShareGetLastHTTPError(int localControllerIndex, fileS
 unsigned int __cdecl dwFileShareGetLastHTTPErrorPooled(int localControllerIndex);
 unsigned int __cdecl dwFileShareGetLastHTTPErrorUser(int localControllerIndex);
 TaskRecord *__cdecl dwFileShareSubmitRating(int localControllerIndex, dwFileShareSubmitRatingTask *const fsTask);
+
+#endif

@@ -1,3 +1,5 @@
+#ifdef KISAK_DW
+
 #include "MatchMakingInfo_win32.h"
 
 MatchMakingInfo::MatchMakingInfo() : bdMatchMakingInfo()
@@ -275,3 +277,5 @@ bool __thiscall MatchMakingInfo::doUpdate(
 #endif
 }
 
+
+#endif

@@ -1,4 +1,7 @@
 #pragma once
+
+#ifdef KISAK_DW
+
 #include <bgame/bg_public.h>
 #include <ddl/ddl_api.h>
 
@@ -108,3 +111,5 @@ char __cdecl MatchRecordSetPlayerStat(gclient_s *client, const char *statName, u
 void __cdecl MatchRecordMovement();
 void __cdecl Live_CheckOngoingMatchRecordingTasks();
 taskCompleteResults __cdecl MatchRecordEventComplete(int slot);
+
+#endif

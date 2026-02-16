@@ -74,34 +74,43 @@ struct bdLobbyConnectionListener // sizeof=0x4
     virtual void onDisconnect(bdReference<bdLobbyConnection>);
 };
 
+struct bdAuthInfo // sizeof=0xA0
+{                                       // XREF: bdAuthService/r
+                                        // bdLobbyService/r
+    unsigned int m_titleID;
+    unsigned int m_IVSeed;
+    char m_data[128];
+    unsigned __int8 m_sessionKey[24];
+};
+
 struct bdLobbyService : bdLobbyConnectionListener // sizeof=0x118
 {
-    bdRemoteTaskManager *m_taskManager;
-    bdProfiles *m_profiles;
-    bdMessaging *m_messaging;
-    bdMatchMaking *m_matchMaking;
-    bdStats *m_statsManager;
-    bdFriends *m_friendsManager;
+    struct bdRemoteTaskManager *m_taskManager;
+    struct bdProfiles *m_profiles;
+    struct bdMessaging *m_messaging;
+    struct bdMatchMaking *m_matchMaking;
+    struct bdStats *m_statsManager;
+    struct bdFriends *m_friendsManager;
     struct bdTeams *m_teamsManager;
-    bdStorage *m_storageManager;
+    struct bdStorage *m_storageManager;
     struct bdContentUnlock *m_contentUnlockManager;
-    bdTitleUtilities *m_titleUtilitiesManager;
-    bdKeyArchive *m_keyArchive;
-    bdCounter *m_counter;
-    bdGroup *m_group;
-    bdContentStreaming *m_contentStreamingManager;
-    bdPooledStorage *m_pooledStorageManager;
-    bdTags *m_tags;
-    bdVoteRank *m_voteRankManager;
+    struct bdTitleUtilities *m_titleUtilitiesManager;
+    struct bdKeyArchive *m_keyArchive;
+    struct bdCounter *m_counter;
+    struct bdGroup *m_group;
+    struct bdContentStreaming *m_contentStreamingManager;
+    struct bdPooledStorage *m_pooledStorageManager;
+    struct bdTags *m_tags;
+    struct bdVoteRank *m_voteRankManager;
     struct bdTwitter *m_twitter;
     struct bdFacebook *m_facebook;
     struct bdLinkCode *m_linkCode;
-    bdAntiCheat *m_antiCheat;
-    bdDML *m_DML;
+    struct bdAntiCheat *m_antiCheat;
+    struct bdDML *m_DML;
     struct bdCRUX *m_crux;
     struct bdActivityTracker *m_activityTracker;
     unsigned int m_titleID;
-    bdLobbyEventHandler *m_eventHandler;
+    struct bdLobbyEventHandler *m_eventHandler;
     bdReference<bdLobbyConnection> m_lobbyConnection;
     bdAuthInfo m_authInfo;
     bool m_encryptedConnection;

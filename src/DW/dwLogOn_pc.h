@@ -1,4 +1,6 @@
 #pragma once
+
+#ifdef KISAK_DW
 #include <DemonWare/bdLobbyService.h>
 
 enum sv_dedicatedauthState : __int32
@@ -45,3 +47,5 @@ void __cdecl DWDedicatedLobbyPump();
 bool Com_CanWriteLeaderboards(void *thisptr);
 bool __cdecl isOfficialServer(int licensetype);
 bool __cdecl isOfficialRentedServer(int licensetype);
+
+#endif

@@ -1,7 +1,10 @@
+#ifdef KISAK_DW
+
 #include "dwRecordEvent.h"
 
 void __cdecl dwRecordEvent(overlappedTask *const task, char *buff, unsigned int buffSize, unsigned int category)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v4; // [esp+20h] [ebp-18h] BYREF
     bdRemoteTask *remoteTask; // [esp+24h] [ebp-14h]
     unsigned __int64 userID; // [esp+28h] [ebp-10h] BYREF
@@ -27,10 +30,12 @@ void __cdecl dwRecordEvent(overlappedTask *const task, char *buff, unsigned int 
             Com_Printf(16, "Error occurred when uploading title data.\n");
         }
     }
+#endif
 }
 
 void __cdecl dwRecordEventAscii(overlappedTask *const task, char *buff, unsigned int buffSize, unsigned int category)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v4; // [esp+20h] [ebp-18h] BYREF
     bdRemoteTask *remoteTask; // [esp+24h] [ebp-14h]
     unsigned __int64 userID; // [esp+28h] [ebp-10h] BYREF
@@ -56,10 +61,12 @@ void __cdecl dwRecordEventAscii(overlappedTask *const task, char *buff, unsigned
             Com_Printf(16, "Error occurred when uploading title data.\n");
         }
     }
+#endif
 }
 
 void dwRecordEventFormat(overlappedTask *const task, unsigned int category, const char *fmt, ...)
 {
+#ifdef KISAK_DEMON
     char event[68]; // [esp+10h] [ebp-50h] BYREF
     unsigned int MAX_EVENT_LEN; // [esp+58h] [ebp-8h]
     char *args; // [esp+5Ch] [ebp-4h]
@@ -83,10 +90,12 @@ void dwRecordEventFormat(overlappedTask *const task, unsigned int category, cons
         dwClearTask();
     }
     dwRecordEventAscii(task, event, &event[strlen(event) + 1] - &event[1], category);
+#endif
 }
 
 taskCompleteResults __cdecl dwRecordEventComplete(overlappedTask *const task)
 {
+#ifdef KISAK_DEMON
     enum bdRemoteTask::bdStatus taskStatus; // [esp+Ch] [ebp-10h]
     taskCompleteResults status; // [esp+14h] [ebp-8h]
     enum bdLobbyErrorCode errorCode; // [esp+18h] [ebp-4h]
@@ -112,5 +121,10 @@ taskCompleteResults __cdecl dwRecordEventComplete(overlappedTask *const task)
         Com_Printf(16, "Failed to retrieve bdTitleUtilities for record event complete.\n");
     }
     return status;
+#else
+    return TASK_COMPLETE;
+#endif
 }
 
+
+#endif

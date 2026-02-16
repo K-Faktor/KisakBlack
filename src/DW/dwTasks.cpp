@@ -1,5 +1,8 @@
+#ifdef KISAK_DW
+
 #include "dwTasks.h"
 #include "dwUtils.h"
+#include <universal/assertive.h>
 
 void __cdecl dwClearTask()
 {
@@ -8,6 +11,7 @@ void __cdecl dwClearTask()
 
 int __cdecl dwGetTaskStatus(overlappedTask *const task)
 {
+#ifdef KISAK_DEMON
     enum bdRemoteTask::bdStatus taskStatus; // [esp+8h] [ebp-8h]
     taskCompleteResults status; // [esp+Ch] [ebp-4h]
 
@@ -21,5 +25,9 @@ int __cdecl dwGetTaskStatus(overlappedTask *const task)
         return dwTaskStatusConvert(taskStatus, BD_NO_ERROR);
     }
     return status;
+#else
+    return TASK_ERROR;
+#endif
 }
 
+#endif

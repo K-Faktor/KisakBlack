@@ -1,3 +1,5 @@
+#ifdef KISAK_DW
+
 #include "MatchMakingQueries_win32.h"
 
 MatchMaking_PC_QUICKMATCH_Query::MatchMaking_PC_QUICKMATCH_Query() : bdSessionParams()
@@ -66,3 +68,5 @@ void MatchMaking_PC_GEO_Query::serialize(bdByteBuffer *buffer)
 #endif
 }
 
+
+#endif

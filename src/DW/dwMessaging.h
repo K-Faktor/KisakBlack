@@ -1,5 +1,6 @@
 #pragma once
 
+#ifdef KISAK_DW
 TaskRecord *__cdecl dwMessaging_SendInstantMessage(
                 unsigned __int64 recipientID,
                 char *payload,
@@ -32,3 +33,4 @@ void __thiscall dwLobbyEventHandler::onNotifyLeave(
                 bdSessionID sessionID);
 void __thiscall dwLobbyEventHandler::onSessionInvite(dwLobbyEventHandler *this, bdSessionInvite *invite);
 void __thiscall dwLobbyEventHandler::onMultipleLogon(dwLobbyEventHandler *this, unsigned __int64 userID);
+#endif

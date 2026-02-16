@@ -1,7 +1,9 @@
+#ifdef KISAK_DW
 #include "dwMatchMaking.h"
 
 bdLANDiscoveryServer *__cdecl dwGetLanDiscoveryServer()
 {
+#ifdef KISAK_DEMON
     if ( (_S1_6 & 1) == 0 )
     {
         _S1_6 |= 1u;
@@ -9,6 +11,9 @@ bdLANDiscoveryServer *__cdecl dwGetLanDiscoveryServer()
         atexit(dwGetLanDiscoveryServer_::_2_::_dynamic_atexit_destructor_for__lanDiscoveryServer__);
     }
     return &lanDiscoveryServer;
+#else
+    return NULL;
+#endif
 }
 
 void __cdecl dwCreateLanSession()
@@ -809,240 +814,242 @@ TaskRecord *__cdecl dwFindSessionsPaged(int netCodeVersion, int servertype, bool
     return v9;
 }
 
-bdNetImpl *__cdecl bdSingleton<bdNetImpl>::getInstance()
-{
-    bool m_cleaningUp; // edx
-    bdNetImpl *v2; // [esp+4h] [ebp-6Ch]
-    void (__cdecl *value)(); // [esp+8h] [ebp-68h] BYREF
-    bdSingletonRegistryImpl *Instance; // [esp+Ch] [ebp-64h]
-    bool v5; // [esp+2Bh] [ebp-45h]
-    bdNetImpl *v6; // [esp+64h] [ebp-Ch]
-    bdNetImpl *v7; // [esp+68h] [ebp-8h]
-    bdNetImpl *v8; // [esp+6Ch] [ebp-4h]
-
-    if ( !bdSingleton<bdNetImpl>::m_instance )
-    {
-        v8 = (bdNetImpl *)bdMemory::allocate(0x4760u);
-        if ( v8 )
-            v2 = bdNetImpl::bdNetImpl(v8);
-        else
-            v2 = 0;
-        bdSingleton<bdNetImpl>::m_instance = v2;
-        if ( v2 )
-        {
-            value = bdSingleton<bdNetImpl>::destroyInstance;
-            Instance = bdSingleton<bdSingletonRegistryImpl>::getInstance();
-            m_cleaningUp = Instance->m_cleaningUp;
-            v5 = !m_cleaningUp;
-            if ( !m_cleaningUp )
-                bdFastArray<void (__cdecl *)(void)>::pushBack(&Instance->m_destroyFunctions, &value);
-            if ( !v5 )
-            {
-                v6 = bdSingleton<bdNetImpl>::m_instance;
-                v7 = bdSingleton<bdNetImpl>::m_instance;
-                if ( bdSingleton<bdNetImpl>::m_instance )
-                    ((void (__thiscall *)(bdNetImpl *, int))v7->~bdNetImpl)(v7, 1);
-                bdSingleton<bdNetImpl>::m_instance = 0;
-                DebugBreak();
-            }
-        }
-        else
-        {
-            DebugBreak();
-        }
-    }
-    return bdSingleton<bdNetImpl>::m_instance;
-}
-
-bdGameInfoFactoryImpl *__cdecl bdSingleton<bdGameInfoFactoryImpl>::getInstance()
-{
-    bdGameInfoFactoryImpl *v0; // eax
-    bool m_cleaningUp; // edx
-    bdGameInfoFactoryImpl *v3; // [esp+4h] [ebp-64h]
-    void (__cdecl *value)(); // [esp+8h] [ebp-60h] BYREF
-    bdSingletonRegistryImpl *Instance; // [esp+Ch] [ebp-5Ch]
-    bool v6; // [esp+2Bh] [ebp-3Dh]
-    bdGameInfoFactoryImpl *v7; // [esp+5Ch] [ebp-Ch]
-    bdGameInfoFactoryImpl *v8; // [esp+60h] [ebp-8h]
-    void *v9; // [esp+64h] [ebp-4h]
-
-    if ( !bdSingleton<bdGameInfoFactoryImpl>::m_instance )
-    {
-        v9 = bdMemory::allocate(4u);
-        if ( v9 )
-        {
-            bdGameInfoFactoryImpl::bdGameInfoFactoryImpl(v9);
-            v3 = v0;
-        }
-        else
-        {
-            v3 = 0;
-        }
-        bdSingleton<bdGameInfoFactoryImpl>::m_instance = v3;
-        if ( v3 )
-        {
-            value = bdSingleton<bdGameInfoFactoryImpl>::destroyInstance;
-            Instance = bdSingleton<bdSingletonRegistryImpl>::getInstance();
-            m_cleaningUp = Instance->m_cleaningUp;
-            v6 = !m_cleaningUp;
-            if ( !m_cleaningUp )
-                bdFastArray<void (__cdecl *)(void)>::pushBack(&Instance->m_destroyFunctions, &value);
-            if ( !v6 )
-            {
-                v7 = bdSingleton<bdGameInfoFactoryImpl>::m_instance;
-                v8 = bdSingleton<bdGameInfoFactoryImpl>::m_instance;
-                if ( bdSingleton<bdGameInfoFactoryImpl>::m_instance )
-                {
-                    bdGameInfoFactoryImpl::~bdGameInfoFactoryImpl(v8);
-                    bdMemory::deallocate(v8);
-                }
-                bdSingleton<bdGameInfoFactoryImpl>::m_instance = 0;
-                DebugBreak();
-            }
-        }
-        else
-        {
-            DebugBreak();
-        }
-    }
-    return bdSingleton<bdGameInfoFactoryImpl>::m_instance;
-}
-
-void __thiscall bdCreatorBase<bdGameInfo>::~bdCreatorBase<bdGameInfo>(bdCreatorBase<bdGameInfo> *this)
-{
-    this->__vftable = (bdCreatorBase<bdGameInfo>_vtbl *)&bdCreatorBase<bdGameInfo>::`vftable';
-}
-
-void __thiscall bdCreator<bdGameInfo,bdGameInfo>::~bdCreator<bdGameInfo,bdGameInfo>(
-                bdCreator<bdGameInfo,bdGameInfo> *this)
-{
-    this->__vftable = (bdCreator<bdGameInfo,bdGameInfo>_vtbl *)&bdCreator<bdGameInfo,bdGameInfo>::`vftable';
-    bdCreatorBase<bdGameInfo>::~bdCreatorBase<bdGameInfo>(this);
-}
-
-bdGameInfo *__thiscall bdCreator<bdGameInfo,bdGameInfo>::create(bdCreator<bdGameInfo,bdGameInfo> *this)
-{
-    bdGameInfo *v3; // [esp+8h] [ebp-4h]
-
-    v3 = (bdGameInfo *)bdMemory::allocate(0x28u);
-    if ( v3 )
-        return bdGameInfo::bdGameInfo(v3);
-    else
-        return 0;
-}
-
-unsigned int __thiscall bdCreator<bdGameInfo,bdGameInfo>::getSizeOf(bdCreator<bdGameInfo,bdGameInfo> *this)
-{
-    return 40;
-}
-
-void __thiscall bdArray<bdReference<bdGameInfo>>::clear(bdArray<bdReference<bdGameInfo> > *this)
-{
-    unsigned int m_size; // [esp+8h] [ebp-1Ch]
-    bdReference<bdGameInfo> *m_data; // [esp+Ch] [ebp-18h]
-    unsigned int i; // [esp+20h] [ebp-4h]
-
-    m_size = this->m_size;
-    m_data = this->m_data;
-    for ( i = 0; i < m_size; ++i )
-        bdReference<bdRemoteTask>::~bdReference<bdRemoteTask>((bdReference<bdCommonAddr> *)&m_data[i]);
-    bdMemory::deallocate(this->m_data);
-    this->m_data = 0;
-    this->m_size = 0;
-    this->m_capacity = 0;
-}
-
-void __thiscall bdArray<bdReference<bdGameInfo>>::pushBack(
-                bdArray<bdReference<bdGameInfo> > *this,
-                const bdReference<bdGameInfo> *value)
-{
-    bdReference<bdGameInfo> *v3; // [esp+14h] [ebp-40h]
-
-    if ( this->m_size == this->m_capacity )
-        bdArray<bdReference<bdGameInfo>>::increaseCapacity(this, 1u);
-    v3 = &this->m_data[this->m_size];
-    if ( v3 )
-    {
-        v3->m_ptr = value->m_ptr;
-        if ( v3->m_ptr )
-            InterlockedIncrement(&v3->m_ptr->m_refCount);
-    }
-    ++this->m_size;
-}
-
-void bdSingleton<bdNetImpl>::destroyInstance()
-{
-    if ( bdSingleton<bdNetImpl>::m_instance )
-    {
-        ((void (__thiscall *)(bdNetImpl *, int))bdSingleton<bdNetImpl>::m_instance->~bdNetImpl)(
-            bdSingleton<bdNetImpl>::m_instance,
-            1);
-        bdSingleton<bdNetImpl>::m_instance = 0;
-    }
-}
-
-void bdSingleton<bdGameInfoFactoryImpl>::destroyInstance()
-{
-    bdGameInfoFactoryImpl *v0; // [esp+8h] [ebp-4h]
-
-    if ( bdSingleton<bdGameInfoFactoryImpl>::m_instance )
-    {
-        v0 = bdSingleton<bdGameInfoFactoryImpl>::m_instance;
-        bdGameInfoFactoryImpl::~bdGameInfoFactoryImpl(bdSingleton<bdGameInfoFactoryImpl>::m_instance);
-        bdMemory::deallocate(v0);
-        bdSingleton<bdGameInfoFactoryImpl>::m_instance = 0;
-    }
-}
-
-void __thiscall bdArray<bdReference<bdGameInfo>>::increaseCapacity(
-                bdArray<bdReference<bdGameInfo> > *this,
-                unsigned int increase)
-{
-    unsigned int m_capacity; // [esp+0h] [ebp-44h]
-    unsigned int m_size; // [esp+Ch] [ebp-38h]
-    bdReference<bdGameInfo> *m_data; // [esp+10h] [ebp-34h]
-    unsigned int i; // [esp+24h] [ebp-20h]
-    bdReference<bdGameInfo> *newData; // [esp+3Ch] [ebp-8h]
-    unsigned int newCapacity; // [esp+40h] [ebp-4h]
-
-    if ( increase <= this->m_capacity )
-        m_capacity = this->m_capacity;
-    else
-        m_capacity = increase;
-    newCapacity = m_capacity + this->m_capacity;
-    newData = 0;
-    if ( newCapacity )
-    {
-        newData = (bdReference<bdGameInfo> *)bdMemory::allocate(4 * newCapacity);
-        bdArray<bdReference<bdGameInfo>>::copyConstructArrayArray(this, newData, this->m_data, this->m_size);
-    }
-    m_size = this->m_size;
-    m_data = this->m_data;
-    for ( i = 0; i < m_size; ++i )
-        bdReference<bdRemoteTask>::~bdReference<bdRemoteTask>((bdReference<bdCommonAddr> *)&m_data[i]);
-    bdMemory::deallocate(this->m_data);
-    this->m_data = newData;
-    this->m_capacity = newCapacity;
-}
-
-void __thiscall bdArray<bdReference<bdGameInfo>>::copyConstructArrayArray(
-                bdArray<bdReference<bdGameInfo> > *this,
-                bdReference<bdGameInfo> *dest,
-                const bdReference<bdGameInfo> *src,
-                unsigned int n)
-{
-    bdReference<bdGameInfo> *v4; // [esp+10h] [ebp-10h]
-    unsigned int i; // [esp+1Ch] [ebp-4h]
-
-    for ( i = 0; i < n; ++i )
-    {
-        v4 = &dest[i];
-        if ( v4 )
-        {
-            v4->m_ptr = (bdGameInfo *)src[i];
-            if ( v4->m_ptr )
-                InterlockedIncrement(&v4->m_ptr->m_refCount);
-        }
-    }
-}
-
+//bdNetImpl *__cdecl bdSingleton<bdNetImpl>::getInstance()
+//{
+//    bool m_cleaningUp; // edx
+//    bdNetImpl *v2; // [esp+4h] [ebp-6Ch]
+//    void (__cdecl *value)(); // [esp+8h] [ebp-68h] BYREF
+//    bdSingletonRegistryImpl *Instance; // [esp+Ch] [ebp-64h]
+//    bool v5; // [esp+2Bh] [ebp-45h]
+//    bdNetImpl *v6; // [esp+64h] [ebp-Ch]
+//    bdNetImpl *v7; // [esp+68h] [ebp-8h]
+//    bdNetImpl *v8; // [esp+6Ch] [ebp-4h]
+//
+//    if ( !bdSingleton<bdNetImpl>::m_instance )
+//    {
+//        v8 = (bdNetImpl *)bdMemory::allocate(0x4760u);
+//        if ( v8 )
+//            v2 = bdNetImpl::bdNetImpl(v8);
+//        else
+//            v2 = 0;
+//        bdSingleton<bdNetImpl>::m_instance = v2;
+//        if ( v2 )
+//        {
+//            value = bdSingleton<bdNetImpl>::destroyInstance;
+//            Instance = bdSingleton<bdSingletonRegistryImpl>::getInstance();
+//            m_cleaningUp = Instance->m_cleaningUp;
+//            v5 = !m_cleaningUp;
+//            if ( !m_cleaningUp )
+//                bdFastArray<void (__cdecl *)(void)>::pushBack(&Instance->m_destroyFunctions, &value);
+//            if ( !v5 )
+//            {
+//                v6 = bdSingleton<bdNetImpl>::m_instance;
+//                v7 = bdSingleton<bdNetImpl>::m_instance;
+//                if ( bdSingleton<bdNetImpl>::m_instance )
+//                    ((void (__thiscall *)(bdNetImpl *, int))v7->~bdNetImpl)(v7, 1);
+//                bdSingleton<bdNetImpl>::m_instance = 0;
+//                DebugBreak();
+//            }
+//        }
+//        else
+//        {
+//            DebugBreak();
+//        }
+//    }
+//    return bdSingleton<bdNetImpl>::m_instance;
+//}
+//
+//bdGameInfoFactoryImpl *__cdecl bdSingleton<bdGameInfoFactoryImpl>::getInstance()
+//{
+//    bdGameInfoFactoryImpl *v0; // eax
+//    bool m_cleaningUp; // edx
+//    bdGameInfoFactoryImpl *v3; // [esp+4h] [ebp-64h]
+//    void (__cdecl *value)(); // [esp+8h] [ebp-60h] BYREF
+//    bdSingletonRegistryImpl *Instance; // [esp+Ch] [ebp-5Ch]
+//    bool v6; // [esp+2Bh] [ebp-3Dh]
+//    bdGameInfoFactoryImpl *v7; // [esp+5Ch] [ebp-Ch]
+//    bdGameInfoFactoryImpl *v8; // [esp+60h] [ebp-8h]
+//    void *v9; // [esp+64h] [ebp-4h]
+//
+//    if ( !bdSingleton<bdGameInfoFactoryImpl>::m_instance )
+//    {
+//        v9 = bdMemory::allocate(4u);
+//        if ( v9 )
+//        {
+//            bdGameInfoFactoryImpl::bdGameInfoFactoryImpl(v9);
+//            v3 = v0;
+//        }
+//        else
+//        {
+//            v3 = 0;
+//        }
+//        bdSingleton<bdGameInfoFactoryImpl>::m_instance = v3;
+//        if ( v3 )
+//        {
+//            value = bdSingleton<bdGameInfoFactoryImpl>::destroyInstance;
+//            Instance = bdSingleton<bdSingletonRegistryImpl>::getInstance();
+//            m_cleaningUp = Instance->m_cleaningUp;
+//            v6 = !m_cleaningUp;
+//            if ( !m_cleaningUp )
+//                bdFastArray<void (__cdecl *)(void)>::pushBack(&Instance->m_destroyFunctions, &value);
+//            if ( !v6 )
+//            {
+//                v7 = bdSingleton<bdGameInfoFactoryImpl>::m_instance;
+//                v8 = bdSingleton<bdGameInfoFactoryImpl>::m_instance;
+//                if ( bdSingleton<bdGameInfoFactoryImpl>::m_instance )
+//                {
+//                    bdGameInfoFactoryImpl::~bdGameInfoFactoryImpl(v8);
+//                    bdMemory::deallocate(v8);
+//                }
+//                bdSingleton<bdGameInfoFactoryImpl>::m_instance = 0;
+//                DebugBreak();
+//            }
+//        }
+//        else
+//        {
+//            DebugBreak();
+//        }
+//    }
+//    return bdSingleton<bdGameInfoFactoryImpl>::m_instance;
+//}
+//
+//void __thiscall bdCreatorBase<bdGameInfo>::~bdCreatorBase<bdGameInfo>(bdCreatorBase<bdGameInfo> *this)
+//{
+//    this->__vftable = (bdCreatorBase<bdGameInfo>_vtbl *)&bdCreatorBase<bdGameInfo>::`vftable';
+//}
+//
+//void __thiscall bdCreator<bdGameInfo,bdGameInfo>::~bdCreator<bdGameInfo,bdGameInfo>(
+//                bdCreator<bdGameInfo,bdGameInfo> *this)
+//{
+//    this->__vftable = (bdCreator<bdGameInfo,bdGameInfo>_vtbl *)&bdCreator<bdGameInfo,bdGameInfo>::`vftable';
+//    bdCreatorBase<bdGameInfo>::~bdCreatorBase<bdGameInfo>(this);
+//}
+//
+//bdGameInfo *__thiscall bdCreator<bdGameInfo,bdGameInfo>::create(bdCreator<bdGameInfo,bdGameInfo> *this)
+//{
+//    bdGameInfo *v3; // [esp+8h] [ebp-4h]
+//
+//    v3 = (bdGameInfo *)bdMemory::allocate(0x28u);
+//    if ( v3 )
+//        return bdGameInfo::bdGameInfo(v3);
+//    else
+//        return 0;
+//}
+//
+//unsigned int __thiscall bdCreator<bdGameInfo,bdGameInfo>::getSizeOf(bdCreator<bdGameInfo,bdGameInfo> *this)
+//{
+//    return 40;
+//}
+//
+//void __thiscall bdArray<bdReference<bdGameInfo>>::clear(bdArray<bdReference<bdGameInfo> > *this)
+//{
+//    unsigned int m_size; // [esp+8h] [ebp-1Ch]
+//    bdReference<bdGameInfo> *m_data; // [esp+Ch] [ebp-18h]
+//    unsigned int i; // [esp+20h] [ebp-4h]
+//
+//    m_size = this->m_size;
+//    m_data = this->m_data;
+//    for ( i = 0; i < m_size; ++i )
+//        bdReference<bdRemoteTask>::~bdReference<bdRemoteTask>((bdReference<bdCommonAddr> *)&m_data[i]);
+//    bdMemory::deallocate(this->m_data);
+//    this->m_data = 0;
+//    this->m_size = 0;
+//    this->m_capacity = 0;
+//}
+//
+//void __thiscall bdArray<bdReference<bdGameInfo>>::pushBack(
+//                bdArray<bdReference<bdGameInfo> > *this,
+//                const bdReference<bdGameInfo> *value)
+//{
+//    bdReference<bdGameInfo> *v3; // [esp+14h] [ebp-40h]
+//
+//    if ( this->m_size == this->m_capacity )
+//        bdArray<bdReference<bdGameInfo>>::increaseCapacity(this, 1u);
+//    v3 = &this->m_data[this->m_size];
+//    if ( v3 )
+//    {
+//        v3->m_ptr = value->m_ptr;
+//        if ( v3->m_ptr )
+//            InterlockedIncrement(&v3->m_ptr->m_refCount);
+//    }
+//    ++this->m_size;
+//}
+//
+//void bdSingleton<bdNetImpl>::destroyInstance()
+//{
+//    if ( bdSingleton<bdNetImpl>::m_instance )
+//    {
+//        ((void (__thiscall *)(bdNetImpl *, int))bdSingleton<bdNetImpl>::m_instance->~bdNetImpl)(
+//            bdSingleton<bdNetImpl>::m_instance,
+//            1);
+//        bdSingleton<bdNetImpl>::m_instance = 0;
+//    }
+//}
+//
+//void bdSingleton<bdGameInfoFactoryImpl>::destroyInstance()
+//{
+//    bdGameInfoFactoryImpl *v0; // [esp+8h] [ebp-4h]
+//
+//    if ( bdSingleton<bdGameInfoFactoryImpl>::m_instance )
+//    {
+//        v0 = bdSingleton<bdGameInfoFactoryImpl>::m_instance;
+//        bdGameInfoFactoryImpl::~bdGameInfoFactoryImpl(bdSingleton<bdGameInfoFactoryImpl>::m_instance);
+//        bdMemory::deallocate(v0);
+//        bdSingleton<bdGameInfoFactoryImpl>::m_instance = 0;
+//    }
+//}
+//
+//void __thiscall bdArray<bdReference<bdGameInfo>>::increaseCapacity(
+//                bdArray<bdReference<bdGameInfo> > *this,
+//                unsigned int increase)
+//{
+//    unsigned int m_capacity; // [esp+0h] [ebp-44h]
+//    unsigned int m_size; // [esp+Ch] [ebp-38h]
+//    bdReference<bdGameInfo> *m_data; // [esp+10h] [ebp-34h]
+//    unsigned int i; // [esp+24h] [ebp-20h]
+//    bdReference<bdGameInfo> *newData; // [esp+3Ch] [ebp-8h]
+//    unsigned int newCapacity; // [esp+40h] [ebp-4h]
+//
+//    if ( increase <= this->m_capacity )
+//        m_capacity = this->m_capacity;
+//    else
+//        m_capacity = increase;
+//    newCapacity = m_capacity + this->m_capacity;
+//    newData = 0;
+//    if ( newCapacity )
+//    {
+//        newData = (bdReference<bdGameInfo> *)bdMemory::allocate(4 * newCapacity);
+//        bdArray<bdReference<bdGameInfo>>::copyConstructArrayArray(this, newData, this->m_data, this->m_size);
+//    }
+//    m_size = this->m_size;
+//    m_data = this->m_data;
+//    for ( i = 0; i < m_size; ++i )
+//        bdReference<bdRemoteTask>::~bdReference<bdRemoteTask>((bdReference<bdCommonAddr> *)&m_data[i]);
+//    bdMemory::deallocate(this->m_data);
+//    this->m_data = newData;
+//    this->m_capacity = newCapacity;
+//}
+//
+//void __thiscall bdArray<bdReference<bdGameInfo>>::copyConstructArrayArray(
+//                bdArray<bdReference<bdGameInfo> > *this,
+//                bdReference<bdGameInfo> *dest,
+//                const bdReference<bdGameInfo> *src,
+//                unsigned int n)
+//{
+//    bdReference<bdGameInfo> *v4; // [esp+10h] [ebp-10h]
+//    unsigned int i; // [esp+1Ch] [ebp-4h]
+//
+//    for ( i = 0; i < n; ++i )
+//    {
+//        v4 = &dest[i];
+//        if ( v4 )
+//        {
+//            v4->m_ptr = (bdGameInfo *)src[i];
+//            if ( v4->m_ptr )
+//                InterlockedIncrement(&v4->m_ptr->m_refCount);
+//        }
+//    }
+//}
+//
+//
+#endif

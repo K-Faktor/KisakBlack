@@ -1,36 +1,21 @@
+#ifdef KISAK_DW
+
 #include "dwQoS.h"
 
-dwQoSMultiProbeListener::dwQoSMultiProbeListener() : bdQoSProbeListener()
+dwQoSMultiProbeListener::dwQoSMultiProbeListener()
+    : bdQoSProbeListener()
+    , m_probeAddrs{}
+    , m_probeSucceeded{}
+    , m_numProbes(0)
+    , m_successes{}
+    , m_successIDs{}
+    , m_numSuccesses(0)
+    , m_numFailures(0)
 {
-    int v3; // [esp+4h] [ebp-18h]
-    bdSecurityID *k; // [esp+8h] [ebp-14h]
-    int v5; // [esp+Ch] [ebp-10h]
-    bdQoSProbeInfo *j; // [esp+10h] [ebp-Ch]
-    int v7; // [esp+14h] [ebp-8h]
-    bdQoSRemoteAddr *i; // [esp+18h] [ebp-4h]
-
-    //bdQoSProbeListener::bdQoSProbeListener(this);
-    //this->__vftable = (dwQoSMultiProbeListener_vtbl *)&dwQoSMultiProbeListener::`vftable';
-    //v7 = 500;
-    //for ( i = this->m_probeAddrs; --v7 >= 0; ++i )
-    //{
-    //    i->m_addr.m_ptr = 0;
-    //    bdSecurityID::bdSecurityID(&i->m_id);
-    //    bdSecurityKey::bdSecurityKey(&i->m_key);
-    //}
-    //v5 = 500;
-    //for ( j = this->m_successes; --v5 >= 0; ++j )
-    //{
-    //    j->m_addr.m_ptr = 0;
-    //    bdAddr::bdAddr(&j->m_realAddr);
-    //}
-    //v3 = 500;
-    //for ( k = this->m_successIDs; --v3 >= 0; ++k )
-    //    bdSecurityID::bdSecurityID(k);
-
-    dwQoSMultiProbeListener::clean();
-    //return this;
+    // Matches final call in decompiled constructor
+    clean();
 }
+
 
 
 //dwQoSMultiProbeListener::~dwQoSMultiProbeListener()
@@ -60,6 +45,7 @@ dwQoSMultiProbeListener::dwQoSMultiProbeListener() : bdQoSProbeListener()
 
 void __thiscall dwQoSMultiProbeListener::addProbe(bdQoSRemoteAddr addr)
 {
+#ifdef KISAK_DEMON
     int v2; // ecx
     bdQoSRemoteAddr *v4; // [esp+10h] [ebp-18h]
 
@@ -84,10 +70,12 @@ void __thiscall dwQoSMultiProbeListener::addProbe(bdQoSRemoteAddr addr)
         this->m_probeSucceeded[this->m_numProbes++] = 0;
     }
     bdReference<bdRemoteTask>::~bdReference<bdRemoteTask>(&addr.m_addr);
+#endif
 }
 
 void __thiscall dwQoSMultiProbeListener::onQoSProbeSuccess(const bdQoSProbeInfo *info)
 {
+#ifdef KISAK_DEMON
     int v2; // ecx
     unsigned int m_numSuccesses; // edx
     unsigned int i; // [esp+28h] [ebp-8h]
@@ -125,27 +113,12 @@ void __thiscall dwQoSMultiProbeListener::onQoSProbeSuccess(const bdQoSProbeInfo 
             }
         }
     }
+#endif
 }
 
-bdQoSProbeInfo *__thiscall bdQoSProbeInfo::operator=(bdQoSProbeInfo *this, const bdQoSProbeInfo *__that)
+void __thiscall dwQoSMultiProbeListener::onQoSProbeFail(bdReference<bdCommonAddr> addr)
 {
-    int v2; // eax
-
-    bdReference<bdCommonAddr>::operator=(&this->m_addr, &__that->m_addr);
-    v2 = *(unsigned int *)&__that->m_realAddr.m_port;
-    this->m_realAddr.m_address.m_addr.inUn.m_iaddr = __that->m_realAddr.m_address.m_addr.inUn.m_iaddr;
-    *(unsigned int *)&this->m_realAddr.m_port = v2;
-    this->m_latency = __that->m_latency;
-    this->m_data = __that->m_data;
-    this->m_dataSize = __that->m_dataSize;
-    this->m_disabled = __that->m_disabled;
-    this->m_bandwidthDown = __that->m_bandwidthDown;
-    this->m_bandwidthUp = __that->m_bandwidthUp;
-    return this;
-}
-
-void __thiscall dwQoSMultiProbeListener::onQoSProbeFail(dwQoSMultiProbeListener *this, bdReference<bdCommonAddr> addr)
-{
+#ifdef KISAK_DEMON
     if ( this->m_numSuccesses >= 0x1F4
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\Dw\\dwQoS.cpp",
@@ -158,10 +131,12 @@ void __thiscall dwQoSMultiProbeListener::onQoSProbeFail(dwQoSMultiProbeListener 
     }
     ++this->m_numFailures;
     bdReference<bdRemoteTask>::~bdReference<bdRemoteTask>(&addr);
+#endif
 }
 
-void __thiscall dwQoSMultiProbeListener::clean(dwQoSMultiProbeListener *this)
+void __thiscall dwQoSMultiProbeListener::clean()
 {
+#ifdef KISAK_DEMON
     unsigned int i; // [esp+24h] [ebp-4h]
 
     this->m_numProbes = 0;
@@ -176,9 +151,10 @@ void __thiscall dwQoSMultiProbeListener::clean(dwQoSMultiProbeListener *this)
     memset((unsigned __int8 *)this->m_successes, 0, sizeof(this->m_successes));
     memset(this->m_successIDs[0].ab, 0, 0xFA0u);
     memset(qos_data[0], 0, sizeof(qos_data));
+#endif
 }
 
-int __thiscall dwQoSMultiProbeListener::complete(dwQoSMultiProbeListener *this)
+int __thiscall dwQoSMultiProbeListener::complete()
 {
     taskCompleteResults complete; // [esp+4h] [ebp-4h]
 
@@ -190,18 +166,19 @@ int __thiscall dwQoSMultiProbeListener::complete(dwQoSMultiProbeListener *this)
     return complete;
 }
 
-bdQoSRemoteAddr *__thiscall bdQoSRemoteAddr::bdQoSRemoteAddr(bdQoSRemoteAddr *this, const bdQoSRemoteAddr *__that)
-{
-    this->m_addr.m_ptr = __that->m_addr.m_ptr;
-    if ( this->m_addr.m_ptr )
-        InterlockedIncrement(&this->m_addr.m_ptr->m_refCount);
-    bdSecurityID::bdSecurityID(&this->m_id, &__that->m_id);
-    bdSecurityKey::bdSecurityKey(&this->m_key, &__that->m_key);
-    return this;
-}
+//bdQoSRemoteAddr *__thiscall bdQoSRemoteAddr::bdQoSRemoteAddr(bdQoSRemoteAddr *this, const bdQoSRemoteAddr *__that)
+//{
+//    this->m_addr.m_ptr = __that->m_addr.m_ptr;
+//    if ( this->m_addr.m_ptr )
+//        InterlockedIncrement(&this->m_addr.m_ptr->m_refCount);
+//    bdSecurityID::bdSecurityID(&this->m_id, &__that->m_id);
+//    bdSecurityKey::bdSecurityKey(&this->m_key, &__that->m_key);
+//    return this;
+//}
 
 void __cdecl dwStartQoSProbes(dwQoSMultiProbeListener *listener, unsigned int numProbes, bdQoSRemoteAddr *serverAddrs)
 {
+#ifdef KISAK_DEMON
     bdQoSRemoteAddr v3; // [esp-1Ch] [ebp-3Ch] BYREF
     unsigned int i; // [esp+14h] [ebp-Ch]
     bdReference<bdCommonAddr> localAddr; // [esp+18h] [ebp-8h] BYREF
@@ -226,10 +203,12 @@ void __cdecl dwStartQoSProbes(dwQoSMultiProbeListener *listener, unsigned int nu
         }
     }
     bdReference<bdRemoteTask>::~bdReference<bdRemoteTask>(&localAddr);
+#endif
 }
 
 void __cdecl dwClearQoSProbes()
 {
+#ifdef KISAK_DEMON
     bdQoSProbe *qosProbe; // [esp+0h] [ebp-4h]
 
     if ( g_dwNetStatus == DW_NET_STARTED_ONLINE )
@@ -238,24 +217,27 @@ void __cdecl dwClearQoSProbes()
         if ( qosProbe )
             bdQoSProbe::cancelProbes(qosProbe);
     }
+#endif
 }
 
-void __thiscall bdReference<bdCommonAddr>::operator=(bdReference<bdRemoteTask> *this, bdRemoteTask *p)
-{
-    bdRemoteTask *m_ptr; // [esp+10h] [ebp-Ch]
+//void __thiscall bdReference<bdCommonAddr>::operator=(bdReference<bdRemoteTask> *this, bdRemoteTask *p)
+//{
+//    bdRemoteTask *m_ptr; // [esp+10h] [ebp-Ch]
+//
+//    if ( this->m_ptr )
+//    {
+//        m_ptr = this->m_ptr;
+//        InterlockedDecrement(&this->m_ptr->m_refCount);
+//        if ( !m_ptr->m_refCount )
+//        {
+//            if ( this->m_ptr )
+//                ((void (__thiscall *)(bdRemoteTask *, int))this->m_ptr->~bdRemoteTask)(this->m_ptr, 1);
+//        }
+//    }
+//    this->m_ptr = p;
+//    if ( this->m_ptr )
+//        InterlockedIncrement(&this->m_ptr->m_refCount);
+//}
+//
 
-    if ( this->m_ptr )
-    {
-        m_ptr = this->m_ptr;
-        InterlockedDecrement(&this->m_ptr->m_refCount);
-        if ( !m_ptr->m_refCount )
-        {
-            if ( this->m_ptr )
-                ((void (__thiscall *)(bdRemoteTask *, int))this->m_ptr->~bdRemoteTask)(this->m_ptr, 1);
-        }
-    }
-    this->m_ptr = p;
-    if ( this->m_ptr )
-        InterlockedIncrement(&this->m_ptr->m_refCount);
-}
-
+#endif

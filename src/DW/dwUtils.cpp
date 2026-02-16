@@ -1,7 +1,11 @@
+#ifdef KISAK_DW
+
 #include "dwUtils.h"
+#include <ui/ui_main.h>
 
 bdLobbyService *__cdecl dwGetLobby(int controllerIndex)
 {
+#ifdef KISAK_DEMON
     bdLobbyService *v2; // [esp+0h] [ebp-8h]
     bdLobbyService *v3; // [esp+4h] [ebp-4h]
 
@@ -16,10 +20,14 @@ bdLobbyService *__cdecl dwGetLobby(int controllerIndex)
         dwInitMessaging(controllerIndex);
     }
     return g_dwControllerData[controllerIndex].lobby;
+#else
+    return NULL;
+#endif
 }
 
 bdMatchMaking *__cdecl dwGetMatchmaking(int controllerIndex)
 {
+#ifdef KISAK_DEMON
     if ( !g_dwControllerData[controllerIndex].lobby
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\Dw\\dwUtils.cpp",
@@ -31,10 +39,14 @@ bdMatchMaking *__cdecl dwGetMatchmaking(int controllerIndex)
         __debugbreak();
     }
     return bdLobbyService::getMatchMaking(g_dwControllerData[controllerIndex].lobby);
+#else
+    return NULL;
+#endif
 }
 
 bdGroup *__cdecl dwGetGroup(int controllerIndex)
 {
+#ifdef KISAK_DEMON
     bdLobbyService *lobbyService; // [esp+0h] [ebp-8h]
     bdGroup *group; // [esp+4h] [ebp-4h]
 
@@ -43,10 +55,14 @@ bdGroup *__cdecl dwGetGroup(int controllerIndex)
     if ( lobbyService && bdLobbyService::getStatus(lobbyService) == BD_NOT_CONNECTED )
         return bdLobbyService::getGroup(lobbyService);
     return group;
+#else
+    return NULL;
+#endif
 }
 
 bdCounter *__cdecl dwGetCounter(int controllerIndex)
 {
+#ifdef KISAK_DEMON
     bdLobbyService *lobbyService; // [esp+0h] [ebp-8h]
     bdCounter *counter; // [esp+4h] [ebp-4h]
 
@@ -55,10 +71,14 @@ bdCounter *__cdecl dwGetCounter(int controllerIndex)
     if ( lobbyService && bdLobbyService::getStatus(lobbyService) == BD_NOT_CONNECTED )
         return bdLobbyService::getCounter(lobbyService);
     return counter;
+#else
+    return NULL;
+#endif
 }
 
 bdContentStreaming *__cdecl dwGetContentStreaming(int controllerIndex)
 {
+#ifdef KISAK_DEMON
     bdLobbyService *lobbyService; // [esp+0h] [ebp-8h]
     bdContentStreaming *contentStreaming; // [esp+4h] [ebp-4h]
 
@@ -75,10 +95,14 @@ bdContentStreaming *__cdecl dwGetContentStreaming(int controllerIndex)
         Com_PrintError(16, "Error retrieving the Demonware lobby.\n");
     }
     return contentStreaming;
+#else
+    return NULL;
+#endif
 }
 
 bdPooledStorage *__cdecl dwGetPooledStorage(int controllerIndex)
 {
+#ifdef KISAK_DEMON
     bdLobbyService *lobbyService; // [esp+0h] [ebp-8h]
     bdPooledStorage *pooledStorage; // [esp+4h] [ebp-4h]
 
@@ -95,10 +119,14 @@ bdPooledStorage *__cdecl dwGetPooledStorage(int controllerIndex)
         Com_PrintError(16, "Error retrieving the Demonware lobby.\n");
     }
     return pooledStorage;
+#else
+    return NULL;
+#endif
 }
 
 bdTags *__cdecl dwGetTagService(int controllerIndex)
 {
+#ifdef KISAK_DEMON
     if ( !g_dwControllerData[controllerIndex].lobby
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\Dw\\dwUtils.cpp",
@@ -110,10 +138,14 @@ bdTags *__cdecl dwGetTagService(int controllerIndex)
         __debugbreak();
     }
     return bdLobbyService::getTags(g_dwControllerData[controllerIndex].lobby);
+#else
+    return NULL;
+#endif
 }
 
 bdVoteRank *__cdecl dwGetVoteRankService(int controllerIndex)
 {
+#ifdef KISAK_DEMON
     if ( !g_dwControllerData[controllerIndex].lobby
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\Dw\\dwUtils.cpp",
@@ -125,10 +157,14 @@ bdVoteRank *__cdecl dwGetVoteRankService(int controllerIndex)
         __debugbreak();
     }
     return bdLobbyService::getVoteRank(g_dwControllerData[controllerIndex].lobby);
+#else
+    return NULL;
+#endif
 }
 
 bdStorage *__cdecl dwGetStorage(int controllerIndex)
 {
+#ifdef KISAK_DEMON
     bdLobbyService *lobbyService; // [esp+0h] [ebp-8h]
     bdStorage *storage; // [esp+4h] [ebp-4h]
 
@@ -137,10 +173,14 @@ bdStorage *__cdecl dwGetStorage(int controllerIndex)
     if ( lobbyService && bdLobbyService::getStatus(lobbyService) == BD_NOT_CONNECTED )
         return bdLobbyService::getStorage(lobbyService);
     return storage;
+#else
+    return NULL;
+#endif
 }
 
 bdStats *__cdecl dwGetStats(int controllerIndex)
 {
+#ifdef KISAK_DEMON
     bdLobbyService *lobbyService; // [esp+0h] [ebp-8h]
     bdStats *stats; // [esp+4h] [ebp-4h]
 
@@ -149,10 +189,14 @@ bdStats *__cdecl dwGetStats(int controllerIndex)
     if ( lobbyService )
         return bdLobbyService::getStats(lobbyService);
     return stats;
+#else
+    return NULL;
+#endif
 }
 
 bdSecurityKeyMap *__cdecl dwGetSecurityKeyMap()
 {
+#ifdef KISAK_DEMON
     bdSocketRouter *SocketRouter; // eax
     bdSecurityKeyMap *secKeyMap; // [esp+68h] [ebp-8h]
     bdNetImpl *net; // [esp+6Ch] [ebp-4h]
@@ -165,10 +209,14 @@ bdSecurityKeyMap *__cdecl dwGetSecurityKeyMap()
         return bdSocketRouter::getKeyMap(SocketRouter);
     }
     return secKeyMap;
+#else
+    return NULL;
+#endif
 }
 
 bdSocketRouter *__cdecl dwGetSocketRouter()
 {
+#ifdef KISAK_DEMON
     bdNetImpl *net; // [esp+68h] [ebp-8h]
     bdSocketRouter *socketRouter; // [esp+6Ch] [ebp-4h]
 
@@ -177,10 +225,14 @@ bdSocketRouter *__cdecl dwGetSocketRouter()
     if ( net )
         return bdNetImpl::getSocketRouter(net);
     return socketRouter;
+#else
+    return NULL;
+#endif
 }
 
 bdAddressMap *__cdecl dwGetAddressMap()
 {
+#ifdef KISAK_DEMON
     bdSocketRouter *socketRouter; // [esp+0h] [ebp-4h]
 
     socketRouter = dwGetSocketRouter();
@@ -188,10 +240,14 @@ bdAddressMap *__cdecl dwGetAddressMap()
         return bdSocketRouter::getAddressMap(socketRouter);
     else
         return 0;
+#else
+    return NULL;
+#endif
 }
 
 bdQoSProbe *__cdecl dwGetQoSProbe()
 {
+#ifdef KISAK_DEMON
     bdQoSProbe *qosProbe; // [esp+0h] [ebp-8h]
     bdSocketRouter *socketRouter; // [esp+4h] [ebp-4h]
 
@@ -202,10 +258,14 @@ bdQoSProbe *__cdecl dwGetQoSProbe()
     if ( !qosProbe && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\Dw\\dwUtils.cpp", 408, 0, "%s", "qosProbe") )
         __debugbreak();
     return qosProbe;
+#else
+    return NULL;
+#endif
 }
 
 bdReference<bdCommonAddr> *__cdecl dwGetLocalCommonAddr(bdReference<bdCommonAddr> *result)
 {
+#ifdef KISAK_DEMON
     const bdReference<bdCommonAddr> *v1; // eax
     bdReference<bdCommonAddr> v3; // [esp+54h] [ebp-Ch] BYREF
     bdNetImpl *net; // [esp+58h] [ebp-8h]
@@ -232,10 +292,14 @@ bdReference<bdCommonAddr> *__cdecl dwGetLocalCommonAddr(bdReference<bdCommonAddr
         InterlockedIncrement(&result->m_ptr->m_refCount);
     bdReference<bdRemoteTask>::~bdReference<bdRemoteTask>(&localCommonAddr);
     return result;
+#else
+    return NULL;
+#endif
 }
 
 bdAuthService *__cdecl dwGetAuthService(bdInetAddr authAddr, unsigned __int16 authPort, unsigned int titleID)
 {
+#ifdef KISAK_DEMON
     bdAuthService *v4; // [esp+0h] [ebp-14h]
     bdAuthService *v5; // [esp+4h] [ebp-10h]
     bdAuthService *v6; // [esp+8h] [ebp-Ch]
@@ -255,19 +319,25 @@ bdAuthService *__cdecl dwGetAuthService(bdInetAddr authAddr, unsigned __int16 au
     v5 = g_authService;
     bdInetAddr::~bdInetAddr(&authAddr);
     return v5;
+#else
+    return NULL;
+#endif
 }
 
 void __cdecl dwAuthServiceCleanup()
 {
+#ifdef KISAK_DEMON
     if ( g_authService )
     {
         ((void (__thiscall *)(bdAuthService *, int))g_authService->~bdAuthService)(g_authService, 1);
         g_authService = 0;
     }
+#endif
 }
 
 bdTitleUtilities *__cdecl dwGetTitleUtilities(int controllerIndex)
 {
+#ifdef KISAK_DEMON
     bdTitleUtilities *obj; // [esp+0h] [ebp-8h]
     bdLobbyService *lobbyService; // [esp+4h] [ebp-4h]
 
@@ -276,10 +346,14 @@ bdTitleUtilities *__cdecl dwGetTitleUtilities(int controllerIndex)
     if ( lobbyService )
         return bdLobbyService::getTitleUtilities(lobbyService);
     return obj;
+#else
+    return NULL;
+#endif
 }
 
 bdMessaging *__cdecl dwGetMessaging(int controllerIndex)
 {
+#ifdef KISAK_DEMON
     bdLobbyService *lobbyService; // [esp+0h] [ebp-8h]
     bdMessaging *messaging; // [esp+4h] [ebp-4h]
 
@@ -288,25 +362,32 @@ bdMessaging *__cdecl dwGetMessaging(int controllerIndex)
     if ( lobbyService )
         return bdLobbyService::getMessaging(lobbyService);
     return messaging;
+#else
+    return NULL;
+#endif
 }
 
 void __cdecl dwCloseRemoteTask(overlappedTask *task)
 {
+#ifdef KISAK_DEMON
     if ( task->overlappedIO.m_ptr )
     {
         task->finalStatus = bdRemoteTask::getStatus(task->overlappedIO.m_ptr);
         task->errorCode = bdRemoteTask::getErrorCode(task->overlappedIO.m_ptr);
         bdReference<bdCommonAddr>::operator=(&task->overlappedIO, 0);
     }
+#endif
 }
 
 void __cdecl dwCloseRemoteTask(bdReference<bdRemoteTask> *remoteTask)
 {
+#ifdef KISAK_DEMON
     if ( remoteTask )
     {
         if ( remoteTask->m_ptr )
             bdReference<bdCommonAddr>::operator=(remoteTask, 0);
     }
+#endif
 }
 
 int __cdecl dwTaskStatusConvert(bdRemoteTask::bdStatus taskStatus, bdLobbyErrorCode lobbyError)
@@ -314,15 +395,16 @@ int __cdecl dwTaskStatusConvert(bdRemoteTask::bdStatus taskStatus, bdLobbyErrorC
     taskCompleteResults status; // [esp+0h] [ebp-4h]
 
     status = TASK_ERROR;
-    if ( taskStatus == BD && lobbyError == BD_NO_ERROR )
+    if ( taskStatus == bdRemoteTask::bdStatus::BD_DONE && lobbyError == BD_NO_ERROR )
         return 1;
-    if ( taskStatus == BD_PENDING )
+    if ( taskStatus == bdRemoteTask::bdStatus::BD_PENDING )
         return 0;
     return status;
 }
 
 const char *__cdecl dwLobbyErrorCodeToString(bdLobbyErrorCode code)
 {
+#ifdef KISAK_DEMON
     unsigned int i; // [esp+0h] [ebp-8h]
 
     for ( i = 0; i < 0xA4; ++i )
@@ -330,6 +412,7 @@ const char *__cdecl dwLobbyErrorCodeToString(bdLobbyErrorCode code)
         if ( lobbyErrorCodeLookup[i] == code )
             return lobbyErrorCodeDescs[i];
     }
+#endif
     return "Unknown bdLobbyErrorCode";
 }
 
@@ -381,3 +464,5 @@ void __cdecl dwLeaveDeferredCritsec()
     Sys_LeaveCriticalSection(CRITSECT_DEFERRED_DW);
 }
 
+
+#endif

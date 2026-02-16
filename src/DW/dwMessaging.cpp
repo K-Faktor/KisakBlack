@@ -1,3 +1,4 @@
+#ifdef KISAK_DW
 #include "dwMessaging.h"
 
 TaskRecord *__cdecl dwMessaging_SendInstantMessage(
@@ -249,3 +250,5 @@ void __thiscall dwLobbyEventHandler::onMultipleLogon(dwLobbyEventHandler *this, 
     Com_Error(ERR_FATAL, "EXE_DW_MULTIPLE_LOGON");
 }
 
+
+#endif

@@ -1,4 +1,24 @@
 #pragma once
+#ifdef KISAK_DW
+#include <win32/win_tasks.h>
+
+struct bdLobbyService;
+struct bdMatchMaking;
+struct bdGroup;
+struct bdCounter;
+struct bdContentStreaming;
+struct bdPooledStorage;
+struct bdTags;
+struct bdVoteRank;
+struct bdStorage;
+struct bdStats;
+struct bdSecurityKeyMap;
+struct bdSocketRouter;
+struct bdAddressMap;
+struct bdQoSProbe;
+struct bdAuthService;
+struct bdTitleUtilities;
+struct bdMessaging;
 
 bdLobbyService *__cdecl dwGetLobby(int controllerIndex);
 bdMatchMaking *__cdecl dwGetMatchmaking(int controllerIndex);
@@ -28,3 +48,4 @@ unsigned int __cdecl bdStrlcpy(char *const dst, char *src, unsigned int size);
 void __cdecl dwConnectionErrorHandler(int error_context);
 void __cdecl dwEnterDeferredCritsec();
 void __cdecl dwLeaveDeferredCritsec();
+#endif

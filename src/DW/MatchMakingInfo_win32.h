@@ -1,5 +1,8 @@
 #pragma once
 
+#ifdef KISAK_DW
+
+
 #include <demo/demo_common.h>
 
 struct bdMatchMakingInfo : bdTaskResult // sizeof=0x11C
@@ -80,3 +83,5 @@ struct MatchMakingInfo : bdMatchMakingInfo // sizeof=0x228
 };
 
 
+
+#endif

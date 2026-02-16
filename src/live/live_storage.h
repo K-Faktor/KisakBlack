@@ -40,7 +40,7 @@ enum fileShareBufferLocation : __int32
     FILESHARE_BUFFER_SECONDARY = 0x1,
 };
 
-namespace bdStats
+struct bdStats
 {
     enum bdWriteType : __int32
     {                                       // XREF: bdStatsInfo/r

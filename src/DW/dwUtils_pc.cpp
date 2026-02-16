@@ -1,3 +1,5 @@
+#ifdef KISAK_DW
+
 #include "dwUtils_pc.h"
 #include <live/live_steam.h>
 #include <universal/q_shared.h>
@@ -222,3 +224,5 @@ void __cdecl Com_IntToGametype(char *gametype_out, unsigned int gametype_in)
     }
 }
 
+
+#endif

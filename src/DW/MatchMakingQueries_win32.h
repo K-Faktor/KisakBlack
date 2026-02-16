@@ -1,4 +1,7 @@
 #pragma once
+
+#ifdef KISAK_DW
+
 #include <DemonWare/bdCore/bdContainers/bdByteBuffer.h>
 
 struct bdSessionParams // sizeof=0x4
@@ -60,3 +63,4 @@ struct MatchMaking_PC_GEO_Query : bdSessionParams // sizeof=0x20
     void serialize(bdByteBuffer *buffer);
 };
 
+#endif

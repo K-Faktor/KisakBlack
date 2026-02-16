@@ -1,8 +1,11 @@
+#ifdef KISAK_DW
+
 #include "dwStats.h"
 #include "dwUtils.h"
 
 void __cdecl dwWriteStats(overlappedTask *const task, bdStatsInfo **statsInfo, unsigned int numStats)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v3; // [esp+20h] [ebp-Ch] BYREF
     bdRemoteTask *remoteTask; // [esp+24h] [ebp-8h]
     bdStats *stats; // [esp+28h] [ebp-4h]
@@ -22,10 +25,12 @@ void __cdecl dwWriteStats(overlappedTask *const task, bdStatsInfo **statsInfo, u
             dwConnectionErrorHandler(6);
         }
     }
+#endif
 }
 
 taskCompleteResults __cdecl dwWriteStatsComplete(overlappedTask *const task)
 {
+#ifdef KISAK_DEMON
     char errorStr[64]; // [esp+Ch] [ebp-58h] BYREF
     bdLobbyErrorCode errorCode; // [esp+50h] [ebp-14h]
     bdRemoteTask::bdStatus taskStatus; // [esp+54h] [ebp-10h]
@@ -60,6 +65,9 @@ taskCompleteResults __cdecl dwWriteStatsComplete(overlappedTask *const task)
         Com_Printf(16, "Failed to retreive stats write status\n");
     }
     return status;
+#else
+    return TASK_COMPLETE;
+#endif
 }
 
 void __cdecl dwReadStatsByUser(
@@ -78,6 +86,7 @@ void __cdecl dwReadStatsByRank(
                 unsigned int maxResults,
                 bdStatsInfo *statsInfo)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v5; // [esp+20h] [ebp-Ch] BYREF
     bdRemoteTask *remoteTask; // [esp+24h] [ebp-8h]
     bdStats *stats; // [esp+28h] [ebp-4h]
@@ -96,6 +105,7 @@ void __cdecl dwReadStatsByRank(
         if ( remoteTask )
             bdReference<bdCommonAddr>::operator=(&task->overlappedIO, remoteTask);
     }
+#endif
 }
 
 void __cdecl dwReadStatsByPivot(
@@ -105,6 +115,7 @@ void __cdecl dwReadStatsByPivot(
                 unsigned int maxResults,
                 bdStatsInfo *statsInfo)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v5; // [esp+20h] [ebp-Ch] BYREF
     bdRemoteTask *remoteTask; // [esp+24h] [ebp-8h]
     bdStats *stats; // [esp+28h] [ebp-4h]
@@ -123,6 +134,7 @@ void __cdecl dwReadStatsByPivot(
         if ( remoteTask )
             bdReference<bdCommonAddr>::operator=(&task->overlappedIO, remoteTask);
     }
+#endif
 }
 
 void __cdecl dwReadStatsForUsers(
@@ -132,6 +144,7 @@ void __cdecl dwReadStatsForUsers(
                 unsigned int numEntityIDs,
                 bdStatsInfo *statsInfo)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v5; // [esp+20h] [ebp-Ch] BYREF
     bdRemoteTask *remoteTask; // [esp+24h] [ebp-8h]
     bdStats *stats; // [esp+28h] [ebp-4h]
@@ -157,10 +170,12 @@ void __cdecl dwReadStatsForUsers(
             dwConnectionErrorHandler(8);
         }
     }
+#endif
 }
 
 taskCompleteResults __cdecl dwReadStatsComplete(overlappedTask *const task, int *numResults, int *totalResults)
 {
+#ifdef KISAK_DEMON
     char errorStr[68]; // [esp+14h] [ebp-58h] BYREF
     bdLobbyErrorCode errorCode; // [esp+5Ch] [ebp-10h]
     bdRemoteTask::bdStatus taskStatus; // [esp+60h] [ebp-Ch]
@@ -205,6 +220,9 @@ taskCompleteResults __cdecl dwReadStatsComplete(overlappedTask *const task, int 
         Com_Printf(16, "Failed to retreive stats read status\n");
     }
     return status;
+#else
+    return TASK_COMPLETE;
+#endif
 }
 
 taskCompleteResults __cdecl dwFetchPerformanceValuesComplete(
@@ -212,6 +230,7 @@ taskCompleteResults __cdecl dwFetchPerformanceValuesComplete(
                 PlayerRank *playerRanks,
                 int *numPlayerRanks)
 {
+#ifdef KISAK_DEMON
     int v3; // ecx
     int v4; // edx
     __int64 v6; // [esp-10h] [ebp-98h]
@@ -293,10 +312,14 @@ taskCompleteResults __cdecl dwFetchPerformanceValuesComplete(
         Com_Printf(16, "Failed to retrieve performance values fetch status\n");
     }
     return status;
+#else
+    return TASK_COMPLETE;
+#endif
 }
 
 taskCompleteResults __cdecl dwWritePerformanceStatsComplete(int controllerIndex, overlappedTask *const task)
 {
+#ifdef KISAK_DEMON
     char errorStr[68]; // [esp+Ch] [ebp-58h] BYREF
     bdLobbyErrorCode errorCode; // [esp+54h] [ebp-10h]
     bdRemoteTask::bdStatus taskStatus; // [esp+58h] [ebp-Ch]
@@ -328,5 +351,10 @@ taskCompleteResults __cdecl dwWritePerformanceStatsComplete(int controllerIndex,
         Com_Printf(16, "Failed to retreive performance value write status\n");
     }
     return status;
+#else
+    return TASK_COMPLETE;
+#endif
 }
 
+
+#endif

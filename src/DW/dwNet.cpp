@@ -1,3 +1,5 @@
+#ifdef KISAK_DW
+
 #include "dwNet.h"
 
 void __cdecl dwRegisterRawInterceptor(bdPacketInterceptor *rawinterceptor)
@@ -1748,3 +1750,4 @@ SecID *__thiscall SecID::SecID(SecID *this)
     return this;
 }
 
+#endif

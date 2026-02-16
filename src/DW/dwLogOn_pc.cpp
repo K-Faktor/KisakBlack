@@ -2,6 +2,11 @@
 #include <universal/dvar.h>
 #include <universal/assertive.h>
 #include <qcommon/common.h>
+#include <live/live_win.h>
+#include <live/live_sessions_win.h>
+#include <demo/demo_recording.h>
+#include "MatchRecorder.h"
+#include <qcommon/threads.h>
 
 sv_dedicatedauthState g_svdedicatedauthstate;
 
@@ -20,6 +25,7 @@ void __cdecl dwInit()
 
 void __cdecl dwInitForController(int localControllerIndex)
 {
+#ifdef KISAK_DEMON
     DWControllerData *dwControllerData; // [esp+0h] [ebp-4h]
 
     dwControllerData = &g_dwControllerData[localControllerIndex];
@@ -33,10 +39,12 @@ void __cdecl dwInitForController(int localControllerIndex)
     dwControllerData->bCachedCookie = 0;
     dwControllerData->logOnAttempts = 0;
     dwControllerData->couldNotConnectToLSP = 0;
+#endif
 }
 
 void __cdecl DWDisconnectLobby(bdLobbyService *lobby)
 {
+#ifdef KISAK_DEMON
     if ( lobby )
     {
         Live_ClearDWOverlappedTasks();
@@ -45,10 +53,12 @@ void __cdecl DWDisconnectLobby(bdLobbyService *lobby)
         MatchRecorder_ClearDWOverlappedTasks();
         bdLobbyService::disconnect(lobby);
     }
+#endif
 }
 
 void __cdecl dw_disconnect(int controllerIndex)
 {
+#ifdef KISAK_DEMON
     int i; // [esp+0h] [ebp-8h]
     bdLobbyService *lobby; // [esp+4h] [ebp-4h]
 
@@ -60,10 +70,12 @@ void __cdecl dw_disconnect(int controllerIndex)
     for ( i = 5; i--; Dvar_SetString((dvar_s *)dw_usernames[i], "") )
         ;
     Dvar_SetInt((dvar_s *)dw_numaccounts, -1);
+#endif
 }
 
 int __cdecl dwGetLogOnStatus(int localControllerIndex)
 {
+#ifdef KISAK_DEMON
     DWOnlineStatus status; // [esp+4h] [ebp-4h]
 
     status = DW_LIVE_DISCONNECTED;
@@ -104,10 +116,14 @@ int __cdecl dwGetLogOnStatus(int localControllerIndex)
             return status;
     }
     return status;
+#else
+    return DW_LIVE_DISCONNECTED;
+#endif
 }
 
 void __cdecl dwLogOnStart(int controllerIndex)
 {
+#ifdef KISAK_DEMON
     if ( dword_33267DC[21 * controllerIndex] <= 3 )
     {
         ++dword_33267DC[21 * controllerIndex];
@@ -120,16 +136,20 @@ void __cdecl dwLogOnStart(int controllerIndex)
         dw_disconnect(controllerIndex);
         Dvar_SetBoolByName("dw_active", 1);
     }
+#endif
 }
 
 void __cdecl dwLogonSeAcquiredSteamTicket()
 {
+#ifdef KISAK_DEMON
     dword_33267D4[0] = 5;
     s_acquiredSteamTicket = 1;
+#endif
 }
 
 bool __cdecl SV_DedicatedReadCDKey(char *cdkey, int cdkeysize)
 {
+#ifdef KISAK_DEMON
     int licensenum; // [esp+0h] [ebp-Ch]
     bool retval; // [esp+7h] [ebp-5h]
     _iobuf *fp; // [esp+8h] [ebp-4h]
@@ -161,10 +181,14 @@ bool __cdecl SV_DedicatedReadCDKey(char *cdkey, int cdkeysize)
         }
     }
     return retval;
+#else
+    return false;
+#endif
 }
 
 void __cdecl DW_DedicatedLogonStart(int controllerIndex)
 {
+#ifdef KISAK_DEMON
     bdLobbyService *lobby; // [esp+0h] [ebp-4h]
 
     if ( g_svdedicatedauthstate == SV_DWNOTAUTHORIZED )
@@ -175,10 +199,12 @@ void __cdecl DW_DedicatedLogonStart(int controllerIndex)
     dwAuthServiceCleanup();
     dword_33267D4[21 * controllerIndex] = 2;
     g_svdedicatedauthstate = SV_DWAUTHORIZING;
+#endif
 }
 
 void __cdecl DW_DedicatedLogonComplete(int controllerIndex)
 {
+#ifdef KISAK_DEMON
     unsigned intv1; // eax
     int v2; // ecx
     bdAddr v3; // [esp-10h] [ebp-74h] BYREF
@@ -209,7 +235,7 @@ void __cdecl DW_DedicatedLogonComplete(int controllerIndex)
     switch ( status )
     {
         case DW_DNS_NOT_RESOLVED:
-            if ( dwDNSInit("cod7-pc-auth.live.demonware.net", controllerIndex) )
+            if ( dwDNSInit("cod7-pc-auth.live.demonware.net", controllerIndex) ) // lol this still resolves
             {
                 dword_33267D4[21 * controllerIndex] = 3;
                 g_svdedicatedauthstate = SV_DWAUTHORIZING;
@@ -384,6 +410,7 @@ void __cdecl DW_DedicatedLogonComplete(int controllerIndex)
         default:
             return;
     }
+#endif
 }
 
 const char *__cdecl dwSelectLSGAddress()
@@ -404,6 +431,7 @@ void __cdecl dwLogOnComplete()
 
 void __cdecl dwDNSCleanup(int localControllerIndex)
 {
+#ifdef KISAK_DEMON
     if ( dword_33267E8[21 * localControllerIndex] )
     {
         bdGetHostByName::quit((bdGetHostByName *)dword_33267E8[21 * localControllerIndex]);
@@ -422,10 +450,12 @@ void __cdecl dwDNSCleanup(int localControllerIndex)
                 1);
         dword_33267EC[21 * localControllerIndex] = 0;
     }
+#endif
 }
 
 void __cdecl dwLobbyPump(int localControllerIndex)
 {
+#ifdef KISAK_DEMON
     enum bdLobbyConnection::Status status; // [esp+0h] [ebp-10h]
     bdPooledStorage *pooledStorage; // [esp+4h] [ebp-Ch]
     bdContentStreaming *contentStreaming; // [esp+8h] [ebp-8h]
@@ -475,10 +505,12 @@ void __cdecl dwLobbyPump(int localControllerIndex)
         if ( status != BD_NOT_CONNECTED )
             dword_33267D4[21 * localControllerIndex] = 1;
     }
+#endif
 }
 
 void __cdecl r_PumpDemonware()
 {
+#ifdef KISAK_DEMON
     if ( (_S1_5 & 1) == 0 )
     {
         _S1_5 |= 1u;
@@ -493,10 +525,12 @@ void __cdecl r_PumpDemonware()
         }
         lastPumpMsec = Sys_Milliseconds();
     }
+#endif
 }
 
 bool __cdecl dwDNSInit(char *authAddr, int controllerIndex)
 {
+#ifdef KISAK_DEMON
     struct bdGetHostByNameConfig *HostByNameConfig; // eax
     bdGetHostByName *HostByName; // [esp+4h] [ebp-10h]
     bdGetHostByNameConfig v5; // [esp+8h] [ebp-Ch] BYREF
@@ -525,10 +559,14 @@ bool __cdecl dwDNSInit(char *authAddr, int controllerIndex)
     if ( !ok )
         dwDNSCleanup(controllerIndex);
     return ok;
+#else
+    return false;
+#endif
 }
 
 int __cdecl dwDNSPump(int localControllerIndex, bdInetAddr *authAddr, bdInetAddr *lsgAddr)
 {
+#ifdef KISAK_DEMON
     unsigned int TotalNumResults; // eax
     unsigned int v4; // eax
     bdInAddr v6; // [esp+0h] [ebp-1Ch] BYREF
@@ -593,10 +631,14 @@ LABEL_16:
         return 3;
     }
     return 1;
+#else
+    return 1;
+#endif
 }
 
 void __cdecl DWDedicatedLogon()
 {
+#ifdef KISAK_DEMON
     SV_ResetDWState();
     Dvar_SetBoolByName("r_gfxopt_water_simulation", 0);
     dwNetStart(1);
@@ -613,10 +655,12 @@ void __cdecl DWDedicatedLogon()
     Com_Printf(0, "should be logged in ok\n");
     LiveStorage_SyncTime(0);
     LiveStorage_FetchRequiredFiles(0);
+#endif
 }
 
 void __cdecl DWDedicatedLobbyPump()
 {
+#ifdef KISAK_DEMON
     dwEnterDeferredCritsec();
     dwNetPump();
     if ( g_svdedicatedauthstate == SV_DWAUTHORIZED )
@@ -630,10 +674,12 @@ void __cdecl DWDedicatedLobbyPump()
         LiveCounter_Update(0);
     }
     SV_AP_Frame();
+#endif
 }
 
 bool Com_CanWriteLeaderboards(void *thisptr)
 {
+#ifdef KISAK_DEMON
     bdInetAddr v2; // [esp-Ch] [ebp-28h] BYREF
     int v3; // [esp-8h] [ebp-24h]
     unsigned int v4; // [esp-4h] [ebp-20h]
@@ -663,6 +709,9 @@ bool Com_CanWriteLeaderboards(void *thisptr)
         }
     }
     return retval && Pregame_GetState() != PREGAME_INPROGRESS;
+#else
+    return false;
+#endif
 }
 
 bool __cdecl isOfficialServer(int licensetype)

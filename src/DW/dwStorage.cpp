@@ -1,3 +1,5 @@
+#ifdef KISAK_DW
+
 #include "dwStorage.h"
 #include <win32/win_shared.h>
 #include <qcommon/common.h>
@@ -20,6 +22,7 @@ dwFileTask::dwFileTask()
 
 void __cdecl dwReadFileFailure(TaskRecord *task)
 {
+#ifdef KISAK_DEMON
     unsigned int v1; // eax
     unsigned int v2; // eax
     char *v3; // eax
@@ -64,6 +67,7 @@ void __cdecl dwReadFileFailure(TaskRecord *task)
             UI_OpenMenu(0, "error_dw_fetch_file");
         }
     }
+#endif
 }
 
 void __cdecl dwReadFileSuccess(TaskRecord *task)
@@ -100,6 +104,7 @@ TaskRecord *__cdecl dwReadFile(int localControllerIndex, dwFileTask *const fileT
 
 TaskRecord *__cdecl dwReadFileInternal(int localControllerIndex, dwFileTask *const fileTask, unsigned __int64 ownerUID)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v4; // [esp+30h] [ebp-14h] BYREF
     bdReference<bdCommonAddr> v5; // [esp+34h] [ebp-10h] BYREF
     bdRemoteTask *remoteTask; // [esp+38h] [ebp-Ch]
@@ -155,6 +160,9 @@ TaskRecord *__cdecl dwReadFileInternal(int localControllerIndex, dwFileTask *con
         }
     }
     return task;
+#else 
+    return NULL;
+#endif
 }
 
 TaskRecord *__cdecl dwReadUserFile(int localControllerIndex, dwFileTask *const fileTask)
@@ -180,6 +188,7 @@ TaskRecord *__cdecl dwReadUserFileByUserID(int localControllerIndex, dwFileTask 
 
 void __cdecl dwDeleteFileFailure(TaskRecord *task)
 {
+#ifdef KISAK_DEMON
     char errorStr[64]; // [esp+8h] [ebp-48h] BYREF
     bdLobbyErrorCode errorCode; // [esp+4Ch] [ebp-4h]
 
@@ -193,10 +202,12 @@ void __cdecl dwDeleteFileFailure(TaskRecord *task)
     {
         Com_PrintWarning(32, "failure with no remote task\n");
     }
+#endif
 }
 
 TaskRecord *__cdecl dwDeleteFile(int localControllerIndex, char *filename)
 {
+#ifdef KISAK_DEMON
     const bdReference<bdCommonAddr> *v2; // eax
     bdReference<bdCommonAddr> v4; // [esp+1Ch] [ebp-Ch] BYREF
     bdStorage *storage; // [esp+20h] [ebp-8h]
@@ -216,10 +227,14 @@ TaskRecord *__cdecl dwDeleteFile(int localControllerIndex, char *filename)
         TaskManager2_StartTask(task);
     }
     return task;
+#else
+    return NULL;
+#endif
 }
 
 void __cdecl dwWriteFileFailure(TaskRecord *task)
 {
+#ifdef KISAK_DEMON
     char errorStr[64]; // [esp+8h] [ebp-48h] BYREF
     bdLobbyErrorCode errorCode; // [esp+4Ch] [ebp-4h]
 
@@ -233,6 +248,7 @@ void __cdecl dwWriteFileFailure(TaskRecord *task)
     {
         Com_PrintWarning(32, "failure with no remote task\n");
     }
+#endif
 }
 
 TaskRecord *__cdecl dwWriteFile(
@@ -243,6 +259,7 @@ TaskRecord *__cdecl dwWriteFile(
                 bdFileInfo *fileInfo,
                 unsigned __int64 ownerID)
 {
+#ifdef KISAK_DEMON
     const bdReference<bdCommonAddr> *v6; // eax
     bdReference<bdCommonAddr> v8; // [esp+1Ch] [ebp-Ch] BYREF
     bdStorage *storage; // [esp+20h] [ebp-8h]
@@ -270,10 +287,14 @@ TaskRecord *__cdecl dwWriteFile(
         TaskManager2_StartTask(task);
     }
     return task;
+#else
+    return NULL;
+#endif
 }
 
 TaskRecord *__cdecl dwFileShareGetListing(int localControllerIndex, dwFileShareListTask *const fsTask)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v3; // [esp+20h] [ebp-10h] BYREF
     bdRemoteTask *remoteTask; // [esp+24h] [ebp-Ch]
     TaskRecord *task; // [esp+28h] [ebp-8h]
@@ -309,10 +330,14 @@ TaskRecord *__cdecl dwFileShareGetListing(int localControllerIndex, dwFileShareL
         }
     }
     return task;
+#else
+    return NULL;
+#endif
 }
 
 TaskRecord *__cdecl dwFileShareGetRating(int localControllerIndex, dwFileShareGetRatingTask *const fsTask)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v3; // [esp+20h] [ebp-14h] BYREF
     bdRemoteTask *remoteTask; // [esp+24h] [ebp-10h]
     TaskRecord *task; // [esp+28h] [ebp-Ch]
@@ -347,10 +372,14 @@ TaskRecord *__cdecl dwFileShareGetRating(int localControllerIndex, dwFileShareGe
         }
     }
     return task;
+#else
+    return NULL;
+#endif
 }
 
 TaskRecord *__cdecl dwFileShareGetTopRated(int localControllerIndex, dwFileShareGetTopRatedTask *const fsTask)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v3; // [esp+20h] [ebp-10h] BYREF
     bdRemoteTask *remoteTask; // [esp+24h] [ebp-Ch]
     TaskRecord *task; // [esp+28h] [ebp-8h]
@@ -383,6 +412,9 @@ TaskRecord *__cdecl dwFileShareGetTopRated(int localControllerIndex, dwFileShare
         }
     }
     return task;
+#else
+    return NULL;
+#endif
 }
 
 char __cdecl dwFileShareLocationToCollectionID(fileShareLocation location, unsigned int *collectionID)
@@ -411,6 +443,7 @@ char __cdecl dwFileShareLocationToCollectionID(fileShareLocation location, unsig
 
 TaskRecord *__cdecl dwFileShareSearch(int localControllerIndex, dwFileShareSearchTask *const fsTask)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v3; // [esp+20h] [ebp-14h] BYREF
     bdRemoteTask *remoteTask; // [esp+24h] [ebp-10h]
     unsigned int collectionID; // [esp+28h] [ebp-Ch] BYREF
@@ -447,6 +480,9 @@ TaskRecord *__cdecl dwFileShareSearch(int localControllerIndex, dwFileShareSearc
         }
     }
     return task;
+#else
+    return NULL;
+#endif
 }
 
 TaskRecord *__cdecl dwFileShareGetDescriptors(int localControllerIndex, dwFileShareDescriptorsTask *const fsTask)
@@ -473,6 +509,7 @@ TaskRecord *__cdecl dwFileShareGetDescriptorsFromPooledStorage(
                 int localControllerIndex,
                 dwFileShareDescriptorsTask *const fsTask)
 {
+#ifdef KISAK_DEMON
     unsigned int v2; // eax
     bdFileID *v3; // edx
     unsigned int v4; // ecx
@@ -517,12 +554,16 @@ TaskRecord *__cdecl dwFileShareGetDescriptorsFromPooledStorage(
         }
     }
     return task;
+#else
+    return NULL;
+#endif
 }
 
 TaskRecord *__cdecl dwFileShareGetDescriptorsFromUserStorage(
                 int localControllerIndex,
                 dwFileShareDescriptorsTask *const fsTask)
 {
+#ifdef KISAK_DEMON
     unsigned int v2; // eax
     bdFileID *v3; // edx
     unsigned int v4; // ecx
@@ -567,6 +608,9 @@ TaskRecord *__cdecl dwFileShareGetDescriptorsFromUserStorage(
         }
     }
     return task;
+#else
+    return NULL;
+#endif
 }
 
 TaskRecord *__cdecl dwFileShareReadFile(int controllerIndex, dwFileShareReadFileTask *const fsTask)
@@ -591,6 +635,7 @@ TaskRecord *__cdecl dwFileShareReadFile(int controllerIndex, dwFileShareReadFile
 
 TaskRecord *__cdecl dwFileShareReadPooledStorageFile(int controllerIndex, dwFileShareReadFileTask *const fsTask)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v3; // [esp+20h] [ebp-10h] BYREF
     bdRemoteTask *remoteTask; // [esp+24h] [ebp-Ch]
     TaskRecord *task; // [esp+28h] [ebp-8h]
@@ -623,10 +668,14 @@ TaskRecord *__cdecl dwFileShareReadPooledStorageFile(int controllerIndex, dwFile
         }
     }
     return task;
+#else
+    return NULL;
+#endif
 }
 
 TaskRecord *__cdecl dwFileShareReadUserStorageFile(int controllerIndex, dwFileShareReadFileTask *const fsTask)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v3; // [esp+30h] [ebp-14h] BYREF
     bdReference<bdCommonAddr> v4; // [esp+34h] [ebp-10h] BYREF
     bdRemoteTask *remoteTask; // [esp+38h] [ebp-Ch]
@@ -672,10 +721,14 @@ TaskRecord *__cdecl dwFileShareReadUserStorageFile(int controllerIndex, dwFileSh
         }
     }
     return task;
+#else
+    return NULL;
+#endif
 }
 
 TaskRecord *__cdecl dwFileShareRemoveFile(int controllerIndex, dwFileShareRemoveTask *const fsTask)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v3; // [esp+20h] [ebp-10h] BYREF
     bdRemoteTask *remoteTask; // [esp+24h] [ebp-Ch]
     TaskRecord *task; // [esp+28h] [ebp-8h]
@@ -702,10 +755,14 @@ TaskRecord *__cdecl dwFileShareRemoveFile(int controllerIndex, dwFileShareRemove
         }
     }
     return task;
+#else
+    return NULL;
+#endif
 }
 
 TaskRecord *__cdecl dwFileShareTransferFile(int controllerIndex, dwFileShareTransferTask *const fsTask)
 {
+#ifdef KISAK_DEMON
     fileShareLocation location; // [esp+0h] [ebp-48h]
     bdReference<bdCommonAddr> v4; // [esp+34h] [ebp-14h] BYREF
     bdReference<bdCommonAddr> v5; // [esp+38h] [ebp-10h] BYREF
@@ -760,10 +817,14 @@ TaskRecord *__cdecl dwFileShareTransferFile(int controllerIndex, dwFileShareTran
         }
     }
     return task;
+#else
+    return NULL;
+#endif
 }
 
 TaskRecord *__cdecl dwFileShareGetSummary(int controllerIndex, dwFileShareSummaryTask *const fsTask)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v3; // [esp+20h] [ebp-10h] BYREF
     bdRemoteTask *remoteTask; // [esp+24h] [ebp-Ch]
     TaskRecord *task; // [esp+28h] [ebp-8h]
@@ -793,10 +854,14 @@ TaskRecord *__cdecl dwFileShareGetSummary(int controllerIndex, dwFileShareSummar
         }
     }
     return task;
+#else
+    return NULL;
+#endif
 }
 
 TaskRecord *__cdecl dwFileShareSetPooledSummary(int controllerIndex, dwFileShareSummaryTask *const fsTask)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v3; // [esp+20h] [ebp-10h] BYREF
     bdRemoteTask *remoteTask; // [esp+24h] [ebp-Ch]
     TaskRecord *task; // [esp+28h] [ebp-8h]
@@ -828,10 +893,14 @@ TaskRecord *__cdecl dwFileShareSetPooledSummary(int controllerIndex, dwFileShare
         }
     }
     return task;
+#else
+    return NULL;
+#endif
 }
 
 TaskRecord *__cdecl dwFileShareSetUserSummary(int controllerIndex, dwFileShareSummaryTask *const fsTask)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v3; // [esp+20h] [ebp-10h] BYREF
     bdRemoteTask *remoteTask; // [esp+24h] [ebp-Ch]
     TaskRecord *task; // [esp+28h] [ebp-8h]
@@ -863,6 +932,9 @@ TaskRecord *__cdecl dwFileShareSetUserSummary(int controllerIndex, dwFileShareSu
         }
     }
     return task;
+#else
+    return NULL;
+#endif
 }
 
 TaskRecord *__cdecl dwFileShareSetSummary(int controllerIndex, dwFileShareSummaryTask *const fsTask)
@@ -899,6 +971,7 @@ TaskRecord *__cdecl dwFileShareWriteFile(int controllerIndex, dwFileShareWriteFi
 
 TaskRecord *__cdecl dwFileShareWritePooledStorageFile(int controllerIndex, dwFileShareWriteFileTask *const fsTask)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v3; // [esp+20h] [ebp-10h] BYREF
     bdRemoteTask *remoteTask; // [esp+24h] [ebp-Ch]
     TaskRecord *task; // [esp+28h] [ebp-8h]
@@ -941,10 +1014,14 @@ TaskRecord *__cdecl dwFileShareWritePooledStorageFile(int controllerIndex, dwFil
         }
     }
     return task;
+#else
+    return NULL;
+#endif
 }
 
 TaskRecord *__cdecl dwFileShareWriteUserStorageFile(int controllerIndex, dwFileShareWriteFileTask *const fsTask)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v3; // [esp+30h] [ebp-14h] BYREF
     bdReference<bdCommonAddr> v4; // [esp+34h] [ebp-10h] BYREF
     bdRemoteTask *remoteTask; // [esp+38h] [ebp-Ch]
@@ -1001,6 +1078,9 @@ TaskRecord *__cdecl dwFileShareWriteUserStorageFile(int controllerIndex, dwFileS
         }
     }
     return task;
+#else
+    return NULL;
+#endif
 }
 
 void __cdecl dwFileShareGetProgress(
@@ -1032,6 +1112,7 @@ void __cdecl dwFileShareGetProgress(
 
 void __cdecl dwFileShareGetProgressPooled(int localControllerIndex, unsigned int *bytes, float *dataRate)
 {
+#ifdef KISAK_DEMON
     bdPooledStorage *pooledStorage; // [esp+0h] [ebp-4h]
 
     pooledStorage = dwGetPooledStorage(localControllerIndex);
@@ -1045,10 +1126,12 @@ void __cdecl dwFileShareGetProgressPooled(int localControllerIndex, unsigned int
         *bytes = 0;
         *dataRate = 0.0f;
     }
+#endif
 }
 
 void __cdecl dwFileShareGetProgressUser(int localControllerIndex, unsigned int *bytes, float *dataRate)
 {
+#ifdef KISAK_DEMON
     bdContentStreaming *contentStreaming; // [esp+0h] [ebp-4h]
 
     contentStreaming = dwGetContentStreaming(localControllerIndex);
@@ -1062,6 +1145,7 @@ void __cdecl dwFileShareGetProgressUser(int localControllerIndex, unsigned int *
         *bytes = 0;
         *dataRate = 0.0f;
     }
+#endif
 }
 
 void __cdecl dwFileShareAbortOperation(int localControllerIndex, fileShareLocation location)
@@ -1086,6 +1170,7 @@ void __cdecl dwFileShareAbortOperation(int localControllerIndex, fileShareLocati
 
 void __cdecl dwFileShareAbortOperationPooled(int localControllerIndex)
 {
+#ifdef KISAK_DEMON
     bdPooledStorage *pooledStorage; // [esp+0h] [ebp-4h]
 
     pooledStorage = dwGetPooledStorage(localControllerIndex);
@@ -1093,10 +1178,12 @@ void __cdecl dwFileShareAbortOperationPooled(int localControllerIndex)
         bdContentStreamingBase::abortHTTPOperation(pooledStorage);
     else
         Com_PrintError(16, "Error aborting HTTP operation. No handle to pooled storage.\n");
+#endif
 }
 
 void __cdecl dwFileShareAbortOperationUser(int localControllerIndex)
 {
+#ifdef KISAK_DEMON
     bdContentStreaming *contentStreaming; // [esp+0h] [ebp-4h]
 
     contentStreaming = dwGetContentStreaming(localControllerIndex);
@@ -1104,6 +1191,7 @@ void __cdecl dwFileShareAbortOperationUser(int localControllerIndex)
         bdContentStreamingBase::abortHTTPOperation(contentStreaming);
     else
         Com_PrintError(16, "Error aborting HTTP operation. No handle to content streaming.\n");
+#endif
 }
 
 unsigned int __cdecl dwFileShareGetLastHTTPError(int localControllerIndex, fileShareLocation location)
@@ -1119,6 +1207,7 @@ unsigned int __cdecl dwFileShareGetLastHTTPError(int localControllerIndex, fileS
 
 unsigned int __cdecl dwFileShareGetLastHTTPErrorPooled(int localControllerIndex)
 {
+#ifdef KISAK_DEMON
     bdPooledStorage *pooledStorage; // [esp+0h] [ebp-4h]
 
     pooledStorage = dwGetPooledStorage(localControllerIndex);
@@ -1126,10 +1215,14 @@ unsigned int __cdecl dwFileShareGetLastHTTPErrorPooled(int localControllerIndex)
         return bdContentStreamingBase::getLastHTTPError(pooledStorage);
     Com_PrintError(16, "Error aborting HTTP operation. No handle to pooled storage.\n");
     return 0;
+#else
+    return 0;
+#endif
 }
 
 unsigned int __cdecl dwFileShareGetLastHTTPErrorUser(int localControllerIndex)
 {
+#ifdef KISAK_DEMON
     bdContentStreaming *contentStreaming; // [esp+0h] [ebp-4h]
 
     contentStreaming = dwGetContentStreaming(localControllerIndex);
@@ -1137,10 +1230,14 @@ unsigned int __cdecl dwFileShareGetLastHTTPErrorUser(int localControllerIndex)
         return bdContentStreamingBase::getLastHTTPError(contentStreaming);
     Com_PrintError(16, "Error aborting HTTP operation. No handle to content streaming.\n");
     return 0;
+#else
+    return 0;
+#endif
 }
 
 TaskRecord *__cdecl dwFileShareSubmitRating(int localControllerIndex, dwFileShareSubmitRatingTask *const fsTask)
 {
+#ifdef KISAK_DEMON
     bdReference<bdCommonAddr> v3; // [esp+20h] [ebp-10h] BYREF
     bdRemoteTask *remoteTask; // [esp+24h] [ebp-Ch]
     bdVoteRank *voteRankService; // [esp+28h] [ebp-8h]
@@ -1171,5 +1268,10 @@ TaskRecord *__cdecl dwFileShareSubmitRating(int localControllerIndex, dwFileShar
         }
     }
     return task;
+#else
+    return NULL;
+#endif
 }
 
+
+#endif

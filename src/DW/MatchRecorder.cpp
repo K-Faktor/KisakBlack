@@ -1,3 +1,5 @@
+#ifdef KISAK_DW
+
 #include "MatchRecorder.h"
 #include <win32/win_tasks.h>
 #include <live/live_combatrecord.h>
@@ -1683,3 +1685,5 @@ taskCompleteResults __cdecl MatchRecordEventComplete(int slot)
     return result;
 }
 
+
+#endif
