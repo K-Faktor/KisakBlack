@@ -13,6 +13,7 @@
 #include <demo/demo_profile.h>
 #include <client_mp/cl_parse_mp.h>
 #include <win32/win_shared.h>
+#include <client/client.h>
 
 const int msg_hData[256] =
 {

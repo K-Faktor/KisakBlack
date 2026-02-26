@@ -1750,7 +1750,9 @@ void __cdecl Com_Init_Try_Block_Function(char *commandLine)
     FS_InitFilesystem(1);
     Con_InitChannels();
     TaskManager2_Init();
+#ifdef KISAK_LIVE
     dwInit();
+#endif
     DDL_Init();
     Com_InitClientGameStates();
     Con_Restricted_SecureConfigs();
@@ -2592,7 +2594,9 @@ unsigned int Com_Frame_Try_Block_Function()
     Monkey_Frame();
     //BLOPS_NULLSUB();
     Phys_RunToTime(svsHeader.time);
+#ifdef KISAK_LIVE
     DWDedicatedLobbyPump();
+#endif
     result = GetCurrentThreadId();
     //if ( result == g_DXDeviceThread )
     //    return //D3DPERF_EndEvent();

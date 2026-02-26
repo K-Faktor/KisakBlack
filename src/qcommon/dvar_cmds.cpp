@@ -678,9 +678,8 @@ char *__cdecl Dvar_InfoString(int localClientNum, char bit)
     char *v4; // eax
     __int64 Uid; // rax
     const char *v6; // eax
-    bdTrulyRandomImpl *Instance; // eax
+
     unsigned int RandomUInt; // eax
-    bdTrulyRandomImpl *v9; // eax
     unsigned int v10; // eax
     unsigned __int64 ourUserID; // [esp+80h] [ebp-288h] BYREF
     char tempbuf[8]; // [esp+90h] [ebp-278h] BYREF
@@ -739,6 +738,8 @@ char *__cdecl Dvar_InfoString(int localClientNum, char bit)
         v6 = va("%i", clc->qport);
         Info_SetValueForKey(info1, (char *)"qport", v6);
 #ifdef KISAK_LIVE_SERVICE
+        bdTrulyRandomImpl *Instance; // eax
+        bdTrulyRandomImpl *v9; // eax
         if ( live_service && live_service->current.enabled )
         {
             memset((unsigned __int8 *)temp64buff, 0, 0xB1u);
