@@ -17,6 +17,7 @@
 #include <cgame/cg_drawtools.h>
 #include <game/g_mover.h>
 #include <cgame/cg_world.h>
+#include <cgame_mp/cg_predict_mp.h>
 
 static const float sc = 20.0f;
 

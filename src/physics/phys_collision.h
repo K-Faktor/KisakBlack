@@ -77,59 +77,6 @@ struct __declspec(align(8)) broad_phase_info : broad_phase_base // sizeof=0x70
     void collision_prolog();
 };
 
-struct phys_collision_pair : phys_link_list_base<phys_collision_pair> // sizeof=0x14
-{                                                                             // XREF: ?do_initial_tunnel_test@@YAXPAVbroad_phase_group@@ABVbroad_phase_environement_query_results@@@Z/r
-                                                                                // ?bpi_do_gjk_intersect@@YA?B_NPAVbroad_phase_info@@0M@Z/r
-        broad_phase_info *m_bpi1;
-        broad_phase_info *m_bpi2;
-        float m_hit_time;
-        struct phys_gjk_cache_info *m_gjk_ci;
-};
-
-class __declspec(align(16)) contact_point_info // sizeof=0x50
-{
-        struct pulse_sum_cache_info // sizeof=0xC
-        {
-                pulse_sum_cache m_ps_cache_list[3];
-        };
-public:
-        phys_vec3 m_normal;
-        float m_fric_coef;
-        float m_bounce_coef;
-        float m_max_restitution_vel;
-        int m_flags;
-        int m_point_pair_count;
-        phys_vec3 *m_list_b1_r_loc;
-        phys_vec3 *m_list_b2_r_loc;
-        contact_point_info::pulse_sum_cache_info *m_list_pulse_sum_cache_info;
-        contact_point_info *m_next_link;
-        const void *m_rb2_entity;
-        float m_translation_lambda;
-        phys_collision_pair *m_pcp;
-        struct rigid_body_constraint_contact *m_rbc_contact;
-        // padding byte
-        // padding byte
-        // padding byte
-        // padding byte
-        // padding byte
-        // padding byte
-        // padding byte
-        // padding byte
-        // padding byte
-        // padding byte
-        // padding byte
-        // padding byte
-
-        void __thiscall set_solver_priority(unsigned int priority);
-        void __thiscall set_rb2_entity(const void *rb2_entity);
-        static void __cdecl set_closest_cached_psc(contact_point_info *cached_cpi, const phys_vec3 *normal, const phys_vec3 *b1_r_loc, const phys_vec3 *b2_r_loc, contact_point_info::pulse_sum_cache_info *psc);
-        void __thiscall set_closest_cached_psc(contact_point_info *cached_cpi);
-        static phys_transient_allocator *__cdecl get_cpi_allocator();
-        void __thiscall get_closest_psc(const phys_vec3 *normal, const phys_vec3 *b1_r_loc, const phys_vec3 *b2_r_loc, float *closest_error, const contact_point_info::pulse_sum_cache_info **closest_psc);
-        static contact_point_info *__cdecl create_cpi(int point_pair_count, bool no_error, phys_transient_allocator *allocator);
-        void __thiscall check_surface_properties();
-};
-
 //void __thiscall contact_point_info::get_closest_psc(
 //                contact_point_info *this,
 //                const phys_vec3 *normal,
@@ -188,3 +135,5 @@ generic_avl_map_node_t *__cdecl generic_avl_map_add(
 void *__cdecl generic_avl_map_destroy(
     phys_inplace_avl_tree<unsigned int, generic_avl_map_node_t, generic_avl_map_node_t> *gam,
     unsigned int avl_key);
+
+PhysObjUserData *__cdecl Phys_GetUserData(int id);

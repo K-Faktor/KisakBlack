@@ -68,9 +68,7 @@ void __thiscall contact_point_info::get_closest_psc(
     }
 }
 
-void __userpurge phys_contact_manifold::xform_and_translate_mesh_points(
-                phys_contact_manifold *this@<ecx>,
-                int a2@<ebp>,
+void phys_contact_manifold::xform_and_translate_mesh_points(
                 const phys_mat44 *xform,
                 const phys_vec3 *translation)
 {
@@ -1565,4 +1563,11 @@ void *__cdecl generic_avl_map_destroy(
     phys_inplace_avl_tree<unsigned int, generic_avl_map_node_t, generic_avl_map_node_t>::remove(gam, &avl_key);
     phys_simple_allocator<generic_avl_map_node_t>::free(&g_generic_avl_map_node_allocator, m_tree_root);
     return data;
+}
+
+PhysObjUserData *__cdecl Phys_GetUserData(int id)
+{
+    iassert(id);
+
+    return (PhysObjUserData *)id;
 }

@@ -12,6 +12,12 @@ struct broad_phase_memory_info // sizeof=0xC
     broad_phase_memory_info();
 };
 
+struct broad_phase_prolog_task_input // sizeof=0x8
+{                                       // XREF: ?broad_phase_process_object_environment_collision@@YAXAAVbpi_environment_collision_info@@@Z/r
+    phys_vec3 *m_aabb_min;
+    phys_vec3 *m_aabb_max;
+};
+
 struct __declspec(align(8)) broad_phase_base // sizeof=0x50
 {                                                                             // XREF: broad_phase_info/r
                                                                                 // broad_phase_group/r ...
@@ -70,11 +76,41 @@ struct __declspec(align(8)) broad_phase_base // sizeof=0x50
     }
 };
 
+struct rb_vehicle_model // sizeof=0x90
+{
+    phys_vec3 m_right_dir_loc;
+    phys_vec3 m_forward_dir_loc;
+    phys_static_array<rigid_body_constraint_wheel *, 4> m_wheels;
+    float m_desired_speed_factor;
+    float m_acceleration_factor;
+    float m_power_braking_factor;
+    float m_braking_factor;
+    float m_coasting_factor;
+    float m_reference_wheel_radius;
+    float m_steer_factor;
+    float m_steer_factor_offset;
+    float m_steer_current_angle;
+    float m_steer_max_angle;
+    float m_steer_speed;
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    phys_vec3 m_steer_front_pt_loc;
+    float m_steer_front_back_length;
+    unsigned int m_state_flags;
+    rigid_body_constraint_upright *m_rbc_upright;
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+};
+
 struct broad_phase_group : broad_phase_base // sizeof=0x60
 {                                       // XREF: phys_free_list<broad_phase_group>::T_internal/r
     broad_phase_info *m_list_bpi_head;
     int m_bpi_count;
-    struct rb_vehicle_model *m_rbvm;
+    rb_vehicle_model *m_rbvm;
     struct phys_wheel_collide_info *m_list_wci;
 
     void set();
@@ -114,6 +150,7 @@ struct broad_phase_base_list // sizeof=0x8
     broad_phase_base_list::node **m_list_cur;
 };
 
+// "environement". for an authentic decompilation experience. (fixed in blops2!!).
 struct broad_phase_environement_query_results // sizeof=0x14
 {                                       // XREF: ?bp_env_jq_batch_function2@@YAHPAUjqBatch@@@Z/r
     broad_phase_base_list m_list_bpi_env;
@@ -169,7 +206,7 @@ struct broad_phase_memory // sizeof=0xCD8
     ~broad_phase_memory();
 
     void list_bpb_remove(broad_phase_base *bpb_to_remove);
-    broad_phase_memory *allocate_buffer(const broad_phase_memory_info *bpmi);
+    static broad_phase_memory *allocate_buffer(const broad_phase_memory_info *bpmi);
 };
 
 struct bpi_environment_collision_info // sizeof=0x10
@@ -200,18 +237,13 @@ struct __declspec(align(16)) phys_wheel_collide_info // sizeof=0x40
     // padding byte
     // padding byte
 
-    void collision_process(
-        float maxT,
-        int mask,
-        int flags,
-        broad_phase_info *bpi);
+    void collision_process(broad_phase_info *bpi);
 
     void collision_epilog(struct rigid_body_constraint_wheel *rbc_wheel);
 };
 
 void create_broad_phase_info(rigid_body *body);
-broad_phase_info *create_broad_phase_info(void);
-void destroy_broad_phase_info(rigid_body *body);
+struct broad_phase_info *create_broad_phase_info(void);
 
 void    comp_trace_volume(
                 const phys_vec3 *aabb1_min,
@@ -276,7 +308,7 @@ struct axis_aligned_sweep_and_prune // sizeof=0x28
     void create_sap_node(broad_phase_base *bpb);
     void remove(axis_aligned_sweep_and_prune::active_pair **list_ap, axis_aligned_sweep_and_prune::sap_node *node);
     void destroy_sap_node(broad_phase_base *bpb);
-    void process_active_pair_list(axis_aligned_sweep_and_prune::active_pair **a2);
+    void process_active_pair_list();
     void process();
 };
 
@@ -304,10 +336,10 @@ void destroy_broad_phase_group(broad_phase_group *bpg);
 char    bpi_do_gjk_intersect(
                 broad_phase_info *p1,
                 broad_phase_info *p2,
-    struct phys_collision_pair *hit_time);
-void collide_bpi_environment(float bpi, broad_phase_base_list::node *bpeqr);
+    float hit_time);
+void collide_bpi_environment(broad_phase_group *bpi, broad_phase_environement_query_results *bpeqr);
 void    collide_bpg_environment(
-                broad_phase_info *bpg,
+    broad_phase_group *bpg,
                 const broad_phase_environement_query_results *bpeqr);
 int    bp_env_jq_batch_function2();
 void    broad_phase_process();
@@ -337,9 +369,7 @@ void add_collision_pair_mutex(
 
 
 void    broad_phase_process_collision_pairs();
-void process_cluster_environment_collision(broad_phase_base *bpb, broad_phase_base_list::node *bpeqr);
-
-
+void process_cluster_environment_collision(broad_phase_base *bpb, broad_phase_environement_query_results *bpeqr);
 
 
 extern broad_phase_memory *G_BPM;

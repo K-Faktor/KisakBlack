@@ -31,18 +31,18 @@ struct phys_sys // sizeof=0x0
     rigid_body_constraint_contact *__cdecl get_rbc_contact(
         environment_rigid_body *b1,
         environment_rigid_body *b2);
-    void __cdecl fixup_wheel_constraints(rigid_body *const rb);
+    static void __cdecl fixup_wheel_constraints(rigid_body *const rb);
     void __cdecl update_constraint_infos();
     static rigid_body *__cdecl create_rigid_body(int no_error);
     static rigid_body_constraint_point *__cdecl create_rbc_point(
         environment_rigid_body *b1,
         environment_rigid_body *b2,
         int no_error);
-    rigid_body_constraint_custom_orientation *__cdecl create_rbc_custom_orientation(
+    static rigid_body_constraint_custom_orientation *__cdecl create_rbc_custom_orientation(
         environment_rigid_body *b1,
         environment_rigid_body *b2,
         int no_error);
-    rigid_body_constraint_contact *__cdecl create_rbc_contact(
+    static rigid_body_constraint_contact *__cdecl create_rbc_contact(
         environment_rigid_body *b1,
         environment_rigid_body *b2,
         int no_error);
@@ -75,7 +75,7 @@ struct phys_sys // sizeof=0x0
     void __cdecl destroy_all_rigid_body();
     void __cdecl destroy_all_user_rigid_body();
     void __cdecl destroy_all_rbc_contact();
-    void __cdecl destroy_all_constraint(rigid_body *const rb);
+    static void __cdecl destroy_all_constraint(rigid_body *const rb);
     void __cdecl destroy_all_constraint_with_user_rigid_body(rigid_body *const rb);
 
     static user_rigid_body *__cdecl create_user_rigid_body(int no_error);

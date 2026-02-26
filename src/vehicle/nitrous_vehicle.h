@@ -329,11 +329,11 @@ struct NitrousVehicle // sizeof=0x440
     void start_path(int attach_mode);
     void end_path();
     void cleanup_path();
-    void __cdecl frame_prolog_all_systems(float delta_t);
-    void __cdecl frame_epilog_all_systems(float delta_t);
+    static void __cdecl frame_prolog_all_systems(float delta_t);
+    static void __cdecl frame_epilog_all_systems(float delta_t);
     static void __cdecl reinit_parms();
     static void __cdecl reset_vehicle_physics();
-    void __cdecl debug_render_all();
+    static void __cdecl debug_render_all();
     void debug_render();
     void remove_wheels();
     void set(

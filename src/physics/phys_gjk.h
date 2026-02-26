@@ -284,10 +284,10 @@ struct __declspec(align(16)) gjk_geom_info_t // sizeof=0x40
 struct phys_gjk_geom // sizeof=0x4
 {                                       // XREF: gjk_base_t/r
     //phys_gjk_geom_vtbl *__vftable;
-    virtual void support(const phys_vec3 *, phys_vec3 *, phys_vec3 *);
+    virtual void support(const phys_vec3 *, phys_vec3 *, phys_vec3 *) const = 0;
     virtual void get_simplex(const cached_simplex_info *, const int, phys_vec3 *, phys_vec3 *);
     virtual void set_simplex(const phys_vec3 *, const int, const phys_vec3 *, cached_simplex_info *);
-    virtual const phys_vec3 * get_center(const phys_vec3 * result);
+    virtual const phys_vec3 * get_center(phys_vec3 * result) const;
     virtual void get_feature(phys_contact_manifold *);
     virtual float get_geom_radius() const
     {
@@ -297,7 +297,7 @@ struct phys_gjk_geom // sizeof=0x4
     virtual bool ray_cast(const phys_vec3 *, const phys_vec3 *, const float, float *, phys_vec3 *);
     virtual bool is_polyhedron();
 
-    const phys_vec3 *support_only(const phys_vec3 *result, const phys_mat44 *xform, const phys_vec3 *v);
+    const phys_vec3 *support_only(const phys_vec3 *result, const phys_mat44 *xform, const phys_vec3 *v) const;
 };
 
 struct phys_gjk_collision_info // sizeof=0x30

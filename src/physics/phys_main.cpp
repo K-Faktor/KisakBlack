@@ -7,6 +7,39 @@
 #include <universal/surfaceflags.h>
 #include <gfx_d3d/rb_debug.h>
 #include "phys_render.h"
+#include "phys_broad_phase.h"
+#include "phys_util.h"
+#include <universal/com_math_anglevectors.h>
+#include "physpreset_load_obj.h"
+#include "phys_assert.h"
+#include <bgame/bg_slidemove.h>
+#include "physics_system_internal.h"
+#include <DynEntity/DynEntity_client.h>
+#include <cgame/cg_main.h>
+#include <xanim/xmodel_utils.h>
+#include <qcommon/cm_tracebox.h>
+#include <DynEntity/DynEntity_load_obj.h>
+#include <cgame/cg_world.h>
+#include <qcommon/dobj_management.h>
+#include <xanim/dobj_utils.h>
+#include <cgame_mp/cg_pose_mp.h>
+#include <qcommon/cm_staticmodel.h>
+#include <qcommon/cm_load.h>
+#include <qcommon/cm_world.h>
+#include <game_mp/g_main_mp.h>
+#include <gfx_d3d/r_debug.h>
+#include <client/cl_keys.h>
+#include <game_mp/g_utils_mp.h>
+#include <game/g_debug.h>
+#include <cgame/cg_drawtools.h>
+#include "xdoll.h"
+#include <ragdoll/ragdoll_update.h>
+#include "phys_auto_rigid_body.h"
+#include <demo/demo_playback.h>
+#include <client/splitscreen.h>
+#include <client/client.h>
+
+// i hereby curse ye, all who enter this file. May only misery and misfortune accompany you as you read further.
 
 const char *g_debugRenderMaskNames[10] =
 {
@@ -21,6 +54,12 @@ const char *g_debugRenderMaskNames[10] =
   "Physics",
   NULL
 };
+
+float spin_scale = 0.80000001;
+float spin_scale_0 = 0.15000001;
+float range_1 = 5000.0;
+
+
 
 void *G_PHYSICS_TOTAL_MEMORY_BUFFER;
 
@@ -80,10 +119,29 @@ const dvar_t *enable_new_prone_check;
 const dvar_t *phys_heavyTankSwitch;
 const dvar_t *phys_fluid;
 
+struct smodel_debug_info_t // sizeof=0x8
+{                                       // XREF: .data:smodel_debug_info_t * smodel_debug_infos/r
+    cStaticModel_s *smodel;             // XREF: draw_static_models_bounds(void)+DE/w
+    float dist2;                        // XREF: draw_static_models_bounds(void)+ED/w
+};
+
+smodel_debug_info_t smodel_debug_infos[16384];
 
 cdl_proftimer proftimer_physics_frame_advance;
 PhysGlob physGlob;
 
+int gImpulseCacheNum;
+PhysImpulse gImpulseCache[16];
+
+chull_t *chull_list;
+phys_inplace_avl_tree<unsigned int, generic_avl_map_node_t, generic_avl_map_node_t> entities_map;
+phys_convex_hull g_hull;
+float g_delta_t;
+phys_free_list<PhysObjUserData>::iterator g_pop_iter;
+phys_free_list<PhysObjUserData>::iterator g_pop_iter_end;
+axis_aligned_sweep_and_prune *g_axis_aligned_sweep_and_prune;
+
+bool gravityChange;
 static bool physInited = false;
 void __cdecl Phys_Init()
 {
@@ -419,10 +477,51 @@ void __cdecl Phys_Init()
     }
 }
 
+int __cdecl surface_type_info_database_get_index(int surface_type_1, int surface_type_2)
+{
+    int v3; // [esp+0h] [ebp-8h]
+
+    if ((surface_type_1 < 0 || surface_type_1 >= G_BPM->m_max_num_surface_types)
+        && _tlAssert(
+            "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_broad_phase_inline.h",
+            336,
+            "surface_type_1 >= 0 && surface_type_1 < G_BPM->m_max_num_surface_types",
+            ""))
+    {
+        __debugbreak();
+    }
+    if ((surface_type_2 < 0 || surface_type_2 >= G_BPM->m_max_num_surface_types)
+        && _tlAssert(
+            "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_broad_phase_inline.h",
+            337,
+            "surface_type_2 >= 0 && surface_type_2 < G_BPM->m_max_num_surface_types",
+            ""))
+    {
+        __debugbreak();
+    }
+    if (surface_type_1 < surface_type_2)
+        v3 = surface_type_1 + surface_type_2 * (surface_type_2 + 1) / 2;
+    else
+        v3 = surface_type_2 + surface_type_1 * (surface_type_1 + 1) / 2;
+    if (v3 < 0 || v3 >= G_BPM->m_max_num_surface_type_infos)
+    {
+        if (_tlAssert(
+            "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_broad_phase_inline.h",
+            339,
+            "index >= 0 && index < G_BPM->m_max_num_surface_type_infos",
+            ""))
+        {
+            __debugbreak();
+        }
+    }
+    return v3;
+}
+
 void __cdecl surface_type_info_database_set(int surface_type_1, int surface_type_2, const phys_surface_type_info *pst)
 {
-    if ( !G_BPM->g_surface_type_info_database )
-        break_here_27 = 1;
+    // LWSS: this is some temp debug kludge leftover
+    //if ( !G_BPM->g_surface_type_info_database )
+    //    break_here_27 = 1;
     if ( !G_BPM->g_surface_type_info_database
         && _tlAssert(
                  "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_broad_phase_inline.h",
@@ -435,13 +534,47 @@ void __cdecl surface_type_info_database_set(int surface_type_1, int surface_type
     G_BPM->g_surface_type_info_database[surface_type_info_database_get_index(surface_type_1, surface_type_2)] = *pst;
 }
 
+broad_phase_info *__cdecl create_broad_phase_info()
+{
+    phys_free_list<broad_phase_info> *p_g_list_broad_phase_info; // edi
+    phys_free_list<broad_phase_info>::T_internal *v1; // eax
+    phys_free_list<broad_phase_info>::T_internal *v2; // esi
+
+    p_g_list_broad_phase_info = &G_BPM->g_list_broad_phase_info;
+    v1 = (phys_free_list<broad_phase_info>::T_internal *)PMM_ALLOC(0x90u, 0x10u);
+    v2 = v1;
+    if (v1)
+    {
+        v1->m_prev_T_internal = &p_g_list_broad_phase_info->m_dummy_head;
+        v1->m_next_T_internal = p_g_list_broad_phase_info->m_dummy_head.m_next_T_internal;
+        p_g_list_broad_phase_info->m_dummy_head.m_next_T_internal->m_prev_T_internal = v1;
+        ++p_g_list_broad_phase_info->m_list_count;
+        p_g_list_broad_phase_info->m_dummy_head.m_next_T_internal = v1;
+        //phys_free_list<broad_phase_info>::debug_add(p_g_list_broad_phase_info, v1);
+        p_g_list_broad_phase_info->debug_add(v1);
+        return &v2->m_data;
+    }
+    else
+    {
+        if (_tlAssert(
+            "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+            470,
+            "no_error",
+            "phys_free_list error: out of memory."))
+        {
+            __debugbreak();
+        }
+        return 0;
+    }
+}
+
 void __cdecl create_broad_phase_info(rigid_body *body)
 {
     unsigned int v1; // eax
     unsigned int geom_id; // eax
     gjk_base_t **p_m_first_geom; // [esp+4h] [ebp-2Ch]
     gjk_base_t **v4; // [esp+10h] [ebp-20h]
-    broad_phase_info *broad_phase_info; // [esp+18h] [ebp-18h]
+    broad_phase_info *new_bpi; // [esp+18h] [ebp-18h]
     gjk_base_t *gjk_geom; // [esp+1Ch] [ebp-14h]
     broad_phase_info *bpi; // [esp+20h] [ebp-10h]
     broad_phase_group *bpg; // [esp+24h] [ebp-Ch]
@@ -449,37 +582,37 @@ void __cdecl create_broad_phase_info(rigid_body *body)
     PhysObjUserData *userData; // [esp+2Ch] [ebp-4h]
 
     userData = (PhysObjUserData *)body->m_userdata;
-    if ( gjk_geom_list_t::get_geom_count(&userData->m_gjk_geom_list) <= 1 )
+    if (userData->m_gjk_geom_list.get_geom_count() <= 1)
     {
-        if ( gjk_geom_list_t::get_geom_count(&userData->m_gjk_geom_list) != 1
+        if (userData->m_gjk_geom_list.get_geom_count() != 1
             && _tlAssert(
-                     "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-                     429,
-                     "userData->m_gjk_geom_list.get_geom_count() == 1",
-                     "") )
+                "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
+                429,
+                "userData->m_gjk_geom_list.get_geom_count() == 1",
+                ""))
         {
             __debugbreak();
         }
         p_m_first_geom = &userData->m_gjk_geom_list.m_first_geom;
-        if ( userData->m_gjk_geom_list.m_geom_count < 0
+        if (userData->m_gjk_geom_list.m_geom_count < 0
             && _tlAssert(
-                     "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
-                     1035,
-                     "m_geom_count >= 0",
-                     "") )
+                "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
+                1035,
+                "m_geom_count >= 0",
+                ""))
         {
             __debugbreak();
         }
         gjk_geom = *p_m_first_geom;
-        if ( !*p_m_first_geom
-            && _tlAssert("C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp", 431, "gjk_geom", "") )
+        if (!*p_m_first_geom
+            && _tlAssert("C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp", 431, "gjk_geom", ""))
         {
             __debugbreak();
         }
-        broad_phase_info = create_broad_phase_info();
-        geom_id = gjk_base_t::get_geom_id(gjk_geom);
-        broad_phase_info::set(
-            broad_phase_info,
+        new_bpi = create_broad_phase_info();
+        geom_id = gjk_geom->get_geom_id();
+        //broad_phase_info::set(
+            new_bpi->set(
             body,
             &body->m_mat,
             &userData->cg2w,
@@ -490,33 +623,38 @@ void __cdecl create_broad_phase_info(rigid_body *body)
             31,
             0,
             0x1C7u);
-        userData->m_bpb = broad_phase_info;
-        if ( rigid_body::get_flag(body, 0x20u) )
-            broad_phase_info->m_env_collision_flags &= ~1u;
+        userData->m_bpb = new_bpi;
+        //if (rigid_body::get_flag(body, 0x20u))
+        if (body->get_flag(0x20u))
+            new_bpi->m_env_collision_flags &= ~1u;
     }
     else
     {
         bpg = create_broad_phase_group();
-        broad_phase_group::set(bpg);
+        //broad_phase_group::set(bpg);
+        bpg->set();
         v4 = &userData->m_gjk_geom_list.m_first_geom;
-        if ( userData->m_gjk_geom_list.m_geom_count < 0
+        if (userData->m_gjk_geom_list.m_geom_count < 0
             && _tlAssert(
-                     "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
-                     1035,
-                     "m_geom_count >= 0",
-                     "") )
+                "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
+                1035,
+                "m_geom_count >= 0",
+                ""))
         {
             __debugbreak();
         }
         geom = *v4;
-        if ( !*v4 && _tlAssert("C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp", 417, "geom", "") )
+        if (!*v4 && _tlAssert("C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp", 417, "geom", ""))
             __debugbreak();
-        while ( geom )
+        while (geom)
         {
             bpi = create_broad_phase_info();
-            v1 = gjk_base_t::get_geom_id(geom);
-            broad_phase_info::set(bpi, body, &body->m_mat, &userData->cg2w, &userData->cg2rb, geom, v1, 1, 31, 0, 0x1C7u);
-            broad_phase_group::add_bpi(bpg, bpi);
+            //v1 = gjk_base_t::get_geom_id(geom);
+            v1 = geom->get_geom_id();
+            //broad_phase_info::set(bpi, body, &body->m_mat, &userData->cg2w, &userData->cg2rb, geom, v1, 1, 31, 0, 0x1C7u);
+            bpi->set(body, &body->m_mat, &userData->cg2w, &userData->cg2rb, geom, v1, 1, 31, 0, 0x1C7u);
+            //broad_phase_group::add_bpi(bpg, bpi);
+            bpg->add_bpi(bpi);
             geom = geom->m_next_geom;
         }
         userData->m_bpb = bpg;
@@ -525,7 +663,7 @@ void __cdecl create_broad_phase_info(rigid_body *body)
     aasap_list_add(userData->m_bpb);
 }
 
-unsigned int __thiscall rigid_body::get_flag(rigid_body *this, unsigned int f)
+unsigned int __thiscall rigid_body::get_flag(unsigned int f)
 {
     if ( (f & 0xFFFFFF00) != 0
         && _tlAssert(
@@ -539,7 +677,7 @@ unsigned int __thiscall rigid_body::get_flag(rigid_body *this, unsigned int f)
     return f & this->m_flags;
 }
 
-void __thiscall broad_phase_group::set(broad_phase_group *this)
+void __thiscall broad_phase_group::set()
 {
     this->m_list_bpi_head = 0;
     this->m_bpi_count = 0;
@@ -554,7 +692,7 @@ void __thiscall broad_phase_group::set(broad_phase_group *this)
     this->m_my_collision_type_flags = 0;
 }
 
-void __thiscall broad_phase_group::add_bpi(broad_phase_group *this, broad_phase_info *bpi)
+void __thiscall broad_phase_group::add_bpi(broad_phase_info *bpi)
 {
     if ( (bpi->m_flags & 0x40) != 0
         && _tlAssert(
@@ -641,13 +779,14 @@ void __cdecl environment_collision_list_remove(broad_phase_base *bpb)
     }
     if ( (bpb->m_flags & 0x20) != 0 )
     {
-        broad_phase_memory::list_bpb_remove(G_BPM, bpb);
+        //broad_phase_memory::list_bpb_remove(G_BPM, bpb);
+        G_BPM->list_bpb_remove(bpb);
         bpb->m_list_bpb_next = 0;
         bpb->m_flags &= ~0x20u;
     }
 }
 
-void __thiscall broad_phase_memory::list_bpb_remove(broad_phase_memory *this, broad_phase_base *bpb_to_remove)
+void __thiscall broad_phase_memory::list_bpb_remove(broad_phase_base *bpb_to_remove)
 {
     broad_phase_base *bpb; // [esp+4h] [ebp-8h]
     broad_phase_base **bpb_cur; // [esp+8h] [ebp-4h]
@@ -672,7 +811,7 @@ void __thiscall broad_phase_memory::list_bpb_remove(broad_phase_memory *this, br
     --this->g_list_bpb_count;
 }
 
-int __thiscall gjk_geom_list_t::get_geom_count(gjk_geom_list_t *this)
+int __thiscall gjk_geom_list_t::get_geom_count()
 {
     if ( this->m_geom_count < 0
         && _tlAssert(
@@ -700,7 +839,8 @@ void __cdecl destroy_broad_phase_info(rigid_body *body)
         environment_collision_list_remove(userData->m_bpb);
         if ( (userData->m_bpb->m_flags & 1) != 0 )
         {
-            bpi = broad_phase_base::get_bpi(userData->m_bpb);
+            //bpi = broad_phase_base::get_bpi(userData->m_bpb);
+            bpi = userData->m_bpb->get_bpi();
             destroy_broad_phase_info(bpi);
         }
         else
@@ -716,9 +856,11 @@ void __cdecl destroy_broad_phase_info(rigid_body *body)
                     __debugbreak();
                 }
             }
-            bpg = broad_phase_base::get_bpg(userData->m_bpb);
+            //bpg = broad_phase_base::get_bpg(userData->m_bpb);
+            bpg = userData->m_bpb->get_bpg();
             destroy_broad_phase_info_list(bpg->m_list_bpi_head);
-            v3 = broad_phase_base::get_bpg(userData->m_bpb);
+            //v3 = broad_phase_base::get_bpg(userData->m_bpb);
+            v3 = userData->m_bpb->get_bpg();
             destroy_broad_phase_group(v3);
         }
         userData->m_bpb = 0;
@@ -726,8 +868,7 @@ void __cdecl destroy_broad_phase_info(rigid_body *body)
 }
 
 // local variable allocation has failed, the output may be wrong!
-PhysObjUserData * Phys_CreateUserBody@<eax>(
-                float a1@<ebp>,
+PhysObjUserData * Phys_CreateUserBody(
                 float *position,
                 int id,
                 PhysicsGeomType geomType)
@@ -741,253 +882,231 @@ PhysObjUserData * Phys_CreateUserBody@<eax>(
     float z; // [esp+9Ch] [ebp-194h]
     float v12[3]; // [esp+ACh] [ebp-184h] BYREF
     float v13[3]; // [esp+B8h] [ebp-178h] BYREF
-    float v14[3]; // [esp+C4h] [ebp-16Ch] BYREF
-    float mx[3]; // [esp+D0h] [ebp-160h] BYREF
-    float mn[16]; // [esp+DCh] [ebp-154h] BYREF
-    float v17[3]; // [esp+11Ch] [ebp-114h] BYREF
-    gjk_base_t *cylinder_gjk_geom; // [esp+128h] [ebp-108h]
-    float v19[3]; // [esp+12Ch] [ebp-104h] OVERLAPPED BYREF
-    float orientation[3][3]; // [esp+138h] [ebp-F8h] BYREF
-    float hheight; // [esp+15Ch] [ebp-D4h]
-    float radius; // [esp+160h] [ebp-D0h]
-    int v23; // [esp+164h] [ebp-CCh]
-    user_rigid_body *user_rigid_body; // [esp+168h] [ebp-C8h]
-    PhysObjUserData *v25; // [esp+16Ch] [ebp-C4h]
-    PhysObjUserData *v26; // [esp+170h] [ebp-C0h]
-    user_rigid_body *body; // [esp+174h] [ebp-BCh]
-    int bodyId; // [esp+178h] [ebp-B8h]
-    PhysObjUserData *userData; // [esp+17Ch] [ebp-B4h]
-    int v30; // [esp+180h] [ebp-B0h]
-    phys_free_list<PhysObjUserData>::iterator i; // [esp+184h] [ebp-ACh]
-    int v32; // [esp+188h] [ebp-A8h]
-    float centerOfMass[14]; // [esp+18Ch] [ebp-A4h]
-    unsigned int v34[3]; // [esp+1C4h] [ebp-6Ch] BYREF
-    phys_mat44 dictator; // [esp+1D0h] [ebp-60h] BYREF
-    unsigned int v36[3]; // [esp+214h] [ebp-1Ch] BYREF
-    phys_vec3 pos; // [esp+220h] [ebp-10h] BYREF
-    float retaddr; // [esp+230h] [ebp+0h]
-
-    pos.y = a1;
-    pos.z = retaddr;
-    Phys_Vec3ToNitrousVec(position, (phys_vec3 *)v36);
-    dictator.w.y = 1.0f;
-    dictator.w.z = 0.0f;
-    dictator.w.w = 0.0f;
-    *(float *)v34 = 1.0f;
-    v34[1] = 0;
-    v34[2] = 0;
-    centerOfMass[10] = 0.0f;
-    centerOfMass[11] = 1.0f;
-    centerOfMass[12] = 0.0f;
-    LODWORD(centerOfMass[9]) = &dictator.x.y;
+    float mx[3]; // [esp+C4h] [ebp-16Ch] BYREF
+    float mn[19]; // [esp+D0h] [ebp-160h] BYREF
+    float v16[3]; // [esp+11Ch] [ebp-114h] BYREF
+    gjk_base_t *gjk_geom; // [esp+128h] [ebp-108h]
+    float orientation[3][3]; // [esp+12Ch] [ebp-104h] BYREF
+    float hheight; // [esp+150h] [ebp-E0h]
+    float radius; // [esp+154h] [ebp-DCh]
+    float v21[4]; // [esp+158h] [ebp-D8h] BYREF
+    user_rigid_body *body; // [esp+168h] [ebp-C8h]
+    int bodyId; // [esp+16Ch] [ebp-C4h]
+    PhysObjUserData *userData; // [esp+170h] [ebp-C0h]
+    PhysGlob *v25; // [esp+174h] [ebp-BCh]
+    phys_free_list<PhysObjUserData>::iterator i; // [esp+178h] [ebp-B8h]
+    phys_free_list<PhysObjUserData>::T_internal_base *m_next_T_internal; // [esp+17Ch] [ebp-B4h]
+    float centerOfMass[17]; // [esp+180h] [ebp-B0h] BYREF
+    phys_mat44 dictator; // [esp+1C4h] [ebp-6Ch] BYREF
+    float v30; // [esp+204h] [ebp-2Ch]
+    int v31; // [esp+208h] [ebp-28h]
+    int v32; // [esp+20Ch] [ebp-24h]
+    phys_vec3 pos; // [esp+214h] [ebp-1Ch] BYREF
+    //_UNKNOWN *v34[2]; // [esp+224h] [ebp-Ch] BYREF
+    //PhysicsGeomType geomTypea; // [esp+230h] [ebp+0h]
+    //
+    //*(float *)v34 = a1;
+    //v34[1] = (_UNKNOWN *)geomTypea;
+    Phys_Vec3ToNitrousVec(position, &pos);
+    v30 = 1.0f;
+    v31 = 0.0f;
+    v32 = 0.0f;
+    dictator.x.x = 1.0f;
     dictator.x.y = 0.0f;
-    dictator.x.z = 1.0f;
-    dictator.x.w = 0.0f;
-    centerOfMass[2] = 0.0f;
-    centerOfMass[3] = 0.0f;
-    centerOfMass[4] = 1.0f;
-    LODWORD(centerOfMass[1]) = &dictator.y.y;
-    dictator.y.y = 0.0f;
+    dictator.x.z = 0.0f;
+    centerOfMass[13] = 0.0f;
+    centerOfMass[14] = 1.0f;
+    centerOfMass[15] = 0.0f;
+    //LODWORD(centerOfMass[12]) = &dictator.y;
+    dictator.y.x = 0.0f;
+    dictator.y.y = 1.0f;
     dictator.y.z = 0.0f;
-    dictator.y.w = 1.0f;
-    LODWORD(centerOfMass[0]) = &dictator.z.y;
-    LODWORD(dictator.z.y) = v36[0];
-    LODWORD(dictator.z.z) = v36[1];
-    LODWORD(dictator.z.w) = v36[2];
-    v30 = 0;
-    i.m_ptr = *(phys_free_list<PhysObjUserData>::T_internal_base **)&FLOAT_0_0;
-    v32 = 0;
+    centerOfMass[5] = 0.0f;
+    centerOfMass[6] = 0.0f;
+    centerOfMass[7] = 1.0f;
+    //LODWORD(centerOfMass[4]) = &dictator.z;
+    dictator.z.x = 0.0f;
+    dictator.z.y = 0.0f;
+    dictator.z.z = 1.0f;
+    //LODWORD(centerOfMass[3]) = &dictator.w;
+    dictator.w.x = pos.x;
+    dictator.w.y = pos.y;
+    dictator.w.z = pos.z;
+    memset(centerOfMass, 0, 12);
     Sys_EnterCriticalSection(CRITSECT_PHYSICS);
-    userData = (PhysObjUserData *)physGlob.objects.m_dummy_head.m_next_T_internal;
-    for ( bodyId = (int)physGlob.objects.m_dummy_head.m_next_T_internal; ; bodyId = *(unsigned int *)(bodyId + 4) )
+    m_next_T_internal = physGlob.objects.m_dummy_head.m_next_T_internal;
+    for (i.m_ptr = physGlob.objects.m_dummy_head.m_next_T_internal; ; i.m_ptr = i.m_ptr->m_next_T_internal)
     {
-        body = (user_rigid_body *)&physGlob;
-        if ( &physGlob == (PhysGlob *)bodyId )
+        v25 = &physGlob;
+        if (&physGlob == (PhysGlob *)i.m_ptr)
             break;
-        v26 = (PhysObjUserData *)(bodyId + 16);
-        if ( *(unsigned int *)(bodyId + 236) == id )
+        userData = (PhysObjUserData *)&i.m_ptr[2];
+        if ((int)i.m_ptr[29].m_next_T_internal == id) // ungodly hack
         {
-            if ( !rigid_body::is_user_rigid_body(v26->body)
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-                            506,
-                            0,
-                            "%s",
-                            "userData->body->is_user_rigid_body()") )
-            {
-                __debugbreak();
-            }
-            ++v26->refcount;
+            iassert(userData->body->is_user_rigid_body());
+            ++userData->refcount;
             Sys_LeaveCriticalSection(CRITSECT_PHYSICS);
-            return v26;
+            return userData;
         }
     }
-    user_rigid_body = phys_sys::create_user_rigid_body(1);
-    if ( user_rigid_body )
+    body = phys_sys::create_user_rigid_body(1);
+    if (body)
     {
-        v26 = Phys_CreateUserData(0);
-        if ( v26 )
+        userData = Phys_CreateUserData(0);
+        if (userData)
         {
-            v23 = geomType - 3;
-            switch ( geomType )
+            //LODWORD(v21[3]) = geomType - 3;
+            switch (geomType)
             {
-                case PHYS_GEOM_CYLINDER:
-                    hheight = 0.0f;
-                    radius = FLOAT_35_0;
-                    *(_QWORD *)&orientation[2][1] = __PAIR64__(0, LODWORD(15.0f));
-                    orientation[2][0] = FLOAT_35_0;
-                    v19[0] = 0.0f;
-                    v19[1] = 0.0f;
-                    v19[2] = 1.0f;
-                    *(_QWORD *)&orientation[0][0] = __PAIR64__(LODWORD(-1.0f), 0);
-                    orientation[0][2] = 0.0f;
-                    *(_QWORD *)&orientation[1][0] = __PAIR64__(0, LODWORD(1.0f));
-                    orientation[1][2] = 0.0f;
-                    cylinder_gjk_geom = create_cylinder_gjk_geom(
-                                                                COERCE_FLOAT((phys_vec3 *)&pos.y),
-                                                                (float (*)[3])v19,
-                                                                &orientation[2][2],
-                                                                15.0,
-                                                                35.0,
-                                                                7,
-                                                                &g_empty_collision_visitor);
-                    break;
-                case PHYS_GEOM_CYLINDER_LARGE:
-                    v17[0] = 0.0f;
-                    v17[1] = 0.0f;
-                    v17[2] = 20.0f;
-                    mn[15] = FLOAT_35_0;
-                    mn[14] = 20.0f;
-                    mn[5] = 0.0f;
-                    mn[6] = 0.0f;
-                    mn[7] = 1.0f;
-                    mn[8] = 0.0f;
-                    mn[9] = -1.0f;
-                    mn[10] = 0.0f;
-                    mn[11] = 1.0f;
-                    mn[12] = 0.0f;
-                    mn[13] = 0.0f;
-                    cylinder_gjk_geom = create_cylinder_gjk_geom(
-                                                                COERCE_FLOAT((phys_vec3 *)&pos.y),
-                                                                (float (*)[3])&mn[5],
-                                                                v17,
-                                                                35.0,
-                                                                20.0,
-                                                                7,
-                                                                &g_empty_collision_visitor);
-                    break;
-                case PHYS_GEOM_CAPSULE:
-                    mn[2] = 0.0f;
-                    mn[3] = 0.0f;
-                    mn[4] = 45.0f;
-                    mn[1] = 15.0f;
-                    mn[0] = 5.0f;
-                    cylinder_gjk_geom = create_capsule_gjk_geom(
-                                                                COERCE_FLOAT((phys_vec3 *)&pos.y),
-                                                                &mn[2],
-                                                                15.0,
-                                                                5.0,
-                                                                2u,
-                                                                7,
-                                                                &g_empty_collision_visitor);
-                    break;
-                case PHYS_GEOM_POINT:
-                    mx[0] = -1.0f;
-                    mx[1] = -1.0f;
-                    mx[2] = -1.0f;
-                    v14[0] = 1.0f;
-                    v14[1] = 1.0f;
-                    v14[2] = 1.0f;
-                    cylinder_gjk_geom = create_aabb_gjk_geom(
-                                                                COERCE_FLOAT((phys_vec3 *)&pos.y),
-                                                                mx,
-                                                                v14,
-                                                                7,
-                                                                &g_empty_collision_visitor);
-                    break;
-                default:
-                    v13[0] = -15.0f;
-                    v13[1] = -15.0f;
-                    v13[2] = 0.0f;
-                    v12[0] = 15.0f;
-                    v12[1] = 15.0f;
-                    v12[2] = 60.0f;
-                    cylinder_gjk_geom = create_aabb_gjk_geom(
-                                                                COERCE_FLOAT((phys_vec3 *)&pos.y),
-                                                                v13,
-                                                                v12,
-                                                                7,
-                                                                &g_empty_collision_visitor);
-                    break;
+            case 3:
+                v21[0] = 0.0f;
+                v21[1] = 0.0f;
+                v21[2] = 35.0f;
+                radius = 15.0f;
+                hheight = 35.0f;
+                orientation[0][0] = 0.0f;
+                //*(_QWORD *)&orientation[0][1] = __PAIR64__(LODWORD(1.0f), *(unsigned int *)&FLOAT_0_0);
+                orientation[0][1] = 0.0f;
+                orientation[0][1] = 1.0f;
+                //*(_QWORD *)&orientation[1][0] = __PAIR64__(LODWORD(-1.0f), *(unsigned int *)&FLOAT_0_0);
+                orientation[1][0] = 0.0f;
+                orientation[1][1] = -1.0f;
+                orientation[1][2] = 0.0f;
+                //*(_QWORD *)&orientation[2][0] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(1.0f));
+                orientation[2][0] = 1.0f;
+                orientation[2][1] = 0.0f;
+                orientation[2][2] = 0.0f;
+                gjk_geom = create_cylinder_gjk_geom(
+                    orientation,
+                    v21,
+                    15.0,
+                    35.0,
+                    7,
+                    &g_empty_collision_visitor);
+                break;
+            case 4:
+                v16[0] = 0.0f;
+                v16[1] = 0.0f;
+                v16[2] = 20.0f;
+                mn[18] = 35.0f;
+                mn[17] = 20.0f;
+                mn[8] = 0.0f;
+                mn[9] = 0.0f;
+                mn[10] = 1.0f;
+                mn[11] = 0.0f;
+                mn[12] = -1.0f;
+                mn[13] = 0.0f;
+                mn[14] = 1.0f;
+                mn[15] = 0.0f;
+                mn[16] = 0.0f;
+                gjk_geom = create_cylinder_gjk_geom(
+                    (float (*)[3]) & mn[8],
+                    v16,
+                    35.0,
+                    20.0,
+                    7,
+                    &g_empty_collision_visitor);
+                break;
+            case 5:
+                mn[5] = 0.0f;
+                mn[6] = 0.0f;
+                mn[7] = 45.0f;
+                mn[4] = 15.0f;
+                mn[3] = 5.0f;
+                gjk_geom = create_capsule_gjk_geom(&mn[5], 15.0, 5.0, 2u, 7, &g_empty_collision_visitor);
+                break;
+            case 6:
+                mn[0] = -1.0f;
+                mn[1] = -1.0f;
+                mn[2] = -1.0f;
+                mx[0] = 1.0f;
+                mx[1] = 1.0f;
+                mx[2] = 1.0f;
+                gjk_geom = create_aabb_gjk_geom(mn, mx, 7, &g_empty_collision_visitor);
+                break;
+            default:
+                v13[0] = -15.0f;
+                v13[1] = -15.0f;
+                v13[2] = 0.0f;
+                v12[0] = 15.0f;
+                v12[1] = 15.0f;
+                v12[2] = 60.0f;
+                gjk_geom = create_aabb_gjk_geom(v13, v12, 7, &g_empty_collision_visitor);
+                break;
             }
-            cylinder_gjk_geom->comp_aabb_loc(cylinder_gjk_geom);
-            phys_mat44::operator=(&v26->cg2rb, &PHYS_IDENTITY_MATRIX_43);
-            phys_mat44::operator=(&v26->cg2w, &PHYS_IDENTITY_MATRIX_43);
-            if ( (cylinder_gjk_geom->m_flags & 2) == 0
+            gjk_geom->comp_aabb_loc();
+            userData->cg2rb = PHYS_IDENTITY_MATRIX;
+            userData->cg2w = PHYS_IDENTITY_MATRIX;
+            //phys_mat44::operator=(&userData->cg2rb, &PHYS_IDENTITY_MATRIX_43);
+            //phys_mat44::operator=(&userData->cg2w, &PHYS_IDENTITY_MATRIX_43);
+
+            if ((gjk_geom->m_flags & 2) == 0
                 && _tlAssert(
-                         "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
-                         83,
-                         "get_flag(FLAG_AABB_LOC_VALID)",
-                         "") )
+                    "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
+                    83,
+                    "get_flag(FLAG_AABB_LOC_VALID)",
+                    ""))
             {
                 __debugbreak();
             }
-            x = cylinder_gjk_geom->m_aabb_mx_loc.x;
-            y = cylinder_gjk_geom->m_aabb_mx_loc.y;
-            z = cylinder_gjk_geom->m_aabb_mx_loc.z;
-            if ( (cylinder_gjk_geom->m_flags & 2) == 0
+            x = gjk_geom->m_aabb_mx_loc.x;
+            y = gjk_geom->m_aabb_mx_loc.y;
+            z = gjk_geom->m_aabb_mx_loc.z;
+            if ((gjk_geom->m_flags & 2) == 0
                 && _tlAssert(
-                         "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
-                         82,
-                         "get_flag(FLAG_AABB_LOC_VALID)",
-                         "") )
+                    "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
+                    82,
+                    "get_flag(FLAG_AABB_LOC_VALID)",
+                    ""))
             {
                 __debugbreak();
             }
-            LODWORD(v7) = (0.5 * (float)(cylinder_gjk_geom->m_aabb_mn_loc.y + y)) ^ _mask__NegFloat_;
-            LODWORD(v8) = (0.5 * (float)(cylinder_gjk_geom->m_aabb_mn_loc.z + z)) ^ _mask__NegFloat_;
-            p_w = &v26->cg2rb.w;
-            LODWORD(v26->cg2rb.w.x) = (0.5 * (float)(cylinder_gjk_geom->m_aabb_mn_loc.x + x))
-                                                            ^ _mask__NegFloat_;
+            (v7) = -(0.5 * (float)(gjk_geom->m_aabb_mn_loc.y + y));
+            (v8) = -(0.5 * (float)(gjk_geom->m_aabb_mn_loc.z + z));
+            p_w = &userData->cg2rb.w;
+            (userData->cg2rb.w.x) = -(0.5 * (float)(gjk_geom->m_aabb_mn_loc.x + x));
             p_w->y = v7;
             p_w->z = v8;
-            if ( gjk_geom_list_t::get_geom_count(&v26->m_gjk_geom_list)
-                && _tlAssert(
-                         "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-                         595,
-                         "userData->m_gjk_geom_list.get_geom_count() == 0",
-                         "") )
+            //if (gjk_geom_list_t::get_geom_count(&userData->m_gjk_geom_list)
+            //    && _tlAssert(
+            //        "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
+            //        595,
+            //        "userData->m_gjk_geom_list.get_geom_count() == 0",
+            //        ""))
+            //{
+            //    __debugbreak();
+            //}
+            //gjk_geom_list_t::add_geom(&userData->m_gjk_geom_list, gjk_geom);
+            userData->m_gjk_geom_list.add_geom(gjk_geom);
+            userData->m_time_since_last_event = phys_impact_silence_window->current.value + 0.0099999998;
+            userData->m_time_since_last_reeval = phys_reeval_frequency->current.value + 0.0099999998;
+            userData->m_flags = 0;
+            dictator.w.x = dictator.w.x - userData->cg2rb.w.x;
+            dictator.w.y = dictator.w.y - userData->cg2rb.w.y;
+            dictator.w.z = dictator.w.z - userData->cg2rb.w.z;
+            //user_rigid_body::set(body, &dictator);
+            body->set(&dictator);
+            body->m_userdata = userData;
+            //rigid_body::set_flag(body, 0x40u, 1);
+            body->set_flag(0x40u, 1);
+            userData->body = body;
+            userData->refcount = 1;
+            userData->id = (int)id;
+            bodyId = (int)userData;
+            for (j = 0; j < 16; ++j)
             {
-                __debugbreak();
-            }
-            gjk_geom_list_t::add_geom(&v26->m_gjk_geom_list, cylinder_gjk_geom);
-            v26->m_time_since_last_event = phys_impact_silence_window->current.value + 0.0099999998;
-            v26->m_time_since_last_reeval = phys_reeval_frequency->current.value + 0.0099999998;
-            v26->m_flags = 0;
-            dictator.z.y = dictator.z.y - v26->cg2rb.w.x;
-            dictator.z.z = dictator.z.z - v26->cg2rb.w.y;
-            dictator.z.w = dictator.z.w - v26->cg2rb.w.z;
-            user_rigid_body::set(user_rigid_body, (const phys_mat44 *const)v34);
-            user_rigid_body->m_userdata = v26;
-            rigid_body::set_flag(user_rigid_body, 0x40u, 1);
-            v26->body = user_rigid_body;
-            v26->refcount = 1;
-            v26->id = id;
-            v25 = v26;
-            for ( j = 0; j < 16; ++j )
-            {
-                if ( !physGlob.userRigidBodies[j] )
+                if (!physGlob.userRigidBodies[j])
                 {
-                    physGlob.userRigidBodies[j] = v26;
+                    physGlob.userRigidBodies[j] = userData;
                     break;
                 }
             }
             Sys_LeaveCriticalSection(CRITSECT_PHYSICS);
-            return v25;
+            return (PhysObjUserData *)bodyId;
         }
         else
         {
-            phys_sys::destroy(user_rigid_body);
+            phys_sys::destroy(body);
             Sys_LeaveCriticalSection(CRITSECT_PHYSICS);
             return 0;
         }
@@ -1004,16 +1123,17 @@ PhysObjUserData *__cdecl Phys_CreateUserData(int worldIndex)
 {
     PhysObjUserData *userData; // [esp+2Ch] [ebp-4h]
 
-    userData = phys_free_list<PhysObjUserData>::add(&physGlob.objects, 1, "phys_free_list error: out of memory.");
+    //userData = phys_free_list<PhysObjUserData>::add(&physGlob.objects, 1, "phys_free_list error: out of memory.");
+    userData = physGlob.objects.add(1, "phys_free_list error: out of memory.");
     if ( !userData )
         return 0;
     memset((unsigned __int8 *)userData, 0, sizeof(PhysObjUserData));
-    phys_link_list1<PhysObjUserData>::add(&physGlob.objects_by_world[worldIndex], userData);
+    //phys_link_list1<PhysObjUserData>::add(&physGlob.objects_by_world[worldIndex], userData);
+    physGlob.objects_by_world[worldIndex].add(userData);
     return userData;
 }
 
-PhysObjUserData * Phys_CreateBodyFromState@<eax>(
-                int a1@<ebp>,
+PhysObjUserData * Phys_CreateBodyFromState(
                 int worldIndex,
                 const BodyState *state,
                 gjk_geom_list_t *gjk_geom_list,
@@ -1027,17 +1147,17 @@ PhysObjUserData * Phys_CreateBodyFromState@<eax>(
     float v11; // [esp+60h] [ebp-334h]
     float v12; // [esp+64h] [ebp-330h]
     float v13; // [esp+68h] [ebp-32Ch]
-    float v14; // [esp+6Ch] [ebp-328h]
+    float mass; // [esp+6Ch] [ebp-328h]
     float m_inv_mass; // [esp+70h] [ebp-324h]
     rigid_body *v16; // [esp+74h] [ebp-320h]
-    float *mass; // [esp+78h] [ebp-31Ch]
+    const float *v17; // [esp+78h] [ebp-31Ch]
     float *centerOfMassOffset; // [esp+7Ch] [ebp-318h]
-    float *v19; // [esp+80h] [ebp-314h]
+    const float *v19; // [esp+80h] [ebp-314h]
     float *buoyancyBoxMax; // [esp+84h] [ebp-310h]
-    float *v21; // [esp+88h] [ebp-30Ch]
+    const float *v21; // [esp+88h] [ebp-30Ch]
     float *buoyancyBoxMin; // [esp+8Ch] [ebp-308h]
     float *savedPos; // [esp+90h] [ebp-304h]
-    int v24; // [esp+94h] [ebp-300h]
+    phys_vec3 *p_m_gravity_acc_vec; // [esp+94h] [ebp-300h]
     float v25; // [esp+98h] [ebp-2FCh]
     float v26; // [esp+9Ch] [ebp-2F8h]
     float v27; // [esp+A0h] [ebp-2F4h]
@@ -1045,390 +1165,325 @@ PhysObjUserData * Phys_CreateBodyFromState@<eax>(
     float v29; // [esp+ACh] [ebp-2E8h]
     float v30; // [esp+B0h] [ebp-2E4h]
     float value; // [esp+B4h] [ebp-2E0h]
-    float v32; // [esp+B8h] [ebp-2DCh] BYREF
-    float v33; // [esp+BCh] [ebp-2D8h]
-    float v34; // [esp+C0h] [ebp-2D4h]
-    phys_vec3 gravity_dir; // [esp+C4h] [ebp-2D0h] BYREF
-    phys_mat44 rb2w; // [esp+D4h] [ebp-2C0h] BYREF
-    phys_vec3 *p_w; // [esp+154h] [ebp-240h]
-    int v38; // [esp+158h] [ebp-23Ch]
-    float v39; // [esp+15Ch] [ebp-238h]
-    float v40; // [esp+160h] [ebp-234h]
-    int v41; // [esp+16Ch] [ebp-228h]
-    int v42; // [esp+170h] [ebp-224h]
-    int v43; // [esp+174h] [ebp-220h]
-    float v44[3]; // [esp+178h] [ebp-21Ch] BYREF
-    phys_vec3 com_offset; // [esp+184h] [ebp-210h]
-    phys_vec3 center; // [esp+194h] [ebp-200h]
-    float v47; // [esp+1A4h] [ebp-1F0h]
-    float v48; // [esp+1A8h] [ebp-1ECh]
-    float v49; // [esp+1ACh] [ebp-1E8h]
-    float v50; // [esp+1B0h] [ebp-1E4h]
-    float v51; // [esp+1BCh] [ebp-1D8h]
-    float v52; // [esp+1C0h] [ebp-1D4h]
-    float v53; // [esp+1C4h] [ebp-1D0h]
-    float v54; // [esp+1C8h] [ebp-1CCh] BYREF
-    float v55; // [esp+1CCh] [ebp-1C8h]
-    float v56; // [esp+1D0h] [ebp-1C4h]
-    phys_vec3 gjk_geom_list_aabb_mn_loc; // [esp+1D4h] [ebp-1C0h] BYREF
-    float *v58; // [esp+1F4h] [ebp-1A0h]
-    float v59; // [esp+1F8h] [ebp-19Ch]
-    float v60; // [esp+1FCh] [ebp-198h]
-    float v61; // [esp+200h] [ebp-194h]
-    float v62; // [esp+208h] [ebp-18Ch]
-    float v63; // [esp+20Ch] [ebp-188h]
-    float v64; // [esp+210h] [ebp-184h]
-    float *v65; // [esp+214h] [ebp-180h]
-    float v66; // [esp+218h] [ebp-17Ch]
-    float v67; // [esp+21Ch] [ebp-178h]
-    float v68; // [esp+220h] [ebp-174h]
-    float v69; // [esp+228h] [ebp-16Ch]
-    float v70; // [esp+22Ch] [ebp-168h]
-    float v71; // [esp+230h] [ebp-164h]
-    float *p_y; // [esp+234h] [ebp-160h]
-    float v73; // [esp+238h] [ebp-15Ch]
-    float v74; // [esp+23Ch] [ebp-158h]
-    float v75; // [esp+240h] [ebp-154h]
-    float v76; // [esp+24Ch] [ebp-148h]
-    float v77; // [esp+250h] [ebp-144h]
-    float v78; // [esp+254h] [ebp-140h]
-    unsigned int v79[3]; // [esp+258h] [ebp-13Ch] BYREF
-    phys_mat44 m2w; // [esp+264h] [ebp-130h] BYREF
-    float v81; // [esp+2ACh] [ebp-E8h]
-    float v82; // [esp+2B0h] [ebp-E4h]
-    float v83; // [esp+2B4h] [ebp-E0h]
-    float v84[3]; // [esp+2B8h] [ebp-DCh] BYREF
-    phys_vec3 a_vel; // [esp+2C4h] [ebp-D0h]
+    phys_vec3 gravity_dir; // [esp+B8h] [ebp-2DCh] BYREF
+    phys_mat44 rb2w; // [esp+C8h] [ebp-2CCh] BYREF
+    phys_mat44 rb2m; // [esp+108h] [ebp-28Ch] BYREF
+    phys_vec3 *v35; // [esp+154h] [ebp-240h]
+    int v36; // [esp+158h] [ebp-23Ch]
+    float v37; // [esp+15Ch] [ebp-238h]
+    float v38; // [esp+160h] [ebp-234h]
+    int v39; // [esp+16Ch] [ebp-228h]
+    int v40; // [esp+170h] [ebp-224h]
+    int v41; // [esp+174h] [ebp-220h]
+    phys_vec3 com_offset; // [esp+178h] [ebp-21Ch] BYREF
+    phys_vec3 center; // [esp+188h] [ebp-20Ch]
+    float v44; // [esp+19Ch] [ebp-1F8h]
+    float v45; // [esp+1A0h] [ebp-1F4h]
+    float v46; // [esp+1A4h] [ebp-1F0h]
+    float v47; // [esp+1A8h] [ebp-1ECh]
+    float v48; // [esp+1ACh] [ebp-1E8h]
+    float v49; // [esp+1B0h] [ebp-1E4h]
+    float v50; // [esp+1BCh] [ebp-1D8h]
+    float v51; // [esp+1C0h] [ebp-1D4h]
+    float v52; // [esp+1C4h] [ebp-1D0h]
+    phys_vec3 gjk_geom_list_aabb_mn_loc; // [esp+1C8h] [ebp-1CCh] BYREF
+    phys_vec3 gjk_geom_list_aabb_mx_loc; // [esp+1D8h] [ebp-1BCh] BYREF
+    phys_vec3 *p_w; // [esp+1F4h] [ebp-1A0h]
+    float v56; // [esp+1F8h] [ebp-19Ch]
+    float v57; // [esp+1FCh] [ebp-198h]
+    float v58; // [esp+200h] [ebp-194h]
+    float v59; // [esp+208h] [ebp-18Ch]
+    float v60; // [esp+20Ch] [ebp-188h]
+    float v61; // [esp+210h] [ebp-184h]
+    phys_vec3 *p_z; // [esp+214h] [ebp-180h]
+    float v63; // [esp+218h] [ebp-17Ch]
+    float v64; // [esp+21Ch] [ebp-178h]
+    float v65; // [esp+220h] [ebp-174h]
+    float v66; // [esp+228h] [ebp-16Ch]
+    float v67; // [esp+22Ch] [ebp-168h]
+    float v68; // [esp+230h] [ebp-164h]
+    phys_vec3 *p_y; // [esp+234h] [ebp-160h]
+    float v70; // [esp+238h] [ebp-15Ch]
+    float v71; // [esp+23Ch] [ebp-158h]
+    float v72; // [esp+240h] [ebp-154h]
+    float v73; // [esp+24Ch] [ebp-148h]
+    float v74; // [esp+250h] [ebp-144h]
+    float v75; // [esp+254h] [ebp-140h]
+    phys_mat44 m2w; // [esp+258h] [ebp-13Ch] BYREF
+    float v77; // [esp+298h] [ebp-FCh]
+    float v78; // [esp+29Ch] [ebp-F8h]
+    float v79; // [esp+2A0h] [ebp-F4h]
+    float v80; // [esp+2ACh] [ebp-E8h]
+    float v81; // [esp+2B0h] [ebp-E4h]
+    float v82; // [esp+2B4h] [ebp-E0h]
+    phys_vec3 a_vel; // [esp+2B8h] [ebp-DCh] BYREF
+    float v84; // [esp+2CCh] [ebp-C8h]
+    float v85; // [esp+2D0h] [ebp-C4h]
     float v86; // [esp+2D4h] [ebp-C0h]
-    float v87[3]; // [esp+2D8h] [ebp-BCh] BYREF
-    phys_vec3 t_vel; // [esp+2E4h] [ebp-B0h]
+    phys_vec3 t_vel; // [esp+2D8h] [ebp-BCh] BYREF
+    float v88; // [esp+2F0h] [ebp-A4h]
     float v89; // [esp+2F4h] [ebp-A0h]
     float v90; // [esp+2F8h] [ebp-9Ch]
-    int v91; // [esp+2FCh] [ebp-98h]
-    float v92; // [esp+300h] [ebp-94h]
+    int minStableContactCount; // [esp+2FCh] [ebp-98h]
+    float maxAVel; // [esp+300h] [ebp-94h]
     float v93; // [esp+304h] [ebp-90h]
-    int minStableContactCount; // [esp+308h] [ebp-8Ch] BYREF
-    float maxAVel; // [esp+30Ch] [ebp-88h]
-    float v96; // [esp+310h] [ebp-84h]
-    float v97; // [esp+324h] [ebp-70h] BYREF
-    unsigned int v98[2]; // [esp+328h] [ebp-6Ch] BYREF
-    float volume; // [esp+330h] [ebp-64h]
-    phys_vec3 dim; // [esp+334h] [ebp-60h]
-    PhysObjUserData *v101; // [esp+344h] [ebp-50h]
-    PhysObjUserData *v102; // [esp+348h] [ebp-4Ch]
-    rigid_body *body; // [esp+34Ch] [ebp-48h]
-    int bodyId; // [esp+350h] [ebp-44h]
-    PhysObjUserData *userData; // [esp+354h] [ebp-40h]
-    float v106; // [esp+358h] [ebp-3Ch]
-    phys_free_list<PhysObjUserData>::iterator i; // [esp+35Ch] [ebp-38h]
-    float v108; // [esp+360h] [ebp-34h]
-    float v109; // [esp+364h] [ebp-30h]
-    float v110; // [esp+368h] [ebp-2Ch]
-    float v111; // [esp+36Ch] [ebp-28h]
-    float v112; // [esp+370h] [ebp-24h]
-    float v113; // [esp+374h] [ebp-20h]
-    float v114; // [esp+378h] [ebp-1Ch]
-    float v115; // [esp+37Ch] [ebp-18h]
-    float v116; // [esp+380h] [ebp-14h]
-    float v117; // [esp+384h] [ebp-10h]
-    unsigned int v118[3]; // [esp+388h] [ebp-Ch] BYREF
-    _UNKNOWN *retaddr; // [esp+394h] [ebp+0h]
+    phys_vec3 inertia; // [esp+308h] [ebp-8Ch] BYREF
+    float volume; // [esp+324h] [ebp-70h] BYREF
+    phys_vec3 dim; // [esp+328h] [ebp-6Ch] BYREF
+    rigid_body *body; // [esp+340h] [ebp-54h]
+    int bodyId; // [esp+344h] [ebp-50h]
+    PhysObjUserData *userData; // [esp+348h] [ebp-4Ch]
+    PhysGlob *v100; // [esp+34Ch] [ebp-48h]
+    phys_free_list<PhysObjUserData>::iterator i; // [esp+350h] [ebp-44h]
+    phys_free_list<PhysObjUserData>::T_internal_base *m_next_T_internal; // [esp+354h] [ebp-40h]
+    //_UNKNOWN *v115[2]; // [esp+388h] [ebp-Ch] BYREF
+    //gjk_geom_list_t *gjk_geom_lista; // [esp+394h] [ebp+0h]
+    //
+    //v115[0] = a1;
+    //v115[1] = gjk_geom_lista;
+    iassert(state);
 
-    v118[0] = a1;
-    v118[1] = retaddr;
-    if ( !state && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp", 754, 0, "%s", "state") )
-        __debugbreak();
-    v117 = state->position[0];
-    if ( (LODWORD(v117) & 0x7F800000) == 0x7F800000
-        || (v116 = state->position[1], (LODWORD(v116) & 0x7F800000) == 0x7F800000)
-        || (v115 = state->position[2], (LODWORD(v115) & 0x7F800000) == 0x7F800000) )
-    {
-        if ( !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-                        756,
-                        0,
-                        "%s",
-                        "!IS_NAN((state->position)[0]) && !IS_NAN((state->position)[1]) && !IS_NAN((state->position)[2])") )
-            __debugbreak();
-    }
-    v114 = state->velocity[0];
-    if ( (LODWORD(v114) & 0x7F800000) == 0x7F800000
-        || (v113 = state->velocity[1], (LODWORD(v113) & 0x7F800000) == 0x7F800000)
-        || (v112 = state->velocity[2], (LODWORD(v112) & 0x7F800000) == 0x7F800000) )
-    {
-        if ( !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-                        757,
-                        0,
-                        "%s",
-                        "!IS_NAN((state->velocity)[0]) && !IS_NAN((state->velocity)[1]) && !IS_NAN((state->velocity)[2])") )
-            __debugbreak();
-    }
-    v111 = state->angVelocity[0];
-    if ( (LODWORD(v111) & 0x7F800000) == 0x7F800000
-        || (v110 = state->angVelocity[1], (LODWORD(v110) & 0x7F800000) == 0x7F800000)
-        || (v109 = state->angVelocity[2], (LODWORD(v109) & 0x7F800000) == 0x7F800000) )
-    {
-        if ( !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-                        758,
-                        0,
-                        "%s",
-                        "!IS_NAN((state->angVelocity)[0]) && !IS_NAN((state->angVelocity)[1]) && !IS_NAN((state->angVelocity)[2])") )
-            __debugbreak();
-    }
-    v108 = state->centerOfMassOffset[0];
-    if ( (LODWORD(v108) & 0x7F800000) == 0x7F800000
-        || (i.m_ptr = (phys_free_list<PhysObjUserData>::T_internal_base *)LODWORD(state->centerOfMassOffset[1]),
-                ((unsigned int)i.m_ptr & 0x7F800000) == 0x7F800000)
-        || (v106 = state->centerOfMassOffset[2], (LODWORD(v106) & 0x7F800000) == 0x7F800000) )
-    {
-        if ( !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-                        759,
-                        0,
-                        "%s",
-                        "!IS_NAN((state->centerOfMassOffset)[0]) && !IS_NAN((state->centerOfMassOffset)[1]) && !IS_NAN((state->center"
-                        "OfMassOffset)[2])") )
-            __debugbreak();
-    }
+    iassert(!IS_NAN((state->position)[0]) && !IS_NAN((state->position)[1]) && !IS_NAN((state->position)[2]));
+    iassert(!IS_NAN((state->velocity)[0]) && !IS_NAN((state->velocity)[1]) && !IS_NAN((state->velocity)[2]));
+    iassert(!IS_NAN((state->angVelocity)[0]) && !IS_NAN((state->angVelocity)[1]) && !IS_NAN((state->angVelocity)[2]));
+
+    iassert(!IS_NAN((state->centerOfMassOffset)[0]) && !IS_NAN((state->centerOfMassOffset)[1]) && !IS_NAN((state->centerOfMassOffset)[2]));
+
     Sys_EnterCriticalSection(CRITSECT_PHYSICS);
-    if ( state->id != -1 )
+
+    if (state->id != -1)
     {
-        userData = (PhysObjUserData *)physGlob.objects.m_dummy_head.m_next_T_internal;
-        for ( bodyId = (int)physGlob.objects.m_dummy_head.m_next_T_internal; ; bodyId = *(unsigned int *)(bodyId + 4) )
+        m_next_T_internal = physGlob.objects.m_dummy_head.m_next_T_internal;
+        for (i.m_ptr = physGlob.objects.m_dummy_head.m_next_T_internal; ; i.m_ptr = i.m_ptr->m_next_T_internal)
         {
-            body = (rigid_body *)&physGlob;
-            if ( &physGlob == (PhysGlob *)bodyId )
+            v100 = &physGlob;
+            if (&physGlob == (PhysGlob *)i.m_ptr)
                 break;
-            v102 = (PhysObjUserData *)(bodyId + 16);
-            if ( *(unsigned int *)(bodyId + 236) == state->id )
+            userData = (PhysObjUserData *)&i.m_ptr[2];
+            if (i.m_ptr[29].m_next_T_internal == (phys_free_list<PhysObjUserData>::T_internal_base *)state->id)
             {
                 destroy_gjk_geom(gjk_geom_list);
-                ++v102->refcount;
+                ++userData->refcount;
                 Sys_LeaveCriticalSection(CRITSECT_PHYSICS);
-                return v102;
+                return userData;
             }
         }
     }
-    LODWORD(dim.w) = phys_sys::create_rigid_body(1);
-    if ( LODWORD(dim.w) )
+    body = phys_sys::create_rigid_body(1);
+    if (body)
     {
-        v102 = Phys_CreateUserData(worldIndex);
-        if ( v102 )
+        userData = Phys_CreateUserData(worldIndex);
+        if (userData)
         {
-            *(float *)v98 = 3.0f;
-            *(float *)&v98[1] = 3.0f;
-            volume = 3.0f;
-            nuge::calc_box_inertia((const phys_vec3 *)v98, (phys_vec3 *)&minStableContactCount, &v97);
-            v93 = state->mass / v97;
-            *(float *)&minStableContactCount = *(float *)&minStableContactCount * v93;
-            maxAVel = maxAVel * v93;
-            v96 = v96 * v93;
-            v92 = 16.0f;
-            v91 = 3;
-            if ( worldIndex == 2 )
-                v91 = 1;
+            dim.x = 3.0f;
+            dim.y = 3.0f;
+            dim.z = 3.0f;
+            nuge::calc_box_inertia(&dim, &inertia, &volume);
+            v93 = state->mass / volume;
+            inertia.x = inertia.x * v93;
+            inertia.y = inertia.y * v93;
+            inertia.z = inertia.z * v93;
+            maxAVel = 16.0f;
+            minStableContactCount = 3;
+            if (worldIndex == 2)
+                minStableContactCount = 1;
             v90 = state->velocity[0];
             v89 = state->velocity[1];
-            t_vel.w = state->velocity[2];
-            v87[0] = v90;
-            v87[1] = v89;
-            v87[2] = t_vel.w;
+            v88 = state->velocity[2];
+            t_vel.x = v90;
+            t_vel.y = v89;
+            t_vel.z = v88;
             v86 = state->angVelocity[0];
-            a_vel.w = state->angVelocity[1];
-            a_vel.z = state->angVelocity[2];
-            v84[0] = v86;
-            v84[1] = a_vel.w;
-            v84[2] = a_vel.z;
-            v83 = state->rotation[0][0];
-            v82 = state->rotation[0][1];
-            v81 = state->rotation[0][2];
-            m2w.w.y = v83;
-            m2w.w.z = v82;
-            m2w.w.w = v81;
-            *(float *)v79 = v83;
-            *(float *)&v79[1] = v82;
-            *(float *)&v79[2] = v81;
-            v78 = state->rotation[1][0];
-            v77 = state->rotation[1][1];
-            v76 = state->rotation[1][2];
-            v73 = v78;
-            v74 = v77;
-            v75 = v76;
-            p_y = &m2w.x.y;
-            m2w.x.y = v78;
-            m2w.x.z = v77;
-            m2w.x.w = v76;
-            v71 = state->rotation[2][0];
-            v70 = state->rotation[2][1];
-            v69 = state->rotation[2][2];
-            v66 = v71;
-            v67 = v70;
-            v68 = v69;
-            v65 = &m2w.y.y;
-            m2w.y.y = v71;
-            m2w.y.z = v70;
-            m2w.y.w = v69;
-            v64 = state->position[0];
-            v63 = state->position[1];
-            v62 = state->position[2];
-            v59 = v64;
-            v60 = v63;
-            v61 = v62;
-            v58 = &m2w.z.y;
-            m2w.z.y = v64;
-            m2w.z.z = v63;
-            m2w.z.w = v62;
-            v101 = v102;
+            v85 = state->angVelocity[1];
+            v84 = state->angVelocity[2];
+            a_vel.x = v86;
+            a_vel.y = v85;
+            a_vel.z = v84;
+            v82 = state->rotation[0][0];
+            v81 = state->rotation[0][1];
+            v80 = state->rotation[0][2];
+            v77 = v82;
+            v78 = v81;
+            v79 = v80;
+            m2w.x.x = v82;
+            m2w.x.y = v81;
+            m2w.x.z = v80;
+            v75 = state->rotation[1][0];
+            v74 = state->rotation[1][1];
+            v73 = state->rotation[1][2];
+            v70 = v75;
+            v71 = v74;
+            v72 = v73;
+            p_y = &m2w.y;
+            m2w.y.x = v75;
+            m2w.y.y = v74;
+            m2w.y.z = v73;
+            v68 = state->rotation[2][0];
+            v67 = state->rotation[2][1];
+            v66 = state->rotation[2][2];
+            v63 = v68;
+            v64 = v67;
+            v65 = v66;
+            p_z = &m2w.z;
+            m2w.z.x = v68;
+            m2w.z.y = v67;
+            m2w.z.z = v66;
+            v61 = state->position[0];
+            v60 = state->position[1];
+            v59 = state->position[2];
+            v56 = v61;
+            v57 = v60;
+            v58 = v59;
+            p_w = &m2w.w;
+            m2w.w.x = v61;
+            m2w.w.y = v60;
+            m2w.w.z = v59;
+            bodyId = (int)userData;
             m_geom_count = gjk_geom_list->m_geom_count;
-            v7 = v102;
-            v102->m_gjk_geom_list.m_first_geom = gjk_geom_list->m_first_geom;
+            v7 = userData;
+            userData->m_gjk_geom_list.m_first_geom = gjk_geom_list->m_first_geom;
             v7->m_gjk_geom_list.m_geom_count = m_geom_count;
-            gjk_geom_list_t::comp_aabb_loc(
-                &v102->m_gjk_geom_list,
-                (int)v118,
-                (phys_vec3 *)&v54,
-                (phys_vec3 *)&gjk_geom_list_aabb_mn_loc.y);
-            phys_mat44::operator=(&v102->cg2rb, &PHYS_IDENTITY_MATRIX_43);
-            phys_mat44::operator=(&v102->cg2w, &PHYS_IDENTITY_MATRIX_43);
-            v53 = v54 + gjk_geom_list_aabb_mn_loc.y;
-            v52 = v55 + gjk_geom_list_aabb_mn_loc.z;
-            v51 = v56 + gjk_geom_list_aabb_mn_loc.w;
-            v48 = v54 + gjk_geom_list_aabb_mn_loc.y;
-            v49 = v55 + gjk_geom_list_aabb_mn_loc.z;
-            v50 = v56 + gjk_geom_list_aabb_mn_loc.w;
-            v47 = 0.5 * (float)(v54 + gjk_geom_list_aabb_mn_loc.y);
-            center.w = 0.5 * (float)(v55 + gjk_geom_list_aabb_mn_loc.z);
-            center.z = 0.5 * (float)(v56 + gjk_geom_list_aabb_mn_loc.w);
-            com_offset.y = v47;
-            com_offset.z = center.w;
-            com_offset.w = center.z;
-            Phys_Vec3ToNitrousVec(state->centerOfMassOffset, (phys_vec3 *)v44);
-            com_offset.y = com_offset.y + v44[0];
-            com_offset.z = com_offset.z + v44[1];
-            com_offset.w = com_offset.w + v44[2];
-            v43 = LODWORD(com_offset.y) ^ _mask__NegFloat_;
-            v42 = LODWORD(com_offset.z) ^ _mask__NegFloat_;
-            v41 = LODWORD(com_offset.w) ^ _mask__NegFloat_;
-            v38 = LODWORD(com_offset.y) ^ _mask__NegFloat_;
-            v39 = -com_offset.z;
-            v40 = -com_offset.w;
-            p_w = &v102->cg2rb.w;
-            v102->cg2rb.w.x = -com_offset.y;
-            p_w->y = v39;
-            p_w->z = v40;
-            phys_full_inverse((int)v118, (phys_mat44 *)&rb2w.w.y, &v102->cg2rb);
-            phys_full_multiply_mat((int)v118, (phys_mat44 *)&gravity_dir.y, (const phys_mat44 *)v79, (phys_mat44 *)&rb2w.w.y);
-            if ( Abs(v87) >= 100000.0
+            //gjk_geom_list_t::comp_aabb_loc(
+                userData->m_gjk_geom_list.comp_aabb_loc(
+                &gjk_geom_list_aabb_mn_loc,
+                &gjk_geom_list_aabb_mx_loc);
+            //phys_mat44::operator=(&userData->cg2rb, &PHYS_IDENTITY_MATRIX_43);
+            userData->cg2rb = PHYS_IDENTITY_MATRIX;
+            //phys_mat44::operator=(&userData->cg2w, &PHYS_IDENTITY_MATRIX_43);
+            userData->cg2w = PHYS_IDENTITY_MATRIX;
+            v52 = gjk_geom_list_aabb_mn_loc.x + gjk_geom_list_aabb_mx_loc.x;
+            v51 = gjk_geom_list_aabb_mn_loc.y + gjk_geom_list_aabb_mx_loc.y;
+            v50 = gjk_geom_list_aabb_mn_loc.z + gjk_geom_list_aabb_mx_loc.z;
+            v47 = gjk_geom_list_aabb_mn_loc.x + gjk_geom_list_aabb_mx_loc.x;
+            v48 = gjk_geom_list_aabb_mn_loc.y + gjk_geom_list_aabb_mx_loc.y;
+            v49 = gjk_geom_list_aabb_mn_loc.z + gjk_geom_list_aabb_mx_loc.z;
+            v46 = 0.5 * (float)(gjk_geom_list_aabb_mn_loc.x + gjk_geom_list_aabb_mx_loc.x);
+            v45 = 0.5 * (float)(gjk_geom_list_aabb_mn_loc.y + gjk_geom_list_aabb_mx_loc.y);
+            v44 = 0.5 * (float)(gjk_geom_list_aabb_mn_loc.z + gjk_geom_list_aabb_mx_loc.z);
+            center.x = v46;
+            center.y = v45;
+            center.z = v44;
+            Phys_Vec3ToNitrousVec(state->centerOfMassOffset, &com_offset);
+            center.x = center.x + com_offset.x;
+            center.y = center.y + com_offset.y;
+            center.z = center.z + com_offset.z;
+            v41 = -(center.x);
+            v40 = -(center.y);
+            v39 = -(center.z);
+            v36 = -(center.x);
+            (v37) = -(center.y);
+            (v38) = -(center.z);
+            v35 = &userData->cg2rb.w;
+            //LODWORD(userData->cg2rb.w.x) = LODWORD(center.x) ^ _mask__NegFloat_;
+            (userData->cg2rb.w.x) = -(center.x);
+            v35->y = v37;
+            v35->z = v38;
+            phys_full_inverse(&rb2m, &userData->cg2rb);
+            phys_full_multiply_mat(&rb2w, &m2w, &rb2m);
+            if (Abs(&t_vel.x) >= 100000.0
                 && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-                            862,
-                            0,
-                            "%s",
-                            "Abs(t_vel) < 100000.0f") )
+                    "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
+                    862,
+                    0,
+                    "%s",
+                    "Abs(t_vel) < 100000.0f"))
             {
                 __debugbreak();
             }
-            if ( Abs(v84) >= 1000.0
+            if (Abs(&a_vel.x) >= 1000.0
                 && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-                            863,
-                            0,
-                            "%s",
-                            "Abs(a_vel) < 1000.0f") )
+                    "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
+                    863,
+                    0,
+                    "%s",
+                    "Abs(a_vel) < 1000.0f"))
             {
                 __debugbreak();
             }
-            rigid_body::set(
-                (rigid_body *)LODWORD(dim.w),
-                state->mass,
-                (const phys_vec3 *)&minStableContactCount,
-                (const phys_mat44 *)&gravity_dir.y,
-                (const phys_vec3 *)v87,
-                (const phys_vec3 *)v84,
-                v91);
-            *(unsigned int *)(LODWORD(dim.w) + 292) = v102;
-            Phys_Vec3ToNitrousVec(&phys_gravity_dir->current.value, (phys_vec3 *)&v32);
+            //rigid_body::set(body, state->mass, &inertia, &rb2w, &t_vel, &a_vel, minStableContactCount);
+            body->set(state->mass, &inertia, &rb2w, &t_vel, &a_vel, minStableContactCount);
+            body->m_userdata = userData;
+            Phys_Vec3ToNitrousVec(&phys_gravity_dir->current.value, &gravity_dir);
             value = phys_gravity->current.value;
-            v30 = value * v32;
-            v29 = value * v33;
-            v28 = value * v34;
-            v25 = value * v32;
-            v26 = value * v33;
-            v27 = value * v34;
-            v24 = LODWORD(dim.w) + 128;
-            *(float *)(LODWORD(dim.w) + 128) = value * v32;
-            *(float *)(v24 + 4) = v26;
-            *(float *)(v24 + 8) = v27;
-            *(float *)(LODWORD(dim.w) + 244) = v92;
-            v102->body = (rigid_body *)LODWORD(dim.w);
-            savedPos = v102->savedPos;
-            v102->savedPos[0] = state->position[0];
+            v30 = value * gravity_dir.x;
+            v29 = value * gravity_dir.y;
+            v28 = value * gravity_dir.z;
+            v25 = value * gravity_dir.x;
+            v26 = value * gravity_dir.y;
+            v27 = value * gravity_dir.z;
+            p_m_gravity_acc_vec = &body->m_gravity_acc_vec;
+            body->m_gravity_acc_vec.x = value * gravity_dir.x;
+            p_m_gravity_acc_vec->y = v26;
+            p_m_gravity_acc_vec->z = v27;
+            body->m_max_avel = maxAVel;
+            userData->body = body;
+            savedPos = userData->savedPos;
+            userData->savedPos[0] = state->position[0];
             savedPos[1] = state->position[1];
             savedPos[2] = state->position[2];
-            memcpy(v102->savedRot, state->rotation, sizeof(v102->savedRot));
-            v102->bounce = state->bounce;
-            v102->buoyancy = state->buoyancy;
-            v102->friction = state->friction;
-            v102->underwater = state->underwater;
-            v102->mass = state->mass;
-            v102->id = state->id;
-            v102->refcount = 1;
-            v102->timeBuoyant = -1;
-            v102->timeRipple = -1;
-            v102->m_time_since_last_event = phys_impact_silence_window->current.value + 0.0099999998;
-            v102->m_time_since_last_reeval = phys_reeval_frequency->current.value + 0.0099999998;
-            v102->m_flags = 0;
-            buoyancyBoxMin = v102->buoyancyBoxMin;
+            memcpy(userData->savedRot, state->rotation, sizeof(userData->savedRot));
+            userData->bounce = state->bounce;
+            userData->buoyancy = state->buoyancy;
+            userData->friction = state->friction;
+            userData->underwater = state->underwater;
+            userData->mass = state->mass;
+            userData->id = state->id;
+            userData->refcount = 1;
+            userData->timeBuoyant = -1;
+            userData->timeRipple = -1;
+            userData->m_time_since_last_event = phys_impact_silence_window->current.value + 0.0099999998;
+            userData->m_time_since_last_reeval = phys_reeval_frequency->current.value + 0.0099999998;
+            userData->m_flags = 0;
+            buoyancyBoxMin = userData->buoyancyBoxMin;
             v21 = state->buoyancyBoxMin;
-            v102->buoyancyBoxMin[0] = state->buoyancyBoxMin[0];
+            userData->buoyancyBoxMin[0] = state->buoyancyBoxMin[0];
             buoyancyBoxMin[1] = v21[1];
             buoyancyBoxMin[2] = v21[2];
-            buoyancyBoxMax = v102->buoyancyBoxMax;
+            buoyancyBoxMax = userData->buoyancyBoxMax;
             v19 = state->buoyancyBoxMax;
-            v102->buoyancyBoxMax[0] = state->buoyancyBoxMax[0];
+            userData->buoyancyBoxMax[0] = state->buoyancyBoxMax[0];
             buoyancyBoxMax[1] = v19[1];
             buoyancyBoxMax[2] = v19[2];
-            centerOfMassOffset = v102->centerOfMassOffset;
-            mass = state->centerOfMassOffset;
-            v102->centerOfMassOffset[0] = state->centerOfMassOffset[0];
-            centerOfMassOffset[1] = mass[1];
-            centerOfMassOffset[2] = mass[2];
-            v16 = v102->body;
+            centerOfMassOffset = userData->centerOfMassOffset;
+            v17 = state->centerOfMassOffset;
+            userData->centerOfMassOffset[0] = state->centerOfMassOffset[0];
+            centerOfMassOffset[1] = v17[1];
+            centerOfMassOffset[2] = v17[2];
+            v16 = userData->body;
             m_inv_mass = v16->m_inv_mass;
-            v14 = 1.0 / m_inv_mass;
-            v13 = gjk_geom_list_aabb_mn_loc.y - v54;
-            v12 = gjk_geom_list_aabb_mn_loc.z - v55;
-            v11 = gjk_geom_list_aabb_mn_loc.w - v56;
-            v10.x = gjk_geom_list_aabb_mn_loc.y - v54;
-            v10.y = gjk_geom_list_aabb_mn_loc.z - v55;
-            v10.z = gjk_geom_list_aabb_mn_loc.w - v56;
-            if ( Abs(&v10.x) >= 10000.0
+            mass = 1.0 / m_inv_mass;
+            v13 = gjk_geom_list_aabb_mx_loc.x - gjk_geom_list_aabb_mn_loc.x;
+            v12 = gjk_geom_list_aabb_mx_loc.y - gjk_geom_list_aabb_mn_loc.y;
+            v11 = gjk_geom_list_aabb_mx_loc.z - gjk_geom_list_aabb_mn_loc.z;
+            v10.x = gjk_geom_list_aabb_mx_loc.x - gjk_geom_list_aabb_mn_loc.x;
+            v10.y = gjk_geom_list_aabb_mx_loc.y - gjk_geom_list_aabb_mn_loc.y;
+            v10.z = gjk_geom_list_aabb_mx_loc.z - gjk_geom_list_aabb_mn_loc.z;
+            if (Abs(&v10.x) >= 10000.0
                 && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-                            902,
-                            0,
-                            "%s",
-                            "Abs(dim) < 10000.0f") )
+                    "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
+                    902,
+                    0,
+                    "%s",
+                    "Abs(dim) < 10000.0f"))
             {
                 __debugbreak();
             }
             nuge::calc_box_inertia(&v10, &v8, &v9);
-            v8.x = v8.x * (float)(v14 / v9);
-            v8.y = v8.y * (float)(v14 / v9);
-            v8.z = v8.z * (float)(v14 / v9);
-            rigid_body::set_inertia(v16, &v8);
-            create_broad_phase_info(v102->body);
-            if ( do_collision_test )
-                //BLOPS_NULLSUB();
+            v8.x = v8.x * (float)(mass / v9);
+            v8.y = v8.y * (float)(mass / v9);
+            v8.z = v8.z * (float)(mass / v9);
+            //rigid_body::set_inertia(v16, &v8);
+            v16->set_inertia(&v8);
+            create_broad_phase_info(userData->body);
+            //if (do_collision_test)
+            //    BG_EvalVehicleName();
             Sys_LeaveCriticalSection(CRITSECT_PHYSICS);
-            return v101;
+            return (PhysObjUserData *)bodyId;
         }
         else
         {
             destroy_gjk_geom(gjk_geom_list);
-            phys_sys::destroy((rigid_body *const)LODWORD(dim.w));
+            phys_sys::destroy(body);
             Com_PrintWarning(20, "Maximum number of Phys User Data exceeded\n");
             Sys_LeaveCriticalSection(CRITSECT_PHYSICS);
             return 0;
@@ -1443,9 +1498,9 @@ PhysObjUserData * Phys_CreateBodyFromState@<eax>(
     }
 }
 
-void    phys_full_inverse(int a1@<ebp>, phys_mat44 *dest, const phys_mat44 *source)
+void    phys_full_inverse(phys_mat44 *dest, const phys_mat44 *source)
 {
-    _BYTE v3[12]; // [esp-Ch] [ebp-8Ch] BYREF
+    phys_mat44 mat; // [esp-Ch] [ebp-8Ch] BYREF
     phys_vec3 *p_w; // [esp+40h] [ebp-40h]
     float v5; // [esp+48h] [ebp-38h]
     float v6; // [esp+4Ch] [ebp-34h]
@@ -1454,24 +1509,24 @@ void    phys_full_inverse(int a1@<ebp>, phys_mat44 *dest, const phys_mat44 *sour
     float v9; // [esp+5Ch] [ebp-24h]
     const phys_vec3 *v10; // [esp+60h] [ebp-20h]
     phys_vec3 v11; // [esp+64h] [ebp-1Ch] BYREF
-    int v12; // [esp+74h] [ebp-Ch]
-    void *v13; // [esp+78h] [ebp-8h]
-    void *retaddr; // [esp+80h] [ebp+0h]
-
-    v12 = a1;
-    v13 = retaddr;
-    if ( dest == source )
+    //_UNKNOWN *v12[2]; // [esp+74h] [ebp-Ch] BYREF
+    //int vars0; // [esp+80h] [ebp+0h]
+    //
+    //v12[0] = a1;
+    //v12[1] = (_UNKNOWN *)vars0;
+    if (dest == source)
     {
-        phys_full_inverse((phys_mat44 *)v3, source);
-        phys_mat44::operator=(dest, (const phys_mat44 *)v3);
+        phys_full_inverse(&mat, source);
+        //phys_mat44::operator=(dest, &mat);
+        *dest = mat;
     }
     else
     {
         phys_transpose(dest, source);
         v10 = phys_multiply(&v11, dest, &source->w);
-        v9 = -v10->x;
-        v8 = -v10->y;
-        v7 = -v10->z;
+        (v9) = -(v10->x);
+        (v8) = -(v10->y);
+        (v7) = -(v10->z);
         v5 = v8;
         v6 = v7;
         p_w = &dest->w;
@@ -1647,12 +1702,12 @@ PhysObjUserData *__cdecl Phys_ObjCreateAxis(
     state.centerOfMassOffset[0] = physPreset->centerOfMassOffset[0];
     state.centerOfMassOffset[1] = physPreset->centerOfMassOffset[1];
     state.centerOfMassOffset[2] = physPreset->centerOfMassOffset[2];
-    return Phys_CreateBodyFromState((int)&savedregs, worldIndex, &state, gjk_geom_list, do_collision_test);
+    return Phys_CreateBodyFromState(worldIndex, &state, gjk_geom_list, do_collision_test);
 }
 
-void    Phys_ObjSetPosition(int a1@<ebp>, int id, float *newPosition)
+void    Phys_ObjSetPosition(int id, float *newPosition)
 {
-    int v3; // [esp-B8h] [ebp-DCh]
+    phys_mat44 *v3; // [esp-B8h] [ebp-DCh]
     float *savedPos; // [esp-64h] [ebp-88h]
     phys_vec3 *p_m_last_position; // [esp-48h] [ebp-6Ch]
     int p_m_mat; // [esp-40h] [ebp-64h]
@@ -1661,74 +1716,58 @@ void    Phys_ObjSetPosition(int a1@<ebp>, int id, float *newPosition)
     float v9; // [esp-18h] [ebp-3Ch]
     float v10; // [esp-14h] [ebp-38h]
     phys_vec3 *p_w; // [esp-10h] [ebp-34h]
-    PhysObjUserData *v12; // [esp-Ch] [ebp-30h]
-    float v13[2]; // [esp-8h] [ebp-2Ch] BYREF
-    PhysObjUserData *userData; // [esp+0h] [ebp-24h]
-    phys_vec3 newPos; // [esp+4h] [ebp-20h]
+    PhysObjUserData *userData; // [esp-Ch] [ebp-30h]
+    phys_vec3 v13; // [esp-8h] [ebp-2Ch] OVERLAPPED BYREF
+    int newPos_8; // [esp+Ch] [ebp-18h]
+    int newPos_12; // [esp+10h] [ebp-14h]
     int v16; // [esp+14h] [ebp-10h]
-    int v17; // [esp+18h] [ebp-Ch]
-    void *v18; // [esp+1Ch] [ebp-8h]
-    void *retaddr; // [esp+24h] [ebp+0h]
+    //_UNKNOWN *v17; // [esp+18h] [ebp-Ch]
+    //int ida; // [esp+1Ch] [ebp-8h]
+    //int vars0; // [esp+24h] [ebp+0h]
+    //
+    //v17 = a1;
+    //ida = vars0;
 
-    v17 = a1;
-    v18 = retaddr;
-    v16 = *(unsigned int *)newPosition;
-    if ( (v16 & 0x7F800000) == 0x7F800000
-        || (newPos.w = newPosition[1], (LODWORD(newPos.w) & 0x7F800000) == 0x7F800000)
-        || (newPos.z = newPosition[2], (LODWORD(newPos.z) & 0x7F800000) == 0x7F800000) )
-    {
-        if ( !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-                        979,
-                        0,
-                        "%s",
-                        "!IS_NAN((newPosition)[0]) && !IS_NAN((newPosition)[1]) && !IS_NAN((newPosition)[2])") )
-            __debugbreak();
-    }
-    Phys_Vec3ToNitrousVec(newPosition, (phys_vec3 *)v13);
-    v12 = Phys_GetUserData(id);
-    p_w = &v12->cg2rb.w;
-    v10 = v13[0] + v12->cg2rb.w.x;
-    v9 = v13[1] + v12->cg2rb.w.y;
-    v8 = *(float *)&userData + v12->cg2rb.w.z;
+    iassert(!IS_NAN((newPosition)[0]) && !IS_NAN((newPosition)[1]) && !IS_NAN((newPosition)[2]));
+    
+    Phys_Vec3ToNitrousVec(newPosition, &v13);
+    userData = Phys_GetUserData(id);
+    p_w = &userData->cg2rb.w;
+    v10 = v13.x + userData->cg2rb.w.x;
+    v9 = v13.y + userData->cg2rb.w.y;
+    v8 = v13.z + userData->cg2rb.w.z;
     v7.x = v10;
     v7.y = v9;
     v7.z = v8;
-    phys_vec3::operator=(&v12->body->m_mat.w, &v7);
-    p_m_mat = (int)&v12->body->m_mat;
-    p_m_last_position = &v12->body->m_last_position;
-    p_m_last_position->x = v12->body->m_mat.w.x;
+    //phys_vec3::operator=(&UserData->body->m_mat.w, &v7);
+    userData->body->m_mat.w = v7;
+    p_m_mat = (int)&userData->body->m_mat;
+    p_m_last_position = &userData->body->m_last_position;
+    p_m_last_position->x = userData->body->m_mat.w.x;
     p_m_last_position->y = *(float *)(p_m_mat + 52);
     p_m_last_position->z = *(float *)(p_m_mat + 56);
-    if ( ((LODWORD(v12->body->m_last_position.x) & 0x7F800000) == 0x7F800000
-         || (LODWORD(v12->body->m_last_position.y) & 0x7F800000) == 0x7F800000
-         || (LODWORD(v12->body->m_last_position.z) & 0x7F800000) == 0x7F800000)
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-                    985,
-                    0,
-                    "%s",
-                    "!IS_NAN((userData->body->m_last_position)[0]) && !IS_NAN((userData->body->m_last_position)[1]) && !IS_NAN((use"
-                    "rData->body->m_last_position)[2])") )
-    {
-        __debugbreak();
-    }
-    savedPos = v12->savedPos;
-    v12->savedPos[0] = *newPosition;
+
+    iassert(!IS_NAN((userData->body->m_last_position)[0]) && !IS_NAN((userData->body->m_last_position)[1]) && !IS_NAN((userData->body->m_last_position)[2]));
+
+    savedPos = userData->savedPos;
+    userData->savedPos[0] = *newPosition;
     savedPos[1] = newPosition[1];
     savedPos[2] = newPosition[2];
-    if ( fabs(v12->body->m_last_position.x) > 100000.0
-        || fabs(v12->body->m_last_position.y) > 100000.0
-        || fabs(v12->body->m_last_position.z) > 100000.0 )
+
+    if (   (fabs(userData->body->m_last_position.x)) > 100000.0
+        || (fabs(userData->body->m_last_position.y)) > 100000.0
+        || (fabs(userData->body->m_last_position.z)) > 100000.0)
     {
-        phys_exec_debug_callback(v12->body);
+        phys_exec_debug_callback(userData->body);
     }
-    if ( fabs(v12->body->m_mat.w.x) > 100000.0
-        || fabs(v12->body->m_mat.w.y) > 100000.0
-        || (v3 = (int)&v12->body->m_mat, *(float *)(v3 + 56) != *phys_vec3::operator[]<int>(&v12->body->m_mat.w, 2u))
-        || fabs(*(unsigned int *)phys_vec3::operator[]<int>(&v12->body->m_mat.w, 2u)) > 100000.0 )
+    if (   (fabs(userData->body->m_mat.w.x)) > 100000.0
+        || (fabs(userData->body->m_mat.w.y)) > 100000.0
+        //|| (v3 = &userData->body->m_mat, v3->w.z != *phys_vec3::operator[]<int>(&userData->body->m_mat.w, 2u))
+        || (v3 = &userData->body->m_mat, v3->w.z != userData->body->m_mat.w.operator[](2u))
+        //|| COERCE_FLOAT(*(_DWORD *)phys_vec3::operator[]<int>(&userData->body->m_mat.w, 2u) & _mask__AbsFloat_) > 100000.0)
+        || (fabs(userData->body->m_mat.w.operator[](2)) > 100000.0))
     {
-        phys_exec_debug_callback(v12->body);
+        phys_exec_debug_callback(userData->body);
     }
 }
 
@@ -1766,19 +1805,9 @@ void __cdecl Phys_ObjSetOrientation(int id, const float *newPosition, const floa
     body->m_last_position.x = rb2w->w.x;
     body->m_last_position.y = p_w->y;
     body->m_last_position.z = p_w->z;
-    if ( ((LODWORD(userData->body->m_last_position.x) & 0x7F800000) == 0x7F800000
-         || (LODWORD(userData->body->m_last_position.y) & 0x7F800000) == 0x7F800000
-         || (LODWORD(userData->body->m_last_position.z) & 0x7F800000) == 0x7F800000)
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-                    1011,
-                    0,
-                    "%s",
-                    "!IS_NAN((userData->body->m_last_position)[0]) && !IS_NAN((userData->body->m_last_position)[1]) && !IS_NAN((use"
-                    "rData->body->m_last_position)[2])") )
-    {
-        __debugbreak();
-    }
+
+    iassert(!IS_NAN((userData->body->m_last_position)[0]) && !IS_NAN((userData->body->m_last_position)[1]) && !IS_NAN((userData->body->m_last_position)[2]));
+    
     if ( fabs(userData->body->m_last_position.x) > 100000.0
         || fabs(userData->body->m_last_position.y) > 100000.0
         || fabs(userData->body->m_last_position.z) > 100000.0 )
@@ -1788,9 +1817,12 @@ void __cdecl Phys_ObjSetOrientation(int id, const float *newPosition, const floa
     if ( fabs(userData->body->m_mat.w.x) > 100000.0
         || fabs(userData->body->m_mat.w.y) > 100000.0
         || (p_m_mat = &userData->body->m_mat,
-                v3 = phys_vec3::operator[]<int>(&userData->body->m_mat.w, 2u),
-                *v3 != *phys_vec3::operator[]<int>(&p_m_mat->w, 2u))
-        || fabs(*(unsigned int *)phys_vec3::operator[]<int>(&userData->body->m_mat.w, 2u)) > 100000.0 )
+                //v3 = phys_vec3::operator[]<int>(&userData->body->m_mat.w, 2u),
+                v3 = &userData->body->m_mat.w.operator[](2u),
+                //*v3 != *phys_vec3::operator[]<int>(&p_m_mat->w, 2u))
+                *v3 != p_m_mat->w.operator[](2))
+        //|| fabs(*(unsigned int *)phys_vec3::operator[]<int>(&userData->body->m_mat.w, 2u)) > 100000.0 )
+        || fabs(userData->body->m_mat.w.operator[](2)) > 100000.0 )
     {
         phys_exec_debug_callback(userData->body);
     }
@@ -1803,12 +1835,12 @@ void    Phys_ObjSetAngularVelocity(int id, float *angularVel)
     float v5; // [esp-Ch] [ebp-18h]
     float v6; // [esp-8h] [ebp-14h]
     rigid_body *body; // [esp-4h] [ebp-10h]
-    int v8; // [esp+0h] [ebp-Ch]
-    void *v9; // [esp+4h] [ebp-8h]
-    void *retaddr; // [esp+Ch] [ebp+0h]
-
-    v8 = a1;
-    v9 = retaddr;
+    //int v8; // [esp+0h] [ebp-Ch]
+    //void *v9; // [esp+4h] [ebp-8h]
+    //void *retaddr; // [esp+Ch] [ebp+0h]
+    //
+    //v8 = a1;
+    //v9 = retaddr;
     body = Phys_GetUserData(id)->body;
     v6 = angularVel[2];
     v5 = *angularVel;
@@ -1816,10 +1848,11 @@ void    Phys_ObjSetAngularVelocity(int id, float *angularVel)
     v3.x = v6;
     v3.y = v5;
     v3.z = v4;
-    rigid_body::dangerous_set_a_vel(body, &v3);
+    //rigid_body::dangerous_set_a_vel(body, &v3);
+    body->dangerous_set_a_vel(&v3);
 }
 
-void __thiscall rigid_body::dangerous_set_a_vel(rigid_body *this, const phys_vec3 *a_vel)
+void __thiscall rigid_body::dangerous_set_a_vel(const phys_vec3 *a_vel)
 {
     this->m_a_vel.x = a_vel->x;
     this->m_a_vel.y = a_vel->y;
@@ -1832,19 +1865,19 @@ void __thiscall rigid_body::dangerous_set_a_vel(rigid_body *this, const phys_vec
     }
 }
 
-void    Phys_ObjSetVelocity(int a1@<ebp>, int id, float *velocity)
+void    Phys_ObjSetVelocity(int id, float *velocity)
 {
     phys_vec3 v3; // [esp-20h] [ebp-2Ch] BYREF
     float v4; // [esp-10h] [ebp-1Ch]
     float v5; // [esp-Ch] [ebp-18h]
     float v6; // [esp-8h] [ebp-14h]
     rigid_body *body; // [esp-4h] [ebp-10h]
-    int v8; // [esp+0h] [ebp-Ch]
-    void *v9; // [esp+4h] [ebp-8h]
-    void *retaddr; // [esp+Ch] [ebp+0h]
-
-    v8 = a1;
-    v9 = retaddr;
+    //int v8; // [esp+0h] [ebp-Ch]
+    //void *v9; // [esp+4h] [ebp-8h]
+    //void *retaddr; // [esp+Ch] [ebp+0h]
+    //
+    //v8 = a1;
+    //v9 = retaddr;
     body = Phys_GetUserData(id)->body;
     v6 = *velocity;
     v5 = velocity[1];
@@ -1852,10 +1885,11 @@ void    Phys_ObjSetVelocity(int a1@<ebp>, int id, float *velocity)
     v3.x = v6;
     v3.y = v5;
     v3.z = v4;
-    rigid_body::dangerous_set_t_vel(body, &v3);
+    //rigid_body::dangerous_set_t_vel(body, &v3);
+    body->dangerous_set_t_vel(&v3);
 }
 
-void __thiscall rigid_body::dangerous_set_t_vel(rigid_body *this, const phys_vec3 *t_vel)
+void __thiscall rigid_body::dangerous_set_t_vel(const phys_vec3 *t_vel)
 {
     this->m_t_vel.x = t_vel->x;
     this->m_t_vel.y = t_vel->y;
@@ -1868,19 +1902,19 @@ void __thiscall rigid_body::dangerous_set_t_vel(rigid_body *this, const phys_vec
     }
 }
 
-void    Phys_ObjSetAngularVelocityRaw(int a1@<ebp>, int id, float *angularVel)
+void    Phys_ObjSetAngularVelocityRaw(int id, float *angularVel)
 {
     phys_vec3 v3; // [esp-20h] [ebp-2Ch] BYREF
     float v4; // [esp-10h] [ebp-1Ch]
     float v5; // [esp-Ch] [ebp-18h]
     float v6; // [esp-8h] [ebp-14h]
     rigid_body *body; // [esp-4h] [ebp-10h]
-    int v8; // [esp+0h] [ebp-Ch]
-    void *v9; // [esp+4h] [ebp-8h]
-    void *retaddr; // [esp+Ch] [ebp+0h]
-
-    v8 = a1;
-    v9 = retaddr;
+    //int v8; // [esp+0h] [ebp-Ch]
+    //void *v9; // [esp+4h] [ebp-8h]
+    //void *retaddr; // [esp+Ch] [ebp+0h]
+    //
+    //v8 = a1;
+    //v9 = retaddr;
     body = Phys_GetUserData(id)->body;
     v6 = *angularVel;
     v5 = angularVel[1];
@@ -1888,25 +1922,26 @@ void    Phys_ObjSetAngularVelocityRaw(int a1@<ebp>, int id, float *angularVel)
     v3.x = v6;
     v3.y = v5;
     v3.z = v4;
-    rigid_body::dangerous_set_a_vel(body, &v3);
+    ///rigid_body::dangerous_set_a_vel(body, &v3);
+    body->dangerous_set_a_vel(&v3);
 }
 
-void    Phys_ObjGetPosition(int a1@<ebp>, int id, float *outPosition, float (*outRotation)[3])
+void    Phys_ObjGetPosition(int id, float *outPosition, float (*outRotation)[3])
 {
-    _BYTE v4[12]; // [esp-Ch] [ebp-5Ch] BYREF
-    phys_mat44 m2w; // [esp+0h] [ebp-50h] BYREF
+    phys_mat44 m2w; // [esp-Ch] [ebp-5Ch] BYREF
+    const phys_mat44 *rb2w; // [esp+3Ch] [ebp-14h]
     PhysObjUserData *UserData; // [esp+40h] [ebp-10h]
-    int v7; // [esp+44h] [ebp-Ch] BYREF
-    const phys_mat44 *rb2w; // [esp+48h] [ebp-8h]
+    //int v7; // [esp+44h] [ebp-Ch] BYREF
+    //const phys_mat44 *rb2w; // [esp+48h] [ebp-8h]
     const phys_mat44 *retaddr; // [esp+50h] [ebp+0h]
 
-    v7 = a1;
-    rb2w = retaddr;
+    //v7 = a1;
+    //rb2w = retaddr;
     UserData = Phys_GetUserData(id);
-    LODWORD(m2w.w.w) = &UserData->body->m_mat;
-    phys_full_multiply_mat((int)&v7, (phys_mat44 *)v4, (const phys_mat44 *)LODWORD(m2w.w.w), &UserData->cg2rb);
-    Phys_NitrousVecToVec3((const phys_vec3 *)&m2w.z.y, outPosition);
-    Phys_NitrousMat44ToVec33((const phys_mat44 *)v4, outRotation);
+    rb2w = &UserData->body->m_mat;
+    phys_full_multiply_mat(&m2w, rb2w, &UserData->cg2rb);
+    Phys_NitrousVecToVec3(&m2w.w, outPosition);
+    Phys_NitrousMat44ToVec33(&m2w, outRotation);
 }
 
 void __cdecl Phys_ObjGetVelocities(int id, float *tvel, float *avel)
@@ -1941,29 +1976,30 @@ void __cdecl Phys_ObjAddCollFlags(int physObjId, int collFlags)
     broad_phase_info *i; // [esp+Ch] [ebp-14h]
     broad_phase_info *bpi; // [esp+14h] [ebp-Ch]
 
-    if ( !physObjId
+    if (!physObjId
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-                    1063,
-                    0,
-                    "%s",
-                    "physObjId != PHYS_OBJ_ID_NULL") )
+            "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
+            1063,
+            0,
+            "%s",
+            "physObjId != PHYS_OBJ_ID_NULL"))
     {
         __debugbreak();
     }
-    if ( (*(unsigned int *)(*(unsigned int *)(physObjId + 160) + 48) & 1) != 0 )
+
+    PhysObjUserData *userData = (PhysObjUserData *)physObjId; // LWSS: yes, convert the int directly to a pointer to a struct. 
+
+    if ((userData->m_bpb->m_flags & 1) != 0)
     {
-        bpi = broad_phase_base::get_bpi(*(broad_phase_base **)(physObjId + 160));
+        //bpi = broad_phase_base::get_bpi(userData->m_bpb);
+        bpi = userData->m_bpb->get_bpi();
         bpi->m_env_collision_flags |= collFlags;
     }
     else
     {
-        for ( i = broad_phase_base::get_bpg(*(broad_phase_base **)(physObjId + 160))->m_list_bpi_head;
-                    i;
-                    i = (broad_phase_info *)i->m_list_bpb_next )
-        {
+        ///for (i = broad_phase_base::get_bpg(userData->m_bpb)->m_list_bpi_head; i; i = (broad_phase_info *)i->m_list_bpb_next)
+        for (i = userData->m_bpb->get_bpg()->m_list_bpi_head; i; i = (broad_phase_info *)i->m_list_bpb_next)
             i->m_env_collision_flags |= collFlags;
-        }
     }
 }
 
@@ -1972,29 +2008,30 @@ void __cdecl Phys_ObjRemoveCollFlags(int physObjId, int collFlags)
     broad_phase_info *i; // [esp+Ch] [ebp-14h]
     broad_phase_info *bpi; // [esp+14h] [ebp-Ch]
 
-    if ( !physObjId
+    if (!physObjId
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-                    1087,
-                    0,
-                    "%s",
-                    "physObjId != PHYS_OBJ_ID_NULL") )
+            "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
+            1087,
+            0,
+            "%s",
+            "physObjId != PHYS_OBJ_ID_NULL"))
     {
         __debugbreak();
     }
-    if ( (*(unsigned int *)(*(unsigned int *)(physObjId + 160) + 48) & 1) != 0 )
+
+    PhysObjUserData *userData = (PhysObjUserData *)physObjId; // LWSS: yes, convert the int directly to a pointer to a struct. 
+
+    if ((userData->m_bpb->m_flags & 1) != 0)
     {
-        bpi = broad_phase_base::get_bpi(*(broad_phase_base **)(physObjId + 160));
+        //bpi = broad_phase_base::get_bpi(userData->m_bpb);
+        bpi = userData->m_bpb->get_bpi();
         bpi->m_env_collision_flags &= ~collFlags;
     }
     else
     {
-        for ( i = broad_phase_base::get_bpg(*(broad_phase_base **)(physObjId + 160))->m_list_bpi_head;
-                    i;
-                    i = (broad_phase_info *)i->m_list_bpb_next )
-        {
+        //for (i = broad_phase_base::get_bpg(userData->m_bpb)->m_list_bpi_head; i; i = (broad_phase_info *)i->m_list_bpb_next)
+        for (i = userData->m_bpb->get_bpg()->m_list_bpi_head; i; i = (broad_phase_info *)i->m_list_bpb_next)
             i->m_env_collision_flags &= ~collFlags;
-        }
     }
 }
 
@@ -2010,7 +2047,8 @@ void __cdecl fixup_wheel_constraints(rigid_body *rb)
         if ( wci != (phys_free_list<rigid_body_constraint_wheel>::T_internal_base *)-16
             && (rigid_body *)wci[2].m_next_T_internal == rb )
         {
-            rigid_body_constraint_wheel::set_no_collision((rigid_body_constraint_wheel *)&wci[2]);
+            //rigid_body_constraint_wheel::set_no_collision((rigid_body_constraint_wheel *)&wci[2]);
+            ((rigid_body_constraint_wheel *)&wci[2])->set_no_collision();
         }
         wci = wci->m_next_T_internal;
     }
@@ -2058,60 +2096,65 @@ void __cdecl Phys_ObjDestroy(int worldIndex, int id)
 
 void __cdecl Phys_DestroyUserData(int worldIndex, PhysObjUserData *userData)
 {
-    phys_link_list1<PhysObjUserData>::remove(&physGlob.objects_by_world[worldIndex], userData);
-    phys_free_list<PhysObjUserData>::remove(&physGlob.objects, userData);
+    //phys_link_list1<PhysObjUserData>::remove(&physGlob.objects_by_world[worldIndex], userData);
+    physGlob.objects_by_world[worldIndex].remove(userData);
+    //phys_free_list<PhysObjUserData>::remove(&physGlob.objects, userData);
+    physGlob.objects.remove(userData);
 }
 
-void    Phys_AddCacheImpulses(int a1@<ebp>)
+void    Phys_AddCacheImpulses()
 {
-    phys_vec3 v1; // [esp+14h] [ebp-5Ch] BYREF
-    float v2; // [esp+28h] [ebp-48h]
-    float v3; // [esp+2Ch] [ebp-44h]
-    float v4; // [esp+30h] [ebp-40h]
-    float v5; // [esp+34h] [ebp-3Ch] BYREF
-    float v6; // [esp+38h] [ebp-38h]
-    float v7; // [esp+3Ch] [ebp-34h]
-    phys_vec3 force; // [esp+40h] [ebp-30h] BYREF
-    phys_vec3 pos; // [esp+50h] [ebp-20h]
-    rigid_body *body; // [esp+60h] [ebp-10h]
-    int v11; // [esp+64h] [ebp-Ch]
-    PhysImpulse *impulse; // [esp+68h] [ebp-8h]
-    PhysImpulse *retaddr; // [esp+70h] [ebp+0h]
-
-    v11 = a1;
-    impulse = retaddr;
+    phys_vec3 v1; // [esp+8h] [ebp-68h] BYREF
+    float v2; // [esp+18h] [ebp-58h]
+    float v3; // [esp+1Ch] [ebp-54h]
+    float v4; // [esp+28h] [ebp-48h]
+    float v5; // [esp+2Ch] [ebp-44h]
+    float v6; // [esp+30h] [ebp-40h]
+    phys_vec3 force; // [esp+34h] [ebp-3Ch] BYREF
+    phys_vec3 pos; // [esp+44h] [ebp-2Ch] BYREF
+    rigid_body *body; // [esp+54h] [ebp-1Ch]
+    int id; // [esp+58h] [ebp-18h]
+    PhysImpulse *impulse; // [esp+5Ch] [ebp-14h]
+    int i; // [esp+60h] [ebp-10h]
+    //_UNKNOWN *v13; // [esp+64h] [ebp-Ch]
+    //int v14; // [esp+68h] [ebp-8h]
+    //int vars0; // [esp+70h] [ebp+0h]
+    //
+    //v13 = a1;
+    //v14 = vars0;
     //PIXBeginNamedEvent(-1, "Phys_AddCacheImpulses");
-    for ( body = 0; (int)body < gImpulseCacheNum; body = (rigid_body *)((char *)body + 1) )
+    for (i = 0; i < gImpulseCacheNum; ++i)
     {
-        LODWORD(pos.w) = &gImpulseCache[(unsigned int)body];
-        pos.z = *(float *)LODWORD(pos.w);
-        LODWORD(pos.y) = Phys_GetUserData(SLODWORD(pos.z))->body;
-        if ( LODWORD(pos.y) )
+        impulse = &gImpulseCache[i];
+        id = impulse->id;
+        body = Phys_GetUserData(id)->body;
+        if (body)
         {
-            Phys_Vec3ToNitrousVec((float *)(LODWORD(pos.w) + 4), (phys_vec3 *)&force.y);
-            Phys_Vec3ToNitrousVec((float *)(LODWORD(pos.w) + 16), (phys_vec3 *)&v5);
-            if ( Abs(&v5) >= 1000000.0
+            Phys_Vec3ToNitrousVec(impulse->hitp, &pos);
+            Phys_Vec3ToNitrousVec(impulse->hitd, &force);
+            if (Abs(&force.x) >= 1000000.0
                 && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-                            1206,
-                            0,
-                            "%s",
-                            "Abs(force) < 1000000.0f") )
+                    "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
+                    1206,
+                    0,
+                    "%s",
+                    "Abs(force) < 1000000.0f"))
             {
                 __debugbreak();
             }
-            v4 = 0.001 * v5;
-            v3 = 0.001 * v6;
-            v2 = 0.001 * v7;
-            v1.x = 0.001 * v5;
-            v1.y = 0.001 * v6;
-            v1.z = 0.001 * v7;
-            rigid_body::add_force((rigid_body *)LODWORD(pos.y), &v1, (phys_vec3 *)&force.y, 1.0);
+            v6 = 0.001 * force.x;
+            v5 = 0.001 * force.y;
+            v4 = 0.001 * force.z;
+            v1.w = 0.001 * force.x;
+            v2 = 0.001 * force.y;
+            v3 = 0.001 * force.z;
+            //rigid_body::add_force(body, (phys_vec3 *)&v1.w, &pos, 1.0);
+            body->add_force((phys_vec3 *)&v1.w, &pos, 1.0);
         }
     }
     gImpulseCacheNum = 0;
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
+    //if (g_DXDeviceThread == GetCurrentThreadId())
+    //    D3DPERF_EndEvent();
 }
 
 void __cdecl Phys_ObjAddCustomForce(
@@ -2162,10 +2205,10 @@ void __cdecl Phys_ObjAddCustomForce(
                 modHitDir[0] = *hitDir;
                 modHitDir[1] = hitDir[1];
                 modHitDir[2] = hitDir[2];
-                torque[0] = CG_flrand(COERCE_FLOAT(LODWORD(range_1) ^ _mask__NegFloat_), range_1);
-                torque[1] = CG_flrand(COERCE_FLOAT(LODWORD(range_1) ^ _mask__NegFloat_), range_1);
-                torque[2] = CG_flrand(COERCE_FLOAT(LODWORD(range_1) ^ _mask__NegFloat_), range_1);
-                Phys_ObjAddTorque((int)&savedregs, physObjId, torque);
+                torque[0] = CG_flrand((-(range_1)), range_1);
+                torque[1] = CG_flrand((-(range_1)), range_1);
+                torque[2] = CG_flrand((-(range_1)), range_1);
+                Phys_ObjAddTorque(physObjId, torque);
                 break;
             default:
                 scale = dynEnt_bulletForce->current.value;
@@ -2182,13 +2225,13 @@ void __cdecl Phys_ObjAddCustomForce(
                 break;
         }
         if ( mod )
-            Phys_ObjAddForce((int)&savedregs, physObjId, modHitPos, modHitDir, 0);
+            Phys_ObjAddForce(physObjId, modHitPos, modHitDir, 0);
         else
             Phys_ObjBulletImpact(physObjId, hitPos, modHitDir, scale, physPreset->bulletForceScale);
     }
 }
 
-void    Phys_ObjAddForce(int a1@<ebp>, int id, float *worldPos, float *impulse, bool relative)
+void    Phys_ObjAddForce(int id, float *worldPos, float *impulse, bool relative)
 {
     const phys_vec3 *v5; // eax
     phys_vec3 *torque_mult; // [esp+0h] [ebp-C0h]
@@ -2213,12 +2256,12 @@ void    Phys_ObjAddForce(int a1@<ebp>, int id, float *worldPos, float *impulse, 
     float y; // [esp+9Ch] [ebp-24h]
     phys_vec3 force; // [esp+A0h] [ebp-20h]
     rigid_body *body; // [esp+B0h] [ebp-10h]
-    int v28; // [esp+B4h] [ebp-Ch]
-    void *v29; // [esp+B8h] [ebp-8h]
-    void *retaddr; // [esp+C0h] [ebp+0h]
-
-    v28 = a1;
-    v29 = retaddr;
+    //int v28; // [esp+B4h] [ebp-Ch]
+    //void *v29; // [esp+B8h] [ebp-8h]
+    //void *retaddr; // [esp+C0h] [ebp+0h]
+    //
+    //v28 = a1;
+    //v29 = retaddr;
     if ( id && id != -1 )
     {
         body = Phys_GetUserData(id)->body;
@@ -2239,7 +2282,8 @@ void    Phys_ObjAddForce(int a1@<ebp>, int id, float *worldPos, float *impulse, 
             p_m_mat = &body->m_mat;
             torque_mult = &body->m_mat.w;
             v5 = phys_multiply(&v16, &body->m_mat, (const phys_vec3 *)&x);
-            operator+(&v15, v5, torque_mult);
+            //operator+(&v15, v5, torque_mult);
+            v15 = *v5 + *torque_mult;
             x = v15.x;
             v19 = v15.y;
             v20 = v15.z;
@@ -2262,7 +2306,8 @@ void    Phys_ObjAddForce(int a1@<ebp>, int id, float *worldPos, float *impulse, 
             v11.x = 0.001 * w;
             v11.y = 0.001 * z;
             v11.z = 0.001 * y;
-            rigid_body::add_force(body, &v11);
+            //rigid_body::add_force(body, &v11);
+            body->add_force(&v11);
         }
         else
         {
@@ -2272,49 +2317,49 @@ void    Phys_ObjAddForce(int a1@<ebp>, int id, float *worldPos, float *impulse, 
             v7.x = 0.001 * w;
             v7.y = 0.001 * z;
             v7.z = 0.001 * y;
-            rigid_body::add_force(body, &v7, (const phys_vec3 *)&x, 1.0);
+            //rigid_body::add_force(body, &v7, (const phys_vec3 *)&x, 1.0);
+            body->add_force(&v7, (const phys_vec3 *)&x, 1.0);
         }
     }
 }
 
-void    Phys_ObjAddTorque(int a1@<ebp>, int id, float *torque)
+void    Phys_ObjAddTorque(int id, float *torque)
 {
     phys_vec3 v3; // [esp-2Ch] [ebp-4Ch] BYREF
     float v4; // [esp-18h] [ebp-38h]
     float v5; // [esp-14h] [ebp-34h]
     float v6; // [esp-10h] [ebp-30h]
-    float v7; // [esp-Ch] [ebp-2Ch] BYREF
-    float v8; // [esp-8h] [ebp-28h]
-    float v9; // [esp-4h] [ebp-24h]
+    phys_vec3 _torque; // [esp-Ch] [ebp-2Ch] BYREF
     rigid_body *body; // [esp+10h] [ebp-10h]
-    int v11; // [esp+14h] [ebp-Ch]
-    void *v12; // [esp+18h] [ebp-8h]
-    void *retaddr; // [esp+20h] [ebp+0h]
-
-    v11 = a1;
-    v12 = retaddr;
+    //int v9; // [esp+14h] [ebp-Ch]
+    //void *v10; // [esp+18h] [ebp-8h]
+    //void *retaddr; // [esp+20h] [ebp+0h]
+    //
+    //v9 = a1;
+    //v10 = retaddr;
     body = Phys_GetUserData(id)->body;
-    Phys_Vec3ToNitrousVec(torque, (phys_vec3 *)&v7);
-    if ( Abs(&v7) >= 1000000.0
+    Phys_Vec3ToNitrousVec(torque, &_torque);
+    if (Abs(&_torque.x) >= 1000000.0
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-                    1309,
-                    0,
-                    "%s",
-                    "Abs(_torque) < 1000000.0f") )
+            "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
+            1309,
+            0,
+            "%s",
+            "Abs(_torque) < 1000000.0f"))
     {
         __debugbreak();
     }
-    v6 = 0.001 * v7;
-    v5 = 0.001 * v8;
-    v4 = 0.001 * v9;
-    v3.x = 0.001 * v7;
-    v3.y = 0.001 * v8;
-    v3.z = 0.001 * v9;
-    rigid_body::add_torque(body, &v3);
+    v6 = 0.001 * _torque.x;
+    v5 = 0.001 * _torque.y;
+    v4 = 0.001 * _torque.z;
+    v3.x = 0.001 * _torque.x;
+    v3.y = 0.001 * _torque.y;
+    v3.z = 0.001 * _torque.z;
+    //rigid_body::add_torque(body, &v3);
+    body->add_torque(&v3);
 }
 
-void __thiscall rigid_body::add_torque(rigid_body *this, const phys_vec3 *torque)
+void __thiscall rigid_body::add_torque(const phys_vec3 *torque)
 {
     this->m_torque_sum.x = this->m_torque_sum.x + torque->x;
     this->m_torque_sum.y = this->m_torque_sum.y + torque->y;
@@ -2353,7 +2398,7 @@ void __cdecl Phys_ObjBulletImpact(
     force[0] = (float)(scale * bulletSpeed) * bulletDir[0];
     force[1] = (float)(scale * bulletSpeed) * bulletDir[1];
     force[2] = (float)(scale * bulletSpeed) * bulletDir[2];
-    Phys_ObjAddForce((int)&savedregs, id, worldPos, force, 0);
+    Phys_ObjAddForce(id, worldPos, force, 0);
 }
 
 void __cdecl Phys_TweakBulletImpact(float *worldPos, float *bulletDir, const float *centerOfMass)
@@ -2404,6 +2449,7 @@ int __cdecl Phys_ObjGetSnapshot(int id, float *outPos, float (*outMat)[3])
     return physGlob.timeLastSnapshot;
 }
 
+float s_lineHeight = 8.0;
 void __cdecl Phys_RenderBulletMeshInfo(
                 float *pos,
                 const XModel *model,
@@ -2433,11 +2479,12 @@ void __cdecl Phys_RenderBulletMeshInfo(
     }
     else
     {
-        XModelRenderString(pos, "    No bullet mesh");
+        XModelRenderString(pos, (char*)"    No bullet mesh");
     }
     pos[2] = pos[2] - s_lineHeight;
 }
 
+float s_stringPosScale = 240.0f;
 void __cdecl Phys_ComputeStringPosition(const float *start, const float *end, float *position)
 {
     float v3; // [esp+0h] [ebp-10h]
@@ -2497,7 +2544,7 @@ void __cdecl Phys_FindAndRenderBulletMesh(const float *start, const float *end)
     clip.extents.end.vec.v[2] = end[2];
     CM_CalcTraceExtents(&clip.extents);
     clip.ignoreEntParams = 0;
-    clip.contentmask = (int)&loc_802010 + 3;
+    clip.contentmask = 0x802010 + 3;
     clip.bLocational = 1;
     clip.priorityMap = 0;
     DynEntCl_PointTrace(&clip, &resultsDyn);
@@ -2600,9 +2647,9 @@ chull_t *__cdecl create_chull(phys_convex_hull *pch)
 
     hull = PMM_ALLOC(0x20u, 4u);
     *((unsigned int *)hull + 1) = pch->m_convex_hull_vert_list.m_alloc_count;
-    *((unsigned int *)hull + 2) = PMM_ALLOC(16 * *((unsigned int *)hull + 1), 0x10u);
+    *((unsigned int *)hull + 2) = (unsigned int)PMM_ALLOC(16 * *((unsigned int *)hull + 1), 0x10u);
     *((unsigned int *)hull + 3) = 3 * pch->m_convex_hull_triangle_list.m_alloc_count;
-    *((unsigned int *)hull + 4) = PMM_ALLOC((2 * *((unsigned int *)hull + 3) + 3) & 0xFFFFFFFC, 4u);
+    *((unsigned int *)hull + 4) = (unsigned int)PMM_ALLOC((2 * *((unsigned int *)hull + 3) + 3) & 0xFFFFFFFC, 4u);
     *((unsigned int *)hull + 5) = 0;
     vert_i = 0;
     vi = (float **)pch->m_convex_hull_vert_list.m_slot_array;
@@ -2689,207 +2736,211 @@ void __cdecl free_chull_lists()
     }
 }
 
-chull_t * generate_brush_chull@<eax>(int a1@<ebp>, const cbrush_t *brush)
+chull_t * generate_brush_chull(const cbrush_t *brush)
 {
     phys_vec3 *v3; // eax
-    unsigned int v4[3]; // [esp+14h] [ebp-2Ch] BYREF
-    phys_vec3 v; // [esp+20h] [ebp-20h]
+    phys_vec3 v4; // [esp+14h] [ebp-2Ch] BYREF
+    unsigned int vi; // [esp+2Ch] [ebp-14h]
     int i; // [esp+30h] [ebp-10h]
-    int v7; // [esp+34h] [ebp-Ch] BYREF
-    unsigned int vi; // [esp+38h] [ebp-8h]
-    unsigned int retaddr; // [esp+40h] [ebp+0h]
-
-    v7 = a1;
-    vi = retaddr;
-    if ( !brush )
+    //int v7; // [esp+34h] [ebp-Ch] BYREF
+    //unsigned int vi; // [esp+38h] [ebp-8h]
+    //unsigned int retaddr; // [esp+40h] [ebp+0h]
+    //
+    //v7 = a1;
+    //vi = retaddr;
+    if (!brush)
         return 0;
-    for ( i = 0; i < g_hull.m_vertex_buffer.m_alloc_count; ++i )
+    for (i = 0; i < g_hull.m_vertex_buffer.m_alloc_count; ++i)
         ;
+
     g_hull.m_vertex_buffer.m_alloc_count = 0;
-    for ( v.w = 0.0; LODWORD(v.w) < brush->numverts; ++LODWORD(v.w) )
+
+    for (vi = 0; vi < brush->numverts; ++vi)
     {
-        Phys_Vec3ToNitrousVec(brush->verts[LODWORD(v.w)], (phys_vec3 *)v4);
-        v3 = phys_static_array<phys_vec3,6144>::add(&g_hull.m_vertex_buffer, 0, "phys array add overflow.");
-        LODWORD(v3->x) = v4[0];
-        LODWORD(v3->y) = v4[1];
-        LODWORD(v3->z) = v4[2];
+        Phys_Vec3ToNitrousVec(brush->verts[vi], &v4);
+        //v3 = phys_static_array<phys_vec3, 6144>::add(&g_hull.m_vertex_buffer, 0, "phys array add overflow.");
+        v3 = g_hull.m_vertex_buffer.add(0, "phys array add overflow.");
+        v3->x = v4.x;
+        v3->y = v4.y;
+        v3->z = v4.z;
     }
-    phys_convex_hull::compute_convex_hull(&g_hull, (int)&v7, 128, 0.0);
+    //phys_convex_hull::compute_convex_hull(&g_hull, (int)&v7, 128, 0.0);
+    g_hull.compute_convex_hull(128, 0.0);
     return create_chull(&g_hull);
 }
 
-void __userpurge phys_convex_hull::compute_convex_hull(
-                phys_convex_hull *this@<ecx>,
-                int a2@<ebp>,
+void phys_convex_hull::compute_convex_hull(
                 int max_verts,
                 float min_expansion_volume_percent)
 {
-    const phys_vec3 *v4; // eax
+    phys_vec3 *v4; // eax
     phys_convex_hull::ch_triangle *v5; // eax
     const phys_vec3 *v6; // eax
     phys_convex_hull::ch_triangle *v7; // eax
-    const phys_convex_hull::ch_triangle *v8; // [esp-14h] [ebp-B0h]
+    phys_convex_hull::ch_triangle *v8; // [esp-14h] [ebp-B0h]
     phys_convex_hull::ch_triangle *list_head; // [esp-Ch] [ebp-A8h]
-    phys_convex_hull::ch_edge *v10; // [esp+0h] [ebp-9Ch]
-    phys_convex_hull::ch_edge *edge_i_end; // [esp+Ch] [ebp-90h]
-    float edge_i; // [esp+18h] [ebp-84h]
+    phys_convex_hull::ch_edge *edge; // [esp+0h] [ebp-9Ch]
+    phys_convex_hull::ch_edge *edge_i; // [esp+Ch] [ebp-90h]
+    float v12; // [esp+18h] [ebp-84h]
     float v13; // [esp+1Ch] [ebp-80h]
-    phys_vec3 increase_percent; // [esp+20h] [ebp-7Ch] BYREF
-    float v15; // [esp+30h] [ebp-6Ch]
-    phys_vec3 **v16; // [esp+34h] [ebp-68h]
-    float v17; // [esp+38h] [ebp-64h]
-    float v18; // [esp+3Ch] [ebp-60h]
-    int v19; // [esp+40h] [ebp-5Ch] BYREF
-    float x; // [esp+50h] [ebp-4Ch]
-    phys_convex_hull::ch_triangle *v21; // [esp+54h] [ebp-48h]
-    phys_convex_hull::ch_triangle *v22; // [esp+58h] [ebp-44h]
-    phys_vec3 **v23; // [esp+5Ch] [ebp-40h]
-    phys_vec3 **support_vert; // [esp+60h] [ebp-3Ch]
-    phys_convex_hull::ch_triangle *tri; // [esp+64h] [ebp-38h]
-    phys_vec3 **v26; // [esp+68h] [ebp-34h]
+    phys_vec3 increase_percent_; // [esp+20h] [ebp-7Ch] BYREF
+    const phys_vec3 *v15; // [esp+30h] [ebp-6Ch]
+    phys_convex_hull::ch_triangle *m_ptr; // [esp+34h] [ebp-68h]
+    float volume; // [esp+38h] [ebp-64h]
+    float support_vert_dist; // [esp+3Ch] [ebp-60h]
+    //phys_vec3 v19; // [esp+40h] [ebp-5Ch] BYREF
+    const phys_vec3 *v20; // [esp+50h] [ebp-4Ch]
+    phys_vec3 **support_vert; // [esp+54h] [ebp-48h]
+    phys_convex_hull::ch_triangle *tri; // [esp+58h] [ebp-44h]
+    phys_convex_hull::ch_triangle *v23; // [esp+5Ch] [ebp-40h]
+    phys_convex_hull::ch_triangle *v24; // [esp+60h] [ebp-3Ch]
+    phys_static_array<phys_convex_hull::ch_triangle, 256> *p_m_intermediate_triangle_list; // [esp+64h] [ebp-38h]
+    phys_static_array<phys_convex_hull::ch_triangle, 256>::iterator tri_i; // [esp+68h] [ebp-34h]
     phys_convex_hull::ch_triangle *m_slot_array; // [esp+6Ch] [ebp-30h]
-    float v28; // [esp+70h] [ebp-2Ch]
-    phys_static_array<phys_convex_hull::ch_triangle,256>::iterator tri_i; // [esp+74h] [ebp-28h]
-    phys_convex_hull::ch_triangle *v30; // [esp+78h] [ebp-24h]
-    int best_volume; // [esp+7Ch] [ebp-20h]
-    phys_vec3 **best_vert; // [esp+80h] [ebp-1Ch]
-    phys_convex_hull::ch_triangle *best_tri; // [esp+84h] [ebp-18h]
-    float v34; // [esp+88h] [ebp-14h]
-    phys_convex_hull *v35; // [esp+8Ch] [ebp-10h]
-    int v36; // [esp+90h] [ebp-Ch] BYREF
-    float total_volume; // [esp+94h] [ebp-8h]
-    float retaddr; // [esp+9Ch] [ebp+0h]
-
-    v36 = a2;
-    total_volume = retaddr;
-    v35 = this;
-    if ( max_verts < 3
+    float best_volume; // [esp+70h] [ebp-2Ch]
+    phys_vec3 **best_vert; // [esp+74h] [ebp-28h]
+    phys_convex_hull::ch_triangle *best_tri; // [esp+78h] [ebp-24h]
+    int v31; // [esp+7Ch] [ebp-20h]
+    int v32; // [esp+80h] [ebp-1Ch]
+    int m_alloc_count; // [esp+84h] [ebp-18h]
+    float total_volume; // [esp+88h] [ebp-14h]
+    //phys_convex_hull *thisa; // [esp+8Ch] [ebp-10h]
+    //_UNKNOWN *v36[2]; // [esp+90h] [ebp-Ch] BYREF
+    //int vars0; // [esp+9Ch] [ebp+0h]
+    //
+    //v36[0] = a2;
+    //v36[1] = (_UNKNOWN *)vars0;
+    //thisa = this;
+    if (max_verts < 3
         && _tlAssert(
-                 "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_convex_hull.h",
-                 331,
-                 "max_verts >= 3",
-                 "") )
+            "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_convex_hull.h",
+            331,
+            "max_verts >= 3",
+            ""))
     {
         __debugbreak();
     }
-    phys_convex_hull::init_convex_hull(v35);
-    v34 = 0.0f;
-    while ( 1 )
+    phys_convex_hull::init_convex_hull();
+    total_volume = 0.0f;
+    while (1)
     {
-        best_tri = (phys_convex_hull::ch_triangle *)v35->m_convex_hull_vert_list.m_alloc_count;
-        if ( (int)best_tri >= max_verts )
+        m_alloc_count = this->m_convex_hull_vert_list.m_alloc_count;
+        if (m_alloc_count >= max_verts)
             break;
-        best_vert = (phys_vec3 **)v35->m_intermediate_triangle_list.m_alloc_count;
-        if ( (int)best_vert <= 0 )
+        v32 = this->m_intermediate_triangle_list.m_alloc_count;
+        if (v32 <= 0)
             break;
-        best_volume = v35->m_intermediate_vertex_list.m_alloc_count;
-        if ( best_volume <= 0 )
+        v31 = this->m_intermediate_vertex_list.m_alloc_count;
+        if (v31 <= 0)
             break;
-        v30 = 0;
-        tri_i.m_ptr = 0;
-        v28 = 0.0f;
-        m_slot_array = v35->m_intermediate_triangle_list.m_slot_array;
-        v26 = (phys_vec3 **)m_slot_array;
-        while ( 1 )
+        best_tri = 0;
+        best_vert = 0;
+        best_volume = 0.0f;
+        m_slot_array = this->m_intermediate_triangle_list.m_slot_array;
+        tri_i.m_ptr = m_slot_array;
+        while (1)
         {
-            tri = (phys_convex_hull::ch_triangle *)&v35->m_intermediate_triangle_list;
-            support_vert = (phys_vec3 **)&v35->m_intermediate_triangle_list.m_slot_array[v35->m_intermediate_triangle_list.m_alloc_count];
-            v23 = support_vert;
-            if ( support_vert == v26 )
+            p_m_intermediate_triangle_list = &this->m_intermediate_triangle_list;
+            v24 = &this->m_intermediate_triangle_list.m_slot_array[this->m_intermediate_triangle_list.m_alloc_count];
+            v23 = v24;
+            if (v24 == tri_i.m_ptr)
                 break;
-            v22 = (phys_convex_hull::ch_triangle *)v26;
-            v21 = (phys_convex_hull::ch_triangle *)phys_convex_hull::support_intermediate_verts(v35, (const phys_vec3 *)v26);
-            x = v21->m_normal.x;
-            v4 = operator-((phys_vec3 *)&v19, (const phys_vec3 *)LODWORD(x), v22->m_verts[0]);
-            v18 = phys_dot(&v22->m_normal, v4);
-            if ( v18 <= 0.034000002 )
+            tri = tri_i.m_ptr;
+            support_vert = phys_convex_hull::support_intermediate_verts(&tri_i.m_ptr->m_normal);
+            v20 = *support_vert;
+            //v4 = operator-(&v19, v20, tri->m_verts[0]);
+            //support_vert_dist = phys_dot(&tri->m_normal, v4);
+            phys_vec3 aids = *support_vert[0] - *tri->m_verts[0]; // having fun with operators
+            support_vert_dist = phys_dot(&tri->m_normal, &aids);
+            if (support_vert_dist <= 0.034000002)
             {
-                v8 = v22;
-                v5 = phys_static_array<phys_convex_hull::ch_triangle,64>::add(
-                             &v35->m_convex_hull_triangle_list,
-                             0,
-                             "phys array add overflow.");
-                phys_convex_hull::ch_triangle::operator=(v5, v8);
-                v16 = v26;
-                phys_static_array<phys_convex_hull::ch_triangle,256>::remove_slow(&v35->m_intermediate_triangle_list, v22);
+                v8 = tri;
+                //v5 = phys_static_array<phys_convex_hull::ch_triangle, 64>::add(&this->m_convex_hull_triangle_list, 0, "phys array add overflow.");
+                v5 = this->m_convex_hull_triangle_list.add(0, "phys array add overflow.");
+                //phys_convex_hull::ch_triangle::operator=(v5, v8);
+                v5 = v8;
+                m_ptr = tri_i.m_ptr;
+                //phys_static_array<phys_convex_hull::ch_triangle, 256>::remove_slow(&this->m_intermediate_triangle_list, tri);
+                this->m_intermediate_triangle_list.remove_slow(tri);
             }
             else
             {
-                v17 = phys_convex_hull::calc_expansion_volume(v35, (const phys_vec3 *)LODWORD(v21->m_normal.x));
-                if ( v17 > v28 )
+                volume = phys_convex_hull::calc_expansion_volume(*support_vert);
+                if (volume > best_volume)
                 {
-                    v30 = v22;
-                    tri_i.m_ptr = v21;
-                    v28 = v17;
+                    best_tri = tri;
+                    best_vert = support_vert;
+                    best_volume = volume;
                 }
-                v26 += 8;
+                ++tri_i.m_ptr;
             }
         }
-        if ( !v30 )
+        if (!best_tri)
             break;
-        if ( !tri_i.m_ptr
+        if (!best_vert
             && _tlAssert(
-                     "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_convex_hull.h",
-                     373,
-                     "best_vert",
-                     "") )
+                "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_convex_hull.h",
+                373,
+                "best_vert",
+                ""))
         {
             __debugbreak();
         }
-        if ( v28 <= 0.0
+        if (best_volume <= 0.0
             && _tlAssert(
-                     "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_convex_hull.h",
-                     374,
-                     "best_volume > 0.0f",
-                     "") )
+                "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_convex_hull.h",
+                374,
+                "best_volume > 0.0f",
+                ""))
         {
             __debugbreak();
         }
-        v15 = tri_i.m_ptr->m_normal.x;
-        v6 = operator-(&increase_percent, (const phys_vec3 *)LODWORD(v15), v30->m_verts[0]);
-        v13 = phys_dot(&v30->m_normal, v6);
-        if ( v13 <= 0.034000002
+        v15 = *best_vert;
+        //v6 = operator-(&increase_percent_, v15, best_tri->m_verts[0]);
+        phys_vec3 crap = *v15 - *best_tri->m_verts[0];
+        //v13 = phys_dot(&best_tri->m_normal, v6);
+        v13 = phys_dot(&best_tri->m_normal, &crap);
+        if (v13 <= 0.034000002
             && _tlAssert(
-                     "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_convex_hull.h",
-                     375,
-                     "best_tri->get_dist(**best_vert) > CONVEX_HULL_VERT_ADD_DIST_THRESH",
-                     "") )
+                "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_convex_hull.h",
+                375,
+                "best_tri->get_dist(**best_vert) > CONVEX_HULL_VERT_ADD_DIST_THRESH",
+                ""))
         {
             __debugbreak();
         }
-        edge_i = v34 <= 0.000099999997 ? FLOAT_100000_0 : v28 / v34;
-        if ( min_expansion_volume_percent > edge_i )
+        v12 = total_volume <= 0.000099999997 ? 100000.0 : best_volume / total_volume;
+        if (min_expansion_volume_percent > v12)
             break;
-        v34 = v34 + v28;
-        phys_convex_hull::create_edge_list(v35, (const phys_vec3 *)LODWORD(tri_i.m_ptr->m_normal.x));
-        edge_i_end = v35->m_intermediate_edge_list.m_slot_array;
-        v10 = &edge_i_end[v35->m_intermediate_edge_list.m_alloc_count];
-        while ( v10 != edge_i_end )
+        total_volume = total_volume + best_volume;
+        phys_convex_hull::create_edge_list(*best_vert);
+        edge_i = this->m_intermediate_edge_list.m_slot_array;
+        edge = &edge_i[this->m_intermediate_edge_list.m_alloc_count];
+        while (edge != edge_i)
         {
             phys_convex_hull::create_intermediate_triangle(
-                v35,
-                (int)&v36,
-                (phys_vec3 *)LODWORD(tri_i.m_ptr->m_normal.x),
-                edge_i_end->m_verts[0],
-                edge_i_end->m_verts[1]);
-            ++edge_i_end;
+                *best_vert,
+                edge_i->m_verts[0],
+                edge_i->m_verts[1]);
+            ++edge_i;
         }
-        phys_convex_hull::add_convex_hull_vert(v35, (phys_vec3 **)tri_i.m_ptr);
-        phys_convex_hull::remove_inside_verts(v35);
+        phys_convex_hull::add_convex_hull_vert(best_vert);
+        phys_convex_hull::remove_inside_verts();
     }
-    while ( v35->m_intermediate_triangle_list.m_alloc_count > 0 )
+    while (this->m_intermediate_triangle_list.m_alloc_count > 0)
     {
-        list_head = phys_static_array<phys_convex_hull::ch_triangle,256>::get_list_head(&v35->m_intermediate_triangle_list);
-        v7 = phys_static_array<phys_convex_hull::ch_triangle,64>::add(
-                     &v35->m_convex_hull_triangle_list,
-                     0,
-                     "phys array add overflow.");
-        phys_convex_hull::ch_triangle::operator=(v7, list_head);
-        phys_static_array<phys_convex_hull::ch_triangle,256>::remove_slow(&v35->m_intermediate_triangle_list, list_head);
+        //list_head = phys_static_array<phys_convex_hull::ch_triangle, 256>::get_list_head(&this->m_intermediate_triangle_list);
+        list_head = this->m_intermediate_triangle_list.get_list_head();
+        //v7 = phys_static_array<phys_convex_hull::ch_triangle, 64>::add(&this->m_convex_hull_triangle_list, 0, "phys array add overflow.");
+        v7 = this->m_convex_hull_triangle_list.add(0, "phys array add overflow.");
+        //phys_convex_hull::ch_triangle::operator=(v7, list_head);
+        v7 =  list_head;
+        //phys_static_array<phys_convex_hull::ch_triangle, 256>::remove_slow(&this->m_intermediate_triangle_list, list_head);
+        this->m_intermediate_triangle_list.remove_slow(list_head);
     }
 }
 
-void __thiscall phys_convex_hull::add_convex_hull_vert(phys_convex_hull *this, phys_vec3 **vert)
+void __thiscall phys_convex_hull::add_convex_hull_vert(phys_vec3 **vert)
 {
     phys_vec3 **v3; // [esp+8h] [ebp-10h]
     phys_vec3 **v4; // [esp+14h] [ebp-4h]
@@ -2914,12 +2965,11 @@ void __thiscall phys_convex_hull::add_convex_hull_vert(phys_convex_hull *this, p
         v3 = 0;
     }
     *v3 = *vert;
-    phys_static_array<phys_vec3 *,6144>::remove(&this->m_intermediate_vertex_list, vert);
+    //phys_static_array<phys_vec3 *,6144>::remove(&this->m_intermediate_vertex_list, vert);
+    this->m_intermediate_vertex_list.remove_slow(vert); // KISAKTODO: remove()
 }
 
-void __userpurge phys_convex_hull::create_intermediate_triangle(
-                phys_convex_hull *this@<ecx>,
-                int a2@<ebp>,
+void phys_convex_hull::create_intermediate_triangle(
                 phys_vec3 *v0,
                 phys_vec3 *v1,
                 phys_vec3 *v2)
@@ -2938,18 +2988,16 @@ void __userpurge phys_convex_hull::create_intermediate_triangle(
     float v16; // [esp+48h] [ebp-1Ch]
     float v17; // [esp+4Ch] [ebp-18h]
     phys_convex_hull::ch_triangle *v18; // [esp+50h] [ebp-14h]
-    phys_convex_hull *v19; // [esp+54h] [ebp-10h]
-    int v20; // [esp+58h] [ebp-Ch]
-    phys_convex_hull::ch_triangle *tri; // [esp+5Ch] [ebp-8h]
-    phys_convex_hull::ch_triangle *retaddr; // [esp+64h] [ebp+0h]
-
-    v20 = a2;
-    tri = retaddr;
-    v19 = this;
-    v18 = phys_static_array<phys_convex_hull::ch_triangle,256>::add(
-                    &this->m_intermediate_triangle_list,
-                    0,
-                    "phys array add overflow.");
+    //phys_convex_hull *v19; // [esp+54h] [ebp-10h]
+    //int v20; // [esp+58h] [ebp-Ch]
+    //phys_convex_hull::ch_triangle *tri; // [esp+5Ch] [ebp-8h]
+    //phys_convex_hull::ch_triangle *retaddr; // [esp+64h] [ebp+0h]
+    //
+    //v20 = a2;
+    //tri = retaddr;
+    //v19 = this;
+    //v18 = phys_static_array<phys_convex_hull::ch_triangle,256>::add(&this->m_intermediate_triangle_list, 0, "phys array add overflow.");
+    v18 = this->m_intermediate_triangle_list.add(0, "phys array add overflow.");
     v18->m_verts[0] = v0;
     v18->m_verts[1] = v1;
     v18->m_verts[2] = v2;
@@ -2983,7 +3031,7 @@ void __userpurge phys_convex_hull::create_intermediate_triangle(
     v18->m_normal.z = v6;
 }
 
-phys_vec3 **__thiscall phys_convex_hull::support_intermediate_verts(phys_convex_hull *this, const phys_vec3 *dir)
+phys_vec3 **__thiscall phys_convex_hull::support_intermediate_verts(const phys_vec3 *dir)
 {
     phys_vec3 **vert_i; // [esp+1Ch] [ebp-10h]
     phys_vec3 **best_vert; // [esp+24h] [ebp-8h]
@@ -3015,7 +3063,7 @@ phys_vec3 **__thiscall phys_convex_hull::support_intermediate_verts(phys_convex_
     return best_vert;
 }
 
-void __thiscall phys_convex_hull::init_convex_hull(phys_convex_hull *this)
+void __thiscall phys_convex_hull::init_convex_hull()
 {
     phys_vec3 **v1; // eax
     phys_vec3 **v2; // eax
@@ -3061,7 +3109,7 @@ void __thiscall phys_convex_hull::init_convex_hull(phys_convex_hull *this)
     for ( m = 0; m < this->m_convex_hull_triangle_list.m_alloc_count; ++m )
         ;
     this->m_convex_hull_triangle_list.m_alloc_count = 0;
-    phys_convex_hull::calculate_initial_triangle_vertices(this, (int)&savedregs);
+    phys_convex_hull::calculate_initial_triangle_vertices();
     if ( this->m_convex_hull_vert_list.m_alloc_count != 3
         && _tlAssert(
                  "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_convex_hull.h",
@@ -3071,25 +3119,31 @@ void __thiscall phys_convex_hull::init_convex_hull(phys_convex_hull *this)
     {
         __debugbreak();
     }
-    v5 = *phys_static_array<phys_vec3 *,64>::operator[](&this->m_convex_hull_vert_list, 2);
-    v3 = *phys_static_array<phys_vec3 *,64>::operator[](&this->m_convex_hull_vert_list, 1);
-    v1 = phys_static_array<phys_vec3 *,64>::operator[](&this->m_convex_hull_vert_list, 0);
-    phys_convex_hull::create_intermediate_triangle(this, (int)&savedregs, *v1, v3, v5);
-    v6 = *phys_static_array<phys_vec3 *,64>::operator[](&this->m_convex_hull_vert_list, 2);
-    v4 = *phys_static_array<phys_vec3 *,64>::operator[](&this->m_convex_hull_vert_list, 0);
-    v2 = phys_static_array<phys_vec3 *,64>::operator[](&this->m_convex_hull_vert_list, 1);
-    phys_convex_hull::create_intermediate_triangle(this, (int)&savedregs, *v2, v4, v6);
+    //v5 = *phys_static_array<phys_vec3 *,64>::operator[](&this->m_convex_hull_vert_list, 2);
+    v5 = *this->m_convex_hull_vert_list.operator[](2);
+    //v3 = *phys_static_array<phys_vec3 *,64>::operator[](&this->m_convex_hull_vert_list, 1);
+    v3 = *this->m_convex_hull_vert_list.operator[](1);
+    //v1 = phys_static_array<phys_vec3 *,64>::operator[](&this->m_convex_hull_vert_list, 0);
+    v1 = this->m_convex_hull_vert_list.operator[](0);
+    phys_convex_hull::create_intermediate_triangle(*v1, v3, v5);
+    //v6 = *phys_static_array<phys_vec3 *,64>::operator[](&this->m_convex_hull_vert_list, 2);
+    v6 = *this->m_convex_hull_vert_list.operator[](2);
+    //v4 = *phys_static_array<phys_vec3 *,64>::operator[](&this->m_convex_hull_vert_list, 0);
+    v4 = *this->m_convex_hull_vert_list.operator[](0);
+    //v2 = phys_static_array<phys_vec3 *,64>::operator[](&this->m_convex_hull_vert_list, 1);
+    v2 = this->m_convex_hull_vert_list.operator[](1);
+    phys_convex_hull::create_intermediate_triangle(*v2, v4, v6);
 }
 
-void    phys_convex_hull::calculate_initial_triangle_vertices(phys_convex_hull *this@<ecx>, int a2@<ebp>)
+void    phys_convex_hull::calculate_initial_triangle_vertices()
 {
     phys_vec3 *eax15; // eax
     phys_vec3 **v3; // [esp-Ch] [ebp-17Ch]
-    int k; // [esp-8h] [ebp-178h]
+    int j; // [esp-8h] [ebp-178h]
     char v5; // [esp-1h] [ebp-171h]
-    int i; // [esp+4h] [ebp-16Ch]
+    phys_vec3 **i; // [esp+4h] [ebp-16Ch]
     phys_vec3 **v7; // [esp+8h] [ebp-168h]
-    int v8; // [esp+10h] [ebp-160h]
+    int m_alloc_count; // [esp+10h] [ebp-160h]
     phys_vec3 v9; // [esp+14h] [ebp-15Ch] BYREF
     float v10; // [esp+30h] [ebp-140h]
     float v11; // [esp+34h] [ebp-13Ch]
@@ -3097,170 +3151,170 @@ void    phys_convex_hull::calculate_initial_triangle_vertices(phys_convex_hull *
     float *v13; // [esp+3Ch] [ebp-134h]
     phys_vec3 *v14; // [esp+40h] [ebp-130h]
     phys_vec3 v15; // [esp+44h] [ebp-12Ch] BYREF
-    float x; // [esp+54h] [ebp-11Ch] BYREF
-    float y; // [esp+58h] [ebp-118h]
-    float z; // [esp+5Ch] [ebp-114h]
-    phys_vec3 nn; // [esp+60h] [ebp-110h] BYREF
-    float v20; // [esp+80h] [ebp-F0h]
-    float v21; // [esp+84h] [ebp-ECh]
-    float v22; // [esp+88h] [ebp-E8h]
-    phys_vec3 *v23; // [esp+8Ch] [ebp-E4h]
-    float *v24; // [esp+90h] [ebp-E0h]
-    phys_vec3 v25; // [esp+94h] [ebp-DCh] BYREF
-    float v26; // [esp+ACh] [ebp-C4h]
-    float v27; // [esp+B0h] [ebp-C0h]
-    float v28; // [esp+B4h] [ebp-BCh]
-    phys_vec3 *v29; // [esp+B8h] [ebp-B8h]
-    phys_vec3 *v30; // [esp+BCh] [ebp-B4h]
-    phys_vec3 **v31; // [esp+C0h] [ebp-B0h]
-    phys_vec3 **v32; // [esp+C4h] [ebp-ACh]
-    phys_vec3 **v33; // [esp+C8h] [ebp-A8h]
-    phys_vec3 **best_verts[3]; // [esp+CCh] [ebp-A4h] BYREF
-    phys_vec3 v35; // [esp+E4h] [ebp-8Ch] BYREF
+    phys_vec3 nn; // [esp+54h] [ebp-11Ch] BYREF
+    phys_vec3 v17; // [esp+64h] [ebp-10Ch] BYREF
+    float v18; // [esp+80h] [ebp-F0h]
+    float v19; // [esp+84h] [ebp-ECh]
+    float v20; // [esp+88h] [ebp-E8h]
+    float *v21; // [esp+8Ch] [ebp-E4h]
+    float *v22; // [esp+90h] [ebp-E0h]
+    phys_vec3 v23; // [esp+94h] [ebp-DCh] BYREF
+    float v24; // [esp+ACh] [ebp-C4h]
+    float v25; // [esp+B0h] [ebp-C0h]
+    float v26; // [esp+B4h] [ebp-BCh]
+    float *v27; // [esp+B8h] [ebp-B8h]
+    float *v28; // [esp+BCh] [ebp-B4h]
+    phys_vec3 **best_verts[3]; // [esp+C0h] [ebp-B0h]
+    float twice_area_sq; // [esp+CCh] [ebp-A4h]
+    phys_vec3 *v31; // [esp+D0h] [ebp-A0h]
+    int v32; // [esp+D4h] [ebp-9Ch] BYREF
+    phys_vec3 v33; // [esp+D8h] [ebp-98h] BYREF
+    float v34; // [esp+E8h] [ebp-88h]
+    float v35; // [esp+ECh] [ebp-84h]
     float v36; // [esp+100h] [ebp-70h]
     float v37; // [esp+104h] [ebp-6Ch]
     float v38; // [esp+108h] [ebp-68h]
     phys_vec3 *v39; // [esp+10Ch] [ebp-64h]
-    float *v40; // [esp+110h] [ebp-60h]
+    phys_vec3 *v40; // [esp+110h] [ebp-60h]
     phys_vec3 v41; // [esp+114h] [ebp-5Ch] BYREF
     float v42; // [esp+12Ch] [ebp-44h]
     float v43; // [esp+130h] [ebp-40h]
     float v44; // [esp+134h] [ebp-3Ch]
     phys_vec3 *v45; // [esp+138h] [ebp-38h]
-    float *v46; // [esp+13Ch] [ebp-34h]
-    phys_vec3 **v47; // [esp+140h] [ebp-30h]
-    int j; // [esp+144h] [ebp-2Ch]
-    phys_vec3 **v49; // [esp+148h] [ebp-28h]
-    phys_vec3 **z2; // [esp+14Ch] [ebp-24h]
-    int v2; // [esp+150h] [ebp-20h]
-    phys_vec3 **z1; // [esp+154h] [ebp-1Ch]
-    int v1; // [esp+158h] [ebp-18h]
-    phys_vec3 **z0; // [esp+15Ch] [ebp-14h]
-    int v0; // [esp+160h] [ebp-10h]
-    int NUM_SPHERE_VERTS; // [esp+164h] [ebp-Ch]
-    float largest_twice_area_sq; // [esp+168h] [ebp-8h]
-    float retaddr; // [esp+170h] [ebp+0h]
-
-    NUM_SPHERE_VERTS = a2;
-    largest_twice_area_sq = retaddr;
-    v0 = (int)this;
-    z0 = *(phys_vec3 ***)&FLOAT_0_0;
-    v1 = this->m_intermediate_vertex_list.m_alloc_count;
-    for ( z1 = 0; (int)z1 < v1 - 2; z1 = (phys_vec3 **)((char *)z1 + 1) )
+    phys_vec3 *v46; // [esp+13Ch] [ebp-34h]
+    phys_vec3 **z2; // [esp+140h] [ebp-30h]
+    int v2; // [esp+144h] [ebp-2Ch]
+    phys_vec3 **z1; // [esp+148h] [ebp-28h]
+    int v1; // [esp+14Ch] [ebp-24h]
+    phys_vec3 **z0; // [esp+150h] [ebp-20h]
+    int v0; // [esp+154h] [ebp-1Ch]
+    int NUM_SPHERE_VERTS; // [esp+158h] [ebp-18h]
+    float largest_twice_area_sq; // [esp+15Ch] [ebp-14h]
+    phys_convex_hull *thisa; // [esp+160h] [ebp-10h]
+    //_UNKNOWN *v56; // [esp+164h] [ebp-Ch]
+    //int v57; // [esp+168h] [ebp-8h]
+    //int vars0; // [esp+170h] [ebp+0h]
+    //
+    //v56 = a2;
+    //v57 = vars0;
+    thisa = this;
+    largest_twice_area_sq = 0.0f;
+    NUM_SPHERE_VERTS = this->m_intermediate_vertex_list.m_alloc_count;
+    for (v0 = 0; v0 < NUM_SPHERE_VERTS - 2; ++v0)
     {
-        v2 = (int)phys_static_array<phys_vec3 *,6144>::operator[](
-                                (phys_static_array<phys_vec3 *,6144> *)(v0 + 98320),
-                                (int)z1);
-        for ( z2 = (phys_vec3 **)((char *)z1 + 1); (int)z2 < v1 - 1; z2 = (phys_vec3 **)((char *)z2 + 1) )
+        //z0 = phys_static_array<phys_vec3 *, 6144>::operator[](&thisa->m_intermediate_vertex_list, v0);
+        z0 = thisa->m_intermediate_vertex_list.operator[](v0);
+        for (v1 = v0 + 1; v1 < NUM_SPHERE_VERTS - 1; ++v1)
         {
-            v49 = phys_static_array<phys_vec3 *,6144>::operator[](
-                            (phys_static_array<phys_vec3 *,6144> *)(v0 + 98320),
-                            (int)z2);
-            for ( j = (int)z2 + 1; j < v1; ++j )
+            //z1 = phys_static_array<phys_vec3 *, 6144>::operator[](&thisa->m_intermediate_vertex_list, v1);
+            z1 = thisa->m_intermediate_vertex_list.operator[](v1);
+            for (v2 = v1 + 1; v2 < NUM_SPHERE_VERTS; ++v2)
             {
-                v47 = phys_static_array<phys_vec3 *,6144>::operator[]((phys_static_array<phys_vec3 *,6144> *)(v0 + 98320), j);
-                v46 = *(float **)v2;
-                v45 = *v47;
-                v44 = v45->x - *v46;
-                v43 = v45->y - v46[1];
-                v42 = v45->z - v46[2];
+                //z2 = phys_static_array<phys_vec3 *, 6144>::operator[](&thisa->m_intermediate_vertex_list, v2);
+                z2 = thisa->m_intermediate_vertex_list.operator[](v2);
+                v46 = *z0;
+                v45 = *z2;
+                v44 = v45->x - v46->x;
+                v43 = v45->y - v46->y;
+                v42 = v45->z - v46->z;
                 v41.x = v44;
                 v41.y = v43;
                 v41.z = v42;
-                v40 = *(float **)v2;
-                v39 = *v49;
-                v38 = v39->x - *v40;
-                v37 = v39->y - v40[1];
-                v36 = v39->z - v40[2];
-                v35.x = v38;
-                v35.y = v37;
-                v35.z = v36;
-                best_verts[1] = (phys_vec3 **)phys_cross((phys_vec3 *)&best_verts[2], &v35, &v41);
-                *(float *)best_verts = (float)((float)(*(float *)best_verts[1] * *(float *)best_verts[1])
-                                                                         + (float)(*((float *)best_verts[1] + 1) * *((float *)best_verts[1] + 1)))
-                                                         + (float)(*((float *)best_verts[1] + 2) * *((float *)best_verts[1] + 2));
-                if ( *(float *)best_verts > *(float *)&z0 )
+                v40 = *z0;
+                v39 = *z1;
+                v38 = v39->x - v40->x;
+                v37 = v39->y - v40->y;
+                v36 = v39->z - v40->z;
+                v33.w = v38;
+                v34 = v37;
+                v35 = v36;
+                v31 = phys_cross((phys_vec3 *)&v32, (phys_vec3 *)&v33.w, &v41);
+                twice_area_sq = (float)((float)(v31->x * v31->x) + (float)(v31->y * v31->y)) + (float)(v31->z * v31->z);
+                if (twice_area_sq > largest_twice_area_sq)
                 {
-                    z0 = best_verts[0];
-                    v31 = (phys_vec3 **)v2;
-                    v32 = v49;
-                    v33 = v47;
+                    largest_twice_area_sq = twice_area_sq;
+                    best_verts[0] = z0;
+                    best_verts[1] = z1;
+                    best_verts[2] = z2;
                 }
             }
         }
     }
-    if ( *(float *)&z0 <= 0.0
+    if (largest_twice_area_sq <= 0.0
         && _tlAssert(
-                 "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_convex_hull.h",
-                 210,
-                 "largest_twice_area_sq>0.0f",
-                 "") )
+            "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_convex_hull.h",
+            210,
+            "largest_twice_area_sq>0.0f",
+            ""))
     {
         __debugbreak();
     }
-    v30 = *v31;
-    v29 = *v33;
-    v28 = v29->x - v30->x;
-    v27 = v29->y - v30->y;
-    v26 = v29->z - v30->z;
-    v25.x = v28;
-    v25.y = v27;
-    v25.z = v26;
-    v24 = (float *)*v31;
-    v23 = *v32;
-    v22 = v23->x - *v24;
-    v21 = v23->y - v24[1];
-    v20 = v23->z - v24[2];
-    nn.y = v22;
-    nn.z = v21;
-    nn.w = v20;
-    phys_cross((phys_vec3 *)&x, (phys_vec3 *)&nn.y, &v25);
-    v14 = phys_Unitize(&v15, (const phys_vec3 *)&x);
-    x = v14->x;
-    y = v14->y;
-    z = v14->z;
-    v13 = (float *)*v31;
-    v12 = *v13 + x;
-    v11 = v13[1] + y;
-    v10 = v13[2] + z;
+    v28 = (float *)*best_verts[0];
+    v27 = (float *)*best_verts[2];
+    v26 = *v27 - *v28;
+    v25 = v27[1] - v28[1];
+    v24 = v27[2] - v28[2];
+    v23.x = v26;
+    v23.y = v25;
+    v23.z = v24;
+    v22 = (float *)*best_verts[0];
+    v21 = (float *)*best_verts[1];
+    v20 = *v21 - *v22;
+    v19 = v21[1] - v22[1];
+    v18 = v21[2] - v22[2];
+    v17.x = v20;
+    v17.y = v19;
+    v17.z = v18;
+    phys_cross(&nn, &v17, &v23);
+    v14 = phys_Unitize(&v15, &nn);
+    nn.x = v14->x;
+    nn.y = v14->y;
+    nn.z = v14->z;
+    v13 = (float *)*best_verts[0];
+    v12 = *v13 + nn.x;
+    v11 = v13[1] + nn.y;
+    v10 = v13[2] + nn.z;
     v9.x = v12;
     v9.y = v11;
     v9.z = v10;
-    eax15 = phys_static_array<phys_vec3,6144>::add((phys_static_array<phys_vec3,6144> *)v0, 0, "phys array add overflow.");
-    phys_vec3::operator=(eax15, &v9);
-    v8 = *(unsigned int *)(v0 + 98308);
-    if ( *(int *)(v0 + 122900) < 6144 )
+    //eax15 = phys_static_array<phys_vec3, 6144>::add(&thisa->m_vertex_buffer, 0, "phys array add overflow.");
+    eax15 = thisa->m_vertex_buffer.add(0, "phys array add overflow.");
+    //phys_vec3::operator=(eax15, &v9);
+    *eax15 = v9;
+    m_alloc_count = thisa->m_vertex_buffer.m_alloc_count;
+    if (thisa->m_intermediate_vertex_list.m_alloc_count < 6144)
     {
-        i = *(unsigned int *)(v0 + 122896) + 4 * (*(unsigned int *)(v0 + 122900))++;
-        v7 = (phys_vec3 **)i;
+        i = &thisa->m_intermediate_vertex_list.m_slot_array[thisa->m_intermediate_vertex_list.m_alloc_count++];
+        v7 = i;
     }
     else
     {
         tlFatal("phys array add overflow.");
         v7 = 0;
     }
-    *v7 = phys_static_array<phys_vec3,6144>::operator[]((phys_static_array<phys_vec3,6144> *)v0, v8 - 1);
+    //*v7 = phys_static_array<phys_vec3, 6144>::operator[](&thisa->m_vertex_buffer, m_alloc_count - 1);
+    *v7 = thisa->m_vertex_buffer.operator[](m_alloc_count - 1);
     v5 = 1;
-    while ( v5 )
+    while (v5)
     {
         v5 = 0;
-        for ( k = 0; k < 2; ++k )
+        for (j = 0; j < 2; ++j)
         {
-            if ( (&v31)[k] < (&v32)[k] )
+            if (best_verts[j] < best_verts[j + 1])
             {
-                v3 = (&v31)[k];
-                (&v31)[k] = (&v32)[k];
-                (&v32)[k] = v3;
+                v3 = best_verts[j];
+                best_verts[j] = best_verts[j + 1];
+                best_verts[j + 1] = v3;
                 v5 = 1;
             }
         }
     }
-    phys_convex_hull::add_convex_hull_vert((phys_convex_hull *)v0, v31);
-    phys_convex_hull::add_convex_hull_vert((phys_convex_hull *)v0, v32);
-    phys_convex_hull::add_convex_hull_vert((phys_convex_hull *)v0, v33);
+    phys_convex_hull::add_convex_hull_vert(best_verts[0]);
+    phys_convex_hull::add_convex_hull_vert(best_verts[1]);
+    phys_convex_hull::add_convex_hull_vert(best_verts[2]);
 }
 
-double __thiscall phys_convex_hull::calc_expansion_volume(phys_convex_hull *this, const phys_vec3 *vert)
+double __thiscall phys_convex_hull::calc_expansion_volume(const phys_vec3 *vert)
 {
     float vert_dist; // [esp+B0h] [ebp-10h]
     phys_convex_hull::ch_triangle *tri_i; // [esp+B4h] [ebp-Ch]
@@ -3273,11 +3327,10 @@ double __thiscall phys_convex_hull::calc_expansion_volume(phys_convex_hull *this
     tri_i_end.m_ptr = &tri_i[this->m_intermediate_triangle_list.m_alloc_count];
     while ( tri_i_end.m_ptr != tri_i )
     {
-        vert_dist = phys_convex_hull::ch_triangle::get_dist(tri_i, vert);
+        //vert_dist = phys_convex_hull::ch_triangle::get_dist(tri_i, vert);
+        vert_dist = tri_i->get_dist(vert);
         if ( vert_dist > 0.034000002 )
             volume = phys_convex_hull::tetrahedron_volume(
-                                 this,
-                                 (int)&savedregs,
                                  vert,
                                  tri_i->m_verts[0],
                                  tri_i->m_verts[1],
@@ -3297,16 +3350,14 @@ double __thiscall phys_convex_hull::calc_expansion_volume(phys_convex_hull *this
     return volume;
 }
 
-double __thiscall phys_convex_hull::ch_triangle::get_dist(phys_convex_hull::ch_triangle *this, const phys_vec3 *vert)
+double __thiscall phys_convex_hull::ch_triangle::get_dist(const phys_vec3 *vert)
 {
     return this->m_normal.z * (float)(vert->z - this->m_verts[0]->z)
              + this->m_normal.y * (float)(vert->y - this->m_verts[0]->y)
              + this->m_normal.x * (float)(vert->x - this->m_verts[0]->x);
 }
 
-double __userpurge phys_convex_hull::tetrahedron_volume@<st0>(
-                phys_convex_hull *this@<ecx>,
-                int a2@<ebp>,
+double phys_convex_hull::tetrahedron_volume(
                 const phys_vec3 *a,
                 const phys_vec3 *b,
                 const phys_vec3 *c,
@@ -3329,12 +3380,12 @@ double __userpurge phys_convex_hull::tetrahedron_volume@<st0>(
     float v21; // [esp+64h] [ebp-18h]
     float v22; // [esp+68h] [ebp-14h]
     phys_convex_hull *v23; // [esp+6Ch] [ebp-10h]
-    int v24; // [esp+70h] [ebp-Ch]
-    void *v25; // [esp+74h] [ebp-8h]
-    void *retaddr; // [esp+7Ch] [ebp+0h]
-
-    v24 = a2;
-    v25 = retaddr;
+    //int v24; // [esp+70h] [ebp-Ch]
+    //void *v25; // [esp+74h] [ebp-8h]
+    //void *retaddr; // [esp+7Ch] [ebp+0h]
+    //
+    //v24 = a2;
+    //v25 = retaddr;
     v23 = this;
     v22 = c->x - d->x;
     v21 = c->y - d->y;
@@ -3359,7 +3410,7 @@ double __userpurge phys_convex_hull::tetrahedron_volume@<st0>(
                              / 6.0);
 }
 
-void __thiscall phys_convex_hull::create_edge_list(phys_convex_hull *this, const phys_vec3 *vert)
+void __thiscall phys_convex_hull::create_edge_list(const phys_vec3 *vert)
 {
     phys_convex_hull::ch_triangle *m_slot_array; // [esp+34h] [ebp-20h]
     int i; // [esp+3Ch] [ebp-18h]
@@ -3378,10 +3429,9 @@ void __thiscall phys_convex_hull::create_edge_list(phys_convex_hull *this, const
         }
         else
         {
-            phys_convex_hull::add_triangle_edges(this, m_slot_array);
-            phys_static_array<phys_convex_hull::ch_triangle,256>::remove_slow(
-                &this->m_intermediate_triangle_list,
-                m_slot_array);
+            phys_convex_hull::add_triangle_edges(m_slot_array);
+            //phys_static_array<phys_convex_hull::ch_triangle,256>::remove_slow(&this->m_intermediate_triangle_list, m_slot_array);
+            this->m_intermediate_triangle_list.remove_slow(m_slot_array);
         }
     }
     if ( this->m_intermediate_edge_list.m_alloc_count < 3
@@ -3395,14 +3445,14 @@ void __thiscall phys_convex_hull::create_edge_list(phys_convex_hull *this, const
     }
 }
 
-void __thiscall phys_convex_hull::add_triangle_edges(phys_convex_hull *this, phys_convex_hull::ch_triangle *tri)
+void __thiscall phys_convex_hull::add_triangle_edges(phys_convex_hull::ch_triangle *tri)
 {
-    phys_convex_hull::add_intermediate_edge(this, tri->m_verts[0], tri->m_verts[1]);
-    phys_convex_hull::add_intermediate_edge(this, tri->m_verts[1], tri->m_verts[2]);
-    phys_convex_hull::add_intermediate_edge(this, tri->m_verts[2], tri->m_verts[0]);
+    phys_convex_hull::add_intermediate_edge(tri->m_verts[0], tri->m_verts[1]);
+    phys_convex_hull::add_intermediate_edge(tri->m_verts[1], tri->m_verts[2]);
+    phys_convex_hull::add_intermediate_edge(tri->m_verts[2], tri->m_verts[0]);
 }
 
-void __thiscall phys_convex_hull::add_intermediate_edge(phys_convex_hull *this, phys_vec3 *v0, phys_vec3 *v1)
+void __thiscall phys_convex_hull::add_intermediate_edge(phys_vec3 *v0, phys_vec3 *v1)
 {
     phys_convex_hull::ch_edge *v4; // [esp+Ch] [ebp-24h]
     phys_convex_hull::ch_edge *edge_i; // [esp+28h] [ebp-8h]
@@ -3423,7 +3473,8 @@ void __thiscall phys_convex_hull::add_intermediate_edge(phys_convex_hull *this, 
     {
         if ( edge_i->m_verts[0] == v0 && edge_i->m_verts[1] == v1 || edge_i->m_verts[0] == v1 && edge_i->m_verts[1] == v0 )
         {
-            phys_static_array<phys_convex_hull::ch_edge,128>::remove_slow(&this->m_intermediate_edge_list, edge_i);
+            //phys_static_array<phys_convex_hull::ch_edge,128>::remove_slow(&this->m_intermediate_edge_list, edge_i);
+            this->m_intermediate_edge_list.remove_slow(edge_i);
             return;
         }
     }
@@ -3441,7 +3492,7 @@ void __thiscall phys_convex_hull::add_intermediate_edge(phys_convex_hull *this, 
     edge->m_verts[1] = v1;
 }
 
-void __thiscall phys_convex_hull::remove_inside_verts(phys_convex_hull *this)
+void __thiscall phys_convex_hull::remove_inside_verts()
 {
     float vert_dist; // [esp+50h] [ebp-18h]
     phys_convex_hull::ch_triangle *tri_i; // [esp+54h] [ebp-14h]
@@ -3457,65 +3508,68 @@ void __thiscall phys_convex_hull::remove_inside_verts(phys_convex_hull *this)
         tri_i_end.m_ptr = &tri_i[this->m_intermediate_triangle_list.m_alloc_count];
         while ( tri_i_end.m_ptr != tri_i && inside )
         {
-            vert_dist = phys_convex_hull::ch_triangle::get_dist(tri_i, *vert_i);
+            //vert_dist = phys_convex_hull::ch_triangle::get_dist(tri_i, *vert_i);
+            vert_dist = tri_i->get_dist(*vert_i);
             inside = vert_dist <= 0.034000002;
             ++tri_i;
         }
-        if ( inside )
-            phys_static_array<phys_vec3 *,6144>::remove(&this->m_intermediate_vertex_list, vert_i);
+        if (inside)
+        {
+            //phys_static_array<phys_vec3 *, 6144>::remove(&this->m_intermediate_vertex_list, vert_i);
+            this->m_intermediate_vertex_list.remove_slow(vert_i); // KISAKTODO: remove()
+        }
         else
             ++vert_i;
     }
 }
 
-phys_convex_hull::ch_triangle *__thiscall phys_convex_hull::ch_triangle::operator=(
-                phys_convex_hull::ch_triangle *this,
-                const phys_convex_hull::ch_triangle *__that)
-{
-    unsigned int _S2; // [esp+8h] [ebp-4h]
+//phys_convex_hull::ch_triangle *__thiscall phys_convex_hull::ch_triangle::operator=(const phys_convex_hull::ch_triangle *__that)
+//{
+//    unsigned int _S2; // [esp+8h] [ebp-4h]
+//
+//    this->m_normal.x = __that->m_normal.x;
+//    this->m_normal.y = __that->m_normal.y;
+//    this->m_normal.z = __that->m_normal.z;
+//    for ( _S2 = 0; _S2 < 3; ++_S2 )
+//        this->m_verts[_S2] = __that->m_verts[_S2];
+//    return this;
+//}
 
-    this->m_normal.x = __that->m_normal.x;
-    this->m_normal.y = __that->m_normal.y;
-    this->m_normal.z = __that->m_normal.z;
-    for ( _S2 = 0; _S2 < 3; ++_S2 )
-        this->m_verts[_S2] = __that->m_verts[_S2];
-    return this;
-}
-
-chull_t * generate_partition_chull@<eax>(const float *a1@<ebp>, const CollisionAabbTree *tree)
+chull_t * generate_partition_chull(const CollisionAabbTree *tree)
 {
     phys_vec3 *v3; // eax
-    unsigned int v4[3]; // [esp+14h] [ebp-3Ch] BYREF
-    phys_vec3 v; // [esp+20h] [ebp-30h]
-    int v6; // [esp+30h] [ebp-20h]
-    unsigned __int16 *v7; // [esp+34h] [ebp-1Ch]
-    int ind_i; // [esp+38h] [ebp-18h]
-    int ninds; // [esp+3Ch] [ebp-14h]
-    unsigned __int16 *inds; // [esp+40h] [ebp-10h]
-    const float (*verts)[3]; // [esp+44h] [ebp-Ch] BYREF
-    const CollisionPartition *partition; // [esp+48h] [ebp-8h]
-    const CollisionPartition *retaddr; // [esp+50h] [ebp+0h]
-
-    verts = (const float (*)[3])a1;
-    partition = retaddr;
-    if ( !tree )
+    phys_vec3 v; // [esp+14h] [ebp-3Ch] BYREF
+    int ind_i; // [esp+2Ch] [ebp-24h]
+    int ninds; // [esp+30h] [ebp-20h]
+    unsigned __int16 *inds; // [esp+34h] [ebp-1Ch]
+    const float (*verts)[3]; // [esp+38h] [ebp-18h]
+    const CollisionPartition *partition; // [esp+3Ch] [ebp-14h]
+    int i; // [esp+40h] [ebp-10h]
+    //_UNKNOWN *v11[2]; // [esp+44h] [ebp-Ch] BYREF
+    //int vars0; // [esp+50h] [ebp+0h]
+    //
+    //v11[0] = a1;
+    //v11[1] = (_UNKNOWN *)vars0;
+    if (!tree)
         return 0;
-    for ( inds = 0; (int)inds < g_hull.m_vertex_buffer.m_alloc_count; inds = (unsigned __int16 *)((char *)inds + 1) )
+    for (i = 0; i < g_hull.m_vertex_buffer.m_alloc_count; ++i)
         ;
     g_hull.m_vertex_buffer.m_alloc_count = 0;
-    ninds = (int)&cm.partitions[tree->u.firstChildIndex];
-    ind_i = (int)cm.verts;
-    v7 = &cm.uinds[*(unsigned int *)(ninds + 12)];
-    v6 = *(unsigned int *)(ninds + 8);
-    for ( v.w = 0.0; SLODWORD(v.w) < v6; ++LODWORD(v.w) )
+    partition = &cm.partitions[*(_DWORD *)(tree + 28)];
+    verts = cm.verts;
+    inds = &cm.uinds[partition->fuind];
+    ninds = partition->nuinds;
+    for (ind_i = 0; ind_i < ninds; ++ind_i)
     {
-        Phys_Vec3ToNitrousVec((const phys_vec3 *)v4, (float *)(ind_i + 12 * v7[LODWORD(v.w)]));
-        v3 = phys_static_array<phys_vec3,6144>::add(&g_hull.m_vertex_buffer, 0, "phys array add overflow.");
-        LODWORD(v3->x) = v4[0];
-        LODWORD(v3->y) = v4[1];
-        LODWORD(v3->z) = v4[2];
+        Phys_Vec3ToNitrousVec((float *)verts[inds[ind_i]], &v);
+        //v3 = phys_static_array<phys_vec3, 6144>::add(&g_hull.m_vertex_buffer, 0, "phys array add overflow.");
+        v3 = g_hull.m_vertex_buffer.add(0, "phys array add overflow.");
+        v3->x = v.x;
+        v3->y = v.y;
+        v3->z = v.z;
     }
-    phys_convex_hull::compute_convex_hull(&g_hull, (int)&verts, 128, 0.0);
+    //phys_convex_hull::compute_convex_hull(&g_hull, v11, 128, 0.0);
+    g_hull.compute_convex_hull(128, 0.0);
     return create_chull(&g_hull);
 }
 
@@ -3531,7 +3585,7 @@ void __cdecl generate_brushmodel_chull_r(cLeafBrushNode_s *node, chull_t **hull)
         {
             for ( i = 0; i < node->leafBrushCount; ++i )
             {
-                brush_chull = generate_brush_chull((int)&savedregs, &cm.brushes[node->data.leaf.brushes[i]]);
+                brush_chull = generate_brush_chull(&cm.brushes[node->data.leaf.brushes[i]]);
                 brush_chull->next = *hull;
                 *hull = brush_chull;
             }
@@ -3572,7 +3626,7 @@ chull_t *__cdecl generate_collmap_chull(PhysGeomList *geomList)
     {
         if ( geom->brush )
         {
-            brush_chull = generate_brush_chull((int)&savedregs, (const cbrush_t *)geom->brush);
+            brush_chull = generate_brush_chull((const cbrush_t *)geom->brush);
             brush_chull->next = first;
             first = brush_chull;
         }
@@ -3662,7 +3716,7 @@ chull_t *__cdecl get_brush_chull(const cbrush_t *brush)
     }
     else
     {
-        chull = generate_brush_chull((int)&savedregs, brush);
+        chull = generate_brush_chull(brush);
         if ( !chull )
             return 0;
         chull_list_add(chull, (unsigned int)brush);
@@ -3693,7 +3747,7 @@ chull_t *__cdecl get_partition_chull(const CollisionAabbTree *tree)
     }
     else
     {
-        chull = generate_partition_chull((const float *)&savedregs, tree);
+        chull = generate_partition_chull(tree);
         if ( !chull )
             return 0;
         chull_list_add(chull, (unsigned int)tree);
@@ -3704,10 +3758,11 @@ chull_t *__cdecl get_partition_chull(const CollisionAabbTree *tree)
     return chull;
 }
 
-void    Phys_FindAndRenderEntityBrushes(int a1@<ebp>, const float *pos, int contentmask)
+float query_radius = 2000.0;
+void    Phys_FindAndRenderEntityBrushes(const float *pos, int contentmask)
 {
     void *v3; // esp
-    const XModel *XModel; // eax
+    const XModel *XModell; // eax
     const XModel *v5; // eax
     unsigned int v6; // [esp-38FCh] [ebp-3908h]
     unsigned int v7; // [esp-38FCh] [ebp-3908h]
@@ -3759,11 +3814,11 @@ void    Phys_FindAndRenderEntityBrushes(int a1@<ebp>, const float *pos, int cont
     float v53; // [esp-10h] [ebp-1Ch]
     float v54; // [esp-Ch] [ebp-18h]
     float v55; // [esp-8h] [ebp-14h]
-    unsigned int v56[3]; // [esp+0h] [ebp-Ch] BYREF
-    _UNKNOWN *retaddr; // [esp+Ch] [ebp+0h]
-
-    v56[0] = a1;
-    v56[1] = retaddr;
+    //unsigned int v56[3]; // [esp+0h] [ebp-Ch] BYREF
+    //_UNKNOWN *retaddr; // [esp+Ch] [ebp+0h]
+    //
+    //v56[0] = a1;
+    //v56[1] = retaddr;
     v3 = alloca(14576);
     v53 = query_radius;
     v54 = query_radius;
@@ -3811,8 +3866,8 @@ void    Phys_FindAndRenderEntityBrushes(int a1@<ebp>, const float *pos, int cont
             else
                 v36 = v48;
             v6 = (unsigned int)v40;
-            XModel = DObjGetXModel(ServerDObj, 0);
-            render_xmodel_chull(XModel, v6, &v38, v36);
+            XModell = DObjGetXModel(ServerDObj, 0);
+            render_xmodel_chull(XModell, v6, &v38, v36);
         }
         else if ( v40->r.bmodel )
         {
@@ -3863,7 +3918,7 @@ void    Phys_FindAndRenderEntityBrushes(int a1@<ebp>, const float *pos, int cont
         {
             v42 = DynEntCl_AreaEntities(k, v50, v49, contentmask, 0x3E8u, v23);
             LocalClientGlobals = CG_GetLocalClientGlobals(0);
-            LODWORD(v21[3]) = LocalClientGlobals->predictedPlayerState.origin;
+            //LODWORD(v21[3]) = LocalClientGlobals->predictedPlayerState.origin;
             v21[0] = LocalClientGlobals->predictedPlayerState.origin[0];
             v21[1] = LocalClientGlobals->predictedPlayerState.origin[1];
             v21[2] = LocalClientGlobals->predictedPlayerState.origin[2];
@@ -3899,13 +3954,24 @@ void    Phys_FindAndRenderEntityBrushes(int a1@<ebp>, const float *pos, int cont
                     {
                         Collmap = XModelGetCollmap(EntityDef->xModel, 0);
                         collmap_chull = get_collmap_chull(Collmap, (unsigned int)EntityDef);
-                        render_chull(COERCE_FLOAT(v56), collmap_chull, &v10, v46);
+                        render_chull(collmap_chull, &v10, v46);
                     }
                 }
             }
         }
     }
 }
+
+bool prevDebugRenderEntityBrushes;
+float prevDebugRenderCollisionDistance;
+bool bPrevDebugRenderBrushes;
+bool bPrevDebugRenderColoredPatches;
+bool bPrevDebugRenderPatches;
+bool bPrevDebugRenderBulletMeshes;
+
+int prevDebugRenderMask = -1;
+
+
 
 char __cdecl Phys_DebugRenderChanged()
 {
@@ -3981,6 +4047,8 @@ int __cdecl Phys_GetMaskFromDVar()
     return result;
 }
 
+float previous_pos[3] = { 3.4028235e38, 3.4028235e38, 3.4028235e38 };
+
 void __cdecl Phys_RenderWorldCollMesh(const float *pos, bool bRenderStaticCollision, bool bRenderBrushes)
 {
     float s_expand_h; // [esp+7Ch] [ebp-A4h]
@@ -4017,8 +4085,9 @@ void __cdecl Phys_RenderWorldCollMesh(const float *pos, bool bRenderStaticCollis
             DebugPatchesAndBrushesProlog();
             clear_debug_brushes_and_patches();
             colgeom_visitor_t::colgeom_visitor_t(&colgeomDebugVisitor);
-            colgeomDebugVisitor.__vftable = (colgeom_debug_renderer_t_vtbl *)&colgeom_debug_renderer_t::`vftable';
-            colgeom_debug_renderer_t::reset(&colgeomDebugVisitor);
+            //colgeomDebugVisitor.__vftable = (colgeom_debug_renderer_t_vtbl *)&colgeom_debug_renderer_t::`vftable';
+            //colgeom_debug_renderer_t::reset(&colgeomDebugVisitor);
+            colgeomDebugVisitor.reset();
             colgeomDebugVisitor.bRenderStaticCollision = bRenderStaticCollision;
             colgeomDebugVisitor.bRenderBrushes = bRenderBrushes;
             colgeomDebugVisitor.lightPos[0] = *pos;
@@ -4030,8 +4099,10 @@ void __cdecl Phys_RenderWorldCollMesh(const float *pos, bool bRenderStaticCollis
             expand_vec[0] = s_expand_h;
             expand_vec[1] = s_expand_h;
             expand_vec[2] = 5000.0f;
-            colgeom_debug_renderer_t::reset(&colgeomDebugVisitor);
-            colgeom_debug_renderer_t::update(&colgeomDebugVisitor, pos, pos, mask, expand_vec);
+            //colgeom_debug_renderer_t::reset(&colgeomDebugVisitor);
+            colgeomDebugVisitor.reset();
+            //colgeom_debug_renderer_t::update(&colgeomDebugVisitor, pos, pos, mask, expand_vec);
+            colgeomDebugVisitor.update(pos, pos, mask, expand_vec);
             DebugPatchesAndBrushesEpilog();
         }
     }
@@ -4044,30 +4115,29 @@ void __cdecl Phys_RenderWorldCollMesh(const float *pos, bool bRenderStaticCollis
     }
 }
 
-void __thiscall colgeom_debug_renderer_t::reset(colgeom_debug_renderer_t *this)
+void __thiscall colgeom_debug_renderer_t::reset()
 {
-    this->m_mn.vec.v[0] = FLOAT_9_9999997e37;
-    this->m_mn.vec.v[1] = FLOAT_9_9999997e37;
-    this->m_mn.vec.v[2] = FLOAT_9_9999997e37;
-    this->m_mx.vec.v[0] = FLOAT_N9_9999997e37;
-    this->m_mx.vec.v[1] = FLOAT_N9_9999997e37;
-    this->m_mx.vec.v[2] = FLOAT_N9_9999997e37;
+    this->m_mn.vec.v[0] = 9.9999997e37;
+    this->m_mn.vec.v[1] = 9.9999997e37;
+    this->m_mn.vec.v[2] = 9.9999997e37;
+    this->m_mx.vec.v[0] = -9.9999997e37;
+    this->m_mx.vec.v[1] = -9.9999997e37;
+    this->m_mx.vec.v[2] = -9.9999997e37;
 }
 
-void __thiscall colgeom_debug_renderer_t::visit(colgeom_debug_renderer_t *this, const CollisionAabbTree *tree)
+void __thiscall colgeom_debug_renderer_t::visit(const CollisionAabbTree *tree)
 {
     if ( this->bRenderStaticCollision )
         add_debug_patch(tree);
 }
 
-void __thiscall colgeom_debug_renderer_t::visit(colgeom_debug_renderer_t *this, const cbrush_t *brush)
+void __thiscall colgeom_debug_renderer_t::visit(const cbrush_t *brush)
 {
     if ( this->bRenderBrushes )
         add_debug_brush(brush, 0);
 }
 
 void __thiscall colgeom_debug_renderer_t::update(
-                colgeom_debug_renderer_t *this,
                 const float *_mn,
                 const float *_mx,
                 int mask,
@@ -4098,11 +4168,19 @@ void __thiscall colgeom_debug_renderer_t::update(
         mx[0] = *_mx + *expand_vec;
         mx[1] = _mx[1] + expand_vec[1];
         mx[2] = _mx[2] + expand_vec[2];
-        colgeom_debug_renderer_t::reset(this);
-        colgeom_visitor_t::intersect_box(this, mn, mx, mask);
+        colgeom_debug_renderer_t::reset();
+        colgeom_visitor_t::intersect_box(mn, mx, mask);
     }
 }
 
+float scale_3 = 5000.0;
+float velScale = 20.0;
+float sc1 = 20.0;
+float scale_3 = 5000.0;
+int nboxes = 200;
+
+int down;
+int g_debug_partition;
 void __cdecl debug_loop()
 {
     const char *Name; // [esp+8h] [ebp-844h]
@@ -4144,7 +4222,7 @@ void __cdecl debug_loop()
             mask = 1121773627;
             if ( g_bDebugRenderPatches->current.enabled || g_bDebugRenderBrushes->current.enabled )
                 mask = Phys_GetMaskFromDVar();
-            Phys_FindAndRenderEntityBrushes((int)&savedregs, start, mask);
+            Phys_FindAndRenderEntityBrushes(start, mask);
         }
         g_debug_partition = 0;
         Phys_RenderWorldCollMesh(start, g_bDebugRenderPatches->current.enabled, g_bDebugRenderBrushes->current.enabled);
@@ -4185,9 +4263,10 @@ void __cdecl debug_loop()
                     g_debug_partition = results.hitPartition;
                     break;
                 case 4:
-                    colgeom_visitor_t::colgeom_visitor_t(&visitor);
-                    visitor.__vftable = (colgeom_visitor_inlined_t<200>_vtbl *)&colgeom_visitor_inlined_t<200>::`vftable';
-                    colgeom_visitor_inlined_t<500>::reset(&visitor);
+                    //colgeom_visitor_t::colgeom_visitor_t(&visitor);
+                    //visitor.__vftable = (colgeom_visitor_inlined_t<200>_vtbl *)&colgeom_visitor_inlined_t<200>::`vftable';
+                    //colgeom_visitor_inlined_t<500>::reset(&visitor);
+                    visitor.reset();
                     mins[0] = -50.0f;
                     mins[1] = -50.0f;
                     mins[2] = -50.0f;
@@ -4195,9 +4274,10 @@ void __cdecl debug_loop()
                     maxs[1] = 50.0f;
                     maxs[2] = 50.0f;
                     maxs[3] = NAN;
-                    colgeom_visitor_inlined_t<200>::update(&visitor, start, start, mins, maxs, -1);
+                    //colgeom_visitor_inlined_t<200>::update(&visitor, start, start, mins, maxs, -1);
+                    visitor.update(start, start, mins, maxs, -1);
                     render_prims(visitor.prims, visitor.nprims);
-                    visitor.__vftable = (colgeom_visitor_inlined_t<200>_vtbl *)&visitor_base_t::`vftable';
+                    //visitor.__vftable = (colgeom_visitor_inlined_t<200>_vtbl *)&visitor_base_t::`vftable';
                     break;
                 case 5:
                     if ( down )
@@ -4301,7 +4381,7 @@ void __cdecl print_static_models_stats()
         numStaticModels = 0x4000;
     num = numStaticModels;
     for ( i = 0; i < (int)num; ++i )
-        base[i] = &cm.staticModelList[i];
+        base[i] = (unsigned int) & cm.staticModelList[i];
     qsort(base, num, 4u, SortModelsFunc);
     refcount = 1;
     smodel = (cStaticModel_s *)base[0];
@@ -4347,7 +4427,7 @@ void __cdecl draw_static_models_bounds()
     int v0; // [esp+10h] [ebp-4Ch]
     unsigned int numStaticModels; // [esp+14h] [ebp-48h]
     int i; // [esp+2Ch] [ebp-30h]
-    int len2; // [esp+30h] [ebp-2Ch]
+    float len2; // [esp+30h] [ebp-2Ch]
     cStaticModel_s *smodel; // [esp+34h] [ebp-28h]
     int j; // [esp+38h] [ebp-24h]
     cg_s *cgameGlob; // [esp+3Ch] [ebp-20h]
@@ -4355,7 +4435,7 @@ void __cdecl draw_static_models_bounds()
     int nmodels; // [esp+4Ch] [ebp-10h]
     float p[3]; // [esp+50h] [ebp-Ch] BYREF
 
-    if ( (int)cm.numStaticModels <= 0x4000 )
+    if ((int)cm.numStaticModels <= 0x4000)
         numStaticModels = cm.numStaticModels;
     else
         numStaticModels = 0x4000;
@@ -4364,20 +4444,20 @@ void __cdecl draw_static_models_bounds()
     p[0] = cgameGlob->predictedPlayerState.origin[0];
     p[1] = cgameGlob->predictedPlayerState.origin[1];
     p[2] = cgameGlob->predictedPlayerState.origin[2];
-    for ( j = 0; j < nmodels; ++j )
+    for (j = 0; j < nmodels; ++j)
     {
         smodel = &cm.staticModelList[j];
         Vec3Min(smodel->absmax, p, proj);
         Vec3Max(proj, smodel->absmin, proj);
-        *(float *)&len2 = Vec3DistanceSq(p, proj);
+        len2 = Vec3DistanceSq(p, proj);
         smodel_debug_infos[j].smodel = smodel;
-        dword_9BE612C[2 * j] = len2;
+        smodel_debug_infos[j].dist2 = len2;
     }
-    qsort(smodel_debug_infos, nmodels, 8u, (int (__cdecl *)(const void *, const void *))SortSModelsByDist);
-    for ( i = 0; ; ++i )
+    qsort(smodel_debug_infos, nmodels, 8u, (int(__cdecl *)(const void *, const void *))SortSModelsByDist);
+    for (i = 0; ; ++i)
     {
         v0 = nmodels >= nboxes ? nboxes : nmodels;
-        if ( i >= v0 )
+        if (i >= v0)
             break;
         CG_DebugBox(
             vec3_origin,
@@ -4399,6 +4479,7 @@ int __cdecl SortSModelsByDist(float *a, float *b)
     return -1;
 }
 
+
 int __cdecl buoyancy_worker()
 {
     phys_free_list<PhysObjUserData>::T_internal_base *i; // [esp+14h] [ebp-4h]
@@ -4406,7 +4487,7 @@ int __cdecl buoyancy_worker()
     for ( i = g_pop_iter.m_ptr; g_pop_iter_end.m_ptr != i; i = g_pop_iter.m_ptr )
     {
         if ( (phys_free_list<PhysObjUserData>::T_internal_base *)_InterlockedCompareExchange(
-                                                                                                                             (volatile signed __int32 *)&g_pop_iter,
+                                                                                                                             (volatile unsigned __int32 *)&g_pop_iter,
                                                                                                                              (signed __int32)i->m_next_T_internal,
                                                                                                                              (signed __int32)i) == i )
             Phys_BodyGrabSnapshotNitrous((PhysObjUserData *)&i[2], g_delta_t);
@@ -4428,7 +4509,7 @@ void __cdecl Phys_BodyGrabSnapshotNitrous(PhysObjUserData *userData, float delta
     if ( !body && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp", 1360, 0, "%s", "body") )
         __debugbreak();
     rb2w = &userData->body->m_mat;
-    phys_full_multiply_mat((int)&savedregs, &userData->cg2w, rb2w, &userData->cg2rb);
+    phys_full_multiply_mat(&userData->cg2w, rb2w, &userData->cg2rb);
     if ( (body->m_flags & 0x20) == 0 )
     {
         drag_scale = 1.0f;
@@ -4442,7 +4523,78 @@ void __cdecl Phys_BodyGrabSnapshotNitrous(PhysObjUserData *userData, float delta
     }
 }
 
-void    UpdateRigidBody(float a1@<ebp>, float delta_t)
+//void __cdecl Nitrous_ForEachBody<void(__cdecl *)(PhysObjUserData &, float)>(void(__cdecl *func)(PhysObjUserData *, float), float t)
+void __cdecl Nitrous_ForEachBody(void(__cdecl *func)(PhysObjUserData *, float), float t)
+{
+    PhysGlob *i; // [esp+Ch] [ebp-4h]
+
+    for (i = (PhysGlob *)physGlob.objects.m_dummy_head.m_next_T_internal;
+        &physGlob != i;
+        i = (PhysGlob *)i->objects.m_dummy_head.m_next_T_internal)
+    {
+        ((void(__cdecl *)(PhysObjUserData **, _DWORD))func)(i->objects.m_ptr_list, LODWORD(t));
+    }
+}
+
+int num_destructible_hits;
+destructible_hit destructible_hits[10];
+void __cdecl process_destructible_hits()
+{
+    float dir[3]; // [esp+Ch] [ebp-24h] BYREF
+    centity_s *cent; // [esp+18h] [ebp-18h]
+    destructible_hit *hit; // [esp+1Ch] [ebp-14h]
+    float point[3]; // [esp+20h] [ebp-10h] BYREF
+    int i; // [esp+2Ch] [ebp-4h]
+
+    for (i = 0; i < num_destructible_hits; ++i)
+    {
+        hit = &destructible_hits[i];
+        cent = CG_GetEntity(0, hit->entNum);
+        dir[0] = 0.0f;
+        dir[1] = 0.0f;
+        dir[2] = 1.0f;
+        point[0] = cent->pose.origin[0];
+        point[1] = cent->pose.origin[1];
+        point[2] = cent->pose.origin[2];
+        CG_DestructibleDamage(cent, 0, dir, point, 100, 10, 0, 0, 1);
+    }
+    num_destructible_hits = 0;
+}
+
+struct dynent_hit // sizeof=0x2
+{
+    unsigned __int16 absId;
+};
+
+dynent_hit dynent_hits[10];
+int num_dynent_hits;
+void __cdecl process_dynent_hits()
+{
+    DynEntityPose *dynEntPose; // [esp+4h] [ebp-2Ch]
+    DynEntityDrawType drawType; // [esp+8h] [ebp-28h] BYREF
+    float hitDir[3]; // [esp+Ch] [ebp-24h] BYREF
+    dynent_hit *hit; // [esp+18h] [ebp-18h]
+    float hitPos[3]; // [esp+1Ch] [ebp-14h] BYREF
+    unsigned __int16 dynEntId; // [esp+28h] [ebp-8h] BYREF
+    int i; // [esp+2Ch] [ebp-4h]
+
+    for (i = 0; i < num_dynent_hits; ++i)
+    {
+        hit = &dynent_hits[i];
+        DynEnt_GetClientIdDrawType(hit->absId, &dynEntId, &drawType);
+        dynEntPose = DynEnt_GetClientPose(dynEntId, drawType);
+        hitPos[0] = dynEntPose->pose.origin[0];
+        hitPos[1] = dynEntPose->pose.origin[1];
+        hitPos[2] = dynEntPose->pose.origin[2];
+        hitDir[0] = 0.0f;
+        hitDir[1] = 0.0f;
+        hitDir[2] = 1.0f;
+        DynEntCl_Damage(0, dynEntId, (DynEntityCollType)drawType, hitPos, hitDir, 100);
+    }
+    num_dynent_hits = 0;
+}
+
+void    UpdateRigidBody(float delta_t)
 {
     float t; // xmm0_4
     float v3; // [esp+38h] [ebp-48h]
@@ -4453,11 +4605,11 @@ void    UpdateRigidBody(float a1@<ebp>, float delta_t)
     phys_free_list<rigid_body>::iterator i_end; // [esp+64h] [ebp-1Ch] BYREF
     phys_free_list<rigid_body>::iterator i; // [esp+68h] [ebp-18h]
     float v10; // [esp+6Ch] [ebp-14h]
-    phys_vec3 gravity_dir; // [esp+70h] [ebp-10h] BYREF
-    float retaddr; // [esp+80h] [ebp+0h]
-
-    gravity_dir.y = a1;
-    gravity_dir.z = retaddr;
+    //phys_vec3 gravity_dir; // [esp+70h] [ebp-10h] BYREF
+    //float retaddr; // [esp+80h] [ebp+0h]
+    //
+    //gravity_dir.y = a1;
+    //gravity_dir.z = retaddr;
     //PIXBeginNamedEvent(-1, "update 1");
     //BLOPS_NULLSUB();
     debug_loop();
@@ -4484,11 +4636,11 @@ void    UpdateRigidBody(float a1@<ebp>, float delta_t)
         t = 0.1f;
     else
         t = delta_t;
-    Phys_AddCacheImpulses((int)&gravity_dir.y);
-    Nitrous_ForEachBody<void (__cdecl *)(PhysObjUserData &,float)>(Phys_BodyGrabSnapshotNitrous, t);
-    Nitrous_ForEachBody<void (__cdecl *)(PhysObjUserData &,float)>(
-        (void (__cdecl *)(PhysObjUserData *, float))Phys_DebugRender,
-        t);
+    Phys_AddCacheImpulses();
+    //Nitrous_ForEachBody<void (__cdecl *)(PhysObjUserData &,float)>(Phys_BodyGrabSnapshotNitrous, t);
+    Nitrous_ForEachBody(Phys_BodyGrabSnapshotNitrous, t);
+    //Nitrous_ForEachBody<void (__cdecl *)(PhysObjUserData &,float)>((void (__cdecl *)(PhysObjUserData *, float))Phys_DebugRender, t);
+    Nitrous_ForEachBody((void (__cdecl *)(PhysObjUserData *, float))Phys_DebugRender, t);
     render_debug_draw_gjk_trace_geom();
     NitrousVehicle::frame_prolog_all_systems(t);
     //if ( g_DXDeviceThread == GetCurrentThreadId() )
@@ -4512,10 +4664,22 @@ void __cdecl Phys_DebugRender(PhysObjUserData *userData)
     int savedregs; // [esp+0h] [ebp+0h] BYREF
 
     if ( phys_drawCollisionObj->current.enabled )
-        debug_render((int)&savedregs, userData);
+        debug_render(userData);
 }
 
-void    Phys_CollisionCallback(int a1@<ebp>)
+phys_free_list<PhysObjUserData>::iterator g_wpop_iter;
+phys_free_list<PhysObjUserData>::iterator g_wpop_iter_end;
+jqModule wheelCollisionModule;
+void __cdecl prop_system_collision_process()
+{
+    g_wpop_iter.m_ptr = physGlob.objects.m_dummy_head.m_next_T_internal;
+    //g_wpop_iter_end.m_ptr = (phys_free_list<PhysObjUserData>::T_internal_base *)&physGlob;
+    g_wpop_iter_end.m_ptr = (phys_free_list<PhysObjUserData>::T_internal_base *)&physGlob;
+    phys_task_manager_process(&wheelCollisionModule, 0, physGlob.objects.m_list_count);
+    phys_task_manager_flush();
+}
+
+void    Phys_CollisionCallback()
 {
     const phys_vec3 *v1; // eax
     float v2; // [esp-2Ch] [ebp-CCh]
@@ -4526,96 +4690,94 @@ void    Phys_CollisionCallback(int a1@<ebp>)
     phys_vec3 closest_point; // [esp+0h] [ebp-A0h] BYREF
     phys_vec3 m_aabb_mx_loc; // [esp+14h] [ebp-8Ch] BYREF
     phys_vec3 m_aabb_mn_loc; // [esp+24h] [ebp-7Ch] BYREF
-    float v10; // [esp+34h] [ebp-6Ch] BYREF
-    float v11; // [esp+38h] [ebp-68h]
-    float v12; // [esp+3Ch] [ebp-64h]
-    gjk_base_t *m_gjk_geom; // [esp+50h] [ebp-50h]
-    const phys_mat44 *m_cg_to_world_xform; // [esp+54h] [ebp-4Ch]
-    broad_phase_info *i; // [esp+58h] [ebp-48h]
-    gjk_base_t *geom; // [esp+5Ch] [ebp-44h]
-    const phys_mat44 *geom_mat; // [esp+60h] [ebp-40h]
-    broad_phase_info *bpi_env; // [esp+64h] [ebp-3Ch] BYREF
-    phys_vec3 player_origin; // [esp+70h] [ebp-30h]
-    phys_free_list<rigid_body_constraint_contact> *p_m_list_rbc_contact; // [esp+80h] [ebp-20h]
-    centity_s *v21; // [esp+84h] [ebp-1Ch]
-    centity_s *player_cent; // [esp+88h] [ebp-18h]
-    phys_free_list<rigid_body_constraint_contact>::iterator rbc_i_end; // [esp+8Ch] [ebp-14h]
-    phys_free_list<rigid_body_constraint_contact>::iterator rbc_i; // [esp+90h] [ebp-10h]
-    unsigned int v25[3]; // [esp+94h] [ebp-Ch] BYREF
-    _UNKNOWN *retaddr; // [esp+A0h] [ebp+0h]
-
-    v25[0] = a1;
-    v25[1] = retaddr;
-    rbc_i.m_ptr = (phys_free_list<rigid_body_constraint_contact>::T_internal_base *)physGlob.objects_by_world[0].m_alloc_count;
-    if ( physGlob.objects_by_world[0].m_alloc_count >= 10
-        || (rbc_i_end.m_ptr = (phys_free_list<rigid_body_constraint_contact>::T_internal_base *)physGlob.objects_by_world[1].m_alloc_count,
-                physGlob.objects_by_world[1].m_alloc_count >= 4) )
+    phys_vec3 player_origin_loc; // [esp+34h] [ebp-6Ch] BYREF
+    gjk_base_t *geom; // [esp+50h] [ebp-50h]
+    const phys_mat44 *geom_mat; // [esp+54h] [ebp-4Ch]
+    broad_phase_info *bpi_env; // [esp+58h] [ebp-48h]
+    float max_draw_dist_sq; // [esp+5Ch] [ebp-44h]
+    float integer; // [esp+60h] [ebp-40h]
+    phys_vec3 player_origin; // [esp+64h] [ebp-3Ch] BYREF
+    centity_s *player_cent; // [esp+7Ch] [ebp-24h]
+    phys_free_list<rigid_body_constraint_contact>::iterator rbc_i_end; // [esp+80h] [ebp-20h]
+    phys_free_list<rigid_body_constraint_contact>::iterator rbc_i; // [esp+84h] [ebp-1Ch]
+    phys_free_list<rigid_body_constraint_contact>::T_internal_base *m_next_T_internal; // [esp+88h] [ebp-18h]
+    int v21; // [esp+8Ch] [ebp-14h]
+    int m_alloc_count; // [esp+90h] [ebp-10h]
+    //_UNKNOWN *v23[2]; // [esp+94h] [ebp-Ch] BYREF
+    //int vars0; // [esp+A0h] [ebp+0h]
+    //
+    //v23[0] = a1;
+    //v23[1] = (_UNKNOWN *)vars0;
+    m_alloc_count = physGlob.objects_by_world[0].m_alloc_count;
+    if (physGlob.objects_by_world[0].m_alloc_count >= 10
+        || (v21 = physGlob.objects_by_world[1].m_alloc_count, physGlob.objects_by_world[1].m_alloc_count >= 4))
     {
-        cdl_proftimer::start_capture(&proftimer_physics_frame_advance);
+        //cdl_proftimer::start_capture(&proftimer_physics_frame_advance);
+        proftimer_physics_frame_advance.start_capture();
     }
     prop_system_collision_process();
-    broad_phase_process(COERCE_FLOAT(v25));
+    broad_phase_process();
     Phys_EffectsProcess();
-    if ( phys_drawcontacts->current.enabled )
+    if (phys_drawcontacts->current.enabled)
     {
-        player_cent = (centity_s *)g_physics_system->m_list_rbc_contact.m_dummy_head.m_next_T_internal;
-        v21 = player_cent;
-        p_m_list_rbc_contact = &g_physics_system->m_list_rbc_contact;
-        while ( p_m_list_rbc_contact != (phys_free_list<rigid_body_constraint_contact> *)v21 )
+        m_next_T_internal = g_physics_system->m_list_rbc_contact.m_dummy_head.m_next_T_internal;
+        rbc_i.m_ptr = m_next_T_internal;
+        rbc_i_end.m_ptr = &g_physics_system->m_list_rbc_contact.m_dummy_head;
+        while (rbc_i_end.m_ptr != rbc_i.m_ptr)
         {
-            render_contact((contact_point_info *)v25, (rigid_body_constraint_contact *)&v21->pose.cullIn);
-            v21 = *(centity_s **)&v21->pose.localClientNum;
+            render_contact((rigid_body_constraint_contact *)&rbc_i.m_ptr[1]);
+            rbc_i.m_ptr = rbc_i.m_ptr->m_next_T_internal;
         }
     }
-    if ( render_bpi_env_collision->current.integer > 0 )
+    if (render_bpi_env_collision->current.integer > 0)
     {
-        LODWORD(player_origin.w) = CG_GetEntity(0, 0);
-        Phys_Vec3ToNitrousVec((const phys_vec3 *)&bpi_env, (float *)(LODWORD(player_origin.w) + 48));
-        *(float *)&geom_mat = (float)render_bpi_env_collision->current.integer;
-        *(float *)&geom = *(float *)&geom_mat * *(float *)&geom_mat;
-        for ( i = G_BPM->m_list_bpi_env; i; i = (broad_phase_info *)i->m_list_bpb_cluster_next )
+        player_cent = CG_GetEntity(0, 0);
+        Phys_Vec3ToNitrousVec(player_cent->pose.origin, &player_origin);
+        integer = (float)render_bpi_env_collision->current.integer;
+        max_draw_dist_sq = integer * integer;
+        for (bpi_env = G_BPM->m_list_bpi_env; bpi_env; bpi_env = (broad_phase_info *)bpi_env->m_list_bpb_cluster_next)
         {
-            m_cg_to_world_xform = i->m_cg_to_world_xform;
-            m_gjk_geom = (gjk_base_t *)i->m_gjk_geom;
-            ((void (__thiscall *)(gjk_base_t *, unsigned int, unsigned int))m_gjk_geom->comp_aabb_loc)(
-                m_gjk_geom,
-                LODWORD(v2),
-                LODWORD(v3));
-            phys_full_inv_multiply((int)v25, (phys_vec3 *)&v10, m_cg_to_world_xform, (const phys_vec3 *)&bpi_env);
-            if ( (m_gjk_geom->m_flags & 2) == 0
+            geom_mat = bpi_env->m_cg_to_world_xform;
+            geom = (gjk_base_t *)bpi_env->m_gjk_geom;
+            //((void(__thiscall *)(gjk_base_t *, _DWORD, _DWORD))geom->comp_aabb_loc)(geom, LODWORD(v2), LODWORD(v3));
+            geom->comp_aabb_loc();
+            phys_full_inv_multiply(&player_origin_loc, geom_mat, &player_origin);
+            if ((geom->m_flags & 2) == 0
                 && _tlAssert(
-                         "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
-                         82,
-                         "get_flag(FLAG_AABB_LOC_VALID)",
-                         "") )
+                    "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
+                    82,
+                    "get_flag(FLAG_AABB_LOC_VALID)",
+                    ""))
             {
                 __debugbreak();
             }
-            m_aabb_mn_loc = m_gjk_geom->m_aabb_mn_loc;
-            if ( (m_gjk_geom->m_flags & 2) == 0
+            m_aabb_mn_loc = geom->m_aabb_mn_loc;
+            if ((geom->m_flags & 2) == 0
                 && _tlAssert(
-                         "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
-                         83,
-                         "get_flag(FLAG_AABB_LOC_VALID)",
-                         "") )
+                    "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
+                    83,
+                    "get_flag(FLAG_AABB_LOC_VALID)",
+                    ""))
             {
                 __debugbreak();
             }
-            m_aabb_mx_loc = m_gjk_geom->m_aabb_mx_loc;
-            v1 = phys_max((phys_vec3 *)&closest_point.y, &m_aabb_mn_loc, (const phys_vec3 *)&v10);
-            phys_min((const phys_vec3 *)&v4, &m_aabb_mx_loc, v1);
-            v2 = v4 - v10;
-            v3 = v5 - v11;
-            if ( *(float *)&geom >= (float)((float)((float)((float)(v4 - v10) * (float)(v4 - v10))
-                                                                                        + (float)((float)(v5 - v11) * (float)(v5 - v11)))
-                                                                        + (float)((float)(v6 - v12) * (float)(v6 - v12))) )
-                render_gjk_geom(COERCE_FLOAT(v25), m_gjk_geom, m_cg_to_world_xform);
+            m_aabb_mx_loc = geom->m_aabb_mx_loc;
+            v1 = phys_max((phys_vec3 *)&closest_point.y, &m_aabb_mn_loc, &player_origin_loc);
+            phys_min((phys_vec3 *)&v4, &m_aabb_mx_loc, v1);
+            v2 = v4 - player_origin_loc.x;
+            v3 = v5 - player_origin_loc.y;
+            if (max_draw_dist_sq >= (float)((float)((float)((float)(v4 - player_origin_loc.x)
+                * (float)(v4 - player_origin_loc.x))
+                + (float)((float)(v5 - player_origin_loc.y)
+                    * (float)(v5 - player_origin_loc.y)))
+                + (float)((float)(v6 - player_origin_loc.z) * (float)(v6 - player_origin_loc.z))))
+                render_gjk_geom(geom, geom_mat);
         }
     }
     broad_phase_reset_buffer();
 }
 
-void __thiscall cdl_proftimer::start_capture(cdl_proftimer *this)
+void __thiscall cdl_proftimer::start_capture()
 {
     int i; // [esp+4h] [ebp-4h]
 
@@ -4633,7 +4795,7 @@ void __thiscall cdl_proftimer::start_capture(cdl_proftimer *this)
     }
 }
 
-void __thiscall cdl_proftimer::reset(cdl_proftimer *this)
+void __thiscall cdl_proftimer::reset()
 {
     unsigned __int64 tmp; // [esp+20h] [ebp-10h]
     int i; // [esp+28h] [ebp-8h]
@@ -4731,7 +4893,7 @@ void __cdecl Phys_RunToTime(int timeNow)
         //PIXBeginNamedEvent(-1, "auto_rigid_body");
         //if ( GetCurrentThreadId() == g_DXDeviceThread )
             //D3DPERF_EndEvent();
-        auto_rigid_body::update((auto_rigid_body *)&savedregs);
+        auto_rigid_body::update();
         if ( !Demo_IsPlaying() || !Demo_IsPaused() && time_msec > 0 && time_msec < 100 )
         {
             if ( time_msec < 100 )
@@ -4743,7 +4905,7 @@ void __cdecl Phys_RunToTime(int timeNow)
             else
                 v2 = 1;
             time_msec = v2;
-            UpdateRigidBody(COERCE_FLOAT(&savedregs), (float)v2 * 0.001);
+            UpdateRigidBody((float)v2 * 0.001);
         }
         physGlob.timeLastUpdate = timeNow;
     }
@@ -4771,13 +4933,13 @@ void __cdecl Phys_ObjGetInterpolatedState(int id, float *outPos, float *outQuat)
     frac = 1.0f;
     if ( phys_msecStep->current.integer <= 0 )
     {
-        Phys_ObjGetPosition((int)&savedregs, id, outPos, newMat);
+        Phys_ObjGetPosition(id, outPos, newMat);
         AxisToQuat(newMat, outQuat);
     }
     else
     {
         Phys_ObjGetSnapshot(id, oldPos, oldMat);
-        Phys_ObjGetPosition((int)&savedregs, id, newPos, newMat);
+        Phys_ObjGetPosition(id, newPos, newMat);
         Vec3Lerp(oldPos, newPos, frac, outPos);
         AxisToQuat(oldMat, oldQuat);
         AxisToQuat(newMat, newQuat);
@@ -4786,45 +4948,47 @@ void __cdecl Phys_ObjGetInterpolatedState(int id, float *outPos, float *outQuat)
     }
 }
 
-void    Phys_SetUserBody(int a1@<ebp>, int id, float *position)
+void    Phys_SetUserBody(int id, float *position)
 {
-    unsigned int v3[3]; // [esp-Ch] [ebp-7Ch] BYREF
-    phys_mat44 dictator; // [esp+0h] [ebp-70h]
-    float v5; // [esp+44h] [ebp-2Ch] BYREF
-    float v6; // [esp+48h] [ebp-28h]
-    float v7; // [esp+4Ch] [ebp-24h]
-    phys_vec3 pos; // [esp+50h] [ebp-20h]
-    float *UserData; // [esp+60h] [ebp-10h]
-    int v10; // [esp+64h] [ebp-Ch]
-    user_rigid_body *body; // [esp+68h] [ebp-8h]
-    user_rigid_body *retaddr; // [esp+70h] [ebp+0h]
-
-    v10 = a1;
-    body = retaddr;
-    UserData = (float *)Phys_GetUserData(id);
-    pos.w = *UserData;
-    Phys_Vec3ToNitrousVec(position, (phys_vec3 *)&v5);
-    dictator.w.y = 1.0f;
-    dictator.w.z = 0.0f;
-    dictator.w.w = 0.0f;
-    *(float *)v3 = 1.0f;
-    v3[1] = 0;
-    v3[2] = 0;
+    phys_mat44 dictator; // [esp-Ch] [ebp-7Ch] BYREF
+    float dictator_52; // [esp+34h] [ebp-3Ch]
+    int dictator_56; // [esp+38h] [ebp-38h]
+    int dictator_60; // [esp+3Ch] [ebp-34h]
+    phys_vec3 pos; // [esp+44h] [ebp-2Ch] BYREF
+    user_rigid_body *body; // [esp+5Ch] [ebp-14h]
+    PhysObjUserData *userData; // [esp+60h] [ebp-10h]
+    //_UNKNOWN *v10; // [esp+64h] [ebp-Ch]
+    //int ida; // [esp+68h] [ebp-8h]
+    //int vars0; // [esp+70h] [ebp+0h]
+    //
+    //v10 = a1;
+    //ida = vars0;
+    userData = Phys_GetUserData(id);
+    body = (user_rigid_body *)userData->body;
+    Phys_Vec3ToNitrousVec(position, &pos);
+    dictator_52 = 1.0f;
+    dictator_56 = 0.0f;
+    dictator_60 = 0.0f;
+    dictator.x.x = 1.0f;
     dictator.x.y = 0.0f;
-    dictator.x.z = 1.0f;
-    dictator.x.w = 0.0f;
-    dictator.y.y = 0.0f;
+    dictator.x.z = 0.0f;
+    dictator.y.x = 0.0f;
+    dictator.y.y = 1.0f;
     dictator.y.z = 0.0f;
-    dictator.y.w = 1.0f;
-    dictator.z.y = v5;
-    dictator.z.z = v6;
-    dictator.z.w = v7;
-    dictator.z.y = v5 - UserData[20];
-    dictator.z.z = v6 - UserData[21];
-    dictator.z.w = v7 - UserData[22];
-    user_rigid_body::setPosition((user_rigid_body *)LODWORD(pos.w), (const phys_mat44 *const)v3);
+    dictator.z.x = 0.0f;
+    dictator.z.y = 0.0f;
+    dictator.z.z = 1.0f;
+    dictator.w.x = pos.x;
+    dictator.w.y = pos.y;
+    dictator.w.z = pos.z;
+    dictator.w.x = pos.x - userData->cg2rb.w.x;
+    dictator.w.y = pos.y - userData->cg2rb.w.y;
+    dictator.w.z = pos.z - userData->cg2rb.w.z;
+    //user_rigid_body::setPosition(body, &dictator);
+    body->setPosition(&dictator);
 }
 
+minspec_mutex g_render_mutex;
 bool __cdecl Phys_ObjIsAsleep(int id)
 {
     const char *v1; // eax
@@ -4833,9 +4997,11 @@ bool __cdecl Phys_ObjIsAsleep(int id)
     rigid_body *body; // [esp+44h] [ebp-4h]
 
     body = Phys_GetUserData(id)->body;
-    if ( phys_debugDangerousRigidBodies->current.enabled && rigid_body::is_dangerous(body) )
+    //if ( phys_debugDangerousRigidBodies->current.enabled && rigid_body::is_dangerous(body) )
+    if ( phys_debugDangerousRigidBodies->current.enabled && body->is_dangerous() )
     {
-        minspec_mutex::Lock(&g_render_mutex);
+        //minspec_mutex::Lock(&g_render_mutex);
+        g_render_mutex.Lock();
         Phys_NitrousVecToVec3(&body->m_last_position, _p0);
         _p1[0] = _p0[0];
         _p1[1] = _p0[1];
@@ -4847,12 +5013,14 @@ bool __cdecl Phys_ObjIsAsleep(int id)
                      _p0[1],
                      _p0[2]);
         tlWarning(v1);
-        minspec_mutex::Unlock(&g_render_mutex);
+        //minspec_mutex::Unlock(&g_render_mutex);
+        g_render_mutex.Unlock();
     }
-    return rigid_body::is_group_stable(body) || rigid_body::is_dangerous(body) || body->m_mat.w.z < -10000.0;
+    //return rigid_body::is_group_stable(body) || rigid_body::is_dangerous(body) || body->m_mat.w.z < -10000.0;
+    return body->is_group_stable() || body->is_dangerous()|| body->m_mat.w.z < -10000.0;
 }
 
-unsigned int __thiscall rigid_body::is_dangerous(rigid_body *this)
+unsigned int __thiscall rigid_body::is_dangerous()
 {
     return this->m_flags & 0x80;
 }
@@ -4865,9 +5033,11 @@ bool __cdecl Phys_ObjIsAsleepSingle(int id)
     rigid_body *body; // [esp+44h] [ebp-4h]
 
     body = Phys_GetUserData(id)->body;
-    if ( phys_debugDangerousRigidBodies->current.enabled && rigid_body::is_dangerous(body) )
+    //if ( phys_debugDangerousRigidBodies->current.enabled && rigid_body::is_dangerous(body) )
+    if ( phys_debugDangerousRigidBodies->current.enabled && body->is_dangerous() )
     {
-        minspec_mutex::Lock(&g_render_mutex);
+        //minspec_mutex::Lock(&g_render_mutex);
+        g_render_mutex.Lock();
         Phys_NitrousVecToVec3(&body->m_last_position, _p0);
         _p1[0] = _p0[0];
         _p1[1] = _p0[1];
@@ -4879,12 +5049,14 @@ bool __cdecl Phys_ObjIsAsleepSingle(int id)
                      _p0[1],
                      _p0[2]);
         tlWarning(v1);
-        minspec_mutex::Unlock(&g_render_mutex);
+        //minspec_mutex::Unlock(&g_render_mutex);
+        g_render_mutex.Unlock();
     }
-    return rigid_body::is_stable(body) || rigid_body::is_dangerous(body) || body->m_mat.w.z < -10000.0;
+    //return rigid_body::is_stable(body) || rigid_body::is_dangerous(body) || body->m_mat.w.z < -10000.0;
+    return body->is_stable() || body->is_dangerous() || body->m_mat.w.z < -10000.0;
 }
 
-unsigned int __thiscall rigid_body::is_stable(rigid_body *this)
+unsigned int __thiscall rigid_body::is_stable()
 {
     return this->m_flags & 4;
 }
@@ -4893,11 +5065,11 @@ void __cdecl Phys_SetHingeParams(rigid_body_constraint_ragdoll *id, float motorS
 {
     if ( !id && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp", 2900, 0, "%s", "id") )
         __debugbreak();
-    rigid_body_constraint_ragdoll::set_damp_k(id, damp * phys_ragdoll_joint_damp_scale->current.value);
+    //rigid_body_constraint_ragdoll::set_damp_k(id, damp * phys_ragdoll_joint_damp_scale->current.value);
+    id->set_damp_k(damp * phys_ragdoll_joint_damp_scale->current.value);
 }
 
-rigid_body_constraint_ragdoll * Phys_CreateHinge@<eax>(
-                rigid_body_constraint_ragdoll *a1@<ebp>,
+rigid_body_constraint_ragdoll * Phys_CreateHinge(
                 int obj1,
                 int obj2,
                 const float *anchor,
@@ -4907,101 +5079,103 @@ rigid_body_constraint_ragdoll * Phys_CreateHinge@<eax>(
                 float lowStop,
                 float highStop)
 {
-    unsigned int v10[3]; // [esp+8h] [ebp-16Ch] BYREF
-    phys_vec3 b2_ref_loc; // [esp+14h] [ebp-160h]
-    unsigned int v12[3]; // [esp+28h] [ebp-14Ch] BYREF
-    phys_vec3 b1_ref_loc; // [esp+34h] [ebp-140h]
-    unsigned int v14[3]; // [esp+48h] [ebp-12Ch] BYREF
-    const phys_vec3 *v15; // [esp+64h] [ebp-110h]
-    phys_vec3 v16; // [esp+68h] [ebp-10Ch] BYREF
-    unsigned int v17[3]; // [esp+78h] [ebp-FCh] BYREF
-    const phys_vec3 *v18; // [esp+94h] [ebp-E0h]
-    phys_vec3 v19; // [esp+98h] [ebp-DCh] BYREF
-    unsigned int v20[3]; // [esp+A8h] [ebp-CCh] BYREF
-    phys_vec3 *v21; // [esp+C4h] [ebp-B0h]
-    phys_vec3 v22; // [esp+C8h] [ebp-ACh] BYREF
-    unsigned int v23[3]; // [esp+D8h] [ebp-9Ch] BYREF
-    phys_vec3 *v24; // [esp+F4h] [ebp-80h]
-    phys_vec3 v25; // [esp+F8h] [ebp-7Ch] BYREF
-    float v26; // [esp+108h] [ebp-6Ch]
-    int v27; // [esp+10Ch] [ebp-68h]
-    int v28; // [esp+110h] [ebp-64h]
-    phys_vec3 ref_abs; // [esp+114h] [ebp-60h] BYREF
-    phys_vec3 axis_abs; // [esp+124h] [ebp-50h]
-    float v31; // [esp+134h] [ebp-40h]
-    unsigned int v32[3]; // [esp+138h] [ebp-3Ch] BYREF
-    phys_vec3 anchor_abs; // [esp+144h] [ebp-30h]
-    int v34; // [esp+154h] [ebp-20h]
-    int v35; // [esp+158h] [ebp-1Ch]
-    rigid_body_constraint_ragdoll *rbc_ragdoll; // [esp+15Ch] [ebp-18h]
-    environment_rigid_body *v37; // [esp+160h] [ebp-14h]
-    environment_rigid_body *body; // [esp+164h] [ebp-10h]
-    rigid_body_constraint_ragdoll *joint; // [esp+168h] [ebp-Ch] BYREF
-    rigid_body *body2; // [esp+16Ch] [ebp-8h]
-    rigid_body *retaddr; // [esp+174h] [ebp+0h]
-
-    joint = a1;
-    body2 = retaddr;
-    body = (environment_rigid_body *)Phys_GetUserData(obj1)->body;
-    v37 = (environment_rigid_body *)Phys_GetUserData(obj2)->body;
-    rbc_ragdoll = phys_sys::create_rbc_ragdoll(body, v37, 1);
-    if ( rbc_ragdoll )
+    phys_vec3 b2_ref_loc; // [esp+8h] [ebp-16Ch] BYREF
+    float v11; // [esp+18h] [ebp-15Ch]
+    int v12; // [esp+1Ch] [ebp-158h]
+    int v13; // [esp+20h] [ebp-154h]
+    phys_vec3 b1_ref_loc; // [esp+28h] [ebp-14Ch] BYREF
+    float v15; // [esp+38h] [ebp-13Ch]
+    int v16; // [esp+3Ch] [ebp-138h]
+    int v17; // [esp+40h] [ebp-134h]
+    phys_vec3 b2_axis_loc; // [esp+48h] [ebp-12Ch] BYREF
+    const phys_vec3 *v19; // [esp+64h] [ebp-110h]
+    phys_vec3 v20; // [esp+68h] [ebp-10Ch] BYREF
+    phys_vec3 b1_axis_loc; // [esp+78h] [ebp-FCh] BYREF
+    const phys_vec3 *v22; // [esp+94h] [ebp-E0h]
+    phys_vec3 v23; // [esp+98h] [ebp-DCh] BYREF
+    phys_vec3 b2_anchor_loc; // [esp+A8h] [ebp-CCh] BYREF
+    phys_vec3 *v25; // [esp+C4h] [ebp-B0h]
+    phys_vec3 v26; // [esp+C8h] [ebp-ACh] BYREF
+    phys_vec3 b1_anchor_loc; // [esp+D8h] [ebp-9Ch] BYREF
+    phys_vec3 *v28; // [esp+F4h] [ebp-80h]
+    phys_vec3 v29; // [esp+F8h] [ebp-7Ch] BYREF
+    phys_vec3 ref_abs; // [esp+108h] [ebp-6Ch]
+    phys_vec3 axis_abs; // [esp+118h] [ebp-5Ch] BYREF
+    float v32; // [esp+12Ch] [ebp-48h]
+    float v33; // [esp+130h] [ebp-44h]
+    float v34; // [esp+134h] [ebp-40h]
+    phys_vec3 anchor_abs; // [esp+138h] [ebp-3Ch] BYREF
+    float v36; // [esp+150h] [ebp-24h]
+    float v37; // [esp+154h] [ebp-20h]
+    float v38; // [esp+158h] [ebp-1Ch]
+    rigid_body_constraint_ragdoll *joint; // [esp+15Ch] [ebp-18h]
+    rigid_body *body2; // [esp+160h] [ebp-14h]
+    rigid_body *body1; // [esp+164h] [ebp-10h]
+    //_UNKNOWN *v42[2]; // [esp+168h] [ebp-Ch] BYREF
+    //const float *anchora; // [esp+174h] [ebp+0h]
+    //
+    //v42[0] = a1;
+    //v42[1] = anchora;
+    body1 = Phys_GetUserData((int)obj1)->body;
+    body2 = Phys_GetUserData(obj2)->body;
+    joint = phys_sys::create_rbc_ragdoll((environment_rigid_body *)body1, (environment_rigid_body *)body2, 1);
+    if (joint)
     {
-        v35 = *(unsigned int *)anchor;
-        v34 = *((unsigned int *)anchor + 1);
-        anchor_abs.w = anchor[2];
-        v32[0] = v35;
-        v32[1] = v34;
-        v32[2] = LODWORD(anchor_abs.w);
-        v31 = *axis;
-        axis_abs.w = axis[1];
-        axis_abs.z = axis[2];
-        ref_abs.y = v31;
-        ref_abs.z = axis_abs.w;
-        ref_abs.w = axis_abs.z;
-        v26 = 1.0f;
-        v27 = 0;
-        v28 = 0;
-        v24 = phys_full_inv_multiply((int)&joint, &v25, &body->m_mat, (const phys_vec3 *)v32);
-        v23[0] = LODWORD(v24->x);
-        v23[1] = LODWORD(v24->y);
-        v23[2] = LODWORD(v24->z);
-        v21 = phys_full_inv_multiply((int)&joint, &v22, &v37->m_mat, (const phys_vec3 *)v32);
-        v20[0] = LODWORD(v21->x);
-        v20[1] = LODWORD(v21->y);
-        v20[2] = LODWORD(v21->z);
-        v18 = phys_inv_multiply(&v19, &body->m_mat, (phys_vec3 *)&ref_abs.y);
-        v17[0] = LODWORD(v18->x);
-        v17[1] = LODWORD(v18->y);
-        v17[2] = LODWORD(v18->z);
-        v15 = phys_inv_multiply(&v16, &v37->m_mat, (phys_vec3 *)&ref_abs.y);
-        v14[0] = LODWORD(v15->x);
-        v14[1] = LODWORD(v15->y);
-        v14[2] = LODWORD(v15->z);
-        b1_ref_loc.y = 1.0f;
+        v38 = *anchor;
+        v37 = anchor[1];
+        v36 = anchor[2];
+        anchor_abs.x = v38;
+        anchor_abs.y = v37;
+        anchor_abs.z = v36;
+        v34 = *axis;
+        v33 = axis[1];
+        v32 = axis[2];
+        axis_abs.x = v34;
+        axis_abs.y = v33;
+        axis_abs.z = v32;
+        ref_abs.x = 1.0f;
+        ref_abs.y = 0.0f;
+        ref_abs.z = 0.0f;
+        v28 = phys_full_inv_multiply(&v29, &body1->m_mat, &anchor_abs);
+        *(_QWORD *)&b1_anchor_loc.x = *(_QWORD *)&v28->x;
+        b1_anchor_loc.z = v28->z;
+        v25 = phys_full_inv_multiply(&v26, &body2->m_mat, &anchor_abs);
+        b2_anchor_loc.x = v25->x;
+        b2_anchor_loc.y = v25->y;
+        b2_anchor_loc.z = v25->z;
+        v22 = phys_inv_multiply(&v23, &body1->m_mat, &axis_abs);
+        b1_axis_loc.x = v22->x;
+        b1_axis_loc.y = v22->y;
+        b1_axis_loc.z = v22->z;
+        v19 = phys_inv_multiply(&v20, &body2->m_mat, &axis_abs);
+        b2_axis_loc.x = v19->x;
+        b2_axis_loc.y = v19->y;
+        b2_axis_loc.z = v19->z;
+        v15 = 1.0f;
+        v16 = 0.0f;
+        v17 = 0.0f;
+        b1_ref_loc.x = 1.0f;
+        b1_ref_loc.y = 0.0f;
         b1_ref_loc.z = 0.0f;
-        b1_ref_loc.w = 0.0f;
-        *(float *)v12 = 1.0f;
-        v12[1] = 0;
-        v12[2] = 0;
-        b2_ref_loc.y = 1.0f;
+        v11 = 1.0f;
+        v12 = 0.0f;
+        v13 = 0.0f;
+        b2_ref_loc.x = 1.0f;
+        b2_ref_loc.y = 0.0f;
         b2_ref_loc.z = 0.0f;
-        b2_ref_loc.w = 0.0f;
-        *(float *)v10 = 1.0f;
-        v10[1] = 0;
-        v10[2] = 0;
-        rigid_body_constraint_ragdoll::set(rbc_ragdoll, (const phys_vec3 *)v23, (const phys_vec3 *)v20);
-        rigid_body_constraint_ragdoll::set_hinge(
-            rbc_ragdoll,
-            (int)&joint,
-            (const phys_vec3 *)v17,
-            (const phys_vec3 *)v14,
-            (const phys_vec3 *)v12,
-            (const phys_vec3 *)v10,
+        //rigid_body_constraint_ragdoll::set(joint, &b1_anchor_loc, &b2_anchor_loc);
+        joint->set(&b1_anchor_loc, &b2_anchor_loc);
+        //rigid_body_constraint_ragdoll::set_hinge(
+            joint->set_hinge(
+            &b1_axis_loc,
+            &b2_axis_loc,
+            &b1_ref_loc,
+            &b2_ref_loc,
             lowStop,
             highStop);
-        rigid_body_constraint_ragdoll::set_damp_k(rbc_ragdoll, damp);
-        return rbc_ragdoll;
+        //rigid_body_constraint_ragdoll::set_damp_k(joint, damp);
+        joint->set_damp_k(damp);
+        return joint;
     }
     else
     {
@@ -5020,11 +5194,11 @@ void __cdecl Phys_SetAngularMotorParams(rigid_body_constraint_ragdoll *id, const
         v3 = damp[1];
     else
         v3 = *damp;
-    rigid_body_constraint_ragdoll::set_damp_k(id, v3 * phys_ragdoll_joint_damp_scale->current.value);
+    //rigid_body_constraint_ragdoll::set_damp_k(id, v3 * phys_ragdoll_joint_damp_scale->current.value);
+    id->set_damp_k(v3 * phys_ragdoll_joint_damp_scale->current.value);
 }
 
-rigid_body_constraint_ragdoll * Phys_CreateSwivel@<eax>(
-                rigid_body_constraint_ragdoll *a1@<ebp>,
+rigid_body_constraint_ragdoll * Phys_CreateSwivel(
                 int obj1,
                 int obj2,
                 const float *anchor,
@@ -5035,210 +5209,206 @@ rigid_body_constraint_ragdoll * Phys_CreateSwivel@<eax>(
                 float *lowStops,
                 float *highStops)
 {
-    const phys_vec3 *v11; // eax
-    const phys_vec3 *v12; // eax
+    phys_vec3 *v11; // eax
+    phys_vec3 *v12; // eax
     float v13; // xmm0_4
     float theta_max; // xmm0_4
-    float v15; // xmm0_4
-    float v16; // [esp+18h] [ebp-2BCh] BYREF
-    float v17; // [esp+1Ch] [ebp-2B8h]
-    float v18; // [esp+20h] [ebp-2B4h]
-    float *p_y; // [esp+34h] [ebp-2A0h]
-    _BYTE v20[12]; // [esp+38h] [ebp-29Ch] BYREF
-    phys_mat44 axes_loc; // [esp+44h] [ebp-290h] BYREF
-    phys_vec3 b1_ud_loc; // [esp+84h] [ebp-250h]
-    float v23; // [esp+94h] [ebp-240h]
-    float w; // [esp+98h] [ebp-23Ch] BYREF
-    float angle_rotate; // [esp+9Ch] [ebp-238h]
-    float angle_extents; // [esp+A0h] [ebp-234h]
-    phys_vec3 b1_ud_abs; // [esp+A4h] [ebp-230h]
-    int j; // [esp+B4h] [ebp-220h]
-    unsigned int v29[2]; // [esp+B8h] [ebp-21Ch] BYREF
-    int i; // [esp+C0h] [ebp-214h]
-    int v31; // [esp+CCh] [ebp-208h]
-    int v32; // [esp+D0h] [ebp-204h]
-    int v33; // [esp+D4h] [ebp-200h]
-    phys_vec3 v34; // [esp+D8h] [ebp-1FCh] BYREF
-    int v35; // [esp+F4h] [ebp-1E0h]
-    int v36; // [esp+F8h] [ebp-1DCh]
-    int v37; // [esp+FCh] [ebp-1D8h]
-    float v38; // [esp+100h] [ebp-1D4h]
-    float v39; // [esp+104h] [ebp-1D0h]
-    float theta_min; // [esp+108h] [ebp-1CCh]
-    float max_angle; // [esp+10Ch] [ebp-1C8h]
-    float v42; // [esp+110h] [ebp-1C4h]
-    float min_angle; // [esp+114h] [ebp-1C0h]
-    float v44; // [esp+118h] [ebp-1BCh]
-    float v45; // [esp+11Ch] [ebp-1B8h]
-    float limit; // [esp+120h] [ebp-1B4h]
-    const phys_vec3 *v47; // [esp+134h] [ebp-1A0h]
-    phys_vec3 v48; // [esp+138h] [ebp-19Ch] BYREF
-    float x; // [esp+148h] [ebp-18Ch]
-    float y; // [esp+14Ch] [ebp-188h]
-    float z; // [esp+150h] [ebp-184h]
-    const phys_vec3 *v52; // [esp+164h] [ebp-170h]
-    phys_vec3 v53; // [esp+168h] [ebp-16Ch] BYREF
-    unsigned int v54[3]; // [esp+178h] [ebp-15Ch] BYREF
-    const phys_vec3 *v55; // [esp+194h] [ebp-140h]
-    phys_vec3 v56; // [esp+198h] [ebp-13Ch] BYREF
-    unsigned int v57[3]; // [esp+1A8h] [ebp-12Ch] BYREF
-    const phys_vec3 *v58; // [esp+1C4h] [ebp-110h]
-    phys_vec3 v59; // [esp+1C8h] [ebp-10Ch] BYREF
-    unsigned int v60[3]; // [esp+1D8h] [ebp-FCh] BYREF
-    phys_vec3 b2_anchor_loc; // [esp+1E4h] [ebp-F0h] BYREF
-    phys_vec3 v62; // [esp+1F8h] [ebp-DCh] BYREF
-    const phys_mat44 *v63; // [esp+214h] [ebp-C0h]
-    unsigned int v64[3]; // [esp+218h] [ebp-BCh] BYREF
-    phys_vec3 b1_anchor_loc; // [esp+224h] [ebp-B0h] BYREF
-    phys_vec3 v66; // [esp+238h] [ebp-9Ch] BYREF
+    float z; // xmm0_4
+    phys_vec3 rot_axes; // [esp+18h] [ebp-2BCh] BYREF
+    phys_vec3 *p_y; // [esp+34h] [ebp-2A0h]
+    phys_mat44 axes_loc; // [esp+38h] [ebp-29Ch] BYREF
+    phys_vec3 b1_ud_loc; // [esp+78h] [ebp-25Ch] BYREF
+    float angle_rotate; // [esp+90h] [ebp-244h]
+    float angle_extents; // [esp+94h] [ebp-240h]
+    phys_vec3 b1_ud_abs; // [esp+98h] [ebp-23Ch] BYREF
+    float v23; // [esp+A8h] [ebp-22Ch]
+    float v24; // [esp+ACh] [ebp-228h]
+    float v25; // [esp+B0h] [ebp-224h]
+    int i; // [esp+B4h] [ebp-220h]
+    phys_vec3 v27; // [esp+B8h] [ebp-21Ch] BYREF
+    phys_vec3 v28; // [esp+CCh] [ebp-208h] BYREF
+    int v29; // [esp+DCh] [ebp-1F8h]
+    int v30; // [esp+E0h] [ebp-1F4h]
+    int v31; // [esp+F4h] [ebp-1E0h]
+    int v32; // [esp+F8h] [ebp-1DCh]
+    int v33; // [esp+FCh] [ebp-1D8h]
+    float max_angle; // [esp+100h] [ebp-1D4h]
+    float v35; // [esp+104h] [ebp-1D0h]
+    float min_angle; // [esp+108h] [ebp-1CCh]
+    float v37; // [esp+10Ch] [ebp-1C8h]
+    float v38; // [esp+110h] [ebp-1C4h]
+    float limit; // [esp+114h] [ebp-1C0h]
+    phys_vec3 b2_ref_loc; // [esp+118h] [ebp-1BCh]
+    const phys_vec3 *v41; // [esp+134h] [ebp-1A0h]
+    phys_vec3 v42; // [esp+138h] [ebp-19Ch] BYREF
+    phys_vec3 b1_ref_loc; // [esp+148h] [ebp-18Ch]
+    const phys_vec3 *v44; // [esp+164h] [ebp-170h]
+    phys_vec3 v45; // [esp+168h] [ebp-16Ch] BYREF
+    phys_vec3 b2_axis_loc; // [esp+178h] [ebp-15Ch] BYREF
+    const phys_vec3 *v47; // [esp+194h] [ebp-140h]
+    phys_vec3 v48; // [esp+198h] [ebp-13Ch] BYREF
+    phys_vec3 b1_axis_loc; // [esp+1A8h] [ebp-12Ch] BYREF
+    const phys_vec3 *v50; // [esp+1C4h] [ebp-110h]
+    phys_vec3 v51; // [esp+1C8h] [ebp-10Ch] BYREF
+    phys_vec3 b2_anchor_loc; // [esp+1D8h] [ebp-FCh] BYREF
+    phys_vec3 v53; // [esp+1E8h] [ebp-ECh] BYREF
+    phys_vec3 v54; // [esp+1F8h] [ebp-DCh] BYREF
+    const phys_mat44 *v55; // [esp+214h] [ebp-C0h]
+    phys_vec3 b1_anchor_loc; // [esp+218h] [ebp-BCh] BYREF
+    phys_vec3 v57; // [esp+228h] [ebp-ACh] BYREF
+    phys_vec3 v58; // [esp+238h] [ebp-9Ch] BYREF
     const phys_mat44 *p_m_mat; // [esp+254h] [ebp-80h]
-    unsigned int v68[3]; // [esp+258h] [ebp-7Ch] BYREF
-    phys_vec3 ref_abs; // [esp+264h] [ebp-70h]
-    float v70; // [esp+274h] [ebp-60h]
-    unsigned int v71[3]; // [esp+278h] [ebp-5Ch] BYREF
-    phys_vec3 axis_abs; // [esp+284h] [ebp-50h]
-    float v73; // [esp+294h] [ebp-40h]
-    unsigned int v74[3]; // [esp+298h] [ebp-3Ch] BYREF
-    phys_vec3 anchor_abs; // [esp+2A4h] [ebp-30h]
-    int v76; // [esp+2B4h] [ebp-20h]
-    int v77; // [esp+2B8h] [ebp-1Ch]
-    rigid_body_constraint_ragdoll *rbc_ragdoll; // [esp+2BCh] [ebp-18h]
-    environment_rigid_body *v79; // [esp+2C0h] [ebp-14h]
-    environment_rigid_body *body; // [esp+2C4h] [ebp-10h]
-    rigid_body_constraint_ragdoll *joint; // [esp+2C8h] [ebp-Ch] BYREF
-    rigid_body *body2; // [esp+2CCh] [ebp-8h]
-    rigid_body *retaddr; // [esp+2D4h] [ebp+0h]
-
-    joint = a1;
-    body2 = retaddr;
-    body = (environment_rigid_body *)Phys_GetUserData(obj1)->body;
-    v79 = (environment_rigid_body *)Phys_GetUserData(obj2)->body;
-    if ( numAxes >= 4
+    phys_vec3 ref_abs; // [esp+258h] [ebp-7Ch] BYREF
+    float v61; // [esp+26Ch] [ebp-68h]
+    float v62; // [esp+270h] [ebp-64h]
+    float v63; // [esp+274h] [ebp-60h]
+    phys_vec3 axis_abs; // [esp+278h] [ebp-5Ch] BYREF
+    float v65; // [esp+28Ch] [ebp-48h]
+    float v66; // [esp+290h] [ebp-44h]
+    float v67; // [esp+294h] [ebp-40h]
+    phys_vec3 anchor_abs; // [esp+298h] [ebp-3Ch] BYREF
+    float v69; // [esp+2B0h] [ebp-24h]
+    float v70; // [esp+2B4h] [ebp-20h]
+    float v71; // [esp+2B8h] [ebp-1Ch]
+    rigid_body_constraint_ragdoll *joint; // [esp+2BCh] [ebp-18h]
+    rigid_body *body2; // [esp+2C0h] [ebp-14h]
+    rigid_body *body1; // [esp+2C4h] [ebp-10h]
+    //_UNKNOWN *v75[2]; // [esp+2C8h] [ebp-Ch] BYREF
+    //const float *anchora; // [esp+2D4h] [ebp+0h]
+    //
+    //v75[0] = a1;
+    //v75[1] = anchora;
+    body1 = Phys_GetUserData(obj1)->body;
+    body2 = Phys_GetUserData((int)obj2)->body;
+    if ((unsigned int)numAxes >= 4
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-                    2958,
-                    0,
-                    "%s",
-                    "numAxes >= 0 && numAxes <= 3") )
+            "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
+            2958,
+            0,
+            "%s",
+            "numAxes >= 0 && numAxes <= 3"))
     {
         __debugbreak();
     }
-    rbc_ragdoll = phys_sys::create_rbc_ragdoll(body, v79, 1);
-    if ( rbc_ragdoll )
+    joint = phys_sys::create_rbc_ragdoll((environment_rigid_body *)body1, (environment_rigid_body *)body2, 1);
+    if (joint)
     {
-        v77 = *(unsigned int *)anchor;
-        v76 = *((unsigned int *)anchor + 1);
-        anchor_abs.w = anchor[2];
-        v74[0] = v77;
-        v74[1] = v76;
-        v74[2] = LODWORD(anchor_abs.w);
-        v73 = (*axes)[0];
-        axis_abs.w = (*axes)[1];
-        axis_abs.z = (*axes)[2];
-        *(float *)v71 = v73;
-        v71[1] = LODWORD(axis_abs.w);
-        v71[2] = LODWORD(axis_abs.z);
-        v70 = (*axes)[3];
-        ref_abs.w = (*axes)[4];
-        ref_abs.z = (*axes)[5];
-        *(float *)v68 = v70;
-        v68[1] = LODWORD(ref_abs.w);
-        v68[2] = LODWORD(ref_abs.z);
-        p_m_mat = &body->m_mat;
-        v11 = operator-(&v66, (const phys_vec3 *)v74, &body->m_mat.w);
-        phys_inv_multiply((phys_vec3 *)&b1_anchor_loc.y, p_m_mat, v11);
-        v64[0] = LODWORD(b1_anchor_loc.y);
-        v64[1] = LODWORD(b1_anchor_loc.z);
-        v64[2] = LODWORD(b1_anchor_loc.w);
-        v63 = &v79->m_mat;
-        v12 = operator-(&v62, (const phys_vec3 *)v74, &v79->m_mat.w);
-        phys_inv_multiply((phys_vec3 *)&b2_anchor_loc.y, v63, v12);
-        v60[0] = LODWORD(b2_anchor_loc.y);
-        v60[1] = LODWORD(b2_anchor_loc.z);
-        v60[2] = LODWORD(b2_anchor_loc.w);
-        v58 = phys_inv_multiply(&v59, &body->m_mat, (const phys_vec3 *)v71);
-        v57[0] = LODWORD(v58->x);
-        v57[1] = LODWORD(v58->y);
-        v57[2] = LODWORD(v58->z);
-        v55 = phys_inv_multiply(&v56, &v79->m_mat, (const phys_vec3 *)v71);
-        v54[0] = LODWORD(v55->x);
-        v54[1] = LODWORD(v55->y);
-        v54[2] = LODWORD(v55->z);
-        v52 = phys_inv_multiply(&v53, &body->m_mat, (const phys_vec3 *)v68);
-        x = v52->x;
-        y = v52->y;
-        z = v52->z;
-        v47 = phys_inv_multiply(&v48, &v79->m_mat, (const phys_vec3 *)v68);
-        v44 = v47->x;
-        v45 = v47->y;
-        limit = v47->z;
-        rigid_body_constraint_ragdoll::set(rbc_ragdoll, (const phys_vec3 *)v64, (const phys_vec3 *)v60);
-        min_angle = FLOAT_1_2;
-        v42 = -FLOAT_1_2;
-        if ( *lowStops <= COERCE_FLOAT(LODWORD(FLOAT_1_2) ^ _mask__NegFloat_) )
-            v13 = v42;
+        v71 = *anchor;
+        v70 = anchor[1];
+        v69 = anchor[2];
+        anchor_abs.x = v71;
+        anchor_abs.y = v70;
+        anchor_abs.z = v69;
+        v67 = (*axes)[0];
+        v66 = (*axes)[1];
+        v65 = (*axes)[2];
+        axis_abs.x = v67;
+        axis_abs.y = v66;
+        axis_abs.z = v65;
+        v63 = (*axes)[3];
+        v62 = (*axes)[4];
+        v61 = (*axes)[5];
+        ref_abs.x = v63;
+        ref_abs.y = v62;
+        ref_abs.z = v61;
+        p_m_mat = &body1->m_mat;
+        //v11 = operator-(&v58, &anchor_abs, &body1->m_mat.w);
+        *v11 = anchor_abs - body1->m_mat.w;
+        phys_inv_multiply(&v57, p_m_mat, v11);
+        b1_anchor_loc.x = v57.x;
+        b1_anchor_loc.y = v57.y;
+        b1_anchor_loc.z = v57.z;
+        v55 = &body2->m_mat;
+        //v12 = operator-(&v54, &anchor_abs, &body2->m_mat.w);
+        *v12 = anchor_abs - body2->m_mat.w;
+        phys_inv_multiply(&v53, v55, v12);
+        b2_anchor_loc.x = v53.x;
+        b2_anchor_loc.y = v53.y;
+        b2_anchor_loc.z = v53.z;
+        v50 = phys_inv_multiply(&v51, &body1->m_mat, &axis_abs);
+        b1_axis_loc.x = v50->x;
+        b1_axis_loc.y = v50->y;
+        b1_axis_loc.z = v50->z;
+        v47 = phys_inv_multiply(&v48, &body2->m_mat, &axis_abs);
+        b2_axis_loc.x = v47->x;
+        b2_axis_loc.y = v47->y;
+        b2_axis_loc.z = v47->z;
+        v44 = phys_inv_multiply(&v45, &body1->m_mat, &ref_abs);
+        b1_ref_loc.x = v44->x;
+        b1_ref_loc.y = v44->y;
+        b1_ref_loc.z = v44->z;
+        v41 = phys_inv_multiply(&v42, &body2->m_mat, &ref_abs);
+        *(_QWORD *)&b2_ref_loc.x = *(_QWORD *)&v41->x;
+        b2_ref_loc.z = v41->z;
+        //rigid_body_constraint_ragdoll::set(joint, &b1_anchor_loc, &b2_anchor_loc);
+        joint->set(&b1_anchor_loc, &b2_anchor_loc);
+        limit = 1.2f;
+        //LODWORD(v38) = LODWORD(1.2f) ^ _mask__NegFloat_;
+        (v38) = -(1.2f);
+        if (*lowStops <= -(1.2f))
+            v13 = v38;
         else
             v13 = *lowStops;
-        max_angle = v13;
-        theta_min = v13;
-        if ( min_angle <= *highStops )
-            theta_max = min_angle;
+        v37 = v13;
+        min_angle = v13;
+        if (limit <= *highStops)
+            theta_max = limit;
         else
             theta_max = *highStops;
-        v39 = theta_max;
-        v38 = theta_max;
-        v37 = LODWORD(v44) ^ _mask__NegFloat_;
-        v36 = LODWORD(v45) ^ _mask__NegFloat_;
-        v35 = LODWORD(limit) ^ _mask__NegFloat_;
-        v34.x = -v44;
-        v34.y = -v45;
-        v34.z = -limit;
-        v33 = LODWORD(x) ^ _mask__NegFloat_;
-        v32 = LODWORD(y) ^ _mask__NegFloat_;
-        v31 = LODWORD(z) ^ _mask__NegFloat_;
-        v29[0] = LODWORD(x) ^ _mask__NegFloat_;
-        v29[1] = LODWORD(y) ^ _mask__NegFloat_;
-        i = LODWORD(z) ^ _mask__NegFloat_;
-        rigid_body_constraint_ragdoll::set_swivel(
-            rbc_ragdoll,
-            (int)&joint,
-            (const phys_vec3 *)v57,
-            (const phys_vec3 *)v54,
-            (const phys_vec3 *)v29,
-            &v34,
-            theta_min,
+        v35 = theta_max;
+        max_angle = theta_max;
+        v33 = -(b2_ref_loc.x);
+        v32 = -(b2_ref_loc.y);
+        v31 = -(b2_ref_loc.z);
+        (v28.w) = -(b2_ref_loc.x) ;
+        v29 = -(b2_ref_loc.y);
+        v30 = -(b2_ref_loc.z);
+        (v28.z) = -(b1_ref_loc.x);
+        (v28.y) = -(b1_ref_loc.y);
+        (v28.x) = -(b1_ref_loc.z);
+        (v27.x) = -(b1_ref_loc.x);
+        (v27.y) = -(b1_ref_loc.y);
+        (v27.z) = -(b1_ref_loc.z);
+        //rigid_body_constraint_ragdoll::set_swivel(
+            joint->set_swivel(
+            &b1_axis_loc,
+            &b2_axis_loc,
+            &v27,
+            (phys_vec3 *)&v28.w,
+            min_angle,
             theta_max);
-        for ( j = 1; j < (int)numAxes; ++j )
+        for (i = 1; i < (int)numAxes; ++i)
         {
-            b1_ud_abs.w = (*axes)[0];
-            b1_ud_abs.z = (*axes)[1];
-            b1_ud_abs.y = (*axes)[2];
-            w = b1_ud_abs.w;
-            angle_rotate = b1_ud_abs.z;
-            angle_extents = b1_ud_abs.y;
-            v23 = (float)(highStops[j] - lowStops[j]) * 0.5;
-            b1_ud_loc.w = highStops[j] + lowStops[j];
-            phys_inv_multiply((const phys_vec3 *)&axes_loc.w.y, &body->m_mat, (const phys_vec3 *)&w);
-            Phys_AxisToNitrousMat(axes, (phys_mat44 *)v20);
-            phys_inv_multiply_mat((int)&joint, (phys_mat44 *)v20, &body->m_mat, (const phys_mat44 *)v20);
-            if ( j == 1 )
+            v25 = (*axes)[0];
+            v24 = (*axes)[1];
+            v23 = (*axes)[2];
+            b1_ud_abs.x = v25;
+            b1_ud_abs.y = v24;
+            b1_ud_abs.z = v23;
+            angle_extents = (float)(highStops[i] - lowStops[i]) * 0.5;
+            angle_rotate = highStops[i] + lowStops[i];
+            phys_inv_multiply(&b1_ud_loc, &body1->m_mat, &b1_ud_abs);
+            Phys_AxisToNitrousMat(axes, &axes_loc);
+            phys_inv_multiply_mat(&axes_loc, &body1->m_mat, &axes_loc);
+            if (i == 1)
             {
-                p_y = &axes_loc.x.y;
-                v16 = axes_loc.x.y;
-                v17 = axes_loc.x.z;
-                v15 = axes_loc.x.w;
+                p_y = &axes_loc.y;
+                rot_axes.x = axes_loc.y.x;
+                rot_axes.y = axes_loc.y.y;
+                z = axes_loc.y.z;
             }
             else
             {
-                v16 = axes_loc.y.y;
-                v17 = axes_loc.y.z;
-                v15 = axes_loc.y.w;
+                rot_axes.x = axes_loc.z.x;
+                rot_axes.y = axes_loc.z.y;
+                z = axes_loc.z.z;
             }
-            v18 = v15;
-            make_rotate((int)&joint, (phys_mat44 *)v20, (const phys_vec3 *)&v16, b1_ud_loc.w, 1000.0);
-            rigid_body_constraint_ragdoll::add_joint_limit(rbc_ragdoll, (const phys_vec3 *)&axes_loc.w.y, v23);
+            rot_axes.z = z;
+            make_rotate(&axes_loc, &rot_axes, angle_rotate, 1000.0);
+            //rigid_body_constraint_ragdoll::add_joint_limit(joint, &b1_ud_loc, angle_extents);
+            joint->add_joint_limit(&b1_ud_loc, angle_extents);
         }
-        return rbc_ragdoll;
+        return joint;
     }
     else
     {
@@ -5248,7 +5418,7 @@ rigid_body_constraint_ragdoll * Phys_CreateSwivel@<eax>(
 }
 
 // local variable allocation has failed, the output may be wrong!
-void    phys_inv_multiply_mat(int a1@<ebp>, phys_mat44 *dest, const phys_mat44 *left, const phys_mat44 *right)
+void    phys_inv_multiply_mat(phys_mat44 *dest, const phys_mat44 *left, const phys_mat44 *right)
 {
     _BYTE v4[76]; // [esp-Ch] [ebp-ACh] OVERLAPPED BYREF
     const phys_vec3 *v5; // [esp+40h] [ebp-60h]
@@ -5259,12 +5429,12 @@ void    phys_inv_multiply_mat(int a1@<ebp>, phys_mat44 *dest, const phys_mat44 *
     phys_mat44 *v10; // [esp+7Ch] [ebp-24h]
     const phys_vec3 *v11; // [esp+80h] [ebp-20h]
     phys_vec3 v12; // [esp+84h] [ebp-1Ch] BYREF
-    int v13; // [esp+94h] [ebp-Ch]
-    void *v14; // [esp+98h] [ebp-8h]
-    void *retaddr; // [esp+A0h] [ebp+0h]
-
-    v13 = a1;
-    v14 = retaddr;
+    //int v13; // [esp+94h] [ebp-Ch]
+    //void *v14; // [esp+98h] [ebp-8h]
+    //void *retaddr; // [esp+A0h] [ebp+0h]
+    //
+    //v13 = a1;
+    //v14 = retaddr;
     if ( dest == left )
     {
         memcpy(v4, left, 0x40u);
@@ -5283,7 +5453,7 @@ void    phys_inv_multiply_mat(int a1@<ebp>, phys_mat44 *dest, const phys_mat44 *
         p_y->y = v8->y;
         p_y->z = v8->z;
         v5 = phys_inv_multiply(&v6, left, &right->z);
-        *(unsigned int *)&v4[72] = &dest->z;
+        *(unsigned int *)&v4[72] = (unsigned int)&dest->z;
         dest->z.x = v5->x;
         *(float *)(*(unsigned int *)&v4[72] + 4) = v5->y;
         *(float *)(*(unsigned int *)&v4[72] + 8) = v5->z;
@@ -5350,323 +5520,323 @@ int __cdecl Phys_GetCurrentTime()
     return physGlob.timeLastUpdate;
 }
 
-PhysObjUserData *__thiscall phys_free_list<PhysObjUserData>::add(
-                phys_free_list<PhysObjUserData> *this,
-                int no_error,
-                const char *error_msg)
-{
-    phys_free_list<PhysObjUserData>::T_internal *ptr; // [esp+28h] [ebp-4h]
+//PhysObjUserData *__thiscall phys_free_list<PhysObjUserData>::add(
+//                phys_free_list<PhysObjUserData> *this,
+//                int no_error,
+//                const char *error_msg)
+//{
+//    phys_free_list<PhysObjUserData>::T_internal *ptr; // [esp+28h] [ebp-4h]
+//
+//    ptr = (phys_free_list<PhysObjUserData>::T_internal *)PMM_ALLOC(0x150u, 0x10u);
+//    if ( ptr )
+//    {
+//        ptr->m_data.m_gjk_geom_list.m_first_geom = 0;
+//        ptr->m_data.m_gjk_geom_list.m_geom_count = 0;
+//        ptr->m_data.m_bpb = 0;
+//        ptr->m_prev_T_internal = &this->m_dummy_head;
+//        ptr->m_next_T_internal = this->m_dummy_head.m_next_T_internal;
+//        this->m_dummy_head.m_next_T_internal->m_prev_T_internal = ptr;
+//        this->m_dummy_head.m_next_T_internal = ptr;
+//        ++this->m_list_count;
+//        phys_free_list<PhysObjUserData>::debug_add(this, ptr);
+//        return &ptr->m_data;
+//    }
+//    else
+//    {
+//        if ( !no_error )
+//        {
+//            if ( _tlAssert("c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h", 470, "no_error", error_msg) )
+//                __debugbreak();
+//        }
+//        return 0;
+//    }
+//}
+//
+//void __thiscall phys_free_list<PhysObjUserData>::remove(phys_free_list<PhysObjUserData> *this, PhysObjUserData *data_)
+//{
+//    if ( data_ )
+//    {
+//        PMM_VALIDATE((char *)data_[-1].centerOfMassOffset, 0x150u, 0x10u);
+//        phys_free_list<PhysObjUserData>::remove(
+//            this,
+//            (phys_free_list<PhysObjUserData>::T_internal *)data_[-1].centerOfMassOffset);
+//    }
+//}
+//
+//void __thiscall phys_link_list1<PhysObjUserData>::add(phys_link_list1<PhysObjUserData> *this, PhysObjUserData *p)
+//{
+//    PhysObjUserData *i; // [esp+Ch] [ebp-4h]
+//
+//    for ( i = this->m_first; i; i = i->m_next_link )
+//    {
+//        if ( i == p )
+//        {
+//            if ( _tlAssert("c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_local.h", 135, "i != p", "") )
+//                __debugbreak();
+//        }
+//    }
+//    ++this->m_alloc_count;
+//    if ( this->m_last )
+//        this->m_last->m_next_link = p;
+//    else
+//        this->m_first = p;
+//    this->m_last = p;
+//    this->m_last->m_next_link = 0;
+//}
+//
+//void __thiscall phys_link_list1<PhysObjUserData>::remove(phys_link_list1<PhysObjUserData> *this, PhysObjUserData *p)
+//{
+//    PhysObjUserData *i; // [esp+10h] [ebp-8h]
+//    PhysObjUserData *last_i; // [esp+14h] [ebp-4h]
+//
+//    i = this->m_first;
+//    last_i = 0;
+//    while ( i )
+//    {
+//        if ( p == i )
+//        {
+//            --this->m_alloc_count;
+//            if ( last_i )
+//                last_i->m_next_link = i->m_next_link;
+//            else
+//                this->m_first = i->m_next_link;
+//            if ( i == this->m_last )
+//            {
+//                this->m_last = last_i;
+//                if ( last_i )
+//                {
+//                    if ( last_i->m_next_link )
+//                    {
+//                        if ( _tlAssert(
+//                                     "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_local.h",
+//                                     160,
+//                                     "!last_i || last_i->get_next_link() == NULL",
+//                                     "") )
+//                        {
+//                            __debugbreak();
+//                        }
+//                    }
+//                }
+//            }
+//            return;
+//        }
+//        last_i = i;
+//        i = i->m_next_link;
+//    }
+//    if ( _tlAssert("c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_local.h", 165, "0", "") )
+//        __debugbreak();
+//}
+//
+//phys_vec3 *__thiscall phys_static_array<phys_vec3,6144>::add(
+//                phys_static_array<phys_vec3,6144> *this,
+//                int no_error,
+//                const char *error_msg)
+//{
+//    if ( this->m_alloc_count < 6144 )
+//    {
+//        return &this->m_slot_array[this->m_alloc_count++];
+//    }
+//    else
+//    {
+//        if ( !no_error )
+//            tlFatal(error_msg);
+//        return 0;
+//    }
+//}
+//
+//phys_vec3 *__thiscall phys_static_array<phys_vec3,6144>::operator[](phys_static_array<phys_vec3,6144> *this, int i)
+//{
+//    if ( i < 0 || i >= this->m_alloc_count )
+//    {
+//        if ( _tlAssert(
+//                     "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_array_base.inc",
+//                     118,
+//                     "i >= 0 && i < m_alloc_count",
+//                     "") )
+//        {
+//            __debugbreak();
+//        }
+//    }
+//    return &this->m_slot_array[i];
+//}
+//
+//phys_convex_hull::ch_triangle *__thiscall phys_static_array<phys_convex_hull::ch_triangle,256>::add(
+//                phys_static_array<phys_convex_hull::ch_triangle,256> *this,
+//                int no_error,
+//                const char *error_msg)
+//{
+//    if ( this->m_alloc_count < 256 )
+//    {
+//        return &this->m_slot_array[this->m_alloc_count++];
+//    }
+//    else
+//    {
+//        if ( !no_error )
+//            tlFatal(error_msg);
+//        return 0;
+//    }
+//}
+//
+//void __thiscall phys_static_array<phys_convex_hull::ch_triangle,256>::remove_slow(
+//                phys_static_array<phys_convex_hull::ch_triangle,256> *this,
+//                phys_convex_hull::ch_triangle *data)
+//{
+//    bool v3; // [esp+Bh] [ebp-1h]
+//
+//    if ( (unsigned int)((char *)data - (char *)this->m_slot_array) % 0x20 )
+//        v3 = 0;
+//    else
+//        v3 = data >= this->m_slot_array && data < &this->m_slot_array[this->m_alloc_count];
+//    if ( !v3
+//        && _tlAssert(
+//                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_array_base.inc",
+//                 73,
+//                 "is_member(data)",
+//                 "") )
+//    {
+//        __debugbreak();
+//    }
+//    phys_convex_hull::ch_triangle::operator=(data, &this->m_slot_array[--this->m_alloc_count]);
+//}
+//
+//phys_convex_hull::ch_triangle *__thiscall phys_static_array<phys_convex_hull::ch_triangle,256>::get_list_head(
+//                phys_static_array<phys_convex_hull::ch_triangle,256> *this)
+//{
+//    if ( this->m_alloc_count <= 0
+//        && _tlAssert(
+//                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_array_base.inc",
+//                 131,
+//                 "m_alloc_count > 0",
+//                 "") )
+//    {
+//        __debugbreak();
+//    }
+//    return this->m_slot_array;
+//}
+//
+//void __thiscall phys_static_array<phys_convex_hull::ch_edge,128>::remove_slow(
+//                phys_static_array<phys_convex_hull::ch_edge,128> *this,
+//                phys_convex_hull::ch_edge *data)
+//{
+//    int v2; // eax
+//    phys_convex_hull::ch_edge *m_slot_array; // edx
+//    phys_vec3 *v4; // ecx
+//    phys_vec3 *v5; // edx
+//    bool v7; // [esp+7h] [ebp-1h]
+//
+//    if ( (unsigned int)((char *)data - (char *)this->m_slot_array) % 8 )
+//        v7 = 0;
+//    else
+//        v7 = data >= this->m_slot_array && data < &this->m_slot_array[this->m_alloc_count];
+//    if ( !v7
+//        && _tlAssert(
+//                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_array_base.inc",
+//                 73,
+//                 "is_member(data)",
+//                 "") )
+//    {
+//        __debugbreak();
+//    }
+//    v2 = --this->m_alloc_count;
+//    m_slot_array = this->m_slot_array;
+//    v4 = m_slot_array[v2].m_verts[0];
+//    v5 = m_slot_array[v2].m_verts[1];
+//    data->m_verts[0] = v4;
+//    data->m_verts[1] = v5;
+//}
+//
+//phys_convex_hull::ch_triangle *__thiscall phys_static_array<phys_convex_hull::ch_triangle,64>::add(
+//                phys_static_array<phys_convex_hull::ch_triangle,64> *this,
+//                int no_error,
+//                const char *error_msg)
+//{
+//    if ( this->m_alloc_count < 64 )
+//    {
+//        return &this->m_slot_array[this->m_alloc_count++];
+//    }
+//    else
+//    {
+//        if ( !no_error )
+//            tlFatal(error_msg);
+//        return 0;
+//    }
+//}
+//
+//void __thiscall phys_free_list<PhysObjUserData>::debug_add(
+//                phys_free_list<PhysObjUserData> *this,
+//                phys_free_list<PhysObjUserData>::T_internal *T_i)
+//{
+//    int m_list_count; // [esp+0h] [ebp-10h]
+//
+//    if ( this->m_list_count_high_water <= this->m_list_count )
+//        m_list_count = this->m_list_count;
+//    else
+//        m_list_count = this->m_list_count_high_water;
+//    this->m_list_count_high_water = m_list_count;
+//    if ( this->m_ptr_list_count >= 256 )
+//    {
+//        T_i->m_ptr_list_index = -1;
+//    }
+//    else
+//    {
+//        T_i->m_ptr_list_index = this->m_ptr_list_count;
+//        this->m_ptr_list[this->m_ptr_list_count++] = &T_i->m_data;
+//    }
+//}
+//
+//void __thiscall phys_free_list<PhysObjUserData>::remove(
+//                phys_free_list<PhysObjUserData> *this,
+//                phys_free_list<PhysObjUserData>::T_internal *data)
+//{
+//    phys_free_list<PhysObjUserData>::T_internal_base *next; // [esp+14h] [ebp-8h]
+//    phys_free_list<PhysObjUserData>::T_internal_base *prev; // [esp+18h] [ebp-4h]
+//
+//    if ( !data
+//        && _tlAssert("c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h", 477, "data", "") )
+//    {
+//        __debugbreak();
+//    }
+//    --this->m_list_count;
+//    phys_free_list<PhysObjUserData>::debug_remove(this, data);
+//    next = data->m_next_T_internal;
+//    prev = data->m_prev_T_internal;
+//    prev->m_next_T_internal = next;
+//    next->m_prev_T_internal = prev;
+//    PMM_FREE((unsigned __int8 *)data, 0x150u, 0x10u);
+//}
+//
+//void __thiscall phys_free_list<PhysObjUserData>::debug_remove(
+//                phys_free_list<PhysObjUserData> *this,
+//                phys_free_list<PhysObjUserData>::T_internal *T_i)
+//{
+//    if ( T_i->m_ptr_list_index != -1 )
+//    {
+//        if ( T_i->m_ptr_list_index >= 0x100u
+//            && _tlAssert(
+//                     "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+//                     421,
+//                     "T_i->m_ptr_list_index >= 0 && T_i->m_ptr_list_index < PTR_LIST_SIZE",
+//                     "") )
+//        {
+//            __debugbreak();
+//        }
+//        if ( this->m_ptr_list[T_i->m_ptr_list_index] != &T_i->m_data )
+//        {
+//            if ( _tlAssert(
+//                         "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+//                         422,
+//                         "m_ptr_list[T_i->m_ptr_list_index] == &T_i->m_data",
+//                         "") )
+//            {
+//                __debugbreak();
+//            }
+//        }
+//        this->m_ptr_list[--this->m_ptr_list_count][1].body = (rigid_body *)T_i->m_ptr_list_index;
+//        this->m_ptr_list[T_i->m_ptr_list_index] = this->m_ptr_list[this->m_ptr_list_count];
+//    }
+//}
 
-    ptr = (phys_free_list<PhysObjUserData>::T_internal *)PMM_ALLOC(0x150u, 0x10u);
-    if ( ptr )
-    {
-        ptr->m_data.m_gjk_geom_list.m_first_geom = 0;
-        ptr->m_data.m_gjk_geom_list.m_geom_count = 0;
-        ptr->m_data.m_bpb = 0;
-        ptr->m_prev_T_internal = &this->m_dummy_head;
-        ptr->m_next_T_internal = this->m_dummy_head.m_next_T_internal;
-        this->m_dummy_head.m_next_T_internal->m_prev_T_internal = ptr;
-        this->m_dummy_head.m_next_T_internal = ptr;
-        ++this->m_list_count;
-        phys_free_list<PhysObjUserData>::debug_add(this, ptr);
-        return &ptr->m_data;
-    }
-    else
-    {
-        if ( !no_error )
-        {
-            if ( _tlAssert("c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h", 470, "no_error", error_msg) )
-                __debugbreak();
-        }
-        return 0;
-    }
-}
-
-void __thiscall phys_free_list<PhysObjUserData>::remove(phys_free_list<PhysObjUserData> *this, PhysObjUserData *data_)
-{
-    if ( data_ )
-    {
-        PMM_VALIDATE((char *)data_[-1].centerOfMassOffset, 0x150u, 0x10u);
-        phys_free_list<PhysObjUserData>::remove(
-            this,
-            (phys_free_list<PhysObjUserData>::T_internal *)data_[-1].centerOfMassOffset);
-    }
-}
-
-void __thiscall phys_link_list1<PhysObjUserData>::add(phys_link_list1<PhysObjUserData> *this, PhysObjUserData *p)
-{
-    PhysObjUserData *i; // [esp+Ch] [ebp-4h]
-
-    for ( i = this->m_first; i; i = i->m_next_link )
-    {
-        if ( i == p )
-        {
-            if ( _tlAssert("c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_local.h", 135, "i != p", "") )
-                __debugbreak();
-        }
-    }
-    ++this->m_alloc_count;
-    if ( this->m_last )
-        this->m_last->m_next_link = p;
-    else
-        this->m_first = p;
-    this->m_last = p;
-    this->m_last->m_next_link = 0;
-}
-
-void __thiscall phys_link_list1<PhysObjUserData>::remove(phys_link_list1<PhysObjUserData> *this, PhysObjUserData *p)
-{
-    PhysObjUserData *i; // [esp+10h] [ebp-8h]
-    PhysObjUserData *last_i; // [esp+14h] [ebp-4h]
-
-    i = this->m_first;
-    last_i = 0;
-    while ( i )
-    {
-        if ( p == i )
-        {
-            --this->m_alloc_count;
-            if ( last_i )
-                last_i->m_next_link = i->m_next_link;
-            else
-                this->m_first = i->m_next_link;
-            if ( i == this->m_last )
-            {
-                this->m_last = last_i;
-                if ( last_i )
-                {
-                    if ( last_i->m_next_link )
-                    {
-                        if ( _tlAssert(
-                                     "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_local.h",
-                                     160,
-                                     "!last_i || last_i->get_next_link() == NULL",
-                                     "") )
-                        {
-                            __debugbreak();
-                        }
-                    }
-                }
-            }
-            return;
-        }
-        last_i = i;
-        i = i->m_next_link;
-    }
-    if ( _tlAssert("c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_local.h", 165, "0", "") )
-        __debugbreak();
-}
-
-phys_vec3 *__thiscall phys_static_array<phys_vec3,6144>::add(
-                phys_static_array<phys_vec3,6144> *this,
-                int no_error,
-                const char *error_msg)
-{
-    if ( this->m_alloc_count < 6144 )
-    {
-        return &this->m_slot_array[this->m_alloc_count++];
-    }
-    else
-    {
-        if ( !no_error )
-            tlFatal(error_msg);
-        return 0;
-    }
-}
-
-phys_vec3 *__thiscall phys_static_array<phys_vec3,6144>::operator[](phys_static_array<phys_vec3,6144> *this, int i)
-{
-    if ( i < 0 || i >= this->m_alloc_count )
-    {
-        if ( _tlAssert(
-                     "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_array_base.inc",
-                     118,
-                     "i >= 0 && i < m_alloc_count",
-                     "") )
-        {
-            __debugbreak();
-        }
-    }
-    return &this->m_slot_array[i];
-}
-
-phys_convex_hull::ch_triangle *__thiscall phys_static_array<phys_convex_hull::ch_triangle,256>::add(
-                phys_static_array<phys_convex_hull::ch_triangle,256> *this,
-                int no_error,
-                const char *error_msg)
-{
-    if ( this->m_alloc_count < 256 )
-    {
-        return &this->m_slot_array[this->m_alloc_count++];
-    }
-    else
-    {
-        if ( !no_error )
-            tlFatal(error_msg);
-        return 0;
-    }
-}
-
-void __thiscall phys_static_array<phys_convex_hull::ch_triangle,256>::remove_slow(
-                phys_static_array<phys_convex_hull::ch_triangle,256> *this,
-                phys_convex_hull::ch_triangle *data)
-{
-    bool v3; // [esp+Bh] [ebp-1h]
-
-    if ( (unsigned int)((char *)data - (char *)this->m_slot_array) % 0x20 )
-        v3 = 0;
-    else
-        v3 = data >= this->m_slot_array && data < &this->m_slot_array[this->m_alloc_count];
-    if ( !v3
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_array_base.inc",
-                 73,
-                 "is_member(data)",
-                 "") )
-    {
-        __debugbreak();
-    }
-    phys_convex_hull::ch_triangle::operator=(data, &this->m_slot_array[--this->m_alloc_count]);
-}
-
-phys_convex_hull::ch_triangle *__thiscall phys_static_array<phys_convex_hull::ch_triangle,256>::get_list_head(
-                phys_static_array<phys_convex_hull::ch_triangle,256> *this)
-{
-    if ( this->m_alloc_count <= 0
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_array_base.inc",
-                 131,
-                 "m_alloc_count > 0",
-                 "") )
-    {
-        __debugbreak();
-    }
-    return this->m_slot_array;
-}
-
-void __thiscall phys_static_array<phys_convex_hull::ch_edge,128>::remove_slow(
-                phys_static_array<phys_convex_hull::ch_edge,128> *this,
-                phys_convex_hull::ch_edge *data)
-{
-    int v2; // eax
-    phys_convex_hull::ch_edge *m_slot_array; // edx
-    phys_vec3 *v4; // ecx
-    phys_vec3 *v5; // edx
-    bool v7; // [esp+7h] [ebp-1h]
-
-    if ( (unsigned int)((char *)data - (char *)this->m_slot_array) % 8 )
-        v7 = 0;
-    else
-        v7 = data >= this->m_slot_array && data < &this->m_slot_array[this->m_alloc_count];
-    if ( !v7
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_array_base.inc",
-                 73,
-                 "is_member(data)",
-                 "") )
-    {
-        __debugbreak();
-    }
-    v2 = --this->m_alloc_count;
-    m_slot_array = this->m_slot_array;
-    v4 = m_slot_array[v2].m_verts[0];
-    v5 = m_slot_array[v2].m_verts[1];
-    data->m_verts[0] = v4;
-    data->m_verts[1] = v5;
-}
-
-phys_convex_hull::ch_triangle *__thiscall phys_static_array<phys_convex_hull::ch_triangle,64>::add(
-                phys_static_array<phys_convex_hull::ch_triangle,64> *this,
-                int no_error,
-                const char *error_msg)
-{
-    if ( this->m_alloc_count < 64 )
-    {
-        return &this->m_slot_array[this->m_alloc_count++];
-    }
-    else
-    {
-        if ( !no_error )
-            tlFatal(error_msg);
-        return 0;
-    }
-}
-
-void __thiscall phys_free_list<PhysObjUserData>::debug_add(
-                phys_free_list<PhysObjUserData> *this,
-                phys_free_list<PhysObjUserData>::T_internal *T_i)
-{
-    int m_list_count; // [esp+0h] [ebp-10h]
-
-    if ( this->m_list_count_high_water <= this->m_list_count )
-        m_list_count = this->m_list_count;
-    else
-        m_list_count = this->m_list_count_high_water;
-    this->m_list_count_high_water = m_list_count;
-    if ( this->m_ptr_list_count >= 256 )
-    {
-        T_i->m_ptr_list_index = -1;
-    }
-    else
-    {
-        T_i->m_ptr_list_index = this->m_ptr_list_count;
-        this->m_ptr_list[this->m_ptr_list_count++] = &T_i->m_data;
-    }
-}
-
-void __thiscall phys_free_list<PhysObjUserData>::remove(
-                phys_free_list<PhysObjUserData> *this,
-                phys_free_list<PhysObjUserData>::T_internal *data)
-{
-    phys_free_list<PhysObjUserData>::T_internal_base *next; // [esp+14h] [ebp-8h]
-    phys_free_list<PhysObjUserData>::T_internal_base *prev; // [esp+18h] [ebp-4h]
-
-    if ( !data
-        && _tlAssert("c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h", 477, "data", "") )
-    {
-        __debugbreak();
-    }
-    --this->m_list_count;
-    phys_free_list<PhysObjUserData>::debug_remove(this, data);
-    next = data->m_next_T_internal;
-    prev = data->m_prev_T_internal;
-    prev->m_next_T_internal = next;
-    next->m_prev_T_internal = prev;
-    PMM_FREE((unsigned __int8 *)data, 0x150u, 0x10u);
-}
-
-void __thiscall phys_free_list<PhysObjUserData>::debug_remove(
-                phys_free_list<PhysObjUserData> *this,
-                phys_free_list<PhysObjUserData>::T_internal *T_i)
-{
-    if ( T_i->m_ptr_list_index != -1 )
-    {
-        if ( T_i->m_ptr_list_index >= 0x100u
-            && _tlAssert(
-                     "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                     421,
-                     "T_i->m_ptr_list_index >= 0 && T_i->m_ptr_list_index < PTR_LIST_SIZE",
-                     "") )
-        {
-            __debugbreak();
-        }
-        if ( this->m_ptr_list[T_i->m_ptr_list_index] != &T_i->m_data )
-        {
-            if ( _tlAssert(
-                         "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                         422,
-                         "m_ptr_list[T_i->m_ptr_list_index] == &T_i->m_data",
-                         "") )
-            {
-                __debugbreak();
-            }
-        }
-        this->m_ptr_list[--this->m_ptr_list_count][1].body = (rigid_body *)T_i->m_ptr_list_index;
-        this->m_ptr_list[T_i->m_ptr_list_index] = this->m_ptr_list[this->m_ptr_list_count];
-    }
-}
-
-cdl_proftimer *__thiscall cdl_proftimer::cdl_proftimer(cdl_proftimer *this)
+cdl_proftimer::cdl_proftimer()
 {
     int i; // [esp+4h] [ebp-4h]
 
@@ -5679,10 +5849,9 @@ cdl_proftimer *__thiscall cdl_proftimer::cdl_proftimer(cdl_proftimer *this)
         HIDWORD(this->mx[i]) = 0;
     }
     this->capture = 0;
-    return this;
 }
 
-PhysGlob *__thiscall PhysGlob::PhysGlob(PhysGlob *this)
+PhysGlob::PhysGlob()
 {
     int v2; // [esp+4h] [ebp-8h]
     phys_link_list1<PhysObjUserData> *i; // [esp+8h] [ebp-4h]
@@ -5699,10 +5868,9 @@ PhysGlob *__thiscall PhysGlob::PhysGlob(PhysGlob *this)
         i->m_last = 0;
         i->m_alloc_count = 0;
     }
-    return this;
 }
 
-phys_convex_hull *__thiscall phys_convex_hull::phys_convex_hull(phys_convex_hull *this)
+phys_convex_hull::phys_convex_hull()
 {
     this->m_vertex_buffer.m_slot_array = (phys_vec3 *const)this;
     this->m_vertex_buffer.m_alloc_count = 0;
@@ -5716,264 +5884,258 @@ phys_convex_hull *__thiscall phys_convex_hull::phys_convex_hull(phys_convex_hull
     this->m_convex_hull_vert_list.m_alloc_count = 0;
     this->m_convex_hull_triangle_list.m_slot_array = (phys_convex_hull::ch_triangle *const)&this->m_convex_hull_triangle_list;
     this->m_convex_hull_triangle_list.m_alloc_count = 0;
-    return this;
 }
 
-void __thiscall phys_free_list<PhysObjUserData>::~phys_free_list<PhysObjUserData>(
-                phys_free_list<PhysObjUserData> *this)
-{
-    while ( (phys_free_list<PhysObjUserData> *)this->m_dummy_head.m_next_T_internal != this )
-        phys_free_list<PhysObjUserData>::remove(
-            this,
-            (phys_free_list<PhysObjUserData>::T_internal *)this->m_dummy_head.m_next_T_internal);
-    if ( this->m_list_count
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                 448,
-                 "m_list_count == 0",
-                 "") )
-    {
-        __debugbreak();
-    }
-    if ( (phys_free_list<PhysObjUserData> *)this->m_dummy_head.m_next_T_internal != this
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                 449,
-                 "m_dummy_head.m_next_T_internal == &m_dummy_head",
-                 "") )
-    {
-        __debugbreak();
-    }
-    if ( (phys_free_list<PhysObjUserData> *)this->m_dummy_head.m_prev_T_internal != this
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                 450,
-                 "m_dummy_head.m_prev_T_internal == &m_dummy_head",
-                 "") )
-    {
-        __debugbreak();
-    }
-    this->m_list_count_high_water = 0;
-    this->m_ptr_list_count = 0;
-}
+//void __thiscall phys_free_list<PhysObjUserData>::~phys_free_list<PhysObjUserData>(
+//                phys_free_list<PhysObjUserData> *this)
+//{
+//    while ( (phys_free_list<PhysObjUserData> *)this->m_dummy_head.m_next_T_internal != this )
+//        phys_free_list<PhysObjUserData>::remove(
+//            this,
+//            (phys_free_list<PhysObjUserData>::T_internal *)this->m_dummy_head.m_next_T_internal);
+//    if ( this->m_list_count
+//        && _tlAssert(
+//                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+//                 448,
+//                 "m_list_count == 0",
+//                 "") )
+//    {
+//        __debugbreak();
+//    }
+//    if ( (phys_free_list<PhysObjUserData> *)this->m_dummy_head.m_next_T_internal != this
+//        && _tlAssert(
+//                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+//                 449,
+//                 "m_dummy_head.m_next_T_internal == &m_dummy_head",
+//                 "") )
+//    {
+//        __debugbreak();
+//    }
+//    if ( (phys_free_list<PhysObjUserData> *)this->m_dummy_head.m_prev_T_internal != this
+//        && _tlAssert(
+//                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+//                 450,
+//                 "m_dummy_head.m_prev_T_internal == &m_dummy_head",
+//                 "") )
+//    {
+//        __debugbreak();
+//    }
+//    this->m_list_count_high_water = 0;
+//    this->m_ptr_list_count = 0;
+//}
+//
+//phys_free_list<VehicleParameter>::~phys_free_list<VehicleParameter>()
+//{
+//    while ( (phys_free_list<VehicleParameter> *)this->m_dummy_head.m_next_T_internal != this )
+//        phys_free_list<VehicleParameter>::remove(
+//            this,
+//            (phys_free_list<VehicleParameter>::T_internal *)this->m_dummy_head.m_next_T_internal);
+//    if ( this->m_list_count
+//        && _tlAssert(
+//                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+//                 448,
+//                 "m_list_count == 0",
+//                 "") )
+//    {
+//        __debugbreak();
+//    }
+//    if ( (phys_free_list<VehicleParameter> *)this->m_dummy_head.m_next_T_internal != this
+//        && _tlAssert(
+//                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+//                 449,
+//                 "m_dummy_head.m_next_T_internal == &m_dummy_head",
+//                 "") )
+//    {
+//        __debugbreak();
+//    }
+//    if ( (phys_free_list<VehicleParameter> *)this->m_dummy_head.m_prev_T_internal != this
+//        && _tlAssert(
+//                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+//                 450,
+//                 "m_dummy_head.m_prev_T_internal == &m_dummy_head",
+//                 "") )
+//    {
+//        __debugbreak();
+//    }
+//    this->m_list_count_high_water = 0;
+//    this->m_ptr_list_count = 0;
+//}
+//
+//void __thiscall phys_free_list<VehicleParameter>::remove(phys_free_list<VehicleParameter>::T_internal *data)
+//{
+//    phys_free_list<VehicleParameter>::T_internal_base *next; // [esp+14h] [ebp-8h]
+//    phys_free_list<VehicleParameter>::T_internal_base *prev; // [esp+18h] [ebp-4h]
+//
+//    if ( !data
+//        && _tlAssert("c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h", 477, "data", "") )
+//    {
+//        __debugbreak();
+//    }
+//    --this->m_list_count;
+//    phys_free_list<VehicleParameter>::debug_remove(data);
+//    next = data->m_next_T_internal;
+//    prev = data->m_prev_T_internal;
+//    prev->m_next_T_internal = next;
+//    next->m_prev_T_internal = prev;
+//    PMM_FREE((unsigned __int8 *)data, 0x130u, 4u);
+//}
+//
+//void __thiscall phys_free_list<VehicleParameter>::debug_remove(phys_free_list<VehicleParameter>::T_internal *T_i)
+//{
+//    if ( T_i->m_ptr_list_index != -1 )
+//    {
+//        if ( T_i->m_ptr_list_index >= 0x100u
+//            && _tlAssert(
+//                     "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+//                     421,
+//                     "T_i->m_ptr_list_index >= 0 && T_i->m_ptr_list_index < PTR_LIST_SIZE",
+//                     "") )
+//        {
+//            __debugbreak();
+//        }
+//        if ( this->m_ptr_list[T_i->m_ptr_list_index] != &T_i->m_data )
+//        {
+//            if ( _tlAssert(
+//                         "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+//                         422,
+//                         "m_ptr_list[T_i->m_ptr_list_index] == &T_i->m_data",
+//                         "") )
+//            {
+//                __debugbreak();
+//            }
+//        }
+//        LODWORD(this->m_ptr_list[--this->m_ptr_list_count][1].m_speed_max) = T_i->m_ptr_list_index;
+//        this->m_ptr_list[T_i->m_ptr_list_index] = this->m_ptr_list[this->m_ptr_list_count];
+//    }
+//}
+//
+//phys_free_list<NitrousVehicle>::~phys_free_list<NitrousVehicle>()
+//{
+//    while ((phys_free_list<NitrousVehicle> *)this->m_dummy_head.m_next_T_internal != this)
+//    {
+//        //phys_free_list<NitrousVehicle>::remove(this, (phys_free_list<NitrousVehicle>::T_internal *)this->m_dummy_head.m_next_T_internal);
+//        this->remove((phys_free_list<NitrousVehicle>::T_internal *)this->m_dummy_head.m_next_T_internal);
+//    }
+//        
+//    if ( this->m_list_count
+//        && _tlAssert(
+//                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+//                 448,
+//                 "m_list_count == 0",
+//                 "") )
+//    {
+//        __debugbreak();
+//    }
+//    if ( (phys_free_list<NitrousVehicle> *)this->m_dummy_head.m_next_T_internal != this
+//        && _tlAssert(
+//                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+//                 449,
+//                 "m_dummy_head.m_next_T_internal == &m_dummy_head",
+//                 "") )
+//    {
+//        __debugbreak();
+//    }
+//    if ( (phys_free_list<NitrousVehicle> *)this->m_dummy_head.m_prev_T_internal != this
+//        && _tlAssert(
+//                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+//                 450,
+//                 "m_dummy_head.m_prev_T_internal == &m_dummy_head",
+//                 "") )
+//    {
+//        __debugbreak();
+//    }
+//    this->m_list_count_high_water = 0;
+//    this->m_ptr_list_count = 0;
+//}
+//
+//phys_free_list<RagdollBody>::~phys_free_list<RagdollBody>()
+//{
+//    while ((phys_free_list<RagdollBody> *)this->m_dummy_head.m_next_T_internal != this)
+//    {
+//        //phys_free_list<RagdollBody>::remove(
+//            this->remove((phys_free_list<RagdollBody>::T_internal *)this->m_dummy_head.m_next_T_internal);
+//    }
+//        
+//    if ( this->m_list_count
+//        && _tlAssert(
+//                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+//                 448,
+//                 "m_list_count == 0",
+//                 "") )
+//    {
+//        __debugbreak();
+//    }
+//    if ( (phys_free_list<RagdollBody> *)this->m_dummy_head.m_next_T_internal != this
+//        && _tlAssert(
+//                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+//                 449,
+//                 "m_dummy_head.m_next_T_internal == &m_dummy_head",
+//                 "") )
+//    {
+//        __debugbreak();
+//    }
+//    if ( (phys_free_list<RagdollBody> *)this->m_dummy_head.m_prev_T_internal != this
+//        && _tlAssert(
+//                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+//                 450,
+//                 "m_dummy_head.m_prev_T_internal == &m_dummy_head",
+//                 "") )
+//    {
+//        __debugbreak();
+//    }
+//    this->m_list_count_high_water = 0;
+//    this->m_ptr_list_count = 0;
+//}
+//
+//void __thiscall phys_free_list<RagdollBody>::remove(phys_free_list<RagdollBody>::T_internal *data)
+//{
+//    phys_free_list<RagdollBody>::T_internal_base *next; // [esp+14h] [ebp-8h]
+//    phys_free_list<RagdollBody>::T_internal_base *prev; // [esp+18h] [ebp-4h]
+//
+//    if ( !data
+//        && _tlAssert("c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h", 477, "data", "") )
+//    {
+//        __debugbreak();
+//    }
+//    --this->m_list_count;
+//    phys_free_list<RagdollBody>::debug_remove(data);
+//    next = data->m_next_T_internal;
+//    prev = data->m_prev_T_internal;
+//    prev->m_next_T_internal = next;
+//    next->m_prev_T_internal = prev;
+//    PMM_FREE((unsigned __int8 *)data, 0xA34u, 4u);
+//}
+//
+//void __thiscall phys_free_list<RagdollBody>::debug_remove(phys_free_list<RagdollBody>::T_internal *T_i)
+//{
+//    if ( T_i->m_ptr_list_index != -1 )
+//    {
+//        if ( T_i->m_ptr_list_index >= 0x100u
+//            && _tlAssert(
+//                     "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+//                     421,
+//                     "T_i->m_ptr_list_index >= 0 && T_i->m_ptr_list_index < PTR_LIST_SIZE",
+//                     "") )
+//        {
+//            __debugbreak();
+//        }
+//        if ( this->m_ptr_list[T_i->m_ptr_list_index] != &T_i->m_data )
+//        {
+//            if ( _tlAssert(
+//                         "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+//                         422,
+//                         "m_ptr_list[T_i->m_ptr_list_index] == &T_i->m_data",
+//                         "") )
+//            {
+//                __debugbreak();
+//            }
+//        }
+//        this->m_ptr_list[--this->m_ptr_list_count][1].references = T_i->m_ptr_list_index;
+//        this->m_ptr_list[T_i->m_ptr_list_index] = this->m_ptr_list[this->m_ptr_list_count];
+//    }
+//}
 
-void __thiscall phys_free_list<VehicleParameter>::~phys_free_list<VehicleParameter>(
-                phys_free_list<VehicleParameter> *this)
-{
-    while ( (phys_free_list<VehicleParameter> *)this->m_dummy_head.m_next_T_internal != this )
-        phys_free_list<VehicleParameter>::remove(
-            this,
-            (phys_free_list<VehicleParameter>::T_internal *)this->m_dummy_head.m_next_T_internal);
-    if ( this->m_list_count
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                 448,
-                 "m_list_count == 0",
-                 "") )
-    {
-        __debugbreak();
-    }
-    if ( (phys_free_list<VehicleParameter> *)this->m_dummy_head.m_next_T_internal != this
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                 449,
-                 "m_dummy_head.m_next_T_internal == &m_dummy_head",
-                 "") )
-    {
-        __debugbreak();
-    }
-    if ( (phys_free_list<VehicleParameter> *)this->m_dummy_head.m_prev_T_internal != this
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                 450,
-                 "m_dummy_head.m_prev_T_internal == &m_dummy_head",
-                 "") )
-    {
-        __debugbreak();
-    }
-    this->m_list_count_high_water = 0;
-    this->m_ptr_list_count = 0;
-}
-
-void __thiscall phys_free_list<VehicleParameter>::remove(
-                phys_free_list<VehicleParameter> *this,
-                phys_free_list<VehicleParameter>::T_internal *data)
-{
-    phys_free_list<VehicleParameter>::T_internal_base *next; // [esp+14h] [ebp-8h]
-    phys_free_list<VehicleParameter>::T_internal_base *prev; // [esp+18h] [ebp-4h]
-
-    if ( !data
-        && _tlAssert("c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h", 477, "data", "") )
-    {
-        __debugbreak();
-    }
-    --this->m_list_count;
-    phys_free_list<VehicleParameter>::debug_remove(this, data);
-    next = data->m_next_T_internal;
-    prev = data->m_prev_T_internal;
-    prev->m_next_T_internal = next;
-    next->m_prev_T_internal = prev;
-    PMM_FREE((unsigned __int8 *)data, 0x130u, 4u);
-}
-
-void __thiscall phys_free_list<VehicleParameter>::debug_remove(
-                phys_free_list<VehicleParameter> *this,
-                phys_free_list<VehicleParameter>::T_internal *T_i)
-{
-    if ( T_i->m_ptr_list_index != -1 )
-    {
-        if ( T_i->m_ptr_list_index >= 0x100u
-            && _tlAssert(
-                     "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                     421,
-                     "T_i->m_ptr_list_index >= 0 && T_i->m_ptr_list_index < PTR_LIST_SIZE",
-                     "") )
-        {
-            __debugbreak();
-        }
-        if ( this->m_ptr_list[T_i->m_ptr_list_index] != &T_i->m_data )
-        {
-            if ( _tlAssert(
-                         "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                         422,
-                         "m_ptr_list[T_i->m_ptr_list_index] == &T_i->m_data",
-                         "") )
-            {
-                __debugbreak();
-            }
-        }
-        LODWORD(this->m_ptr_list[--this->m_ptr_list_count][1].m_speed_max) = T_i->m_ptr_list_index;
-        this->m_ptr_list[T_i->m_ptr_list_index] = this->m_ptr_list[this->m_ptr_list_count];
-    }
-}
-
-void __thiscall phys_free_list<NitrousVehicle>::~phys_free_list<NitrousVehicle>(phys_free_list<NitrousVehicle> *this)
-{
-    while ( (phys_free_list<NitrousVehicle> *)this->m_dummy_head.m_next_T_internal != this )
-        phys_free_list<NitrousVehicle>::remove(
-            this,
-            (phys_free_list<NitrousVehicle>::T_internal *)this->m_dummy_head.m_next_T_internal);
-    if ( this->m_list_count
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                 448,
-                 "m_list_count == 0",
-                 "") )
-    {
-        __debugbreak();
-    }
-    if ( (phys_free_list<NitrousVehicle> *)this->m_dummy_head.m_next_T_internal != this
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                 449,
-                 "m_dummy_head.m_next_T_internal == &m_dummy_head",
-                 "") )
-    {
-        __debugbreak();
-    }
-    if ( (phys_free_list<NitrousVehicle> *)this->m_dummy_head.m_prev_T_internal != this
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                 450,
-                 "m_dummy_head.m_prev_T_internal == &m_dummy_head",
-                 "") )
-    {
-        __debugbreak();
-    }
-    this->m_list_count_high_water = 0;
-    this->m_ptr_list_count = 0;
-}
-
-void __thiscall phys_free_list<RagdollBody>::~phys_free_list<RagdollBody>(phys_free_list<RagdollBody> *this)
-{
-    while ( (phys_free_list<RagdollBody> *)this->m_dummy_head.m_next_T_internal != this )
-        phys_free_list<RagdollBody>::remove(
-            this,
-            (phys_free_list<RagdollBody>::T_internal *)this->m_dummy_head.m_next_T_internal);
-    if ( this->m_list_count
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                 448,
-                 "m_list_count == 0",
-                 "") )
-    {
-        __debugbreak();
-    }
-    if ( (phys_free_list<RagdollBody> *)this->m_dummy_head.m_next_T_internal != this
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                 449,
-                 "m_dummy_head.m_next_T_internal == &m_dummy_head",
-                 "") )
-    {
-        __debugbreak();
-    }
-    if ( (phys_free_list<RagdollBody> *)this->m_dummy_head.m_prev_T_internal != this
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                 450,
-                 "m_dummy_head.m_prev_T_internal == &m_dummy_head",
-                 "") )
-    {
-        __debugbreak();
-    }
-    this->m_list_count_high_water = 0;
-    this->m_ptr_list_count = 0;
-}
-
-void __thiscall phys_free_list<RagdollBody>::remove(
-                phys_free_list<RagdollBody> *this,
-                phys_free_list<RagdollBody>::T_internal *data)
-{
-    phys_free_list<RagdollBody>::T_internal_base *next; // [esp+14h] [ebp-8h]
-    phys_free_list<RagdollBody>::T_internal_base *prev; // [esp+18h] [ebp-4h]
-
-    if ( !data
-        && _tlAssert("c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h", 477, "data", "") )
-    {
-        __debugbreak();
-    }
-    --this->m_list_count;
-    phys_free_list<RagdollBody>::debug_remove(this, data);
-    next = data->m_next_T_internal;
-    prev = data->m_prev_T_internal;
-    prev->m_next_T_internal = next;
-    next->m_prev_T_internal = prev;
-    PMM_FREE((unsigned __int8 *)data, 0xA34u, 4u);
-}
-
-void __thiscall phys_free_list<RagdollBody>::debug_remove(
-                phys_free_list<RagdollBody> *this,
-                phys_free_list<RagdollBody>::T_internal *T_i)
-{
-    if ( T_i->m_ptr_list_index != -1 )
-    {
-        if ( T_i->m_ptr_list_index >= 0x100u
-            && _tlAssert(
-                     "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                     421,
-                     "T_i->m_ptr_list_index >= 0 && T_i->m_ptr_list_index < PTR_LIST_SIZE",
-                     "") )
-        {
-            __debugbreak();
-        }
-        if ( this->m_ptr_list[T_i->m_ptr_list_index] != &T_i->m_data )
-        {
-            if ( _tlAssert(
-                         "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                         422,
-                         "m_ptr_list[T_i->m_ptr_list_index] == &T_i->m_data",
-                         "") )
-            {
-                __debugbreak();
-            }
-        }
-        this->m_ptr_list[--this->m_ptr_list_count][1].references = T_i->m_ptr_list_index;
-        this->m_ptr_list[T_i->m_ptr_list_index] = this->m_ptr_list[this->m_ptr_list_count];
-    }
-}
-
-void __thiscall phys_convex_hull::~phys_convex_hull(phys_convex_hull *this)
+phys_convex_hull::~phys_convex_hull()
 {
     int ii; // [esp+4h] [ebp-18h]
     int n; // [esp+8h] [ebp-14h]
@@ -5996,14 +6158,15 @@ void __thiscall phys_convex_hull::~phys_convex_hull(phys_convex_hull *this)
         ;
 }
 
-void __thiscall phys_free_list<RagdollBody>::remove(phys_free_list<RagdollBody> *this, RagdollBody *data_)
-{
-    if ( data_ )
-    {
-        PMM_VALIDATE((char *)&data_[-1].rope_id, 0xA34u, 4u);
-        phys_free_list<RagdollBody>::remove(this, (phys_free_list<RagdollBody>::T_internal *)&data_[-1].rope_id);
-    }
-}
+//void __thiscall phys_free_list<RagdollBody>::remove(RagdollBody *data_)
+//{
+//    if ( data_ )
+//    {
+//        PMM_VALIDATE((char *)&data_[-1].rope_id, 0xA34u, 4u);
+//        //phys_free_list<RagdollBody>::remove(this, (phys_free_list<RagdollBody>::T_internal *)&data_[-1].rope_id);
+//        this->remove((phys_free_list<RagdollBody>::T_internal *) &data_[-1].rope_id);
+//    }
+//}
 
 broad_phase_info *__cdecl create_broad_phase_info()
 {
@@ -6021,7 +6184,8 @@ broad_phase_info *__cdecl create_broad_phase_info()
         p_g_list_broad_phase_info->m_dummy_head.m_next_T_internal->m_prev_T_internal = v1;
         ++p_g_list_broad_phase_info->m_list_count;
         p_g_list_broad_phase_info->m_dummy_head.m_next_T_internal = v1;
-        phys_free_list<broad_phase_info>::debug_add(p_g_list_broad_phase_info, v1);
+        //phys_free_list<broad_phase_info>::debug_add(p_g_list_broad_phase_info, v1);
+        p_g_list_broad_phase_info->debug_add(v1);
         return &v2->m_data;
     }
     else
@@ -6043,13 +6207,14 @@ void __cdecl destroy_broad_phase_info(broad_phase_info *bpi)
     phys_free_list<broad_phase_info> *p_g_list_broad_phase_info; // edi
 
     environment_collision_list_remove(bpi);
-    axis_aligned_sweep_and_prune::destroy_sap_node(g_axis_aligned_sweep_and_prune, bpi);
+    //axis_aligned_sweep_and_prune::destroy_sap_node(g_axis_aligned_sweep_and_prune, bpi);
+    g_axis_aligned_sweep_and_prune->destroy_sap_node(bpi);
     p_g_list_broad_phase_info = &G_BPM->g_list_broad_phase_info;
     if ( bpi )
     {
         PMM_VALIDATE((char *)&bpi[-1].m_gjk_geom, 0x90u, 0x10u);
-        phys_free_list<broad_phase_info>::remove(
-            p_g_list_broad_phase_info,
+        //phys_free_list<broad_phase_info>::remove(
+            p_g_list_broad_phase_info->remove(
             (phys_free_list<broad_phase_info>::T_internal *)&bpi[-1].m_gjk_geom);
     }
 }

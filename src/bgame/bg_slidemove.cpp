@@ -822,64 +822,6 @@ void    gjk_trace(const gjk_trace_input_t *gti, list_gjk_trace_output *list)
     //}
 }
 
-void *__thiscall phys_transient_allocator::allocate(
-                int size,
-                int alignment,
-                int no_error,
-                const char *error_msg)
-{
-    int v7; // [esp+4h] [ebp-14h]
-    int v8; // [esp+Ch] [ebp-Ch]
-    void *ptr; // [esp+14h] [ebp-4h]
-
-    transient_allocator_update_largest_size();
-    v8 = ~(alignment - 1) & (int)&this->m_cur[alignment - 1];
-    if ( (char *)(size + v8) <= this->m_end )
-    {
-        this->m_cur = (char *)(size + v8);
-        ptr = (void *)v8;
-    }
-    else
-    {
-        ptr = 0;
-    }
-    if ( !ptr )
-    {
-        //phys_transient_allocator::resize();
-        this->resize();
-        v7 = ~(alignment - 1) & (int)&this->m_cur[alignment - 1];
-        if ( (char *)(size + v7) <= this->m_end )
-        {
-            this->m_cur = (char *)(size + v7);
-            ptr = (void *)v7;
-        }
-        else
-        {
-            ptr = 0;
-        }
-        if ( !ptr
-            && _tlAssert(
-                     "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_transient_allocator.h",
-                     79,
-                     "ptr",
-                     "transient allocation too large, increase block_size.") )
-        {
-            __debugbreak();
-        }
-    }
-    if ( !ptr
-        && !no_error
-        && _tlAssert(
-                 "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_transient_allocator.h",
-                 81,
-                 "ptr || no_error",
-                 error_msg) )
-    {
-        __debugbreak();
-    }
-    return ptr;
-}
-
 void __cdecl init_pgi(phys_gjk_input *pgi, const gjk_trace_input_t *gti)
 {
     const gjk_base_t *m_cg; // [esp+4h] [ebp-14h]

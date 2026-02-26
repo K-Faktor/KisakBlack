@@ -5,24 +5,24 @@ Phys_UnitQuaternion *__cdecl Phys_GetQuaternion(Phys_UnitQuaternion *result, con
 
 struct nuge // sizeof=0x0
 {
-    void __cdecl get_ballistic_info(
+    static void __cdecl get_ballistic_info(
         rigid_body *const *list_rigid_body,
         int rbodies_count,
         phys_vec3 *center_of_mass,
         phys_vec3 *total_momentum,
         float *total_mass);
-    void    apply_ballistic_target(
+    static void    apply_ballistic_target(
         rigid_body *const *list_rigid_body,
         int rbodies_count,
         const phys_vec3 *target,
         float *const dist_sq);
-    void    calc_velocities(
+    static void    calc_velocities(
         const phys_mat44 *mat0,
         const phys_mat44 *mat1,
         float delta_t,
         phys_vec3 *t_vel,
         phys_vec3 *a_vel);
-    void    calc_velocities(
+    static void    calc_velocities(
         const phys_mat44 *mat0,
         const phys_mat44 *mat1,
         const phys_vec3 *center_offset_loc,

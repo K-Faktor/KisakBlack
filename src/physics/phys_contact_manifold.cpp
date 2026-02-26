@@ -1,6 +1,7 @@
 #include "phys_contact_manifold.h"
+#include <tl/tl_system.h>
 
-const phys_vec3 *__cdecl phys_v2_to_v3_multiply(const phys_vec3 *result, const phys_mat44 *m, const phys_vec2 *v)
+const phys_vec3 *__cdecl phys_v2_to_v3_multiply(phys_vec3 *result, const phys_mat44 *m, const phys_vec2 *v)
 {
     const phys_vec3 *v3; // eax
     float v4; // [esp-30h] [ebp-3Ch]
@@ -26,7 +27,6 @@ const phys_vec3 *__cdecl phys_v2_to_v3_multiply(const phys_vec3 *result, const p
 }
 
 void    displace_contact_p(
-                int a1@<ebp>,
                 contact_manifold_mesh_point **mp,
                 const phys_vec2 *d,
                 const phys_mat44 *contact_mat)
@@ -34,12 +34,12 @@ void    displace_contact_p(
     float *v4; // esi
     const phys_vec3 *v5; // eax
     phys_vec3 v6; // [esp-10h] [ebp-1Ch] BYREF
-    int v7; // [esp+0h] [ebp-Ch]
-    void *v8; // [esp+4h] [ebp-8h]
-    void *retaddr; // [esp+Ch] [ebp+0h]
-
-    v7 = a1;
-    v8 = retaddr;
+    //int v7; // [esp+0h] [ebp-Ch]
+    //void *v8; // [esp+4h] [ebp-8h]
+    //void *retaddr; // [esp+Ch] [ebp+0h]
+    //
+    //v7 = a1;
+    //v8 = retaddr;
     v4 = (float *)*mp;
     v4[4] = (*mp)->m_contact_p.x + d->x;
     v4[5] = d->y + v4[5];
@@ -49,7 +49,7 @@ void    displace_contact_p(
     v4[2] = v5->z + v4[2];
 }
 
-double __thiscall phys_contact_manifold::compute_convex_poly_area(phys_contact_manifold *this)
+double __thiscall phys_contact_manifold::compute_convex_poly_area()
 {
     contact_manifold_mesh_point **m_list_contact_point; // edx
     contact_manifold_mesh_point *v2; // esi
@@ -95,7 +95,7 @@ double __thiscall phys_contact_manifold::compute_convex_poly_area(phys_contact_m
     return result;
 }
 
-double __thiscall phys_contact_manifold::compute_convex_poly_perimeter(phys_contact_manifold *this)
+double __thiscall phys_contact_manifold::compute_convex_poly_perimeter()
 {
     contact_manifold_mesh_point **m_list_contact_point; // esi
     contact_manifold_mesh_point **v2; // edi
@@ -351,7 +351,8 @@ LABEL_30:
     }
 }
 
-void __thiscall phys_contact_manifold::generate_convex_poly_internal(phys_contact_manifold *this)
+extern const char *g_contact_manifold_error_msg;
+void __thiscall phys_contact_manifold::generate_convex_poly_internal()
 {
     phys_contact_manifold *v1; // ebx
     int m_list_mesh_point_count; // eax
@@ -494,7 +495,6 @@ void __thiscall phys_contact_manifold::generate_convex_poly_internal(phys_contac
 }
 
 void __thiscall phys_contact_manifold_process::intersect_poly_segment(
-                phys_contact_manifold_process *this,
                 phys_contact_manifold *cman,
                 const phys_vec2 *p0,
                 const phys_vec2 *p1)
@@ -630,7 +630,6 @@ void __thiscall phys_contact_manifold_process::intersect_poly_segment(
 }
 
 bool __thiscall phys_contact_manifold_process::find_bottom(
-                phys_contact_manifold_process *this,
                 phys_contact_manifold_process::bridge *b,
                 contact_manifold_mesh_point **left_cman,
                 phys_contact_manifold_process::isect_info *right_cman)
@@ -769,7 +768,7 @@ bool __thiscall phys_contact_manifold_process::find_bottom(
     return result;
 }
 
-void __thiscall phys_contact_manifold::comp_feature_normal(phys_contact_manifold *this)
+void __thiscall phys_contact_manifold::comp_feature_normal()
 {
     phys_memory_heap *m_allocator; // esi
     const char *v3; // ecx
@@ -1201,7 +1200,7 @@ LABEL_79:
     }
 }
 
-void __thiscall phys_contact_manifold::generate_convex_poly(phys_contact_manifold *this, const phys_mat44 *contact_mat)
+void __thiscall phys_contact_manifold::generate_convex_poly(const phys_mat44 *contact_mat)
 {
     phys_memory_heap *m_allocator; // edi
     const char *v4; // ecx
@@ -1279,7 +1278,7 @@ void __thiscall phys_contact_manifold::generate_convex_poly(phys_contact_manifol
         v10[4] = v21;
         v23 = v12 + z * v10[2];
     }
-    phys_contact_manifold::generate_convex_poly_internal(this);
+    phys_contact_manifold::generate_convex_poly_internal();
     if ( this->m_list_contact_point_count == 2 )
     {
         m_list_contact_point = this->m_list_contact_point;
@@ -1317,388 +1316,390 @@ void __thiscall phys_contact_manifold::generate_convex_poly(phys_contact_manifol
     }
 }
 
-void __thiscall phys_contact_manifold_process::intersect_poly_poly(phys_contact_manifold_process *this)
+#if 0
+void __thiscall phys_contact_manifold_process::intersect_poly_poly()
 {
     bool v2; // cc
     const phys_vec2 *v3; // edi
     const phys_vec2 *v4; // edi
-    phys_contact_manifold *p_cman1; // edi
+    float v5; // edi
     phys_contact_manifold_process::bridge *v6; // ebx
-    int m_list_contact_point_count; // eax
+    int v7; // eax
     bool v8; // sf
-    int v9; // eax
-    phys_contact_manifold_process::isect_info *v10; // edi
-    phys_contact_manifold_process::isect_info *v11; // esi
+    float v9; // eax
+    contact_manifold_mesh_point ***v10; // edi
+    float *v11; // esi
     double v12; // st7
-    contact_manifold_mesh_point **m_i; // edx
+    contact_manifold_mesh_point **v13; // edx
     double v14; // st6
-    float y; // edx
+    int v15; // edx
     phys_contact_manifold_process::isect_info *v16; // ecx
-    float x; // eax
-    contact_manifold_mesh_point *v18; // ecx
-    float *p_x; // eax
+    contact_manifold_mesh_point **v17; // eax
+    int v18; // ecx
+    float *v19; // eax
     int v20; // ebx
     phys_contact_manifold *v21; // esi
     double v22; // st7
-    phys_contact_manifold_process *v23; // eax
-    char *m_buffer_cur; // edi
+    int v23; // eax
+    phys_contact_manifold_process *v24; // edi
     const char *v25; // ecx
-    phys_memory_heap *p_m_allocator; // esi
+    phys_memory_heap *v26; // esi
     char *v27; // eax
-    phys_contact_manifold *m_cman; // eax
-    phys_contact_manifold_process *v29; // ecx
+    contact_manifold_mesh_point **v28; // eax
+    int v29; // ecx
     char *v30; // eax
     char *v31; // esi
-    phys_contact_manifold_process *v32; // ebx
-    float v33; // edi
+    int v32; // ebx
+    phys_contact_manifold_process::isect_info *v33; // edi
     char *i; // ebx
-    int v35; // eax
-    contact_manifold_mesh_point **v36; // edi
-    contact_manifold_mesh_point **m_right_i; // edx
-    contact_manifold_mesh_point **m_last_i; // eax
-    phys_contact_manifold *m_list_contact_point; // ebx
-    contact_manifold_mesh_point **j; // edi
-    float v41; // edx
-    phys_contact_manifold_process::isect_info *v42; // edx
-    phys_memory_heap *v43; // eax
-    signed int v44; // esi
-    contact_manifold_mesh_point **v45; // edi
+    float v35; // eax
+    phys_contact_manifold *m_cman; // edi
+    float v37; // edx
+    phys_contact_manifold *v38; // eax
+    phys_contact_manifold *p_y; // ebx
+    char *j; // edi
+    float x; // edx
+    float *v42; // edx
+    int v43; // eax
+    int v44; // esi
+    int v45; // edi
     const char *v46; // edx
-    char *v47; // ecx
+    unsigned int v47; // ecx
     contact_manifold_mesh_point **v48; // [esp-Ch] [ebp-8Ch]
-    phys_contact_manifold_process::isect_info gb_cman2; // [esp+Ch] [ebp-74h] BYREF
-    phys_contact_manifold_process::isect_info gb_cman1; // [esp+24h] [ebp-5Ch] BYREF
-    float v51; // [esp+3Ch] [ebp-44h]
-    float v52; // [esp+40h] [ebp-40h]
-    phys_vec2 vdisplace; // [esp+44h] [ebp-3Ch] BYREF
-    phys_vec2 caliper_dir; // [esp+4Ch] [ebp-34h]
+    phys_contact_manifold_process::isect_info gb_cman2; // [esp+0h] [ebp-80h] BYREF
+    phys_contact_manifold_process::isect_info gb_cman1; // [esp+18h] [ebp-68h] BYREF
+    phys_vec2 vdisplace; // [esp+38h] [ebp-48h]
+    phys_vec2 caliper_dir; // [esp+40h] [ebp-40h] BYREF
+    phys_contact_manifold *v53; // [esp+48h] [ebp-38h]
+    contact_manifold_mesh_point **term_left_i; // [esp+4Ch] [ebp-34h]
+    int max_ctr; // [esp+50h] [ebp-30h]
     phys_contact_manifold *p_cman2; // [esp+54h] [ebp-2Ch]
-    contact_manifold_mesh_point **term_left_i; // [esp+58h] [ebp-28h]
-    int max_ctr; // [esp+5Ch] [ebp-24h]
-    float cr; // [esp+64h] [ebp-1Ch]
-    float nvdisplace; // [esp+68h] [ebp-18h]
-    int bridge_i; // [esp+6Ch] [ebp-14h]
-    phys_contact_manifold_process::bridge *list_bridge; // [esp+70h] [ebp-10h]
-    phys_contact_manifold_process::isect_info *right_gb; // [esp+74h] [ebp-Ch]
-    phys_contact_manifold_process::isect_info *left_gb; // [esp+78h] [ebp-8h]
-    phys_contact_manifold_process *v64; // [esp+7Ch] [ebp-4h]
-    int savedregs; // [esp+80h] [ebp+0h] BYREF
+    float cr; // [esp+58h] [ebp-28h]
+    float nvdisplace; // [esp+5Ch] [ebp-24h]
+    phys_contact_manifold_process::bridge *list_bridge; // [esp+64h] [ebp-1Ch]
+    phys_contact_manifold_process::isect_info *right_gb; // [esp+68h] [ebp-18h]
+    phys_contact_manifold_process::isect_info *left_gb; // [esp+6Ch] [ebp-14h]
+    phys_contact_manifold_process *v62; // [esp+70h] [ebp-10h]
+    contact_manifold_mesh_point ***v63; // [esp+74h] [ebp-Ch]
+    float *p_m_last_i; // [esp+78h] [ebp-8h]
+    int v65; // [esp+7Ch] [ebp-4h]
+    int vars0; // [esp+80h] [ebp+0h] BYREF
 
     v2 = this->cman1.m_list_contact_point_count < 2;
-    v64 = this;
-    if ( (v2 || this->cman2.m_list_contact_point_count < 2)
+    v65 = (int)this;
+    if ((v2 || this->cman2.m_list_contact_point_count < 2)
         && _tlAssert(
-                 "source/phys_contact_manifold.cpp",
-                 367,
-                 "cman1.get_poly_vert_count() >= 2 && cman2.get_poly_vert_count() >= 2",
-                 "") )
+            "source/phys_contact_manifold.cpp",
+            367,
+            "cman1.get_poly_vert_count() >= 2 && cman2.get_poly_vert_count() >= 2",
+            ""))
     {
         __debugbreak();
     }
-    if ( this->cman1.m_list_contact_point_count <= 2
+    if (this->cman1.m_list_contact_point_count <= 2
         && this->cman2.m_list_contact_point_count <= 2
         && _tlAssert(
-                 "source/phys_contact_manifold.cpp",
-                 368,
-                 "cman1.get_poly_vert_count() > 2 || cman2.get_poly_vert_count() > 2",
-                 "") )
+            "source/phys_contact_manifold.cpp",
+            368,
+            "cman1.get_poly_vert_count() > 2 || cman2.get_poly_vert_count() > 2",
+            ""))
     {
         __debugbreak();
     }
     this->m_list_isect_point = 0;
     this->m_contact_point_count = 0;
-    if ( this->cman1.m_list_contact_point_count == 2 )
+    if (this->cman1.m_list_contact_point_count == 2)
     {
-        if ( this->cman1.m_list_contact_point_count <= 1
+        if (this->cman1.m_list_contact_point_count <= 1
             && _tlAssert(
-                     "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_contact_manifold.h",
-                     256,
-                     "i >= 0 && i < m_list_contact_point_count",
-                     "") )
+                "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_contact_manifold.h",
+                256,
+                "i >= 0 && i < m_list_contact_point_count",
+                ""))
         {
             __debugbreak();
         }
-        v3 = (const phys_vec2 *)(*((unsigned int *)this->cman1.m_list_contact_point + 1) + 16);
-        if ( this->cman1.m_list_contact_point_count <= 0 )
+        v3 = (const phys_vec2 *)(*((_DWORD *)this->cman1.m_list_contact_point + 1) + 16);
+        if (this->cman1.m_list_contact_point_count <= 0)
         {
-            if ( _tlAssert(
-                         "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_contact_manifold.h",
-                         256,
-                         "i >= 0 && i < m_list_contact_point_count",
-                         "") )
+            if (_tlAssert(
+                "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_contact_manifold.h",
+                256,
+                "i >= 0 && i < m_list_contact_point_count",
+                ""))
             {
                 __debugbreak();
             }
         }
         phys_contact_manifold_process::intersect_poly_segment(
-            this,
             &this->cman2,
             &(*this->cman1.m_list_contact_point)->m_contact_p,
             v3);
     }
-    else if ( this->cman2.m_list_contact_point_count == 2 )
+    else if (this->cman2.m_list_contact_point_count == 2)
     {
-        if ( this->cman2.m_list_contact_point_count <= 1
+        if (this->cman2.m_list_contact_point_count <= 1
             && _tlAssert(
-                     "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_contact_manifold.h",
-                     256,
-                     "i >= 0 && i < m_list_contact_point_count",
-                     "") )
+                "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_contact_manifold.h",
+                256,
+                "i >= 0 && i < m_list_contact_point_count",
+                ""))
         {
             __debugbreak();
         }
-        v4 = (const phys_vec2 *)(*((unsigned int *)this->cman2.m_list_contact_point + 1) + 16);
-        if ( this->cman2.m_list_contact_point_count <= 0
+        v4 = (const phys_vec2 *)(*((_DWORD *)this->cman2.m_list_contact_point + 1) + 16);
+        if (this->cman2.m_list_contact_point_count <= 0
             && _tlAssert(
-                     "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_contact_manifold.h",
-                     256,
-                     "i >= 0 && i < m_list_contact_point_count",
-                     "") )
+                "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_contact_manifold.h",
+                256,
+                "i >= 0 && i < m_list_contact_point_count",
+                ""))
         {
             __debugbreak();
         }
         phys_contact_manifold_process::intersect_poly_segment(
-            this,
             &this->cman1,
             &(*this->cman2.m_list_contact_point)->m_contact_p,
             v4);
     }
     else
     {
-        p_cman1 = &this->cman1;
-        term_left_i = (contact_manifold_mesh_point **)&this->cman1;
-        phys_contact_manifold_process::isect_info::init(&gb_cman1, &this->cman1);
+        LODWORD(v5) = &this->cman1;
+        LODWORD(cr) = &this->cman1;
+        phys_contact_manifold_process::isect_info::init(
+            (phys_contact_manifold_process::isect_info *)&gb_cman1.m_last_i,
+            &this->cman1);
         p_cman2 = &this->cman2;
-        phys_contact_manifold_process::isect_info::init(&gb_cman2, &this->cman2);
-        left_gb = &gb_cman1;
-        right_gb = &gb_cman2;
-        list_bridge = (phys_contact_manifold_process::bridge *)phys_memory_heap::fast_align_start(
-                                                                                                                         &this->m_allocator,
-                                                                                                                         4,
-                                                                                                                         g_contact_manifold_error_msg);
-        v6 = list_bridge;
-        m_list_contact_point_count = gb_cman1.m_cman->m_list_contact_point_count;
-        v8 = gb_cman2.m_cman->m_list_contact_point_count + m_list_contact_point_count < 0;
-        v9 = gb_cman2.m_cman->m_list_contact_point_count + m_list_contact_point_count;
-        bridge_i = 0;
-        max_ctr = v9;
-        if ( !v8 )
+        phys_contact_manifold_process::isect_info::init(
+            (phys_contact_manifold_process::isect_info *)&gb_cman2.m_last_i,
+            &this->cman2);
+        p_m_last_i = (float *)&gb_cman1.m_last_i;
+        v63 = &gb_cman2.m_last_i;
+        v62 = (phys_contact_manifold_process *)phys_memory_heap::fast_align_start(
+            &this->m_allocator,
+            4,
+            g_contact_manifold_error_msg);
+        v6 = (phys_contact_manifold_process::bridge *)v62;
+        v7 = *((_DWORD *)gb_cman1.m_last_i + 20);
+        v8 = *((_DWORD *)gb_cman2.m_last_i + 20) + v7 < 0;
+        LODWORD(v9) = *((_DWORD *)gb_cman2.m_last_i + 20) + v7;
+        left_gb = 0;
+        nvdisplace = v9;
+        if (!v8)
         {
             do
             {
-                v10 = right_gb;
-                v11 = left_gb;
-                v12 = right_gb->m_edge.y * left_gb->m_edge.x;
-                m_i = left_gb->m_i;
-                v14 = left_gb->m_edge.y * right_gb->m_edge.x;
-                v6->m_right_i = right_gb->m_i;
-                v6->m_left_i = m_i;
-                cr = v12 - v14;
-                if ( cr < 0.0 )
+                v10 = v63;
+                v11 = p_m_last_i;
+                v12 = *((float *)v63 + 5) * p_m_last_i[4];
+                v13 = (contact_manifold_mesh_point **)*((_DWORD *)p_m_last_i + 1);
+                v14 = p_m_last_i[5] * *((float *)v63 + 4);
+                v6->m_right_i = v63[1];
+                v6->m_left_i = v13;
+                *(float *)&list_bridge = v12 - v14;
+                if (*(float *)&list_bridge < 0.0)
                 {
-                    x = v10->m_edge.x;
-                    caliper_dir.y = v10->m_edge.y;
-                    caliper_dir.x = x;
-                    v16 = v10;
+                    v17 = v10[4];
+                    max_ctr = *((int *)v10 + 5);
+                    term_left_i = v17;
+                    v16 = (phys_contact_manifold_process::isect_info *)v10;
                 }
                 else
                 {
-                    y = v11->m_edge.y;
-                    caliper_dir.x = v11->m_edge.x;
-                    caliper_dir.y = y;
-                    v16 = v11;
+                    v15 = *((int *)v11 + 5);
+                    term_left_i = *((contact_manifold_mesh_point ***)v11 + 4);
+                    max_ctr = v15;
+                    v16 = (phys_contact_manifold_process::isect_info *)v11;
                 }
                 phys_contact_manifold_process::isect_info::update(v16);
-                v18 = *v10->m_i;
-                p_x = &(*v11->m_i)->m_contact_p.x;
-                v51 = v18->m_contact_p.x - *p_x;
-                v52 = v18->m_contact_p.y - p_x[1];
-                cr = v52 * caliper_dir.x - caliper_dir.y * v51;
-                if ( cr <= 0.0 )
+                v18 = (int)*v10[1];
+                v19 = (float *)(**((_DWORD **)v11 + 1) + 16);
+                vdisplace.y = *(float *)(v18 + 16) - *v19;
+                caliper_dir.x = *(float *)(v18 + 20) - v19[1];
+                *(float *)&list_bridge = caliper_dir.x * *(float *)&term_left_i - *(float *)&max_ctr * vdisplace.y;
+                if (*(float *)&list_bridge <= 0.0)
                 {
-                    if ( cr >= 0.0 )
+                    if (*(float *)&list_bridge >= 0.0)
                     {
-                        vdisplace.x = -caliper_dir.y;
-                        cr = caliper_dir.x * caliper_dir.x + vdisplace.x * vdisplace.x;
-                        cr = sqrt(cr);
-                        nvdisplace = cr;
-                        if ( cr <= 0.00009999999747378752
-                            && _tlAssert("source/phys_contact_manifold.cpp", 431, "nvdisplace > 0.0001f", "") )
+                        caliper_dir.y = -*(float *)&max_ctr;
+                        *(float *)&list_bridge = *(float *)&term_left_i * *(float *)&term_left_i + caliper_dir.y * caliper_dir.y;
+                        *(float *)&list_bridge = sqrt(*(float *)&list_bridge);
+                        right_gb = (phys_contact_manifold_process::isect_info *)list_bridge;
+                        if (*(float *)&list_bridge <= 0.00009999999747378752
+                            && _tlAssert("source/phys_contact_manifold.cpp", 431, "nvdisplace > 0.0001f", ""))
                         {
                             __debugbreak();
                         }
-                        v48 = v10->m_i;
-                        cr = 0.03400000184774399 / nvdisplace;
-                        vdisplace.x = vdisplace.x * cr;
-                        vdisplace.y = cr * caliper_dir.x;
-                        displace_contact_p((int)&savedregs, v48, &vdisplace, &v64->contact_mat);
+                        v48 = v10[1];
+                        *(float *)&list_bridge = 0.03400000184774399 / *(float *)&right_gb;
+                        caliper_dir.y = caliper_dir.y * *(float *)&list_bridge;
+                        *(float *)&v53 = *(float *)&list_bridge * *(float *)&term_left_i;
+                        displace_contact_p((int)&vars0, v48, (phys_vec2 *)&caliper_dir.y, (const phys_mat44 *)v65);
                     }
                     else
                     {
-                        if ( bridge_i )
+                        if (left_gb)
                         {
-                            if ( ((char *)v6 < v64->m_allocator.m_buffer_start || (char *)&v6[1] > v64->m_allocator.m_buffer_end)
+                            if (((unsigned int)v6 < *(_DWORD *)(v65 + 356) || (unsigned int)&v6[1] > *(_DWORD *)(v65 + 360))
                                 && _tlAssert(
-                                         "source/phys_contact_manifold.cpp",
-                                         417,
-                                         "m_allocator.fast_is_within_buffer_limits(b_cur,sizeof(bridge))",
-                                         g_contact_manifold_error_msg) )
+                                    "source/phys_contact_manifold.cpp",
+                                    417,
+                                    "m_allocator.fast_is_within_buffer_limits(b_cur,sizeof(bridge))",
+                                    g_contact_manifold_error_msg))
                             {
                                 __debugbreak();
                             }
-                            if ( !phys_contact_manifold_process::find_bottom(v64, v6, (contact_manifold_mesh_point **)v11, v10) )
+                            if (!phys_contact_manifold_process::find_bottom(
+                                (phys_contact_manifold_process *)v65,
+                                v6,
+                                (contact_manifold_mesh_point **)v11,
+                                (phys_contact_manifold_process::isect_info *)v10))
                                 return;
                             ++v6;
                         }
-                        left_gb = v10;
-                        right_gb = v11;
+                        p_m_last_i = (float *)v10;
+                        v63 = (contact_manifold_mesh_point ***)v11;
                     }
                 }
-                ++bridge_i;
-            }
-            while ( bridge_i <= max_ctr );
-            p_cman1 = (phys_contact_manifold *)term_left_i;
+                left_gb = (phys_contact_manifold_process::isect_info *)((char *)left_gb + 1);
+            } while ((int)left_gb <= SLODWORD(nvdisplace));
+            v5 = cr;
         }
-        v20 = v6 - list_bridge;
-        cr = *(float *)&v20;
-        if ( v20 % 2 )
+        v20 = ((char *)v6 - (char *)v62) >> 4;
+        list_bridge = (phys_contact_manifold_process::bridge *)v20;
+        if (v20 % 2)
         {
             tlWarning("contact manifold intersect poly poly failed.\n");
-            *(float *)&term_left_i = phys_contact_manifold::compute_convex_poly_perimeter(p_cman1);
+            cr = phys_contact_manifold::compute_convex_poly_perimeter((phys_contact_manifold *)LODWORD(v5));
             v21 = p_cman2;
             v22 = phys_contact_manifold::compute_convex_poly_perimeter(p_cman2);
-            if ( *(float *)&term_left_i > v22 )
-                p_cman1 = v21;
-            v23 = v64;
-            v64->m_list_isect_point = p_cman1->m_list_contact_point;
-            v23->m_contact_point_count = p_cman1->m_list_contact_point_count;
+            if (cr > v22)
+                v5 = *(float *)&v21;
+            v23 = v65;
+            *(_DWORD *)(v65 + 148) = *(_DWORD *)(LODWORD(v5) + 76);
+            *(_DWORD *)(v23 + 352) = *(_DWORD *)(LODWORD(v5) + 80);
         }
         else
         {
-            m_buffer_cur = v64->m_allocator.m_buffer_cur;
+            v24 = *(phys_contact_manifold_process **)(v65 + 364);
             v25 = g_contact_manifold_error_msg;
-            p_m_allocator = &v64->m_allocator;
-            v27 = &m_buffer_cur[16 * v20];
-            v64->m_allocator.m_buffer_cur = v27;
-            if ( v27 > p_m_allocator->m_buffer_end
+            v26 = (phys_memory_heap *)(v65 + 356);
+            v27 = (char *)(&v24->contact_mat.x + v20);
+            *(_DWORD *)(v65 + 364) = v27;
+            if (v27 > v26->m_buffer_end
                 && _tlAssert(
-                         "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                         122,
-                         "m_buffer_cur <= m_buffer_end",
-                         v25) )
+                    "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+                    122,
+                    "m_buffer_cur <= m_buffer_end",
+                    v25))
             {
                 __debugbreak();
             }
-            if ( m_buffer_cur != (char *)list_bridge
-                && _tlAssert("source/phys_contact_manifold.cpp", 454, "temp_ptr == list_bridge", "") )
-            {
+            if (v24 != v62 && _tlAssert("source/phys_contact_manifold.cpp", 454, "temp_ptr == list_bridge", ""))
                 __debugbreak();
-            }
-            if ( *(float *)&v20 == 0.0 )
+            if (*(float *)&v20 == 0.0)
             {
-                m_cman = right_gb->m_cman;
-                v29 = v64;
-                v64->m_list_isect_point = right_gb->m_cman->m_list_contact_point;
-                v29->m_contact_point_count = m_cman->m_list_contact_point_count;
+                v28 = *v63;
+                v29 = v65;
+                *(_DWORD *)(v65 + 148) = (*v63)[19];
+                *(_DWORD *)(v29 + 352) = v28[20];
             }
             else
             {
-                v30 = phys_memory_heap::fast_align_start(p_m_allocator, 4, g_contact_manifold_error_msg);
-                v64->m_list_isect_point = (contact_manifold_mesh_point **)v30;
+                v30 = phys_memory_heap::fast_align_start(v26, 4, g_contact_manifold_error_msg);
+                *(_DWORD *)(v65 + 148) = v30;
                 v31 = v30;
-                bridge_i = 0;
-                if ( v20 > 0 )
+                left_gb = 0;
+                if (v20 > 0)
                 {
-                    LODWORD(nvdisplace) = &list_bridge->m_left_i;
+                    right_gb = (phys_contact_manifold_process::isect_info *)&v62->contact_mat.x.z;
                     do
                     {
-                        v32 = v64;
-                        if ( (v31 < v64->m_allocator.m_buffer_start || v31 + 4 > v64->m_allocator.m_buffer_end)
+                        v32 = v65;
+                        if (((unsigned int)v31 < *(_DWORD *)(v65 + 356) || (unsigned int)(v31 + 4) > *(_DWORD *)(v65 + 360))
                             && _tlAssert(
-                                     "source/phys_contact_manifold.cpp",
-                                     472,
-                                     "m_allocator.fast_is_within_buffer_limits(ip_i,sizeof(contact_manifold_mesh_point*))",
-                                     g_contact_manifold_error_msg) )
+                                "source/phys_contact_manifold.cpp",
+                                472,
+                                "m_allocator.fast_is_within_buffer_limits(ip_i,sizeof(contact_manifold_mesh_point*))",
+                                g_contact_manifold_error_msg))
                         {
                             __debugbreak();
                         }
-                        v33 = nvdisplace;
-                        *(unsigned int *)v31 = **(unsigned int **)LODWORD(nvdisplace);
-                        for ( i = (char *)v32->m_list_isect_point; i != v31; i += 4 )
+                        v33 = right_gb;
+                        *(float *)v31 = right_gb->m_cman->m_feature_normal.x;
+                        for (i = *(char **)(v32 + 148); i != v31; i += 4)
                         {
-                            if ( *(unsigned int *)i == **(unsigned int **)LODWORD(v33) )
+                            if (*(_DWORD *)i == LODWORD(v33->m_cman->m_feature_normal.x))
                                 tlWarning("contact manifold failure.");
                         }
-                        v35 = *(unsigned int *)v31;
-                        *(unsigned int *)(v35 + 16) = *(unsigned int *)(LODWORD(v33) - 8);
-                        *(unsigned int *)(v35 + 20) = *(unsigned int *)(LODWORD(v33) - 4);
-                        max_ctr = bridge_i + 1;
-                        v36 = *(contact_manifold_mesh_point ***)LODWORD(v33);
+                        v35 = *(float *)v31;
+                        *(float *)(LODWORD(v35) + 16) = v33[-1].m_edge.x;
+                        *(float *)(LODWORD(v35) + 20) = v33[-1].m_edge.y;
+                        LODWORD(nvdisplace) = (char *)&left_gb->m_cman + 1;
+                        m_cman = v33->m_cman;
                         v31 += 4;
-                        m_right_i = list_bridge[(bridge_i + 1) % SLODWORD(cr)].m_right_i;
-                        m_last_i = left_gb->m_last_i;
-                        term_left_i = m_right_i;
-                        p_cman2 = (phys_contact_manifold *)m_last_i;
-                        if ( v36 == m_last_i )
-                            m_list_contact_point = (phys_contact_manifold *)left_gb->m_cman->m_list_contact_point;
+                        v37 = *(&v62->contact_mat.x.w + 4 * (((int)&left_gb->m_cman + 1) % (int)list_bridge));
+                        v38 = (phys_contact_manifold *)*((_DWORD *)p_m_last_i + 3);
+                        cr = v37;
+                        p_cman2 = v38;
+                        if (m_cman == v38)
+                            p_y = *(phys_contact_manifold **)(*(_DWORD *)p_m_last_i + 76);
                         else
-                            m_list_contact_point = (phys_contact_manifold *)(v36 + 1);
-                        if ( m_list_contact_point != (phys_contact_manifold *)m_right_i )
+                            p_y = (phys_contact_manifold *)&m_cman->m_feature_normal.y;
+                        if (p_y != (phys_contact_manifold *)LODWORD(v37))
                         {
-                            bridge_i = (int)(v31 + 4);
+                            left_gb = (phys_contact_manifold_process::isect_info *)(v31 + 4);
                             do
                             {
-                                if ( (v31 < v64->m_allocator.m_buffer_start || (char *)bridge_i > v64->m_allocator.m_buffer_end)
+                                if (((unsigned int)v31 < *(_DWORD *)(v65 + 356) || (unsigned int)left_gb > *(_DWORD *)(v65 + 360))
                                     && _tlAssert(
-                                             "source/phys_contact_manifold.cpp",
-                                             480,
-                                             "m_allocator.fast_is_within_buffer_limits(ip_i,sizeof(contact_manifold_mesh_point*))",
-                                             g_contact_manifold_error_msg) )
+                                        "source/phys_contact_manifold.cpp",
+                                        480,
+                                        "m_allocator.fast_is_within_buffer_limits(ip_i,sizeof(contact_manifold_mesh_point*))",
+                                        g_contact_manifold_error_msg))
                                 {
                                     __debugbreak();
                                 }
-                                for ( j = v64->m_list_isect_point; j != (contact_manifold_mesh_point **)v31; ++j )
+                                for (j = *(char **)(v65 + 148); j != v31; j += 4)
                                 {
-                                    if ( *j == (contact_manifold_mesh_point *)LODWORD(m_list_contact_point->m_feature_normal.x) )
+                                    if (*(_DWORD *)j == LODWORD(p_y->m_feature_normal.x))
                                         tlWarning("contact manifold failure.");
                                 }
-                                v41 = m_list_contact_point->m_feature_normal.x;
-                                bridge_i += 4;
-                                *(float *)v31 = v41;
+                                x = p_y->m_feature_normal.x;
+                                left_gb = (phys_contact_manifold_process::isect_info *)((char *)left_gb + 4);
+                                *(float *)v31 = x;
                                 v31 += 4;
-                                if ( m_list_contact_point == p_cman2 )
-                                    m_list_contact_point = (phys_contact_manifold *)left_gb->m_cman->m_list_contact_point;
+                                if (p_y == p_cman2)
+                                    p_y = *(phys_contact_manifold **)(*(_DWORD *)p_m_last_i + 76);
                                 else
-                                    m_list_contact_point = (phys_contact_manifold *)((char *)m_list_contact_point + 4);
-                            }
-                            while ( m_list_contact_point != (phys_contact_manifold *)term_left_i );
+                                    p_y = (phys_contact_manifold *)((char *)p_y + 4);
+                            } while (p_y != (phys_contact_manifold *)LODWORD(cr));
                         }
-                        v42 = right_gb;
-                        LODWORD(nvdisplace) += 16;
-                        right_gb = left_gb;
-                        left_gb = v42;
-                        bridge_i = max_ctr;
-                    }
-                    while ( max_ctr < SLODWORD(cr) );
+                        v42 = (float *)v63;
+                        right_gb = (phys_contact_manifold_process::isect_info *)((char *)right_gb + 16);
+                        v63 = (contact_manifold_mesh_point ***)p_m_last_i;
+                        p_m_last_i = v42;
+                        left_gb = (phys_contact_manifold_process::isect_info *)LODWORD(nvdisplace);
+                    } while (SLODWORD(nvdisplace) < (int)list_bridge);
                 }
-                v43 = &v64->m_allocator;
-                v44 = (v31 - (char *)v64->m_list_isect_point) >> 2;
-                v64->m_contact_point_count = v44;
-                v45 = (contact_manifold_mesh_point **)v43->m_buffer_cur;
+                v43 = v65 + 356;
+                v44 = (int)&v31[-*(_DWORD *)(v65 + 148)] >> 2;
+                *(_DWORD *)(v65 + 352) = v44;
+                v45 = *(_DWORD *)(v43 + 8);
                 v46 = g_contact_manifold_error_msg;
-                v47 = (char *)&v45[v44];
-                v43->m_buffer_cur = v47;
-                if ( v47 > v43->m_buffer_end
+                v47 = v45 + 4 * v44;
+                *(_DWORD *)(v43 + 8) = v47;
+                if (v47 > *(_DWORD *)(v43 + 4)
                     && _tlAssert(
-                             "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
-                             122,
-                             "m_buffer_cur <= m_buffer_end",
-                             v46) )
+                        "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_mem.h",
+                        122,
+                        "m_buffer_cur <= m_buffer_end",
+                        v46))
                 {
                     __debugbreak();
                 }
-                if ( v45 != v64->m_list_isect_point
-                    && _tlAssert("source/phys_contact_manifold.cpp", 494, "temp_ptr == m_list_isect_point", "") )
+                if (v45 != *(_DWORD *)(v65 + 148)
+                    && _tlAssert("source/phys_contact_manifold.cpp", 494, "temp_ptr == m_list_isect_point", ""))
                 {
                     __debugbreak();
                 }
@@ -1706,6 +1707,214 @@ void __thiscall phys_contact_manifold_process::intersect_poly_poly(phys_contact_
         }
     }
 }
+#else // aislop
+void phys_contact_manifold_process::intersect_poly_poly()
+{
+    // -------------------------------------------------------------
+    // Sanity
+    // -------------------------------------------------------------
+
+    const int count1 = cman1.m_list_contact_point_count;
+    const int count2 = cman2.m_list_contact_point_count;
+
+    iassert(count1 >= 2 && count2 >= 2);
+    iassert(count1 > 2 || count2 > 2);
+
+    m_list_isect_point = nullptr;
+    m_contact_point_count = 0;
+
+    // -------------------------------------------------------------
+    // Segment special cases
+    // -------------------------------------------------------------
+
+    if (count1 == 2)
+    {
+        const phys_vec2 &a0 =
+            (*cman1.m_list_contact_point)->m_contact_p;
+
+        const phys_vec2 &a1 =
+            cman1.m_list_contact_point[1]->m_contact_p;
+
+        intersect_poly_segment(&cman2, &a0, &a1);
+        return;
+    }
+
+    if (count2 == 2)
+    {
+        const phys_vec2 &b0 =
+            (*cman2.m_list_contact_point)->m_contact_p;
+
+        const phys_vec2 &b1 =
+            cman2.m_list_contact_point[1]->m_contact_p;
+
+        intersect_poly_segment(&cman1, &b0, &b1);
+        return;
+    }
+
+    // -------------------------------------------------------------
+    // Full polygon / polygon
+    // -------------------------------------------------------------
+
+    isect_info gb1;
+    isect_info gb2;
+
+    //isect_info::init(&gb1, &cman1);
+    gb1.init(&cman1);
+    //isect_info::init(&gb2, &cman2);
+    gb2.init(&cman2);
+
+    isect_info *left = &gb1;
+    isect_info *right = &gb2;
+
+    //bridge *bridges = (bridge *)phys_memory_heap::fast_align_start(&m_allocator, alignof(bridge), g_contact_manifold_error_msg);
+    bridge *bridges = (bridge *)m_allocator.fast_align_start(alignof(bridge), g_contact_manifold_error_msg);
+
+    bridge *bridge_cur = bridges;
+
+    const int max_iter =
+        gb1.m_cman->m_list_contact_point_count +
+        gb2.m_cman->m_list_contact_point_count;
+
+    int bridge_count = 0;
+
+    // -------------------------------------------------------------
+    // Rotating calipers
+    // -------------------------------------------------------------
+
+    for (int iter = 0; iter <= max_iter; ++iter)
+    {
+        const phys_vec2 &eL = left->m_edge;
+        const phys_vec2 &eR = right->m_edge;
+
+        float cross = eR.y * eL.x - eL.y * eR.x;
+
+        bridge_cur->m_left_i = left->m_i;
+        bridge_cur->m_right_i = right->m_i;
+
+        phys_vec2 caliper_dir;
+
+        if (cross < 0.0f)
+        {
+            caliper_dir = eR;
+            //isect_info::update(right);
+            right->update();
+        }
+        else
+        {
+            caliper_dir = eL;
+            //isect_info::update(left);
+            left->update();
+        }
+
+        const phys_vec2 &pL = (*left->m_i)->m_contact_p;
+        const phys_vec2 &pR = (*right->m_i)->m_contact_p;
+
+        phys_vec2 delta = { pR.x - pL.x, pR.y - pL.y };
+
+        float sep = delta.y * caliper_dir.x -
+            caliper_dir.y * delta.x;
+
+        if (sep < 0.0f)
+        {
+            if (bridge_count > 0)
+            {
+                if (!find_bottom(bridge_cur, left->m_i, right))
+                    return;
+
+                ++bridge_cur;
+            }
+
+            std::swap(left, right);
+        }
+        else if (sep == 0.0f)
+        {
+            // small displacement to prevent degeneracy
+            phys_vec2 disp =
+            {
+                -caliper_dir.y,
+                 caliper_dir.x
+            };
+
+            float len = std::sqrt(disp.x * disp.x + disp.y * disp.y);
+            iassert(len > 0.0001f);
+
+            float inv = 0.034f / len;
+
+            disp.x *= inv;
+            disp.y *= inv;
+
+            displace_contact_p(
+                left->m_i,
+                &disp,
+                &contact_mat);
+        }
+
+        ++bridge_count;
+    }
+
+    const int total_bridges =
+        int(bridge_cur - bridges);
+
+    // -------------------------------------------------------------
+    // Failure case
+    // -------------------------------------------------------------
+
+    if (total_bridges & 1)
+    {
+        tlWarning("contact manifold intersect poly poly failed.");
+
+        //float per1 = phys_contact_manifold::compute_convex_poly_perimeter(&cman1);
+        float per1 = cman1.compute_convex_poly_perimeter();
+        //float per2 = phys_contact_manifold::compute_convex_poly_perimeter(&cman2);
+        float per2 = cman2.compute_convex_poly_perimeter();
+
+        phys_contact_manifold *chosen =
+            (per1 > per2) ? &cman2 : &cman1;
+
+        m_list_isect_point = chosen->m_list_contact_point;
+        m_contact_point_count =
+            chosen->m_list_contact_point_count;
+
+        return;
+    }
+
+    // -------------------------------------------------------------
+    // Allocate final intersection list
+    // -------------------------------------------------------------
+
+    //contact_manifold_mesh_point **out = (contact_manifold_mesh_point **)phys_memory_heap::fast_align_start(&m_allocator, alignof(void *), g_contact_manifold_error_msg);
+    contact_manifold_mesh_point **out = (contact_manifold_mesh_point **)m_allocator.fast_align_start(alignof(void *), g_contact_manifold_error_msg);
+
+    m_list_isect_point = out;
+
+    for (int i = 0; i < total_bridges; ++i)
+    {
+        bridge &b = bridges[i];
+
+        contact_manifold_mesh_point **start =
+            b.m_left_i;
+
+        contact_manifold_mesh_point **end =
+            bridges[(i + 1) % total_bridges].m_right_i;
+
+        contact_manifold_mesh_point **cur = start;
+
+        do
+        {
+            *out++ = *cur;
+
+            cur = (cur == left->m_last_i)
+                ? left->m_cman->m_list_contact_point
+                : cur + 1;
+
+        } while (cur != end);
+    }
+
+    m_contact_point_count =
+        int(out - m_list_isect_point);
+}
+
+#endif
 
 bool __cdecl phys_contact_manifold::rht(const phys_vec2 *e1, const phys_vec2 *e2, float min_length2, float min_sin_sq)
 {
@@ -1738,9 +1947,7 @@ bool __cdecl phys_contact_manifold::rht(const phys_vec2 *e1, const phys_vec2 *e2
     return result;
 }
 
-void __thiscall phys_contact_manifold_process::isect_info::init(
-                phys_contact_manifold_process::isect_info *this,
-                phys_contact_manifold *cman)
+void __thiscall phys_contact_manifold_process::isect_info::init(phys_contact_manifold *cman)
 {
     contact_manifold_mesh_point **m_list_contact_point; // edx
     contact_manifold_mesh_point **m_i; // edx
@@ -1762,7 +1969,7 @@ void __thiscall phys_contact_manifold_process::isect_info::init(
     this->m_edge = v6;
 }
 
-void __thiscall phys_contact_manifold_process::isect_info::update(phys_contact_manifold_process::isect_info *this)
+void __thiscall phys_contact_manifold_process::isect_info::update()
 {
     contact_manifold_mesh_point **m_next_i; // eax
     contact_manifold_mesh_point **m_list_contact_point; // edx
@@ -1786,7 +1993,7 @@ void __thiscall phys_contact_manifold_process::isect_info::update(phys_contact_m
     this->m_edge = v6;
 }
 
-char *__thiscall phys_memory_heap::fast_align_start(phys_memory_heap *this, int alignment, const char *error_msg)
+char *__thiscall phys_memory_heap::fast_align_start(int alignment, const char *error_msg)
 {
     char *result; // eax
 

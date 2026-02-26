@@ -49,31 +49,31 @@ struct __declspec(align(16)) physics_system // sizeof=0x32C0
     // padding byte
     // padding byte
     // padding byte
-
+    physics_system();
     ~physics_system();
 
-    void __thiscall physics_system::generate_partitions_and_stuff(
-        physics_system *this,
-        phys_transient_allocator *transient_buffer);
-    void __thiscall physics_system::time_step(physics_system *this, float outside_delta_t, bool last_step);
-    void __thiscall physics_system::frame_advance(physics_system *this, float delta_t);
-    physics_system *__thiscall physics_system::physics_system(physics_system *this);
-    physics_system *__cdecl physics_system::create_physics_system();
-    void __cdecl physics_system::initialize();
-    void __cdecl physics_system::destroy_physics_system(physics_system *psys);
-    void __cdecl physics_system::shutdown();
+    void validate_member(environment_rigid_body *rb);
+    void solver_priority_sort(phys_transient_allocator *transient_buffer);
+    void generate_partitions_and_stuff(phys_transient_allocator *transient_buffer);
+    void time_step(float outside_delta_t, bool last_step);
+    void frame_advance(float delta_t);
+
+    static physics_system *create_physics_system();
+    static void initialize();
+    static void destroy_physics_system(physics_system *psys);
+    static void shutdown();
 };
 
 struct rbint // sizeof=0x0
 {
     static void __cdecl take_last_step(user_rigid_body *rb);
     static const phys_vec3 *inv_L(
-        const phys_vec3 *result,
+        phys_vec3 *result,
         const rigid_body *rb,
         const phys_vec3 *t,
         float delta_t);
     static void update_stability(rigid_body *const rb, float delta_t);
-    static const phys_vec3 *__cdecl gtv(const phys_vec3 *result, rigid_body *const b, const phys_vec3 *r);
+    static const phys_vec3 *__cdecl gtv(phys_vec3 *result, rigid_body *const b, const phys_vec3 *r);
     static void substep(user_rigid_body *rb, float delta_t);
     static void solver_prolog(rigid_body *rb, float delta_t);
     static void euler_integrate_velocity(rigid_body *const rb, float delta_t);

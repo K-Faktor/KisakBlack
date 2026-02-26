@@ -21,6 +21,38 @@ struct phys_vec3 // sizeof=0x10
     float z;                                                        // XREF: gjkcc_info::update_cg(float const * const,float const * const,bool)+221/r
     float w;                                                        // XREF: standard_query::query(broad_phase_environment_query_input const &,broad_phase_environement_query_results *)+440/r
 
+    phys_vec3()
+    {
+
+    }
+    phys_vec3(float setall)
+    {
+        x = setall;
+        y = setall;
+        z = setall;
+        w = setall;
+    }
+    phys_vec3(float _x, float _y, float _z)
+    {
+        x = _x;
+        y = _y;
+        z = _z;
+        w = 0.0f;
+    }
+    phys_vec3(float _x, float _y, float _z, float _w)
+    {
+        x = _x;
+        y = _y;
+        z = _z;
+        w = _w;
+    }
+
+    inline float max_component() const // trash for the ai
+    {
+        float m = x > y ? x : y;
+        return m > z ? m : z;
+    }
+
     inline phys_vec3 &operator*=(float d)
     {
         x *= d;
@@ -42,6 +74,15 @@ struct phys_vec3 // sizeof=0x10
         x -= v.x;
         y -= v.y;
         z -= v.z;
+        return *this;
+    }
+
+
+    inline phys_vec3 &operator-=(const phys_vec3 *v)
+    {
+        x -= v->x;
+        y -= v->y;
+        z -= v->z;
         return *this;
     }
 
@@ -72,6 +113,26 @@ struct phys_vec3 // sizeof=0x10
     {
         iassert(i < 3);
         return reinterpret_cast<const float *>(this)[i];
+    }
+
+    inline bool operator<(const phys_vec3 &v) const
+    {
+        return x < v.x && y < v.y && z < v.z;
+    }
+
+    inline bool operator>(const phys_vec3 &v) const
+    {
+        return x > v.x && y > v.y && z > v.z;
+    }
+
+    inline bool operator<=(const phys_vec3 &v) const
+    {
+        return x <= v.x && y <= v.y && z <= v.z;
+    }
+
+    inline bool operator>=(const phys_vec3 &v) const
+    {
+        return x >= v.x && y >= v.y && z >= v.z;
     }
 
     inline phys_vec3 operator+(const phys_vec3 &other)
@@ -122,6 +183,16 @@ struct bpei_database_id // sizeof=0x8
 {                                       // XREF: broad_phase_environment_info/r
     unsigned int m_id1;                 // XREF: gjk_physics_collision_visitor::query_create_prolog(void const *)+5F/w
     unsigned int m_id2;                 // XREF: gjk_physics_collision_visitor::query_create_prolog(void const *)+65/w
+
+    bpei_database_id()
+    {
+    }
+
+    bpei_database_id(unsigned int id) // this is psycho, but it looks like what's going on
+    {
+        m_id1 = id;
+        m_id2 = 0;
+    }
 };
 
 struct __declspec(align(16)) plane_lt // sizeof=0x20
@@ -458,6 +529,12 @@ struct phys_simple_link_list//<contact_point_info> // sizeof=0x4
                                                                                 // rigid_body_constraint_contact/r
         //contact_point_info *m_first;
         T *m_first;
+
+        struct iterator//phys_simple_link_list<contact_point_info>::iterator // sizeof=0x4
+        {                                       // XREF: ?render_contact@@YAXPAVrigid_body_constraint_contact@@@Z/r
+            //contact_point_info *m_ptr;
+            T *m_ptr;
+        };
 };
 
 template <typename T, int TABLE_SIZE>
@@ -685,6 +762,9 @@ struct phys_transient_allocator // sizeof=0x18
         const char *error_msg);
 
     void resize();
+    void reset();
+
+    void reset_to_state(const phys_transient_allocator::allocator_state *as);
 };
 
 struct phys_memory_heap // sizeof=0x10
@@ -706,6 +786,12 @@ struct __declspec(align(16)) phys_static_array
     char m_buffer[sizeof(T) * SIZE];
     T * m_slot_array;
     int m_alloc_count;
+
+    struct iterator//phys_static_array<phys_convex_hull::ch_edge,128>::iterator // sizeof=0x4
+    {                                       // XREF: ?compute_convex_hull@phys_convex_hull@@QAEXHM@Z/r
+        //phys_convex_hull::ch_edge *m_ptr;   // XREF: phys_convex_hull::add_intermediate_edge(phys_vec3 *,phys_vec3 *)+4D/w
+        T *m_ptr;
+    };
 
 private:
     bool is_member(T *data)
@@ -779,6 +865,12 @@ public:
         T_internal_base *m_next_T_internal;
     };
     //static_assert(sizeof(T_internal_base) == 8);
+
+    struct iterator//phys_free_list<broad_phase_collision_pair>::iterator // sizeof=0x4
+    {
+        //phys_free_list<broad_phase_collision_pair>::T_internal_base *m_ptr;
+        T_internal_base *m_ptr;
+    };
 
     struct __declspec(align(16)) T_internal : T_internal_base
     {
@@ -1509,6 +1601,98 @@ inline const phys_vec3 *__cdecl phys_inv_multiply(phys_vec3 *result, const phys_
     result->y = v4;
     result->z = v5;
     return result;
+}
+
+inline void __cdecl phys_calc_local_aabb(
+    const phys_vec3 *aabb_min,
+    const phys_vec3 *aabb_max,
+    const phys_mat44 *local_to_world_xform,
+    phys_vec3 *local_aabb_min,
+    phys_vec3 *local_aabb_max)
+{
+    const phys_vec3 *v5; // eax
+    const phys_vec3 *v6; // eax
+    const phys_vec3 *v7; // eax
+    float v8; // [esp+1F4h] [ebp-13Ch]
+    float v9; // [esp+1F8h] [ebp-138h]
+    float v10; // [esp+214h] [ebp-11Ch]
+    float v11; // [esp+218h] [ebp-118h]
+    phys_vec3 v12; // [esp+230h] [ebp-100h] BYREF
+    phys_vec3 v; // [esp+240h] [ebp-F0h] BYREF
+    float v14; // [esp+254h] [ebp-DCh]
+    float v15; // [esp+258h] [ebp-D8h]
+    float v16; // [esp+25Ch] [ebp-D4h]
+    float v17; // [esp+260h] [ebp-D0h]
+    float v18; // [esp+264h] [ebp-CCh]
+    float v19; // [esp+268h] [ebp-C8h]
+    float v20; // [esp+274h] [ebp-BCh]
+    float v21; // [esp+278h] [ebp-B8h]
+    float v22; // [esp+27Ch] [ebp-B4h]
+    float v23; // [esp+280h] [ebp-B0h]
+    float v24; // [esp+284h] [ebp-ACh]
+    float v25; // [esp+288h] [ebp-A8h]
+    float v26; // [esp+29Ch] [ebp-94h]
+    phys_vec3 v27; // [esp+2A0h] [ebp-90h] BYREF
+    float v28; // [esp+2BCh] [ebp-74h]
+    phys_vec3 v29; // [esp+2C0h] [ebp-70h] BYREF
+    float v30; // [esp+2DCh] [ebp-54h]
+    phys_vec3 result; // [esp+2E0h] [ebp-50h] BYREF
+    phys_vec3 b; // [esp+2F0h] [ebp-40h] BYREF
+    float v33; // [esp+304h] [ebp-2Ch]
+    float v34; // [esp+308h] [ebp-28h]
+    float v35; // [esp+30Ch] [ebp-24h]
+    float v36; // [esp+310h] [ebp-20h]
+    float v37; // [esp+314h] [ebp-1Ch]
+    float v38; // [esp+318h] [ebp-18h]
+    float v39; // [esp+324h] [ebp-Ch]
+    float v40; // [esp+328h] [ebp-8h]
+    float v41; // [esp+32Ch] [ebp-4h]
+    int savedregs; // [esp+330h] [ebp+0h] BYREF
+
+    v41 = aabb_max->x - aabb_min->x;
+    v40 = aabb_max->y - aabb_min->y;
+    v39 = aabb_max->z - aabb_min->z;
+    v36 = v41;
+    v37 = v40;
+    v38 = v39;
+    v35 = 0.5 * v41;
+    v34 = 0.5 * v40;
+    v33 = 0.5 * v39;
+    b.x = 0.5 * v41;
+    b.y = 0.5 * v40;
+    b.z = 0.5 * v39;
+    v5 = phys_AbsValue(&result, &local_to_world_xform->z);
+    v30 = phys_dot(v5, &b);
+    v6 = phys_AbsValue(&v29, &local_to_world_xform->y);
+    v28 = phys_dot(v6, &b);
+    v7 = phys_AbsValue(&v27, &local_to_world_xform->x);
+    v26 = phys_dot(v7, &b);
+    v23 = v26;
+    v24 = v28;
+    v25 = v30;
+    v22 = aabb_min->x + aabb_max->x;
+    v21 = aabb_min->y + aabb_max->y;
+    v20 = aabb_min->z + aabb_max->z;
+    v17 = v22;
+    v18 = v21;
+    v19 = v20;
+    v16 = 0.5 * v22;
+    v15 = 0.5 * v21;
+    v14 = 0.5 * v20;
+    v.x = 0.5 * v22;
+    v.y = 0.5 * v21;
+    v.z = 0.5 * v20;
+    phys_full_inv_multiply(&v12, local_to_world_xform, &v);
+    v10 = v12.y - v24;
+    v11 = v12.z - v25;
+    local_aabb_min->x = v12.x - v23;
+    local_aabb_min->y = v10;
+    local_aabb_min->z = v11;
+    v8 = v12.y + v24;
+    v9 = v12.z + v25;
+    local_aabb_max->x = v12.x + v23;
+    local_aabb_max->y = v8;
+    local_aabb_max->z = v9;
 }
 
 void phys_multiply_mat(phys_mat44 *dest, const phys_mat44 *left, const phys_mat44 *right);

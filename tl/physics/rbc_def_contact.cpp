@@ -1,4 +1,5 @@
 #include "rbc_def_contact.h"
+#include <physics/rigid_body.h>
 
 phys_transient_allocator *__cdecl contact_point_info::get_cpi_allocator()
 {

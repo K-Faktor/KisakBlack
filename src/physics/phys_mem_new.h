@@ -5,11 +5,20 @@ volatile struct tagged_void_pointer_t // sizeof=0x8
 {                                       // XREF: phys_slot_pool/r
     void *m_ptr;
     unsigned int m_tag;
+
+    tagged_void_pointer_t() noexcept
+        : m_ptr(nullptr), m_tag(0) {
+    }
+
+    tagged_void_pointer_t(void *ptr, unsigned int tag) noexcept
+        : m_ptr(ptr), m_tag(tag) {
+    }
 };
 
 struct phys_slot_pool // sizeof=0x18
 {                                       // XREF: phys_memory_manager/r
-    volatile tagged_void_pointer_t m_first_free_slot;
+    //volatile tagged_void_pointer_t m_first_free_slot;
+    tagged_void_pointer_t m_first_free_slot;
     unsigned int m_map_key;
     phys_slot_pool *m_hash_next;
     volatile unsigned int m_total_slot_count;

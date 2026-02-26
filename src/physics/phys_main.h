@@ -71,6 +71,13 @@ struct BodyState // sizeof=0x88
     int underwater;                     // XREF: Phys_ObjCreateNitrousVehicle(float const * const,float const * const,float const * const,float const * const,PhysPreset const *,gjk_geom_list_t *):loc_81FDAD/w
 };
 
+struct PhysImpulse // sizeof=0x1C
+{                                       // XREF: .data:PhysImpulse * gImpulseCache/r
+    int id;
+    float hitp[3];
+    float hitd[3];
+};
+
 struct PhysObjUserData // sizeof=0x130
 {                                       // XREF: phys_free_list<PhysObjUserData>::T_internal/r
     struct rigid_body *body;
@@ -141,7 +148,20 @@ struct phys_convex_hull // sizeof=0x20D60
         // padding byte
         double get_dist(const phys_vec3 *vert);
 
-        ch_triangle &operator=(const phys_convex_hull::ch_triangle *__that);
+        //ch_triangle &operator=(const phys_convex_hull::ch_triangle *__that);
+
+        phys_convex_hull::ch_triangle &operator=(const phys_convex_hull::ch_triangle &rhs)
+        {
+            if (this == &rhs)
+                return *this;
+
+            m_normal = rhs.m_normal;
+
+            for (int i = 0; i < 3; ++i)
+                m_verts[i] = rhs.m_verts[i];
+
+            return *this;
+        }
     };
     struct ch_edge // sizeof=0x8
     {
@@ -426,3 +446,4 @@ extern const dvar_t *phys_fluid;
 
 extern cdl_proftimer proftimer_physics_frame_advance;
 extern PhysGlob physGlob;
+extern axis_aligned_sweep_and_prune *g_axis_aligned_sweep_and_prune;

@@ -99,7 +99,7 @@ struct __declspec(align(16)) phys_contact_manifold_process // sizeof=0x4180
     void intersect_poly_poly();
 };
 
-const phys_vec3 *__cdecl phys_v2_to_v3_multiply(const phys_vec3 *result, const phys_mat44 *m, const phys_vec2 *v);
+const phys_vec3 *__cdecl phys_v2_to_v3_multiply(phys_vec3 *result, const phys_mat44 *m, const phys_vec2 *v);
 void    displace_contact_p(
                 contact_manifold_mesh_point **mp,
                 const phys_vec2 *d,

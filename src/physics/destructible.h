@@ -6,6 +6,11 @@ struct XModel;
 struct centity_s;
 struct msg_t;
 
+struct destructible_hit // sizeof=0x4
+{
+    int entNum;
+};
+
 struct DestructibleStage // sizeof=0x30
 {                                       // XREF: DestructiblePiece/r
     unsigned __int16 showBone;
@@ -373,6 +378,5 @@ DestructibleDef *__cdecl Destructible_GetDDef(const Destructible *const obj);
 void __cdecl Scr_DestructibleCallback(gentity_s *self, unsigned __int16 event, int piece, float time, int damage);
 void __cdecl Scr_DestructibleCallback(gentity_s *self, unsigned __int16 event, char *notify, gentity_s *attacker);
 void __cdecl CScr_DestructibleCallback(centity_s *self, unsigned __int16 event, int piece, float time, int damage);
-
 
 extern Destructible *cg_destructibles[1];

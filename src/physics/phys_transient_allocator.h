@@ -1,5 +1,6 @@
 #pragma once
 #include "phys_local.h"
+#include "phys_mem_new.h"
 
 struct phys_transient_allocator // sizeof=0x18
 {                                       // XREF: pulse_sum_constraint_solver/r
@@ -24,6 +25,19 @@ struct phys_transient_allocator // sizeof=0x18
     void *m_slot_pool;                  // XREF: physics_system::time_step(float,bool)+15F/w
 
     ~phys_transient_allocator();
+
+    void *allocate(
+        int size,
+        int alignment,
+        int no_error,
+        const char *error_msg);
+
+    void *mt_allocate(
+        int size,
+        int alignment,
+        int no_error,
+        const char *error_msg);
+    int mt_allocate_internal(int size, int alignment);
 
     void reset();
     void reset_to_state(const phys_transient_allocator::allocator_state *as);

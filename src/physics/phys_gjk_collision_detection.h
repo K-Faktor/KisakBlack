@@ -92,6 +92,7 @@ struct bpei_database_t // sizeof=0x10
     void purge_database();
 
     broad_phase_environment_info *get_bpei(bpei_database_id database_id);
+    broad_phase_environment_info *create_bpei(bpei_database_id database_id);
 };
 
 struct phys_gjk_geom_id_pair_key // sizeof=0x8
@@ -123,7 +124,7 @@ struct phys_heap_gjk_cache_system_avl_tree // sizeof=0x10
         phys_heap_gjk_cache_system_avl_tree *gjk_cache,
         gjk_base_t *cg1,
         gjk_base_t *cg2);
-    static phys_gjk_cache_info_internal *get_gjk_cache_info(
+    phys_gjk_cache_info_internal *get_gjk_cache_info(
         unsigned int id1,
         unsigned int id2,
         bool __formal);
@@ -198,7 +199,7 @@ const struct __declspec(align(16)) gjk_query_input // sizeof=0x80
 
     gjk_query_input();
 
-    void visit_skip_list(int query_visitor_count);
+    void visit_skip_list(int query_visitor_count) const;
     char is_in_skip_list(gjk_geom_info_t *gi_);
 };
 
@@ -512,7 +513,7 @@ bool __cdecl phys_are_aabb_overlapping(
 void __cdecl gjk_query_prims(const gjk_query_input *input, gjk_query_output *output);
 void __cdecl gjk_query_terrain(const gjk_query_input *input, gjk_query_output *output);
 void __cdecl gjk_query_gents(const gjk_query_input *input, gjk_query_output *output);
-char __cdecl query_should_pass_gentity(const gjk_query_input *input, const gentity_s *gent);
+char __cdecl query_should_pass_gentity(const gjk_query_input *input, gentity_s *gent);
 void __cdecl gjk_query_cents(const gjk_query_input *input, gjk_query_output *output);
 void __cdecl gjk_query_glass(const gjk_query_input *input, gjk_query_output *output);
 void __cdecl gjk_query_dents(const gjk_query_input *input, gjk_query_output *output);

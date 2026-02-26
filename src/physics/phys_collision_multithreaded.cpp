@@ -1,6 +1,21 @@
 #include "phys_collision_multithreaded.h"
+#include "physics_system.h"
+#include "physics_system_internal.h"
 
-void __thiscall phys_memory_heap::set_buffer(phys_memory_heap *this, char *start, int size, unsigned int alignment)
+phys_collision_pair *g_list_pcp_iterator;
+contact_point_info *g_list_output_cpi;
+
+jqModule phys_gjk_collide_jqModule =
+{
+  "phys_gjk_collide_jq",
+  JQ_WORKER_GENERIC,
+  &phys_gjk_collide_jq_batch_function
+  //{ { { 0, 0 } } }
+};
+
+
+
+void __thiscall phys_memory_heap::set_buffer(char *start, int size, unsigned int alignment)
 {
     if ( this->m_buffer_start
         && _tlAssert(
@@ -50,7 +65,6 @@ void __thiscall phys_memory_heap::set_buffer(phys_memory_heap *this, char *start
 }
 
 void __thiscall rigid_body_constraint_contact::add_cpi_simple(
-                rigid_body_constraint_contact *this,
                 contact_point_info *cpi,
                 environment_rigid_body *b1_,
                 environment_rigid_body *b2_)
@@ -100,13 +114,12 @@ void __thiscall rigid_body_constraint_contact::add_cpi_simple(
     {
         __debugbreak();
     }
-    rigid_body_constraint_contact::verify_constraint(this, b1_, b2_);
+    rigid_body_constraint_contact::verify_constraint(b1_, b2_);
     cpi->m_next_link = this->m_list_contact_point_info_buffer_1.m_first;
     this->m_list_contact_point_info_buffer_1.m_first = cpi;
 }
 
-phys_contact_manifold_process *__thiscall phys_contact_manifold_process::phys_contact_manifold_process(
-                phys_contact_manifold_process *this)
+phys_contact_manifold_process::phys_contact_manifold_process()
 {
     phys_memory_heap *p_m_allocator; // edi
 
@@ -121,44 +134,42 @@ phys_contact_manifold_process *__thiscall phys_contact_manifold_process::phys_co
     this->m_list_cpi.m_last_next_ptr = &this->m_list_cpi.m_first;
     this->m_cpi = 0;
     this->m_rbc_contact_search_tree_root = (rigid_body_constraint_contact *)-1;
-    phys_memory_heap::set_buffer(&this->m_allocator, this->m_allocator_memory, 0x4000, 1u);
+    //phys_memory_heap::set_buffer(&this->m_allocator, this->m_allocator_memory, 0x4000, 1u);
+    this->m_allocator.set_buffer(this->m_allocator_memory, 0x4000, 1u);
     this->cman1.m_allocator = p_m_allocator;
     this->cman2.m_allocator = p_m_allocator;
-    return this;
 }
 
 void    phys_collide_do_gjk_collide_and_contact_manifold(
-                float a1@<ebp>,
                 phys_collision_pair *pcp,
                 phys_gjk_info *gjk_info,
                 phys_contact_manifold_process *cman_process)
 {
-    _BYTE v4[12]; // [esp-Ch] [ebp-5Ch] BYREF
-    phys_gjk_input pgi; // [esp+0h] [ebp-50h] BYREF
-    _UNKNOWN *retaddr; // [esp+50h] [ebp+0h]
-
-    pgi.m_sep_thresh = a1;
-    *(unsigned int *)&pgi.m_intersection_test_only = retaddr;
-    if ( (pcp->m_hit_time < 0.0 || pcp->m_hit_time > 1.0)
+    phys_gjk_input v4; // [esp-Ch] [ebp-5Ch] BYREF
+    //_UNKNOWN *v5[2]; // [esp+44h] [ebp-Ch] BYREF
+    //phys_contact_manifold_process *cman_processa; // [esp+50h] [ebp+0h]
+    //
+    //*(float *)v5 = a1;
+    //v5[1] = cman_processa;
+    if ((pcp->m_hit_time < 0.0 || pcp->m_hit_time > 1.0)
         && _tlAssert(
-                 "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_collision.h",
-                 29,
-                 "pcp->m_hit_time >= 0.0f && pcp->m_hit_time <= 1.0f",
-                 "") )
+            "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_collision.h",
+            29,
+            "pcp->m_hit_time >= 0.0f && pcp->m_hit_time <= 1.0f",
+            ""))
     {
         __debugbreak();
     }
-    setup_gjk_input_from_pcp((phys_gjk_input *)v4, pcp);
-    *(float *)&pgi.gjk_ci = 1.02;
-    LOWORD(pgi.cg1_radius) = 256;
-    if ( phys_gjk_info::phys_collide_do_gjk_collide(gjk_info, (int)&pgi.m_sep_thresh, (const phys_gjk_input *)v4) )
-        phys_contact_manifold_process::process(
-            cman_process,
-            COERCE_FLOAT((phys_gjk_input *)&pgi.m_sep_thresh),
-            (int)gjk_info,
-            (int)pcp,
-            pcp,
-            gjk_info);
+    setup_gjk_input_from_pcp(&v4, pcp);
+    v4.m_sep_thresh = 1.02;
+    v4.m_intersection_test_only = 0;
+    v4.m_continuous_collision = 1;
+    //if (phys_gjk_info::phys_collide_do_gjk_collide(gjk_info, (int)v5, &v4))
+    if (gjk_info->phys_collide_do_gjk_collide(&v4))
+    {
+        //phys_contact_manifold_process::process(cman_process, COERCE_FLOAT(v5), (int)gjk_info, (int)pcp, pcp, gjk_info);
+        cman_process->process(pcp, gjk_info);
+    }
 }
 
 void __cdecl process_cpi(contact_point_info *cpi)
@@ -186,10 +197,12 @@ void __cdecl process_cpi(contact_point_info *cpi)
             m_rbc_contact = v1->m_rbc_contact;
             m_rb = (environment_rigid_body *)m_bpi1->m_rb;
             v7 = (environment_rigid_body *)m_bpi2->m_rb;
+            //if ( m_rbc_contact || (m_rbc_contact = phys_sys::create_rbc_contact(m_rb, v7, v1->m_flags & 8)) != 0 )
             if ( m_rbc_contact || (m_rbc_contact = phys_sys::create_rbc_contact(m_rb, v7, v1->m_flags & 8)) != 0 )
             {
                 m_rbc_contact->m_solver_priority = v1->m_flags & 7;
-                rigid_body_constraint_contact::add_cpi_simple(m_rbc_contact, v1, m_rb, v7);
+                //rigid_body_constraint_contact::add_cpi_simple(m_rbc_contact, v1, m_rb, v7);
+                m_rbc_contact->add_cpi_simple(v1, m_rb, v7);
             }
             v1 = next_cpi;
         }
@@ -207,36 +220,37 @@ void __cdecl process_list_do_gjk_collide_and_contact_manifold(phys_link_list<phy
         g_list_pcp_iterator = list_pcd->m_first;
         g_list_output_cpi = 0;
         cpi_allocator = contact_point_info::get_cpi_allocator();
-        v2 = phys_transient_allocator::allocate(cpi_allocator, 12, 4, 0, "phys_transient_allocator out of memory.");
-        v2[2] = &g_list_pcp_iterator;
-        v2[1] = g_physics_system->m_search_tree_rbc_contact.m_tree_root;
-        *v2 = &g_list_output_cpi;
+        //v2 = phys_transient_allocator::allocate(cpi_allocator, 12, 4, 0, "phys_transient_allocator out of memory.");
+        v2 = (unsigned int*)cpi_allocator->allocate(12, 4, 0, "phys_transient_allocator out of memory.");
+        v2[2] = (unsigned int)&g_list_pcp_iterator;
+        v2[1] = (unsigned int)g_physics_system->m_search_tree_rbc_contact.m_tree_root;
+        *v2 = (unsigned int)&g_list_output_cpi;
         phys_task_manager_process(&phys_gjk_collide_jqModule, v2, list_pcd->m_alloc_count);
         phys_task_manager_flush();
         process_cpi(g_list_output_cpi);
     }
 }
 
-int    phys_gjk_collide_jq_batch_function@<eax>(int a1@<ebp>, jqBatch *pBatch)
+int    phys_gjk_collide_jq_batch_function(jqBatch *pBatch)
 {
     void *v2; // esp
-    volatile signed __int32 **Input; // esi
+    volatile unsigned __int32 **Input; // esi
     phys_transient_allocator *cpi_allocator; // eax
     rigid_body_constraint_contact *v5; // ecx
-    volatile signed __int32 *v6; // eax
+    volatile unsigned __int32 *v6; // eax
     phys_collision_pair *i; // ecx
     contact_point_info *v8; // edi
     phys_gjk_info v10; // [esp-4540h] [ebp-454Ch] BYREF
     contact_point_info *m_first; // [esp-4194h] [ebp-41A0h]
     phys_contact_manifold_process v12; // [esp-4190h] [ebp-419Ch] BYREF
-    unsigned int v13[3]; // [esp+0h] [ebp-Ch] BYREF
-    _UNKNOWN *retaddr; // [esp+Ch] [ebp+0h]
-
-    v13[0] = a1;
-    v13[1] = retaddr;
-    v2 = alloca(17736);
-    Input = (volatile signed __int32 **)pBatch->Input;
-    phys_contact_manifold_process::phys_contact_manifold_process(&v12);
+    //unsigned int v13[3]; // [esp+0h] [ebp-Ch] BYREF
+    //_UNKNOWN *retaddr; // [esp+Ch] [ebp+0h]
+    //
+    //v13[0] = a1;
+    //v13[1] = retaddr;
+    //v2 = alloca(17736);
+    Input = (volatile unsigned __int32 **)pBatch->Input;
+    //phys_contact_manifold_process::phys_contact_manifold_process(&v12);
     cpi_allocator = contact_point_info::get_cpi_allocator();
     v5 = (rigid_body_constraint_contact *)Input[1];
     v12.m_cpi_allocator = cpi_allocator;
@@ -245,7 +259,7 @@ int    phys_gjk_collide_jq_batch_function@<eax>(int a1@<ebp>, jqBatch *pBatch)
     for ( i = (phys_collision_pair *)*v6; *v6; i = (phys_collision_pair *)*v6 )
     {
         if ( (phys_collision_pair *)_InterlockedCompareExchange(v6, (signed __int32)i->m_next_link, (signed __int32)i) == i )
-            phys_collide_do_gjk_collide_and_contact_manifold(COERCE_FLOAT(v13), i, &v10, &v12);
+            phys_collide_do_gjk_collide_and_contact_manifold(i, &v10, &v12);
         v6 = Input[2];
     }
     m_first = v12.m_list_cpi.m_first;

@@ -1,4 +1,5 @@
 #include "phys_constraint_solver_multithreaded.h"
+#include "phys_util.h"
 
 void __cdecl orthonormalize(phys_mat44 *mat)
 {
@@ -57,7 +58,7 @@ void __cdecl orthonormalize(phys_mat44 *mat)
     mat->z.z = v11;
 }
 
-void __thiscall pulse_sum_normal::set_object_vel(pulse_sum_normal *this, const phys_vec3 *object_vel)
+void __thiscall pulse_sum_normal::set_object_vel(const phys_vec3 *object_vel)
 {
     if ( this->m_b2
         && _tlAssert(
@@ -73,7 +74,7 @@ void __thiscall pulse_sum_normal::set_object_vel(pulse_sum_normal *this, const p
     this->m_b2_ap.z = object_vel->z;
 }
 
-void __thiscall pulse_sum_normal::set_object_col_pt(pulse_sum_normal *this, const phys_vec3 *object_col_pt)
+void __thiscall pulse_sum_normal::set_object_col_pt(const phys_vec3 *object_col_pt)
 {
     if ( this->m_b2
         && _tlAssert(
@@ -89,7 +90,7 @@ void __thiscall pulse_sum_normal::set_object_col_pt(pulse_sum_normal *this, cons
     this->m_b2_r.z = object_col_pt->z;
 }
 
-void __thiscall pulse_sum_point::set_object_vel(pulse_sum_point *this, const phys_vec3 *object_vel)
+void __thiscall pulse_sum_point::set_object_vel(const phys_vec3 *object_vel)
 {
     if ( this->m_b2
         && _tlAssert(
@@ -105,7 +106,7 @@ void __thiscall pulse_sum_point::set_object_vel(pulse_sum_point *this, const phy
     this->m_b2_apx.z = object_vel->z;
 }
 
-void __thiscall pulse_sum_angular::set_object_vel(pulse_sum_angular *this, const phys_vec3 *object_vel)
+void __thiscall pulse_sum_angular::set_object_vel(const phys_vec3 *object_vel)
 {
     if ( this->m_b2
         && _tlAssert(
@@ -121,7 +122,7 @@ void __thiscall pulse_sum_angular::set_object_vel(pulse_sum_angular *this, const
     this->m_b2_ap.z = object_vel->z;
 }
 
-void __thiscall pulse_sum_angular::set_object_col_pt(pulse_sum_angular *this, const phys_vec3 *object_col_pt)
+void __thiscall pulse_sum_angular::set_object_col_pt(const phys_vec3 *object_col_pt)
 {
     if ( this->m_b2
         && _tlAssert(
@@ -137,7 +138,7 @@ void __thiscall pulse_sum_angular::set_object_col_pt(pulse_sum_angular *this, co
     this->m_b2_r.z = object_col_pt->z;
 }
 
-rigid_body *rigid_body::operator=(rigid_body *this, const rigid_body *__that)
+rigid_body *rigid_body::operator=(const rigid_body *__that)
 {
     rigid_body *result; // eax
 
@@ -357,9 +358,8 @@ void __cdecl nuge::tensor_transform_principle(const phys_vec3 *diag, const phys_
     tensor->z.z = x__12c;
 }
 
-const phys_vec3 * rbint::inv_L@<eax>(
-                int a1@<ebp>,
-                const phys_vec3 *result,
+const phys_vec3 * rbint::inv_L(
+                phys_vec3 *result,
                 const rigid_body *rb,
                 const phys_vec3 *t,
                 float delta_t)
@@ -368,12 +368,12 @@ const phys_vec3 * rbint::inv_L@<eax>(
     double v6; // st7
     const phys_vec3 *v7; // eax
     phys_vec3 v8; // [esp-10h] [ebp-1Ch] BYREF
-    int v9; // [esp+0h] [ebp-Ch]
-    void *v10; // [esp+4h] [ebp-8h]
-    void *retaddr; // [esp+Ch] [ebp+0h]
-
-    v9 = a1;
-    v10 = retaddr;
+    //int v9; // [esp+0h] [ebp-Ch]
+    //void *v10; // [esp+4h] [ebp-8h]
+    //void *retaddr; // [esp+Ch] [ebp+0h]
+    //
+    //v9 = a1;
+    //v10 = retaddr;
     v5 = phys_multiply(&v8, &rb->m_node->m_world_inv_inertia, t);
     result->x = v5->x * delta_t;
     result->y = v5->y * delta_t;
@@ -418,7 +418,7 @@ void __cdecl rbint::update_stability(rigid_body *const rb, float delta_t)
     }
 }
 
-const phys_vec3 *__cdecl rbint::gtv(const phys_vec3 *result, rigid_body *const b, const phys_vec3 *r)
+const phys_vec3 *__cdecl rbint::gtv(phys_vec3 *result, rigid_body *const b, const phys_vec3 *r)
 {
     const phys_vec3 *v3; // eax
     float v4; // [esp-10h] [ebp-1Ch]
@@ -435,7 +435,7 @@ const phys_vec3 *__cdecl rbint::gtv(const phys_vec3 *result, rigid_body *const b
     return v3;
 }
 
-void __userpurge pulse_sum_normal::calc_abs(pulse_sum_normal *this@<ecx>, int a2@<ebp>, const phys_vec3 *b1_r_displace)
+void pulse_sum_normal::calc_abs(const phys_vec3 *b1_r_displace)
 {
     double x; // st7
     phys_mat44 *p_m_world_inv_inertia; // ecx
@@ -502,7 +502,7 @@ void __userpurge pulse_sum_normal::calc_abs(pulse_sum_normal *this@<ecx>, int a2
     }
 }
 
-double    pulse_sum_normal::get_vel@<st0>(pulse_sum_normal *this@<ecx>, int a2@<ebp>)
+double    pulse_sum_normal::get_vel()
 {
     rigid_body *m_rb; // eax
     phys_vec3 *p_m_b2_ap; // edx
@@ -548,7 +548,7 @@ double    pulse_sum_normal::get_vel@<st0>(pulse_sum_normal *this@<ecx>, int a2@<
     return (float)(this->m_ud.y * v11 + this->m_ud.x * v10 + this->m_ud.z * v12);
 }
 
-double    pulse_sum_normal::get_last_vel@<st0>(pulse_sum_normal *this@<ecx>, int a2@<ebp>)
+double    pulse_sum_normal::get_last_vel()
 {
     rigid_body *m_rb; // eax
     phys_vec3 *p_m_b2_ap; // edx
@@ -1984,7 +1984,7 @@ double __thiscall pulse_sum_normal::get_objective(pulse_sum_normal *this)
     return (float)(this->m_ud.y * v14 + this->m_ud.x * v13 + this->m_ud.z * v15);
 }
 
-void __thiscall pulse_sum_normal::apply(pulse_sum_normal *this, const float *s_)
+void __thiscall pulse_sum_normal::apply(const float *s_)
 {
     pulse_sum_node *m_b1; // eax
     phys_vec3 *p_a_vel; // eax
@@ -2042,7 +2042,7 @@ void __thiscall pulse_sum_normal::apply(pulse_sum_normal *this, const float *s_)
     }
 }
 
-double __thiscall pulse_sum_normal::clamp_pulse_sum(pulse_sum_normal *this, float ps)
+double __thiscall pulse_sum_normal::clamp_pulse_sum(float ps)
 {
     double result; // st7
     float v4; // [esp+4h] [ebp-4h]
@@ -2140,7 +2140,7 @@ void __thiscall pulse_sum_normal::SOLVER_apply_relaxation(
     }
 }
 
-void __thiscall pulse_sum_normal::SOLVER_solver_prolog(pulse_sum_normal *this, float delta_t)
+void __thiscall pulse_sum_normal::SOLVER_solver_prolog(float delta_t)
 {
     double vel; // st7
     pulse_sum_cache *m_pulse_sum_cache; // eax
@@ -2159,7 +2159,7 @@ void __thiscall pulse_sum_normal::SOLVER_solver_prolog(pulse_sum_normal *this, f
     pulse_sum_normal::apply(this, &this->m_pulse_sum);
 }
 
-const phys_vec3 *__thiscall pulse_sum_point::get_objective(pulse_sum_point *this, const phys_vec3 *result)
+const phys_vec3 *__thiscall pulse_sum_point::get_objective(const phys_vec3 *result)
 {
     bool v2; // zf
     pulse_sum_node *m_b1; // edx
@@ -2210,7 +2210,7 @@ const phys_vec3 *__thiscall pulse_sum_point::get_objective(pulse_sum_point *this
     return v4;
 }
 
-void __thiscall pulse_sum_point::apply(pulse_sum_point *this, const phys_vec3 *s_)
+void __thiscall pulse_sum_point::apply(const phys_vec3 *s_)
 {
     pulse_sum_node *m_b1; // edx
     phys_vec3 *p_a_vel; // edx
@@ -2326,7 +2326,7 @@ void __thiscall pulse_sum_point::apply(pulse_sum_point *this, const phys_vec3 *s
     }
 }
 
-void __thiscall pulse_sum_point::SOLVER_solver_intermediate(pulse_sum_point *this, float delta_t)
+void __thiscall pulse_sum_point::SOLVER_solver_intermediate(float delta_t)
 {
     double v2; // st7
     float delta_ta; // [esp+8h] [ebp+8h]
@@ -2504,7 +2504,7 @@ double __thiscall pulse_sum_angular::get_objective(pulse_sum_angular *this)
     return (float)(this->m_ud.y * v7 + this->m_ud.x * v6 + this->m_ud.z * v8);
 }
 
-void __thiscall pulse_sum_angular::apply(pulse_sum_angular *this, const float *s_)
+void __thiscall pulse_sum_angular::apply(const float *s_)
 {
     phys_vec3 *p_a_vel; // eax
     pulse_sum_node *m_b2; // eax
@@ -2534,7 +2534,7 @@ void __thiscall pulse_sum_angular::apply(pulse_sum_angular *this, const float *s
     }
 }
 
-double __thiscall pulse_sum_angular::clamp_pulse_sum(pulse_sum_angular *this, float ps)
+double __thiscall pulse_sum_angular::clamp_pulse_sum(float ps)
 {
     double result; // st7
 
@@ -2555,7 +2555,7 @@ double __thiscall pulse_sum_angular::clamp_pulse_sum(pulse_sum_angular *this, fl
     return result;
 }
 
-void __thiscall pulse_sum_angular::SOLVER_apply_relaxation(pulse_sum_angular *this, float *error_sq)
+void __thiscall pulse_sum_angular::SOLVER_apply_relaxation(float *error_sq)
 {
     double v3; // st7
     float error_sq___; // [esp+8h] [ebp-8h] BYREF
@@ -3028,7 +3028,7 @@ void __thiscall rigid_body::update_last_position(rigid_body *this)
     }
 }
 
-user_rigid_body *__thiscall user_rigid_body::operator=(user_rigid_body *this, const user_rigid_body *__that)
+user_rigid_body *__thiscall user_rigid_body::operator=(user_const user_rigid_body *__that)
 {
     user_rigid_body *result; // eax
 

@@ -778,7 +778,7 @@ int __cdecl Destructible_ParseDefSpecificFieldType(unsigned __int8 *pStruct, cha
                                                 }
                                                 else if ( iFieldType - 335 < *((unsigned int *)pStruct + 3) )
                                                 {
-                                                    *(unsigned int *)(*((unsigned int *)pStruct + 4) + 312 * (iFieldType - 335) + 280) = FX_Register(pValue);
+                                                    *(unsigned int *)(*((unsigned int *)pStruct + 4) + 312 * (iFieldType - 335) + 280) = (unsigned int)FX_Register(pValue);
                                                 }
                                             }
                                             else if ( !G_ExitAfterToolComplete() && iFieldType - 303 < *((unsigned int *)pStruct + 3) )

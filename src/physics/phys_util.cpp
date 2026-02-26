@@ -556,59 +556,57 @@ void    nuge::calc_velocities(
     Phys_UnitQuaternion *Quaternion; // eax
     float y; // ecx
     float z; // edx
-    long double v9; // st7
+    long double w; // st7
     double v10; // st7
     double v11; // st6
     double v12; // st7
-    double w; // st6
-    _BYTE v14[12]; // [esp-Ch] [ebp-7Ch] BYREF
-    phys_mat44 vel_mat; // [esp+0h] [ebp-70h] BYREF
-    float x; // [esp+44h] [ebp-2Ch]
-    float v17; // [esp+48h] [ebp-28h]
-    float v18; // [esp+4Ch] [ebp-24h]
-    Phys_UnitQuaternion qvel; // [esp+50h] [ebp-20h]
-    float v20; // [esp+60h] [ebp-10h]
-    float oo_delta_t; // [esp+64h] [ebp-Ch] BYREF
-    float nqvec; // [esp+68h] [ebp-8h]
-    float retaddr; // [esp+70h] [ebp+0h]
-
-    oo_delta_t = a1;
-    nqvec = retaddr;
-    if ( ((unsigned __int8)t_vel & 0xF) != 0
+    double v13; // st6
+    phys_mat44 v14; // [esp-Ch] [ebp-7Ch] BYREF
+    Phys_UnitQuaternion vel_mat_52; // [esp+34h] [ebp-3Ch] BYREF
+    Phys_UnitQuaternion qvel; // [esp+44h] [ebp-2Ch]
+    float oo_delta_t; // [esp+58h] [ebp-18h]
+    float nqvec; // [esp+5Ch] [ebp-14h]
+    float v19; // [esp+60h] [ebp-10h]
+    //_UNKNOWN *v20[2]; // [esp+64h] [ebp-Ch] BYREF
+    //float delta_ta; // [esp+70h] [ebp+0h]
+    //
+    //*(float *)v20 = a1;
+    //*(float *)&v20[1] = delta_ta;
+    if (((unsigned __int8)t_vel & 0xF) != 0
         && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_math.h",
-                 444,
-                 "uint(v) % PHYS_ALIGNOF(phys_vec3) == 0",
-                 "") )
+            "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_math.h",
+            444,
+            "uint(v) % PHYS_ALIGNOF(phys_vec3) == 0",
+            ""))
     {
         __debugbreak();
     }
-    if ( ((unsigned __int8)a_vel & 0xF) != 0
+    if (((unsigned __int8)a_vel & 0xF) != 0
         && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_math.h",
-                 444,
-                 "uint(v) % PHYS_ALIGNOF(phys_vec3) == 0",
-                 "") )
+            "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_math.h",
+            444,
+            "uint(v) % PHYS_ALIGNOF(phys_vec3) == 0",
+            ""))
     {
         __debugbreak();
     }
-    qvel.z = 1.0 / delta_t;
-    phys_transpose((phys_mat44 *)v14, mat0);
-    phys_multiply_mat((int)&oo_delta_t, (phys_mat44 *)v14, mat1, (const phys_mat44 *)v14);
-    Quaternion = Phys_GetQuaternion((Phys_UnitQuaternion *)&vel_mat.w.y, (const phys_mat44 *)v14);
+    oo_delta_t = 1.0 / delta_t;
+    phys_transpose(&v14, mat0);
+    phys_multiply_mat(&v14, mat1, &v14);
+    Quaternion = Phys_GetQuaternion(&vel_mat_52, &v14);
     y = Quaternion->y;
-    x = Quaternion->x;
+    qvel.x = Quaternion->x;
     z = Quaternion->z;
-    qvel.x = Quaternion->w;
-    v17 = y;
-    v18 = z;
-    v9 = qvel.x;
-    if ( qvel.x < 1.0 )
+    qvel.w = Quaternion->w;
+    qvel.y = y;
+    qvel.z = z;
+    w = qvel.w;
+    if (qvel.w < 1.0)
     {
-        if ( v9 > -1.0 )
+        if (w > -1.0)
         {
-            v20 = acos(v9);
-            v10 = v20;
+            v19 = acos(w);
+            v10 = v19;
         }
         else
         {
@@ -619,43 +617,42 @@ void    nuge::calc_velocities(
     {
         v10 = 0.0;
     }
-    v20 = v10;
-    qvel.w = v17 * v17 + x * x + v18 * v18;
-    qvel.w = sqrt(qvel.w);
-    v11 = qvel.z;
-    if ( qvel.w <= 0.00009999999747378752 )
+    v19 = v10;
+    nqvec = qvel.y * qvel.y + qvel.x * qvel.x + qvel.z * qvel.z;
+    nqvec = sqrt(nqvec);
+    v11 = oo_delta_t;
+    if (nqvec <= 0.00009999999747378752)
     {
-        v12 = qvel.z;
+        v12 = oo_delta_t;
         a_vel->x = PHYS_ZERO_VEC.x;
         a_vel->y = PHYS_ZERO_VEC.y;
-        w = PHYS_ZERO_VEC.z;
+        v13 =      PHYS_ZERO_VEC.z;
     }
     else
     {
-        qvel.z = v20 + v20;
+        oo_delta_t = v19 + v19;
         v12 = v11;
-        qvel.z = v11 / qvel.w * qvel.z;
-        vel_mat.w.y = qvel.z * x;
-        vel_mat.w.z = v17 * qvel.z;
-        vel_mat.w.w = qvel.z * v18;
-        a_vel->x = vel_mat.w.y;
-        a_vel->y = vel_mat.w.z;
-        w = vel_mat.w.w;
+        oo_delta_t = v11 / nqvec * oo_delta_t;
+        vel_mat_52.x = oo_delta_t * qvel.x;
+        vel_mat_52.y = qvel.y * oo_delta_t;
+        vel_mat_52.z = oo_delta_t * qvel.z;
+        a_vel->x = vel_mat_52.x;
+        a_vel->y = vel_mat_52.y;
+        v13 = vel_mat_52.z;
     }
-    a_vel->z = w;
-    vel_mat.w.y = mat1->w.x - mat0->w.x;
-    vel_mat.w.z = mat1->w.y - mat0->w.y;
-    vel_mat.w.w = mat1->w.z - mat0->w.z;
-    x = vel_mat.w.y * v12;
-    v17 = vel_mat.w.z * v12;
-    v18 = v12 * vel_mat.w.w;
-    t_vel->x = x;
-    t_vel->y = v17;
-    t_vel->z = v18;
+    a_vel->z = v13;
+    vel_mat_52.x = mat1->w.x - mat0->w.x;
+    vel_mat_52.y = mat1->w.y - mat0->w.y;
+    vel_mat_52.z = mat1->w.z - mat0->w.z;
+    qvel.x = vel_mat_52.x * v12;
+    qvel.y = vel_mat_52.y * v12;
+    qvel.z = v12 * vel_mat_52.z;
+    t_vel->x = qvel.x;
+    t_vel->y = qvel.y;
+    t_vel->z = qvel.z;
 }
 
 void    nuge::calc_velocities(
-                int a1@<ebp>,
                 const phys_mat44 *mat0,
                 const phys_mat44 *mat1,
                 const phys_vec3 *center_offset_loc,
@@ -668,11 +665,11 @@ void    nuge::calc_velocities(
     float v10; // [esp+2Ch] [ebp-1Ch]
     float v11; // [esp+30h] [ebp-18h]
     float v12; // [esp+34h] [ebp-14h]
-    unsigned int v13[3]; // [esp+3Ch] [ebp-Ch] BYREF
-    _UNKNOWN *retaddr; // [esp+48h] [ebp+0h]
-
-    v13[0] = a1;
-    v13[1] = retaddr;
+    //unsigned int v13[3]; // [esp+3Ch] [ebp-Ch] BYREF
+    //_UNKNOWN *retaddr; // [esp+48h] [ebp+0h]
+    //
+    //v13[0] = a1;
+    //v13[1] = retaddr;
     if ( ((unsigned __int8)t_vel & 0xF) != 0
         && _tlAssert(
                  "c:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_math.h",
@@ -691,7 +688,7 @@ void    nuge::calc_velocities(
     {
         __debugbreak();
     }
-    nuge::calc_velocities(COERCE_FLOAT(v13), mat0, mat1, delta_t, t_vel, a_vel);
+    nuge::calc_velocities(mat0, mat1, delta_t, t_vel, a_vel);
     v7 = phys_multiply(&v9, mat1, center_offset_loc);
     v10 = v7->z * a_vel->y - v7->y * a_vel->z;
     v11 = a_vel->z * v7->x - a_vel->x * v7->z;
@@ -776,19 +773,19 @@ void __cdecl nuge::calc_box_inertia(const phys_vec3 *dim, phys_vec3 *unit_inerti
 void __cdecl nuge::calc_bound_sphere(const phys_vec3 *vert_list, int vert_count, float *radius, phys_vec3 *com)
 {
     int v4; // edx
-    float *p_z; // eax
+    const float *p_z; // eax
     unsigned int v6; // ecx
     double v7; // st7
-    float *v8; // eax
+    const float *v8; // eax
     int v9; // ecx
     double v10; // st7
     int v11; // eax
     double v12; // st7
     double v13; // st6
     double v14; // st5
-    float *v15; // ecx
+    const float *v15; // ecx
     unsigned int v16; // edx
-    float *v17; // ecx
+    const float *v17; // ecx
     int v18; // edi
     float v19; // [esp-1Ch] [ebp-3Ch]
     float v20; // [esp-1Ch] [ebp-3Ch]

@@ -63,7 +63,10 @@ struct GjkTraceGeom // sizeof=0x50
     // padding byte
     phys_mat44 mat;
 
-    void Render();
+    static GjkTraceGeom geoms[50];
+    static int nGeoms;
+
+    static void Render();
 };
 
 struct __declspec(align(4)) colgeom_debug_renderer_t : colgeom_visitor_t // sizeof=0x80

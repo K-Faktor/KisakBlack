@@ -13,6 +13,7 @@
 #include "phys_broad_phase.h"
 #include <clientscript/cscr_stringlist.h>
 #include <bgame/bg_misc.h>
+#include <bgame/bg_slidemove.h>
 
 int xdollTime;
 XDollBody xdollBodies[128];
@@ -665,108 +666,101 @@ void    XDoll_CreateConstraint(
     const phys_vec3 *v5; // eax
     const phys_vec3 *power; // [esp+8h] [ebp-F0h]
     const phys_vec3 *powera; // [esp+8h] [ebp-F0h]
-    _BYTE v8[12]; // [esp+Ch] [ebp-ECh] BYREF
-    phys_vec3 b1_ref_axis_loc; // [esp+18h] [ebp-E0h] BYREF
-    phys_vec3 b1_hinge_axis_loc; // [esp+28h] [ebp-D0h] BYREF
-    phys_vec3 ref_axis_loc; // [esp+38h] [ebp-C0h] BYREF
-    phys_vec3 hinge_axis_loc; // [esp+48h] [ebp-B0h] BYREF
+    phys_vec3 b1_ref_axis_loc; // [esp+Ch] [ebp-ECh] BYREF
+    phys_vec3 b1_hinge_axis_loc; // [esp+1Ch] [ebp-DCh] BYREF
+    phys_vec3 ref_axis_loc; // [esp+2Ch] [ebp-CCh] BYREF
+    phys_vec3 hinge_axis_loc; // [esp+3Ch] [ebp-BCh] BYREF
+    phys_vec3 v12; // [esp+4Ch] [ebp-ACh] BYREF
     phys_vec3 v13; // [esp+5Ch] [ebp-9Ch] BYREF
-    int v14; // [esp+78h] [ebp-80h]
-    float v15; // [esp+7Ch] [ebp-7Ch]
-    float v16; // [esp+80h] [ebp-78h]
+    char *v14; // [esp+78h] [ebp-80h]
+    float highStop; // [esp+7Ch] [ebp-7Ch]
+    float lowStop; // [esp+80h] [ebp-78h]
     float damp; // [esp+84h] [ebp-74h]
-    char *highStop; // [esp+88h] [ebp-70h]
-    float lowStop; // [esp+8Ch] [ebp-6Ch] BYREF
-    _BYTE v20[12]; // [esp+9Ch] [ebp-5Ch] BYREF
-    phys_vec3 b1_anchor_loc; // [esp+A8h] [ebp-50h] BYREF
+    char *v18; // [esp+88h] [ebp-70h]
+    phys_vec3 v19; // [esp+8Ch] [ebp-6Ch] BYREF
+    phys_vec3 b1_anchor_loc; // [esp+9Ch] [ebp-5Ch] BYREF
+    phys_vec3 v21; // [esp+ACh] [ebp-4Ch] BYREF
     char *v22; // [esp+C4h] [ebp-34h]
     char *m_userdata; // [esp+C8h] [ebp-30h]
-    _BYTE v24[12]; // [esp+CCh] [ebp-2Ch] BYREF
-    phys_vec3 anchor_loc; // [esp+D8h] [ebp-20h]
-    environment_rigid_body *RigidBody; // [esp+E8h] [ebp-10h]
-    PhysObjUserData *userData; // [esp+ECh] [ebp-Ch] BYREF
-    rigid_body *rb2; // [esp+F0h] [ebp-8h]
-    rigid_body *retaddr; // [esp+F8h] [ebp+0h]
-
-    userData = a1;
-    rb2 = retaddr;
-    RigidBody = XDoll_GetRigidBody(body, constraint->target_bone1);
-    LODWORD(anchor_loc.w) = XDoll_GetRigidBody(body, constraint->target_bone2);
-    if ( RigidBody && LODWORD(anchor_loc.w) )
+    phys_vec3 anchor_loc; // [esp+CCh] [ebp-2Ch] BYREF
+    ConstraintType type; // [esp+DCh] [ebp-1Ch]
+    PhysObjUserData *userData; // [esp+E0h] [ebp-18h]
+    rigid_body *rb2; // [esp+E4h] [ebp-14h]
+    rigid_body *rb1; // [esp+E8h] [ebp-10h]
+    //_UNKNOWN *v29[2]; // [esp+ECh] [ebp-Ch] BYREF
+    //XDoll_ConstraintInfo *cinfoa; // [esp+F8h] [ebp+0h]
+    //
+    //v29[0] = a1;
+    //v29[1] = cinfoa;
+    rb1 = XDoll_GetRigidBody(body, constraint->target_bone1);
+    rb2 = XDoll_GetRigidBody(body, constraint->target_bone2);
+    if (rb1 && rb2)
     {
-        if ( (environment_rigid_body *)LODWORD(anchor_loc.w) == phys_sys::get_environment_rigid_body() && body->userBody )
+        if (rb2 == phys_sys::get_environment_rigid_body() && body->userBody)
         {
-            LODWORD(anchor_loc.z) = body->userBody;
-            anchor_loc.w = *(float *)LODWORD(anchor_loc.z);
+            userData = (PhysObjUserData *)body->userBody;
+            rb2 = userData->body;
         }
-        if ( !LODWORD(anchor_loc.w)
-            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\physics\\xdoll.cpp", 489, 0, "%s", "rb2") )
-        {
+        if (!rb2 && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\physics\\xdoll.cpp", 489, 0, "%s", "rb2"))
             __debugbreak();
-        }
         cinfo->type = constraint->type;
         cinfo->timer = 0;
-        LODWORD(anchor_loc.y) = constraint->type;
-        switch ( LODWORD(anchor_loc.y) )
+        type = constraint->type;
+        switch (type)
         {
-            case 1:
-                Phys_Vec3ToNitrousVec(constraint->offset, (phys_vec3 *)v24);
-                m_userdata = (char *)RigidBody->m_userdata;
-                v22 = m_userdata + 32;
-                power = (const phys_vec3 *)(m_userdata + 80);
-                v4 = phys_multiply((phys_vec3 *)&b1_anchor_loc.y, (const phys_mat44 *)(m_userdata + 32), (const phys_vec3 *)v24);
-                operator+((phys_vec3 *)v20, v4, power);
-                cinfo->constraint = XDoll_CreatePointConstraint(
-                                                            (int)&userData,
-                                                            RigidBody,
-                                                            (environment_rigid_body *)LODWORD(anchor_loc.w),
-                                                            (const phys_vec3 *)v20);
-                break;
-            case 3:
-                Phys_Vec3ToNitrousVec(constraint->offset, (phys_vec3 *)&lowStop);
-                highStop = (char *)RigidBody->m_userdata;
-                damp = constraint->damp;
-                v16 = constraint->minAngle * 0.017453292;
-                v15 = constraint->maxAngle * 0.017453292;
-                v14 = (int)(highStop + 32);
-                powera = (const phys_vec3 *)(highStop + 80);
-                v5 = phys_multiply(&v13, (const phys_mat44 *)(highStop + 32), (const phys_vec3 *)&lowStop);
-                operator+((phys_vec3 *)&hinge_axis_loc.y, v5, powera);
-                ref_axis_loc.y = 0.0f;
-                ref_axis_loc.z = 0.0f;
-                ref_axis_loc.w = 1.0f;
-                b1_hinge_axis_loc.y = 0.0f;
-                b1_hinge_axis_loc.z = 1.0f;
-                b1_hinge_axis_loc.w = 0.0f;
-                phys_multiply(
-                    (phys_vec3 *)&b1_ref_axis_loc.y,
-                    (const phys_mat44 *)(highStop + 32),
-                    (phys_vec3 *)&ref_axis_loc.y);
-                phys_multiply((const phys_vec3 *)v8, (const phys_mat44 *)(highStop + 32), (phys_vec3 *)&b1_hinge_axis_loc.y);
-                cinfo->constraint = XDoll_CreateHingeConstraint(
-                                                            (int)&userData,
-                                                            RigidBody,
-                                                            (environment_rigid_body *)LODWORD(anchor_loc.w),
-                                                            (phys_vec3 *)&hinge_axis_loc.y,
-                                                            (phys_vec3 *)&b1_ref_axis_loc.y,
-                                                            (const phys_vec3 *)v8,
-                                                            damp,
-                                                            v16,
-                                                            v15);
-                break;
-            case 5:
-                cinfo->constraint = XDoll_CreateActuatorConstraint(
-                                                            (const phys_mat44 *)&userData,
-                                                            RigidBody,
-                                                            (environment_rigid_body *)LODWORD(anchor_loc.w),
-                                                            constraint->power);
-                break;
+        case CONSTRAINT_POINT:
+            Phys_Vec3ToNitrousVec(constraint->offset, &anchor_loc);
+            m_userdata = (char *)rb1->m_userdata;
+            v22 = m_userdata + 32;
+            power = (const phys_vec3 *)(m_userdata + 80);
+            v4 = phys_multiply(&v21, (const phys_mat44 *)(m_userdata + 32), &anchor_loc);
+            //operator+(&b1_anchor_loc, v4, power);
+            b1_anchor_loc = *v4 + *power;
+            cinfo->constraint = XDoll_CreatePointConstraint(
+                (environment_rigid_body *)rb1,
+                (environment_rigid_body *)rb2,
+                &b1_anchor_loc);
+            break;
+        case CONSTRAINT_HINGE:
+            Phys_Vec3ToNitrousVec(constraint->offset, &v19);
+            v18 = (char *)rb1->m_userdata;
+            damp = constraint->damp;
+            lowStop = constraint->minAngle * 0.017453292;
+            highStop = constraint->maxAngle * 0.017453292;
+            v14 = v18 + 32;
+            powera = (const phys_vec3 *)(v18 + 80);
+            v5 = phys_multiply(&v13, (const phys_mat44 *)(v18 + 32), &v19);
+            //operator+(&v12, v5, powera);
+            v12 = *v5 + *powera;
+            hinge_axis_loc.x = 0.0f;
+            hinge_axis_loc.y = 0.0f;
+            hinge_axis_loc.z = 1.0f;
+            ref_axis_loc.x = 0.0f;
+            ref_axis_loc.y = 1.0f;
+            ref_axis_loc.z = 0.0f;
+            phys_multiply(&b1_hinge_axis_loc, (const phys_mat44 *)(v18 + 32), &hinge_axis_loc);
+            phys_multiply(&b1_ref_axis_loc, (const phys_mat44 *)(v18 + 32), &ref_axis_loc);
+            cinfo->constraint = XDoll_CreateHingeConstraint(
+                (environment_rigid_body *)rb1,
+                (environment_rigid_body *)rb2,
+                &v12,
+                &b1_hinge_axis_loc,
+                &b1_ref_axis_loc,
+                damp,
+                lowStop,
+                highStop);
+            break;
+        case CONSTRAINT_ACTUATOR:
+            cinfo->constraint = XDoll_CreateActuatorConstraint(
+                (environment_rigid_body *)rb1,
+                (environment_rigid_body *)rb2,
+                constraint->power);
+            break;
         }
     }
 }
 
-rigid_body_constraint_hinge * XDoll_CreateHingeConstraint@<eax>(
-                int a1@<ebp>,
+rigid_body_constraint_hinge * XDoll_CreateHingeConstraint(
                 environment_rigid_body *rb1,
                 environment_rigid_body *rb2,
                 const phys_vec3 *b1_anchor_loc,
@@ -776,40 +770,39 @@ rigid_body_constraint_hinge * XDoll_CreateHingeConstraint@<eax>(
                 float lowStop,
                 float highStop)
 {
-    _BYTE v10[12]; // [esp+Ch] [ebp-7Ch] BYREF
-    phys_vec3 b2_ref_axis_loc; // [esp+18h] [ebp-70h] BYREF
-    phys_vec3 ref_axis_abs; // [esp+28h] [ebp-60h] BYREF
-    phys_vec3 b2_hinge_axis_loc; // [esp+38h] [ebp-50h] BYREF
-    phys_vec3 hinge_axis_abs; // [esp+48h] [ebp-40h] BYREF
-    phys_vec3 b2_anchor_loc; // [esp+58h] [ebp-30h] BYREF
-    rigid_body_constraint_hinge *rbc_hinge; // [esp+78h] [ebp-10h]
-    unsigned int v17[2]; // [esp+7Ch] [ebp-Ch] BYREF
-    _UNKNOWN *retaddr; // [esp+88h] [ebp+0h]
-
-    v17[0] = a1;
-    v17[1] = retaddr;
-    rbc_hinge = phys_sys::create_rbc_hinge(rb1, rb2, 0);
-    if ( rbc_hinge )
+    phys_vec3 b2_ref_axis_loc; // [esp+Ch] [ebp-7Ch] BYREF
+    phys_vec3 ref_axis_abs; // [esp+1Ch] [ebp-6Ch] BYREF
+    phys_vec3 b2_hinge_axis_loc; // [esp+2Ch] [ebp-5Ch] BYREF
+    phys_vec3 hinge_axis_abs; // [esp+3Ch] [ebp-4Ch] BYREF
+    phys_vec3 b2_anchor_loc; // [esp+4Ch] [ebp-3Ch] BYREF
+    phys_vec3 anchor_abs; // [esp+5Ch] [ebp-2Ch] BYREF
+    rigid_body_constraint_hinge *constraint; // [esp+78h] [ebp-10h]
+    //_UNKNOWN *v17[2]; // [esp+7Ch] [ebp-Ch] BYREF
+    //const phys_vec3 *b1_anchor_loca; // [esp+88h] [ebp+0h]
+    //
+    //v17[0] = a1;
+    //v17[1] = b1_anchor_loca;
+    constraint = phys_sys::create_rbc_hinge(rb1, rb2, 0);
+    if (constraint)
     {
-        phys_full_multiply((int)v17, (phys_vec3 *)&b2_anchor_loc.y, &rb1->m_mat, b1_anchor_loc);
-        phys_full_inv_multiply((int)v17, (phys_vec3 *)&hinge_axis_abs.y, &rb2->m_mat, (phys_vec3 *)&b2_anchor_loc.y);
-        phys_multiply((phys_vec3 *)&b2_hinge_axis_loc.y, &rb1->m_mat, b1_hinge_axis_loc);
-        phys_inv_multiply((phys_vec3 *)&ref_axis_abs.y, &rb2->m_mat, (phys_vec3 *)&b2_hinge_axis_loc.y);
-        phys_multiply((phys_vec3 *)&b2_ref_axis_loc.y, &rb1->m_mat, b1_ref_axis_loc);
-        phys_inv_multiply((const phys_vec3 *)v10, &rb2->m_mat, (phys_vec3 *)&b2_ref_axis_loc.y);
-        rigid_body_constraint_hinge::set(
-            rbc_hinge,
-            (int)v17,
+        phys_full_multiply(&anchor_abs, &rb1->m_mat, b1_anchor_loc);
+        phys_full_inv_multiply(&b2_anchor_loc, &rb2->m_mat, &anchor_abs);
+        phys_multiply(&hinge_axis_abs, &rb1->m_mat, b1_hinge_axis_loc);
+        phys_inv_multiply(&b2_hinge_axis_loc, &rb2->m_mat, &hinge_axis_abs);
+        phys_multiply(&ref_axis_abs, &rb1->m_mat, b1_ref_axis_loc);
+        phys_inv_multiply(&b2_ref_axis_loc, &rb2->m_mat, &ref_axis_abs);
+        //rigid_body_constraint_hinge::set(
+            constraint->set(
             b1_anchor_loc,
-            (phys_vec3 *)&hinge_axis_abs.y,
+            &b2_anchor_loc,
             b1_hinge_axis_loc,
-            (phys_vec3 *)&ref_axis_abs.y,
+            &b2_hinge_axis_loc,
             b1_ref_axis_loc,
-            (const phys_vec3 *)v10,
+            &b2_ref_axis_loc,
             lowStop,
             highStop,
             damp);
-        return rbc_hinge;
+        return constraint;
     }
     else
     {
@@ -818,27 +811,27 @@ rigid_body_constraint_hinge * XDoll_CreateHingeConstraint@<eax>(
     }
 }
 
-rigid_body_constraint_point * XDoll_CreatePointConstraint@<eax>(
-                int a1@<ebp>,
+rigid_body_constraint_point * XDoll_CreatePointConstraint(
                 environment_rigid_body *rb1,
                 environment_rigid_body *rb2,
                 const phys_vec3 *b1_anchor_loc)
 {
     _BYTE v5[12]; // [esp-Ch] [ebp-3Ch] BYREF
     phys_vec3 b2_anchor_loc; // [esp+0h] [ebp-30h] BYREF
-    rigid_body_constraint_point *rbc_point; // [esp+20h] [ebp-10h]
-    unsigned int v8[2]; // [esp+24h] [ebp-Ch] BYREF
-    _UNKNOWN *retaddr; // [esp+30h] [ebp+0h]
-
-    v8[0] = a1;
-    v8[1] = retaddr;
-    rbc_point = phys_sys::create_rbc_point(rb1, rb2, 0);
-    if ( rbc_point )
+    rigid_body_constraint_point *constraint; // [esp+20h] [ebp-10h]
+    //_UNKNOWN *v8[2]; // [esp+24h] [ebp-Ch] BYREF
+    //const phys_vec3 *b1_anchor_loca; // [esp+30h] [ebp+0h]
+    //
+    //v8[0] = a1;
+    //v8[1] = b1_anchor_loca;
+    constraint = phys_sys::create_rbc_point(rb1, rb2, 0);
+    if (constraint)
     {
-        phys_full_multiply((int)v8, (phys_vec3 *)&b2_anchor_loc.y, &rb1->m_mat, b1_anchor_loc);
-        phys_full_inv_multiply((int)v8, (phys_vec3 *)v5, &rb2->m_mat, (phys_vec3 *)&b2_anchor_loc.y);
-        rigid_body_constraint_point::set(rbc_point, b1_anchor_loc, (const phys_vec3 *)v5);
-        return rbc_point;
+        phys_full_multiply((phys_vec3 *)&b2_anchor_loc.y, &rb1->m_mat, b1_anchor_loc);
+        phys_full_inv_multiply((phys_vec3 *)v5, &rb2->m_mat, (phys_vec3 *)&b2_anchor_loc.y);
+        //rigid_body_constraint_point::set(constraint, b1_anchor_loc, (const phys_vec3 *)v5);
+        constraint->set(b1_anchor_loc, (const phys_vec3 *)v5);
+        return constraint;
     }
     else
     {
@@ -847,29 +840,29 @@ rigid_body_constraint_point * XDoll_CreatePointConstraint@<eax>(
     }
 }
 
-rigid_body_constraint_angular_actuator * XDoll_CreateActuatorConstraint@<eax>(
-                const phys_mat44 *a1@<ebp>,
+rigid_body_constraint_angular_actuator * XDoll_CreateActuatorConstraint(
                 environment_rigid_body *rb1,
                 environment_rigid_body *rb2,
                 float power)
 {
-    _BYTE v5[12]; // [esp+18h] [ebp-5Ch] BYREF
-    phys_mat44 target_mat; // [esp+24h] [ebp-50h]
-    rigid_body_constraint_angular_actuator *rbc_angular_actuator; // [esp+64h] [ebp-10h]
-    const phys_mat44 *rb2_mat; // [esp+68h] [ebp-Ch] BYREF
-    const phys_mat44 *rb1_mat; // [esp+6Ch] [ebp-8h]
-    const phys_mat44 *retaddr; // [esp+74h] [ebp+0h]
-
-    rb2_mat = a1;
-    rb1_mat = retaddr;
-    rbc_angular_actuator = phys_sys::create_rbc_angular_actuator(rb1, rb2, 0);
-    if ( rbc_angular_actuator )
+    phys_mat44 target_mat; // [esp+18h] [ebp-5Ch] BYREF
+    const phys_mat44 *rb2_mat; // [esp+5Ch] [ebp-18h]
+    const phys_mat44 *rb1_mat; // [esp+60h] [ebp-14h]
+    rigid_body_constraint_angular_actuator *constraint; // [esp+64h] [ebp-10h]
+    //_UNKNOWN *v9[2]; // [esp+68h] [ebp-Ch] BYREF
+    //void *powera; // [esp+74h] [ebp+0h]
+    //
+    //v9[0] = a1;
+    //v9[1] = powera;
+    constraint = phys_sys::create_rbc_angular_actuator(rb1, rb2, 0);
+    if (constraint)
     {
-        LODWORD(target_mat.w.w) = &rb1->m_mat;
-        LODWORD(target_mat.w.z) = &rb2->m_mat;
-        phys_inv_multiply_mat((int)&rb2_mat, (phys_mat44 *)v5, &rb1->m_mat, &rb2->m_mat);
-        rigid_body_constraint_angular_actuator::set(rbc_angular_actuator, power / rb1->m_inv_mass, (const phys_mat44 *)v5);
-        return rbc_angular_actuator;
+        rb1_mat = &rb1->m_mat;
+        rb2_mat = &rb2->m_mat;
+        phys_inv_multiply_mat(&target_mat, &rb1->m_mat, &rb2->m_mat);
+        //rigid_body_constraint_angular_actuator::set(constraint, power / rb1->m_inv_mass, &target_mat);
+        constraint->set(power / rb1->m_inv_mass, &target_mat);
+        return constraint;
     }
     else
     {

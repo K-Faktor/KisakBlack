@@ -1,4 +1,9 @@
 #include "phys_task_manager.h"
+#include <win32/win_workercmds.h>
+
+int g_phys_task_manager_inited;
+int g_phys_task_manager_current_worker_count;
+jqBatch g_phys_task_manager_batch;
 
 void __cdecl phys_task_manager_init()
 {

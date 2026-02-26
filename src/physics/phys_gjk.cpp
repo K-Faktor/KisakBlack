@@ -1,4 +1,358 @@
 #include "phys_gjk.h"
+#include <bgame/bg_slidemove.h>
+#include "phys_assert.h"
+#include <tl/tl_system.h>
+#include "phys_gjk_sep_dir.h"
+
+const float SEP_CONV_THRESH = 0.001f;
+const float CONV_THRESH = 0.001f;
+int MAX_CC_RESET_ITERS = 5;
+
+
+const int BIT_COUNT[16] =
+{ 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4 };
+
+phys_assert_info pai_gjk_initial_support_dir = { 0, 128, true };
+
+
+int    backup1(phys_gjk_info *gjk_info, int new_index, bool seed_simplex)
+{
+    int v4; // esi
+    double v5; // st7
+    float *v6; // esi
+    double v7; // st5
+    float v8; // edx
+    double v9; // st6
+    float v10; // ecx
+    float *v11; // edi
+    int v12; // eax
+    float *v13; // ecx
+    double v14; // st5
+    double v15; // st4
+    double v16; // rt2
+    double v17; // st4
+    double v18; // st5
+    double v19; // st5
+    double v20; // st4
+    phys_gjk_info::phys_gjk_set_info *v21; // eax
+    double v22; // st7
+    phys_gjk_info *v23; // ecx
+    double x; // st6
+    double y; // st4
+    double z; // st5
+    double v27; // st3
+    double v28; // st3
+    double v29; // st2
+    double v30; // st6
+    float v31; // ecx
+    int *v32; // eax
+    double v33; // st6
+    float *v34; // edi
+    double v35; // st6
+    double v36; // st5
+    double v37; // st4
+    double v38; // st3
+    double v39; // st2
+    double v40; // st4
+    double v41; // st7
+    double v42; // st5
+    double v43; // st4
+    int v44; // edi
+    int v45; // eax
+    phys_gjk_info::phys_gjk_set_info *v46; // eax
+    double v47; // st5
+    double v48; // rt0
+    bool v49; // zf
+    double v50; // st3
+    double v51; // st2
+    double v52; // st7
+    int w_inds[3]; // [esp+Ch] [ebp-ECh] BYREF
+    phys_vec3 difs[3]; // [esp+18h] [ebp-E0h]
+    int v56; // [esp+58h] [ebp-A0h]
+    phys_vec3 crw2; // [esp+5Ch] [ebp-9Ch]
+    float *v58; // [esp+78h] [ebp-80h]
+    float v59; // [esp+7Ch] [ebp-7Ch]
+    float v60; // [esp+80h] [ebp-78h]
+    float v61; // [esp+84h] [ebp-74h]
+    int j; // [esp+98h] [ebp-60h]
+    phys_vec3 ww; // [esp+9Ch] [ebp-5Ch]
+    phys_vec3 dif; // [esp+ACh] [ebp-4Ch]
+    float c1; // [esp+C8h] [ebp-30h]
+    int w_count; // [esp+CCh] [ebp-2Ch]
+    float new_dist_sq; // [esp+D0h] [ebp-28h]
+    int i; // [esp+D4h] [ebp-24h]
+    float *p_z; // [esp+D8h] [ebp-20h]
+    float c2; // [esp+DCh] [ebp-1Ch]
+    float nww_sq; // [esp+E0h] [ebp-18h]
+    float c0; // [esp+E4h] [ebp-14h]
+    float denom; // [esp+E8h] [ebp-10h]
+    float v74; // [esp+ECh] [ebp-Ch] BYREF
+    //phys_gjk_info *gjk_infoa; // [esp+F0h] [ebp-8h]
+    //phys_gjk_info *seed_simplexa; // [esp+F8h] [ebp+0h]
+    //
+    //v74 = a1;
+    //gjk_infoa = seed_simplexa;
+    v4 = 16 * (new_index + 10);
+    v5 = *(float *)((char *)&gjk_info->cg2_to_cg1_xform.x.y + v4);
+    v6 = (float *)((char *)&gjk_info->cg2_to_cg1_xform.x.x + v4);
+    v7 = v6[2];
+    LODWORD(v8) = 1 << new_index;
+    v9 = *v6 * *v6;
+    LODWORD(c2) = 1;
+    v56 = 1 << new_index;
+    new_dist_sq = v5 * v5 + v9 + v7 * v7;
+    gjk_info->m_set_list[0].m_lamda[4 * (1 << new_index) + (1 << new_index) + new_index] = 1.0;
+    LODWORD(v10) = ~(1 << new_index) & gjk_info->m_w_set;
+    w_count = 0;
+    i = 0;
+    c0 = v10;
+    v11 = (float *)&w_inds[2];
+    p_z = &gjk_info->m_w_verts[0].z;
+    while (1)
+    {
+        if ((LODWORD(v10) & LODWORD(c2)) != 0)
+        {
+            v12 = w_count;
+            *((_DWORD *)&v74 + w_count - 59) = i;
+            v13 = p_z;
+            v59 = *(p_z - 2) - *v6;
+            v60 = *(p_z - 1) - v6[1];
+            v61 = *p_z - v6[2];
+            *(v11 - 2) = v59;
+            *(v11 - 1) = v60;
+            *v11 = v61;
+            nww_sq = *(v11 - 1) * *(v11 - 1) + *(v11 - 2) * *(v11 - 2) + *v11 * *v11;
+            v14 = nww_sq;
+            *(&v74 + v12 - 62) = nww_sq;
+            nww_sq = *(v11 - 1) * v6[1] + *v6 * *(v11 - 2) + *v11 * v6[2];
+            v15 = nww_sq;
+            *(&difs[2].z + v12) = nww_sq;
+            v16 = v15;
+            v17 = v14;
+            v18 = v16;
+            if (v17 > 9.999999439624929e-11)
+            {
+                nww_sq = -v18 / v17;
+                v19 = nww_sq;
+                nww_sq = 1.0 - nww_sq;
+                if (v19 > 0.0)
+                {
+                    v20 = nww_sq;
+                    if (nww_sq > 0.0)
+                    {
+                        ww.x = *(v11 - 2) * v19;
+                        ww.y = *(v11 - 1) * v19;
+                        ww.z = v19 * *v11;
+                        dif.x = *v6 + ww.x;
+                        dif.y = v6[1] + ww.y;
+                        dif.z = ww.z + v6[2];
+                        nww_sq = dif.x * dif.x + dif.y * dif.y + dif.z * dif.z;
+                        if (new_dist_sq > (double)nww_sq)
+                        {
+                            new_dist_sq = nww_sq;
+                            LODWORD(v8) = v56 | LODWORD(c2);
+                            v21 = &gjk_info->m_set_list[v56 | LODWORD(c2)];
+                            v21->m_lamda[i] = v19;
+                            v21->m_lamda[new_index] = v20;
+                            v13 = p_z;
+                        }
+                    }
+                }
+            }
+            if (seed_simplex
+                && (nww_sq = *v13 * *v13 + *(v13 - 2) * *(v13 - 2) + *(v13 - 1) * *(v13 - 1), new_dist_sq > (double)nww_sq))
+            {
+                v8 = c2;
+                new_dist_sq = nww_sq;
+                ++w_count;
+                gjk_info->m_set_list[0].m_lamda[4 * LODWORD(c2) + LODWORD(c2) + i] = 1.0;
+                v13 = p_z;
+                v11 += 4;
+            }
+            else
+            {
+                ++w_count;
+                v11 += 4;
+            }
+        }
+        else
+        {
+            v13 = p_z;
+        }
+        p_z = v13 + 4;
+        ++i;
+        c2 = COERCE_FLOAT(__ROL4__(LODWORD(c2), 1));
+        if (i >= 4)
+            break;
+        v10 = c0;
+    }
+    v22 = 0.0;
+    v23 = gjk_info;
+    if (seed_simplex && w_count == 2)
+    {
+        dif.x = gjk_info->m_w_verts[2].x - gjk_info->m_w_verts[1].x;
+        dif.y = gjk_info->m_w_verts[2].y - gjk_info->m_w_verts[1].y;
+        dif.z = gjk_info->m_w_verts[2].z - gjk_info->m_w_verts[1].z;
+        x = dif.x;
+        y = dif.y;
+        z = dif.z;
+        c0 = dif.z * dif.z + dif.x * dif.x + dif.y * dif.y;
+        v27 = c0;
+        if (c0 > 9.999999439624929e-11)
+        {
+            c0 = gjk_info->m_w_verts[1].y * y + gjk_info->m_w_verts[1].x * x + gjk_info->m_w_verts[1].z * z;
+            c0 = -c0 / v27;
+            v28 = c0;
+            c0 = 1.0 - c0;
+            if (v28 > 0.0 && c0 > 0.0)
+            {
+                v29 = x * v28;
+                v30 = c0;
+                dif.x = v29;
+                dif.y = y * v28;
+                dif.z = z * v28;
+                ww.x = gjk_info->m_w_verts[1].x + dif.x;
+                ww.y = gjk_info->m_w_verts[1].y + dif.y;
+                ww.z = gjk_info->m_w_verts[1].z + dif.z;
+                c0 = ww.x * ww.x + ww.y * ww.y + ww.z * ww.z;
+                if (new_dist_sq > (double)c0)
+                {
+                    new_dist_sq = c0;
+                    LODWORD(v8) = 6;
+                    gjk_info->m_set_list[6].m_lamda[1] = v30;
+                    gjk_info->m_set_list[6].m_lamda[2] = v28;
+                }
+            }
+        }
+    }
+    if (w_count - 1 > 0)
+    {
+        LODWORD(v31) = 1;
+        v32 = w_inds;
+        p_z = 0;
+        LODWORD(nww_sq) = 1;
+        i = (int)w_inds;
+        LODWORD(c0) = w_count - 1;
+        do
+        {
+            j = LODWORD(v31);
+            if (SLODWORD(v31) < w_count)
+            {
+                c2 = *(float *)((char *)&v74 + (_DWORD)p_z - 248);
+                v33 = *(float *)((char *)&difs[2].z + (_DWORD)p_z);
+                v34 = (float *)(v32 + 6);
+                v58 = (float *)(v32 + 6);
+                c1 = -v33;
+                v35 = c2;
+                v36 = c1;
+                do
+                {
+                    c2 = *(float *)v32 * *(v34 - 2) + *(v34 - 1) * *((float *)v32 + 1) + *v34 * *((float *)v32 + 2);
+                    c1 = *(&v74 + LODWORD(v31) - 62);
+                    denom = -*(&difs[2].z + LODWORD(v31));
+                    v37 = c1;
+                    v38 = c2;
+                    c1 = c1 * v35 - c2 * c2;
+                    if (c1 > 0.0000099999997)
+                    {
+                        v39 = (v37 * v36 - denom * v38) / c1;
+                        v40 = denom;
+                        denom = v39;
+                        v41 = v36;
+                        c1 = (v40 * v35 - v38 * v36) / c1;
+                        v42 = denom;
+                        v43 = c1;
+                        c2 = 1.0 - denom - c1;
+                        if (denom <= 0.0 || v43 <= 0.0 || c2 <= 0.0)
+                        {
+                            v47 = 0.0;
+                        }
+                        else
+                        {
+                            v59 = *(v34 - 2) * v43;
+                            v60 = *(v34 - 1) * v43;
+                            v61 = *v34 * v43;
+                            dif.x = *(float *)i * v42;
+                            dif.y = *(float *)(i + 4) * v42;
+                            dif.z = *(float *)(i + 8) * v42;
+                            ww.x = *v6 + dif.x;
+                            ww.y = v6[1] + dif.y;
+                            ww.z = dif.z + v6[2];
+                            crw2.x = ww.x + v59;
+                            crw2.y = ww.y + v60;
+                            crw2.z = ww.z + v61;
+                            denom = crw2.y * crw2.y + crw2.x * crw2.x + crw2.z * crw2.z;
+                            if (new_dist_sq > (double)denom)
+                            {
+                                v44 = *((_DWORD *)&v74 + LODWORD(v31) - 59);
+                                new_dist_sq = denom;
+                                v45 = *(_DWORD *)((char *)&v74 + (_DWORD)p_z - 236);
+                                LODWORD(denom) = 1;
+                                LODWORD(v8) = v56 | (1 << v45) | (1 << v44);
+                                v46 = &gjk_info->m_set_list[LODWORD(v8)];
+                                v46->m_lamda[*(_DWORD *)((char *)&v74 + (_DWORD)p_z - 236)] = v42;
+                                v46->m_lamda[v44] = v43;
+                                v34 = v58;
+                                v46->m_lamda[new_index] = c2;
+                                v31 = *(float *)&j;
+                            }
+                            v47 = 0.0;
+                        }
+                        v48 = v47;
+                        v36 = v41;
+                        v22 = v48;
+                    }
+                    v32 = (int *)i;
+                    ++LODWORD(v31);
+                    v34 += 4;
+                    j = LODWORD(v31);
+                    v58 = v34;
+                } while (SLODWORD(v31) < w_count);
+                v31 = nww_sq;
+            }
+            ++p_z;
+            ++LODWORD(v31);
+            v32 += 4;
+            v49 = LODWORD(c0)-- == 1;
+            nww_sq = v31;
+            i = (int)v32;
+        } while (!v49);
+        v23 = gjk_info;
+    }
+    if (w_count == 3 && v22 >= v23->m_lower_dist_sq)
+    {
+        difs[2].y = difs[0].w * *(float *)&w_inds[1] - difs[0].z * *(float *)&w_inds[2];
+        difs[2].z = *(float *)&w_inds[2] * difs[0].y - difs[0].w * *(float *)w_inds;
+        difs[2].w = *(float *)w_inds * difs[0].z - *(float *)&w_inds[1] * difs[0].y;
+        v50 = difs[1].z;
+        denom = difs[2].z * difs[1].z + difs[2].y * difs[1].y + difs[2].w * difs[1].w;
+        v51 = denom;
+        denom = fabs(denom);
+        if (denom <= 0.0000099999997)
+            return LODWORD(v8);
+        denom = difs[2].z * v6[1] + *v6 * difs[2].y + difs[2].w * v6[2];
+        c0 = -denom / v51;
+        if (c0 < 0.0)
+            return LODWORD(v8);
+        crw2.x = v6[1] * difs[1].w - v50 * v6[2];
+        crw2.y = difs[1].y * v6[2] - *v6 * difs[1].w;
+        crw2.z = v50 * *v6 - v6[1] * difs[1].y;
+        denom = difs[0].w * crw2.z + difs[0].y * crw2.x + difs[0].z * crw2.y;
+        denom = denom / v51;
+        if (denom < 0.0)
+            return LODWORD(v8);
+        v52 = denom;
+        denom = crw2.z * *(float *)&w_inds[2] + crw2.x * *(float *)w_inds + crw2.y * *(float *)&w_inds[1];
+        denom = -denom / v51;
+        if (denom >= 0.0)
+        {
+            denom = 1.0 - v52 - denom - c0;
+            if (denom >= 0.0)
+                return 15;
+        }
+    }
+    return LODWORD(v8);
+}
 
 // local variable allocation has failed, the output may be wrong!
 void    phys_full_inv_multiply_mat(
@@ -7,38 +361,35 @@ void    phys_full_inv_multiply_mat(
                 const phys_mat44 *right)
 {
     phys_vec3 *v5; // eax
-    _BYTE v6[76]; // [esp-Ch] [ebp-5Ch] OVERLAPPED BYREF
-    unsigned int v7[3]; // [esp+44h] [ebp-Ch] BYREF
-    _UNKNOWN *retaddr; // [esp+50h] [ebp+0h]
+    phys_mat44 v6; // [esp-Ch] [ebp-5Ch] BYREF
+    phys_vec3 temp; // [esp+34h] [ebp-1Ch] BYREF
 
-    v7[0] = a1;
-    v7[1] = retaddr;
-    if ( dest == left )
+    if (dest == left)
     {
-        memcpy(v6, left, 0x40u);
-        phys_full_inv_multiply_mat(dest, (const phys_mat44 *)v6, right);
+        memcpy(&v6, left, sizeof(v6));
+        phys_full_inv_multiply_mat(dest, &v6, right);
     }
     else
     {
-        *(float *)&v6[64] = left->x.x * right->x.x + left->x.y * right->x.y + left->x.z * right->x.z;
-        *(float *)&v6[68] = left->y.y * right->x.y + left->y.x * right->x.x + left->y.z * right->x.z;
-        *(float *)&v6[72] = left->z.y * right->x.y + left->z.x * right->x.x + left->z.z * right->x.z;
-        dest->x.x = *(float *)&v6[64];
-        dest->x.y = *(float *)&v6[68];
-        dest->x.z = *(float *)&v6[72];
-        *(float *)&v6[64] = left->x.x * right->y.x + right->y.y * left->x.y + right->y.z * left->x.z;
-        *(float *)&v6[68] = left->y.y * right->y.y + left->y.x * right->y.x + left->y.z * right->y.z;
-        *(float *)&v6[72] = left->z.y * right->y.y + left->z.x * right->y.x + left->z.z * right->y.z;
-        dest->y.x = *(float *)&v6[64];
-        dest->y.y = *(float *)&v6[68];
-        dest->y.z = *(float *)&v6[72];
-        *(float *)&v6[64] = right->z.x * left->x.x + left->x.y * right->z.y + right->z.z * left->x.z;
-        *(float *)&v6[68] = left->y.y * right->z.y + left->y.x * right->z.x + left->y.z * right->z.z;
-        *(float *)&v6[72] = left->z.y * right->z.y + right->z.x * left->z.x + left->z.z * right->z.z;
-        dest->z.x = *(float *)&v6[64];
-        dest->z.y = *(float *)&v6[68];
-        dest->z.z = *(float *)&v6[72];
-        v5 = phys_full_inv_multiply((int)v7, (phys_vec3 *)&v6[64], left, &right->w);
+        temp.x = left->x.x * right->x.x + left->x.y * right->x.y + left->x.z * right->x.z;
+        temp.y = left->y.y * right->x.y + left->y.x * right->x.x + left->y.z * right->x.z;
+        temp.z = left->z.y * right->x.y + left->z.x * right->x.x + left->z.z * right->x.z;
+        dest->x.x = temp.x;
+        dest->x.y = temp.y;
+        dest->x.z = temp.z;
+        temp.x = left->x.x * right->y.x + right->y.y * left->x.y + right->y.z * left->x.z;
+        temp.y = left->y.y * right->y.y + left->y.x * right->y.x + left->y.z * right->y.z;
+        temp.z = left->z.y * right->y.y + left->z.x * right->y.x + left->z.z * right->y.z;
+        dest->y.x = temp.x;
+        dest->y.y = temp.y;
+        dest->y.z = temp.z;
+        temp.x = right->z.x * left->x.x + left->x.y * right->z.y + right->z.z * left->x.z;
+        temp.y = left->y.y * right->z.y + left->y.x * right->z.x + left->y.z * right->z.z;
+        temp.z = left->z.y * right->z.y + right->z.x * left->z.x + left->z.z * right->z.z;
+        dest->z.x = temp.x;
+        dest->z.y = temp.y;
+        dest->z.z = temp.z;
+        v5 = phys_full_inv_multiply(&temp, left, &right->w);
         dest->w.x = v5->x;
         dest->w.y = v5->y;
         dest->w.z = v5->z;
@@ -60,8 +411,8 @@ void __cdecl get_simplex(
     {
         __debugbreak();
     }
-    cg1->get_simplex(cg1, &gjk_ci->m_support_a, gjk_ci->m_support_count, a_verts, a_inds);
-    cg2->get_simplex(cg2, &gjk_ci->m_support_b, gjk_ci->m_support_count, b_verts, b_inds);
+    cg1->get_simplex(&gjk_ci->m_support_a, gjk_ci->m_support_count, a_verts, a_inds);
+    cg2->get_simplex(&gjk_ci->m_support_b, gjk_ci->m_support_count, b_verts, b_inds);
     *vert_count = gjk_ci->m_support_count;
 }
 
@@ -81,8 +432,8 @@ void __cdecl set_simplex(
             __debugbreak();
     }
     gjk_ci->m_flags |= 8u;
-    cg1->set_simplex(cg1, a_inds, w_set, a_normal, &gjk_ci->m_support_a);
-    cg2->set_simplex(cg2, b_inds, w_set, b_normal, &gjk_ci->m_support_b);
+    cg1->set_simplex(a_inds, w_set, a_normal, &gjk_ci->m_support_a);
+    cg2->set_simplex(b_inds, w_set, b_normal, &gjk_ci->m_support_b);
     gjk_ci->m_support_count = BIT_COUNT[w_set];
 }
 
@@ -93,7 +444,7 @@ int __thiscall phys_gjk_info::gjk_subalgorithm(int w_set, int new_index)
     return backup1(this, new_index, 0);
 }
 
-int __userpurge phys_gjk_info::seed_simplex@<eax>(phys_gjk_info *this@<ecx>, int a2@<ebp>, int cached_vert_count)
+int phys_gjk_info::seed_simplex(int cached_vert_count)
 {
     int v3; // edi
     int v5; // edx
@@ -138,11 +489,11 @@ int __userpurge phys_gjk_info::seed_simplex@<eax>(phys_gjk_info *this@<ecx>, int
     float v45; // [esp-18h] [ebp-24h]
     float v46; // [esp-18h] [ebp-24h]
     int v47; // [esp-4h] [ebp-10h]
-    unsigned int v48[2]; // [esp+0h] [ebp-Ch] BYREF
-    _UNKNOWN *retaddr; // [esp+Ch] [ebp+0h]
-
-    v48[0] = a2;
-    v48[1] = retaddr;
+    //unsigned int v48[2]; // [esp+0h] [ebp-Ch] BYREF
+    //_UNKNOWN *retaddr; // [esp+Ch] [ebp+0h]
+    //
+    //v48[0] = a2;
+    //v48[1] = retaddr;
     v3 = cached_vert_count;
     if ( cached_vert_count <= 0 && _tlAssert("source/phys_gjk.cpp", 381, "cached_vert_count > 0", "") )
         __debugbreak();
@@ -233,361 +584,11 @@ int __userpurge phys_gjk_info::seed_simplex@<eax>(phys_gjk_info *this@<ecx>, int
         }
         while ( v14 );
     }
-    return backup1(COERCE_FLOAT(v48), this, 0, 1);
+    return backup1(this, 0, 1);
 }
 
-int    backup1@<eax>(float a1@<ebp>, phys_gjk_info *gjk_info, int new_index, bool seed_simplex)
-{
-    int v4; // esi
-    double v5; // st7
-    float *v6; // esi
-    double v7; // st5
-    int v8; // edx
-    double v9; // st6
-    float v10; // ecx
-    float *v11; // edi
-    int v12; // eax
-    float *v13; // ecx
-    double v14; // st5
-    double v15; // st4
-    double v16; // rt2
-    double v17; // st4
-    double v18; // st5
-    double v19; // st5
-    double v20; // st4
-    phys_gjk_info::phys_gjk_set_info *v21; // eax
-    double v22; // st7
-    phys_gjk_info *v23; // ecx
-    double y; // st6
-    double z; // st4
-    double w; // st5
-    double v27; // st3
-    double v28; // st3
-    double v29; // st2
-    double v30; // st6
-    int v31; // ecx
-    float v32; // eax
-    double v33; // st6
-    float *v34; // edi
-    double v35; // st6
-    double v36; // st5
-    double v37; // st4
-    double v38; // st3
-    double v39; // st2
-    double v40; // st4
-    double v41; // st7
-    double v42; // st5
-    double v43; // st4
-    int v44; // edi
-    int v45; // eax
-    phys_gjk_info::phys_gjk_set_info *v46; // eax
-    double v47; // st5
-    double v48; // rt0
-    bool v49; // zf
-    double v50; // st3
-    double v51; // st2
-    double v52; // st7
-    int w_inds[3]; // [esp+Ch] [ebp-ECh] BYREF
-    phys_vec3 difs[3]; // [esp+18h] [ebp-E0h]
-    int v56; // [esp+58h] [ebp-A0h]
-    float v57; // [esp+5Ch] [ebp-9Ch]
-    float v58; // [esp+60h] [ebp-98h]
-    float v59; // [esp+64h] [ebp-94h]
-    float *v60; // [esp+78h] [ebp-80h]
-    float v61; // [esp+7Ch] [ebp-7Ch]
-    float v62; // [esp+80h] [ebp-78h]
-    float v63; // [esp+84h] [ebp-74h]
-    int v64; // [esp+98h] [ebp-60h]
-    float v65; // [esp+9Ch] [ebp-5Ch]
-    float v66; // [esp+A0h] [ebp-58h]
-    int j; // [esp+A4h] [ebp-54h]
-    phys_vec3 ww; // [esp+A8h] [ebp-50h]
-    float v69; // [esp+C8h] [ebp-30h]
-    int v70; // [esp+CCh] [ebp-2Ch]
-    float v71; // [esp+D0h] [ebp-28h]
-    float c1; // [esp+D4h] [ebp-24h]
-    int w_count; // [esp+D8h] [ebp-20h]
-    float new_dist_sq; // [esp+DCh] [ebp-1Ch]
-    int i; // [esp+E0h] [ebp-18h]
-    float v76; // [esp+E4h] [ebp-14h]
-    float c2; // [esp+E8h] [ebp-10h]
-    float nww_sq; // [esp+ECh] [ebp-Ch] BYREF
-    float c0; // [esp+F0h] [ebp-8h]
-    float retaddr; // [esp+F8h] [ebp+0h]
-
-    nww_sq = a1;
-    c0 = retaddr;
-    v4 = 16 * (new_index + 10);
-    v5 = *(float *)((char *)&gjk_info->cg2_to_cg1_xform.x.y + v4);
-    v6 = (float *)((char *)&gjk_info->cg2_to_cg1_xform.x.x + v4);
-    v7 = v6[2];
-    v8 = 1 << new_index;
-    v9 = *v6 * *v6;
-    LODWORD(new_dist_sq) = 1;
-    v56 = 1 << new_index;
-    v71 = v5 * v5 + v9 + v7 * v7;
-    gjk_info->m_set_list[0].m_lamda[4 * (1 << new_index) + (1 << new_index) + new_index] = 1.0;
-    LODWORD(v10) = ~(1 << new_index) & gjk_info->m_w_set;
-    v70 = 0;
-    c1 = 0.0;
-    v76 = v10;
-    v11 = (float *)&w_inds[2];
-    w_count = (int)&gjk_info->m_w_verts[0].z;
-    while ( 1 )
-    {
-        if ( (LODWORD(v10) & LODWORD(new_dist_sq)) != 0 )
-        {
-            v12 = v70;
-            *(&nww_sq + v70 - 59) = c1;
-            v13 = (float *)w_count;
-            v61 = *(float *)(w_count - 8) - *v6;
-            v62 = *(float *)(w_count - 4) - v6[1];
-            v63 = *(float *)w_count - v6[2];
-            *(v11 - 2) = v61;
-            *(v11 - 1) = v62;
-            *v11 = v63;
-            *(float *)&i = *(v11 - 1) * *(v11 - 1) + *(v11 - 2) * *(v11 - 2) + *v11 * *v11;
-            v14 = *(float *)&i;
-            *(&nww_sq + v12 - 62) = *(float *)&i;
-            *(float *)&i = *(v11 - 1) * v6[1] + *v6 * *(v11 - 2) + *v11 * v6[2];
-            v15 = *(float *)&i;
-            *(&difs[2].z + v12) = *(float *)&i;
-            v16 = v15;
-            v17 = v14;
-            v18 = v16;
-            if ( v17 > 9.999999439624929e-11 )
-            {
-                *(float *)&i = -v18 / v17;
-                v19 = *(float *)&i;
-                *(float *)&i = 1.0 - *(float *)&i;
-                if ( v19 > 0.0 )
-                {
-                    v20 = *(float *)&i;
-                    if ( *(float *)&i > 0.0 )
-                    {
-                        v65 = *(v11 - 2) * v19;
-                        v66 = *(v11 - 1) * v19;
-                        *(float *)&j = v19 * *v11;
-                        ww.y = *v6 + v65;
-                        ww.z = v6[1] + v66;
-                        ww.w = *(float *)&j + v6[2];
-                        *(float *)&i = ww.y * ww.y + ww.z * ww.z + ww.w * ww.w;
-                        if ( v71 > (double)*(float *)&i )
-                        {
-                            v71 = *(float *)&i;
-                            v8 = v56 | LODWORD(new_dist_sq);
-                            v21 = &gjk_info->m_set_list[v56 | LODWORD(new_dist_sq)];
-                            v21->m_lamda[LODWORD(c1)] = v19;
-                            v21->m_lamda[new_index] = v20;
-                            v13 = (float *)w_count;
-                        }
-                    }
-                }
-            }
-            if ( seed_simplex
-                && (*(float *)&i = *v13 * *v13 + *(v13 - 2) * *(v13 - 2) + *(v13 - 1) * *(v13 - 1), v71 > (double)*(float *)&i) )
-            {
-                v8 = LODWORD(new_dist_sq);
-                v71 = *(float *)&i;
-                ++v70;
-                gjk_info->m_set_list[0].m_lamda[4 * LODWORD(new_dist_sq) + LODWORD(new_dist_sq) + LODWORD(c1)] = 1.0;
-                v13 = (float *)w_count;
-                v11 += 4;
-            }
-            else
-            {
-                ++v70;
-                v11 += 4;
-            }
-        }
-        else
-        {
-            v13 = (float *)w_count;
-        }
-        w_count = (int)(v13 + 4);
-        ++LODWORD(c1);
-        new_dist_sq = COERCE_FLOAT(__ROL4__(LODWORD(new_dist_sq), 1));
-        if ( SLODWORD(c1) >= 4 )
-            break;
-        v10 = v76;
-    }
-    v22 = 0.0;
-    v23 = gjk_info;
-    if ( seed_simplex && v70 == 2 )
-    {
-        ww.y = gjk_info->m_w_verts[2].x - gjk_info->m_w_verts[1].x;
-        ww.z = gjk_info->m_w_verts[2].y - gjk_info->m_w_verts[1].y;
-        ww.w = gjk_info->m_w_verts[2].z - gjk_info->m_w_verts[1].z;
-        y = ww.y;
-        z = ww.z;
-        w = ww.w;
-        v76 = ww.w * ww.w + ww.y * ww.y + ww.z * ww.z;
-        v27 = v76;
-        if ( v76 > 9.999999439624929e-11 )
-        {
-            v76 = gjk_info->m_w_verts[1].y * z + gjk_info->m_w_verts[1].x * y + gjk_info->m_w_verts[1].z * w;
-            v76 = -v76 / v27;
-            v28 = v76;
-            v76 = 1.0 - v76;
-            if ( v28 > 0.0 && v76 > 0.0 )
-            {
-                v29 = y * v28;
-                v30 = v76;
-                ww.y = v29;
-                ww.z = z * v28;
-                ww.w = w * v28;
-                v65 = gjk_info->m_w_verts[1].x + ww.y;
-                v66 = gjk_info->m_w_verts[1].y + ww.z;
-                *(float *)&j = gjk_info->m_w_verts[1].z + ww.w;
-                v76 = v65 * v65 + v66 * v66 + *(float *)&j * *(float *)&j;
-                if ( v71 > (double)v76 )
-                {
-                    v71 = v76;
-                    v8 = 6;
-                    gjk_info->m_set_list[6].m_lamda[1] = v30;
-                    gjk_info->m_set_list[6].m_lamda[2] = v28;
-                }
-            }
-        }
-    }
-    if ( v70 - 1 > 0 )
-    {
-        v31 = 1;
-        v32 = COERCE_FLOAT(w_inds);
-        w_count = 0;
-        i = 1;
-        LODWORD(c1) = w_inds;
-        LODWORD(v76) = v70 - 1;
-        do
-        {
-            v64 = v31;
-            if ( v31 < v70 )
-            {
-                new_dist_sq = *(float *)((char *)&nww_sq + w_count - 248);
-                v33 = *(float *)((char *)&difs[2].z + w_count);
-                v34 = (float *)(LODWORD(v32) + 24);
-                v60 = (float *)(LODWORD(v32) + 24);
-                v69 = -v33;
-                v35 = new_dist_sq;
-                v36 = v69;
-                do
-                {
-                    new_dist_sq = *(float *)LODWORD(v32) * *(v34 - 2)
-                                            + *(v34 - 1) * *(float *)(LODWORD(v32) + 4)
-                                            + *v34 * *(float *)(LODWORD(v32) + 8);
-                    v69 = *(&nww_sq + v31 - 62);
-                    c2 = -*(&difs[2].z + v31);
-                    v37 = v69;
-                    v38 = new_dist_sq;
-                    v69 = v69 * v35 - new_dist_sq * new_dist_sq;
-                    if ( v69 > 0.0000099999997 )
-                    {
-                        v39 = (v37 * v36 - c2 * v38) / v69;
-                        v40 = c2;
-                        c2 = v39;
-                        v41 = v36;
-                        v69 = (v40 * v35 - v38 * v36) / v69;
-                        v42 = c2;
-                        v43 = v69;
-                        new_dist_sq = 1.0 - c2 - v69;
-                        if ( c2 <= 0.0 || v43 <= 0.0 || new_dist_sq <= 0.0 )
-                        {
-                            v47 = 0.0;
-                        }
-                        else
-                        {
-                            v61 = *(v34 - 2) * v43;
-                            v62 = *(v34 - 1) * v43;
-                            v63 = *v34 * v43;
-                            ww.y = *(float *)LODWORD(c1) * v42;
-                            ww.z = *(float *)(LODWORD(c1) + 4) * v42;
-                            ww.w = *(float *)(LODWORD(c1) + 8) * v42;
-                            v65 = *v6 + ww.y;
-                            v66 = v6[1] + ww.z;
-                            *(float *)&j = ww.w + v6[2];
-                            v57 = v65 + v61;
-                            v58 = v66 + v62;
-                            v59 = *(float *)&j + v63;
-                            c2 = v58 * v58 + v57 * v57 + v59 * v59;
-                            if ( v71 > (double)c2 )
-                            {
-                                v44 = *((unsigned int *)&nww_sq + v31 - 59);
-                                v71 = c2;
-                                v45 = *(unsigned int *)((char *)&nww_sq + w_count - 236);
-                                LODWORD(c2) = 1;
-                                v8 = v56 | (1 << v45) | (1 << v44);
-                                v46 = &gjk_info->m_set_list[v8];
-                                v46->m_lamda[*(unsigned int *)((char *)&nww_sq + w_count - 236)] = v42;
-                                v46->m_lamda[v44] = v43;
-                                v34 = v60;
-                                v46->m_lamda[new_index] = new_dist_sq;
-                                v31 = v64;
-                            }
-                            v47 = 0.0;
-                        }
-                        v48 = v47;
-                        v36 = v41;
-                        v22 = v48;
-                    }
-                    v32 = c1;
-                    ++v31;
-                    v34 += 4;
-                    v64 = v31;
-                    v60 = v34;
-                }
-                while ( v31 < v70 );
-                v31 = i;
-            }
-            w_count += 4;
-            ++v31;
-            LODWORD(v32) += 16;
-            v49 = LODWORD(v76)-- == 1;
-            i = v31;
-            c1 = v32;
-        }
-        while ( !v49 );
-        v23 = gjk_info;
-    }
-    if ( v70 == 3 && v22 >= v23->m_lower_dist_sq )
-    {
-        difs[2].y = difs[0].w * *(float *)&w_inds[1] - difs[0].z * *(float *)&w_inds[2];
-        difs[2].z = *(float *)&w_inds[2] * difs[0].y - difs[0].w * *(float *)w_inds;
-        difs[2].w = *(float *)w_inds * difs[0].z - *(float *)&w_inds[1] * difs[0].y;
-        v50 = difs[1].z;
-        c2 = difs[2].z * difs[1].z + difs[2].y * difs[1].y + difs[2].w * difs[1].w;
-        v51 = c2;
-        c2 = fabs(c2);
-        if ( c2 <= 0.0000099999997 )
-            return v8;
-        c2 = difs[2].z * v6[1] + *v6 * difs[2].y + difs[2].w * v6[2];
-        v76 = -c2 / v51;
-        if ( v76 < 0.0 )
-            return v8;
-        v57 = v6[1] * difs[1].w - v50 * v6[2];
-        v58 = difs[1].y * v6[2] - *v6 * difs[1].w;
-        v59 = v50 * *v6 - v6[1] * difs[1].y;
-        c2 = difs[0].w * v59 + difs[0].y * v57 + difs[0].z * v58;
-        c2 = c2 / v51;
-        if ( c2 < 0.0 )
-            return v8;
-        v52 = c2;
-        c2 = v59 * *(float *)&w_inds[2] + v57 * *(float *)w_inds + v58 * *(float *)&w_inds[1];
-        c2 = -c2 / v51;
-        if ( c2 >= 0.0 )
-        {
-            c2 = 1.0 - v52 - c2 - v76;
-            if ( c2 >= 0.0 )
-                return 15;
-        }
-    }
-    return v8;
-}
-
-phys_gjk_info::gjk_retval_e __userpurge phys_gjk_info::gjk@<eax>(
-                phys_gjk_info *this@<ecx>,
-                float a2@<ebp>,
-                float *a3@<edi>,
-                const phys_vec3 *a4@<esi>,
+#if 0
+phys_gjk_info::gjk_retval_e phys_gjk_info::gjk(
                 const phys_gjk_input *d,
                 const phys_vec3 *initial_support_dir,
                 bool in_separation_loop)
@@ -602,7 +603,7 @@ phys_gjk_info::gjk_retval_e __userpurge phys_gjk_info::gjk@<eax>(
     double v15; // st7
     double v16; // st6
     const phys_vec3 *v17; // eax
-    float *p_x; // ecx
+    float v18; // ecx
     double z; // st7
     const phys_vec3 *v20; // eax
     double v21; // st6
@@ -629,70 +630,70 @@ phys_gjk_info::gjk_retval_e __userpurge phys_gjk_info::gjk@<eax>(
     float v44; // [esp+14h] [ebp-2Ch]
     float v45; // [esp+18h] [ebp-28h]
     float v46; // [esp+1Ch] [ebp-24h]
-    phys_vec3 *m_gjk_sep_thresh_low; // [esp+28h] [ebp-18h]
+    float lower_dist_sq; // [esp+28h] [ebp-18h]
     const phys_vec3 *v48; // [esp+2Ch] [ebp-14h]
-    unsigned int v49; // [esp+30h] [ebp-10h]
-    float lower_dist_sq[2]; // [esp+34h] [ebp-Ch] BYREF
-    float retaddr; // [esp+40h] [ebp+0h]
-
-    lower_dist_sq[0] = a2;
-    lower_dist_sq[1] = retaddr;
+    int new_index; // [esp+30h] [ebp-10h]
+    //_UNKNOWN *v50[2]; // [esp+34h] [ebp-Ch] BYREF
+    //void *in_separation_loopa; // [esp+40h] [ebp+0h]
+    //
+    //*(float *)v50 = a2;
+    //v50[1] = in_separation_loopa;
     this->m_lower_dist_sq = -34.0;
     this->m_upper_dist_sq = 34.0;
-    this->m_gjk_iter = phys_gjk_info::init_gjk(this, (int)lower_dist_sq, d, initial_support_dir, in_separation_loop);
+    this->m_gjk_iter = phys_gjk_info::init_gjk(d, initial_support_dir, in_separation_loop);
     p_m_support_dir = &this->m_support_dir;
-    while ( 1 )
+    while (1)
     {
         v9 = this->m_gjk_iter == 0;
-        *(float *)&m_gjk_sep_thresh_low = this->m_support_dir.y * this->m_support_dir.y
-                                                                        + p_m_support_dir->x * p_m_support_dir->x
-                                                                        + this->m_support_dir.z * this->m_support_dir.z;
-        v10 = *(float *)&m_gjk_sep_thresh_low;
-        this->m_upper_dist_sq = *(float *)&m_gjk_sep_thresh_low;
-        if ( !v9 && this->m_gjk_pen_thresh_sq > v10 )
-            return 2;
+        lower_dist_sq = this->m_support_dir.y * this->m_support_dir.y
+            + p_m_support_dir->x * p_m_support_dir->x
+            + this->m_support_dir.z * this->m_support_dir.z;
+        v10 = lower_dist_sq;
+        this->m_upper_dist_sq = lower_dist_sq;
+        if (!v9 && this->m_gjk_pen_thresh_sq > v10)
+            return GJK_PENETRATING;
         m_w_set = this->m_w_set;
-        if ( (m_w_set & 1) != 0 )
+        if ((m_w_set & 1) != 0)
         {
-            if ( (m_w_set & 2) != 0 )
-                v49 = (this->m_w_set & 4 | 8u) >> 2;
+            if ((m_w_set & 2) != 0)
+                new_index = (this->m_w_set & 4 | 8u) >> 2;
             else
-                v49 = 1;
+                new_index = 1;
         }
         else
         {
-            v49 = 0;
+            new_index = 0;
         }
         gjk_cg1 = d->gjk_cg1;
         v36[0] = -p_m_support_dir->x;
         v36[1] = -this->m_support_dir.y;
         v36[2] = -this->m_support_dir.z;
-        m_gjk_sep_thresh_low = &this->m_a_verts[v49];
-        ((void (__thiscall *)(const phys_gjk_geom *, float *, phys_vec3 *, phys_vec3 *, float *, const phys_vec3 *, phys_vec3 *))gjk_cg1->support)(
+        LODWORD(lower_dist_sq) = &this->m_a_verts[new_index];
+        ((void(__thiscall *)(const phys_gjk_geom *, float *, _DWORD, phys_vec3 *, float *, const phys_vec3 *, phys_vec3 *))gjk_cg1->support)(
             gjk_cg1,
             v36,
-            m_gjk_sep_thresh_low,
-            &this->m_a_inds[v49],
+            LODWORD(lower_dist_sq),
+            &this->m_a_inds[new_index],
             a3,
             a4,
             v33);
         gjk_cg2 = d->gjk_cg2;
         v15 = this->cg2_to_cg1_xform.x.y * this->m_support_dir.y + this->m_support_dir.x * this->cg2_to_cg1_xform.x.x;
         v16 = this->cg2_to_cg1_xform.x.z * this->m_support_dir.z;
-        v48 = &this->m_b_verts[v49];
-        v33 = &this->m_b_inds[v49];
+        v48 = &this->m_b_verts[new_index];
+        v33 = &this->m_b_inds[new_index];
         a4 = v48;
         v35[0] = v15 + v16;
         a3 = v35;
         v35[1] = this->cg2_to_cg1_xform.y.y * this->m_support_dir.y
-                     + this->m_support_dir.x * this->cg2_to_cg1_xform.y.x
-                     + this->cg2_to_cg1_xform.y.z * this->m_support_dir.z;
+            + this->m_support_dir.x * this->cg2_to_cg1_xform.y.x
+            + this->cg2_to_cg1_xform.y.z * this->m_support_dir.z;
         v35[2] = this->cg2_to_cg1_xform.z.y * this->m_support_dir.y
-                     + this->cg2_to_cg1_xform.z.x * this->m_support_dir.x
-                     + this->cg2_to_cg1_xform.z.z * this->m_support_dir.z;
-        ((void (__thiscall *)(const phys_gjk_geom *))gjk_cg2->support)(gjk_cg2);
+            + this->cg2_to_cg1_xform.z.x * this->m_support_dir.x
+            + this->cg2_to_cg1_xform.z.z * this->m_support_dir.z;
+        //((void(__thiscall *)(const phys_gjk_geom *))gjk_cg2->support)(gjk_cg2);
         v17 = phys_multiply(&v34, &this->cg2_to_cg1_xform, v48);
-        p_x = &m_gjk_sep_thresh_low->x;
+        v18 = lower_dist_sq;
         v44 = v17->x + this->cg2_to_cg1_xform.w.x;
         v45 = v17->y + this->cg2_to_cg1_xform.w.y;
         z = v17->z;
@@ -701,96 +702,291 @@ phys_gjk_info::gjk_retval_e __userpurge phys_gjk_info::gjk@<eax>(
         v48->x = v44;
         v20->y = v45;
         v20->z = v46;
-        w.y = *p_x - v20->x;
-        w.z = p_x[1] - v20->y;
-        w.w = p_x[2] - v20->z;
+        w.y = *(float *)LODWORD(v18) - v20->x;
+        w.z = *(float *)(LODWORD(v18) + 4) - v20->y;
+        w.w = *(float *)(LODWORD(v18) + 8) - v20->z;
         v40 = w.y - this->m_gjk_origin.x;
         v41 = w.z - this->m_gjk_origin.y;
         v42 = w.w - this->m_gjk_origin.z;
         v21 = v41;
         v22 = v40;
         v23 = v42;
-        *(float *)&m_gjk_sep_thresh_low = this->m_support_dir.z * v42
-                                                                        + this->m_support_dir.y * v41
-                                                                        + v40 * this->m_support_dir.x;
+        lower_dist_sq = this->m_support_dir.z * v42 + this->m_support_dir.y * v41 + v40 * this->m_support_dir.x;
         v24 = 0.0;
-        if ( *(float *)&m_gjk_sep_thresh_low > 0.0 )
+        if (lower_dist_sq > 0.0)
         {
-            if ( this->m_upper_dist_sq <= 0.0 )
+            if (this->m_upper_dist_sq <= 0.0)
             {
                 v24 = 0.0;
             }
             else
             {
                 v24 = 0.0;
-                *(float *)&m_gjk_sep_thresh_low = *(float *)&m_gjk_sep_thresh_low * *(float *)&m_gjk_sep_thresh_low;
-                *(float *)&m_gjk_sep_thresh_low = *(float *)&m_gjk_sep_thresh_low / this->m_upper_dist_sq;
-                v25 = *(float *)&m_gjk_sep_thresh_low;
-                if ( this->m_lower_dist_sq < (double)*(float *)&m_gjk_sep_thresh_low )
+                lower_dist_sq = lower_dist_sq * lower_dist_sq;
+                lower_dist_sq = lower_dist_sq / this->m_upper_dist_sq;
+                v25 = lower_dist_sq;
+                if (this->m_lower_dist_sq < (double)lower_dist_sq)
                 {
                     v9 = (this->m_flags & 1) == 0;
-                    this->m_lower_dist_sq = *(float *)&m_gjk_sep_thresh_low;
-                    if ( !v9 )
+                    this->m_lower_dist_sq = lower_dist_sq;
+                    if (!v9)
                     {
-                        m_gjk_sep_thresh_low = (phys_vec3 *)LODWORD(this->m_gjk_sep_thresh);
-                        *(float *)&m_gjk_sep_thresh_low = *(float *)&m_gjk_sep_thresh_low * *(float *)&m_gjk_sep_thresh_low;
-                        if ( *(float *)&m_gjk_sep_thresh_low < v25 )
-                            return 0;
+                        lower_dist_sq = this->m_gjk_sep_thresh;
+                        lower_dist_sq = lower_dist_sq * lower_dist_sq;
+                        if (lower_dist_sq < v25)
+                            return GJK_SEPARATED;
                     }
                 }
             }
         }
-        if ( this->m_gjk_iter && v24 < this->m_lower_dist_sq )
+        if (this->m_gjk_iter && v24 < this->m_lower_dist_sq)
             break;
-LABEL_24:
-        v28 = v49;
-        v29 = &this->m_w_verts[v49];
+    LABEL_24:
+        v28 = new_index;
+        v29 = &this->m_w_verts[new_index];
         v29->x = v22;
         v29->y = v21;
         v29->z = v23;
         this->m_w_set |= 1 << v28;
         this->m_last_w_set = this->m_w_set;
-        v30 = backup1(COERCE_FLOAT(lower_dist_sq), this, v28, 0);
+        v30 = backup1(COERCE_FLOAT(v50), this, v28, 0);
         this->m_w_set = v30;
-        if ( v30 == 15 )
-            return 2;
-        phys_gjk_info::comp_v(this, COERCE_FLOAT(lower_dist_sq), v30, &this->m_support_dir);
+        if (v30 == 15)
+            return GJK_PENETRATING;
+        phys_gjk_info::comp_v(this, v50, v30, &this->m_support_dir);
         result = GJK_VALID;
-        if ( ++this->m_gjk_iter >= 30 )
+        if (++this->m_gjk_iter >= 30)
             return result;
     }
-    *(float *)&m_gjk_sep_thresh_low = 1.0 - CONV_THRESH;
-    *(float *)&m_gjk_sep_thresh_low = *(float *)&m_gjk_sep_thresh_low * *(float *)&m_gjk_sep_thresh_low;
-    if ( this->m_lower_dist_sq > *(float *)&m_gjk_sep_thresh_low * this->m_upper_dist_sq )
-        return 1;
+    lower_dist_sq = 1.0 - CONV_THRESH;
+    lower_dist_sq = lower_dist_sq * lower_dist_sq;
+    if (this->m_lower_dist_sq > lower_dist_sq * this->m_upper_dist_sq)
+        return GJK_VALID;
     v26 = 0;
     v27 = 1;
-    m_gjk_sep_thresh_low = (phys_vec3 *)&this->m_w_verts[0].z;
-    while ( 1 )
+    LODWORD(lower_dist_sq) = &this->m_w_verts[0].z;
+    while (1)
     {
-        if ( (v27 & this->m_last_w_set) != 0 )
+        if ((v27 & this->m_last_w_set) != 0)
         {
-            v37 = v22 - m_gjk_sep_thresh_low[-1].z;
-            v38 = v21 - m_gjk_sep_thresh_low[-1].w;
-            v39 = v23 - m_gjk_sep_thresh_low->x;
+            v37 = v22 - *(float *)(LODWORD(lower_dist_sq) - 8);
+            v38 = v21 - *(float *)(LODWORD(lower_dist_sq) - 4);
+            v39 = v23 - *(float *)LODWORD(lower_dist_sq);
             *(float *)&v48 = v38 * v38 + v37 * v37 + v39 * v39;
-            if ( *(float *)&v48 < 0.0000010000001 )
-                return 1;
+            if (*(float *)&v48 < 0.0000010000001)
+                return GJK_VALID;
         }
-        ++m_gjk_sep_thresh_low;
+        LODWORD(lower_dist_sq) += 16;
         ++v26;
         v27 *= 2;
-        if ( v26 >= 4 )
+        if (v26 >= 4)
             goto LABEL_24;
     }
 }
+#else // aislop
+phys_gjk_info::gjk_retval_e phys_gjk_info::gjk(
+    const phys_gjk_input *d,
+    const phys_vec3 *initial_support_dir,
+    bool in_separation_loop)
+{
+    this->m_lower_dist_sq = -34.0f;
+    this->m_upper_dist_sq = 34.0f;
 
+    this->m_gjk_iter =
+        phys_gjk_info::init_gjk(d, initial_support_dir, in_separation_loop);
+
+    int new_index;
+
+    while (true)
+    {
+        const bool first_iter = (this->m_gjk_iter == 0);
+
+        // ||support_dir||^2
+        float support_len_sq =
+            this->m_support_dir.x * this->m_support_dir.x +
+            this->m_support_dir.y * this->m_support_dir.y +
+            this->m_support_dir.z * this->m_support_dir.z;
+
+        this->m_upper_dist_sq = support_len_sq;
+
+        if (!first_iter && this->m_gjk_pen_thresh_sq > support_len_sq)
+            return GJK_PENETRATING;
+
+        // ------------------------------------------------------------
+        // Select new simplex index
+        // ------------------------------------------------------------
+
+        if (this->m_w_set & 1)
+        {
+            if (this->m_w_set & 2)
+                new_index = (this->m_w_set & 4) ? 3 : 2;
+            else
+                new_index = 1;
+        }
+        else
+        {
+            new_index = 0;
+        }
+
+        // ------------------------------------------------------------
+        // Support A (direction = -support_dir)
+        // ------------------------------------------------------------
+
+        phys_vec3 negDir;
+        negDir.x = -this->m_support_dir.x;
+        negDir.y = -this->m_support_dir.y;
+        negDir.z = -this->m_support_dir.z;
+
+        d->gjk_cg1->support(
+            &negDir,
+            &this->m_a_verts[new_index],
+            &this->m_a_inds[new_index]);
+
+        // ------------------------------------------------------------
+        // Support B (direction transformed into B space)
+        // ------------------------------------------------------------
+
+        phys_vec3 dirB;
+
+        dirB.x =
+            this->cg2_to_cg1_xform.x.x * this->m_support_dir.x +
+            this->cg2_to_cg1_xform.x.y * this->m_support_dir.y +
+            this->cg2_to_cg1_xform.x.z * this->m_support_dir.z;
+
+        dirB.y =
+            this->cg2_to_cg1_xform.y.x * this->m_support_dir.x +
+            this->cg2_to_cg1_xform.y.y * this->m_support_dir.y +
+            this->cg2_to_cg1_xform.y.z * this->m_support_dir.z;
+
+        dirB.z =
+            this->cg2_to_cg1_xform.z.x * this->m_support_dir.x +
+            this->cg2_to_cg1_xform.z.y * this->m_support_dir.y +
+            this->cg2_to_cg1_xform.z.z * this->m_support_dir.z;
+
+        d->gjk_cg2->support(
+            &dirB,
+            &this->m_b_verts[new_index],
+            &this->m_b_inds[new_index]);
+
+        // ------------------------------------------------------------
+        // Transform B vertex into A space
+        // ------------------------------------------------------------
+
+        phys_vec3 bTransformed;
+        phys_multiply(&bTransformed,
+            &this->cg2_to_cg1_xform,
+            &this->m_b_verts[new_index]);
+
+        bTransformed.x += this->cg2_to_cg1_xform.w.x;
+        bTransformed.y += this->cg2_to_cg1_xform.w.y;
+        bTransformed.z += this->cg2_to_cg1_xform.w.z;
+
+        this->m_b_verts[new_index] = bTransformed;
+
+        // ------------------------------------------------------------
+        // Minkowski difference point
+        // ------------------------------------------------------------
+
+        phys_vec3 w;
+        w.x = this->m_a_verts[new_index].x - bTransformed.x;
+        w.y = this->m_a_verts[new_index].y - bTransformed.y;
+        w.z = this->m_a_verts[new_index].z - bTransformed.z;
+
+        float vx = w.x - this->m_gjk_origin.x;
+        float vy = w.y - this->m_gjk_origin.y;
+        float vz = w.z - this->m_gjk_origin.z;
+
+        float dot = this->m_support_dir.x * vx +
+            this->m_support_dir.y * vy +
+            this->m_support_dir.z * vz;
+
+        if (dot > 0.0f)
+        {
+            if (this->m_upper_dist_sq > 0.0f)
+            {
+                float new_lower =
+                    (dot * dot) / this->m_upper_dist_sq;
+
+                if (this->m_lower_dist_sq < new_lower)
+                {
+                    this->m_lower_dist_sq = new_lower;
+
+                    if (this->m_flags & 1)
+                    {
+                        float sep_sq =
+                            this->m_gjk_sep_thresh *
+                            this->m_gjk_sep_thresh;
+
+                        if (sep_sq < new_lower)
+                            return GJK_SEPARATED;
+                    }
+                }
+            }
+        }
+
+        if (this->m_gjk_iter &&
+            dot < this->m_lower_dist_sq)
+            break;
+
+        // ------------------------------------------------------------
+        // Add to simplex
+        // ------------------------------------------------------------
+
+        this->m_w_verts[new_index] = w;
+
+        this->m_w_set |= (1 << new_index);
+        this->m_last_w_set = this->m_w_set;
+
+        int new_mask = backup1(this, new_index, 0);
+        this->m_w_set = new_mask;
+
+        if (new_mask == 15)
+            return GJK_PENETRATING;
+
+        phys_gjk_info::comp_v(
+            new_mask,
+            &this->m_support_dir);
+
+        if (++this->m_gjk_iter >= 30)
+            return GJK_VALID;
+    }
+
+    // ------------------------------------------------------------
+    // Convergence test
+    // ------------------------------------------------------------
+
+    float thresh = 1.0f - CONV_THRESH;
+    thresh *= thresh;
+
+    if (this->m_lower_dist_sq >
+        thresh * this->m_upper_dist_sq)
+        return GJK_VALID;
+
+    // Degeneracy check
+    for (int i = 0; i < 4; ++i)
+    {
+        if (this->m_last_w_set & (1 << i))
+        {
+            phys_vec3 &v = this->m_w_verts[i];
+
+            float dx = v.x - this->m_w_verts[new_index].x;
+            float dy = v.y - this->m_w_verts[new_index].y;
+            float dz = v.z - this->m_w_verts[new_index].z;
+
+            if (dx * dx + dy * dy + dz * dz < 1e-6f)
+                return GJK_VALID;
+        }
+    }
+
+    return GJK_VALID;
+}
+
+#endif
+
+
+#if 0
 // local variable allocation has failed, the output may be wrong!
-phys_gjk_info::gjk_retval_e __userpurge phys_gjk_info::gjk_ray_cast@<eax>(
-                phys_gjk_info *this@<ecx>,
-                float a2@<ebp>,
-                float *a3@<edi>,
-                phys_vec3 *a4@<esi>,
+phys_gjk_info::gjk_retval_e phys_gjk_info::gjk_ray_cast(
                 const phys_gjk_input *d,
                 const phys_vec3 *initial_support_dir,
                 bool in_separation_loop)
@@ -1187,16 +1383,220 @@ LABEL_65:
         __debugbreak();
     return 0;
 }
+#else  // aislop
+phys_gjk_info::gjk_retval_e phys_gjk_info::gjk_ray_cast(
+    const phys_gjk_input *d,
+    const phys_vec3 *initial_support_dir,
+    bool in_separation_loop)
+{
+    // ------------------------------------------------------------
+    // Initial time setup
+    // ------------------------------------------------------------
 
-phys_gjk_info::gjk_retval_e __userpurge phys_gjk_info::collide@<eax>(
-                phys_gjk_info *this@<ecx>,
-                int a2@<ebp>,
-                const phys_gjk_input *d)
+    float lambda = d->m_start_time;
+    this->m_continuous_collision_lambda = lambda;
+
+    float neg_lambda = -lambda;
+
+    this->m_gjk_origin.x = this->m_cg1_relative_translation_loc.x * neg_lambda;
+    this->m_gjk_origin.y = this->m_cg1_relative_translation_loc.y * neg_lambda;
+    this->m_gjk_origin.z = this->m_cg1_relative_translation_loc.z * neg_lambda;
+
+    this->m_lower_dist_sq = -34.0f;
+    this->m_upper_dist_sq = 34.0f;
+
+    this->m_gjk_iter =
+        phys_gjk_info::init_gjk(d, initial_support_dir, in_separation_loop);
+
+    this->m_flags &= ~(0x4 | 0x8 | 0x20);
+    this->m_cc_reset_iter = 0;
+
+    const float support_dir_moveback = max(this->m_geom_radii_sum, 0.051f);
+
+    // ------------------------------------------------------------
+    // Main loop
+    // ------------------------------------------------------------
+
+    while (true)
+    {
+        const bool first_iter = (this->m_gjk_iter == 0);
+
+        float nsupport_dir =
+            this->m_support_dir.x * this->m_support_dir.x +
+            this->m_support_dir.y * this->m_support_dir.y +
+            this->m_support_dir.z * this->m_support_dir.z;
+
+        this->m_upper_dist_sq = nsupport_dir;
+
+        if (!first_iter)
+        {
+            if (this->m_gjk_pen_thresh_sq > nsupport_dir)
+                return GJK_PENETRATING;
+        }
+
+        // ------------------------------------------------------------
+        // Choose simplex slot
+        // ------------------------------------------------------------
+
+        int new_index;
+        if (this->m_w_set & 1)
+        {
+            if (this->m_w_set & 2)
+                new_index = (this->m_w_set & 4) ? 3 : 2;
+            else
+                new_index = 1;
+        }
+        else
+        {
+            new_index = 0;
+        }
+
+        // ------------------------------------------------------------
+        // Support A
+        // ------------------------------------------------------------
+
+        phys_vec3 negDir = {
+            -this->m_support_dir.x,
+            -this->m_support_dir.y,
+            -this->m_support_dir.z
+        };
+
+        d->gjk_cg1->support(
+            &negDir,
+            &this->m_a_verts[new_index],
+            &this->m_a_inds[new_index]);
+
+        // ------------------------------------------------------------
+        // Support B (transform dir)
+        // ------------------------------------------------------------
+
+        phys_vec3 dirB;
+
+        dirB.x =
+            this->cg2_to_cg1_xform.x.x * this->m_support_dir.x +
+            this->cg2_to_cg1_xform.x.y * this->m_support_dir.y +
+            this->cg2_to_cg1_xform.x.z * this->m_support_dir.z;
+
+        dirB.y =
+            this->cg2_to_cg1_xform.y.x * this->m_support_dir.x +
+            this->cg2_to_cg1_xform.y.y * this->m_support_dir.y +
+            this->cg2_to_cg1_xform.y.z * this->m_support_dir.z;
+
+        dirB.z =
+            this->cg2_to_cg1_xform.z.x * this->m_support_dir.x +
+            this->cg2_to_cg1_xform.z.y * this->m_support_dir.y +
+            this->cg2_to_cg1_xform.z.z * this->m_support_dir.z;
+
+        d->gjk_cg2->support(
+            &dirB,
+            &this->m_b_verts[new_index],
+            &this->m_b_inds[new_index]);
+
+        // Transform B into A space
+
+        phys_vec3 bTransformed;
+        phys_multiply(&bTransformed,
+            &this->cg2_to_cg1_xform,
+            &this->m_b_verts[new_index]);
+
+        bTransformed.x += this->cg2_to_cg1_xform.w.x;
+        bTransformed.y += this->cg2_to_cg1_xform.w.y;
+        bTransformed.z += this->cg2_to_cg1_xform.w.z;
+
+        this->m_b_verts[new_index] = bTransformed;
+
+        // ------------------------------------------------------------
+        // Minkowski difference
+        // ------------------------------------------------------------
+
+        phys_vec3 w;
+        w.x = this->m_a_verts[new_index].x - bTransformed.x;
+        w.y = this->m_a_verts[new_index].y - bTransformed.y;
+        w.z = this->m_a_verts[new_index].z - bTransformed.z;
+
+        float vx = w.x - this->m_gjk_origin.x;
+        float vy = w.y - this->m_gjk_origin.y;
+        float vz = w.z - this->m_gjk_origin.z;
+
+        float dot =
+            this->m_support_dir.x * vx +
+            this->m_support_dir.y * vy +
+            this->m_support_dir.z * vz;
+
+        // ------------------------------------------------------------
+        // Conservative advancement
+        // ------------------------------------------------------------
+
+        if (dot > 0.0f)
+        {
+            float move =
+                -(this->m_cg1_relative_translation_loc.x * this->m_support_dir.x +
+                    this->m_cg1_relative_translation_loc.y * this->m_support_dir.y +
+                    this->m_cg1_relative_translation_loc.z * this->m_support_dir.z);
+
+            if (move > 0.0f)
+            {
+                float new_lambda =
+                    (dot - std::sqrt(nsupport_dir) * support_dir_moveback)
+                    / move;
+
+                if (new_lambda > this->m_continuous_collision_lambda)
+                {
+                    if (new_lambda > d->m_end_time)
+                        return GJK_SEPARATED;
+
+                    this->m_continuous_collision_lambda = new_lambda;
+
+                    float shift = -new_lambda;
+
+                    this->m_gjk_origin.x =
+                        this->m_cg1_relative_translation_loc.x * shift;
+                    this->m_gjk_origin.y =
+                        this->m_cg1_relative_translation_loc.y * shift;
+                    this->m_gjk_origin.z =
+                        this->m_cg1_relative_translation_loc.z * shift;
+
+                    this->m_lower_dist_sq = -34.0f;
+                    this->m_upper_dist_sq = 34.0f;
+                    this->m_cc_reset_iter++;
+
+                    this->m_gjk_iter =
+                        phys_gjk_info::init_gjk(d, &this->m_support_dir, true);
+
+                    continue;
+                }
+            }
+        }
+
+        // ------------------------------------------------------------
+        // Add to simplex
+        // ------------------------------------------------------------
+
+        this->m_w_verts[new_index] = w;
+
+        this->m_w_set |= (1 << new_index);
+        this->m_last_w_set = this->m_w_set;
+
+        int new_mask = backup1(this, new_index, 0);
+        this->m_w_set = new_mask;
+
+        if (new_mask == 15)
+            return GJK_PENETRATING;
+
+        phys_gjk_info::comp_v(new_mask,&this->m_support_dir);
+
+        if (++this->m_gjk_iter >= 30)
+            return GJK_VALID;
+    }
+}
+
+#endif
+phys_gjk_info::gjk_retval_e phys_gjk_info::collide(const phys_gjk_input *d)
 {
     phys_gjk_info::gjk_retval_e result; // eax
     int m_flags; // eax
     phys_gjk_cache_info *gjk_ci; // eax
-    const phys_vec3 *v7; // eax
+    phys_vec3 *v7; // eax
     float y; // edx
     float z; // ecx
     char v10; // al
@@ -1207,177 +1607,161 @@ phys_gjk_info::gjk_retval_e __userpurge phys_gjk_info::collide@<eax>(
     phys_gjk_cache_info *v15; // eax
     bool v16; // [esp-70h] [ebp-A0h]
     phys_vec3 v17; // [esp-5Ch] [ebp-8Ch] BYREF
-    int v18; // [esp-4Ch] [ebp-7Ch] BYREF
+    phys_vec3 v18; // [esp-4Ch] [ebp-7Ch] BYREF
     phys_vec3 v19; // [esp-3Ch] [ebp-6Ch] BYREF
-    float v20[4]; // [esp-2Ch] [ebp-5Ch] BYREF
+    phys_vec3 v20; // [esp-2Ch] [ebp-5Ch] BYREF
     float v21; // [esp-1Ch] [ebp-4Ch]
     float v22; // [esp-18h] [ebp-48h]
     float v23; // [esp-14h] [ebp-44h]
-    float v24; // [esp-Ch] [ebp-3Ch] BYREF
-    float v25; // [esp-8h] [ebp-38h]
-    float v26; // [esp-4h] [ebp-34h]
-    phys_vec3 w; // [esp+0h] [ebp-30h] BYREF
-    phys_vec3 support_dir; // [esp+10h] [ebp-20h]
-    phys_gjk_info::gjk_retval_e v29; // [esp+20h] [ebp-10h]
-    int v30; // [esp+24h] [ebp-Ch] BYREF
-    float nsupport_dir_sq; // [esp+28h] [ebp-8h]
-    float retaddr; // [esp+30h] [ebp+0h]
-
-    v30 = a2;
-    nsupport_dir_sq = retaddr;
-    this->m_gjk_origin.x = PHYS_ZERO_VEC_69.x;
-    this->m_gjk_origin.y = PHYS_ZERO_VEC_69.y;
-    this->m_gjk_origin.z = PHYS_ZERO_VEC_69.z;
+    phys_vec3 v24; // [esp-Ch] [ebp-3Ch] BYREF
+    phys_vec3 w_4; // [esp+4h] [ebp-2Ch] BYREF
+    float support_dir_8; // [esp+18h] [ebp-18h]
+    float support_dir_12; // [esp+1Ch] [ebp-14h]
+    phys_gjk_info::gjk_retval_e v28; // [esp+20h] [ebp-10h]
+    int v29; // [esp+24h] [ebp-Ch] BYREF
+    //float nsupport_dir_sq; // [esp+28h] [ebp-8h]
+    //float retaddr; // [esp+30h] [ebp+0h]
+    //
+    //v29 = a2;
+    //nsupport_dir_sq = retaddr;
+    this->m_gjk_origin.x = PHYS_ZERO_VEC.x;
+    this->m_gjk_origin.y = PHYS_ZERO_VEC.y;
+    this->m_gjk_origin.z = PHYS_ZERO_VEC.z;
     this->m_flags |= 1u;
-    phys_gjk_info::get_initial_support_dir(this, (int)&v30, (phys_vec3 *)&v24, d);
-    if ( (this->m_flags & 8) != 0 )
+    phys_gjk_info::get_initial_support_dir(&v24, d);
+    if ((this->m_flags & 8) != 0)
         result = phys_gjk_info::gjk_ray_cast(
-                             this,
-                             COERCE_FLOAT(&v30),
-                             &d->m_cg1_translation.x,
-                             &this->cg2_to_cg1_xform.x,
-                             d,
-                             (const phys_vec3 *)&v24,
-                             0);
+            d,
+            &v24,
+            0);
     else
         result = phys_gjk_info::gjk(
-                             this,
-                             COERCE_FLOAT(&v30),
-                             &d->m_cg1_translation.x,
-                             &this->cg2_to_cg1_xform.x,
-                             d,
-                             (const phys_vec3 *)&v24,
-                             0);
-    v29 = result;
-    if ( result == GJK_INVALID )
+            d,
+            &v24,
+            0);
+    v28 = result;
+    if (result == GJK_INVALID)
     {
-        if ( _tlAssert("source/phys_gjk.cpp", 2058, "retv != GJK_INVALID", "") )
+        if (_tlAssert("source/phys_gjk.cpp", 2058, "retv != GJK_INVALID", ""))
             __debugbreak();
-LABEL_9:
-        if ( _tlAssert("source/phys_gjk.cpp", 2062, "retv == GJK_SEPARATED || retv == GJK_VALID", "") )
+    LABEL_9:
+        if (_tlAssert("source/phys_gjk.cpp", 2062, "retv == GJK_SEPARATED || retv == GJK_VALID", ""))
             __debugbreak();
-        return v29;
+        return v28;
     }
-    if ( result != GJK_PENETRATING )
+    if (result != GJK_PENETRATING)
     {
-        if ( (unsigned int)result < GJK_PENETRATING )
+        if ((unsigned int)result < GJK_PENETRATING)
             return result;
         goto LABEL_9;
     }
     m_flags = this->m_flags;
-    if ( (m_flags & 2) != 0 )
-        return 2;
-    if ( (m_flags & 8) != 0 && 0.0 != this->m_continuous_collision_lambda )
+    if ((m_flags & 2) != 0)
+        return GJK_PENETRATING;
+    if ((m_flags & 8) != 0 && 0.0 != this->m_continuous_collision_lambda)
         tlWarning("m_continuous_collision_lambda problem");
     this->m_continuous_collision_lambda = 0.0;
     gjk_ci = d->gjk_ci;
-    if ( gjk_ci && (gjk_ci->m_flags & 4) != 0 )
-        v7 = (const phys_vec3 *)&v24;
-    else
-        v7 = gjk_sep_dir::comp_sep_dir((int)&v30, &d->m_cg1_translation.x, &this->cg2_to_cg1_xform.x.x, &v19, d, this);
-    y = v7->y;
-    w.y = v7->x;
-    z = v7->z;
-    w.z = y;
-    w.w = z;
-    support_dir.x = v7->w;
-    support_dir.w = y * y + w.y * w.y + z * z;
-    if ( support_dir.w >= 0.0000000099999991 )
-        goto LABEL_27;
-    support_dir.w = v26 * v26 + v25 * v25 + v24 * v24;
-    if ( support_dir.w >= 0.0000000099999991 )
+    if (gjk_ci && (gjk_ci->m_flags & 4) != 0)
     {
-        w.y = v24;
-        w.z = v25;
-        w.w = v26;
-LABEL_27:
-        v11 = w.z;
+        v7 = &v24;
+    }
+    else
+    {
+        v7 = (phys_vec3 *)gjk_sep_dir::comp_sep_dir(&v19, d, this);
+    }
+    y = v7->y;
+    w_4.x = v7->x;
+    z = v7->z;
+    w_4.y = y;
+    w_4.z = z;
+    w_4.w = v7->w;
+    support_dir_12 = y * y + w_4.x * w_4.x + z * z;
+    if (support_dir_12 >= 0.0000000099999991)
+        goto LABEL_27;
+    support_dir_12 = v24.z * v24.z + v24.y * v24.y + v24.x * v24.x;
+    if (support_dir_12 >= 0.0000000099999991)
+    {
+        w_4.x = v24.x;
+        w_4.y = v24.y;
+        w_4.z = v24.z;
+    LABEL_27:
+        v11 = w_4.y;
         this->m_flags &= ~1u;
-        v29 = GJK_SEPARATED;
-        support_dir.w = v11 * v11 + w.y * w.y + w.w * w.w;
-        while ( 1 )
+        v28 = GJK_SEPARATED;
+        support_dir_12 = v11 * v11 + w_4.x * w_4.x + w_4.z * w_4.z;
+        while (1)
         {
             gjk_cg1 = d->gjk_cg1;
-            ++v29;
-            v20[0] = -w.y;
-            v20[1] = -w.z;
-            v20[2] = -w.w;
-            gjk_cg1->support((phys_gjk_geom *)gjk_cg1, (const phys_vec3 *)v20, &v19, (phys_vec3 *)&v18);
-            v13 = phys_gjk_geom::support_only(
-                            (phys_gjk_geom *)d->gjk_cg2,
-                            (int)&v30,
-                            (int)this,
-                            &v17,
-                            &this->cg2_to_cg1_xform,
-                            (phys_vec3 *)&w.y);
-            v24 = v19.x - v13->x;
-            v25 = v19.y - v13->y;
-            v26 = v19.z - v13->z;
-            support_dir.z = sqrt(support_dir.w);
-            v14 = 17.0 / support_dir.z;
-            v16 = v29 > GJK_VALID;
-            support_dir.z = v26 * w.w + v24 * w.y + v25 * w.z;
-            support_dir.z = -(v14 - support_dir.z / support_dir.w);
-            v21 = w.y * support_dir.z;
-            v22 = w.z * support_dir.z;
-            v23 = w.w * support_dir.z;
+            //++v28;
+            v28 = (gjk_retval_e)((int)v28 + 1);
+            v20.x = -w_4.x;
+            v20.y = -w_4.y;
+            v20.z = -w_4.z;
+            gjk_cg1->support(&v20, &v19, &v18);
+            v13 = // phys_gjk_geom::support_only(
+                //(phys_gjk_geom *)d->gjk_cg2,
+                d->gjk_cg2->support_only(
+                &v17,
+                &this->cg2_to_cg1_xform,
+                &w_4);
+            v24.x = v19.x - v13->x;
+            v24.y = v19.y - v13->y;
+            v24.z = v19.z - v13->z;
+            support_dir_8 = sqrt(support_dir_12);
+            v14 = 17.0 / support_dir_8;
+            v16 = v28 > GJK_VALID;
+            support_dir_8 = v24.z * w_4.z + v24.x * w_4.x + v24.y * w_4.y;
+            support_dir_8 = -(v14 - support_dir_8 / support_dir_12);
+            v21 = w_4.x * support_dir_8;
+            v22 = w_4.y * support_dir_8;
+            v23 = w_4.z * support_dir_8;
             this->m_gjk_origin.x = v21;
             this->m_gjk_origin.y = v22;
             this->m_gjk_origin.z = v23;
-            if ( phys_gjk_info::gjk(
-                         this,
-                         COERCE_FLOAT(&v30),
-                         &d->m_cg1_translation.x,
-                         &this->cg2_to_cg1_xform.x,
-                         d,
-                         (phys_vec3 *)&w.y,
-                         v16) == GJK_PENETRATING )
+            if (phys_gjk_info::gjk(
+                d,
+                &w_4,
+                v16) == GJK_PENETRATING)
             {
                 tlWarning("gjk has possibly failed.");
-                if ( v29 != GJK_VALID )
+                if (v28 != GJK_VALID)
                     break;
                 v15 = d->gjk_ci;
-                if ( !v15 )
+                if (!v15)
                     break;
-                if ( (v15->m_flags & 8) == 0 )
+                if ((v15->m_flags & 8) == 0)
                     break;
                 v15->m_flags &= ~8u;
-                if ( phys_gjk_info::gjk(
-                             this,
-                             COERCE_FLOAT(&v30),
-                             &d->m_cg1_translation.x,
-                             &this->cg2_to_cg1_xform.x,
-                             d,
-                             (phys_vec3 *)&w.y,
-                             0) == GJK_PENETRATING )
+                if (phys_gjk_info::gjk(
+                    d,
+                    &w_4,
+                    0) == GJK_PENETRATING)
                     break;
             }
-            phys_gjk_info::comp_v(this, COERCE_FLOAT(&v30), this->m_w_set, (phys_vec3 *)&w.y);
-            support_dir.w = w.z * w.z + w.y * w.y + w.w * w.w;
-            if ( this->m_gjk_pen_thresh_sq > (double)support_dir.w
-                && _tlAssert("source/phys_gjk.cpp", 2115, "AbsSquared(support_dir) >= m_gjk_pen_thresh_sq", "") )
+            phys_gjk_info::comp_v(this->m_w_set, &w_4);
+            support_dir_12 = w_4.y * w_4.y + w_4.x * w_4.x + w_4.z * w_4.z;
+            if (this->m_gjk_pen_thresh_sq > (double)support_dir_12
+                && _tlAssert("source/phys_gjk.cpp", 2115, "AbsSquared(support_dir) >= m_gjk_pen_thresh_sq", ""))
             {
                 __debugbreak();
             }
-            support_dir.z = 1.0 - SEP_CONV_THRESH;
-            support_dir.z = support_dir.z * support_dir.z;
-            if ( support_dir.z * this->m_lower_dist_sq < 289.0 || v29 >= 10 )
-                return 2;
+            support_dir_8 = 1.0 - SEP_CONV_THRESH;
+            support_dir_8 = support_dir_8 * support_dir_8;
+            if (support_dir_8 * this->m_lower_dist_sq < 289.0 || v28 >= 10)
+                return GJK_PENETRATING;
         }
         v10 = _tlAssert("source/phys_gjk.cpp", 2110, "0", "gjk has failed.");
         goto LABEL_23;
     }
     v10 = _tlAssert("source/phys_gjk.cpp", 2080, "0", "initial support dir invalid.");
 LABEL_23:
-    if ( v10 )
+    if (v10)
         __debugbreak();
-    return 3;
+    return GJK_INVALID;
 }
 
-char __userpurge phys_gjk_info::phys_collide_do_gjk_collide@<al>(
-                phys_gjk_info *this@<ecx>,
-                int a2@<ebp>,
-                const phys_gjk_input *d)
+char phys_gjk_info::phys_collide_do_gjk_collide(const phys_gjk_input *d)
 {
     const phys_mat44 *cg1_to_world_xform; // eax
     double v5; // st6
@@ -1405,11 +1789,11 @@ char __userpurge phys_gjk_info::phys_collide_do_gjk_collide@<al>(
     float v28; // [esp+30h] [ebp-10h]
     phys_gjk_info::gjk_retval_e v29; // [esp+30h] [ebp-10h]
     float cg2_radius; // [esp+30h] [ebp-10h]
-    unsigned int v31[2]; // [esp+34h] [ebp-Ch] BYREF
-    _UNKNOWN *retaddr; // [esp+40h] [ebp+0h]
-
-    v31[0] = a2;
-    v31[1] = retaddr;
+    //unsigned int v31[2]; // [esp+34h] [ebp-Ch] BYREF
+    //_UNKNOWN *retaddr; // [esp+40h] [ebp+0h]
+    //
+    //v31[0] = a2;
+    //v31[1] = retaddr;
     if ( (d->m_start_time < 0.0 || d->m_end_time < (double)d->m_start_time || d->m_end_time > 1.0)
         && _tlAssert(
                  "source/phys_gjk.cpp",
@@ -1420,7 +1804,7 @@ char __userpurge phys_gjk_info::phys_collide_do_gjk_collide@<al>(
         __debugbreak();
     }
     this->m_flags = 0;
-    phys_full_inv_multiply_mat((int)v31, &this->cg2_to_cg1_xform, d->cg1_to_world_xform, d->cg2_to_world_xform);
+    phys_full_inv_multiply_mat(&this->cg2_to_cg1_xform, d->cg1_to_world_xform, d->cg2_to_world_xform);
     if ( d->m_continuous_collision )
     {
         cg1_to_world_xform = d->cg1_to_world_xform;
@@ -1451,7 +1835,7 @@ char __userpurge phys_gjk_info::phys_collide_do_gjk_collide@<al>(
         v7 = 0.0011560001;
     }
     this->m_gjk_pen_thresh_sq = v7;
-    v8 = phys_gjk_info::collide(this, (int)v31, d);
+    v8 = phys_gjk_info::collide(d);
     v29 = v8;
     if ( v8 == GJK_INVALID )
     {
@@ -1479,13 +1863,13 @@ char __userpurge phys_gjk_info::phys_collide_do_gjk_collide@<al>(
             m_w_set = this->m_w_set;
             if ( m_w_set == 15 )
             {
-                phys_gjk_info::gjk_cache_update_invalid(this, d);
+                phys_gjk_info::gjk_cache_update_invalid(d);
                 return 1;
             }
             else if ( v8 == GJK_VALID )
             {
-                phys_gjk_info::comp_v(this, COERCE_FLOAT(v31), m_w_set, &this->m_support_dir);
-                phys_gjk_info::gjk_cache_update_test_only_valid(this, (int)v31, d);
+                phys_gjk_info::comp_v(m_w_set, &this->m_support_dir);
+                phys_gjk_info::gjk_cache_update_test_only_valid(d);
                 return 1;
             }
             else
@@ -1495,7 +1879,7 @@ char __userpurge phys_gjk_info::phys_collide_do_gjk_collide@<al>(
                 {
                     __debugbreak();
                 }
-                phys_gjk_info::gjk_cache_update_test_only_penetrating(this, d);
+                phys_gjk_info::gjk_cache_update_test_only_penetrating(d);
                 return 1;
             }
         }
@@ -1512,7 +1896,7 @@ char __userpurge phys_gjk_info::phys_collide_do_gjk_collide@<al>(
             {
                 if ( _tlAssert("source/phys_gjk.cpp", 2240, "0", "phys_gjk failed") )
                     __debugbreak();
-                phys_gjk_info::gjk_cache_update_invalid(this, d);
+                phys_gjk_info::gjk_cache_update_invalid(d);
                 return 0;
             }
             else
@@ -1522,10 +1906,11 @@ char __userpurge phys_gjk_info::phys_collide_do_gjk_collide@<al>(
                 {
                     __debugbreak();
                 }
-                phys_gjk_info::comp_closest_points(this, this->m_w_set, &this->cg1_cinfo_loc.m_p1, &this->cg1_cinfo_loc.m_p2);
-                phys_gjk_info::comp_v(this, COERCE_FLOAT(v31), this->m_w_set, &this->cg1_cinfo_loc.m_n);
+                phys_gjk_info::comp_closest_points(this->m_w_set, &this->cg1_cinfo_loc.m_p1, &this->cg1_cinfo_loc.m_p2);
+                phys_gjk_info::comp_v(this->m_w_set, &this->cg1_cinfo_loc.m_n);
                 v14 = Abs(&this->cg1_cinfo_loc.m_n.x);
-                phys_vec3::operator/=(&this->cg1_cinfo_loc.m_n, v14);
+                //phys_vec3::operator/=(&this->cg1_cinfo_loc.m_n, v14);
+                this->cg1_cinfo_loc.m_n /= v14;
                 cg1_radius = d->cg1_radius;
                 v17 = this->cg1_cinfo_loc.m_n.x * cg1_radius;
                 v21 = this->cg1_cinfo_loc.m_n.y * cg1_radius;
@@ -1540,19 +1925,19 @@ char __userpurge phys_gjk_info::phys_collide_do_gjk_collide@<al>(
                 this->cg1_cinfo_loc.m_p2.x = this->cg1_cinfo_loc.m_p2.x + v18;
                 this->cg1_cinfo_loc.m_p2.y = v22 + this->cg1_cinfo_loc.m_p2.y;
                 this->cg1_cinfo_loc.m_p2.z = this->cg1_cinfo_loc.m_p2.z + v26;
-                phys_gjk_info::gjk_cache_update_colliding(this, (int)v31, d);
+                phys_gjk_info::gjk_cache_update_colliding(d);
                 return 1;
             }
         }
     }
     else
     {
-        phys_gjk_info::gjk_cache_update_test_only_valid(this, (int)v31, d);
+        phys_gjk_info::gjk_cache_update_test_only_valid(d);
         return 0;
     }
 }
 
-int __thiscall phys_gjk_info::compress_verts(phys_gjk_info *this, char w_set)
+int __thiscall phys_gjk_info::compress_verts(char w_set)
 {
     int result; // eax
     int v3; // edx
@@ -1666,7 +2051,7 @@ int __thiscall phys_gjk_info::compress_verts(phys_gjk_info *this, char w_set)
     return result;
 }
 
-void __thiscall phys_gjk_info::comp_closest_points(phys_gjk_info *this, int w_set, phys_vec3 *a, phys_vec3 *b)
+void __thiscall phys_gjk_info::comp_closest_points(int w_set, phys_vec3 *a, phys_vec3 *b)
 {
     phys_gjk_info::phys_gjk_set_info *v4; // eax
     double v5; // st6
@@ -1788,96 +2173,88 @@ void __thiscall phys_gjk_info::comp_closest_points(phys_gjk_info *this, int w_se
 }
 
 // bad sp value at call has been detected, the output may be wrong!
-const phys_vec3 *__userpurge phys_gjk_info::get_initial_support_dir@<eax>(
-                phys_gjk_info *this@<ecx>,
-                int a2@<ebp>,
+const phys_vec3 *phys_gjk_info::get_initial_support_dir(
                 phys_vec3 *result,
                 const phys_gjk_input *d)
 {
     phys_gjk_cache_info *gjk_ci; // edi
-    const phys_vec3 *v5; // eax
     const phys_vec3 *v6; // eax
     const phys_vec3 *v7; // eax
     float v8; // edx
     float v9; // ecx
-    float x; // edx
-    int v11; // [esp-3Ch] [ebp-5Ch] BYREF
-    int v12; // [esp-2Ch] [ebp-4Ch] BYREF
+    char *v10; // edx
+    phys_vec3 v11; // [esp-3Ch] [ebp-5Ch] BYREF
+    phys_vec3 v12; // [esp-2Ch] [ebp-4Ch] BYREF
     phys_vec3 v13; // [esp-1Ch] [ebp-3Ch] BYREF
     float v14; // [esp-Ch] [ebp-2Ch]
     float v15; // [esp-8h] [ebp-28h]
     float v16; // [esp-4h] [ebp-24h]
-    phys_vec3 dir; // [esp+0h] [ebp-20h]
-    const phys_mat44 *v18; // [esp+10h] [ebp-10h]
-    unsigned int v19[3]; // [esp+14h] [ebp-Ch] BYREF
-    _UNKNOWN *retaddr; // [esp+20h] [ebp+0h]
-
-    v19[0] = a2;
-    v19[1] = retaddr;
+    const char *dir; // [esp+0h] [ebp-20h]
+    int v18; // [esp+4h] [ebp-1Ch]
+    const char *v19; // [esp+8h] [ebp-18h]
+    const char *v20; // [esp+Ch] [ebp-14h]
+    const phys_mat44 *v21; // [esp+10h] [ebp-10h]
+    //_UNKNOWN *v22[2]; // [esp+14h] [ebp-Ch] BYREF
+    //int vars0; // [esp+20h] [ebp+0h]
+    //
+    //v22[0] = a2;
+    //v22[1] = (_UNKNOWN *)vars0;
     gjk_ci = d->gjk_ci;
-    v18 = (const phys_mat44 *)this;
-    if ( gjk_ci && (gjk_ci->m_flags & 4) != 0 )
+    v21 = (const phys_mat44 *)this;
+    if (gjk_ci && (gjk_ci->m_flags & 4) != 0)
     {
         phys_inv_multiply(result, d->cg1_to_world_xform, &gjk_ci->m_support_dir);
         return result;
     }
     else
     {
-        v6 = d->gjk_cg2->get_center(d->gjk_cg2, &v12);
-        phys_full_multiply((int)v19, &v13, v18, v6);
-        v7 = d->gjk_cg1->get_center(d->gjk_cg1, &v11);
+        v6 = d->gjk_cg2->get_center(&v12);
+        phys_full_multiply(&v13, v21, v6);
+        v7 = d->gjk_cg1->get_center(&v11);
         v14 = v7->x - v13.x;
         v15 = v7->y - v13.y;
         v16 = v7->z - v13.z;
-        *(float *)&v18 = v14 * v14 + v15 * v15 + v16 * v16;
-        if ( *(float *)&v18 < 0.0000000099999991 )
+        *(float *)&v21 = v14 * v14 + v15 * v15 + v16 * v16;
+        if (*(float *)&v21 < 0.0000000099999991)
         {
-            if ( (pai_gjk_initial_support_dir.m_hits_total_count < pai_gjk_initial_support_dir.m_max_hits_total
-                 || !pai_gjk_initial_support_dir.m_max_hits_total)
-                && pai_gjk_initial_support_dir.m_hits_frame_count < pai_gjk_initial_support_dir.m_max_hits_per_frame )
+            if ((pai_gjk_initial_support_dir.m_hits_total_count < pai_gjk_initial_support_dir.m_max_hits_total
+                || !pai_gjk_initial_support_dir.m_max_hits_total)
+                && pai_gjk_initial_support_dir.m_hits_frame_count < pai_gjk_initial_support_dir.m_max_hits_per_frame)
             {
-                LODWORD(dir.w) = "degenerate gjk initial support dir.";
-                LODWORD(dir.z) = "0";
-                LODWORD(dir.y) = 2039;
-                LODWORD(dir.x) = "source/phys_gjk.cpp";
-                if ( pai_gjk_initial_support_dir.m_use_warnings_only )
+                v20 = "degenerate gjk initial support dir.";
+                v19 = "0";
+                v18 = 2039;
+                dir = "source/phys_gjk.cpp";
+                if (pai_gjk_initial_support_dir.m_use_warnings_only)
                 {
-                    PHYS_WARNING(
-                        (const char *)LODWORD(dir.x),
-                        SLODWORD(dir.y),
-                        (const char *)LODWORD(dir.z),
-                        (const char *)LODWORD(dir.w));
+                    PHYS_WARNING(dir, v18, v19, v20);
                 }
-                else if ( _tlAssert(
-                                        (const char *)LODWORD(dir.x),
-                                        SLODWORD(dir.y),
-                                        (const char *)LODWORD(dir.z),
-                                        (const char *)LODWORD(dir.w)) )
+                else if (_tlAssert(dir, v18, v19, v20))
                 {
                     __debugbreak();
                 }
             }
             _InterlockedExchangeAdd(&pai_gjk_initial_support_dir.m_hits_total_count, 1u);
             _InterlockedExchangeAdd(&pai_gjk_initial_support_dir.m_hits_frame_count, 1u);
-            v5 = result;
             *result = PHYS_X_VEC;
+            return result;
         }
         else
         {
-            v5 = result;
             v8 = v15;
             result->x = v14;
             v9 = v16;
             result->y = v8;
-            x = dir.x;
+            //v10 = dir;
             result->z = v9;
-            result->w = x;
+            //LODWORD(result->w) = v10;
+            result->w = 0.0f;
+            return result;
         }
     }
-    return v5;
 }
 
-void __thiscall phys_gjk_info::gjk_cache_update_invalid(phys_gjk_info *this, const phys_gjk_input *d)
+void __thiscall phys_gjk_info::gjk_cache_update_invalid(const phys_gjk_input *d)
 {
     phys_gjk_cache_info *gjk_ci; // eax
 
@@ -1890,21 +2267,18 @@ void __thiscall phys_gjk_info::gjk_cache_update_invalid(phys_gjk_info *this, con
     }
 }
 
-void __userpurge phys_gjk_info::gjk_cache_update_test_only_valid(
-                phys_gjk_info *this@<ecx>,
-                int a2@<ebp>,
-                const phys_gjk_input *d)
+void phys_gjk_info::gjk_cache_update_test_only_valid(const phys_gjk_input *d)
 {
     phys_gjk_cache_info *gjk_ci; // eax
     const phys_vec3 *v4; // eax
     phys_gjk_cache_info *v5; // ecx
     phys_vec3 v6; // [esp-10h] [ebp-1Ch] BYREF
-    int v7; // [esp+0h] [ebp-Ch]
-    void *v8; // [esp+4h] [ebp-8h]
-    void *retaddr; // [esp+Ch] [ebp+0h]
-
-    v7 = a2;
-    v8 = retaddr;
+    //int v7; // [esp+0h] [ebp-Ch]
+    //void *v8; // [esp+4h] [ebp-8h]
+    //void *retaddr; // [esp+Ch] [ebp+0h]
+    //
+    //v7 = a2;
+    //v8 = retaddr;
     gjk_ci = d->gjk_ci;
     if ( gjk_ci )
     {
@@ -1919,10 +2293,7 @@ void __userpurge phys_gjk_info::gjk_cache_update_test_only_valid(
     }
 }
 
-void __userpurge phys_gjk_info::gjk_cache_update_colliding(
-                phys_gjk_info *this@<ecx>,
-                int a2@<ebp>,
-                const phys_gjk_input *d)
+void phys_gjk_info::gjk_cache_update_colliding(const phys_gjk_input *d)
 {
     phys_gjk_cache_info *gjk_ci; // eax
     const phys_vec3 *v5; // eax
@@ -1933,12 +2304,12 @@ void __userpurge phys_gjk_info::gjk_cache_update_colliding(
     int m_w_set; // [esp-40h] [ebp-4Ch]
     phys_vec3 v11; // [esp-20h] [ebp-2Ch] BYREF
     phys_vec3 v12; // [esp-10h] [ebp-1Ch] BYREF
-    int v13; // [esp+0h] [ebp-Ch]
-    void *v14; // [esp+4h] [ebp-8h]
-    void *retaddr; // [esp+Ch] [ebp+0h]
-
-    v13 = a2;
-    v14 = retaddr;
+    //int v13; // [esp+0h] [ebp-Ch]
+    //void *v14; // [esp+4h] [ebp-8h]
+    //void *retaddr; // [esp+Ch] [ebp+0h]
+    //
+    //v13 = a2;
+    //v14 = retaddr;
     gjk_ci = d->gjk_ci;
     if ( gjk_ci )
     {
@@ -1969,7 +2340,7 @@ void __userpurge phys_gjk_info::gjk_cache_update_colliding(
     }
 }
 
-void __thiscall phys_gjk_info::gjk_cache_update_test_only_penetrating(phys_gjk_info *this, const phys_gjk_input *d)
+void __thiscall phys_gjk_info::gjk_cache_update_test_only_penetrating(const phys_gjk_input *d)
 {
     phys_gjk_cache_info *gjk_ci; // eax
 
@@ -1981,34 +2352,32 @@ void __thiscall phys_gjk_info::gjk_cache_update_test_only_penetrating(phys_gjk_i
     }
 }
 
-const phys_vec3 *__userpurge phys_gjk_geom::support_only@<eax>(
-                phys_gjk_geom *this@<ecx>,
-                int a2@<ebp>,
-                int a3@<esi>,
+const phys_vec3 *phys_gjk_geom::support_only(
                 const phys_vec3 *result,
                 const phys_mat44 *xform,
-                const phys_vec3 *v)
+                const phys_vec3 *v) const
 {
-    void (__thiscall *support)(phys_gjk_geom *, const phys_vec3 *, phys_vec3 *, phys_vec3 *); // eax
+    void(__thiscall * support)(phys_gjk_geom *, const phys_vec3 *, phys_vec3 *, phys_vec3 *); // eax
     int v8; // [esp-30h] [ebp-3Ch] BYREF
     phys_vec3 v9; // [esp-20h] [ebp-2Ch] BYREF
-    float v10[4]; // [esp-10h] [ebp-1Ch] BYREF
-    unsigned int v11[3]; // [esp+0h] [ebp-Ch] BYREF
-    _UNKNOWN *retaddr; // [esp+Ch] [ebp+0h]
-
-    v11[0] = a2;
-    v11[1] = retaddr;
-    v10[0] = xform->x.y * v->y + xform->x.x * v->x + xform->x.z * v->z;
-    v10[1] = xform->y.y * v->y + xform->y.x * v->x + xform->y.z * v->z;
-    support = this->support;
-    v10[2] = xform->z.y * v->y + v->x * xform->z.x + xform->z.z * v->z;
-    ((void (__thiscall *)(phys_gjk_geom *, float *, phys_vec3 *, int *, int))support)(this, v10, &v9, &v8, a3);
-    phys_full_multiply((int)v11, result, xform, &v9);
+    phys_vec3 v10; // [esp-10h] [ebp-1Ch] BYREF
+    //_DWORD v11[3]; // [esp+0h] [ebp-Ch] BYREF
+    //_UNKNOWN *retaddr; // [esp+Ch] [ebp+0h]
+    //
+    //v11[0] = a2;
+    //v11[1] = retaddr;
+    v10.x = xform->x.y * v->y + xform->x.x * v->x + xform->x.z * v->z;
+    v10.y = xform->y.y * v->y + xform->y.x * v->x + xform->y.z * v->z;
+    //support = this->support;
+    v10.z = xform->z.y * v->y + v->x * xform->z.x + xform->z.z * v->z;
+    //((void(__thiscall *)(phys_gjk_geom *, phys_vec3 *, phys_vec3 *, int *, int))support)(this, &v10, &v9, &v8, a3);
+    this->support(&v10, &v9, (phys_vec3*)&v8);
+    phys_full_multiply((phys_vec3*)result, xform, &v9);
     return result;
 }
 
 // local variable allocation has failed, the output may be wrong!
-void __userpurge phys_gjk_info::comp_v(phys_gjk_info *this@<ecx>, float a2@<ebp>, int w_set, phys_vec3 *v)
+void phys_gjk_info::comp_v(int w_set, phys_vec3 *v)
 {
     char v5; // cl
     int v6; // edi
@@ -2037,8 +2406,8 @@ void __userpurge phys_gjk_info::comp_v(phys_gjk_info *this@<ecx>, float a2@<ebp>
     float nside_sq[4]; // [esp+90h] [ebp-10h]
     float retaddr; // [esp+A0h] [ebp+0h]
 
-    nside_sq[1] = a2;
-    nside_sq[2] = retaddr;
+    //nside_sq[1] = a2;
+    //nside_sq[2] = retaddr;
     v5 = w_set;
     if ( w_set <= 0 || w_set >= 15 )
     {
@@ -2182,9 +2551,7 @@ LABEL_39:
     v->z = normal.w;
 }
 
-int __userpurge phys_gjk_info::init_gjk@<eax>(
-                phys_gjk_info *this@<ecx>,
-                int a2@<ebp>,
+int phys_gjk_info::init_gjk(
                 const phys_gjk_input *d,
                 const phys_vec3 *initial_support_dir,
                 bool in_separation_loop)
@@ -2200,14 +2567,14 @@ int __userpurge phys_gjk_info::init_gjk@<eax>(
     phys_vec3 v14; // [esp-20h] [ebp-2Ch] BYREF
     int v15; // [esp-8h] [ebp-14h]
     int v16; // [esp-4h] [ebp-10h] BYREF
-    unsigned int v17[2]; // [esp+0h] [ebp-Ch] BYREF
-    _UNKNOWN *retaddr; // [esp+Ch] [ebp+0h]
-
-    v17[0] = a2;
-    v17[1] = retaddr;
+    //unsigned int v17[2]; // [esp+0h] [ebp-Ch] BYREF
+    //_UNKNOWN *retaddr; // [esp+Ch] [ebp+0h]
+    //
+    //v17[0] = a2;
+    //v17[1] = retaddr;
     if ( in_separation_loop )
     {
-        v6 = phys_gjk_info::compress_verts(this, this->m_w_set);
+        v6 = phys_gjk_info::compress_verts(this->m_w_set);
     }
     else
     {
@@ -2230,7 +2597,7 @@ int __userpurge phys_gjk_info::init_gjk@<eax>(
             v15 = v16;
             do
             {
-                v9 = phys_full_multiply((int)v17, &v14, &this->cg2_to_cg1_xform, m_b_verts);
+                v9 = phys_full_multiply(&v14, &this->cg2_to_cg1_xform, m_b_verts);
                 m_b_verts->x = v9->x;
                 y = v9->y;
                 ++m_b_verts;
@@ -2244,9 +2611,9 @@ int __userpurge phys_gjk_info::init_gjk@<eax>(
     }
     if ( v6 )
     {
-        v12 = phys_gjk_info::seed_simplex(this, (int)v17, v6);
+        v12 = phys_gjk_info::seed_simplex(v6);
         this->m_w_set = v12;
-        phys_gjk_info::comp_v(this, COERCE_FLOAT(v17), v12, &this->m_support_dir);
+        phys_gjk_info::comp_v(v12, &this->m_support_dir);
         this->m_last_w_set = this->m_w_set;
         return 1;
     }

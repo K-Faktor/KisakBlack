@@ -295,6 +295,13 @@ struct    __declspec(align(16)) rigid_body_constraint_angular_actuator : rigid_b
         // padding byte
         // padding byte
         // padding byte
+
+        void setup_constraint(pulse_sum_constraint_solver *psys, float delta_t);
+        void set(float power, const phys_mat44 *target_mat);
+        void outer_prolog_update(float delta_t);
+        void outer_epilog_update(const float __formal);
+        void inner_update(float delta_t);
+
 };
 
 struct    __declspec(align(16)) rigid_body_constraint_upright : rigid_body_constraint // sizeof=0xB0
@@ -488,6 +495,59 @@ struct rigid_body_pair_key // sizeof=0x8
     struct rigid_body *m_b2;
 };
 
+struct phys_collision_pair : phys_link_list_base<phys_collision_pair> // sizeof=0x14
+{                                                                             // XREF: ?do_initial_tunnel_test@@YAXPAVbroad_phase_group@@ABVbroad_phase_environement_query_results@@@Z/r
+                                                                                // ?bpi_do_gjk_intersect@@YA?B_NPAVbroad_phase_info@@0M@Z/r
+    broad_phase_info *m_bpi1;
+    broad_phase_info *m_bpi2;
+    float m_hit_time;
+    struct phys_gjk_cache_info *m_gjk_ci;
+};
+
+class __declspec(align(16)) contact_point_info // sizeof=0x50
+{
+    struct pulse_sum_cache_info // sizeof=0xC
+    {
+        pulse_sum_cache m_ps_cache_list[3];
+    };
+public:
+    phys_vec3 m_normal;
+    float m_fric_coef;
+    float m_bounce_coef;
+    float m_max_restitution_vel;
+    int m_flags;
+    int m_point_pair_count;
+    phys_vec3 *m_list_b1_r_loc;
+    phys_vec3 *m_list_b2_r_loc;
+    contact_point_info::pulse_sum_cache_info *m_list_pulse_sum_cache_info;
+    contact_point_info *m_next_link;
+    const void *m_rb2_entity;
+    float m_translation_lambda;
+    phys_collision_pair *m_pcp;
+    struct rigid_body_constraint_contact *m_rbc_contact;
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+    // padding byte
+
+    void __thiscall set_solver_priority(unsigned int priority);
+    void __thiscall set_rb2_entity(const void *rb2_entity);
+    static void __cdecl set_closest_cached_psc(contact_point_info *cached_cpi, const phys_vec3 *normal, const phys_vec3 *b1_r_loc, const phys_vec3 *b2_r_loc, contact_point_info::pulse_sum_cache_info *psc);
+    void __thiscall set_closest_cached_psc(contact_point_info *cached_cpi);
+    static phys_transient_allocator *__cdecl get_cpi_allocator();
+    void __thiscall get_closest_psc(const phys_vec3 *normal, const phys_vec3 *b1_r_loc, const phys_vec3 *b2_r_loc, float *closest_error, const contact_point_info::pulse_sum_cache_info **closest_psc);
+    static contact_point_info *__cdecl create_cpi(int point_pair_count, bool no_error, phys_transient_allocator *allocator);
+    void __thiscall check_surface_properties();
+};
+
 struct rigid_body_constraint_contact : rigid_body_constraint // sizeof=0x2C
 {                                                                             // XREF: phys_free_list<rigid_body_constraint_contact>::T_internal/r
     struct avl_tree_accessor // sizeof=0x0
@@ -505,6 +565,8 @@ struct rigid_body_constraint_contact : rigid_body_constraint // sizeof=0x2C
         environment_rigid_body *b2_);
 
     void update_smallest_lambda();
+    void setup_constaint(struct pulse_sum_constraint_solver *phys, float delta_t);
+    void verify_constraint(environment_rigid_body *b1_, environment_rigid_body *b2_);
 };
 
 struct rb_inplace_partition_node // sizeof=0x38

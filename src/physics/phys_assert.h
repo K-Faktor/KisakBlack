@@ -2,9 +2,9 @@
 
 struct phys_assert_info // sizeof=0x18
 {                                       // XREF: .data:phys_assert_info pai_check_terrain_query_params/r
-    int m_hits_total_count;             // XREF: phys_heap_gjk_cache_system_avl_tree::get_gjk_cache_info(uint,uint,bool)+E5/r
+    volatile unsigned int m_hits_total_count;             // XREF: phys_heap_gjk_cache_system_avl_tree::get_gjk_cache_info(uint,uint,bool)+E5/r
                                         // phys_heap_gjk_cache_system_avl_tree::get_gjk_cache_info(uint,uint,bool)+1C0/r ...
-    int m_hits_frame_count;             // XREF: phys_heap_gjk_cache_system_avl_tree::get_gjk_cache_info(uint,uint,bool):loc_83FE6C/r
+    volatile unsigned int m_hits_frame_count;             // XREF: phys_heap_gjk_cache_system_avl_tree::get_gjk_cache_info(uint,uint,bool):loc_83FE6C/r
                                         // phys_heap_gjk_cache_system_avl_tree::get_gjk_cache_info(uint,uint,bool)+17D/o ...
     int m_max_hits_total;               // XREF: phys_heap_gjk_cache_system_avl_tree::get_gjk_cache_info(uint,uint,bool)+EB/r
                                         // phys_heap_gjk_cache_system_avl_tree::get_gjk_cache_info(uint,uint,bool)+F3/r ...
