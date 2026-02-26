@@ -1,5 +1,6 @@
 #include "rbc_def_contact.h"
 #include <physics/rigid_body.h>
+#include <physics/physics_system_internal.h>
 
 phys_transient_allocator *__cdecl contact_point_info::get_cpi_allocator()
 {
@@ -7,7 +8,6 @@ phys_transient_allocator *__cdecl contact_point_info::get_cpi_allocator()
 }
 
 void __thiscall rigid_body_constraint_contact::verify_constraint(
-        rigid_body_constraint_contact *this,
         environment_rigid_body *b1_,
         environment_rigid_body *b2_)
 {
@@ -28,7 +28,6 @@ void __thiscall rigid_body_constraint_contact::verify_constraint(
 }
 
 void __thiscall rigid_body_constraint_contact::setup_constraint(
-        rigid_body_constraint_contact *this,
         pulse_sum_constraint_solver *psys,
         float delta_t)
 {
@@ -42,7 +41,7 @@ void __thiscall rigid_body_constraint_contact::setup_constraint(
   }
 }
 
-void __thiscall rigid_body_constraint_contact::~rigid_body_constraint_contact(rigid_body_constraint_contact *this)
+void __thiscall rigid_body_constraint_contact::~rigid_body_constraint_contact()
 {
   phys_inplace_avl_tree<rigid_body_pair_key,rigid_body_constraint_contact,rigid_body_constraint_contact::avl_tree_accessor>::remove(
     &g_physics_system->m_search_tree_rbc_contact,

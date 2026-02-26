@@ -148,6 +148,8 @@ struct broad_phase_base_list // sizeof=0x8
     };
     broad_phase_base_list::node *m_list;
     broad_phase_base_list::node **m_list_cur;
+
+    void add(broad_phase_base *bpb);
 };
 
 // "environement". for an authentic decompilation experience. (fixed in blops2!!).
@@ -157,6 +159,27 @@ struct broad_phase_environement_query_results // sizeof=0x14
     int m_list_bpi_env_count;
     int m_thread_id;                    // XREF: bp_env_jq_batch_function2(jqBatch *)+10/w
     unsigned int m_env_collision_flags;
+
+    inline void add(broad_phase_base *bpb)
+    {
+        broad_phase_info *bpi_env; // [esp+4h] [ebp-34h]
+
+        if ((bpb->m_flags & 4) == 0
+            && _tlAssert(
+                "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_broad_phase.h",
+                389,
+                "bpb->is_bpi_env()",
+                ""))
+        {
+            __debugbreak();
+        }
+        //bpi_env = broad_phase_base::get_bpi_env(bpb);
+        bpb->get_bpi_env();
+        //broad_phase_base_list::add(&this->m_list_bpi_env, bpi_env);
+        this->m_list_bpi_env.add(bpi_env);
+        ++this->m_list_bpi_env_count;
+        this->m_env_collision_flags |= bpi_env->m_env_collision_flags;
+    }
 };
 
 struct broad_phase_terrain_query_callback // sizeof=0x4
@@ -191,7 +214,7 @@ struct broad_phase_memory // sizeof=0xCD8
     broad_phase_base *g_list_bpb;
     int g_list_bpb_count;
     broad_phase_info *m_list_bpi_env;
-    int m_bpi_env_count;
+    volatile unsigned int m_bpi_env_count;
     int m_bpg_env_count;
     int m_bpg_env_bpi_count;
     int m_bpi_env_no_database_count;
@@ -371,5 +394,12 @@ void add_collision_pair_mutex(
 void    broad_phase_process_collision_pairs();
 void process_cluster_environment_collision(broad_phase_base *bpb, broad_phase_environement_query_results *bpeqr);
 
+char __cdecl phys_are_potentially_colliding(
+    const phys_vec3 *aabb_min0,
+    const phys_vec3 *aabb_max0,
+    const phys_vec3 *aabb0_translation,
+    const phys_vec3 *aabb_min1,
+    const phys_vec3 *aabb_max1,
+    float *hit_time);
 
 extern broad_phase_memory *G_BPM;

@@ -1,9 +1,8 @@
 #include "rbc_def_vehicle.h"
+#include <physics/phys_constraint_solver_multithreaded.h>
+#include "rbc_def_generic.h"
 
-void __thiscall pulse_sum_normal::set_pulse_sum_limits_parent_ratio(
-        pulse_sum_normal *this,
-        float limit_ratio,
-        pulse_sum_normal *const parent)
+void __thiscall pulse_sum_normal::set_pulse_sum_limits_parent_ratio(float limit_ratio, pulse_sum_normal *const parent)
 {
   if ( limit_ratio < 0.0
     && _tlAssert(
@@ -31,7 +30,6 @@ void __thiscall pulse_sum_normal::set_pulse_sum_limits_parent_ratio(
 }
 
 void __thiscall pulse_sum_wheel::set_side_fwd_ratios(
-        pulse_sum_wheel *this,
         float side_ratio,
         float fwd_ratio,
         float side_fric_max)
@@ -53,7 +51,6 @@ void __thiscall pulse_sum_wheel::set_side_fwd_ratios(
 }
 
 void __thiscall rigid_body_constraint_wheel::set_wheel_state_accelerating(
-        rigid_body_constraint_wheel *this,
         float desired_speed_k,
         float acceleration_factor_k)
 {
@@ -63,7 +60,6 @@ void __thiscall rigid_body_constraint_wheel::set_wheel_state_accelerating(
 }
 
 void __thiscall rigid_body_constraint_wheel::get_wheel_state_accelerating(
-        rigid_body_constraint_wheel *this,
         float *desired_speed_k,
         float *acceleration_factor_k)
 {
@@ -72,21 +68,19 @@ void __thiscall rigid_body_constraint_wheel::get_wheel_state_accelerating(
 }
 
 void __thiscall rigid_body_constraint_wheel::set_wheel_state_braking(
-        rigid_body_constraint_wheel *this,
         float braking_factor_k)
 {
   this->m_wheel_state = 1;
   this->m_braking_factor_k = braking_factor_k;
 }
 
-void __thiscall rigid_body_constraint_wheel::set_no_collision(rigid_body_constraint_wheel *this)
+void __thiscall rigid_body_constraint_wheel::set_no_collision()
 {
   this->m_wheel_flags &= ~1u;
   this->b2 = 0;
 }
 
 void __thiscall rigid_body_constraint_wheel::set_collision(
-        rigid_body_constraint_wheel *this,
         rigid_body *const rb,
         const phys_vec3 *hitp_loc,
         const phys_vec3 *hitn_loc)
@@ -134,7 +128,6 @@ double __cdecl lerp_float(const float tgt, float cur, float rate, float delta_t)
 }
 
 void __thiscall rigid_body_constraint_wheel::set(
-        rigid_body_constraint_wheel *this,
         const phys_vec3 *wheel_center_loc,
         const phys_vec3 *suspension_dir_loc,
         const phys_vec3 *wheel_axis_loc,
@@ -185,9 +178,7 @@ void __thiscall rigid_body_constraint_wheel::set(
   PHYS_ASSERT_ORTHOGONAL(p_m_b1_suspension_dir_loc, p_m_b1_wheel_axis_loc);
 }
 
-void __userpurge rigid_body_constraint_wheel::get_wheel_collide_segment(
-        rigid_body_constraint_wheel *this@<ecx>,
-        int a2@<ebp>,
+void rigid_body_constraint_wheel::get_wheel_collide_segment(
         const phys_mat44 *b1_mat,
         phys_vec3 *const p0,
         phys_vec3 *const p1)
@@ -256,10 +247,7 @@ void __userpurge rigid_body_constraint_wheel::get_wheel_collide_segment(
   p1->z = wheel_center.w;
 }
 
-void __userpurge rigid_body_constraint_wheel::epilog_vel_constraint(
-        rigid_body_constraint_wheel *this@<ecx>,
-        int a2@<ebp>,
-        float delta_t)
+void rigid_body_constraint_wheel::epilog_vel_constraint(float delta_t)
 {
   float z; // edx
   rigid_body *b1; // edi

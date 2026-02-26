@@ -28,15 +28,15 @@ struct gjk_collision_visitor // sizeof=0x4
         ;
     }
 
-    // LWSS: no heckin clue why these are here, just cloned because of the default virtual impl? Maybe some macro crap
-    //virtual bool query_create_prolog_1(const float *, const float *, const void *)
-    //{
-    //    return true;
-    //}
-    //virtual void query_create_epilog_1(gjk_base_t *)
-    //{
-    //    ;
-    //}
+    virtual bool query_create_prolog_1(const float *, const float *, const void *)
+    {
+        return true;
+    }
+
+    virtual void query_create_epilog_1(gjk_base_t *)
+    {
+        ;
+    }
 };
 
 struct __declspec(align(16)) gjk_trace_output_t // sizeof=0x50
@@ -90,6 +90,8 @@ struct bpei_database_t // sizeof=0x10
 
     void update_database();
     void purge_database();
+
+    broad_phase_environment_info *get_bpei_mt(bpei_database_id database_id);
 
     broad_phase_environment_info *get_bpei(bpei_database_id database_id);
     broad_phase_environment_info *create_bpei(bpei_database_id database_id);
@@ -460,8 +462,26 @@ struct destructible_ent_aa : phys_auto_activate_callback // sizeof=0xC
     centity_s *m_cent;
 
 
-    bool has_auto_activated();
+    bool has_auto_activated()
+    {
+        return m_has_auto_activated;
+    }
     void auto_activate(struct broad_phase_info *bpi_impactor);
+};
+
+struct dynamic_ent_aa : phys_auto_activate_callback // sizeof=0xC
+{
+    bool m_has_auto_activated;
+    // padding byte
+    // padding byte
+    // padding byte
+    DynEntityDef *m_dynEntDef;
+
+    bool has_auto_activated()
+    {
+        return m_has_auto_activated;
+    }
+    void auto_activate(broad_phase_info *bpi_impactor);
 };
 
 struct gjk_physics_collision_visitor : gjk_collision_visitor // sizeof=0x80
@@ -499,6 +519,20 @@ struct gjk_physics_collision_visitor : gjk_collision_visitor // sizeof=0x80
     // padding byte
     // padding byte
     // padding byte
+
+    //bool is_query();
+    void get_local_query_aabb(float *, float *);
+    void set_local_query_info(const void *entity);
+    bool query_create_prolog(const void *);
+    bool query_create_prolog_1(
+        float *local_aabb_min,
+        float *local_aabb_max,
+        const void *geom);
+    void query_create_epilog(gjk_base_t *gjk_geom);
+    void query_create_epilog_1(gjk_base_t *gjk_geom);
+
+    //void *allocate(int size, int alignment, bool no_error);
+    void *allocate(const int, const int, const bool);
 };
 
 phys_vec3 *__cdecl phys_Unitize(phys_vec3 *result, const phys_vec3 *a);

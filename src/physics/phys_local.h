@@ -694,6 +694,7 @@ struct phys_simple_allocator//<phys_heap_gjk_cache_system_avl_tree::phys_gjk_cac
                 if (!slot)
                         return 0;
                 ++this->m_count;
+                new ((void *)slot) T();
                 return (T*)slot;
         }
 
@@ -703,6 +704,7 @@ struct phys_simple_allocator//<phys_heap_gjk_cache_system_avl_tree::phys_gjk_cac
                 {
                         PMM_VALIDATE((char *)slot, sizeof(T), sizeof(T) % 16 == 0 ? 16 : 4);
                         --this->m_count;
+                        slot->~T(); // disgusting
                         PMM_FREE((unsigned __int8 *)slot, sizeof(T), sizeof(T) % 16 == 0 ? 16 : 4);
                 }
         }

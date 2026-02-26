@@ -59,7 +59,7 @@ float spin_scale = 0.80000001;
 float spin_scale_0 = 0.15000001;
 float range_1 = 5000.0;
 
-
+minspec_mutex g_render_mutex;
 
 void *G_PHYSICS_TOTAL_MEMORY_BUFFER;
 
@@ -4988,7 +4988,7 @@ void    Phys_SetUserBody(int id, float *position)
     body->setPosition(&dictator);
 }
 
-minspec_mutex g_render_mutex;
+
 bool __cdecl Phys_ObjIsAsleep(int id)
 {
     const char *v1; // eax

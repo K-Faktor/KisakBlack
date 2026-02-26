@@ -522,6 +522,43 @@ bool __thiscall gjk_query_output::query_create_prolog(const void *geom)
     return this->m_local_bpei->m_data == 0;
 }
 
+broad_phase_environment_info *__thiscall bpei_database_t::get_bpei_mt(bpei_database_id database_id)
+{
+    broad_phase_environment_info *bpei; // [esp+64h] [ebp-4h]
+
+    //minspec_read_write_mutex::ReadLock(&this->m_mutex);
+    this->m_mutex.ReadLock();
+    //bpei = phys_inplace_avl_tree<bpei_database_id, broad_phase_environment_info, broad_phase_environment_info::avl_tree_accessor>::find(&this->m_bpei_map, &database_id);
+    bpei = this->m_bpei_map.find(&database_id);
+    //minspec_read_write_mutex::ReadUnlock(&this->m_mutex);
+    this->m_mutex.ReadUnlock();
+    if (!bpei)
+    {
+        //minspec_read_write_mutex::WriteLock(&this->m_mutex);
+        this->m_mutex.WriteLock();
+        //bpei = phys_inplace_avl_tree<bpei_database_id, broad_phase_environment_info, broad_phase_environment_info::avl_tree_accessor>::find(&this->m_bpei_map, &database_id);
+        bpei = this->m_bpei_map.find(&database_id);
+        if (!bpei)
+        {
+            bpei = bpei_database_t::create_bpei(database_id);
+            bpei->m_next_bpei = this->m_bpei_list;
+            this->m_bpei_list = bpei;
+        }
+        //minspec_read_write_mutex::WriteUnlock(&this->m_mutex);
+        this->m_mutex.WriteUnlock();
+    }
+    if (!bpei
+        && _tlAssert(
+            "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_broad_phase.h",
+            278,
+            "bpei",
+            ""))
+    {
+        __debugbreak();
+    }
+    return bpei;
+}
+
 broad_phase_environment_info *__thiscall bpei_database_t::get_bpei(bpei_database_id database_id)
 {
     broad_phase_environment_info *bpei; // [esp+160h] [ebp-4h]
@@ -3676,3 +3713,15 @@ phys_gjk_cache_info::phys_gjk_cache_info()
         ;
 }
 
+void *gjk_physics_collision_visitor::allocate(
+    const int size,
+    const int alignment,
+    const bool no_error)
+{
+    //return phys_transient_allocator::mt_allocate(
+    return G_BPM->g_collision_memory_buffer.allocate(
+        size,
+        alignment,
+        no_error,
+        "gjk terrain query out of memory.");
+}

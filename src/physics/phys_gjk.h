@@ -285,10 +285,10 @@ struct phys_gjk_geom // sizeof=0x4
 {                                       // XREF: gjk_base_t/r
     //phys_gjk_geom_vtbl *__vftable;
     virtual void support(const phys_vec3 *, phys_vec3 *, phys_vec3 *) const = 0;
-    virtual void get_simplex(const cached_simplex_info *, const int, phys_vec3 *, phys_vec3 *);
+    virtual void get_simplex(const struct cached_simplex_info *, const int, phys_vec3 *, phys_vec3 *);
     virtual void set_simplex(const phys_vec3 *, const int, const phys_vec3 *, cached_simplex_info *);
     virtual const phys_vec3 * get_center(phys_vec3 * result) const;
-    virtual void get_feature(phys_contact_manifold *);
+    virtual void get_feature(struct phys_contact_manifold *) const;
     virtual float get_geom_radius() const
     {
         return 0.0f;

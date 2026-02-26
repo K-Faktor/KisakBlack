@@ -395,7 +395,10 @@ public:
 
     void adjust_col_moved_vec(float lambda);
 
-
+    inline unsigned int is_environment_rigid_body()
+    {
+        return this->m_flags & 0x10;
+    }
 
     phys_vec3 m_last_position;
     phys_vec3 m_moved_vec;

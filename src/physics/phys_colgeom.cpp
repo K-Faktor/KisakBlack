@@ -7,6 +7,11 @@
 #include <qcommon/cm_load.h>
 #include <bgame/bg_slidemove.h>
 #include <tl/tl_system.h>
+#include <qcommon/dobj_management.h>
+#include <xanim/dobj_utils.h>
+#include <clientscript/scr_const.h>
+#include <DynEntity/DynEntity_client.h>
+#include "phys_contact_manifold.h"
 
 phys_simple_allocator<gjk_aabb_t> aabb_pool;
 phys_simple_allocator<gjk_obb_t> obb_pool;
@@ -269,23 +274,23 @@ const phys_vec3 *gjk_aabb_t::get_center(phys_vec3 *result) const
     return result;
 }
 
-void gjk_aabb_t::get_feature(phys_contact_manifold *cman)
+void gjk_aabb_t::get_feature(phys_contact_manifold *cman) const
 {
     phys_vec3 v3; // [esp-50h] [ebp-5Ch] BYREF
     float v4; // [esp-40h] [ebp-4Ch]
     float v5; // [esp-3Ch] [ebp-48h]
     float v6; // [esp-38h] [ebp-44h]
-    phys_vec3 *p_m_center_local; // [esp-34h] [ebp-40h]
+    const phys_vec3 *p_m_center_local; // [esp-34h] [ebp-40h]
     float v8; // [esp-30h] [ebp-3Ch]
     float v9; // [esp-2Ch] [ebp-38h]
     float v10; // [esp-28h] [ebp-34h]
     float v11; // [esp-1Ch] [ebp-28h]
     float v12; // [esp-18h] [ebp-24h]
     float v13; // [esp-14h] [ebp-20h]
-    phys_vec3 *p_m_dims; // [esp-10h] [ebp-1Ch]
+    const phys_vec3 *p_m_dims; // [esp-10h] [ebp-1Ch]
     const phys_vec3 *j; // [esp-Ch] [ebp-18h]
     const phys_mat44 *v16; // [esp-8h] [ebp-14h]
-    gjk_aabb_t *v17; // [esp-4h] [ebp-10h]
+    const gjk_aabb_t *v17; // [esp-4h] [ebp-10h]
     //const phys_vec3 *i; // [esp+0h] [ebp-Ch]
     //const phys_vec3 *last_i; // [esp+4h] [ebp-8h]
     const phys_vec3 *retaddr; // [esp+Ch] [ebp+0h]
@@ -563,7 +568,7 @@ const phys_vec3 *gjk_obb_t::get_center(phys_vec3 *result) const
     return result;
 }
 
-void gjk_obb_t::get_feature(phys_contact_manifold *cman)
+void gjk_obb_t::get_feature(phys_contact_manifold *cman) const
 {
     const phys_vec3 *v3; // eax
     phys_vec3 v4; // [esp-40h] [ebp-4Ch] BYREF
@@ -571,10 +576,10 @@ void gjk_obb_t::get_feature(phys_contact_manifold *cman)
     float v6; // [esp-1Ch] [ebp-28h]
     float v7; // [esp-18h] [ebp-24h]
     float v8; // [esp-14h] [ebp-20h]
-    phys_vec3 *p_m_dims; // [esp-10h] [ebp-1Ch]
+    const phys_vec3 *p_m_dims; // [esp-10h] [ebp-1Ch]
     const phys_vec3 *j; // [esp-Ch] [ebp-18h]
     const phys_mat44 *v11; // [esp-8h] [ebp-14h]
-    gjk_obb_t *v12; // [esp-4h] [ebp-10h]
+    const gjk_obb_t *v12; // [esp-4h] [ebp-10h]
     //const phys_vec3 *i; // [esp+0h] [ebp-Ch] BYREF
     //const phys_vec3 *last_i; // [esp+4h] [ebp-8h]
     //const phys_vec3 *retaddr; // [esp+Ch] [ebp+0h]
@@ -879,7 +884,7 @@ void gjk_brush_t::get_simplex(
     }
 }
 
-void gjk_brush_t::get_feature(phys_contact_manifold *cman)
+void gjk_brush_t::get_feature(phys_contact_manifold *cman) const
 {
     phys_vec3 vec;
 
@@ -1065,7 +1070,7 @@ const phys_vec3 *gjk_brush_t::get_center(phys_vec3 *result) const
     return result;
 }
 
-void gjk_partition_t::get_feature(phys_contact_manifold *cman)
+void gjk_partition_t::get_feature(phys_contact_manifold *cman) const
 {
     phys_vec3 v; // [esp+0h] [ebp-20h]
 
@@ -1248,13 +1253,13 @@ const phys_vec3 *gjk_double_sphere_t::get_center(phys_vec3 *result) const
     return result;
 }
 
-void gjk_double_sphere_t::get_feature(phys_contact_manifold *cman)
+void gjk_double_sphere_t::get_feature(phys_contact_manifold *cman) const
 {
     phys_vec3 v3; // [esp-50h] [ebp-5Ch] BYREF
     float v4; // [esp-40h] [ebp-4Ch]
     float v5; // [esp-3Ch] [ebp-48h]
     float v6; // [esp-38h] [ebp-44h]
-    float *p_x; // [esp-34h] [ebp-40h]
+    const float *p_x; // [esp-34h] [ebp-40h]
     float v8; // [esp-30h] [ebp-3Ch]
     float v9; // [esp-2Ch] [ebp-38h]
     float v10; // [esp-28h] [ebp-34h]
@@ -1264,7 +1269,7 @@ void gjk_double_sphere_t::get_feature(phys_contact_manifold *cman)
     float v14; // [esp-10h] [ebp-1Ch]
     phys_vec3 *p_m_feature_hitn; // [esp-Ch] [ebp-18h]
     int j; // [esp-8h] [ebp-14h]
-    gjk_double_sphere_t *v17; // [esp-4h] [ebp-10h]
+    const gjk_double_sphere_t *v17; // [esp-4h] [ebp-10h]
     //int v18; // [esp+0h] [ebp-Ch]
     int i; // [esp+4h] [ebp-8h]
     int retaddr; // [esp+Ch] [ebp+0h]
@@ -1796,7 +1801,7 @@ float gjk_cylinder_t_s[4] = { 0.0, 1.0, 0.0, -1.0 };
 
 
 // NOTE: this was taken from blops2 because the decomp was pissing me off in blops1, probably exactly the same, probably
-void gjk_cylinder_t::get_feature(phys_contact_manifold *cman)
+void gjk_cylinder_t::get_feature(phys_contact_manifold *cman) const
 {
     float v4; // eax
     float x; // xmm6_4
@@ -2353,7 +2358,7 @@ void    setup_gjk_polygon_cylinder(
     gjk_cylinder->m_capsule_radius = v12;
     if (tad)
     {
-        static float radius_scale_factor = 1.0 / (float)((float)cosf(6.2831855 / 12.0) / 2.0);
+        static float radius_scale_factor = 1.0 / cosf((float)((float)(6.2831855 / 12.0) / 2.0));
         //if ((_S2_7 & 1) == 0)
         //{
         //    _S2_7 |= 1u;
@@ -2662,7 +2667,6 @@ void __cdecl query_brush_model_gjk_geom(
                 int contents_mask,
                 gjk_collision_visitor *allocator)
 {
-    query_brush_model_gjk_geom_visitor query_visitor; // [esp+18h] [ebp-80h] BYREF
     cmodel_t *model; // [esp+94h] [ebp-4h]
 
     if ( (brushModel == 0x3FFF || brushModel == 0x4000)
@@ -2680,18 +2684,18 @@ void __cdecl query_brush_model_gjk_geom(
     {
         __debugbreak();
     }
-    colgeom_visitor_t::colgeom_visitor_t(&query_visitor);
-    query_visitor.__vftable = (query_brush_model_gjk_geom_visitor_vtbl *)&query_brush_model_gjk_geom_visitor::`vftable';
-    allocator->get_local_query_aabb(allocator, (float *)&query_visitor.m_mn, (float *)&query_visitor.m_mx);
+    query_brush_model_gjk_geom_visitor query_visitor; // [esp+18h] [ebp-80h] BYREF
+    //colgeom_visitor_t::colgeom_visitor_t(&query_visitor);
+    //query_visitor.__vftable = (query_brush_model_gjk_geom_visitor_vtbl *)&query_brush_model_gjk_geom_visitor::`vftable';
+    allocator->get_local_query_aabb((float *)&query_visitor.m_mn, (float *)&query_visitor.m_mx);
     query_visitor.m_mask = contents_mask;
     query_visitor.m_allocator = allocator;
     model = CM_ClipHandleToModel(brushModel);
-    colgeom_visitor_t::intersect_box_brushes(&query_visitor, &model->leaf);
+    //colgeom_visitor_t::intersect_box_brushes(&query_visitor, &model->leaf);
+    query_visitor.intersect_box_brushes(&model->leaf);
 }
 
-void query_brush_model_gjk_geom_visitor::visit(
-                query_brush_model_gjk_geom_visitor *this,
-                const cbrush_t *brush)
+void query_brush_model_gjk_geom_visitor::visit(const cbrush_t *brush)
 {
     gjk_brush_t *gjk_geom; // [esp+4h] [ebp-Ch]
     int savedregs; // [esp+10h] [ebp+0h] BYREF
@@ -2701,20 +2705,16 @@ void query_brush_model_gjk_geom_visitor::visit(
     {
         __debugbreak();
     }
-    if ( this->m_allocator->query_create_prolog_1(this->m_allocator, (const float *)brush, brush->maxs, brush) )
+    //if ( this->m_allocator->query_create_prolog_1(this->m_allocator, (const float *)brush, brush->maxs, brush) )
+    if ( this->m_allocator->query_create_prolog((void *)brush) )
     {
-        gjk_geom = gjk_brush_t::create(
-                                 COERCE_FLOAT(&savedregs),
-                                 brush,
-                                 (unsigned __int8)((int)((unsigned int)&bg_vehicleInfos[11].rotorTailStartFx[20]
-                                                                             & brush->axial_sflags[0][0]) >> 20),
-                                 this->m_allocator);
-        this->m_allocator->query_create_epilog_1(this->m_allocator, gjk_geom);
+        gjk_geom = gjk_brush_t::create(brush, (brush->axial_sflags[0][0] & 0x3F00000) >> 20, this->m_allocator);
+        //this->m_allocator->query_create_epilog_1(this->m_allocator, gjk_geom);
+        this->m_allocator->query_create_epilog(gjk_geom);
     }
 }
 
 void query_brush_model_gjk_geom_visitor::update(
-                query_brush_model_gjk_geom_visitor *this,
                 const float *_mn,
                 const float *_mx,
                 int _mask,
@@ -2736,7 +2736,7 @@ void __cdecl create_brush_model_gjk_geom(
     {
         __debugbreak();
     }
-    if ( allocator->is_query(allocator) )
+    if ( allocator->is_query() )
     {
         query_brush_model_gjk_geom(brushModel, contents_mask, allocator);
     }
@@ -2758,6 +2758,7 @@ void __cdecl create_brush_model_gjk_geom(
     }
 }
 
+float r_0 = 5.0f;
 void __cdecl create_xmodel_gjk_geom(
                 const XModel *model,
                 gjk_collision_visitor *allocator,
@@ -2827,12 +2828,17 @@ void __cdecl create_xmodel_gjk_geom(
                 {
                     b_geom_eligible = 1;
                     brush = (const cbrush_t *)geom->brush;
-                    if ( allocator->query_create_prolog_1(allocator, (const float *)brush, brush->maxs, geom) )
+                    //if ( allocator->query_create_prolog_1(allocator, (const float *)brush, brush->maxs, geom) )
+                    if ( allocator->query_create_prolog((void*)brush) )
                     {
                         gjk_geom = create_brush_gjk_geom(brush, stype, allocator);
-                        if ( worldMat )
-                            gjk_base_t::set_xform(gjk_geom, worldMat);
-                        allocator->query_create_epilog_1(allocator, gjk_geom);
+                        if (worldMat)
+                        {
+                            //gjk_base_t::set_xform(gjk_geom, worldMat);
+                            gjk_geom->set_xform(worldMat);
+                        }
+                        //allocator->query_create_epilog_1(allocator, gjk_geom);
+                        allocator->query_create_epilog(gjk_geom);
                     }
                 }
             }
@@ -2857,13 +2863,20 @@ void __cdecl create_xmodel_gjk_geom(
                         maxs[0] = geom->offset[0] + geom->halfLengths[0];
                         maxs[1] = geom->offset[1] + geom->halfLengths[1];
                         maxs[2] = geom->offset[2] + geom->halfLengths[2];
-                        if ( allocator->query_create_prolog_1(allocator, mins, maxs, geom) )
+                        //if ( allocator->query_create_prolog_1(allocator, mins, maxs, geom) )
+                        if ( allocator->query_create_prolog(mins) )
                         {
-                            aabb_gjk_geom = create_aabb_gjk_geom(COERCE_FLOAT(&savedregs), mins, maxs, stype, allocator);
-                            if ( worldMat )
-                                gjk_base_t::set_xform(aabb_gjk_geom, worldMat);
-                            gjk_base_t::set_contents(aabb_gjk_geom, contents_for_proxy_collision);
-                            allocator->query_create_epilog_1(allocator, aabb_gjk_geom);
+                            //aabb_gjk_geom = create_aabb_gjk_geom(COERCE_FLOAT(&savedregs), mins, maxs, stype, allocator);
+                            aabb_gjk_geom = create_aabb_gjk_geom(mins, maxs, stype, allocator);
+                            if (worldMat)
+                            {
+                                //gjk_base_t::set_xform(aabb_gjk_geom, worldMat);
+                                aabb_gjk_geom->set_xform(worldMat);
+                            }
+                            //gjk_base_t::set_contents(aabb_gjk_geom, contents_for_proxy_collision);
+                            aabb_gjk_geom->set_contents(contents_for_proxy_collision);
+                            //allocator->query_create_epilog_1(allocator, aabb_gjk_geom);
+                            allocator->query_create_epilog(aabb_gjk_geom);
                         }
                     }
                     else
@@ -2875,7 +2888,7 @@ void __cdecl create_xmodel_gjk_geom(
                                 if ( (i & (1 << j)) != 0 )
                                     obj = geom->halfLengths[j];
                                 else
-                                    v7 = -geom->halfLengths[j];
+                                    obj = -geom->halfLengths[j];
                                 v[j] = obj;
                             }
                             MatrixTransformVector(v, geom->orientation, trasformed_v);
@@ -2888,19 +2901,24 @@ void __cdecl create_xmodel_gjk_geom(
                         maxs[0] = maxs[0] + geom->offset[0];
                         maxs[1] = maxs[1] + geom->offset[1];
                         maxs[2] = maxs[2] + geom->offset[2];
-                        if ( allocator->query_create_prolog_1(allocator, mins, maxs, geom) )
+                        //if ( allocator->query_create_prolog_1(allocator, mins, maxs, geom) )
+                        if ( allocator->query_create_prolog(mins) )
                         {
                             obb_gjk_geom = create_obb_gjk_geom(
-                                                             COERCE_FLOAT(&savedregs),
                                                              geom->orientation,
                                                              geom->offset,
                                                              geom->halfLengths,
                                                              stype,
                                                              allocator);
-                            if ( worldMat )
-                                gjk_base_t::set_xform(obb_gjk_geom, worldMat);
-                            gjk_base_t::set_contents(obb_gjk_geom, contents_for_proxy_collision);
-                            allocator->query_create_epilog_1(allocator, obb_gjk_geom);
+                            if (worldMat)
+                            {
+                                //gjk_base_t::set_xform(obb_gjk_geom, worldMat);
+                                obb_gjk_geom->set_xform(worldMat);
+                            }
+                            //gjk_base_t::set_contents(obb_gjk_geom, contents_for_proxy_collision);
+                            obb_gjk_geom->set_contents(contents_for_proxy_collision);
+                            //allocator->query_create_epilog_1(allocator, obb_gjk_geom);
+                            allocator->query_create_epilog(obb_gjk_geom);
                         }
                     }
                 }
@@ -2929,20 +2947,25 @@ void __cdecl create_xmodel_gjk_geom(
                     v15[0] = geom->offset[0] + bs_radius;
                     v15[1] = geom->offset[1] + bs_radius;
                     v15[2] = geom->offset[2] + bs_radius;
-                    if ( allocator->query_create_prolog_1(allocator, v12, v15, geom) )
+                    //if ( allocator->query_create_prolog_1(allocator, v12, v15, geom) )
+                    if ( allocator->query_create_prolog(v12) )
                     {
                         cylinder_gjk_geom = create_cylinder_gjk_geom(
-                                                                    COERCE_FLOAT(&savedregs),
                                                                     geom->orientation,
                                                                     geom->offset,
                                                                     radius,
                                                                     hheight,
                                                                     stype,
                                                                     allocator);
-                        if ( worldMat )
-                            gjk_base_t::set_xform(cylinder_gjk_geom, worldMat);
-                        gjk_base_t::set_contents(cylinder_gjk_geom, contents_for_proxy_collision);
-                        allocator->query_create_epilog_1(allocator, cylinder_gjk_geom);
+                        if (worldMat)
+                        {
+                            //gjk_base_t::set_xform(cylinder_gjk_geom, worldMat);
+                            cylinder_gjk_geom->set_xform(worldMat);
+                        }
+                        //gjk_base_t::set_contents(cylinder_gjk_geom, contents_for_proxy_collision);
+                        cylinder_gjk_geom->set_contents(contents_for_proxy_collision);
+                        //allocator->query_create_epilog_1(allocator, cylinder_gjk_geom);
+                        allocator->query_create_epilog(cylinder_gjk_geom);
                     }
                 }
             }
@@ -2962,15 +2985,47 @@ void __cdecl create_xmodel_gjk_geom(
             maxs[1] = r_0;
             maxs[2] = r_0;
         }
-        if ( allocator->query_create_prolog_1(allocator, mins, maxs, model) )
+        //if ( allocator->query_create_prolog_1(allocator, mins, maxs, model) )
+        if ( allocator->query_create_prolog(mins) )
         {
-            v9 = create_aabb_gjk_geom(COERCE_FLOAT(&savedregs), mins, maxs, stype, allocator);
-            if ( worldMat )
-                gjk_base_t::set_xform(v9, worldMat);
-            gjk_base_t::set_contents(v9, contents_for_proxy_collision);
-            allocator->query_create_epilog_1(allocator, v9);
+            v9 = create_aabb_gjk_geom(mins, maxs, stype, allocator);
+            if (worldMat)
+            {
+                //gjk_base_t::set_xform(v9, worldMat);
+                v9->set_xform(worldMat);
+            }
+            //gjk_base_t::set_contents(v9, contents_for_proxy_collision);
+            v9->set_contents(contents_for_proxy_collision);
+            //allocator->query_create_epilog_1(allocator, v9);
+            allocator->query_create_epilog(v9);
         }
     }
+}
+
+void __cdecl adjust_gjk_polygon_cylinder_query_aabb(float *mins, float *maxs)
+{
+    float v2; // xmm0_4
+
+    //if ((_S8 & 1) == 0)
+    //{
+    //    _S8 |= 1u;
+    //    v2 = __libm_sse2_cos((float)((float)(6.2831855 / 12.0) / 2.0));
+    //    radius_scale_factor_0 = 1.0 / v2;
+    //}
+
+    static float radius_scale_factor_0 = 1.0f / (float)((float)(6.2831855 / 12.0) / 2.0);
+    *mins = *mins - 0.125;
+    mins[1] = mins[1] - 0.125;
+    mins[2] = mins[2] - 0.125;
+    *maxs = *maxs + 0.125;
+    maxs[1] = maxs[1] + 0.125;
+    maxs[2] = maxs[2] + 0.125;
+    *mins = *mins * radius_scale_factor_0;
+    mins[1] = mins[1] * radius_scale_factor_0;
+    mins[2] = mins[2] * radius_scale_factor_0;
+    *maxs = *maxs * radius_scale_factor_0;
+    maxs[1] = maxs[1] * radius_scale_factor_0;
+    maxs[2] = maxs[2] * radius_scale_factor_0;
 }
 
 void __cdecl create_gjk_geom(
@@ -3008,7 +3063,7 @@ void __cdecl create_gjk_geom(
         stype = 29;
         if ( cent->nextState.solid )
         {
-            CG_GetEntityBModelBounds((int)&savedregs, cent, mins, maxs, 0, 0);
+            CG_GetEntityBModelBounds(cent, mins, maxs, 0, 0);
             mins[0] = mins[0] - 1.0;
             mins[1] = mins[1] - 1.0;
             mins[2] = mins[2] - 1.0;
@@ -3023,7 +3078,7 @@ void __cdecl create_gjk_geom(
             mins[2] = 0.0f;
             maxs[0] = 15.0f;
             maxs[1] = 15.0f;
-            maxs[2] = FLOAT_72_0;
+            maxs[2] = 72.0f;
         }
         if ( b_use_smallerbox_for_characters )
             mins[2] = mins[2] + 15.0;
@@ -3034,11 +3089,14 @@ void __cdecl create_gjk_geom(
         query_maxs[1] = maxs[1];
         query_maxs[2] = maxs[2];
         adjust_gjk_polygon_cylinder_query_aabb(query_mins, query_maxs);
-        if ( allocator->query_create_prolog_1(allocator, query_mins, query_maxs, cent) )
+        //if ( allocator->query_create_prolog_1(allocator, query_mins, query_maxs, cent) )
+        if ( allocator->query_create_prolog(query_mins) )
         {
             gjk_geom = create_gjkcc_gjk_geom((float (*)[3])mins, (float (*)[3])maxs, stype, allocator);
-            gjk_base_t::set_contents(gjk_geom, contents_for_proxy_collision);
-            allocator->query_create_epilog_1(allocator, gjk_geom);
+            //gjk_base_t::set_contents(gjk_geom, contents_for_proxy_collision);
+            gjk_geom->set_contents(contents_for_proxy_collision);
+            //allocator->query_create_epilog_1(allocator, gjk_geom);
+            allocator->query_create_epilog(gjk_geom);
         }
     }
     else if ( (char *)cent->nextState.solid != &cls.rankedServers[711].game[34]
@@ -3136,11 +3194,14 @@ void __cdecl create_gjk_geom(
         query_maxs[1] = gent->r.maxs[1];
         query_maxs[2] = gent->r.maxs[2];
         adjust_gjk_polygon_cylinder_query_aabb(query_mins, query_maxs);
-        if ( allocator->query_create_prolog_1(allocator, query_mins, query_maxs, gent) )
+        //if ( allocator->query_create_prolog_1(allocator, query_mins, query_maxs, gent) )
+        if ( allocator->query_create_prolog(query_mins) )
         {
             gjk_geom = create_gjkcc_gjk_geom((float (*)[3])gent->r.mins, (float (*)[3])gent->r.maxs, 29, allocator);
-            gjk_base_t::set_contents(gjk_geom, contents_for_proxy_collision);
-            allocator->query_create_epilog_1(allocator, gjk_geom);
+            //gjk_base_t::set_contents(gjk_geom, contents_for_proxy_collision);
+            gjk_geom->set_contents(contents_for_proxy_collision);
+            //allocator->query_create_epilog_1(allocator, gjk_geom);
+            allocator->query_create_epilog(gjk_geom);
         }
     }
     else if ( gent->classname == scr_const.script_brushmodel || gent->classname == scr_const.glass )
@@ -3201,186 +3262,190 @@ void __cdecl create_gjk_geom(const DynEntityDef *dynEntDef, gjk_collision_visito
     else
     {
         DynEnt_GetLocalBounds(dynEntDef, mins, maxs);
-        if ( allocator->query_create_prolog_1(allocator, mins, maxs, dynEntDef) )
+        //if ( allocator->query_create_prolog_1(allocator, mins, maxs, dynEntDef) )
+        if ( allocator->query_create_prolog(mins) )
         {
             stype = DynEnt_GetSurfaceType(dynEntDef);
-            gjk_geom = create_aabb_gjk_geom(COERCE_FLOAT(&savedregs), mins, maxs, stype, allocator);
-            gjk_base_t::set_contents(gjk_geom, contents_for_proxy_collision);
-            allocator->query_create_epilog_1(allocator, gjk_geom);
+            gjk_geom = create_aabb_gjk_geom(mins, maxs, stype, allocator);
+            //gjk_base_t::set_contents(gjk_geom, contents_for_proxy_collision);
+            gjk_geom->set_contents(contents_for_proxy_collision);
+            //allocator->query_create_epilog_1(allocator, gjk_geom);
+            allocator->query_create_epilog(gjk_geom);
         }
     }
 }
 
-gjk_aabb_t *phys_simple_allocator<gjk_aabb_t>::allocate(phys_simple_allocator<gjk_aabb_t> *this)
-{
-    char *slot; // [esp+18h] [ebp-4h]
+//gjk_aabb_t *phys_simple_allocator<gjk_aabb_t>::allocate()
+//{
+//    char *slot; // [esp+18h] [ebp-4h]
+//
+//    slot = PMM_ALLOC(0x80u, 0x10u);
+//    if ( !slot )
+//        return 0;
+//    ++this->m_count;
+//    *(unsigned int *)slot = &phys_gjk_geom::`vftable';
+//    *(unsigned int *)slot = &gjk_base_t::`vftable';
+//    *((unsigned int *)slot + 15) = 0;
+//    *(unsigned int *)slot = &gjk_aabb_t::`vftable';
+//    *((unsigned int *)slot + 28) = 0;
+//    return (gjk_aabb_t *)slot;
+//}
+//
+//gjk_obb_t *phys_simple_allocator<gjk_obb_t>::allocate()
+//{
+//    char *slot; // [esp+18h] [ebp-4h]
+//
+//    slot = PMM_ALLOC(0xA0u, 0x10u);
+//    if ( !slot )
+//        return 0;
+//    ++this->m_count;
+//    *(unsigned int *)slot = &phys_gjk_geom::`vftable';
+//    *(unsigned int *)slot = &gjk_base_t::`vftable';
+//    *((unsigned int *)slot + 15) = 0;
+//    *(unsigned int *)slot = &gjk_obb_t::`vftable';
+//    return (gjk_obb_t *)slot;
+//}
+//
+//gjk_brush_t *phys_simple_allocator<gjk_brush_t>::allocate(phys_simple_allocator<gjk_brush_t> *this)
+//{
+//    char *slot; // [esp+18h] [ebp-4h]
+//
+//    slot = PMM_ALLOC(0x60u, 0x10u);
+//    if ( !slot )
+//        return 0;
+//    ++this->m_count;
+//    *(unsigned int *)slot = &phys_gjk_geom::`vftable';
+//    *(unsigned int *)slot = &gjk_base_t::`vftable';
+//    *((unsigned int *)slot + 15) = 0;
+//    *(unsigned int *)slot = &gjk_brush_t::`vftable';
+//    return (gjk_brush_t *)slot;
+//}
 
-    slot = PMM_ALLOC(0x80u, 0x10u);
-    if ( !slot )
-        return 0;
-    ++this->m_count;
-    *(unsigned int *)slot = &phys_gjk_geom::`vftable';
-    *(unsigned int *)slot = &gjk_base_t::`vftable';
-    *((unsigned int *)slot + 15) = 0;
-    *(unsigned int *)slot = &gjk_aabb_t::`vftable';
-    *((unsigned int *)slot + 28) = 0;
-    return (gjk_aabb_t *)slot;
-}
-
-gjk_obb_t *phys_simple_allocator<gjk_obb_t>::allocate(phys_simple_allocator<gjk_obb_t> *this)
-{
-    char *slot; // [esp+18h] [ebp-4h]
-
-    slot = PMM_ALLOC(0xA0u, 0x10u);
-    if ( !slot )
-        return 0;
-    ++this->m_count;
-    *(unsigned int *)slot = &phys_gjk_geom::`vftable';
-    *(unsigned int *)slot = &gjk_base_t::`vftable';
-    *((unsigned int *)slot + 15) = 0;
-    *(unsigned int *)slot = &gjk_obb_t::`vftable';
-    return (gjk_obb_t *)slot;
-}
-
-gjk_brush_t *phys_simple_allocator<gjk_brush_t>::allocate(phys_simple_allocator<gjk_brush_t> *this)
-{
-    char *slot; // [esp+18h] [ebp-4h]
-
-    slot = PMM_ALLOC(0x60u, 0x10u);
-    if ( !slot )
-        return 0;
-    ++this->m_count;
-    *(unsigned int *)slot = &phys_gjk_geom::`vftable';
-    *(unsigned int *)slot = &gjk_base_t::`vftable';
-    *((unsigned int *)slot + 15) = 0;
-    *(unsigned int *)slot = &gjk_brush_t::`vftable';
-    return (gjk_brush_t *)slot;
-}
-
-void phys_simple_allocator<gjk_brush_t>::free(phys_simple_allocator<gjk_brush_t> *this, gjk_brush_t *slot)
-{
-    if ( slot )
-    {
-        PMM_VALIDATE((char *)slot, 0x60u, 0x10u);
-        --this->m_count;
-        gjk_base_t::~gjk_base_t(slot);
-        PMM_FREE((unsigned __int8 *)slot, 0x60u, 0x10u);
-    }
-}
-
-gjk_partition_t *phys_simple_allocator<gjk_partition_t>::allocate(
-                phys_simple_allocator<gjk_partition_t> *this)
-{
-    char *slot; // [esp+18h] [ebp-4h]
-
-    slot = PMM_ALLOC(0x70u, 0x10u);
-    if ( !slot )
-        return 0;
-    ++this->m_count;
-    *(unsigned int *)slot = &phys_gjk_geom::`vftable';
-    *(unsigned int *)slot = &gjk_base_t::`vftable';
-    *((unsigned int *)slot + 15) = 0;
-    *(unsigned int *)slot = &gjk_partition_t::`vftable';
-    return (gjk_partition_t *)slot;
-}
-
-void phys_simple_allocator<gjk_partition_t>::free(
-                phys_simple_allocator<gjk_partition_t> *this,
-                gjk_partition_t *slot)
-{
-    if ( slot )
-    {
-        PMM_VALIDATE((char *)slot, 0x70u, 0x10u);
-        --this->m_count;
-        gjk_base_t::~gjk_base_t(slot);
-        PMM_FREE((unsigned __int8 *)slot, 0x70u, 0x10u);
-    }
-}
-
-gjk_double_sphere_t *phys_simple_allocator<gjk_double_sphere_t>::allocate(
-                phys_simple_allocator<gjk_double_sphere_t> *this)
-{
-    char *slot; // [esp+20h] [ebp-4h]
-
-    slot = PMM_ALLOC(0x90u, 0x10u);
-    if ( !slot )
-        return 0;
-    ++this->m_count;
-    return gjk_double_sphere_t::gjk_double_sphere_t((gjk_double_sphere_t *)slot);
-}
-
-void phys_simple_allocator<gjk_double_sphere_t>::free(
-                phys_simple_allocator<gjk_double_sphere_t> *this,
-                gjk_double_sphere_t *slot)
-{
-    if ( slot )
-    {
-        PMM_VALIDATE((char *)slot, 0x90u, 0x10u);
-        --this->m_count;
-        gjk_base_t::~gjk_base_t(slot);
-        PMM_FREE((unsigned __int8 *)slot, 0x90u, 0x10u);
-    }
-}
-
-gjk_cylinder_t *phys_simple_allocator<gjk_cylinder_t>::allocate(phys_simple_allocator<gjk_cylinder_t> *this)
-{
-    char *slot; // [esp+18h] [ebp-4h]
-
-    slot = PMM_ALLOC(0xA0u, 0x10u);
-    if ( !slot )
-        return 0;
-    ++this->m_count;
-    *(unsigned int *)slot = &phys_gjk_geom::`vftable';
-    *(unsigned int *)slot = &gjk_base_t::`vftable';
-    *((unsigned int *)slot + 15) = 0;
-    *(unsigned int *)slot = &gjk_cylinder_t::`vftable';
-    return (gjk_cylinder_t *)slot;
-}
-
-void phys_simple_allocator<gjk_cylinder_t>::free(
-                phys_simple_allocator<gjk_cylinder_t> *this,
-                gjk_cylinder_t *slot)
-{
-    if ( slot )
-    {
-        PMM_VALIDATE((char *)slot, 0xA0u, 0x10u);
-        --this->m_count;
-        gjk_base_t::~gjk_base_t(slot);
-        PMM_FREE((unsigned __int8 *)slot, 0xA0u, 0x10u);
-    }
-}
-
-gjk_polygon_cylinder_t *phys_simple_allocator<gjk_polygon_cylinder_t>::allocate(
-                phys_simple_allocator<gjk_polygon_cylinder_t> *this)
-{
-    char *slot; // [esp+18h] [ebp-4h]
-
-    slot = PMM_ALLOC(0x80u, 0x10u);
-    if ( !slot )
-        return 0;
-    ++this->m_count;
-    *(unsigned int *)slot = &phys_gjk_geom::`vftable';
-    *(unsigned int *)slot = &gjk_base_t::`vftable';
-    *((unsigned int *)slot + 15) = 0;
-    *(unsigned int *)slot = &gjk_polygon_cylinder_t::`vftable';
-    return (gjk_polygon_cylinder_t *)slot;
-}
-
-void phys_simple_allocator<gjk_polygon_cylinder_t>::free(
-                phys_simple_allocator<gjk_polygon_cylinder_t> *this,
-                gjk_polygon_cylinder_t *slot)
-{
-    if ( slot )
-    {
-        PMM_VALIDATE((char *)slot, 0x80u, 0x10u);
-        --this->m_count;
-        gjk_base_t::~gjk_base_t(slot);
-        PMM_FREE((unsigned __int8 *)slot, 0x80u, 0x10u);
-    }
-}
+//void phys_simple_allocator<gjk_brush_t>::free(phys_simple_allocator<gjk_brush_t> *this, gjk_brush_t *slot)
+//{
+//    if ( slot )
+//    {
+//        PMM_VALIDATE((char *)slot, 0x60u, 0x10u);
+//        --this->m_count;
+//        gjk_base_t::~gjk_base_t(slot);
+//        PMM_FREE((unsigned __int8 *)slot, 0x60u, 0x10u);
+//    }
+//}
+//
+//gjk_partition_t *phys_simple_allocator<gjk_partition_t>::allocate(
+//                phys_simple_allocator<gjk_partition_t> *this)
+//{
+//    char *slot; // [esp+18h] [ebp-4h]
+//
+//    slot = PMM_ALLOC(0x70u, 0x10u);
+//    if ( !slot )
+//        return 0;
+//    ++this->m_count;
+//    *(unsigned int *)slot = &phys_gjk_geom::`vftable';
+//    *(unsigned int *)slot = &gjk_base_t::`vftable';
+//    *((unsigned int *)slot + 15) = 0;
+//    *(unsigned int *)slot = &gjk_partition_t::`vftable';
+//    return (gjk_partition_t *)slot;
+//}
+//
+//void phys_simple_allocator<gjk_partition_t>::free(
+//                phys_simple_allocator<gjk_partition_t> *this,
+//                gjk_partition_t *slot)
+//{
+//    if ( slot )
+//    {
+//        PMM_VALIDATE((char *)slot, 0x70u, 0x10u);
+//        --this->m_count;
+//        gjk_base_t::~gjk_base_t(slot);
+//        PMM_FREE((unsigned __int8 *)slot, 0x70u, 0x10u);
+//    }
+//}
+//
+//gjk_double_sphere_t *phys_simple_allocator<gjk_double_sphere_t>::allocate(
+//                phys_simple_allocator<gjk_double_sphere_t> *this)
+//{
+//    char *slot; // [esp+20h] [ebp-4h]
+//
+//    slot = PMM_ALLOC(0x90u, 0x10u);
+//    if ( !slot )
+//        return 0;
+//    ++this->m_count;
+//    return gjk_double_sphere_t::gjk_double_sphere_t((gjk_double_sphere_t *)slot);
+//}
+//
+//void phys_simple_allocator<gjk_double_sphere_t>::free(
+//                phys_simple_allocator<gjk_double_sphere_t> *this,
+//                gjk_double_sphere_t *slot)
+//{
+//    if ( slot )
+//    {
+//        PMM_VALIDATE((char *)slot, 0x90u, 0x10u);
+//        --this->m_count;
+//        gjk_base_t::~gjk_base_t(slot);
+//        PMM_FREE((unsigned __int8 *)slot, 0x90u, 0x10u);
+//    }
+//}
+//
+//gjk_cylinder_t *phys_simple_allocator<gjk_cylinder_t>::allocate(phys_simple_allocator<gjk_cylinder_t> *this)
+//{
+//    char *slot; // [esp+18h] [ebp-4h]
+//
+//    slot = PMM_ALLOC(0xA0u, 0x10u);
+//    if ( !slot )
+//        return 0;
+//    ++this->m_count;
+//    *(unsigned int *)slot = &phys_gjk_geom::`vftable';
+//    *(unsigned int *)slot = &gjk_base_t::`vftable';
+//    *((unsigned int *)slot + 15) = 0;
+//    *(unsigned int *)slot = &gjk_cylinder_t::`vftable';
+//    return (gjk_cylinder_t *)slot;
+//}
+//
+//void phys_simple_allocator<gjk_cylinder_t>::free(
+//                phys_simple_allocator<gjk_cylinder_t> *this,
+//                gjk_cylinder_t *slot)
+//{
+//    if ( slot )
+//    {
+//        PMM_VALIDATE((char *)slot, 0xA0u, 0x10u);
+//        --this->m_count;
+//        gjk_base_t::~gjk_base_t(slot);
+//        PMM_FREE((unsigned __int8 *)slot, 0xA0u, 0x10u);
+//    }
+//}
+//
+//gjk_polygon_cylinder_t *phys_simple_allocator<gjk_polygon_cylinder_t>::allocate(
+//                phys_simple_allocator<gjk_polygon_cylinder_t> *this)
+//{
+//    char *slot; // [esp+18h] [ebp-4h]
+//
+//    slot = PMM_ALLOC(0x80u, 0x10u);
+//    if ( !slot )
+//        return 0;
+//    ++this->m_count;
+//    *(unsigned int *)slot = &phys_gjk_geom::`vftable';
+//    *(unsigned int *)slot = &gjk_base_t::`vftable';
+//    *((unsigned int *)slot + 15) = 0;
+//    *(unsigned int *)slot = &gjk_polygon_cylinder_t::`vftable';
+//    return (gjk_polygon_cylinder_t *)slot;
+//}
+//
+//void phys_simple_allocator<gjk_polygon_cylinder_t>::free(
+//                phys_simple_allocator<gjk_polygon_cylinder_t> *this,
+//                gjk_polygon_cylinder_t *slot)
+//{
+//    if ( slot )
+//    {
+//        PMM_VALIDATE((char *)slot, 0x80u, 0x10u);
+//        --this->m_count;
+//        gjk_base_t::~gjk_base_t(slot);
+//        PMM_FREE((unsigned __int8 *)slot, 0x80u, 0x10u);
+//    }
+//}
 
 gjk_polygon_cylinder_t::poly_verts::poly_verts()
 {
+#if 0
     double v1; // xmm0_8
     double v2; // xmm0_8
     long double thisa; // [esp+0h] [ebp-Ch]
@@ -3400,6 +3465,15 @@ gjk_polygon_cylinder_t::poly_verts::poly_verts()
         *(float *)&mp = mp;
         *(unsigned int *)(LODWORD(thisa) + 4 * i + 16) = LODWORD(v2);
     }
+#else // aislop
+    for (int i = 0; i < 4; ++i)
+    {
+        const float angle = static_cast<float>(i) * (3.14159265358979323846f / 6.0f);
+
+        this->m_co[i] = cosf(angle);
+        this->m_si[i] = sinf(angle);
+    }
+#endif
 }
 
 void __cdecl destroy_gjk_geom(gjk_geom_list_t *gjk_geom_list)

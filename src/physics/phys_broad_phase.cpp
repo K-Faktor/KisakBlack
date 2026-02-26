@@ -43,7 +43,25 @@ jqModule bp_env_jq_module2Module =
 
 
 
+void __thiscall broad_phase_base_list::add(broad_phase_base *bpb)
+{
+    broad_phase_base_list::node *cur; // [esp+58h] [ebp-4h]
 
+    cur = *this->m_list_cur;
+    if (!cur)
+    {
+        //cur = (broad_phase_base_list::node *)phys_transient_allocator::mt_allocate(
+        cur = (broad_phase_base_list::node *)G_BPM->g_collision_memory_buffer.mt_allocate(
+            8,
+            4,
+            0,
+            "broad phase collision out of memory.");
+        *this->m_list_cur = cur;
+        cur->m_next = 0;
+    }
+    cur->m_bpb = bpb;
+    this->m_list_cur = &cur->m_next;
+}
 
 
 void __cdecl create_broad_phase_info(rigid_body *body)
@@ -2773,12 +2791,12 @@ void    broad_phase_group::collision_prolog()
     float v81; // [esp+98h] [ebp-18h]
     float v82; // [esp+9Ch] [ebp-14h]
     float v83; // [esp+A0h] [ebp-10h]
-    int v84; // [esp+A4h] [ebp-Ch] BYREF
-    int i; // [esp+A8h] [ebp-8h]
-    int retaddr; // [esp+B0h] [ebp+0h]
-
-    v84 = a2;
-    i = retaddr;
+    //int v84; // [esp+A4h] [ebp-Ch] BYREF
+    //int i; // [esp+A8h] [ebp-8h]
+    //int retaddr; // [esp+B0h] [ebp+0h]
+    //
+    //v84 = a2;
+    //i = retaddr;
     v2 = this;
     v3 = this->m_list_bpi_head == 0;
     v70 = this;
@@ -2791,7 +2809,8 @@ void    broad_phase_group::collision_prolog()
     {
         __debugbreak();
     }
-    broad_phase_info::collision_prolog(v2->m_list_bpi_head);
+    //broad_phase_info::collision_prolog(v2->m_list_bpi_head);
+    v2->m_list_bpi_head->collision_prolog();
     m_list_bpi_head = v2->m_list_bpi_head;
     v5 = m_list_bpi_head->m_trace_translation.x + m_list_bpi_head->m_trace_aabb_min_whace.x;
     y = m_list_bpi_head->m_trace_aabb_min_whace.y;
@@ -2823,7 +2842,8 @@ void    broad_phase_group::collision_prolog()
     m_list_bpb_next = (broad_phase_info *)m_list_bpi_head->m_list_bpb_next;
     for ( aabb2_min.w = v17; m_list_bpb_next; aabb2_min.w = v82 )
     {
-        broad_phase_info::collision_prolog(m_list_bpb_next);
+        //broad_phase_info::collision_prolog(m_list_bpb_next);
+        m_list_bpb_next->collision_prolog();
         v19 = aabb1_max.w;
         if ( m_list_bpb_next->m_trace_aabb_min_whace.z < (double)aabb1_max.w )
             v19 = m_list_bpb_next->m_trace_aabb_min_whace.z;
@@ -2897,13 +2917,9 @@ void    broad_phase_group::collision_prolog()
     m_rbvm = v2->m_rbvm;
     if ( m_rbvm )
     {
-        LODWORD(half_dims.w) = m_rbvm->m_wheels.m_alloc_count;
-        v34 = (phys_wheel_collide_info *)phys_transient_allocator::mt_allocate(
-                                                                             &G_BPM->g_collision_memory_buffer,
-                                                                             LODWORD(half_dims.w) << 6,
-                                                                             16,
-                                                                             0,
-                                                                             "broad phase collision out of memory.");
+        //LODWORD(half_dims.w) = m_rbvm->m_wheels.m_alloc_count;
+        //v34 = (phys_wheel_collide_info *)phys_transient_allocator::mt_allocate(&G_BPM->g_collision_memory_buffer, LODWORD(half_dims.w) << 6, 16, 0, "broad phase collision out of memory.");
+        v34 = (phys_wheel_collide_info *)G_BPM->g_collision_memory_buffer.mt_allocate(m_rbvm->m_wheels.m_alloc_count << 6, 16, 0, "broad phase collision out of memory.");
         m_buffer = (int)v2->m_rbvm->m_wheels.m_buffer;
         v2->m_list_wci = v34;
         if ( *(int *)(m_buffer + 20) <= 0

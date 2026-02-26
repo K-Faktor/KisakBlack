@@ -388,6 +388,8 @@ void    phys_inv_multiply_mat(phys_mat44 *dest, const phys_mat44 *left, const ph
 void __cdecl Phys_CalcPreset(PhysPreset *physPreset, float *dims, int surfaceType);
 int __cdecl Phys_GetCurrentTime();
 
+int __cdecl surface_type_info_database_get_index(int surface_type_1, int surface_type_2);
+
 extern const dvar_t *phys_gravity;
 extern const dvar_t *phys_gravity_dir;
 extern const dvar_t *phys_vehicleGravityMultiplier;
@@ -447,3 +449,4 @@ extern const dvar_t *phys_fluid;
 extern cdl_proftimer proftimer_physics_frame_advance;
 extern PhysGlob physGlob;
 extern axis_aligned_sweep_and_prune *g_axis_aligned_sweep_and_prune;
+extern minspec_mutex g_render_mutex;

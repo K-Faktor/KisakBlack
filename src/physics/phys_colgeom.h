@@ -241,55 +241,7 @@ struct __declspec(align(16)) contact_manifold_mesh_point // sizeof=0x20
         // padding byte
 };
 
-struct __declspec(align(16)) phys_contact_manifold // sizeof=0x60
-{                                                                             // XREF: phys_contact_manifold_process/r
-                                                                                // phys_contact_manifold_process/r
-        phys_vec3 m_feature_normal;
-        phys_vec3 m_feature_hitp;
-        phys_vec3 m_feature_hitn;
-        float m_feature_distance_eps;
-        float m_sin_feautre_angular_eps_sq;
-        int m_close_mesh_point_count;
-        phys_memory_heap *m_allocator;
-        contact_manifold_mesh_point *m_list_mesh_point;
-        int m_list_mesh_point_count;
-        contact_manifold_mesh_point **m_list_sorted_mesh_point;
-        contact_manifold_mesh_point **m_list_contact_point;
-        int m_list_contact_point_count;
-        // padding byte
-        // padding byte
-        // padding byte
-        // padding byte
-        // padding byte
-        // padding byte
-        // padding byte
-        // padding byte
-        // padding byte
-        // padding byte
-        // padding byte
-        // padding byte
-
-        void add_feature_point(const phys_vec3 *p);
-        void comp_feature_normal();
-        double compute_convex_poly_area();
-        double compute_convex_poly_perimeter();
-        void generate_convex_poly(const phys_mat44 *contact_mat);
-        void generate_convex_poly_internal();
-        double __cdecl get_STD_COMP_FEATURE_NORMAL_DISTANCE_EPS(float penetration_t);
-        double __cdecl get_STD_COMP_FEATURE_NORMAL_SIN_ANGULAR_EPS_SQ(float penetration_t);
-        double __cdecl get_STD_GET_FEATURE_DISTANCE_EPS(float penetration_t);
-        double __cdecl get_STD_GET_FEATURE_SIN_ANGULAR_EPS_SQ(float penetration_t);
-        bool __cdecl rht(const phys_vec2 *e1, const phys_vec2 *e2, float min_length2, float min_sin_sq);
-        void __thiscall set_get_feature_params(
-            const phys_vec3 *hitp,
-            const phys_vec3 *hitn,
-            float feature_distance_eps,
-            float sin_feautre_angular_eps_sq);
-        void xform_and_translate_mesh_points(
-            const phys_mat44 *xform,
-            const phys_vec3 *translation);
-};
-
+struct phys_contact_manifold;
 
 struct gjk_base_t : public phys_gjk_geom // sizeof=0x50
 {                                                                             // XREF: gjk_brush_t/r
@@ -417,7 +369,7 @@ struct __declspec(align(16)) gjk_aabb_t : gjk_base_t // sizeof=0x80
                 phys_vec3 *simplex_verts,
                 phys_vec3 *simplex_inds);
         const phys_vec3 * get_center(phys_vec3 *result) const;
-        void get_feature(phys_contact_manifold *cman);
+        void get_feature(phys_contact_manifold *cman) const;
         void calc_aabb(
                 const phys_mat44 *xform,
                 phys_vec3 *aabb_min,
@@ -476,7 +428,7 @@ struct gjk_obb_t : gjk_base_t // sizeof=0xA0
 
         static void __cdecl destroy(gjk_obb_t *geom);
         const phys_vec3 *get_center(phys_vec3 *result) const;
-        void get_feature(phys_contact_manifold *cman);
+        void get_feature(phys_contact_manifold *cman) const;
         void get_simplex(
             const cached_simplex_info *cache_info,
             int index_count,
@@ -515,7 +467,7 @@ struct __declspec(align(8)) gjk_brush_t : gjk_base_t // sizeof=0x60
                 int index_count,
                 phys_vec3 *simplex_verts,
                 phys_vec3 *simplex_inds);
-        void get_feature(phys_contact_manifold *cman);
+        void get_feature(phys_contact_manifold *cman) const;
         void calc_aabb(
                 const phys_mat44 *xform,
                 phys_vec3 *aabb_min,
@@ -595,7 +547,7 @@ struct __declspec(align(16)) gjk_partition_t : gjk_base_t // sizeof=0x70
                 int index_count,
                 phys_vec3 *simplex_verts,
                 phys_vec3 *simplex_inds);
-        void get_feature(phys_contact_manifold *cman);
+        void get_feature(phys_contact_manifold *cman) const;
         void calc_aabb(
                 const phys_mat44 *xform,
                 phys_vec3 *aabb_min,
@@ -641,7 +593,7 @@ struct gjk_double_sphere_t : gjk_base_t // sizeof=0x90
                 const phys_vec3 *normal,
                 cached_simplex_info *cache_info);
         const phys_vec3 *get_center(phys_vec3 *result) const;
-        void get_feature(phys_contact_manifold *cman);
+        void get_feature(phys_contact_manifold *cman) const;
         void calc_aabb(
                 const phys_mat44 *xform,
                 phys_vec3 *aabb_min,
@@ -692,7 +644,7 @@ struct gjk_cylinder_t : gjk_base_t // sizeof=0xA0
                 phys_vec3 *simplex_verts,
                 phys_vec3 *simplex_inds);
         const phys_vec3 * get_center(phys_vec3 *result) const;
-        void get_feature(phys_contact_manifold *cman);
+        void get_feature(phys_contact_manifold *cman) const;
         void calc_aabb(
                 const phys_mat44 *xform_,
                 phys_vec3 *aabb_min,

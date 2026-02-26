@@ -46,6 +46,12 @@ struct pulse_sum_node : phys_link_list_base<pulse_sum_node> // sizeof=0x80
         // padding byte
 };
 
+struct entity_bpi_header // sizeof=0x8
+{
+    phys_mat44 *m_mat;
+    phys_auto_activate_callback *m_aac;
+};
+
 struct __declspec(align(8)) broad_phase_info : broad_phase_base // sizeof=0x70
 {                                                                             // XREF: phys_free_list<broad_phase_info>::T_internal/r
     rigid_body *m_rb;
@@ -75,6 +81,12 @@ struct __declspec(align(8)) broad_phase_info : broad_phase_base // sizeof=0x70
         unsigned int env_collision_flags);
 
     void collision_prolog();
+};
+
+struct standard_query : broad_phase_terrain_query_callback // sizeof=0x4
+{                                       // XREF: .data:standard_query g_standard_query/r
+
+    void query(const broad_phase_environment_query_input *bpeqi, broad_phase_environement_query_results *bpeqr);
 };
 
 //void __thiscall contact_point_info::get_closest_psc(
