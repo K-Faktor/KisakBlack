@@ -665,6 +665,7 @@ LABEL_69:
     }
     //if ( GetCurrentThreadId() == g_DXDeviceThread )
 LABEL_6:
+    ;
         //D3DPERF_EndEvent();
 }
 

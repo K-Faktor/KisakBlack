@@ -2,6 +2,10 @@
 
 #include <qcommon/cm_trace.h>
 
+struct cbrush_t;
+struct CollisionAabbTree;
+struct TraceThreadInfo;
+
 struct visitor_base_t // sizeof=0x4
 {                                                                             // XREF: colgeom_visitor_t/r
         //visitor_base_t_vtbl *__vftable;         // XREF: CG_Vehicle_PreControllers(int,DObj const *,centity_s *)+2AD/w

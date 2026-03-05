@@ -277,7 +277,7 @@ struct __declspec(align(16)) channel_t
         T pad0;
 
         // pad to 0x10
-        char _pad0[16 - (sizeof(T) % 16 == 0 ? 16 : sizeof(T) % 16)];
+        //char _pad0[16 - (sizeof(T) % 16 == 0 ? 16 : sizeof(T) % 16)];
 
         T data[256];
         T pad1;

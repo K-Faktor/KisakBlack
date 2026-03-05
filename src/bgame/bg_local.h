@@ -341,16 +341,15 @@ struct fake_centity_s // sizeof=0x32C
 
 union hudelem_color_t // sizeof=0x4
 {                                                                             // XREF: DrawSingleHudElem2d+137/r
-                                                                                // RB_AddWaypoint+3C/r ...
-        //$0D0CB43DF22755AD856C77DD3F304010 __s0;
-        struct
-        {
-                unsigned __int8 r;
-                unsigned __int8 g;
-                unsigned __int8 b;
-                unsigned __int8 a;
-        };
-        int rgba;
+    //$0D0CB43DF22755AD856C77DD3F304010 __s0;
+    struct
+    {
+            unsigned __int8 r;
+            unsigned __int8 g;
+            unsigned __int8 b;
+            unsigned __int8 a;
+    };
+    int rgba;
 };
 
 struct __declspec(align(4)) hudelem_s // sizeof=0x70
@@ -403,8 +402,6 @@ struct __declspec(align(4)) hudelem_s // sizeof=0x70
         // padding byte
         // padding byte
 };
-
-
 
 
 enum OffhandSecondaryClass : __int32

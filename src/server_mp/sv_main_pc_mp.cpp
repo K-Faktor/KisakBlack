@@ -372,7 +372,7 @@ void __cdecl SV_MasterHeartbeat(int controllerIndex)
         if ( (_S1_9 & 1) == 0 )
         {
             _S1_9 |= 1u;
-            sessionupdatetimer = svs.time;
+            sessionupdatetimer = svs.g_msgTime;
         }
         if ( g_svdedicatedauthstate == SV_DWAUTHORIZED )
         {
@@ -462,29 +462,29 @@ void __cdecl SV_MasterHeartbeat(int controllerIndex)
             }
             if ( sessionCreateFinished )
                 forceSessionUpdate = SV_HasInfoChanged();
-            if ( !updateSessionTask && (svs.time - sessionupdatetimer > 180000 || forceSessionUpdate && sessionCreateFinished) )
+            if ( !updateSessionTask && (svs.g_msgTime - sessionupdatetimer > 180000 || forceSessionUpdate && sessionCreateFinished) )
             {
                 updateSessionTask = TaskManager_GetOpenTaskSlot(overlappedTasks_1, 0, 4);
                 dwUpdateSession(updateSessionTask, g_matchmakingInfo);
                 if ( forceSessionUpdate )
                     Com_Printf(0, "Server: Updating session - serverinfo change\n");
                 else
-                    Com_Printf(0, "Server: Updating session (%ims)\n", svs.time - sessionupdatetimer);
-                sessionupdatetimer = svs.time;
-                sessionupdatehangtimer = svs.time;
+                    Com_Printf(0, "Server: Updating session (%ims)\n", svs.g_msgTime - sessionupdatetimer);
+                sessionupdatetimer = svs.g_msgTime;
+                sessionupdatehangtimer = svs.g_msgTime;
                 forceSessionUpdate = 0;
                 lastdwattempt = Sys_Milliseconds();
             }
             if ( updateSessionTask )
             {
                 Com_Printf(0, ".");
-                if ( svs.time - sessionupdatehangtimer <= 10000 )
+                if ( svs.g_msgTime - sessionupdatehangtimer <= 10000 )
                 {
                     if ( dwUpdateSessionComplete(updateSessionTask) )
                     {
                         if ( dwUpdateSessionComplete(updateSessionTask) == TASK_COMPLETE )
                         {
-                            Com_Printf(0, "Server: Session updated - %ims\n", svs.time - sessionupdatehangtimer);
+                            Com_Printf(0, "Server: Session updated - %ims\n", svs.g_msgTime - sessionupdatehangtimer);
                             Dvar_SetBool((dvar_s *)sv_dwlsgerror, 0);
                             s_lastDwGoodUpdate = Sys_Milliseconds();
                             s_dwBackOff = 2000;
@@ -502,7 +502,7 @@ void __cdecl SV_MasterHeartbeat(int controllerIndex)
                 }
                 else
                 {
-                    Com_Printf(0, "Server: Giving up on session update after %ims :(\n", svs.time - sessionupdatehangtimer);
+                    Com_Printf(0, "Server: Giving up on session update after %ims :(\n", svs.g_msgTime - sessionupdatehangtimer);
                     TaskManager_ClearTask(updateSessionTask);
                     updateSessionTask = 0;
                     Dvar_SetBool((dvar_s *)sv_dwlsgerror, 1);
@@ -571,9 +571,9 @@ void __cdecl SV_MasterHeartbeat(int controllerIndex)
                 }
             }
         }
-        if ( svs.time >= svs.nextHeartbeatTime )
+        if ( svs.g_msgTime >= svs.nextHeartbeatTime )
         {
-            svs.nextHeartbeatTime = svs.time + 10000;
+            svs.nextHeartbeatTime = svs.g_msgTime + 10000;
             notifyCount = 0;
             for ( i = 0; i < com_maxclients->current.integer; ++i )
             {
@@ -645,13 +645,13 @@ void __cdecl SV_MasterHeartbeat(int controllerIndex)
                             if ( drop->header.sendAsActive )
                             {
                                 Com_DPrintf(15, "Still waiting for challengeresponse from client %s\n", drop->name);
-                                if ( svs.time - drop->lastConnectTime > 60000 )
+                                if ( svs.g_msgTime - drop->lastConnectTime > 60000 )
                                 {
                                     Com_DPrintf(
                                         15,
                                         "DWCHALLENGERESPONSE: Dropping client %s because it's been %i msec and we've had no challengeresponse\n",
                                         drop->name,
-                                        svs.time - drop->lastConnectTime);
+                                        svs.g_msgTime - drop->lastConnectTime);
                                     if ( drop->header.state == 5 )
                                         SV_DropClient(drop, "EXE_BAD_CHALLENGE", 1, 1);
                                     else

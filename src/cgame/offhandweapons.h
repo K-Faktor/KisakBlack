@@ -4,6 +4,8 @@
 #include <universal/dvar.h>
 
 struct cg_s;
+struct entityState_s;
+struct centity_s;
 
 void __cdecl CG_OffhandRegisterDvars();
 void __cdecl CG_DrawOffHandIcon(

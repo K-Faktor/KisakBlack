@@ -3,6 +3,7 @@
 #include <gfx_d3d/r_scene.h>
 #include <gfx_d3d/r_model_lod.h>
 #include <live/live_pcache.h>
+#include <database/db_registry.h>
 
 const dvar_t *weaponCamoLodDist;
 const dvar_t *weaponEmblemLodDist;

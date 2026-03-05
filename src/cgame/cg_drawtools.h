@@ -4,6 +4,7 @@
 #include <gfx_d3d/r_font.h>
 
 struct DObjAnimMat;
+struct centity_s;
 
 double __cdecl CG_GetPicWidth(Material *mat);
 const Material *__cdecl Material_FromHandle(Material *handle);

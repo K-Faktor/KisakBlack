@@ -290,37 +290,36 @@ void __cdecl CG_DrawOffHandHighlight(
 
 void __cdecl OffHandFlash(const cg_s *cgameGlob, const float *base_color, float *out_color)
 {
-    double v3; // xmm0_8
-    float phi; // [esp+0h] [ebp-Ch]
+    float v3; // xmm0_4
     float flashTime; // [esp+8h] [ebp-4h]
 
-    if ( !base_color
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\offhandweapons.cpp", 206, 0, "%s", "base_color") )
+    if (!base_color
+        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\offhandweapons.cpp", 206, 0, "%s", "base_color"))
     {
         __debugbreak();
     }
-    if ( !out_color
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\offhandweapons.cpp", 207, 0, "%s", "out_color") )
+    if (!out_color
+        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\offhandweapons.cpp", 207, 0, "%s", "out_color"))
     {
         __debugbreak();
     }
-    if ( !hud_flash_time_offhand
+    if (!hud_flash_time_offhand
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\offhandweapons.cpp",
-                    208,
-                    0,
-                    "%s",
-                    "hud_flash_time_offhand") )
+            "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\offhandweapons.cpp",
+            208,
+            0,
+            "%s",
+            "hud_flash_time_offhand"))
     {
         __debugbreak();
     }
-    if ( !hud_flash_period_offhand
+    if (!hud_flash_period_offhand
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\offhandweapons.cpp",
-                    209,
-                    0,
-                    "%s",
-                    "hud_flash_period_offhand") )
+            "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\offhandweapons.cpp",
+            209,
+            0,
+            "%s",
+            "hud_flash_period_offhand"))
     {
         __debugbreak();
     }
@@ -329,24 +328,21 @@ void __cdecl OffHandFlash(const cg_s *cgameGlob, const float *base_color, float 
     out_color[2] = base_color[2];
     out_color[3] = base_color[3];
     flashTime = (float)(cgameGlob->time - cgameGlob->offhandFlashTime) / 1000.0;
-    if ( hud_flash_time_offhand->current.value > flashTime )
+    if (hud_flash_time_offhand->current.value > flashTime)
     {
-        if ( hud_flash_period_offhand->current.value <= 0.0
+        if (hud_flash_period_offhand->current.value <= 0.0
             && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\offhandweapons.cpp",
-                        216,
-                        0,
-                        "%s",
-                        "hud_flash_period_offhand->current.value > 0.0f") )
+                "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\offhandweapons.cpp",
+                216,
+                0,
+                "%s",
+                "hud_flash_period_offhand->current.value > 0.0f"))
         {
             __debugbreak();
         }
-        phi = (float)(6.2831855 * flashTime) / hud_flash_period_offhand->current.value;
-        //v3 = *(float *)&phi;
-        //__libm_sse2_cos(phi);
-        //*(float *)&v3 = v3;
-        phi = cos(phi);
-        out_color[3] = (float)((float)(*(float *)&v3 * 0.5) + 0.5) * base_color[3];
+        //v3 = __libm_sse2_cos((float)((float)(6.2831855 * flashTime) / hud_flash_period_offhand->current.value));
+        v3 = cos((float)((float)(6.2831855 * flashTime) / hud_flash_period_offhand->current.value));
+        out_color[3] = (float)((float)(v3 * 0.5) + 0.5) * base_color[3];
     }
 }
 

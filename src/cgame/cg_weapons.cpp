@@ -64,7 +64,6 @@
 #include <client/client.h>
 #include <server/sv_world.h>
 
-unsigned __int8 bulletPriorityMap[4] = { 1u, 3u, 3u, 3u };
 unsigned __int8 riflePriorityMap[19] = { 1u, 9u, 9u, 9u, 8u, 7u, 6u, 6u, 6u, 6u, 5u, 5u, 4u, 4u, 4u, 4u, 3u, 3u, 0u };
 
 unsigned int snd_autosim_time;
@@ -1555,29 +1554,30 @@ void __cdecl CG_UpdateViewModelStackCounter(
                 DObj *obj,
                 const WeaponDef *weapDef)
 {
-    double v4; // xmm0_8
-    long double v5; // [esp+0h] [ebp-40h]
-    long double v6; // [esp+0h] [ebp-40h]
+    DWORD v4; // eax
+    float v5; // xmm0_4
+    float v6; // xmm0_4
     signed int v7; // [esp+0h] [ebp-40h]
+    float v8; // [esp+Ch] [ebp-34h]
     float desiredAngle; // [esp+10h] [ebp-30h]
     unsigned __int8 counterBone; // [esp+1Bh] [ebp-25h] BYREF
     float angles[3]; // [esp+1Ch] [ebp-24h] BYREF
     float inc; // [esp+28h] [ebp-18h]
     int partBits[5]; // [esp+2Ch] [ebp-14h] BYREF
 
-    if ( weapDef->fireType == WEAPON_FIRETYPE_STACKED && DObjGetBoneIndex(obj, scr_const.j_counter, &counterBone, -1) )
+    if (weapDef->fireType == WEAPON_FIRETYPE_STACKED && DObjGetBoneIndex(obj, scr_const.j_counter, &counterBone, -1))
     {
         DObjGetHierarchyBits(obj, counterBone, partBits);
-        if ( (int)(Sys_Milliseconds() - cgameGlob->counterSpinTime) >= 500 )
+        if ((int)(Sys_Milliseconds() - cgameGlob->counterSpinTime) >= 500)
         {
             cgameGlob->counterSpinAngle = cgameGlob->counterSpinTarget;
-            if ( (signed int)(ps->stackFireCount - 1) > 0 )
+            if ((signed int)(ps->stackFireCount - 1) > 0)
                 v7 = ps->stackFireCount - 1;
             else
                 v7 = 0;
             desiredAngle = (float)v7 * 30.0;
             inc = 0.0f;
-            if ( desiredAngle != cgameGlob->counterSpinTarget )
+            if (desiredAngle != cgameGlob->counterSpinTarget)
             {
                 cgameGlob->counterSpinTime = Sys_Milliseconds();
                 cgameGlob->counterSpinTarget = desiredAngle;
@@ -1585,18 +1585,14 @@ void __cdecl CG_UpdateViewModelStackCounter(
         }
         else
         {
-            //v4 = (float)((float)((float)(int)(Sys_Milliseconds() - cgameGlob->counterSpinTime - 250) / 250.0) * 2.3561945);
-            //__libm_sse2_sin(v5);
-            //*(float *)&v4 = v4;
-            //__libm_sse2_sin(v6);
-            //inc = (float)(cgameGlob->counterSpinTarget - cgameGlob->counterSpinAngle) * (float)((float)((float)(*(float *)&v4 / (float)2.356194496154785) + 1.0) / 2.0);
-            //
-            //v4 = (float)((float)((float)(int)(Sys_Milliseconds() - cgameGlob->counterSpinTime - 250) / 250.0f) * 2.3561945f);
-
-            // FIX: replace SSE2 sin with standard sinf
-            float sinVal = sinf((float)v4);
-
-            inc = (float)(cgameGlob->counterSpinTarget - cgameGlob->counterSpinAngle) * ((sinVal / 2.3561945f + 1.0f) / 2.0f);
+            v4 = Sys_Milliseconds();
+            //v5 = __libm_sse2_sin((float)((float)((float)(int)(v4 - cgameGlob->counterSpinTime - 250) / 250.0) * 2.3561945));
+            v5 = sin((float)((float)((float)(int)(v4 - cgameGlob->counterSpinTime - 250) / 250.0) * 2.3561945));
+            v8 = v5;
+            //v6 = __libm_sse2_sin(2.356194496154785);
+            v6 = sin(2.356194496154785);
+            inc = (float)(cgameGlob->counterSpinTarget - cgameGlob->counterSpinAngle)
+                * (float)((float)((float)(v8 / v6) + 1.0) / 2.0);
         }
         angles[0] = cgameGlob->counterSpinAngle + inc;
         angles[1] = 0.0f;
@@ -2076,6 +2072,7 @@ void __cdecl FireBulletPenetrate(
     }
     //if ( g_DXDeviceThread == GetCurrentThreadId() )
 LABEL_147:
+    ;
         //D3DPERF_EndEvent();
 }
 
@@ -5153,7 +5150,8 @@ void __cdecl CG_FireWeapon(
     {
         Com_Error(ERR_DROP, "CG_FireWeapon: weapon >= BG_GetNumWeapons()");
         //if ( g_DXDeviceThread == GetCurrentThreadId() )
-LABEL_5:
+    LABEL_5:
+        ;
             //D3DPERF_EndEvent();
     }
 }
@@ -5952,6 +5950,7 @@ void __cdecl CG_SndWeaponFire(snd_weapon_shot *shot)
     }
     //if ( GetCurrentThreadId() == g_DXDeviceThread )
 LABEL_28:
+    ;
         //D3DPERF_EndEvent();
 }
 

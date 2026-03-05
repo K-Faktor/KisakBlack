@@ -551,7 +551,7 @@ void __cdecl R_SetWaterSimulationConstants(GfxCmdBufSourceState *state, float in
 
 #if 0
 // local variable allocation has failed, the output may be wrong!
-void    R_WaterSimulationRender(const float *eyePos, int time, unsigned int viewIndex)
+void    R_WaterSimulationRender(const float *eyePos, int g_msgTime, unsigned int viewIndex)
 {
     float v4[3]; // [esp-Ch] [ebp-118h] BYREF
     float dw[3]; // [esp+0h] [ebp-10Ch] BYREF
@@ -602,10 +602,10 @@ void    R_WaterSimulationRender(const float *eyePos, int time, unsigned int view
             R_WaterSimulationTrackView(eyePos);
             R_RenderWaterModel(viewIndex);
             data.enabled = 1;
-            if ( time < 0 )
+            if ( g_msgTime < 0 )
                 v21 = 0;
             else
-                v21 = time;
+                v21 = g_msgTime;
             data.timeDelta += v21;
             slice = (tile_t *)18;
             while ( data.timeDelta >= 18 )

@@ -3162,3 +3162,22 @@ int __thiscall ShardGroup::TracePoint(float *p0, const float *p1)
     }
     return numHits;
 }
+
+
+void *GlassRenderer::SortedShardsList::operator new(size_t size, SmallAllocator *alloc)
+{
+    return GlassesClient::Allocate(size, "C:\\projects_pc\\cod\\codsrc\\src\\glass\\glass_renderer.cpp", 72);
+}
+
+void *GlassRenderer::SortedShardsList::operator new(size_t size)
+{
+    return GlassesClient::Allocate(
+        size,
+        "C:\\projects_pc\\cod\\codsrc\\src\\glass\\glass_renderer.cpp",
+        72);
+}
+
+void GlassRenderer::SortedShardsList::operator delete(void *ptr)
+{
+    GlassesClient::Free((char *)ptr);
+}

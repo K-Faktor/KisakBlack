@@ -1636,25 +1636,27 @@ void __cdecl HashUnpackPoint(unsigned __int64 value, unsigned __int16 (*p)[3])
     (*p)[2] = WORD2(value);
 }
 
-int __cdecl find_hash(const char *a1)
-{
-    int result; // eax
-    const char **v2; // esi
-
-    if ( !a1 )
-        crypt_argchk(
-            (char*)"name != NULL",
-            (char*)"C:\\projects_pc\\cod\\codsrc\\libs\\libtomcrypt-1.17\\src\\misc\\crypt\\crypt_find_hash.c",
-            26);
-    result = 0;
-    v2 = (const char **)hash_descriptor;
-    while ( !*v2 || strcmp(*v2, a1) )
-    {
-        v2 += 26;
-        ++result;
-        if ( (int)v2 >= (int)cipher_descriptor )
-            return -1;
-    }
-    return result;
-}
-
+// in libtomcrypt
+//int __cdecl find_hash(const char *a1)
+//{
+//    int result; // eax
+//    const char **v2; // esi
+//
+//    if ( !a1 )
+//        crypt_argchk(
+//            (char*)"name != NULL",
+//            (char*)"C:\\projects_pc\\cod\\codsrc\\libs\\libtomcrypt-1.17\\src\\misc\\crypt\\crypt_find_hash.c",
+//            26);
+//    result = 0;
+//    v2 = (const char **)hash_descriptor;
+//    while ( !*v2 || strcmp(*v2, a1) )
+//    {
+//        v2 += 26;
+//        ++result;
+//        if ( (int)v2 >= (int)cipher_descriptor )
+//            return -1;
+//    }
+//    return result;
+//}
+//
+//

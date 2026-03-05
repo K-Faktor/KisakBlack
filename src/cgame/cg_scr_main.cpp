@@ -4340,6 +4340,7 @@ void __cdecl CScrCmd_IsDriving(scr_entref_t entref)
     Scr_AddInt(0, SCRIPTINSTANCE_CLIENT);
     //if ( GetCurrentThreadId() == g_DXDeviceThread )
 LABEL_16:
+    ;
         //D3DPERF_EndEvent();
 }
 
@@ -4450,6 +4451,7 @@ void __cdecl CScrCmd_GetLocalClientDriver(scr_entref_t entref)
     //if ( g_DXDeviceThread != GetCurrentThreadId() )
     //    return;
 LABEL_27:
+    ;
     //D3DPERF_EndEvent();
 }
 

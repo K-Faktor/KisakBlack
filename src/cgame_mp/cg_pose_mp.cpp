@@ -289,7 +289,7 @@ void    CG_Vehicle_DoControllers(const cpose_t *pose, const DObj *obj, int *part
         minigunAngles[2] = (float)pose->vehicle.minigun_rotation * 0.0054931641;
         DObjSetLocalTag(obj, partBits, pose->vehicle.tag_minigun_spin, vec3_origin, minigunAngles);
     }
-    suspTravel = pose->vehicle.time;
+    suspTravel = pose->vehicle.g_msgTime;
     AnglesToAxis(pose->angles, tempAxis);
     v49[2] = tempAxis[3];
     v49[1] = pose->origin;

@@ -322,7 +322,7 @@ void __cdecl GenerateBinaryMatchSummary(unsigned int titleID)
     MatchRecorderDDLSetInt(&g_HeaderState, "titleID", titleID);
     CurrentMapIndex = GetCurrentMapIndex();
     MatchRecorderDDLSetInt(&g_HeaderState, "mapID", CurrentMapIndex);
-    MatchRecorderDDLSetInt(&g_HeaderState, "mapDuration", level.time / 1000);
+    MatchRecorderDDLSetInt(&g_HeaderState, "mapDuration", level.g_msgTime / 1000);
     CurrentPlaylistIndex = GetCurrentPlaylistIndex();
     MatchRecorderDDLSetInt(&g_HeaderState, "playlistID", CurrentPlaylistIndex);
     start = MatchRecorderDDLGetInt(&g_HeaderState, "playerCountStart");
@@ -551,7 +551,7 @@ void GenerateBinaryBreadcrumbData()
 
     DDL_MoveToName(&g_RootState, &breadCrumbHeaderState, "breadCrumbHeader");
     MatchRecorderDDLSetInt(&breadCrumbHeaderState, "frequency", 0xB4u);
-    breadcrumbDataLength = (level.time / 1000 / 18) << 6;
+    breadcrumbDataLength = (level.g_msgTime / 1000 / 18) << 6;
     MatchRecorderDDLSetInt(&breadCrumbHeaderState, "dataLength", breadcrumbDataLength);
 }
 
@@ -980,7 +980,7 @@ void __cdecl MatchRecordSpawn(gclient_s *client)
                 {
                     MatchRecord_SetLifeCount(++lifeCount);
                     MatchRecorderDDLSetInt(&lifeState, "player", (__int16)playerSlot);
-                    MatchRecorderDDLSetInt(&lifeState, "spawn_time", (__int16)(level.time / 1000));
+                    MatchRecorderDDLSetInt(&lifeState, "spawn_time", (__int16)(level.g_msgTime / 1000));
                     GetWorldLocation(client->ps.origin[0], client->ps.origin[1], client->ps.origin[2], &spawnX, &spawnY, &spawnZ);
                     MatchRecorderDDLSetInt(&lifeState, "spawnX", spawnX);
                     MatchRecorderDDLSetInt(&lifeState, "spawnY", spawnY);
@@ -1338,7 +1338,7 @@ void __cdecl MatchRecordDeath(
             currentLife = MatchRecorderDDLGetInt(&playerState, "currentLife");
             if ( MatchRecord_GetLifeInSlot(currentLife, &lifeState) )
             {
-                MatchRecorderDDLSetInt(&lifeState, "death_time", (__int16)(level.time / 1000));
+                MatchRecorderDDLSetInt(&lifeState, "death_time", (__int16)(level.g_msgTime / 1000));
                 iWeaponIndex = G_GetWeaponIndexForName(weaponName);
                 baseWeaponIndex = iWeaponIndex;
                 if ( iWeaponIndex )
@@ -1584,7 +1584,7 @@ void __cdecl MatchRecordMovement()
     unsigned __int8 origin[4]; // [esp+48h] [ebp-8h] BYREF
     gentity_s *ent; // [esp+4Ch] [ebp-4h]
 
-    if ( g_matchRecorderDDL && level.time < 900000 && !(level.time % 18000) )
+    if ( g_matchRecorderDDL && level.g_msgTime < 900000 && !(level.g_msgTime % 18000) )
     {
         ent = g_entities;
         i = 0;
@@ -1615,7 +1615,7 @@ void __cdecl MatchRecordMovement()
                         origin,
                         &origin[1],
                         &origin[2]);
-                    offset = clientNum + 2 * level.maxclients * (level.time / 18000);
+                    offset = clientNum + 2 * level.maxclients * (level.g_msgTime / 18000);
                     if ( offset < 0xC80 )
                     {
                         DDL_MoveToName(&g_RootState, &movementBufferState, "movementBuffer");

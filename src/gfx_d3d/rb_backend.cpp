@@ -40,7 +40,7 @@
 #include <client_mp/cl_scrn_mp.h>
 #include "rb_compositing.h"
 
-int time;
+int g_msgTime;
 bool assets_released;
 bool g_showCursor;
 const float MY_OFFSETS[4][2] = { { -1.0, -1.0 }, { -1.0, 1.0 }, { 1.0, -1.0 }, { 1.0, 1.0 } };
@@ -5027,7 +5027,7 @@ void RB_SwapBuffers()
     {
         if ( !GetMessageA(&msg, 0, 0, 0) )
             Sys_SetWin32QuitEvent();
-        time = msg.time;
+        g_msgTime = msg.time;
         TranslateMessage(&msg);
         DispatchMessageA(&msg);
     }
@@ -5086,7 +5086,7 @@ void RB_SwapBuffers()
             {
                 if ( !GetMessageA(&msg, 0, 0, 0) )
                     Sys_SetWin32QuitEvent();
-                time = msg.time;
+                g_msgTime = msg.time;
                 TranslateMessage(&msg);
                 DispatchMessageA(&msg);
             }

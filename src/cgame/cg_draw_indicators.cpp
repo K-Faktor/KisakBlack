@@ -62,11 +62,11 @@ void __cdecl CG_DrawDamageDirectionIndicators(int localClientNum)
     float xy[4][2]; // [esp+40h] [ebp-58h] BYREF
     const cg_s *cgameGlob; // [esp+60h] [ebp-38h]
     int slot; // [esp+64h] [ebp-34h]
-    unsigned int halfWidth; // [esp+68h] [ebp-30h]
+    float halfWidth; // [esp+68h] [ebp-30h]
     float yaw; // [esp+6Ch] [ebp-2Ch]
     float height; // [esp+70h] [ebp-28h]
     float angle; // [esp+74h] [ebp-24h] BYREF
-    unsigned int radius; // [esp+78h] [ebp-20h]
+    float radius; // [esp+78h] [ebp-20h]
     int maxTime; // [esp+7Ch] [ebp-1Ch]
     float centerY; // [esp+80h] [ebp-18h] BYREF
     float color[4]; // [esp+84h] [ebp-14h] BYREF
@@ -96,18 +96,18 @@ void __cdecl CG_DrawDamageDirectionIndicators(int localClientNum)
         }
         value = cg_hudDamageIconWidth->current.value;
         v7 = ScrPlace_HiResGetScale() * value;
-        *(float *)&halfWidth = (float)(v7 * scrPlace->scaleVirtualToReal[0]) * 0.5;
+        halfWidth = (float)(v7 * scrPlace->scaleVirtualToReal[0]) * 0.5;
         v4 = cg_hudDamageIconHeight->current.value;
         v5 = ScrPlace_HiResGetScale() * v4;
         height = v5 * scrPlace->scaleVirtualToReal[1];
         v2 = cg_hudDamageIconOffset->current.value;
         v3 = ScrPlace_HiResGetScale() * v2;
-        *(float *)&radius = v3 * scrPlace->scaleVirtualToReal[1];
+        radius = v3 * scrPlace->scaleVirtualToReal[1];
         LODWORD(xy[0][0]) = halfWidth;
-        xy[0][1] = *(float *)&radius + height;
+        xy[0][1] = radius + height;
         //LODWORD(xy[1][0]) = halfWidth ^ _mask__NegFloat_;
         xy[1][0] = -halfWidth;
-        xy[1][1] = *(float *)&radius + height;
+        xy[1][1] = radius + height;
         //LODWORD(xy[2][0]) = halfWidth ^ _mask__NegFloat_;
         xy[2][0] = -halfWidth;
         LODWORD(xy[2][1]) = radius;

@@ -33,71 +33,7 @@ enum hudelem_update_t : __int32
     HUDELEM_UPDATE_ARCHIVAL_AND_CURRENT = 0x3,
 };
 
-union hudelem_color_t // sizeof=0x4
-{                                       // XREF: DrawSingleHudElem2d+137/r
-                                        // RB_AddWaypoint+3C/r ...
-    //$0D0CB43DF22755AD856C77DD3F304010 __s0;
-    struct //$0D0CB43DF22755AD856C77DD3F304010 // sizeof=0x4
-    {                                       // XREF: hudelem_color_t/r
-        unsigned __int8 r;
-        unsigned __int8 g;
-        unsigned __int8 b;
-        unsigned __int8 a;
-    };
-    int rgba;
-};
-
-struct __declspec(align(4)) hudelem_s // sizeof=0x70
-{                                       // XREF: .data:g_dummyHudCurrent/r
-                                        // .data:g_dummyHudCurrent_0/r ...
-    float x;
-    float y;
-    float z;
-    float fontScale;
-    hudelem_color_t color;
-    hudelem_color_t fromColor;
-    int fadeStartTime;
-    int scaleStartTime;
-    float fromX;
-    float fromY;
-    int moveStartTime;
-    int time;
-    int duration;
-    float value;
-    float sort;
-    hudelem_color_t glowColor;
-    int fxBirthTime;
-    __int16 targetEntNum;
-    __int16 fadeTime;
-    __int16 label;
-    __int16 width;
-    __int16 height;
-    __int16 fromWidth;
-    __int16 fromHeight;
-    __int16 scaleTime;
-    __int16 moveTime;
-    __int16 text;
-    unsigned __int16 fxLetterTime;
-    unsigned __int16 fxDecayStartTime;
-    unsigned __int16 fxDecayDuration;
-    unsigned __int16 fxRedactDecayStartTime;
-    unsigned __int16 fxRedactDecayDuration;
-    unsigned __int16 flags;
-    unsigned __int8 type;               // XREF: HudElem_Alloc(int,int)+25/r
-                                        // HudElem_ClientDisconnect(gentity_s *)+25/r ...
-    unsigned __int8 font;
-    unsigned __int8 alignOrg;
-    unsigned __int8 alignScreen;
-    unsigned __int8 materialIndex;
-    unsigned __int8 offscreenMaterialIdx;
-    unsigned __int8 fromAlignOrg;
-    unsigned __int8 fromAlignScreen;
-    unsigned __int8 soundID;
-    char ui3dWindow;
-    // padding byte
-    // padding byte
-};
-
+struct game_hudelem_s;
 struct game_hudelem_field_t // sizeof=0x20
 {                                       // XREF: .rdata:fields_0/r
     const char *name;

@@ -7,9 +7,11 @@
 
 struct pmove_t;
 struct centity_s;
+struct gentity_s;
 struct gjk_base_t;
 struct Glass;
 struct DynEntityDef;
+struct CollisionPartition;
 
 
 struct phys_gjk_geom_id_pair_key // sizeof=0x8

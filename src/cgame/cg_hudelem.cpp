@@ -841,6 +841,7 @@ void __cdecl CG_Draw2dHudElems(int localClientNum, int foreground)
         //if ( GetCurrentThreadId() == g_DXDeviceThread )
 LABEL_18:
             //D3DPERF_EndEvent();
+        ;
     }
 }
 
@@ -1985,208 +1986,208 @@ void __cdecl UpdateHudElemWarGameData(int localClientNum, const hudelem_s *elem)
 // local variable allocation has failed, the output may be wrong!
 void    DrawOffscreenViewableWaypoint(int localClientNum, const hudelem_s *elem)
 {
-    float v2; // xmm0_4
-    double v3; // xmm0_8
-    double v4; // st7
-    long double scaleY; // [esp+3Ch] [ebp-490h]
-    long double v6; // [esp+44h] [ebp-488h]
-    float v7; // [esp+44h] [ebp-488h]
-    float v8; // [esp+44h] [ebp-488h]
-    float v9; // [esp+4Ch] [ebp-480h]
-    float v10; // [esp+4Ch] [ebp-480h]
-    int textStyle; // [esp+50h] [ebp-47Ch]
-    float objDist; // [esp+54h] [ebp-478h]
-    float delta[4]; // [esp+58h] [ebp-474h] BYREF
-    cg_s *v14; // [esp+68h] [ebp-464h]
-    float UNITS_PER_METER; // [esp+6Ch] [ebp-460h]
-    float EXTRA_SCALE_FACTOR; // [esp+70h] [ebp-45Ch]
-    cg_hudelem_t cghe; // [esp+74h] [ebp-458h] BYREF
-    char text[261]; // [esp+2B4h] [ebp-218h] BYREF
-    bool dontDraw; // [esp+3B9h] [ebp-113h]
-    bool v20; // [esp+3BAh] [ebp-112h]
-    bool shouldDrawDistanceText; // [esp+3BBh] [ebp-111h]
-    float screenPosArrow[2]; // [esp+3BCh] [ebp-110h] BYREF
-    float angle; // [esp+3C4h] [ebp-108h]
-    int v24; // [esp+3C8h] [ebp-104h]
-    float v25; // [esp+3CCh] [ebp-100h]
-    float scale; // [esp+3D0h] [ebp-FCh]
-    float shrinkDist; // [esp+3D4h] [ebp-F8h]
-    float colorArrow[4]; // [esp+3D8h] [ebp-F4h] BYREF
-    bool isWaypointOffscreen; // [esp+3E9h] [ebp-E3h]
-    bool v30; // [esp+3EAh] [ebp-E2h]
-    bool didClamp; // [esp+3EBh] [ebp-E1h]
-    float clampedDir[2]; // [esp+3ECh] [ebp-E0h] BYREF
-    float clampedDist; // [esp+3F4h] [ebp-D8h] BYREF
-    float worldDistance; // [esp+3F8h] [ebp-D4h]
-    cg_s *cgameGlob; // [esp+3FCh] [ebp-D0h]
-    float screenPos[3]; // [esp+400h] [ebp-CCh] BYREF
-    centity_s *cent; // [esp+40Ch] [ebp-C0h]
-    cg_s *LocalClientGlobals; // [esp+410h] [ebp-BCh]
-    float worldPos[3]; // [esp+414h] [ebp-B8h] BYREF
-    float z; // [esp+420h] [ebp-ACh]
-    float y; // [esp+424h] [ebp-A8h]
-    float x; // [esp+428h] [ebp-A4h]
-    float tweak2dY; // [esp+42Ch] [ebp-A0h]
-    float padBottom; // [esp+430h] [ebp-9Ch]
-    float padTop; // [esp+434h] [ebp-98h]
+    float v3; // xmm0_4
+    float v4; // xmm0_4
+    double v5; // st7
+    float v6; // [esp+38h] [ebp-494h]
+    float v7; // [esp+38h] [ebp-494h]
+    float scaleX; // [esp+40h] [ebp-48Ch]
+    float scaleXa; // [esp+40h] [ebp-48Ch]
+    int textStyle; // [esp+44h] [ebp-488h]
+    float objDist; // [esp+48h] [ebp-484h]
+    float delta[3]; // [esp+4Ch] [ebp-480h] BYREF
+    float *vieworg; // [esp+58h] [ebp-474h]
+    cg_s *v14; // [esp+5Ch] [ebp-470h]
+    float UNITS_PER_METER; // [esp+60h] [ebp-46Ch]
+    float EXTRA_SCALE_FACTOR; // [esp+64h] [ebp-468h]
+    cg_hudelem_t cghe; // [esp+68h] [ebp-464h] BYREF
+    char text[261]; // [esp+2A8h] [ebp-224h] BYREF
+    bool dontDraw; // [esp+3ADh] [ebp-11Fh]
+    bool v20; // [esp+3AEh] [ebp-11Eh]
+    bool shouldDrawDistanceText; // [esp+3AFh] [ebp-11Dh]
+    float screenPosArrow[2]; // [esp+3B0h] [ebp-11Ch] BYREF
+    float angle; // [esp+3B8h] [ebp-114h]
+    int v24; // [esp+3BCh] [ebp-110h]
+    float v25; // [esp+3C0h] [ebp-10Ch]
+    float value; // [esp+3C4h] [ebp-108h]
+    float shrinkDist; // [esp+3C8h] [ebp-104h]
+    float colorArrow[4]; // [esp+3CCh] [ebp-100h] BYREF
+    bool isWaypointOffscreen; // [esp+3DDh] [ebp-EFh]
+    bool v30; // [esp+3DEh] [ebp-EEh]
+    bool didClamp; // [esp+3DFh] [ebp-EDh]
+    float clampedDir[2]; // [esp+3E0h] [ebp-ECh] BYREF
+    float clampedDist; // [esp+3E8h] [ebp-E4h] BYREF
+    float w0; // [esp+3ECh] [ebp-E0h]
+    cg_s *cgameGlob; // [esp+3F0h] [ebp-DCh]
+    float v36[2]; // [esp+3F4h] [ebp-D8h] BYREF
+    float *origin; // [esp+3FCh] [ebp-D0h]
+    centity_s *screenPos; // [esp+400h] [ebp-CCh]
+    cg_s *LocalClientGlobals; // [esp+404h] [ebp-C8h]
+    float worldPos[3]; // [esp+408h] [ebp-C4h] BYREF
+    float v41; // [esp+414h] [ebp-B8h]
+    float v42; // [esp+418h] [ebp-B4h]
+    float v43; // [esp+41Ch] [ebp-B0h]
+    float tweak2dY; // [esp+420h] [ebp-ACh]
+    float padBottom; // [esp+424h] [ebp-A8h]
+    float padTop; // [esp+428h] [ebp-A4h]
+    float v47; // [esp+42Ch] [ebp-A0h]
+    float v48; // [esp+430h] [ebp-9Ch]
+    float v49; // [esp+434h] [ebp-98h]
     float padRight; // [esp+438h] [ebp-94h]
     float padLeft; // [esp+43Ch] [ebp-90h]
-    float padding; // [esp+440h] [ebp-8Ch]
-    float distanceThresholdAlpha; // [esp+444h] [ebp-88h]
-    float pointerDistance; // [esp+448h] [ebp-84h]
+    float padding; // [esp+440h] [ebp-8Ch] BYREF
+    float distanceThresholdAlpha; // [esp+444h] [ebp-88h] BYREF
+    float pointerDistance; // [esp+448h] [ebp-84h] BYREF
     float pointerHeight; // [esp+44Ch] [ebp-80h] BYREF
-    float pointerWidth; // [esp+450h] [ebp-7Ch] BYREF
-    float iconHeight; // [esp+454h] [ebp-78h] BYREF
-    float iconWidth; // [esp+458h] [ebp-74h] BYREF
-    float scaleVirtualToRealAvg; // [esp+45Ch] [ebp-70h]
-    ScreenPlacement *scrPlace; // [esp+460h] [ebp-6Ch]
-    float color[4]; // [esp+464h] [ebp-68h] BYREF
-    Material *material; // [esp+474h] [ebp-58h]
-    hudelem_color_t toColor; // [esp+478h] [ebp-54h] BYREF
-    int time; // [esp+47Ch] [ebp-50h]
-    int hasMaterial; // [esp+480h] [ebp-4Ch]
-    char materialName[72]; // [esp+484h] [ebp-48h] BYREF
-
-    iassert(elem);
-    iassert(elem->type == HE_TYPE_WAYPOINT);
-
-    hasMaterial = CG_ServerMaterialName(localClientNum, elem->offscreenMaterialIdx, materialName, 0x40u);
-
-    if (hasMaterial)
+    float pointerWidth; // [esp+450h] [ebp-7Ch]
+    ScreenPlacement *iconHeight; // [esp+454h] [ebp-78h]
+    float iconWidth[4]; // [esp+458h] [ebp-74h] BYREF
+    Material *material; // [esp+468h] [ebp-64h]
+    hudelem_color_t toColor; // [esp+46Ch] [ebp-60h] BYREF
+    int time; // [esp+470h] [ebp-5Ch]
+    int v62; // [esp+474h] [ebp-58h]
+    char v63[64]; // [esp+478h] [ebp-54h] BYREF
+    //_UNKNOWN *v64; // [esp+4C0h] [ebp-Ch]
+    //int localClientNuma; // [esp+4C4h] [ebp-8h]
+    //int vars0; // [esp+4CCh] [ebp+0h]
+    //
+    //v64 = a1;
+    //localClientNuma = vars0;
+    if (!elem && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_hudelem.cpp", 1562, 0, "%s", "elem"))
+        __debugbreak();
+    if (*(_BYTE *)(elem + 100) != 15
+        && !Assert_MyHandler(
+            "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_hudelem.cpp",
+            1563,
+            0,
+            "%s",
+            "elem->type == HE_TYPE_WAYPOINT"))
+    {
+        __debugbreak();
+    }
+    v62 = CG_ServerMaterialName(localClientNum, *(unsigned __int8 *)(elem + 105), v63, 0x40u);
+    if (v62)
     {
         if (!CG_Flashbanged(localClientNum) && !CG_Flared(localClientNum))
         {
             time = CG_GetLocalClientGlobals(localClientNum)->time;
-            BG_LerpHudColors(elem, time, &toColor);
+            BG_LerpHudColors((const hudelem_s *)elem, time, &toColor);
             if (toColor.a)
             {
-                if (hasMaterial)
-                    material = Material_RegisterHandle(materialName, 7);
+                if (v62)
+                    material = Material_RegisterHandle(v63, 7);
                 else
                     material = 0;
-                HudElemColorToVec4(&toColor, color);
-                scrPlace = &scrPlaceView[localClientNum];
-                scaleVirtualToRealAvg = (float)(scrPlace->scaleVirtualToReal[0] + scrPlace->scaleVirtualToReal[1]) * 0.5;
-                iconWidth = waypointIconWidth->current.value * scrPlace->scaleVirtualToReal[0];
-                iconHeight = waypointIconHeight->current.value * scrPlace->scaleVirtualToReal[1];
-                pointerWidth = waypointOffscreenPointerWidth->current.value * scrPlace->scaleVirtualToReal[0];
-                pointerHeight = waypointOffscreenPointerHeight->current.value * scrPlace->scaleVirtualToReal[1];
-                pointerDistance = waypointOffscreenPointerDistance->current.value * scaleVirtualToRealAvg;
-                distanceThresholdAlpha = waypointOffscreenDistanceThresholdAlpha->current.value * scaleVirtualToRealAvg;
-                if (distanceThresholdAlpha < 0.1)
-                    distanceThresholdAlpha = 0.1f;
-                padding = (float)(0.5 * pointerHeight) + pointerDistance;
-                padLeft = (float)(waypointOffscreenPadLeft->current.value * scrPlace->scaleVirtualToReal[0]) + padding;
-                padRight = (float)(waypointOffscreenPadRight->current.value * scrPlace->scaleVirtualToReal[0]) + padding;
-                padTop = (float)(waypointOffscreenPadTop->current.value * scrPlace->scaleVirtualToReal[1]) + padding;
-                padBottom = (float)(waypointOffscreenPadBottom->current.value * scrPlace->scaleVirtualToReal[1]) + padding;
-                tweak2dY = waypointTweakY->current.value * scrPlace->scaleVirtualToReal[1];
-                if (elem->targetEntNum == 1023)
+                HudElemColorToVec4(&toColor, iconWidth);
+                iconHeight = &scrPlaceView[localClientNum];
+                pointerWidth = (float)(iconHeight->scaleVirtualToReal[0] + iconHeight->scaleVirtualToReal[1]) * 0.5;
+                pointerHeight = waypointIconWidth->current.value * iconHeight->scaleVirtualToReal[0];
+                pointerDistance = waypointIconHeight->current.value * iconHeight->scaleVirtualToReal[1];
+                distanceThresholdAlpha = waypointOffscreenPointerWidth->current.value * iconHeight->scaleVirtualToReal[0];
+                padding = waypointOffscreenPointerHeight->current.value * iconHeight->scaleVirtualToReal[1];
+                padLeft = waypointOffscreenPointerDistance->current.value * pointerWidth;
+                padRight = waypointOffscreenDistanceThresholdAlpha->current.value * pointerWidth;
+                if (padRight < 0.1)
+                    padRight = 0.1f;
+                v49 = (float)(0.5 * padding) + padLeft;
+                v48 = (float)(waypointOffscreenPadLeft->current.value * iconHeight->scaleVirtualToReal[0]) + v49;
+                v47 = (float)(waypointOffscreenPadRight->current.value * iconHeight->scaleVirtualToReal[0]) + v49;
+                padTop = (float)(waypointOffscreenPadTop->current.value * iconHeight->scaleVirtualToReal[1]) + v49;
+                padBottom = (float)(waypointOffscreenPadBottom->current.value * iconHeight->scaleVirtualToReal[1]) + v49;
+                tweak2dY = waypointTweakY->current.value * iconHeight->scaleVirtualToReal[1];
+                if (*(_WORD *)(elem + 68) == 1023)
                 {
-                    x = elem->x;
-                    y = elem->y;
-                    z = elem->z;
-                    worldPos[0] = x;
-                    worldPos[1] = y;
-                    worldPos[2] = z;
+                    v43 = *(float *)elem;
+                    v42 = *(float *)(elem + 4);
+                    v41 = *(float *)(elem + 8);
+                    worldPos[0] = v43;
+                    worldPos[1] = v42;
+                    worldPos[2] = v41;
                 }
                 else
                 {
                     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-                    if (elem->targetEntNum == LocalClientGlobals->predictedPlayerEntity.nextState.number)
+                    if (*(__int16 *)(elem + 68) == LocalClientGlobals->predictedPlayerEntity.nextState.number)
                         return;
-                    cent = CG_GetEntity(localClientNum, elem->targetEntNum);
-
-                    if (((*((_DWORD *)cent + 201) >> 1) & 1) == 0)
+                    screenPos = CG_GetEntity(localClientNum, *(__int16 *)(elem + 68));
+                    if (((*((_DWORD *)screenPos + 201) >> 1) & 1) == 0)
                     {
                         Com_PrintWarning(
                             1,
                             "DrawOffscreenViewableWaypoint(): targetEnt %i not in snapshot, may not be a network-broadcasting entity.",
-                            elem->targetEntNum);
+                            *(__int16 *)(elem + 68));
                         return;
                     }
-
-                    //LODWORD(screenPos[2]) = cent->pose.origin;
-                    worldPos[0] = cent->pose.origin[0];
-                    worldPos[1] = cent->pose.origin[1];
-                    worldPos[2] = cent->pose.origin[2];
-                    if (cent->nextState.eType == 1)
+                    origin = screenPos->pose.origin;
+                    worldPos[0] = screenPos->pose.origin[0];
+                    worldPos[1] = screenPos->pose.origin[1];
+                    worldPos[2] = screenPos->pose.origin[2];
+                    if (screenPos->nextState.eType == 1)
                     {
-                        if (LocalClientGlobals->bgs.clientinfo[elem->targetEntNum].lastStandStartTime)
+                        if (LocalClientGlobals->bgs.clientinfo[*(__int16 *)(elem + 68)].lastStandStartTime)
                         {
                             worldPos[2] = worldPos[2] + waypointPlayerOffsetRevive->current.value;
                         }
-                        else if ((cent->currentState.eFlags & 8) != 0)
+                        else if ((screenPos->currentState.eFlags & 8) != 0)
                         {
                             worldPos[2] = worldPos[2] + waypointPlayerOffsetProne->current.value;
                         }
                         else
                         {
-                            if ((cent->currentState.eFlags & 4) != 0)
-                                v2 = worldPos[2] + waypointPlayerOffsetCrouch->current.value;
+                            if ((screenPos->currentState.eFlags & 4) != 0)
+                                v3 = worldPos[2] + waypointPlayerOffsetCrouch->current.value;
                             else
-                                v2 = worldPos[2] + waypointPlayerOffsetStand->current.value;
-                            worldPos[2] = v2;
+                                v3 = worldPos[2] + waypointPlayerOffsetStand->current.value;
+                            worldPos[2] = v3;
                         }
                     }
                 }
-                if (elem->ui3dWindow < 0)
-                    WorldPosToScreenPos(localClientNum, worldPos, screenPos);
+                if (*(char *)(elem + 109) < 0)
+                    WorldPosToScreenPos(localClientNum, worldPos, v36);
                 else
-                    WorldPosToExtraCamScreenPos(localClientNum, worldPos, screenPos);
-                screenPos[1] = screenPos[1] + tweak2dY;
+                    WorldPosToExtraCamScreenPos(localClientNum, worldPos, v36);
+                v36[1] = v36[1] + tweak2dY;
                 cgameGlob = CG_GetLocalClientGlobals(localClientNum);
-                worldDistance = Vec3Distance(cgameGlob->refdef.vieworg, worldPos);
-                didClamp = ClampScreenPosToEdges(
-                    localClientNum,
-                    screenPos,
-                    padLeft,
-                    padRight,
-                    padTop,
-                    padBottom,
-                    clampedDir,
-                    &clampedDist);
+                w0 = Vec3Distance(cgameGlob->refdef.vieworg, worldPos);
+                didClamp = ClampScreenPosToEdges(localClientNum, v36, v48, v47, padTop, padBottom, clampedDir, &clampedDist);
                 v30 = didClamp && clampedDist > 0.0;
                 isWaypointOffscreen = v30;
                 if (v30)
                 {
-                    colorArrow[0] = color[0];
-                    colorArrow[1] = color[1];
-                    colorArrow[2] = color[2];
-                    colorArrow[3] = color[3];
-                    if (distanceThresholdAlpha > clampedDist)
-                        colorArrow[3] = (float)(clampedDist / distanceThresholdAlpha) * colorArrow[3];
-                    shrinkDist = waypointOffscreenScaleLength->current.value * scaleVirtualToRealAvg;
+                    colorArrow[0] = iconWidth[0];
+                    colorArrow[1] = iconWidth[1];
+                    colorArrow[2] = iconWidth[2];
+                    colorArrow[3] = iconWidth[3];
+                    if (padRight > clampedDist)
+                        colorArrow[3] = (float)(clampedDist / padRight) * colorArrow[3];
+                    shrinkDist = waypointOffscreenScaleLength->current.value * pointerWidth;
                     if (shrinkDist <= clampedDist)
                     {
-                        scale = waypointOffscreenScaleSmallest->current.value;
+                        value = waypointOffscreenScaleSmallest->current.value;
                     }
                     else
                     {
-                        scale = clampedDist / shrinkDist;
-                        scale = (float)((float)(1.0 - (float)(clampedDist / shrinkDist)) * 1.0)
+                        value = clampedDist / shrinkDist;
+                        value = (float)((float)(1.0 - (float)(clampedDist / shrinkDist)) * 1.0)
                             + (float)(waypointOffscreenScaleSmallest->current.value * (float)(clampedDist / shrinkDist));
                     }
-                    iconWidth = iconWidth * scale;
-                    iconHeight = iconHeight * scale;
+                    pointerHeight = pointerHeight * value;
+                    pointerDistance = pointerDistance * value;
                     v25 = clampedDir[0];
                     //v24 = LODWORD(clampedDir[1]) ^ _mask__NegFloat_;
-                    v24 = -clampedDir[1];
-                    v3 = clampedDir[0];
-                    //__libm_sse2_atan2(scaleY, v6);
-                    //*(float *)&v3 = v3;
-                    v3 = atan2(scaleY, v3);
-                    //angle = (float)(*(float *)&v3 * 180.0) / 3.1415927;
-                    angle = (float)(v3 * 180.0) / 3.1415927;
-                    screenPosArrow[0] = (float)(pointerDistance * clampedDir[0]) + screenPos[0];
-                    screenPosArrow[1] = (float)(pointerDistance * clampedDir[1]) + screenPos[1];
-                    ScrPlace_HiResApplyRect(screenPosArrow, &screenPosArrow[1], &pointerWidth, &pointerHeight);
+                    v24 = -(clampedDir[1]);
+                    //v4 = __libm_sse2_atan2(clampedDir[0], COERCE_FLOAT(LODWORD(clampedDir[1]) ^ _mask__NegFloat_));
+                    v4 = atan2(clampedDir[0], (-(clampedDir[1])));
+                    angle = (float)(v4 * 180.0) / 3.1415927;
+                    screenPosArrow[0] = (float)(padLeft * clampedDir[0]) + v36[0];
+                    screenPosArrow[1] = (float)(padLeft * clampedDir[1]) + v36[1];
+                    ScrPlace_HiResApplyRect(screenPosArrow, &screenPosArrow[1], &distanceThresholdAlpha, &padding);
                     CL_DrawStretchPicPhysicalRotateXYW(
-                        screenPosArrow[0] - (float)(pointerWidth * 0.5),
-                        screenPosArrow[1] - (float)(pointerHeight * 0.5),
-                        worldDistance,
-                        pointerWidth,
-                        pointerHeight,
+                        screenPosArrow[0] - (float)(distanceThresholdAlpha * 0.5),
+                        screenPosArrow[1] - (float)(padding * 0.5),
+                        w0,
+                        distanceThresholdAlpha,
+                        padding,
                         0.0,
                         0.0,
                         1.0,
@@ -2195,83 +2196,83 @@ void    DrawOffscreenViewableWaypoint(int localClientNum, const hudelem_s *elem)
                         colorArrow,
                         cgMedia.offscreenObjectivePointer);
                 }
-                else if ((elem->flags & 0x100) != 0)
+                else if ((*(_WORD *)(elem + 98) & 0x100) != 0)
                 {
-                    WaypointTargetFade(localClientNum, elem, screenPos, color);
+                    WaypointTargetFade(localClientNum, (const hudelem_s *)elem, v36, iconWidth);
                 }
-                shouldDrawDistanceText = elem->time == 1;
+                shouldDrawDistanceText = *(_DWORD *)(elem + 44) == 1;
                 v20 = shouldDrawDistanceText && isWaypointOffscreen;
                 dontDraw = v20;
-                scale = GetScaleForDistance(localClientNum, worldPos);
-                if (hasMaterial)
+                value = GetScaleForDistance(localClientNum, worldPos);
+                if (v62)
                 {
-                    iconWidth = iconWidth * scale;
-                    iconHeight = iconHeight * scale;
+                    pointerHeight = pointerHeight * value;
+                    pointerDistance = pointerDistance * value;
                     if (!dontDraw)
                     {
-                        ScrPlace_HiResApplyRect(screenPos, &screenPos[1], &iconWidth, &iconHeight);
+                        ScrPlace_HiResApplyRect(v36, &v36[1], &pointerHeight, &pointerDistance);
                         CL_DrawStretchPicPhysicalW(
-                            screenPos[0] - (float)(iconWidth * 0.5),
-                            screenPos[1] - (float)(iconHeight * 0.5),
-                            worldDistance,
+                            v36[0] - (float)(pointerHeight * 0.5),
+                            v36[1] - (float)(pointerDistance * 0.5),
+                            w0,
+                            pointerHeight,
+                            pointerDistance,
+                            0.0,
+                            0.0,
+                            1.0,
+                            1.0,
                             iconWidth,
-                            iconHeight,
-                            0.0,
-                            0.0,
-                            1.0,
-                            1.0,
-                            color,
                             material);
                     }
                 }
-                GetHudElemInfo(localClientNum, elem, &cghe, text);
+                GetHudElemInfo(localClientNum, (const hudelem_s *)elem, &cghe, text);
                 if (shouldDrawDistanceText && !dontDraw)
                 {
                     EXTRA_SCALE_FACTOR = 1.5f;
                     UNITS_PER_METER = 39.369999f;
                     v14 = CG_GetLocalClientGlobals(localClientNum);
-                    //LODWORD(delta[3]) = v14->refdef.vieworg;
+                    vieworg = v14->refdef.vieworg;
                     delta[0] = worldPos[0] - v14->refdef.vieworg[0];
                     delta[1] = worldPos[1] - v14->refdef.vieworg[1];
                     delta[2] = worldPos[2] - v14->refdef.vieworg[2];
                     objDist = Vec2Length(delta);
                     if (cghe.hudElemLabel[0])
-                        Com_sprintf(cghe.hudElemLabel, 256, "%s %im", cghe.hudElemLabel, (int)(float)(objDist / UNITS_PER_METER));
+                        Com_sprintf(cghe.hudElemLabel, 0x100u, "%s %im", cghe.hudElemLabel, (int)(float)(objDist / UNITS_PER_METER));
                     else
-                        Com_sprintf(cghe.hudElemLabel, 256, "%im", (int)(float)(objDist / UNITS_PER_METER));
-                    v4 = HudElemStringWidth(cghe.hudElemLabel, elem, &cghe);
-                    cghe.labelWidth = v4 * EXTRA_SCALE_FACTOR;
-                    scale = scale * EXTRA_SCALE_FACTOR;
+                        Com_sprintf(cghe.hudElemLabel, 0x100u, "%im", (int)(float)(objDist / UNITS_PER_METER));
+                    v5 = HudElemStringWidth(cghe.hudElemLabel, (const hudelem_s *)elem, &cghe);
+                    cghe.labelWidth = v5 * EXTRA_SCALE_FACTOR;
+                    value = value * EXTRA_SCALE_FACTOR;
                 }
                 if (cghe.hudElemLabel[0] && !dontDraw)
                 {
-                    if (hasMaterial)
-                        screenPos[1] = screenPos[1] - 15.0;
+                    if (v62)
+                        v36[1] = v36[1] - 15.0;
                     textStyle = 0;
-                    if ((elem->flags & 8) != 0)
+                    if ((*(_WORD *)(elem + 98) & 8) != 0)
                     {
                         textStyle = 3;
                     }
-                    else if ((elem->flags & 0x10) != 0)
+                    else if ((*(_WORD *)(elem + 98) & 0x10) != 0)
                     {
                         textStyle = 6;
                     }
-                    if ((elem->flags & 0x20) != 0)
-                        HudElemColorToVec4(&elem->glowColor, color);
-                    v9 = scale;
-                    v10 = v9 / ScrPlace_HiResGetScale();
-                    v7 = v10 * scrPlace->scaleRealToVirtual[1];
-                    v8 = ScrPlace_HiResGetScale() * v7;
+                    if ((*(_WORD *)(elem + 98) & 0x20) != 0)
+                        HudElemColorToVec4((const hudelem_color_t *)(elem + 60), iconWidth);
+                    scaleX = value;
+                    scaleXa = scaleX / ScrPlace_HiResGetScale();
+                    v6 = scaleXa * iconHeight->scaleRealToVirtual[1];
+                    v7 = ScrPlace_HiResGetScale() * v6;
                     CL_DrawTextPhysical(
                         cghe.hudElemLabel,
                         32,
                         cghe.font,
-                        screenPos[0] - (float)(cghe.labelWidth * 0.5),
-                        screenPos[1],
-                        worldDistance,
-                        cghe.fontScale * (float)(v8 * scrPlace->scaleVirtualToReal[0]),
-                        cghe.fontScale * scale,
-                        color,
+                        v36[0] - (float)(cghe.labelWidth * 0.5),
+                        v36[1],
+                        w0,
+                        cghe.fontScale * (float)(v7 * iconHeight->scaleVirtualToReal[0]),
+                        cghe.fontScale * value,
+                        iconWidth,
                         textStyle);
                 }
             }

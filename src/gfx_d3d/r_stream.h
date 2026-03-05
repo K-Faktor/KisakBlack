@@ -80,11 +80,11 @@ struct StreamFrontendGlob
     int initialLoadAllocFailures;
     bool preloadCancelled;
     bool diskOrderImagesNeedSorting;
-    __unaligned __declspec(align(1)) int sortedImages[4096];
-    __unaligned __declspec(align(1)) int sortedImageCount;
+    __declspec(align(1)) int sortedImages[4096];
+    _declspec(align(1)) int sortedImageCount;
     bool calculateTotalBytesWanted;
     _BYTE gap14003[74];
-    _BYTE gap14003[435];
+    _BYTE gap1400311[435];
     int totalBytesWanted;
     char syncThing;
     __declspec(align(4)) _BYTE gap14208[4];

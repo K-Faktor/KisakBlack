@@ -142,7 +142,7 @@ void __cdecl IN_MouseEvent(int mstate)
             for ( button = 0; button < 5; ++button )
             {
                 if ( (diff & (1 << button)) != 0 )
-                    Sys_QueEvent(time, SE_KEY, button + 200, (mstate & (1 << button)) != 0, 0, 0);
+                    Sys_QueEvent(g_msgTime, SE_KEY, button + 200, (mstate & (1 << button)) != 0, 0, 0);
             }
             s_wmv.oldButtonState = mstate;
         }

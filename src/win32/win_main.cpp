@@ -393,7 +393,7 @@ sysEvent_t *__cdecl Win_GetEvent(sysEvent_t *result)
         {
             if ( !GetMessageA(&msg, 0, 0, 0) )
                 Com_Quit_f();
-            time = msg.time;
+            g_msgTime = msg.time;
             TranslateMessage(&msg);
             DispatchMessageA(&msg);
         }

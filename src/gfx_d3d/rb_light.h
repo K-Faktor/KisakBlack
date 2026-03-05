@@ -186,4 +186,4 @@ void __cdecl R_InitLightVisHistory(char *bspName);
 void __cdecl R_LightVisHistoryFilename(char *bspName, char *filename);
 void __cdecl R_SaveLightVisHistory();
 void __cdecl HashUnpackPoint(unsigned __int64 value, unsigned __int16 (*p)[3]);
-int __cdecl find_hash(const char *a1);
+//int __cdecl find_hash(const char *a1); // in libtomcrypt

@@ -1026,21 +1026,21 @@ void __cdecl CG_DrawPlayerPopUps(
     float stringPixelLength; // [esp+84h] [ebp-38h]
     int ratio; // [esp+88h] [ebp-34h]
     cg_s *yScale; // [esp+8Ch] [ebp-30h]
-    int time; // [esp+94h] [ebp-28h]
+    int g_msgTime; // [esp+94h] [ebp-28h]
     float cgameGlob; // [esp+98h] [ebp-24h]
     int swingLength; // [esp+A8h] [ebp-14h]
     const ScreenPlacement *swayMaxTime; // [esp+ACh] [ebp-10h]
 
     swayMaxTime = &scrPlaceView[localClientNum];
     cgameGlob = item->window.outlineColor[3];
-    time = 0;
+    g_msgTime = 0;
     if ( text )
     {
         if ( color[3] != 0.0 )
         {
             yScale = CG_GetLocalClientGlobals(localClientNum);
             swingLength = yScale->popUpSwayStartTime;
-            ratio = yScale->time;
+            ratio = yScale->g_msgTime;
             if ( swingLength || !doSwing )
             {
                 if ( swingLength && (float)ratio > (float)((float)swingLength + 2500.0) )
@@ -1080,7 +1080,7 @@ void __cdecl CG_DrawPlayerPopUps(
                     __libm_sse2_cos(v17);
                     *(float *)&v13 = v13;
                     y = (float)(rect->y - (float)((float)(v18 * rotatedY) / 2.0)) + (float)((float)(*(float *)&v13 * v22) - v22);
-                    time = LODWORD(yScale->popupRotationAngle);
+                    g_msgTime = LODWORD(yScale->popupRotationAngle);
                 }
                 if ( cgameGlob == 0.0 )
                     CL_DrawTextRotate(
@@ -1090,7 +1090,7 @@ void __cdecl CG_DrawPlayerPopUps(
                         font,
                         x,
                         y,
-                        *(float *)&time,
+                        *(float *)&g_msgTime,
                         rect->horzAlign,
                         rect->vertAlign,
                         stringPixelLength,
@@ -1105,7 +1105,7 @@ void __cdecl CG_DrawPlayerPopUps(
                         font,
                         x,
                         y,
-                        *(float *)&time,
+                        *(float *)&g_msgTime,
                         rect->horzAlign,
                         rect->vertAlign,
                         stringPixelLength,

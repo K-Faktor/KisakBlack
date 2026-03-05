@@ -57,24 +57,7 @@ struct __declspec(align(16)) GlassPhysics // sizeof=0xA0
     void GetPosition(float *position, float (*axis)[3]);
 };
 
-struct GlassDef // sizeof=0x3C
-{                                       // XREF: GlassDefLoad/r
-    const char *name;
-    int maxHealth;
-    float thickness;
-    float minShardSize;
-    float maxShardSize;
-    float shardLifeProbablility;
-    int maxShards;
-    Material *pristineMaterial;
-    Material *crackedMaterial;
-    Material *shardMaterial;
-    const char *crackSound;
-    const char *shatterShound;
-    const char *autoShatterShound;
-    const FxEffectDef *crackEffect;
-    const FxEffectDef *shatterEffect;
-};
+struct GlassDef;
 
 struct ShardGroup // sizeof=0x54
 {

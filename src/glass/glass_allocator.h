@@ -28,7 +28,35 @@ struct SmallAllocator // sizeof=0x18
 template <typename T>
 struct SmallAllocatorTemplate//<GlassPhysics * *> // sizeof=0x4
 {                                       // XREF: ??0?$_List_ptr@PAUShardGroup@@V?$SmallAllocatorTemplate@PAPAUShardGroup@@@@@std@@IAE@V?$SmallAllocatorTemplate@PAPAUShardGroup@@@@@Z/r
-    SmallAllocator *alloc;              // XREF: std::list<GlassShard *,SmallAllocatorTemplate<GlassShard * *>>::list<GlassShard *,SmallAllocatorTemplate<GlassShard * *>>(SmallAllocatorTemplate<GlassShard *> const &)+14/w
+    //SmallAllocator *alloc;              // XREF: std::list<GlassShard *,SmallAllocatorTemplate<GlassShard * *>>::list<GlassShard *,SmallAllocatorTemplate<GlassShard * *>>(SmallAllocatorTemplate<GlassShard *> const &)+14/w
+
+    using value_type = T;
+
+    SmallAllocator *alloc;
+
+    SmallAllocatorTemplate() noexcept : alloc(nullptr) {}
+    SmallAllocatorTemplate(SmallAllocator *a) noexcept : alloc(a) {}
+
+    template<class U>
+    SmallAllocatorTemplate(const SmallAllocatorTemplate<U> &other) noexcept
+        : alloc(other.alloc) {
+    }
+
+    T *allocate(std::size_t n)
+    {
+        return static_cast<T *>(*alloc->Allocate(sizeof(T) * n));
+    }
+
+    void deallocate(T *p, std::size_t)
+    {
+        alloc->Free((void **)p, 1);
+    }
+
+    template<class U>
+    struct rebind
+    {
+        using other = SmallAllocatorTemplate<U>;
+    };
 };
 
 // KISAKTODO: this is trash and probably needs a rewrite so T* is the 1st <>, and then rewrite the instances to remove the *
@@ -36,75 +64,59 @@ template <typename T>
 struct FixedSizeAllocator//<GlassPhysics *> // sizeof=0x40
 {
     void *memory;
-    std::list<T,SmallAllocatorTemplate<T*> > used;
-    std::list<T,SmallAllocatorTemplate<T*> > free;
+    std::list<T *> used;
+    std::list<T *> free;
+
     unsigned int maxUsed;
 
     static void *operator new(size_t size);
     static void operator delete(void *ptr);
 
-    // ---------- Initialize allocator with preallocated memory ----------
     void Init(void *mem, unsigned int numObjects)
     {
         memory = mem;
-        free.clear();
+
         used.clear();
+        free.clear();
         maxUsed = 0;
 
+        T *array = static_cast<T *>(mem);
 
-        T *array = (T *)mem;
         for (unsigned int i = 0; i < numObjects; ++i)
-            free.push_back(array[i]); // copy the object into the list
+        {
+            free.push_back(&array[i]);
+        }
     }
 
-
-    // ---------- Allocate object (returns reference) ----------
-    T &Allocate()
+    T *Allocate()
     {
         if (free.empty())
             __debugbreak(); // out-of-memory
 
+        T *obj = free.front();
+        free.pop_front();
 
-        typename std::list<T, SmallAllocatorTemplate<T *> >::iterator it = free.begin();
-        T &obj = *it;
-        free.erase(it);
         used.push_back(obj);
-
 
         if (used.size() > maxUsed)
             maxUsed = (unsigned int)used.size();
 
-
         return obj;
     }
 
-
-    // ---------- Free object (takes reference) ----------
-    void Free(T &obj)
+    void Free(T *obj)
     {
-        // remove from used list
-        typename std::list<T, SmallAllocatorTemplate<T *> >::iterator it;
-        for (it = used.begin(); it != used.end(); ++it)
-        {
-            if (&(*it) == &obj) // compare addresses
-            {
-                used.erase(it);
-                break;
-            }
-        }
-
-
+        used.remove(obj);
         free.push_back(obj);
     }
 
-    // ---------- Free all used objects ----------
     void FreeAll()
     {
         while (!used.empty())
         {
-            // always free the first element in the list
-            T &obj = used.front();
-            Free(obj);
+            T *obj = used.front();
+            used.pop_front();
+            free.push_back(obj);
         }
     }
 };

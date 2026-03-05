@@ -22,9 +22,6 @@
 #include <sound/snd_utils.h>
 #include <qcommon/dobj_management.h>
 
-bool playOverheatSounds = true;
-bool playTurretRotationSounds = true;
-
 const int seat_positions[2] = { 0, 1 };
 const int yawturn_masks[2] = { 1048576, 4194304 };
 const int pitchturn_masks[2] = { 2097152, 8388608 };
@@ -611,17 +608,17 @@ void    CG_Vehicle_PreControllers(
         cent->pose.vehicle.barrelPitch = (int)v84;
     }
 #if 0
-    if (cent->vehicle->fireTime && cent->vehicle->fireTime > cgameGlob->time - recoilDuration)
+    if (cent->vehicle->fireTime && cent->vehicle->fireTime > cgameGlob->g_msgTime - recoilDuration)
     {
-        if (cent->vehicle->fireTime <= cgameGlob->time - recoilBackTime)
+        if (cent->vehicle->fireTime <= cgameGlob->g_msgTime - recoilBackTime)
         {
             f = 1.0
-                - (float)((float)(cgameGlob->time - cent->vehicle->fireTime - recoilBackTime)
+                - (float)((float)(cgameGlob->g_msgTime - cent->vehicle->fireTime - recoilBackTime)
                     / (float)(recoilDuration - recoilBackTime));
         }
         else
         {
-            v83 = (float)(cgameGlob->time - cent->vehicle->fireTime) / (float)recoilBackTime;
+            v83 = (float)(cgameGlob->g_msgTime - cent->vehicle->fireTime) / (float)recoilBackTime;
             v82 = recoilBackPow;
             __libm_sse2_pow(v7, v8);
             f = v83;
@@ -1004,7 +1001,6 @@ void    CG_Vehicle_PreControllers(
 }
 
 
-float aScrollSpeed = 300.0f;
 void    VEH_UpdateMaterialTime(centity_s *cent, int dt, float speed)
 {
     phys_vec3 v4; // [esp-4h] [ebp-2Ch] OVERLAPPED BYREF

@@ -1118,12 +1118,12 @@ bool __cdecl Live_QoSProbeEarlyComplete(dwQoSMultiProbeListener *listener)
 
     if ( !listener->m_numSuccesses )
         return 0;
-    time = Sys_Milliseconds();
+    g_msgTime = Sys_Milliseconds();
     if ( g_qosStatus.prevNumSuccesses != listener->m_numSuccesses )
     {
         if ( !g_qosStatus.firstMS )
-            g_qosStatus.firstMS = time;
-        g_qosStatus.updateMS = time;
+            g_qosStatus.firstMS = g_msgTime;
+        g_qosStatus.updateMS = g_msgTime;
         g_qosStatus.prevNumSuccesses = listener->m_numSuccesses;
     }
     if ( !listener->m_numSuccesses )
@@ -1140,8 +1140,8 @@ bool __cdecl Live_QoSProbeEarlyComplete(dwQoSMultiProbeListener *listener)
     }
     if ( 100 * listener->m_numSuccesses < 25 * listener->m_numProbes )
         return 0;
-    if ( (int)(time - g_qosStatus.firstMS) >= 1000 )
-        return (int)(time - g_qosStatus.updateMS) >= 250;
+    if ( (int)(g_msgTime - g_qosStatus.firstMS) >= 1000 )
+        return (int)(g_msgTime - g_qosStatus.updateMS) >= 250;
     return 0;
 #else
     return 0;

@@ -1308,6 +1308,9 @@ struct cgMedia_t // sizeof=0x31BC
 centity_s *cg_entitiesArray[1];
 fake_centity_s *cg_fakeEntitiesArray;
 
+extern cg_s *cgArray;
+extern cgs_t *cgsArray;
+
 inline centity_s *__cdecl CG_GetEntity(int32_t localClientNum, uint32_t entityIndex)
 {
         iassert(localClientNum == 0);

@@ -76,7 +76,7 @@ char __cdecl Ragdoll_GetDObjWorldBoneOriginQuat(
 bool __cdecl Ragdoll_EnterDead(RagdollBody *body, RagdollBodyState prevState, RagdollBodyState curState);
 void __cdecl Ragdoll_RemoveBodyPhysics(RagdollBody *body);
 bool __cdecl Ragdoll_ExitDead(RagdollBody *body, RagdollBodyState prevState, RagdollBodyState curState);
-bool __cdecl Ragdoll_ExitDObjWait(RagdollBody *body, RagdollBodyState prevState, RagdollBodyState curState)
+bool __cdecl Ragdoll_ExitDObjWait(RagdollBody *body, RagdollBodyState prevState, RagdollBodyState curState);
 bool __cdecl Ragdoll_ExitIdle(RagdollBody *body, RagdollBodyState curState, RagdollBodyState newState);
 bool __cdecl Ragdoll_EnterIdle(RagdollBody *body, RagdollBodyState prevState, RagdollBodyState curState);
 void __cdecl Ragdoll_SnapshotBonePositions(RagdollBody *body, BoneOrientation *boneSnapshot);

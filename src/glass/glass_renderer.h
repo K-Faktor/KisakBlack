@@ -70,23 +70,9 @@ struct GlassRenderer // sizeof=0x4DF8
         // aislop
 
         // new/delete operators here are inlined in the bin
-        static void *operator new(size_t size, SmallAllocator *alloc)
-        {
-            return GlassesClient::Allocate(size, "C:\\projects_pc\\cod\\codsrc\\src\\glass\\glass_renderer.cpp", 72);
-        }
-
-        static void *operator new(size_t size)
-        {
-            return GlassesClient::Allocate(
-                size,
-                "C:\\projects_pc\\cod\\codsrc\\src\\glass\\glass_renderer.cpp",
-                72);
-        }
-
-        static void operator delete(void *ptr)
-        {
-            GlassesClient::Free((char *)ptr);
-        }
+        static void *operator new(size_t size, SmallAllocator *alloc);
+        static void *operator new(size_t size);
+        static void operator delete(void *ptr);
 
         inline void InsertReverse(GlassShard *shard)
         {

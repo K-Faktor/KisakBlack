@@ -18,6 +18,8 @@ struct snd_fire_manager // sizeof=0x18
     int id;
 };
 
+struct WeaponDef;
+
 bool __cdecl CG_ShouldPlaySoundOnLocalClient(
                 int localClientNum,
                 int entitynum,

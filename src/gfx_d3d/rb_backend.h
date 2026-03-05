@@ -268,25 +268,7 @@ struct static_model_tree_t // sizeof=0x108
     static_model_node_t nodes[63];
 };
 
-struct ScopedShaderConstantSetUndo // sizeof=0x7C
-{                                       // XREF: R_RenderDrawSurfListMaterial/r
-    GfxCmdBufSourceState *m_sourceState;
-    ShaderConstantSet m_scs;
-
-    ScopedShaderConstantSetUndo(GfxCmdBufSourceState *sourceState, const ShaderConstantSet *cscEA)
-    {
-        this->m_sourceState = sourceState;
-        if (cscEA)
-            RB_SaveCurrentShaderConstantSetValues(&this->m_scs, sourceState, cscEA);
-        else
-            R_InitShaderConstantSet(&this->m_scs);
-    }
-
-    ~ScopedShaderConstantSetUndo()
-    {
-        RB_ApplyShaderConstantSet(this->m_sourceState, &this->m_scs);
-    }
-};
+struct ScopedShaderConstantSetUndo;
 
 struct GfxCmdResolveComposite // sizeof=0x8
 {
@@ -697,5 +679,6 @@ extern GfxBackEndData *backEndData;
 extern int rb_execCmdsMS;
 extern int rb_swapMS;
 
-extern int time;
+//extern int time;
+extern int g_msgTime; // originally called 'time' but this name clashes!
 extern bool g_showCursor;

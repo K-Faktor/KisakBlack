@@ -5,6 +5,8 @@
 #include "r_gfx.h"
 #include "rb_light.h"
 
+struct XModel;
+
 struct GfxShadowGeometry // sizeof=0xC
 {
     unsigned __int16 surfaceCount;

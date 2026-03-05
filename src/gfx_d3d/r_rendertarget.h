@@ -49,23 +49,6 @@ struct __declspec(align(4)) GfxRenderTarget // sizeof=0x14
     // padding byte
 };
 
-struct __declspec(align(4)) GfxRenderTarget // sizeof=0x14
-{                                       // XREF: .data:stru_B50E844/r
-                                        // .data:stru_B50E858/r ...
-    GfxImage *image;                    // XREF: R_GenerateSortedDrawSurfs+689/r
-                                        // R_GenerateSortedDrawSurfs+715/r ...
-    GfxRenderTargetSurface surface;     // XREF: yuv_encode_frame(void)+3F/r
-                                        // R_Resolve(GfxCmdBufContext,GfxImage *)+1B6/r ...
-    unsigned __int16 width;             // XREF: RB_StandardDrawCommandsCommon+198/r
-                                        // R_UI3D_CheckRenderTarget(void):loc_A8B0BD/r ...
-    unsigned __int16 height;            // XREF: RB_StandardDrawCommandsCommon+1A3/r
-                                        // RB_UI3D_RenderToTexture(void const *,GfxUI3DBackend const *,GfxCmdBufInput const *)+3F2/r ...
-    bool cleared;
-    // padding byte
-    // padding byte
-    // padding byte
-};
-
 struct ExtraCamSettings // sizeof=0x10
 {                                       // XREF: .data:ExtraCamSettings g_extraCamSettings/r
     bool enabled;                       // XREF: R_CheckExtraCamTargets(void)+3/r
