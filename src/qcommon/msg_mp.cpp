@@ -4728,15 +4728,15 @@ int __cdecl MSG_ReadAppendedDeltaStruct(
 void __cdecl MSG_ReadDeltaPlayerstate(
                 int localClientNum,
                 msg_t *msg,
-                playerState_s *from,
+                int time,
+                const playerState_s *from,
+                playerState_s *to,
                 bool predictedFieldsIgnoreXor)
 {
     bool IsPlaying; // al
-    bool v5; // al
-    const char *v6; // eax
-    const char *v7; // eax
+    bool v7; // al
     const char *v8; // eax
-    int v9; // eax
+    const char *v9; // eax
     const char *v10; // eax
     int v11; // eax
     const char *v12; // eax
@@ -4745,51 +4745,53 @@ void __cdecl MSG_ReadDeltaPlayerstate(
     int v15; // eax
     const char *v16; // eax
     int v17; // eax
-    int v18; // eax
+    const char *v18; // eax
     int v19; // eax
-    const char *v20; // eax
+    int v20; // eax
     int v21; // eax
-    int v22; // eax
+    const char *v22; // eax
     int v23; // eax
-    const char *v24; // eax
-    bool v25; // al
-    bool v26; // al
-    int v27; // eax
-    int v28; // eax
-    const char *v29; // eax
+    int v24; // eax
+    int v25; // eax
+    const char *v26; // eax
+    bool v27; // al
+    bool v28; // al
+    objectiveState_t v29; // eax
     int v30; // eax
     const char *v31; // eax
-    bool v32; // [esp+16h] [ebp-270Ah]
-    bool v33; // [esp+17h] [ebp-2709h]
+    int v32; // eax
+    const char *v33; // eax
+    bool v34; // [esp+16h] [ebp-270Ah]
+    bool v35; // [esp+17h] [ebp-2709h]
     int i; // [esp+34h] [ebp-26ECh]
     clientActive_t *LocalClientGlobals; // [esp+38h] [ebp-26E8h]
-    int v36; // [esp+3Ch] [ebp-26E4h]
-    int v37; // [esp+40h] [ebp-26E0h]
+    int lastChanged; // [esp+3Ch] [ebp-26E4h]
+    int nextChanged; // [esp+40h] [ebp-26E0h]
     unsigned int numFields; // [esp+44h] [ebp-26DCh]
     int print; // [esp+48h] [ebp-26D8h]
     NetField *field; // [esp+4Ch] [ebp-26D4h]
     NetField *fielda; // [esp+4Ch] [ebp-26D4h]
     signed int count; // [esp+50h] [ebp-26D0h]
-    int LastChangedField; // [esp+54h] [ebp-26CCh]
+    int lc; // [esp+54h] [ebp-26CCh]
     NetField *array; // [esp+58h] [ebp-26C8h]
-    float *v45; // [esp+5Ch] [ebp-26C4h]
+    float *v47; // [esp+5Ch] [ebp-26C4h]
     unsigned __int8 dst[9896]; // [esp+60h] [ebp-26C0h] BYREF
     int Bits; // [esp+2708h] [ebp-18h]
-    float *v48; // [esp+270Ch] [ebp-14h]
-    bool v49; // [esp+2710h] [ebp-10h]
-    int v50; // [esp+2714h] [ebp-Ch]
+    float *v50; // [esp+270Ch] [ebp-14h]
+    BOOL v51; // [esp+2710h] [ebp-10h]
+    int v52; // [esp+2714h] [ebp-Ch]
     int fieldNum; // [esp+2718h] [ebp-8h]
     NetField *stateFields; // [esp+271Ch] [ebp-4h]
-    int src_4; // [esp+2738h] [ebp+18h]
-    char v54; // [esp+273Ch] [ebp+1Ch]
 
-    if ( !predictedFieldsIgnoreXor )
+    if (!from)
     {
-        *(unsigned int *)&predictedFieldsIgnoreXor = (unsigned int)dst;
-        memset(dst, 0, 0x26A4u);
+        from = (const playerState_s *)dst;
+        memset(dst, 0, sizeof(playerState_s));
     }
-    memcpy((unsigned __int8 *)src_4, (unsigned __int8 *)predictedFieldsIgnoreXor, 0x26A4u);
-    if ( cl_shownet && (cl_shownet->current.integer >= 2 || cl_shownet->current.integer == -2) )
+
+    memcpy((unsigned __int8 *)to, (unsigned __int8 *)from, sizeof(playerState_s));
+
+    if (cl_shownet && (cl_shownet->current.integer >= 2 || cl_shownet->current.integer == -2))
     {
         print = 1;
         Com_Printf(16, "%3i: playerstate ", msg->readcount);
@@ -4798,325 +4800,292 @@ void __cdecl MSG_ReadDeltaPlayerstate(
     {
         print = 0;
     }
-    v49 = MSG_ReadBit(msg) > 0;
+
+    v51 = MSG_ReadBit(msg) > 0;
     IsPlaying = Demo_IsPlaying();
     stateFields = (NetField *)MSG_GetNetFieldList(NET_FIELD_TYPE_PLAYERSTATE, IsPlaying)->array;
-    v5 = Demo_IsPlaying();
-    count = MSG_GetNetFieldList(NET_FIELD_TYPE_PLAYERSTATE, v5)->count;
-    LastChangedField = MSG_ReadLastChangedField(msg, count + 1);
-    if ( LastChangedField < 0
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\msg_mp.cpp", 2671, 0, "%s", "lc >= 0") )
-    {
+    v7 = Demo_IsPlaying();
+    count = MSG_GetNetFieldList(NET_FIELD_TYPE_PLAYERSTATE, v7)->count;
+    lc = MSG_ReadLastChangedField(msg, count + 1);
+    if (lc < 0 && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\msg_mp.cpp", 2671, 0, "%s", "lc >= 0"))
         __debugbreak();
-    }
-    if ( LastChangedField <= count + 1 )
+    if (lc <= count + 1)
     {
-        if ( Demo_IsPlaying() )
+        if (Demo_IsPlaying())
         {
-            v6 = va("PlayerState - Lastchangedfield: %d\n", LastChangedField);
-            Demo_Printf(512, v6);
+            v8 = va("PlayerState - Lastchangedfield: %d\n", lc);
+            Demo_Printf(512, v8);
         }
         fieldNum = 0;
-        v36 = -1;
-        if ( LastChangedField > 0 )
+        lastChanged = -1;
+        if (lc > 0)
         {
-            --LastChangedField;
-            while ( v36 < LastChangedField )
+            --lc;
+            while (lastChanged < lc)
             {
-                if ( msg->overflowed
+                if (msg->overflowed
                     && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\msg_mp.cpp",
-                                2692,
-                                0,
-                                "%s",
-                                "!msg->overflowed") )
+                        "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\msg_mp.cpp",
+                        2692,
+                        0,
+                        "%s",
+                        "!msg->overflowed"))
                 {
                     __debugbreak();
                 }
-                v37 = v36 + MSG_ReadNumFieldsSkipped(msg, 4, LastChangedField - v36);
+                nextChanged = lastChanged + MSG_ReadNumFieldsSkipped(msg, 4, lc - lastChanged);
                 Bits = 0;
-                if ( Demo_IsPlaying() )
+                if (Demo_IsPlaying())
                     Bits = MSG_GetNumBitsRead(msg);
-                for ( fieldNum = v36 + 1; fieldNum < v37; ++fieldNum )
+                for (fieldNum = lastChanged + 1; fieldNum < nextChanged; ++fieldNum)
                 {
-                    if ( stateFields[fieldNum].changeHints != 2 )
-                        MSG_CopyFieldOver(stateFields, (char *)predictedFieldsIgnoreXor, (char *)src_4, fieldNum);
+                    if (stateFields[fieldNum].changeHints != 2)
+                        MSG_CopyFieldOver(stateFields, (char *)from, (char *)to, fieldNum);
                 }
-                field = &stateFields[v37];
-                if ( v37 > LastChangedField )
+                field = &stateFields[nextChanged];
+                if (nextChanged > lc)
                 {
-                    v7 = va("nextChanged == %i, lc == %i", v37, LastChangedField);
-                    if ( !Assert_MyHandler(
-                                    "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\msg_mp.cpp",
-                                    2713,
-                                    0,
-                                    "%s\n\t%s",
-                                    "nextChanged <= lc",
-                                    v7) )
+                    v9 = va("nextChanged == %i, lc == %i", nextChanged, lc);
+                    if (!Assert_MyHandler(
+                        "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\msg_mp.cpp",
+                        2713,
+                        0,
+                        "%s\n\t%s",
+                        "nextChanged <= lc",
+                        v9))
                         __debugbreak();
                 }
-                if ( v37 <= v36 )
+                if (nextChanged <= lastChanged)
                 {
-                    v8 = va("nextChanged == %i, lastChanged == %i", v37, v36);
-                    if ( !Assert_MyHandler(
-                                    "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\msg_mp.cpp",
-                                    2714,
-                                    0,
-                                    "%s\n\t%s",
-                                    "nextChanged > lastChanged",
-                                    v8) )
+                    v10 = va("nextChanged == %i, lastChanged == %i", nextChanged, lastChanged);
+                    if (!Assert_MyHandler(
+                        "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\msg_mp.cpp",
+                        2714,
+                        0,
+                        "%s\n\t%s",
+                        "nextChanged > lastChanged",
+                        v10))
                         __debugbreak();
                 }
-                if ( msg->overflowed
+                if (msg->overflowed
                     && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\msg_mp.cpp",
-                                2716,
-                                0,
-                                "%s",
-                                "!msg->overflowed") )
+                        "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\msg_mp.cpp",
+                        2716,
+                        0,
+                        "%s",
+                        "!msg->overflowed"))
                 {
                     __debugbreak();
                 }
-                v33 = v54 && v49 && field->changeHints == 3;
-                MSG_ReadDeltaField(
-                    msg,
-                    (const int)from,
-                    (char *)predictedFieldsIgnoreXor,
-                    (char *)src_4,
-                    field,
-                    print,
-                    v33);
-                if ( msg->overflowed
+                v35 = predictedFieldsIgnoreXor && v51 && field->changeHints == 3;
+                MSG_ReadDeltaField(msg, time, (char *)from, (char *)to, field, print, v35);
+                if (msg->overflowed
                     && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\msg_mp.cpp",
-                                2718,
-                                0,
-                                "%s",
-                                "!msg->overflowed") )
+                        "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\msg_mp.cpp",
+                        2718,
+                        0,
+                        "%s",
+                        "!msg->overflowed"))
                 {
                     __debugbreak();
                 }
-                v36 = v37;
-                if ( Demo_IsPlaying() )
+                lastChanged = nextChanged;
+                if (Demo_IsPlaying())
                 {
-                    v48 = (float *)(field->offset + predictedFieldsIgnoreXor);
-                    v45 = (float *)(field->offset + src_4);
-                    if ( Demo_GetAnalyzePrintDataType(field->bits) )
+                    v50 = (float *)((char *)&from->commandTime + field->offset);
+                    v47 = (float *)((char *)&to->commandTime + field->offset);
+                    if (Demo_GetAnalyzePrintDataType(field->bits))
                     {
-                        v11 = MSG_GetNumBitsRead(msg);
-                        v12 = va(
-                                        "PlayerState - FieldName: %s From: %d To: %d BitsUsed: %d\n",
-                                        field->name,
-                                        *(unsigned int *)v48,
-                                        *(unsigned int *)v45,
-                                        v11 - Bits);
-                        Demo_Printf(512, v12);
+                        v13 = MSG_GetNumBitsRead(msg);
+                        v14 = va(
+                            "PlayerState - FieldName: %s From: %d To: %d BitsUsed: %d\n",
+                            field->name,
+                            *(_DWORD *)v50,
+                            *(_DWORD *)v47,
+                            v13 - Bits);
+                        Demo_Printf(512, v14);
                     }
                     else
                     {
-                        v9 = MSG_GetNumBitsRead(msg);
-                        v10 = va(
-                                        "PlayerState - FieldName: %s From: %.3f To: %.3f BitsUsed: %d\n",
-                                        field->name,
-                                        *v48,
-                                        *v45,
-                                        v9 - Bits);
-                        Demo_Printf(512, v10);
+                        v11 = MSG_GetNumBitsRead(msg);
+                        v12 = va(
+                            "PlayerState - FieldName: %s From: %.3f To: %.3f BitsUsed: %d\n",
+                            field->name,
+                            *v50,
+                            *v47,
+                            v11 - Bits);
+                        Demo_Printf(512, v12);
                     }
                 }
             }
-            if ( v36 != LastChangedField
+            if (lastChanged != lc
                 && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\msg_mp.cpp",
-                            2733,
-                            0,
-                            "%s",
-                            "lastChanged == lc") )
+                    "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\msg_mp.cpp",
+                    2733,
+                    0,
+                    "%s",
+                    "lastChanged == lc"))
             {
                 __debugbreak();
             }
         }
-        for ( fieldNum = v36 + 1; fieldNum < count; ++fieldNum )
-            MSG_CopyFieldOver(stateFields, (char *)predictedFieldsIgnoreXor, (char *)src_4, fieldNum);
-        for ( fieldNum = 0; fieldNum < LastChangedField; ++fieldNum )
+        for (fieldNum = lastChanged + 1; fieldNum < count; ++fieldNum)
+            MSG_CopyFieldOver(stateFields, (char *)from, (char *)to, fieldNum);
+        for (fieldNum = 0; fieldNum < lc; ++fieldNum)
         {
             fielda = &stateFields[fieldNum];
-            if ( fielda->changeHints == 2 )
+            if (fielda->changeHints == 2)
             {
-                v32 = v54 && v49 && fielda->changeHints == 3;
-                MSG_ReadDeltaField(
-                    msg,
-                    (const int)from,
-                    (char *)predictedFieldsIgnoreXor,
-                    (char *)src_4,
-                    fielda,
-                    print,
-                    v32);
+                v34 = predictedFieldsIgnoreXor && v51 && fielda->changeHints == 3;
+                MSG_ReadDeltaField(msg, time, (char*)from, (char*)to, fielda, print, v34);
             }
         }
-        if ( !v49 )
+        if (!v51)
         {
             LocalClientGlobals = CL_GetLocalClientGlobals(localClientNum);
-            if ( !CL_GetPredictedOriginForServerTime(
-                            LocalClientGlobals,
-                            *(unsigned int *)src_4,
-                            (float *)(src_4 + 36),
-                            (float *)(src_4 + 48),
-                            (float *)(src_4 + 384),
-                            (int *)(src_4 + 8),
-                            (int *)(src_4 + 220)) )
+            if (!CL_GetPredictedOriginForServerTime(
+                LocalClientGlobals,
+                to->commandTime,
+                to->origin,
+                to->velocity,
+                to->viewangles,
+                &to->bobCycle,
+                &to->movementDir))
             {
                 Com_PrintError(14, "Unable to find the origin we sent, delta is not going to work");
-                *(float *)(src_4 + 36) = *(float *)(predictedFieldsIgnoreXor + 36);
-                *(float *)(src_4 + 40) = *(float *)(predictedFieldsIgnoreXor + 40);
-                *(float *)(src_4 + 44) = *(float *)(predictedFieldsIgnoreXor + 44);
-                *(float *)(src_4 + 48) = *(float *)(predictedFieldsIgnoreXor + 48);
-                *(float *)(src_4 + 52) = *(float *)(predictedFieldsIgnoreXor + 52);
-                *(float *)(src_4 + 56) = *(float *)(predictedFieldsIgnoreXor + 56);
-                *(unsigned int *)(src_4 + 8) = *(unsigned int *)(predictedFieldsIgnoreXor + 8);
-                *(unsigned int *)(src_4 + 220) = *(unsigned int *)(predictedFieldsIgnoreXor + 220);
-                *(float *)(src_4 + 384) = *(float *)(predictedFieldsIgnoreXor + 384);
-                *(float *)(src_4 + 388) = *(float *)(predictedFieldsIgnoreXor + 388);
-                *(float *)(src_4 + 392) = *(float *)(predictedFieldsIgnoreXor + 392);
+                to->origin[0] = from->origin[0];
+                to->origin[1] = from->origin[1];
+                to->origin[2] = from->origin[2];
+                to->velocity[0] = from->velocity[0];
+                to->velocity[1] = from->velocity[1];
+                to->velocity[2] = from->velocity[2];
+                to->bobCycle = from->bobCycle;
+                to->movementDir = from->movementDir;
+                to->viewangles[0] = from->viewangles[0];
+                to->viewangles[1] = from->viewangles[1];
+                to->viewangles[2] = from->viewangles[2];
             }
         }
         Bits = 0;
-        if ( Demo_IsPlaying() )
+        if (Demo_IsPlaying())
             Bits = MSG_GetNumBitsRead(msg);
-        if ( MSG_ReadBit(msg) )
+        if (MSG_ReadBit(msg))
         {
-            if ( cl_shownet && cl_shownet->current.integer == 4 )
+            if (cl_shownet && cl_shownet->current.integer == 4)
                 Com_Printf(16, "%s ", "PS_STATS");
             Bits = MSG_ReadBits(msg, 5);
-            if ( (Bits & 1) != 0 )
-                *(unsigned int *)(src_4 + 452) = MSG_ReadShort(msg);
-            if ( (Bits & 2) != 0 )
-                *(unsigned int *)(src_4 + 456) = MSG_ReadShort(msg);
-            if ( (Bits & 4) != 0 )
-                *(unsigned int *)(src_4 + 460) = MSG_ReadShort(msg);
-            if ( (Bits & 8) != 0 )
-                *(unsigned int *)(src_4 + 464) = MSG_ReadBits(msg, 5);
-            if ( (Bits & 0x10) != 0 )
-                *(unsigned int *)(src_4 + 468) = MSG_ReadByte(msg);
+            if ((Bits & 1) != 0)
+                to->stats[0] = MSG_ReadShort(msg);
+            if ((Bits & 2) != 0)
+                to->stats[1] = MSG_ReadShort(msg);
+            if ((Bits & 4) != 0)
+                to->stats[2] = MSG_ReadShort(msg);
+            if ((Bits & 8) != 0)
+                to->stats[3] = MSG_ReadBits(msg, 5);
+            if ((Bits & 0x10) != 0)
+                to->stats[4] = MSG_ReadByte(msg);
         }
-        if ( Demo_IsPlaying() )
-        {
-            v13 = MSG_GetNumBitsRead(msg);
-            v14 = va("PlayerState - FieldName: PS_STATS BitsUsed: %d\n", v13 - Bits);
-            Demo_Printf(512, v14);
-            Bits = MSG_GetNumBitsRead(msg);
-        }
-        if ( MSG_ReadBit(msg) )
-        {
-            for ( i = 0; i < 15; ++i )
-            {
-                if ( MSG_ReadBit(msg) )
-                {
-                    if ( cl_shownet && cl_shownet->current.integer == 4 )
-                        Com_Printf(16, "%s ", "PS_WEAPON");
-                    if ( MSG_ReadBit(msg) )
-                        *(unsigned int *)(src_4 + 24 * i + 472) = MSG_ReadBits(msg, 11);
-                    if ( MSG_ReadBit(msg) )
-                        *(_BYTE *)(src_4 + 24 * i + 476) = MSG_ReadBits(msg, 4);
-                    if ( MSG_ReadBit(msg) )
-                        *(unsigned int *)(src_4 + 24 * i + 480) = MSG_ReadBits(msg, 32);
-                    if ( MSG_ReadBit(msg) )
-                        *(unsigned int *)(src_4 + 24 * i + 484) = MSG_ReadBits(msg, 32);
-                    *(_BYTE *)(src_4 + 24 * i + 488) = MSG_ReadBit(msg) != 0;
-                    *(_BYTE *)(src_4 + 24 * i + 489) = MSG_ReadBit(msg) != 0;
-                    *(_BYTE *)(src_4 + 24 * i + 490) = MSG_ReadBit(msg) != 0;
-                    *(_BYTE *)(src_4 + 24 * i + 491) = MSG_ReadBit(msg) != 0;
-                }
-            }
-        }
-        if ( Demo_IsPlaying() )
+        if (Demo_IsPlaying())
         {
             v15 = MSG_GetNumBitsRead(msg);
-            v16 = va("PlayerState - FieldName: PS_WEAPON BitsUsed: %d\n", v15 - Bits);
+            v16 = va("PlayerState - FieldName: PS_STATS BitsUsed: %d\n", v15 - Bits);
             Demo_Printf(512, v16);
             Bits = MSG_GetNumBitsRead(msg);
         }
-        while ( MSG_ReadBit(msg) )
+        if (MSG_ReadBit(msg))
         {
-            v50 = MSG_ReadBits(msg, 4);
-            if ( cl_shownet && cl_shownet->current.integer == 4 )
-                Com_Printf(16, "%s ", "PS_AMMO");
-            v17 = MSG_ReadBits(msg, 11);
-            *(unsigned int *)(src_4 + 8 * v50 + 832) = v17;
-            v18 = MSG_ReadBits(msg, 10);
-            *(unsigned int *)(src_4 + 8 * v50 + 836) = v18;
-        }
-        if ( Demo_IsPlaying() )
-        {
-            v19 = MSG_GetNumBitsRead(msg);
-            v20 = va("PlayerState - FieldName: PS_AMMO BitsUsed: %d\n", v19 - Bits);
-            Demo_Printf(512, v20);
-            Bits = MSG_GetNumBitsRead(msg);
-        }
-        while ( MSG_ReadBit(msg) )
-        {
-            v50 = MSG_ReadBits(msg, 4);
-            if ( cl_shownet && cl_shownet->current.integer == 4 )
-                Com_Printf(16, "%s ", "PS_AMMOCLIP");
-            v21 = MSG_ReadBits(msg, 11);
-            *(unsigned int *)(src_4 + 8 * v50 + 952) = v21;
-            v22 = MSG_ReadBits(msg, 10);
-            *(unsigned int *)(src_4 + 8 * v50 + 956) = v22;
-        }
-        if ( Demo_IsPlaying() )
-        {
-            v23 = MSG_GetNumBitsRead(msg);
-            v24 = va("PlayerState - FieldName: PS_AMMOCLIP BitsUsed: %d\n", v23 - Bits);
-            Demo_Printf(512, v24);
-            Bits = MSG_GetNumBitsRead(msg);
-        }
-        if ( MSG_ReadBit(msg) )
-        {
-            v25 = Demo_IsPlaying();
-            array = (NetField *)MSG_GetNetFieldList(NET_FIELD_TYPE_OBJECTIVE, v25)->array;
-            v26 = Demo_IsPlaying();
-            numFields = MSG_GetNetFieldList(NET_FIELD_TYPE_OBJECTIVE, v26)->count;
-            for ( fieldNum = 0; fieldNum < 32; ++fieldNum )
+            for (i = 0; i < 15; ++i)
             {
-                v27 = MSG_ReadBits(msg, 3);
-                *(unsigned int *)(src_4 + 48 * fieldNum + 1400) = v27;
-                MSG_ReadDeltaFields(
-                    msg,
-                    (const int)from,
-                    (char *)(predictedFieldsIgnoreXor + 48 * fieldNum + 1400),
-                    (char *)(src_4 + 48 * fieldNum + 1400),
-                    numFields,
-                    array,
-                    1);
+                if (MSG_ReadBit(msg))
+                {
+                    if (cl_shownet && cl_shownet->current.integer == 4)
+                        Com_Printf(16, "%s ", "PS_WEAPON");
+                    if (MSG_ReadBit(msg))
+                        to->heldWeapons[i].weapon = MSG_ReadBits(msg, 11);
+                    if (MSG_ReadBit(msg))
+                        to->heldWeapons[i].model = MSG_ReadBits(msg, 4);
+                    if (MSG_ReadBit(msg))
+                        to->heldWeapons[i].options.i = MSG_ReadBits(msg, 32);
+                    if (MSG_ReadBit(msg))
+                        to->heldWeapons[i].fuelTankTime = MSG_ReadBits(msg, 32);
+                    to->heldWeapons[i].overHeating = MSG_ReadBit(msg) != 0;
+                    to->heldWeapons[i].needsRechamber = MSG_ReadBit(msg) != 0;
+                    to->heldWeapons[i].heldBefore = MSG_ReadBit(msg) != 0;
+                    to->heldWeapons[i].quickReload = MSG_ReadBit(msg) != 0;
+                }
             }
         }
-        if ( Demo_IsPlaying() )
+        if (Demo_IsPlaying())
         {
-            v28 = MSG_GetNumBitsRead(msg);
-            v29 = va("PlayerState - FieldName: PS_OBJECTIVE BitsUsed: %d\n", v28 - Bits);
-            Demo_Printf(512, v29);
+            v17 = MSG_GetNumBitsRead(msg);
+            v18 = va("PlayerState - FieldName: PS_WEAPON BitsUsed: %d\n", v17 - Bits);
+            Demo_Printf(512, v18);
             Bits = MSG_GetNumBitsRead(msg);
         }
-        if ( MSG_ReadBit(msg) )
+        while (MSG_ReadBit(msg))
         {
-            MSG_ReadDeltaHudElems(
-                msg,
-                (const int)from,
-                (const hudelem_s *)(predictedFieldsIgnoreXor + 6420),
-                (hudelem_s *)(src_4 + 6420),
-                31);
-            MSG_ReadDeltaHudElems(
-                msg,
-                (const int)from,
-                (const hudelem_s *)(predictedFieldsIgnoreXor + 2948),
-                (hudelem_s *)(src_4 + 2948),
-                31);
+            v52 = MSG_ReadBits(msg, 4);
+            if (cl_shownet && cl_shownet->current.integer == 4)
+                Com_Printf(16, "%s ", "PS_AMMO");
+            v19 = MSG_ReadBits(msg, 11);
+            to->ammoNotInClip[v52].ammoIndex = v19;
+            v20 = MSG_ReadBits(msg, 10);
+            to->ammoNotInClip[v52].count = v20;
         }
-        if ( Demo_IsPlaying() )
+        if (Demo_IsPlaying())
+        {
+            v21 = MSG_GetNumBitsRead(msg);
+            v22 = va("PlayerState - FieldName: PS_AMMO BitsUsed: %d\n", v21 - Bits);
+            Demo_Printf(512, v22);
+            Bits = MSG_GetNumBitsRead(msg);
+        }
+        while (MSG_ReadBit(msg))
+        {
+            v52 = MSG_ReadBits(msg, 4);
+            if (cl_shownet && cl_shownet->current.integer == 4)
+                Com_Printf(16, "%s ", "PS_AMMOCLIP");
+            v23 = MSG_ReadBits(msg, 11);
+            to->ammoInClip[v52].clipIndex = v23;
+            v24 = MSG_ReadBits(msg, 10);
+            to->ammoInClip[v52].count = v24;
+        }
+        if (Demo_IsPlaying())
+        {
+            v25 = MSG_GetNumBitsRead(msg);
+            v26 = va("PlayerState - FieldName: PS_AMMOCLIP BitsUsed: %d\n", v25 - Bits);
+            Demo_Printf(512, v26);
+            Bits = MSG_GetNumBitsRead(msg);
+        }
+        if (MSG_ReadBit(msg))
+        {
+            v27 = Demo_IsPlaying();
+            array = (NetField *)MSG_GetNetFieldList(NET_FIELD_TYPE_OBJECTIVE, v27)->array;
+            v28 = Demo_IsPlaying();
+            numFields = MSG_GetNetFieldList(NET_FIELD_TYPE_OBJECTIVE, v28)->count;
+            for (fieldNum = 0; fieldNum < 32; ++fieldNum)
+            {
+                v29 = (objectiveState_t)MSG_ReadBits(msg, 3);
+                to->objective[fieldNum].state = v29;
+                MSG_ReadDeltaFields(msg, time, (char *)&from->objective[fieldNum], (char *)&to->objective[fieldNum], numFields, array, 1);
+            }
+        }
+        if (Demo_IsPlaying())
         {
             v30 = MSG_GetNumBitsRead(msg);
-            v31 = va("PlayerState - FieldName: PS_HUDELEMS BitsUsed: %d\n", v30 - Bits);
+            v31 = va("PlayerState - FieldName: PS_OBJECTIVE BitsUsed: %d\n", v30 - Bits);
             Demo_Printf(512, v31);
+            Bits = MSG_GetNumBitsRead(msg);
+        }
+        if (MSG_ReadBit(msg))
+        {
+            MSG_ReadDeltaHudElems(msg, time, from->hud.archival, to->hud.archival, 31);
+            MSG_ReadDeltaHudElems(msg, time, from->hud.current, to->hud.current, 31);
+        }
+        if (Demo_IsPlaying())
+        {
+            v32 = MSG_GetNumBitsRead(msg);
+            v33 = va("PlayerState - FieldName: PS_HUDELEMS BitsUsed: %d\n", v32 - Bits);
+            Demo_Printf(512, v33);
         }
     }
     else

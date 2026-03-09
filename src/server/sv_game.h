@@ -1,6 +1,8 @@
 #pragma once
 #include <server_mp/sv_main_mp.h>
 
+struct DObjAnimMat;
+
 playerState_s *__cdecl SV_GameClientNum(int num);
 svEntity_s *__cdecl SV_SvEntityForGentity(const gentity_s *gEnt);
 void __cdecl SV_GameSendServerCommand(int clientNum, svscmd_type type, const char *text);

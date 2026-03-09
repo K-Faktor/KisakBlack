@@ -3,6 +3,7 @@
 struct cbrushside_t;
 struct winding_t;
 struct cbrush_t;
+struct cplane_s;
 
 struct __declspec(align(4)) ShowCollisionBrushPt // sizeof=0x14
 {                                       // XREF: ?CM_ShowSingleBrushCollision@@YAXPBUcbrush_t@@QBMP6AXHPAY02M1@Z@Z/r

@@ -8,6 +8,7 @@
 #include <live/live_win_common.h>
 #include <gfx_d3d/r_cinematic.h>
 #include <gfx_d3d/rb_resource.h>
+#include <win32/win_common.h>
 
 const char *s_threadNames[15] =
 {
@@ -135,7 +136,7 @@ unsigned int Win_InitThreads()
     result = GetProcessAffinityMask(CurrentProcess, &processAffinityMask, &systemAffinityMask);
     s_affinityMaskForProcess = processAffinityMask;
     cpuCount = 0;
-    for ( threadAffinityMask = 1; (processAffinityMask & -threadAffinityMask) != 0; threadAffinityMask *= 2 )
+    for ( threadAffinityMask = 1; (processAffinityMask & -(int)threadAffinityMask) != 0; threadAffinityMask *= 2 )
     {
         if ( (processAffinityMask & threadAffinityMask) != 0 )
         {

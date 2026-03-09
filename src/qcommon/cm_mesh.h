@@ -4,6 +4,7 @@ struct traceWork_t;
 struct CollisionBorder;
 struct CollisionAabbTree;
 struct trace_t;
+struct cLeaf_s;
 
 enum SphereEdgeTraceResult : __int32
 {                                       // XREF: CM_TraceCapsuleThroughTriangle/r

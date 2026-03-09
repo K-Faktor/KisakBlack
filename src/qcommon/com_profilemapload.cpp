@@ -352,14 +352,14 @@ void ProfLoad_PrintHotSpots()
     Com_Printf(12, "\n^6Hot spot total time: %5.3f self, %5.3f file\n\n", (double)v15, (double)v16);
 }
 
-bool __cdecl ProfLoad_CompareHotSpotNames(const MapProfileHotSpot *hotSpot0, const MapProfileHotSpot *hotSpot1)
+bool __cdecl ProfLoad_CompareHotSpotNames(const MapProfileHotSpot &hotSpot0, const MapProfileHotSpot &hotSpot1)
 {
-    return hotSpot1->label < hotSpot0->label;
+    return hotSpot1.label < hotSpot0.label;
 }
 
-bool __cdecl ProfLoad_CompareHotSpotTicks(const MapProfileHotSpot *hotSpot0, const MapProfileHotSpot *hotSpot1)
+bool __cdecl ProfLoad_CompareHotSpotTicks(const MapProfileHotSpot &hotSpot0, const MapProfileHotSpot &hotSpot1)
 {
-    return hotSpot0->ticksSelf > hotSpot1->ticksSelf;
+    return hotSpot0.ticksSelf > hotSpot1.ticksSelf;
 }
 
 void __cdecl ProfLoad_Begin(const char *label)

@@ -107,11 +107,7 @@ void __cdecl Demo_ParseServerCommands(int localClientNum, msg_t *msg);
 bool __cdecl Demo_ShouldFilterServerCommandForMovieCamera(const char *cmd);
 void __cdecl Demo_ParseSnapshot(int localClientNum, msg_t *msg);
 void __cdecl Demo_ReadMatchState(int localClientNum, msg_t *msg, int time);
-playerState_s *__cdecl Demo_ReadPlayerStates(
-                playerState_s *result,
-                int localClientNum,
-                msg_t *msg,
-                playerState_s *time);
+playerState_s *__cdecl Demo_ReadPlayerStates(playerState_s *result, int localClientNum, msg_t *msg, int time);
 int __cdecl Demo_ReadPacketEntities(int localClientNum, msg_t *msg, int time, int deltaNum);
 int __cdecl Demo_ReadPacketClients(int localClientNum, msg_t *msg, int time, int deltaNum);
 void __cdecl Demo_SetupPlaybackForClient(int localClientNum, playerState_s *ps);

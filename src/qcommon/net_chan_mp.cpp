@@ -276,6 +276,25 @@ void __cdecl Net_DisplayProfile(int localClientNum)
     }
 }
 
+void __cdecl Net_DumpProfile_f()
+{
+    if (net_iProfilingOn)
+    {
+        if (net_iProfilingOn == 1)
+        {
+            CL_Netchan_PrintProfileStats(0, 1);
+        }
+        else
+        {
+            //BLOPS_NULLSUB();
+        }
+    }
+    else
+    {
+        Com_Printf(0, "Network profiling is not on. Set net_profile to turn on network profiling\n");
+    }
+}
+
 cmd_function_s Net_DumpProfile_f_VAR;
 cmd_function_s MSG_DumpNetFieldChanges_f_VAR;
 cmd_function_s Net_GetQPort_f_VAR;
@@ -300,25 +319,6 @@ void __cdecl Netchan_Init(__int16 port)
     Cmd_AddCommandInternal("net_dumpnetfieldchanges", MSG_DumpNetFieldChanges_f, &MSG_DumpNetFieldChanges_f_VAR);
     Cmd_AddCommandInternal("getqport", Net_GetQPort_f, &Net_GetQPort_f_VAR);
     Cmd_AddCommandInternal("setqport", Net_SetQPort_f, &Net_SetQPort_f_VAR);
-}
-
-void __cdecl Net_DumpProfile_f()
-{
-    if ( net_iProfilingOn )
-    {
-        if (net_iProfilingOn == 1)
-        {
-            CL_Netchan_PrintProfileStats(0, 1);
-        }
-        else
-        {
-            //BLOPS_NULLSUB();
-        }
-    }
-    else
-    {
-        Com_Printf(0, "Network profiling is not on. Set net_profile to turn on network profiling\n");
-    }
 }
 
 void __cdecl Net_GetQPort_f()

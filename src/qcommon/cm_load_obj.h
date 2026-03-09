@@ -61,6 +61,7 @@ struct dbrushside_t // sizeof=0x8
 struct cLeafBrushNode_s;
 struct cLeaf_s;
 struct cplane_s;
+struct SpawnVar;
 
 void __cdecl CMod_LoadPlanes();
 MapEnts *__cdecl MapEnts_VirtualLoad(char *name);

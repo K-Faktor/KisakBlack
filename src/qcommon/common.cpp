@@ -158,9 +158,7 @@ const dvar_t *spmode;
 const dvar_t *onlinegame;
 const dvar_t *xblive_rankedmatch;
 const dvar_t *xblive_privatematch;
-const dvar_t *useFastFile;
 const dvar_t *sys_lockThreads;
-const dvar_t *sys_smp_allowed;
 const dvar_t *com_developer;
 const dvar_t *com_developer_script;
 const dvar_t *com_script_debugger_smoke_test;
@@ -227,7 +225,6 @@ char *com_consoleLines[32];
 int weaponInfoSource;
 
 int com_safemode;
-int com_errorEntered;
 int com_fixedConsolePosition;
 
 float com_timescaleValue;

@@ -1033,10 +1033,10 @@ cachedSnapshot_t *__cdecl SV_GetCachedSnapshotInternal(int archivedFrame, int de
     archivedSnapshot_s *frame; // [esp+0h] [ebp-68h]
     archivedSnapshot_s *framea; // [esp+0h] [ebp-68h]
     int oldArchivedFrame; // [esp+4h] [ebp-64h]
-    signed int newnum; // [esp+8h] [ebp-60h]
-    unsigned int newnuma; // [esp+8h] [ebp-60h]
-    unsigned int newnumb; // [esp+8h] [ebp-60h]
-    unsigned int newnumc; // [esp+8h] [ebp-60h]
+    int newnum; // [esp+8h] [ebp-60h]
+    int newnuma; // [esp+8h] [ebp-60h]
+    int newnumb; // [esp+8h] [ebp-60h]
+    int newnumc; // [esp+8h] [ebp-60h]
     int oldindex; // [esp+14h] [ebp-54h]
     int oldnum; // [esp+18h] [ebp-50h]
     msg_t msg; // [esp+1Ch] [ebp-4Ch] BYREF
@@ -1047,54 +1047,53 @@ cachedSnapshot_t *__cdecl SV_GetCachedSnapshotInternal(int archivedFrame, int de
     int i; // [esp+5Ch] [ebp-Ch]
     cachedSnapshot_t *oldCachedFrame; // [esp+60h] [ebp-8h]
     cachedClient_s *cachedClient; // [esp+64h] [ebp-4h]
-    int savedregs; // [esp+68h] [ebp+0h] BYREF
 
     frame = &svs.archivedSnapshotFrames[archivedFrame % 1200];
-    if ( !frame->size
+    if (!frame->size
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
-                    1970,
-                    0,
-                    "%s\n\t(archivedFrame) = %i",
-                    "(frame->size)",
-                    archivedFrame) )
+            "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
+            1970,
+            0,
+            "%s\n\t(archivedFrame) = %i",
+            "(frame->size)",
+            archivedFrame))
     {
         __debugbreak();
     }
-    if ( !SV_FrameIsStillInArchivedSnapshotBuffer(frame->start) )
+    if (!SV_FrameIsStillInArchivedSnapshotBuffer(frame->start))
     {
-        if ( expectedToSucceed )
+        if (expectedToSucceed)
             Com_Printf(
                 15,
                 "Failed to get archived snapshot for archived frame %i - frame->start is too old - %i < %i - %i\n",
                 archivedFrame,
                 frame->start,
                 svs.nextArchivedSnapshotBuffer,
-                &cls.rankedServers[711].game[35]);
+                0x1000000);
         return 0;
     }
     firstCachedSnapshotFrame = svs.nextCachedSnapshotFrames - 512;
-    if ( svs.nextCachedSnapshotFrames - 512 < 0 )
+    if (svs.nextCachedSnapshotFrames - 512 < 0)
         firstCachedSnapshotFrame = 0;
-    for ( i = svs.nextCachedSnapshotFrames - 1; i >= firstCachedSnapshotFrame; --i )
+    for (i = svs.nextCachedSnapshotFrames - 1; i >= firstCachedSnapshotFrame; --i)
     {
         cachedFrame = &svs.cachedSnapshotFrames[i % 512];
-        if ( cachedFrame->archivedFrame == archivedFrame )
+        if (cachedFrame->archivedFrame == archivedFrame)
         {
-            if ( cachedFrame->first_entity < 0
+            if (cachedFrame->first_entity < 0
                 && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
-                            1988,
-                            0,
-                            "%s\n\t(cachedFrame->first_entity) = %i",
-                            "(cachedFrame->first_entity >= 0)",
-                            cachedFrame->first_entity) )
+                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
+                    1988,
+                    0,
+                    "%s\n\t(cachedFrame->first_entity) = %i",
+                    "(cachedFrame->first_entity >= 0)",
+                    cachedFrame->first_entity))
             {
                 __debugbreak();
             }
-            if ( cachedFrame->matchState > depth + svs.nextCachedSnapshotMatchStates - svs.numCachedSnapshotMatchStates
+            if (cachedFrame->matchState > depth + svs.nextCachedSnapshotMatchStates - svs.numCachedSnapshotMatchStates
                 && cachedFrame->first_entity > 160 * depth + svs.nextCachedSnapshotEntities - svs.numCachedSnapshotEntities
-                && cachedFrame->first_client > 32 * depth + svs.nextCachedSnapshotClients - svs.numCachedSnapshotClients )
+                && cachedFrame->first_client > 32 * depth + svs.nextCachedSnapshotClients - svs.numCachedSnapshotClients)
             {
                 return cachedFrame;
             }
@@ -1103,7 +1102,7 @@ cachedSnapshot_t *__cdecl SV_GetCachedSnapshotInternal(int archivedFrame, int de
     }
     v4 = frame->start % 0x1000000;
     partSize = (int)&cls.rankedServers[711].game[-v4 + 35];
-    if ( frame->size > (int)&cls.rankedServers[711].game[-v4 + 35] )
+    if (frame->size > (int)&cls.rankedServers[711].game[-v4 + 35])
         MSG_InitReadOnlySplit(
             &msg,
             &svs.archivedSnapshotBuffer[v4],
@@ -1113,15 +1112,15 @@ cachedSnapshot_t *__cdecl SV_GetCachedSnapshotInternal(int archivedFrame, int de
     else
         MSG_InitReadOnly(&msg, &svs.archivedSnapshotBuffer[v4], frame->size);
     MSG_BeginReading(&msg);
-    if ( MSG_ReadBit(&msg) )
+    if (MSG_ReadBit(&msg))
     {
-        if ( msg.overflowed
+        if (msg.overflowed
             && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
-                        2226,
-                        0,
-                        "%s",
-                        "!msg.overflowed") )
+                "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
+                2226,
+                0,
+                "%s",
+                "!msg.overflowed"))
         {
             __debugbreak();
         }
@@ -1145,38 +1144,38 @@ cachedSnapshot_t *__cdecl SV_GetCachedSnapshotInternal(int archivedFrame, int de
             &svs.cachedSnapshotMatchStates[svs.nextCachedSnapshotMatchStates % svs.numCachedSnapshotMatchStates]);
         ++svs.nextCachedSnapshotMatchStates;
         MSG_ClearLastReferencedEntity(&msg);
-        while ( MSG_ReadBit(&msg) )
+        while (MSG_ReadBit(&msg))
         {
-            newnumb = MSG_ReadEntityIndex(&msg, 5u);
-            if ( msg.overflowed )
+            newnumb = MSG_ReadEntityIndex(&msg, 5);
+            if (msg.overflowed)
                 Com_Error(ERR_DROP, "SV_GetCachedSnapshot: end of message");
             cachedClient = &svs.cachedSnapshotClients[svs.nextCachedSnapshotClients % svs.numCachedSnapshotClients];
             MSG_ReadDeltaClient(&msg, cachedFrame->time, 0, &cachedClient->cs, newnumb);
             v11 = MSG_ReadBit(&msg);
             cachedClient->playerStateExists = v11;
-            if ( cachedClient->playerStateExists )
-                MSG_ReadDeltaPlayerstate(0, &msg, (playerState_s *)cachedFrame->time, 0);
-            if ( svsHeaderValid
+            if (cachedClient->playerStateExists)
+                MSG_ReadDeltaPlayerstate(0, &msg, cachedFrame->time, 0, &cachedClient->ps, 0);
+            if (svsHeaderValid
                 && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
-                            2273,
-                            0,
-                            "%s",
-                            "!svsHeaderValid") )
+                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
+                    2273,
+                    0,
+                    "%s",
+                    "!svsHeaderValid"))
             {
                 __debugbreak();
             }
-            if ( ++svs.nextCachedSnapshotClients >= 2147483646 )
+            if (++svs.nextCachedSnapshotClients >= 2147483646)
                 Com_Error(ERR_FATAL, "svs.nextCachedSnapshotClients wrapped");
             ++cachedFrame->num_clients;
         }
         MSG_ClearLastReferencedEntity(&msg);
-        while ( 1 )
+        while (1)
         {
-            newnumc = MSG_ReadEntityIndex(&msg, 0xAu);
-            if ( newnumc == 1023 )
+            newnumc = MSG_ReadEntityIndex(&msg, 10);
+            if (newnumc == 1023)
                 break;
-            if ( msg.overflowed )
+            if (msg.overflowed)
                 Com_Error(ERR_DROP, "SV_GetCachedSnapshot: end of message");
             MSG_ReadDeltaArchivedEntity(
                 &msg,
@@ -1184,29 +1183,29 @@ cachedSnapshot_t *__cdecl SV_GetCachedSnapshotInternal(int archivedFrame, int de
                 (const archivedEntity_s *)&sv.svEntities[newnumc].baseline.s.lerp.apos.trBase[1],
                 &svs.cachedSnapshotEntities[svs.nextCachedSnapshotEntities % svs.numCachedSnapshotEntities],
                 newnumc);
-            if ( ++svs.nextCachedSnapshotEntities >= 2147483646 )
+            if (++svs.nextCachedSnapshotEntities >= 2147483646)
                 Com_Error(ERR_FATAL, "svs.nextCachedSnapshotEntities wrapped");
             ++cachedFrame->num_entities;
         }
-        if ( ++svs.nextCachedSnapshotFrames >= 2147483646 )
+        if (++svs.nextCachedSnapshotFrames >= 2147483646)
             Com_Error(ERR_FATAL, "svs.nextCachedSnapshotFrames wrapped");
     }
     else
     {
-        if ( msg.overflowed
+        if (msg.overflowed
             && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
-                        2035,
-                        0,
-                        "%s",
-                        "!msg.overflowed") )
+                "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
+                2035,
+                0,
+                "%s",
+                "!msg.overflowed"))
         {
             __debugbreak();
         }
         oldArchivedFrame = MSG_ReadLong(&msg);
-        if ( oldArchivedFrame < svs.nextArchivedSnapshotFrames - 1200 )
+        if (oldArchivedFrame < svs.nextArchivedSnapshotFrames - 1200)
         {
-            if ( expectedToSucceed )
+            if (expectedToSucceed)
                 Com_Printf(
                     15,
                     "getting archive snapshot failed for time %i - oldArchiveFrame(%i) < svs.nextArchivedSnapshotFrames(%i) - NUM_A"
@@ -1218,9 +1217,9 @@ cachedSnapshot_t *__cdecl SV_GetCachedSnapshotInternal(int archivedFrame, int de
             return 0;
         }
         framea = &svs.archivedSnapshotFrames[oldArchivedFrame % 1200];
-        if ( !SV_FrameIsStillInArchivedSnapshotBuffer(framea->start) )
+        if (!SV_FrameIsStillInArchivedSnapshotBuffer(framea->start))
         {
-            if ( expectedToSucceed )
+            if (expectedToSucceed)
                 Com_Printf(
                     15,
                     "getting archive snapshot failed for time %i - frame->start(%i) < svs.nextArchivedSnapshotBuffer(%i) - ARCHIVED"
@@ -1232,9 +1231,9 @@ cachedSnapshot_t *__cdecl SV_GetCachedSnapshotInternal(int archivedFrame, int de
             return 0;
         }
         oldCachedFrame = SV_GetCachedSnapshotInternal(oldArchivedFrame, depth + 1, expectedToSucceed);
-        if ( !oldCachedFrame )
+        if (!oldCachedFrame)
         {
-            if ( expectedToSucceed )
+            if (expectedToSucceed)
                 Com_Printf(
                     15,
                     "failed to get snapshot for time %i - it was delta'd off time %i, and we couldn't get that snapshot\n",
@@ -1242,13 +1241,13 @@ cachedSnapshot_t *__cdecl SV_GetCachedSnapshotInternal(int archivedFrame, int de
                     oldArchivedFrame);
             return 0;
         }
-        if ( oldCachedFrame->usesDelta
+        if (oldCachedFrame->usesDelta
             && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
-                        2061,
-                        0,
-                        "%s",
-                        "!oldCachedFrame->usesDelta") )
+                "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
+                2061,
+                0,
+                "%s",
+                "!oldCachedFrame->usesDelta"))
         {
             __debugbreak();
         }
@@ -1274,7 +1273,7 @@ cachedSnapshot_t *__cdecl SV_GetCachedSnapshotInternal(int archivedFrame, int de
         MSG_ClearLastReferencedEntity(&msg);
         oldindex = 0;
         oldCachedClient = 0;
-        if ( oldCachedFrame->num_clients > 0 )
+        if (oldCachedFrame->num_clients > 0)
         {
             oldCachedClient = &svs.cachedSnapshotClients[oldCachedFrame->first_client % svs.numCachedSnapshotClients];
             oldnum = oldCachedClient->cs.clientIndex;
@@ -1283,28 +1282,28 @@ cachedSnapshot_t *__cdecl SV_GetCachedSnapshotInternal(int archivedFrame, int de
         {
             oldnum = 99999;
         }
-        while ( MSG_ReadBit(&msg) )
+        while (MSG_ReadBit(&msg))
         {
-            newnum = MSG_ReadEntityIndex(&msg, 5u);
-            if ( newnum < 0
+            newnum = MSG_ReadEntityIndex(&msg, 5);
+            if (newnum < 0
                 && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
-                            2113,
-                            0,
-                            "%s\n\t(newnum) = %i",
-                            "(newnum >= 0)",
-                            newnum) )
+                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
+                    2113,
+                    0,
+                    "%s\n\t(newnum) = %i",
+                    "(newnum >= 0)",
+                    newnum))
             {
                 __debugbreak();
             }
-            if ( msg.overflowed )
+            if (msg.overflowed)
                 Com_Error(ERR_DROP, "SV_GetCachedSnapshot: end of message");
-            while ( oldnum < newnum )
+            while (oldnum < newnum)
             {
-                if ( ++oldindex < oldCachedFrame->num_clients )
+                if (++oldindex < oldCachedFrame->num_clients)
                 {
                     oldCachedClient = &svs.cachedSnapshotClients[(oldindex + oldCachedFrame->first_client)
-                                                                                                         % svs.numCachedSnapshotClients];
+                        % svs.numCachedSnapshotClients];
                     oldnum = oldCachedClient->cs.clientIndex;
                 }
                 else
@@ -1312,46 +1311,46 @@ cachedSnapshot_t *__cdecl SV_GetCachedSnapshotInternal(int archivedFrame, int de
                     oldnum = 99999;
                 }
             }
-            if ( oldnum == newnum )
+            if (oldnum == newnum)
             {
                 cachedClient = &svs.cachedSnapshotClients[svs.nextCachedSnapshotClients % svs.numCachedSnapshotClients];
-                if ( cachedClient == oldCachedClient
+                if (cachedClient == oldCachedClient
                     && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
-                                2137,
-                                0,
-                                "%s",
-                                "cachedClient != oldCachedClient") )
+                        "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
+                        2137,
+                        0,
+                        "%s",
+                        "cachedClient != oldCachedClient"))
                 {
                     __debugbreak();
                 }
                 MSG_ReadDeltaClient(&msg, cachedFrame->time, &oldCachedClient->cs, &cachedClient->cs, newnum);
                 v7 = MSG_ReadBit(&msg);
                 cachedClient->playerStateExists = v7;
-                if ( cachedClient->playerStateExists )
+                if (cachedClient->playerStateExists)
                 {
-                    if ( oldCachedClient->playerStateExists )
-                        MSG_ReadDeltaPlayerstate(0, &msg, (playerState_s *)cachedFrame->time, (_BYTE)oldCachedClient - 40);
+                    if (oldCachedClient->playerStateExists)
+                        MSG_ReadDeltaPlayerstate(0, &msg, cachedFrame->time, &oldCachedClient->ps, &cachedClient->ps, 0);
                     else
-                        MSG_ReadDeltaPlayerstate(0, &msg, (playerState_s *)cachedFrame->time, 0);
+                        MSG_ReadDeltaPlayerstate(0, &msg, cachedFrame->time, 0, &cachedClient->ps, 0);
                 }
-                if ( svsHeaderValid
+                if (svsHeaderValid
                     && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
-                                2148,
-                                0,
-                                "%s",
-                                "!svsHeaderValid") )
+                        "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
+                        2148,
+                        0,
+                        "%s",
+                        "!svsHeaderValid"))
                 {
                     __debugbreak();
                 }
-                if ( ++svs.nextCachedSnapshotClients >= 2147483646 )
+                if (++svs.nextCachedSnapshotClients >= 2147483646)
                     Com_Error(ERR_FATAL, "svs.nextCachedSnapshotClients wrapped");
                 ++cachedFrame->num_clients;
-                if ( ++oldindex < oldCachedFrame->num_clients )
+                if (++oldindex < oldCachedFrame->num_clients)
                 {
                     oldCachedClient = &svs.cachedSnapshotClients[(oldindex + oldCachedFrame->first_client)
-                                                                                                         % svs.numCachedSnapshotClients];
+                        % svs.numCachedSnapshotClients];
                     oldnum = oldCachedClient->cs.clientIndex;
                 }
                 else
@@ -1361,13 +1360,13 @@ cachedSnapshot_t *__cdecl SV_GetCachedSnapshotInternal(int archivedFrame, int de
             }
             else
             {
-                if ( oldnum <= newnum
+                if (oldnum <= newnum
                     && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
-                                2169,
-                                0,
-                                "%s",
-                                "oldnum > newnum") )
+                        "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
+                        2169,
+                        0,
+                        "%s",
+                        "oldnum > newnum"))
                 {
                     __debugbreak();
                 }
@@ -1375,30 +1374,30 @@ cachedSnapshot_t *__cdecl SV_GetCachedSnapshotInternal(int archivedFrame, int de
                 MSG_ReadDeltaClient(&msg, cachedFrame->time, 0, &cachedClient->cs, newnum);
                 v8 = MSG_ReadBit(&msg);
                 cachedClient->playerStateExists = v8;
-                if ( cachedClient->playerStateExists )
-                    MSG_ReadDeltaPlayerstate(0, &msg, (playerState_s *)cachedFrame->time, 0);
-                if ( svsHeaderValid
+                if (cachedClient->playerStateExists)
+                    MSG_ReadDeltaPlayerstate(0, &msg, cachedFrame->time, 0, &cachedClient->ps, 0);
+                if (svsHeaderValid
                     && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
-                                2178,
-                                0,
-                                "%s",
-                                "!svsHeaderValid") )
+                        "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
+                        2178,
+                        0,
+                        "%s",
+                        "!svsHeaderValid"))
                 {
                     __debugbreak();
                 }
-                if ( ++svs.nextCachedSnapshotClients >= 2147483646 )
+                if (++svs.nextCachedSnapshotClients >= 2147483646)
                     Com_Error(ERR_FATAL, "svs.nextCachedSnapshotClients wrapped");
                 ++cachedFrame->num_clients;
             }
         }
         MSG_ClearLastReferencedEntity(&msg);
-        while ( 1 )
+        while (1)
         {
-            newnuma = MSG_ReadEntityIndex(&msg, 0xAu);
-            if ( newnuma == 1023 )
+            newnuma = MSG_ReadEntityIndex(&msg, 10);
+            if (newnuma == 1023)
                 break;
-            if ( msg.overflowed )
+            if (msg.overflowed)
                 Com_Error(ERR_DROP, "SV_GetCachedSnapshot: end of message");
             MSG_ReadDeltaArchivedEntity(
                 &msg,
@@ -1406,62 +1405,62 @@ cachedSnapshot_t *__cdecl SV_GetCachedSnapshotInternal(int archivedFrame, int de
                 (const archivedEntity_s *)&sv.svEntities[newnuma].baseline.s.lerp.apos.trBase[1],
                 &svs.cachedSnapshotEntities[svs.nextCachedSnapshotEntities % svs.numCachedSnapshotEntities],
                 newnuma);
-            if ( ++svs.nextCachedSnapshotEntities >= 2147483646 )
+            if (++svs.nextCachedSnapshotEntities >= 2147483646)
                 Com_Error(ERR_FATAL, "svs.nextCachedSnapshotEntities wrapped");
             ++cachedFrame->num_entities;
         }
-        if ( ++svs.nextCachedSnapshotFrames >= 2147483646 )
+        if (++svs.nextCachedSnapshotFrames >= 2147483646)
             Com_Error(ERR_FATAL, "svs.nextCachedSnapshotFrames wrapped");
     }
-    if ( cachedFrame->num_entities >= svs.numCachedSnapshotEntities
+    if (cachedFrame->num_entities >= svs.numCachedSnapshotEntities
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
-                    2324,
-                    1,
-                    "%s\n\t(cachedFrame->num_entities) = %i",
-                    "(cachedFrame->num_entities < svs.numCachedSnapshotEntities)",
-                    cachedFrame->num_entities) )
+            "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
+            2324,
+            1,
+            "%s\n\t(cachedFrame->num_entities) = %i",
+            "(cachedFrame->num_entities < svs.numCachedSnapshotEntities)",
+            cachedFrame->num_entities))
     {
         __debugbreak();
     }
-    if ( cachedFrame->num_clients >= svs.numCachedSnapshotClients
+    if (cachedFrame->num_clients >= svs.numCachedSnapshotClients
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
-                    2325,
-                    1,
-                    "%s\n\t(cachedFrame->num_clients) = %i",
-                    "(cachedFrame->num_clients < svs.numCachedSnapshotClients)",
-                    cachedFrame->num_clients) )
+            "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
+            2325,
+            1,
+            "%s\n\t(cachedFrame->num_clients) = %i",
+            "(cachedFrame->num_clients < svs.numCachedSnapshotClients)",
+            cachedFrame->num_clients))
     {
         __debugbreak();
     }
-    if ( cachedFrame->matchState < svs.nextCachedSnapshotMatchStates - svs.numCachedSnapshotMatchStates
+    if (cachedFrame->matchState < svs.nextCachedSnapshotMatchStates - svs.numCachedSnapshotMatchStates
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
-                    2326,
-                    1,
-                    "%s",
-                    "cachedFrame->matchState >= svs.nextCachedSnapshotMatchStates - svs.numCachedSnapshotMatchStates") )
+            "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
+            2326,
+            1,
+            "%s",
+            "cachedFrame->matchState >= svs.nextCachedSnapshotMatchStates - svs.numCachedSnapshotMatchStates"))
     {
         __debugbreak();
     }
-    if ( cachedFrame->first_entity < svs.nextCachedSnapshotEntities - svs.numCachedSnapshotEntities
+    if (cachedFrame->first_entity < svs.nextCachedSnapshotEntities - svs.numCachedSnapshotEntities
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
-                    2327,
-                    1,
-                    "%s",
-                    "cachedFrame->first_entity >= svs.nextCachedSnapshotEntities - svs.numCachedSnapshotEntities") )
+            "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
+            2327,
+            1,
+            "%s",
+            "cachedFrame->first_entity >= svs.nextCachedSnapshotEntities - svs.numCachedSnapshotEntities"))
     {
         __debugbreak();
     }
-    if ( cachedFrame->first_client < svs.nextCachedSnapshotClients - svs.numCachedSnapshotClients
+    if (cachedFrame->first_client < svs.nextCachedSnapshotClients - svs.numCachedSnapshotClients
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
-                    2328,
-                    1,
-                    "%s",
-                    "cachedFrame->first_client >= svs.nextCachedSnapshotClients - svs.numCachedSnapshotClients") )
+            "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
+            2328,
+            1,
+            "%s",
+            "cachedFrame->first_client >= svs.nextCachedSnapshotClients - svs.numCachedSnapshotClients"))
     {
         __debugbreak();
     }

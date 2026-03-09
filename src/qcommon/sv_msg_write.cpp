@@ -5,6 +5,7 @@
 #include <server_mp/sv_snapshot_profile_mp.h>
 #include <server_mp/sv_init_mp.h>
 #include <cgame/cg_draw_debug.h>
+#include <flame/flame_system.h>
 
 bool offsetsTested;
 const NetFieldList *__cdecl MSG_GetStateFieldListForEntityType(int eType, bool isDemoSnapshot)

@@ -135,7 +135,7 @@ MapEnts *__cdecl MapEnts_GetFromString(char *name, const char *entityString, int
         if (!G_ParseSpawnVars(&spawnVar))
             break;
         G_SpawnString(&spawnVar, "classname", "", &classname);
-        if (!MapEnts_CanPurgeEntity(classname, &spawnVar, CMod_HasSpawnString))
+        if (!MapEnts_CanPurgeEntity(classname, &spawnVar, (bool(*)(void*, const char*))CMod_HasSpawnString))
         {
             end = G_GetEntityParsePoint();
             size = end - begin;

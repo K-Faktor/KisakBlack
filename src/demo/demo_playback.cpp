@@ -2068,19 +2068,19 @@ void __cdecl Demo_ParseSnapshot(int localClientNum, msg_t *msg)
     newSnap_0.physicsTime = MSG_ReadLong(msg);
     newSnap_0.messageNum = LocalClientConnection->serverMessageSequence;
     c = MSG_ReadByte(msg);
-    if ( c )
+    if (c)
         newSnap_0.deltaNum = newSnap_0.messageNum - c;
     else
         newSnap_0.deltaNum = -1;
     newSnap_0.snapFlags = MSG_ReadByte(msg);
-    if ( Demo_IsClipPlaying() )
+    if (Demo_IsClipPlaying())
     {
         demo.playback->originalFilmTime = newSnap_0.serverTime;
         demo.playback->clipServerTime += 100;
     }
-    if ( Demo_GetClipState() == 2 )
+    if (Demo_GetClipState() == 2)
     {
-        MSG_WriteByte(&demo.playback->clipRecordingMsg, 0xCu);
+        MSG_WriteByte(&demo.playback->clipRecordingMsg, 12);
         MSG_WriteLong(&demo.playback->clipRecordingMsg, newSnap_0.serverTime);
         MSG_WriteLong(&demo.playback->clipRecordingMsg, newSnap_0.physicsTime);
         MSG_WriteByte(&demo.playback->clipRecordingMsg, c);
@@ -2100,7 +2100,7 @@ void __cdecl Demo_ParseSnapshot(int localClientNum, msg_t *msg)
     v3 = MSG_GetNumBitsRead(msg);
     Demo_RecordProfileData(2, (v3 - v13) / 8);
     v13 = MSG_GetNumBitsRead(msg);
-    v4 = (unsigned __int8 *)Demo_ReadPlayerStates(&result, localClientNum, msg, (playerState_s *)newSnap_0.serverTime);
+    v4 = (unsigned __int8 *)Demo_ReadPlayerStates(&result, localClientNum, msg, newSnap_0.serverTime);
     memcpy(dst, v4, sizeof(dst));
     memcpy((unsigned __int8 *)&newSnap_0.ps, dst, sizeof(newSnap_0.ps));
     v5 = MSG_GetNumBitsRead(msg);
@@ -2118,24 +2118,24 @@ void __cdecl Demo_ParseSnapshot(int localClientNum, msg_t *msg)
     GlassCl_ParseSnapshot(localClientNum, msg);
     Bit = MSG_ReadBit(msg);
     v16 = Bit != 0;
-    if ( Bit )
+    if (Bit)
     {
-        if ( msg->overflowed
+        if (msg->overflowed
             && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\demo\\demo_playback.cpp",
-                        3130,
-                        0,
-                        "%s",
-                        "!msg->overflowed") )
+                "C:\\projects_pc\\cod\\codsrc\\src\\demo\\demo_playback.cpp",
+                3130,
+                0,
+                "%s",
+                "!msg->overflowed"))
         {
             __debugbreak();
         }
         Demo_ReadCustomSnaphotInformation(localClientNum, msg);
     }
-    if ( Demo_GetClipState() == 2 )
+    if (Demo_GetClipState() == 2)
     {
         GlassCl_WriteDemoSnapshot(&demo.playback->clipRecordingMsg);
-        if ( v16 )
+        if (v16)
         {
             MSG_WriteBit1(&demo.playback->clipRecordingMsg);
             Demo_WriteCustomSnapshotInformation(localClientNum, &demo.playback->clipRecordingMsg);
@@ -2144,25 +2144,25 @@ void __cdecl Demo_ParseSnapshot(int localClientNum, msg_t *msg)
         {
             MSG_WriteBit0(&demo.playback->clipRecordingMsg);
         }
-        MSG_WriteByte(&demo.playback->clipRecordingMsg, 0xEu);
+        MSG_WriteByte(&demo.playback->clipRecordingMsg, 14);
     }
     Demo_DisableSnapshotProcessing();
-    if ( msg->overflowed
+    if (msg->overflowed
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\demo\\demo_playback.cpp",
-                    3159,
-                    0,
-                    "%s",
-                    "!msg->overflowed") )
+            "C:\\projects_pc\\cod\\codsrc\\src\\demo\\demo_playback.cpp",
+            3159,
+            0,
+            "%s",
+            "!msg->overflowed"))
     {
         __debugbreak();
     }
-    if ( Demo_IsClipPlaying() )
+    if (Demo_IsClipPlaying())
     {
         newSnap_0.serverTime = demo.playback->clipServerTime;
         newSnap_0.physicsTime = demo.playback->clipServerTime;
     }
-    if ( !Demo_IsClipPlaying() && Demo_ShouldGenerateKeyFrameSnapshot(localClientNum, newSnap_0.serverTime) )
+    if (!Demo_IsClipPlaying() && Demo_ShouldGenerateKeyFrameSnapshot(localClientNum, newSnap_0.serverTime))
         Demo_GenerateKeyFrameSnapshot(
             localClientNum,
             newSnap_0.messageNum,
@@ -2174,9 +2174,9 @@ void __cdecl Demo_ParseSnapshot(int localClientNum, msg_t *msg)
     v9 = va("End Demo Snapshot Read\n");
     Demo_Printf(512, v9);
     v17 = LocalClientGlobals->snap.messageNum + 1;
-    if ( newSnap_0.messageNum - v17 >= 32 )
+    if (newSnap_0.messageNum - v17 >= 32)
         v17 = newSnap_0.messageNum - 31;
-    while ( v17 < newSnap_0.messageNum )
+    while (v17 < newSnap_0.messageNum)
         LocalClientGlobals->snapshots[v17++ & 0x1F].valid = 0;
     LocalClientGlobals->oldSnapServerTime = LocalClientGlobals->snap.serverTime;
     memcpy((unsigned __int8 *)&LocalClientGlobals->snap, (unsigned __int8 *)&newSnap_0, sizeof(LocalClientGlobals->snap));
@@ -2214,11 +2214,7 @@ void __cdecl Demo_ReadMatchState(int localClientNum, msg_t *msg, int time)
     ++LocalClientGlobals->parseMatchStateNum;
 }
 
-playerState_s *__cdecl Demo_ReadPlayerStates(
-                playerState_s *result,
-                int localClientNum,
-                msg_t *msg,
-                playerState_s *time)
+playerState_s *__cdecl Demo_ReadPlayerStates(playerState_s *result, int localClientNum, msg_t *msg, int time)
 {
     const char *v4; // eax
     int v5; // eax
@@ -2228,26 +2224,26 @@ playerState_s *__cdecl Demo_ReadPlayerStates(
     playerState_s to; // [esp+4h] [ebp-26B0h] BYREF
     int v11; // [esp+26B0h] [ebp-4h]
 
-    for ( i = 0; i < demo.header.maxClients; ++i )
+    for (i = 0; i < demo.header.maxClients; ++i)
     {
-        if ( MSG_ReadBit(msg) )
+        if (MSG_ReadBit(msg))
         {
             v4 = va("Begin Reading PlayerState\n");
             Demo_Printf(512, v4);
             v11 = MSG_GetNumBitsRead(msg);
-            MSG_ReadDeltaPlayerstate(localClientNum, msg, time, (bool)&demo.ps[i]);
+            MSG_ReadDeltaPlayerstate(localClientNum, msg, time, &demo.ps[i], &to, 0);
             v5 = MSG_GetNumBitsRead(msg);
             v6 = va("DEMO: r Type: PlayerState Client: %d Size: %d bytes\n", i, (v5 - v11) / 8);
             Demo_Printf(17, v6);
-            if ( Demo_IsClipPlaying() )
+            if (Demo_IsClipPlaying())
                 to.commandTime = demo.playback->clipServerTime;
             else
-                to.commandTime = (int)time;
+                to.commandTime = time;
             memcpy((unsigned __int8 *)&demo.ps[i], (unsigned __int8 *)&to, sizeof(demo.ps[i]));
         }
-        if ( Demo_GetClipState() == 2 )
+        if (Demo_GetClipState() == 2)
         {
-            if ( i == demo_client->current.integer )
+            if (i == demo_client->current.integer)
             {
                 v7 = va("DEMO clip: Writing playerstate for client %d\n", i);
                 Demo_Printf(1024, v7);
@@ -2255,7 +2251,7 @@ playerState_s *__cdecl Demo_ReadPlayerStates(
                 MSG_WriteDeltaPlayerstate(
                     &g_snapInfo,
                     &demo.playback->clipRecordingMsg,
-                    (int)time,
+                    time,
                     &demo.playback->clipRecordPS,
                     &demo.ps[i]);
                 memcpy(
@@ -2269,10 +2265,10 @@ playerState_s *__cdecl Demo_ReadPlayerStates(
             }
         }
     }
-    if ( Demo_IsClipPlaying() )
+    if (Demo_IsClipPlaying())
     {
         memcpy((unsigned __int8 *)&to, (unsigned __int8 *)&demo.ps[demo_client->current.integer], sizeof(to));
-        Demo_AdjustTimeForPlayerState((int)time, demo.playback->clipServerTime, &to);
+        Demo_AdjustTimeForPlayerState(time, demo.playback->clipServerTime, &to);
     }
     else
     {
@@ -4066,193 +4062,193 @@ unsigned __int8 __cdecl Demo_ParseClipCommand(int localClientNum, msg_t *msg, bo
     cgameGlob = CG_GetLocalClientGlobals(localClientNum);
     LocalClientGlobals = CL_GetLocalClientGlobals(localClientNum);
     cmdType = MSG_ReadByte(msg);
-    switch ( cmdType )
+    switch (cmdType)
     {
-        case 0u:
-            newClient = MSG_ReadByte(msg);
-            memcpy(
-                (unsigned __int8 *)&demo.ps[newClient],
-                (unsigned __int8 *)&demo.ps[demo_client->current.integer],
-                sizeof(demo.ps[newClient]));
+    case 0u:
+        newClient = MSG_ReadByte(msg);
+        memcpy(
+            (unsigned __int8 *)&demo.ps[newClient],
+            (unsigned __int8 *)&demo.ps[demo_client->current.integer],
+            sizeof(demo.ps[newClient]));
+        memcpy(
+            (unsigned __int8 *)&demo.ps[demo_client->current.integer],
+            (unsigned __int8 *)&g_defaultPlayerState,
+            sizeof(demo.ps[demo_client->current.integer]));
+        if (MSG_ReadBit(msg))
+        {
+            Demo_EnableSnapshotProcessing();
+            MSG_ReadDeltaPlayerstate(localClientNum, msg, 0, &demo.ps[newClient], &demo.ps[demo_client->current.integer], 0);
+            Demo_DisableSnapshotProcessing();
+            if (Demo_IsClipPlaying())
+                Demo_AdjustTimeForPlayerState(
+                    LocalClientGlobals->snap.serverTime,
+                    demo.playback->clipServerTime,
+                    &demo.ps[demo_client->current.integer]);
+            Demo_UpdateCurrentSnapshot(localClientNum, &demo.ps[demo_client->current.integer]);
             memcpy(
                 (unsigned __int8 *)&demo.ps[demo_client->current.integer],
                 (unsigned __int8 *)&g_defaultPlayerState,
                 sizeof(demo.ps[demo_client->current.integer]));
-            if ( MSG_ReadBit(msg) )
+        }
+        Dvar_SetInt((dvar_s*)demo_client, newClient);
+        v3 = va("DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_CLIENT client: %d\n", newClient);
+        Demo_Printf(1024, v3);
+        break;
+    case 1u:
+        timeScale = MSG_ReadRangedFloatBits(msg, 0.0, 4.0, 16);
+        Com_SetTimeScale(timeScale);
+        Dvar_SetFloat((dvar_s*)demo_timescale, timeScale);
+        v4 = Com_GetTimeScale();
+        v5 = va("DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_TIMESCALE Value: %f\n", v4);
+        Demo_Printf(1024, v5);
+        break;
+    case 2u:
+        demo.playback->clipCameraMode = MSG_ReadByte(msg);
+        v6 = va("DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_CAMERA_MODE Mode: %d\n", demo.playback->cameraMode);
+        Demo_Printf(1024, v6);
+        if (CL_LocalClient_IsCUIFlagSet(localClientNum, 32))
+            Demo_SwitchCameraMode(localClientNum, demo.playback->clipCameraMode);
+        break;
+    case 3u:
+        if (MSG_ReadBit(msg))
+        {
+            if (setClipPlaybackParams)
             {
-                Demo_EnableSnapshotProcessing();
-                MSG_ReadDeltaPlayerstate(localClientNum, msg, 0, (bool)&demo.ps[newClient]);
-                Demo_DisableSnapshotProcessing();
-                if ( Demo_IsClipPlaying() )
-                    Demo_AdjustTimeForPlayerState(
-                        LocalClientGlobals->snap.serverTime,
-                        demo.playback->clipServerTime,
-                        &demo.ps[demo_client->current.integer]);
-                Demo_UpdateCurrentSnapshot(localClientNum, &demo.ps[demo_client->current.integer]);
-                memcpy(
-                    (unsigned __int8 *)&demo.ps[demo_client->current.integer],
-                    (unsigned __int8 *)&g_defaultPlayerState,
-                    sizeof(demo.ps[demo_client->current.integer]));
-            }
-            Dvar_SetInt((dvar_s *)demo_client, newClient);
-            v3 = va("DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_CLIENT client: %d\n", newClient);
-            Demo_Printf(1024, v3);
-            break;
-        case 1u:
-            timeScale = MSG_ReadRangedFloatBits(msg, 0.0, 4.0, 0x10u);
-            Com_SetTimeScale(timeScale);
-            Dvar_SetFloat((dvar_s *)demo_timescale, timeScale);
-            v4 = Com_GetTimeScale();
-            v5 = va("DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_TIMESCALE Value: %f\n", v4);
-            Demo_Printf(1024, v5);
-            break;
-        case 2u:
-            demo.playback->clipCameraMode = MSG_ReadByte(msg);
-            v6 = va("DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_CAMERA_MODE Mode: %d\n", demo.playback->cameraMode);
-            Demo_Printf(1024, v6);
-            if ( CL_LocalClient_IsCUIFlagSet(localClientNum, 32) )
-                Demo_SwitchCameraMode(localClientNum, demo.playback->clipCameraMode);
-            break;
-        case 3u:
-            if ( MSG_ReadBit(msg) )
-            {
-                if ( setClipPlaybackParams )
-                {
-                    prevClipCameraOrigin = demo.playback->prevClipCameraOrigin;
-                    clipCameraOrigin = demo.playback->clipCameraOrigin;
-                    demo.playback->prevClipCameraOrigin[0] = demo.playback->clipCameraOrigin[0];
-                    prevClipCameraOrigin[1] = clipCameraOrigin[1];
-                    prevClipCameraOrigin[2] = clipCameraOrigin[2];
-                    MSG_ReadData(msg, (unsigned __int8 *)demo.playback->clipCameraOrigin, 12);
-                    v7 = va(
-                                 "DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_CAMERA_ORIGIN Value: %d (%f, %f, %f)\n",
-                                 demo.playback->cameraMode,
-                                 demo.playback->clipCameraOrigin[0],
-                                 demo.playback->clipCameraOrigin[1],
-                                 demo.playback->clipCameraOrigin[2]);
-                    Demo_Printf(1024, v7);
-                }
-                else
-                {
-                    MSG_ReadData(msg, (unsigned __int8 *)cgameGlob->refdef.vieworg, 12);
-                    if ( demo.playback->clipCameraMode == 2 )
-                    {
-                        cgameGlob->movieCameraOrigin[0] = cgameGlob->refdef.vieworg[0];
-                        cgameGlob->movieCameraOrigin[1] = cgameGlob->refdef.vieworg[1];
-                        cgameGlob->movieCameraOrigin[2] = cgameGlob->refdef.vieworg[2];
-                    }
-                    v8 = va(
-                                 "DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_CAMERA_ORIGIN Value: %d (%f, %f, %f)\n",
-                                 demo.playback->cameraMode,
-                                 cgameGlob->refdef.vieworg[0],
-                                 cgameGlob->refdef.vieworg[1],
-                                 cgameGlob->refdef.vieworg[2]);
-                    Demo_Printf(1024, v8);
-                }
-            }
-            else
-            {
-                v23 = demo.playback->prevClipCameraOrigin;
-                v24 = demo.playback->clipCameraOrigin;
+                prevClipCameraOrigin = demo.playback->prevClipCameraOrigin;
+                clipCameraOrigin = demo.playback->clipCameraOrigin;
                 demo.playback->prevClipCameraOrigin[0] = demo.playback->clipCameraOrigin[0];
-                v23[1] = v24[1];
-                v23[2] = v24[2];
-                v9 = va(
-                             "DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_CAMERA_ORIGIN Value: %d (%f, %f, %f)\n",
-                             demo.playback->cameraMode,
-                             demo.playback->clipCameraOrigin[0],
-                             demo.playback->clipCameraOrigin[1],
-                             demo.playback->clipCameraOrigin[2]);
-                Demo_Printf(1024, v9);
-            }
-            break;
-        case 4u:
-            if ( MSG_ReadBit(msg) )
-            {
-                if ( setClipPlaybackParams )
-                {
-                    prevClipCameraAngles = demo.playback->prevClipCameraAngles;
-                    clipCameraAngles = demo.playback->clipCameraAngles;
-                    demo.playback->prevClipCameraAngles[0] = demo.playback->clipCameraAngles[0];
-                    prevClipCameraAngles[1] = clipCameraAngles[1];
-                    prevClipCameraAngles[2] = clipCameraAngles[2];
-                    MSG_ReadData(msg, (unsigned __int8 *)demo.playback->clipCameraAngles, 12);
-                    v10 = va(
-                                    "DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_CAMERA_ANGLES Value: %d (%f, %f, %f)\n",
-                                    demo.playback->cameraMode,
-                                    demo.playback->clipCameraAngles[0],
-                                    demo.playback->clipCameraAngles[1],
-                                    demo.playback->clipCameraAngles[2]);
-                    Demo_Printf(1024, v10);
-                }
-                else
-                {
-                    MSG_ReadData(msg, (unsigned __int8 *)LocalClientGlobals->viewangles, 12);
-                    if ( demo.playback->clipCameraMode == 2 )
-                    {
-                        cgameGlob->movieCameraAngles[0] = LocalClientGlobals->viewangles[0];
-                        cgameGlob->movieCameraAngles[1] = LocalClientGlobals->viewangles[1];
-                        cgameGlob->movieCameraAngles[2] = LocalClientGlobals->viewangles[2];
-                    }
-                    v11 = va(
-                                    "DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_CAMERA_ANGLES Value: %d (%f, %f, %f)\n",
-                                    demo.playback->cameraMode,
-                                    LocalClientGlobals->viewangles[0],
-                                    LocalClientGlobals->viewangles[1],
-                                    LocalClientGlobals->viewangles[2]);
-                    Demo_Printf(1024, v11);
-                }
+                prevClipCameraOrigin[1] = clipCameraOrigin[1];
+                prevClipCameraOrigin[2] = clipCameraOrigin[2];
+                MSG_ReadData(msg, (unsigned char *)demo.playback->clipCameraOrigin, 12);
+                v7 = va(
+                    "DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_CAMERA_ORIGIN Value: %d (%f, %f, %f)\n",
+                    demo.playback->cameraMode,
+                    demo.playback->clipCameraOrigin[0],
+                    demo.playback->clipCameraOrigin[1],
+                    demo.playback->clipCameraOrigin[2]);
+                Demo_Printf(1024, v7);
             }
             else
             {
-                v19 = demo.playback->prevClipCameraAngles;
-                v20 = demo.playback->clipCameraAngles;
-                demo.playback->prevClipCameraAngles[0] = demo.playback->clipCameraAngles[0];
-                v19[1] = v20[1];
-                v19[2] = v20[2];
-                v12 = va(
-                                "DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_CAMERA_ANGLES Value: %d (%f, %f, %f)\n",
-                                demo.playback->cameraMode,
-                                demo.playback->clipCameraAngles[0],
-                                demo.playback->clipCameraAngles[1],
-                                demo.playback->clipCameraAngles[2]);
-                Demo_Printf(1024, v12);
+                MSG_ReadData(msg, (unsigned char *)cgameGlob->refdef.vieworg, 12);
+                if (demo.playback->clipCameraMode == 2)
+                {
+                    cgameGlob->movieCameraOrigin[0] = cgameGlob->refdef.vieworg[0];
+                    cgameGlob->movieCameraOrigin[1] = cgameGlob->refdef.vieworg[1];
+                    cgameGlob->movieCameraOrigin[2] = cgameGlob->refdef.vieworg[2];
+                }
+                v8 = va(
+                    "DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_CAMERA_ORIGIN Value: %d (%f, %f, %f)\n",
+                    demo.playback->cameraMode,
+                    cgameGlob->refdef.vieworg[0],
+                    cgameGlob->refdef.vieworg[1],
+                    cgameGlob->refdef.vieworg[2]);
+                Demo_Printf(1024, v8);
             }
-            break;
-        case 5u:
-            demo.playback->hideGameHud = MSG_ReadBit(msg) != 0;
-            v13 = va("DEMO: r Clip Cmd: DEMO_CLIP_CMD_HIDE_GAME_HUD value: %d\n", demo.playback->hideGameHud);
-            Demo_Printf(1024, v13);
-            break;
-        case 6u:
-            msgNum = MSG_ReadLong(msg);
-            Demo_ResetSnapshotData();
-            Demo_ResetSequenceNumbers(localClientNum, msgNum - 1);
-            Demo_ResetWorldInformation(localClientNum, 0);
-            Demo_SetJumpTimeFlag(1);
-            if ( Demo_IsClipPlaying() || Demo_IsClipPreviewRunning() )
-                demo.playback->forceTeleportClipCamera = 1;
-            v14 = va("DEMO: r Clip Cmd: DEMO_CLIP_CMD_RESET_SNAPSHOT_DATA\n");
-            Demo_Printf(1024, v14);
-            break;
-        case 7u:
-            demo.playback->clipPausedState = MSG_ReadBit(msg) != 0;
-            v15 = va("DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_PAUSED_STATE value: %d\n", demo.playback->clipPausedState);
-            Demo_Printf(1024, v15);
-            break;
-        case 8u:
-            transition = MSG_ReadByte(msg);
-            Demo_ActivateTransitionScreen(transition);
-            break;
-        case 9u:
-            v16 = va("DEMO: r Clip Cmd: DEMO_CLIP_CMD_END_OF_FRAME\n");
-            Demo_Printf(1024, v16);
-            break;
-        default:
-            v17 = va("Unknown demo cmd type %d\n", cmdType);
-            if ( !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\demo\\demo_playback.cpp", 5782, 0, v17) )
-                __debugbreak();
-            break;
+        }
+        else
+        {
+            v23 = demo.playback->prevClipCameraOrigin;
+            v24 = demo.playback->clipCameraOrigin;
+            demo.playback->prevClipCameraOrigin[0] = demo.playback->clipCameraOrigin[0];
+            v23[1] = v24[1];
+            v23[2] = v24[2];
+            v9 = va(
+                "DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_CAMERA_ORIGIN Value: %d (%f, %f, %f)\n",
+                demo.playback->cameraMode,
+                demo.playback->clipCameraOrigin[0],
+                demo.playback->clipCameraOrigin[1],
+                demo.playback->clipCameraOrigin[2]);
+            Demo_Printf(1024, v9);
+        }
+        break;
+    case 4u:
+        if (MSG_ReadBit(msg))
+        {
+            if (setClipPlaybackParams)
+            {
+                prevClipCameraAngles = demo.playback->prevClipCameraAngles;
+                clipCameraAngles = demo.playback->clipCameraAngles;
+                demo.playback->prevClipCameraAngles[0] = demo.playback->clipCameraAngles[0];
+                prevClipCameraAngles[1] = clipCameraAngles[1];
+                prevClipCameraAngles[2] = clipCameraAngles[2];
+                MSG_ReadData(msg, (unsigned char *)demo.playback->clipCameraAngles, 12);
+                v10 = va(
+                    "DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_CAMERA_ANGLES Value: %d (%f, %f, %f)\n",
+                    demo.playback->cameraMode,
+                    demo.playback->clipCameraAngles[0],
+                    demo.playback->clipCameraAngles[1],
+                    demo.playback->clipCameraAngles[2]);
+                Demo_Printf(1024, v10);
+            }
+            else
+            {
+                MSG_ReadData(msg, (unsigned char*)LocalClientGlobals->viewangles, 12);
+                if (demo.playback->clipCameraMode == 2)
+                {
+                    cgameGlob->movieCameraAngles[0] = LocalClientGlobals->viewangles[0];
+                    cgameGlob->movieCameraAngles[1] = LocalClientGlobals->viewangles[1];
+                    cgameGlob->movieCameraAngles[2] = LocalClientGlobals->viewangles[2];
+                }
+                v11 = va(
+                    "DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_CAMERA_ANGLES Value: %d (%f, %f, %f)\n",
+                    demo.playback->cameraMode,
+                    LocalClientGlobals->viewangles[0],
+                    LocalClientGlobals->viewangles[1],
+                    LocalClientGlobals->viewangles[2]);
+                Demo_Printf(1024, v11);
+            }
+        }
+        else
+        {
+            v19 = demo.playback->prevClipCameraAngles;
+            v20 = demo.playback->clipCameraAngles;
+            demo.playback->prevClipCameraAngles[0] = demo.playback->clipCameraAngles[0];
+            v19[1] = v20[1];
+            v19[2] = v20[2];
+            v12 = va(
+                "DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_CAMERA_ANGLES Value: %d (%f, %f, %f)\n",
+                demo.playback->cameraMode,
+                demo.playback->clipCameraAngles[0],
+                demo.playback->clipCameraAngles[1],
+                demo.playback->clipCameraAngles[2]);
+            Demo_Printf(1024, v12);
+        }
+        break;
+    case 5u:
+        demo.playback->hideGameHud = MSG_ReadBit(msg) != 0;
+        v13 = va("DEMO: r Clip Cmd: DEMO_CLIP_CMD_HIDE_GAME_HUD value: %d\n", demo.playback->hideGameHud);
+        Demo_Printf(1024, v13);
+        break;
+    case 6u:
+        msgNum = MSG_ReadLong(msg);
+        Demo_ResetSnapshotData();
+        Demo_ResetSequenceNumbers(localClientNum, msgNum - 1);
+        Demo_ResetWorldInformation(localClientNum, 0);
+        Demo_SetJumpTimeFlag(1);
+        if (Demo_IsClipPlaying() || Demo_IsClipPreviewRunning())
+            demo.playback->forceTeleportClipCamera = 1;
+        v14 = va("DEMO: r Clip Cmd: DEMO_CLIP_CMD_RESET_SNAPSHOT_DATA\n");
+        Demo_Printf(1024, v14);
+        break;
+    case 7u:
+        demo.playback->clipPausedState = MSG_ReadBit(msg) != 0;
+        v15 = va("DEMO: r Clip Cmd: DEMO_CLIP_CMD_SET_PAUSED_STATE value: %d\n", demo.playback->clipPausedState);
+        Demo_Printf(1024, v15);
+        break;
+    case 8u:
+        transition = MSG_ReadByte(msg);
+        Demo_ActivateTransitionScreen(transition);
+        break;
+    case 9u:
+        v16 = va("DEMO: r Clip Cmd: DEMO_CLIP_CMD_END_OF_FRAME\n");
+        Demo_Printf(1024, v16);
+        break;
+    default:
+        v17 = va("Unknown demo cmd type %d\n", cmdType);
+        if (!Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\demo\\demo_playback.cpp", 5782, 0, v17))
+            __debugbreak();
+        break;
     }
     return cmdType;
 }

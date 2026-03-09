@@ -4161,7 +4161,7 @@ char __cdecl trace_sphere_through_triangle(
     c1[1] = (float)(v11 * dir[1]) + c0[1];
     c1[2] = (float)(v11 * dir[2]) + c0[2];
     //LODWORD(offs) = COERCE_UNSIGNED_INT((float)((float)(*n * *v0) + (float)(n[1] * v0[1])) + (float)(n[2] * v0[2])) ^ _mask__NegFloat_;
-    offs -((float)((float)(*n * *v0) + (float)(n[1] * v0[1])) + (float)(n[2] * v0[2]));
+    offs = -((float)((float)(*n * *v0) + (float)(n[1] * v0[1])) + (float)(n[2] * v0[2]));
     d0 = (float)((float)((float)(*n * *c0) + (float)(n[1] * c0[1])) + (float)(n[2] * c0[2])) + offs;
     //if ( COERCE_FLOAT(LODWORD(r) ^ _mask__NegFloat_) >= d0 )
     if ( -(r) >= d0 )
@@ -4325,7 +4325,8 @@ void __cdecl trace_sphere_through_brush(
                 float r,
                 const cbrush_t *brush,
                 float *hitn,
-                int *sflags)
+                int *sflags,
+                clipMap_t *pClipMap)
 {
     float v7; // [esp+4h] [ebp-F4h]
     float v8; // [esp+8h] [ebp-F0h]
@@ -4646,7 +4647,7 @@ void __cdecl trace_sphere_through_brush(
                 float *hitn,
                 int *sflags)
 {
-    trace_sphere_through_brush(c0, dir, t, r, brush, hitn, sflags);
+    trace_sphere_through_brush(c0, dir, t, r, brush, hitn, sflags, NULL);
 }
 
 void __cdecl trace_point_through_brush(
@@ -4667,7 +4668,7 @@ void __cdecl trace_point_through_brush(
     {
         __debugbreak();
     }
-    trace_sphere_through_brush(c0, dir, t, 0.0, brush, hitn, sflags);
+    trace_sphere_through_brush(c0, dir, t, 0.0, brush, hitn, sflags, NULL);
     if ( (*t < 0.0 || *t > 1.0)
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\cm_trace.cpp",
@@ -5232,7 +5233,8 @@ void __cdecl trace_sphere_vs_env(
                 radius,
                 &pClipMap->brushes[*index_hint],
                 trace->normal.vec.v,
-                &trace->sflags);
+                &trace->sflags,
+                NULL);
             if ( trace->fraction < 1.0 )
             {
                 if ( !trace
@@ -5273,7 +5275,7 @@ void __cdecl trace_sphere_vs_env(
                 && bounds[1][2] >= brush->mins[2] )
             {
                 fraction = trace->fraction;
-                trace_sphere_through_brush(start, dir, &trace->fraction, radius, brush, trace->normal.vec.v, &trace->sflags);
+                trace_sphere_through_brush(start, dir, &trace->fraction, radius, brush, trace->normal.vec.v, &trace->sflags, NULL);
                 if ( fraction > trace->fraction )
                     *index_hint = ((char *)prim->tree - (char *)pClipMap->brushes) / 96;
             }

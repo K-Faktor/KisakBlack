@@ -685,7 +685,8 @@ void __cdecl trace_sphere_through_brush(
                 float r,
                 const cbrush_t *brush,
                 float *hitn,
-                int *sflags);
+                int *sflags,
+                clipMap_t *pClipMap = NULL); // this arg seems unused, which is confusing
 void __cdecl trace_point_through_brush(
                 const float *c0,
                 const float *dir,

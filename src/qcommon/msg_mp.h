@@ -284,10 +284,12 @@ int __cdecl MSG_ReadAppendedDeltaStruct(
                 const NetField *stateFields,
                 int skippedFieldBits);
 void __cdecl MSG_ReadDeltaPlayerstate(
-                int localClientNum,
-                msg_t *msg,
-                playerState_s *from,
-                bool predictedFieldsIgnoreXor);
+    int localClientNum,
+    msg_t *msg,
+    int time,
+    const playerState_s *from,
+    playerState_s *to,
+    bool predictedFieldsIgnoreXor);
 void __cdecl MSG_ReadDeltaHudElems(msg_t *msg, int time, const hudelem_s *from, hudelem_s *to, int count);
 void __cdecl MSG_InitHuffman();
 void MSG_initHuffmanInternal();

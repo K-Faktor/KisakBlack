@@ -955,33 +955,33 @@ void __cdecl CL_ParseSnapshot(int localClientNum, msg_t *msg)
     newSnap.physicsTime = MSG_ReadLong(msg);
     newSnap.messageNum = clc->serverMessageSequence;
     deltaNum = MSG_ReadByte(msg);
-    if ( deltaNum )
+    if (deltaNum)
         newSnap.deltaNum = newSnap.messageNum - deltaNum;
     else
         newSnap.deltaNum = -1;
     newSnap.snapFlags = MSG_ReadByte(msg);
-    if ( newSnap.deltaNum > 0 )
+    if (newSnap.deltaNum > 0)
     {
         old = &LocalClientGlobals->snapshots[newSnap.deltaNum & 0x1F];
-        if ( !old->valid )
+        if (!old->valid)
         {
             Com_PrintError(14, "Delta from invalid frame (not supposed to happen!).\n");
             MSG_Discard(msg);
             return;
         }
-        if ( LocalClientGlobals->snapshots[newSnap.deltaNum & 0x1F].messageNum != newSnap.deltaNum )
+        if (LocalClientGlobals->snapshots[newSnap.deltaNum & 0x1F].messageNum != newSnap.deltaNum)
         {
             Com_DPrintf(14, "Delta frame too old.\n");
             MSG_Discard(msg);
             return;
         }
-        if ( LocalClientGlobals->parseEntitiesNum - LocalClientGlobals->snapshots[newSnap.deltaNum & 0x1F].parseEntitiesNum > 1920 )
+        if (LocalClientGlobals->parseEntitiesNum - LocalClientGlobals->snapshots[newSnap.deltaNum & 0x1F].parseEntitiesNum > 1920)
         {
             Com_DPrintf(14, "Delta parseEntitiesNum too old.\n");
             MSG_Discard(msg);
             return;
         }
-        if ( LocalClientGlobals->parseClientsNum - LocalClientGlobals->snapshots[newSnap.deltaNum & 0x1F].parseClientsNum > 1920 )
+        if (LocalClientGlobals->parseClientsNum - LocalClientGlobals->snapshots[newSnap.deltaNum & 0x1F].parseClientsNum > 1920)
         {
             Com_DPrintf(14, "Delta parseClientsNum too old.\n");
             MSG_Discard(msg);
@@ -1002,49 +1002,49 @@ void __cdecl CL_ParseSnapshot(int localClientNum, msg_t *msg)
     CL_ParsePacketMatchState(LocalClientGlobals, msg, newSnap.serverTime, old, &newSnap);
     CL_ProcessMapCenterFromMatchState(localClientNum, &newSnap);
     MSG_ClearLastReferencedEntity(msg);
-    SHOWNET(msg, (char*)"playerstate");
-    if ( old )
-        MSG_ReadDeltaPlayerstate(localClientNum, msg, (playerState_s *)newSnap.serverTime, (_BYTE)old + 32);
+    SHOWNET(msg, (char *)"playerstate");
+    if (old)
+        MSG_ReadDeltaPlayerstate(localClientNum, msg, newSnap.serverTime, &old->ps, &newSnap.ps, 1);
     else
-        MSG_ReadDeltaPlayerstate(localClientNum, msg, (playerState_s *)newSnap.serverTime, 0);
-    if ( serverTimeBackup != LocalClientGlobals->serverTime )
+        MSG_ReadDeltaPlayerstate(localClientNum, msg, newSnap.serverTime, 0, &newSnap.ps, 1);
+    if (serverTimeBackup != LocalClientGlobals->serverTime)
     {
         v2 = va(
-                     "cl->serverTime changed from %i to %i in MSG_ReadDeltaPlayerstate()\n",
-                     serverTimeBackup,
-                     LocalClientGlobals->serverTime);
-        if ( !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\client_mp\\cl_parse_mp.cpp",
-                        801,
-                        0,
-                        "%s\n\t%s",
-                        "serverTimeBackup == cl->serverTime",
-                        v2) )
+            "cl->serverTime changed from %i to %i in MSG_ReadDeltaPlayerstate()\n",
+            serverTimeBackup,
+            LocalClientGlobals->serverTime);
+        if (!Assert_MyHandler(
+            "C:\\projects_pc\\cod\\codsrc\\src\\client_mp\\cl_parse_mp.cpp",
+            801,
+            0,
+            "%s\n\t%s",
+            "serverTimeBackup == cl->serverTime",
+            v2))
             __debugbreak();
     }
     MSG_ClearLastReferencedEntity(msg);
     SHOWNET(msg, (char *)"packet entities");
     CL_ParsePacketEntities(LocalClientGlobals, msg, newSnap.serverTime, old, &newSnap);
     MSG_ClearLastReferencedEntity(msg);
-    SHOWNET(msg, (char *)"packet clients");
+    SHOWNET(msg, (char*)"packet clients");
     CL_ParsePacketClients(LocalClientGlobals, msg, newSnap.serverTime, old, &newSnap);
-    if ( msg->overflowed )
+    if (msg->overflowed)
     {
         newSnap.valid = 0;
     }
     else
     {
         GlassCl_ParseSnapshot(localClientNum, msg);
-        if ( msg->overflowed )
+        if (msg->overflowed)
         {
             newSnap.valid = 0;
         }
-        else if ( newSnap.valid )
+        else if (newSnap.valid)
         {
             oldMessageNum = LocalClientGlobals->snap.messageNum + 1;
-            if ( newSnap.messageNum - oldMessageNum >= 32 )
+            if (newSnap.messageNum - oldMessageNum >= 32)
                 oldMessageNum = newSnap.messageNum - 31;
-            while ( oldMessageNum < newSnap.messageNum )
+            while (oldMessageNum < newSnap.messageNum)
                 LocalClientGlobals->snapshots[oldMessageNum++ & 0x1F].valid = 0;
             LocalClientGlobals->oldSnapServerTime = LocalClientGlobals->snap.serverTime;
             memcpy(
@@ -1052,10 +1052,10 @@ void __cdecl CL_ParseSnapshot(int localClientNum, msg_t *msg)
                 (unsigned __int8 *)&newSnap,
                 sizeof(LocalClientGlobals->snap));
             LocalClientGlobals->snap.ping = 999;
-            for ( i = 0; i < 32; ++i )
+            for (i = 0; i < 32; ++i)
             {
                 packetNum = ((unsigned __int8)clc->netchan.outgoingSequence - 1 - (_BYTE)i) & 0x1F;
-                if ( LocalClientGlobals->snap.ps.commandTime >= LocalClientGlobals->outPackets[packetNum].p_serverTime )
+                if (LocalClientGlobals->snap.ps.commandTime >= LocalClientGlobals->outPackets[packetNum].p_serverTime)
                 {
                     LocalClientGlobals->snap.ping = cls.realtime - LocalClientGlobals->outPackets[packetNum].p_realtime;
                     break;
@@ -1065,10 +1065,10 @@ void __cdecl CL_ParseSnapshot(int localClientNum, msg_t *msg)
                 (unsigned __int8 *)&LocalClientGlobals->snapshots[LocalClientGlobals->snap.messageNum & 0x1F],
                 (unsigned __int8 *)&LocalClientGlobals->snap,
                 sizeof(LocalClientGlobals->snapshots[LocalClientGlobals->snap.messageNum & 0x1F]));
-            if ( cl_shownet->current.integer == 3 )
+            if (cl_shownet->current.integer == 3)
                 Com_Printf(
                     14,
-                    "     snapshot:%i    delta:%i    ping:%i\n",
+                    "   snapshot:%i  delta:%i  ping:%i\n",
                     LocalClientGlobals->snap.messageNum,
                     LocalClientGlobals->snap.deltaNum,
                     LocalClientGlobals->snap.ping);

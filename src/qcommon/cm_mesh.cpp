@@ -1,6 +1,7 @@
 #include "cm_mesh.h"
 #include "cm_trace.h"
 #include "cm_load.h"
+#include <gfx_d3d/r_material.h>
 
 void __cdecl CM_TracePointThroughTriangle(const traceWork_t *tw, const unsigned __int16 *indices, trace_t *trace)
 {
@@ -127,9 +128,9 @@ void __cdecl CM_TraceThroughPartition(const traceWork_t *tw, int partitionIndex,
                         //trace->normal.vec.u[0] ^= _mask__NegFloat_;
                         //trace->normal.vec.u[1] ^= _mask__NegFloat_;
                         //trace->normal.vec.u[2] ^= _mask__NegFloat_;
-                        trace->normal.vec.u[0] = -trace->normal.vec.u[0];
-                        trace->normal.vec.u[1] = -trace->normal.vec.u[1];
-                        trace->normal.vec.u[2] = -trace->normal.vec.u[2];
+                        trace->normal.vec.v[0] = -trace->normal.vec.v[0];
+                        trace->normal.vec.v[1] = -trace->normal.vec.v[1];
+                        trace->normal.vec.v[2] = -trace->normal.vec.v[2];
                     }
                 }
             }
@@ -1064,9 +1065,9 @@ void __cdecl CM_TraceThroughAabbTree_r(const traceWork_t *tw, const CollisionAab
     float v80; // [esp+154h] [ebp-254h]
     float v81; // [esp+158h] [ebp-250h]
     float v82; // [esp+15Ch] [ebp-24Ch]
-    float sum; // [esp+160h] [ebp-248h] BYREF
-    float v84; // [esp+164h] [ebp-244h]
-    float v85; // [esp+168h] [ebp-240h]
+    float sum[3]; // [esp+160h] [ebp-248h] BYREF
+    //float v84; // [esp+164h] [ebp-244h]
+    //float v85; // [esp+168h] [ebp-240h]
     float *v86; // [esp+170h] [ebp-238h]
     float *halfSize; // [esp+174h] [ebp-234h]
     float *v88; // [esp+178h] [ebp-230h]
@@ -1093,21 +1094,21 @@ void __cdecl CM_TraceThroughAabbTree_r(const traceWork_t *tw, const CollisionAab
     v80 = tw->midpoint.vec.v[0] - v49;
     v81 = tw->midpoint.vec.v[1] - v50;
     v82 = tw->midpoint.vec.v[2] - v51;
-    Vec3Add(a, tw->size.vec.v, &sum);
+    Vec3Add(a, tw->size.vec.v, sum);
     v78 = v80;
     v77 = fabs(v80);
     v76 = tw->halfDeltaAbs.vec.v[0];
-    if ( fabs(v80) <= (float)(sum + v76) )
+    if ( fabs(v80) <= (float)(sum[0] + v76))
     {
         v75 = v81;
         v74 = fabs(v81);
         v73 = tw->halfDeltaAbs.vec.v[1];
-        if ( fabs(v81) <= (float)(v84 + v73) )
+        if ( fabs(v81) <= (float)(sum[1] + v73) )
         {
             v72 = v82;
             v71 = fabs(v82);
             v70 = tw->halfDeltaAbs.vec.v[2];
-            if ( fabs(v82) <= (float)(v85 + v70) )
+            if ( fabs(v82) <= (float)(sum[2] + v70) )
             {
                 if ( tw->axialCullOnly )
                 {
@@ -1120,8 +1121,8 @@ void __cdecl CM_TraceThroughAabbTree_r(const traceWork_t *tw, const CollisionAab
                     v67 = (float)(v69 * v82) - (float)(v68 * v81);
                     v66 = fabs(v67);
                     v65 = *(_QWORD *)&tw->halfDeltaAbs.vec.unitVec[1].packed;
-                    if ( fabs(v67) <= (float)((float)(v84 * *((float *)&v65 + 1))
-                                                                                                                                            + (float)(v85 * *(float *)&v65)) )
+                    if ( fabs(v67) <= (float)((float)(sum[1] * *((float *)&v65 + 1))
+                                                                                                                                            + (float)(sum[2] * *(float *)&v65)) )
                     {
                         v64 = tw->halfDelta.vec.v[2];
                         v63 = tw->halfDelta.vec.v[0];
@@ -1129,15 +1130,15 @@ void __cdecl CM_TraceThroughAabbTree_r(const traceWork_t *tw, const CollisionAab
                         v61 = fabs(v62);
                         v60 = tw->halfDeltaAbs.vec.v[0];
                         v59 = tw->halfDeltaAbs.vec.v[2];
-                        if ( fabs(v62) <= (float)((float)(v85 * v60) + (float)(sum * v59)) )
+                        if ( fabs(v62) <= (float)((float)(sum[2] * v60) + (float)(sum[0] * v59)) )
                         {
                             v58 = tw->halfDelta.vec.v[0];
                             v57 = tw->halfDelta.vec.v[1];
                             v56 = (float)(v58 * v81) - (float)(v57 * v80);
                             v55 = fabs(v56);
                             v54 = *(_QWORD *)tw->halfDeltaAbs.vec.v;
-                            v48 = fabs(v56) > (float)((float)(sum * *((float *)&v54 + 1))
-                                                                                                                                                    + (float)(v84 * *(float *)&v54));
+                            v48 = fabs(v56) > (float)((float)(sum[0] * *((float *)&v54 + 1))
+                                                                                                                                                    + (float)(sum[1] * *(float *)&v54));
                         }
                         else
                         {
@@ -1362,9 +1363,9 @@ void __cdecl CM_TraceThroughAabbTree_work(const traceWork_t *tw, const Collision
                                                          + (float)(trace->normal.vec.v[1] * tw->delta.vec.v[1]))
                                          + (float)(trace->normal.vec.v[2] * tw->delta.vec.v[2])) > 0.0 )
                     {
-                        trace->normal.vec.u[0] = -trace->normal.vec.u[0];
-                        trace->normal.vec.u[1] = -trace->normal.vec.u[1];
-                        trace->normal.vec.u[2] = -trace->normal.vec.u[2];
+                        trace->normal.vec.v[0] = -trace->normal.vec.v[0];
+                        trace->normal.vec.v[1] = -trace->normal.vec.v[1];
+                        trace->normal.vec.v[2] = -trace->normal.vec.v[2];
                     }
                 }
             }

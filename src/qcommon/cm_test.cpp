@@ -39,30 +39,22 @@ int __cdecl CM_PointLeafnum(const float *p)
 
 void __cdecl CM_BoxLeafnums_r(leafList_s *ll, int nodenum)
 {
-    const cplane_s *v2; // [esp+0h] [ebp-10h]
-    cNode_t *node; // [esp+4h] [ebp-Ch]
-    int s; // [esp+Ch] [ebp-4h]
+    cNode_t *node; // [esp+0h] [ebp-Ch]
+    int s; // [esp+8h] [ebp-4h]
 
-    if ( !cm.nodes
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\cm_test.cpp", 87, 0, "%s", "PPU(cm.nodes)") )
+    iassert(cm.nodes);
+    iassert(ll);
+    while (nodenum >= 0)
     {
-        __debugbreak();
-    }
-    if ( !ll && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\cm_test.cpp", 88, 0, "%s", "ll") )
-        __debugbreak();
-    while ( nodenum >= 0 )
-    {
-        s = BoxOnPlaneSide(
-                    ll->bounds[0],
-                    ll->bounds[1],
-                    cm.nodes[nodenum].plane);
-        if ( s == 1 )
+        node = &cm.nodes[nodenum];
+        s = BoxOnPlaneSide(ll->bounds[0], ll->bounds[1], node->plane);
+        if (s == 1)
         {
             nodenum = node->children[0];
         }
         else
         {
-            if ( s != 2 )
+            if (s != 2)
                 CM_BoxLeafnums_r(ll, node->children[0]);
             nodenum = node->children[1];
         }

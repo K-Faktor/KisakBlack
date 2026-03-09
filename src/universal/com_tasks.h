@@ -1,5 +1,11 @@
 #pragma once
 
+struct TaskRecord;
+struct bdRemoteTask;
+struct TaskDefinition;
+
+enum TaskState : __int32;
+
 void __cdecl TaskManager2_Init();
 void __cdecl TaskManager2_DeferTaskToMainThread(bdRemoteTask *dwTask, const TaskDefinition *taskDef, void *payload);
 void __cdecl TaskManager2_PickUpDeferredTasks();

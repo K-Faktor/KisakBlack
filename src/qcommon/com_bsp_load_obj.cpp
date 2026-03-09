@@ -5,6 +5,7 @@
 #include <gfx_d3d/r_water_sim.h>
 #include "com_bsp.h"
 #include "md4.h"
+#include <database/db_registry.h>
 
 const char *connectionString_126[11] =
 {
@@ -618,7 +619,7 @@ void __cdecl Com_SaveLump(LumpType type, const void *newLump, unsigned int size,
         for ( chunkIter = 0; chunkIter < newHeader.chunkCount; ++chunkIter )
         {
             FS_Write((char *)chunkData[chunkIter], newHeader.chunks[chunkIter].length, h);
-            zeroCount = -newHeader.chunks[chunkIter].length & 3;
+            zeroCount = -(int)newHeader.chunks[chunkIter].length & 3;
             if ( zeroCount )
                 FS_Write((char *)&zero, zeroCount, h);
         }

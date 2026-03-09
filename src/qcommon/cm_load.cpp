@@ -9,6 +9,7 @@
 #include <DynEntity/DynEntity_load_obj.h>
 #include <win32/win_main.h>
 #include <physics/physconstraints_load_obj.h>
+#include <database/db_registry.h>
 
 clipMap_t cm;
 
