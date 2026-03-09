@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\M1911\Documents\kisak-COD\blops\kisakblack;C:\Users\M1911\Documents\kisak-COD\blops\kisakblack\src;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\M1911\Documents\kisak-COD\blops\kisakblack\src\libs;C:\Users\M1911\Documents\kisak-COD\blops\kisakblack;C:\Users\M1911\Documents\kisak-COD\blops\kisakblack\src;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -1023,11 +1023,11 @@
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\prngs\sober128tab.c" />
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\prngs\sprng.c" />
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\prngs\yarrow.c" />
-    <ClCompile Include="src\libs\libvpx\src\vpx_codec.c" />
-    <ClCompile Include="src\libs\libvpx\src\vpx_decoder.c" />
-    <ClCompile Include="src\libs\libvpx\src\vpx_decoder_compat.c" />
-    <ClCompile Include="src\libs\libvpx\src\vpx_encoder.c" />
-    <ClCompile Include="src\libs\libvpx\src\vpx_image.c" />
+    <ClCompile Include="src\libs\vpx\src\vpx_codec.c" />
+    <ClCompile Include="src\libs\vpx\src\vpx_decoder.c" />
+    <ClCompile Include="src\libs\vpx\src\vpx_decoder_compat.c" />
+    <ClCompile Include="src\libs\vpx\src\vpx_encoder.c" />
+    <ClCompile Include="src\libs\vpx\src\vpx_image.c" />
     <ClCompile Include="src\live\live.cpp" />
     <ClCompile Include="src\live\live_anticheat.cpp" />
     <ClCompile Include="src\live\live_clans.cpp" />
@@ -1824,19 +1824,19 @@
     <ClInclude Include="src\libs\libtomcrypt-1.17\src\headers\tomcrypt_pk.h" />
     <ClInclude Include="src\libs\libtomcrypt-1.17\src\headers\tomcrypt_pkcs.h" />
     <ClInclude Include="src\libs\libtomcrypt-1.17\src\headers\tomcrypt_prng.h" />
-    <ClInclude Include="src\libs\libvpx\internal\vpx_codec_internal.h" />
-    <ClInclude Include="src\libs\libvpx\vp8.h" />
-    <ClInclude Include="src\libs\libvpx\vp8cx.h" />
-    <ClInclude Include="src\libs\libvpx\vp8dx.h" />
-    <ClInclude Include="src\libs\libvpx\vp8e.h" />
-    <ClInclude Include="src\libs\libvpx\vpx_codec.h" />
-    <ClInclude Include="src\libs\libvpx\vpx_codec_impl_bottom.h" />
-    <ClInclude Include="src\libs\libvpx\vpx_codec_impl_top.h" />
-    <ClInclude Include="src\libs\libvpx\vpx_decoder.h" />
-    <ClInclude Include="src\libs\libvpx\vpx_decoder_compat.h" />
-    <ClInclude Include="src\libs\libvpx\vpx_encoder.h" />
-    <ClInclude Include="src\libs\libvpx\vpx_image.h" />
-    <ClInclude Include="src\libs\libvpx\vpx_integer.h" />
+    <ClInclude Include="src\libs\vpx\internal\vpx_codec_internal.h" />
+    <ClInclude Include="src\libs\vpx\vp8.h" />
+    <ClInclude Include="src\libs\vpx\vp8cx.h" />
+    <ClInclude Include="src\libs\vpx\vp8dx.h" />
+    <ClInclude Include="src\libs\vpx\vp8e.h" />
+    <ClInclude Include="src\libs\vpx\vpx_codec.h" />
+    <ClInclude Include="src\libs\vpx\vpx_codec_impl_bottom.h" />
+    <ClInclude Include="src\libs\vpx\vpx_codec_impl_top.h" />
+    <ClInclude Include="src\libs\vpx\vpx_decoder.h" />
+    <ClInclude Include="src\libs\vpx\vpx_decoder_compat.h" />
+    <ClInclude Include="src\libs\vpx\vpx_encoder.h" />
+    <ClInclude Include="src\libs\vpx\vpx_image.h" />
+    <ClInclude Include="src\libs\vpx\vpx_integer.h" />
     <ClInclude Include="src\live\live.h" />
     <ClInclude Include="src\live\live_anticheat.h" />
     <ClInclude Include="src\live\live_clans.h" />

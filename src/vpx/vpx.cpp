@@ -1,6 +1,6 @@
 #include "vpx.h"
-#include <libs/libvpx/vpx_image.h>
-#include <libs/libvpx/vp8cx.h>
+#include <libs/vpx/vpx_image.h>
+#include <libs/vpx/vp8cx.h>
 
 #include <cstring>
 #include <universal/q_shared.h>
