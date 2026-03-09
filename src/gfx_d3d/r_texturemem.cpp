@@ -155,7 +155,7 @@ unsigned int __cdecl R_VideoMemoryForDevice(_GUID *lpGUID)
     const DDraw *v3; // [esp+4h] [ebp-24h]
     _DDSCAPS2 caps; // [esp+8h] [ebp-20h] BYREF
     HRESULT hr; // [esp+18h] [ebp-10h]
-    IDirectDraw7 *dd; // [esp+1Ch] [ebp-Ch] BYREF
+    IDirectDraw7 *dd = NULL; // [esp+1Ch] [ebp-Ch] BYREF
     DWORD total; // [esp+20h] [ebp-8h] BYREF
     DWORD free; // [esp+24h] [ebp-4h] BYREF
 
@@ -202,7 +202,7 @@ unsigned int __cdecl R_DrasticVideoMemoryForDevice(_GUID *lpGUID)
     const DDraw *v4; // [esp+4h] [ebp-28h]
     _DDSCAPS2 caps; // [esp+8h] [ebp-24h] BYREF
     HRESULT hr; // [esp+18h] [ebp-14h]
-    IDirectDraw7 *dd; // [esp+1Ch] [ebp-10h] BYREF
+    IDirectDraw7 *dd = NULL; // [esp+1Ch] [ebp-10h] BYREF
     DWORD total; // [esp+20h] [ebp-Ch] BYREF
     HWND__ *hwndDummy; // [esp+24h] [ebp-8h]
     DWORD free; // [esp+28h] [ebp-4h] BYREF

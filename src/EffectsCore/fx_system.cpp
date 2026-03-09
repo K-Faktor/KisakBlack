@@ -433,7 +433,7 @@ void __cdecl FX_RunPrioritySorting(FxSystem *system)
     if ( v11 )
     {
         //std::_Sort<unsigned int *,int>(v9, &v9[v11], (4 * v11) >> 2);
-        std::sort(&v9[0], &v9[v11], (4 * v11) >> 2);
+        std::sort(&v9[0], &v9[v11]);
         if ( v11 > 2 )
             v1 = 2;
         else

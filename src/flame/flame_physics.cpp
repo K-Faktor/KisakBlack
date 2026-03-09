@@ -106,7 +106,8 @@ void __cdecl trace_sphere(trace_t *trace, const float *start, const float *end, 
                     radius,
                     prim->brush,
                     trace->normal.vec.v,
-                    &trace->sflags);
+                    &trace->sflags,
+                    NULL);
             }
         }
         else

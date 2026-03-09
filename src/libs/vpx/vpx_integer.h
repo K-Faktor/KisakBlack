@@ -13,7 +13,7 @@
 
 /* get ptrdiff_t, size_t, wchar_t, NULL */
 #include <stddef.h>
-#include <cstdint> // LWSS add - prevent clashing with the below types
+#include <stdint.h> // LWSS add - prevent clashing with the below types
 
 #if defined(_MSC_VER) || defined(VPX_EMULATE_INTTYPES)
 typedef signed char  int8_t;

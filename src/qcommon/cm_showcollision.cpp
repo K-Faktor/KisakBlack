@@ -252,57 +252,46 @@ char __cdecl CM_BuildBrushWindingForSide(
                 const ShowCollisionBrushPt *pts,
                 int ptCount)
 {
+    // kcod4
     int j; // [esp+Ch] [ebp-302Ch] BYREF
     int i2; // [esp+10h] [ebp-3028h] BYREF
     int XyzList; // [esp+14h] [ebp-3024h]
-    float xyz[3]; // [esp+18h] [ebp-3020h] BYREF
-    float v10; // [esp+24h] [ebp-3014h]
-    float v11; // [esp+28h] [ebp-3010h]
-    float v12; // [esp+2Ch] [ebp-300Ch]
+    float xyz[3072]; // [esp+18h] [ebp-3020h] BYREF
     int i0; // [esp+3018h] [ebp-20h] BYREF
     int i1; // [esp+301Ch] [ebp-1Ch] BYREF
     int k; // [esp+3020h] [ebp-18h]
     int i; // [esp+3024h] [ebp-14h] BYREF
     float plane[4]; // [esp+3028h] [ebp-10h] BYREF
 
-    if ( !winding
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\cm_showcollision.cpp", 368, 0, "%s", "winding") )
-    {
-        __debugbreak();
-    }
-    if ( !planeNormal
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\cm_showcollision.cpp",
-                    369,
-                    0,
-                    "%s",
-                    "planeNormal") )
-    {
-        __debugbreak();
-    }
-    if ( !pts
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\cm_showcollision.cpp", 370, 0, "%s", "pts") )
-    {
-        __debugbreak();
-    }
+    iassert(winding);
+    iassert(planeNormal);
+    iassert(pts);
+
     XyzList = CM_GetXyzList(sideIndex, pts, ptCount, (float (*)[3])xyz, 1024);
-    if ( XyzList < 3 )
+    if (XyzList < 3)
         return 0;
+
     CM_PickProjectionAxes(planeNormal, &i, &j);
-    *(_QWORD *)&winding->p[0][0] = *(_QWORD *)xyz;
+
+    winding->p[0][0] = xyz[0];
+    winding->p[0][1] = xyz[1];
     winding->p[0][2] = xyz[2];
-    winding->p[1][0] = v10;
-    winding->p[1][1] = v11;
-    winding->p[1][2] = v12;
+    winding->p[1][0] = xyz[3];
+    winding->p[1][1] = xyz[4];
+    winding->p[1][2] = xyz[5];
     winding->numpoints = 2;
-    for ( k = 2; k < XyzList; ++k )
+
+    for (k = 2; k < XyzList; ++k)
         CM_AddExteriorPointToWindingProjected(winding, &xyz[3 * k], i, j);
-    if ( CM_RepresentativeTriangleFromWinding(winding, planeNormal, &i0, &i1, &i2) < 0.001 )
+
+    if (CM_RepresentativeTriangleFromWinding(winding, planeNormal, &i0, &i1, &i2) < EQUAL_EPSILON)
         return 0;
+
     PlaneFromPoints(plane, winding->p[i0], winding->p[i1], winding->p[i2]);
-    if ( (float)((float)((float)(plane[0] * *planeNormal) + (float)(plane[1] * planeNormal[1]))
-                         + (float)(plane[2] * planeNormal[2])) > 0.0 )
+
+    if (Vec3Dot(plane, planeNormal) > 0.0)
         CM_ReverseWinding(winding);
+
     return 1;
 }
 

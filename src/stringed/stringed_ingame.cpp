@@ -5,12 +5,12 @@
 
 CStringEdPackage *TheStringPackage;
 
-int __cdecl LocalizeName::GetType()
+int LocalizeName::GetType()
 {
     return 34;
 }
 
-const char *__cdecl LocalizeStringName::GetName()
+const char *LocalizeStringName::GetName()
 {
     return "LocalizeString";
 }
@@ -197,7 +197,7 @@ void __thiscall CStringEdPackage::REMKill(char *psBuffer)
 int __thiscall CStringEdPackage::ReadLine(const char **psParsePos, char *psDest)
 {
     const char *v3; // eax
-    int v4; // eax
+    const char *v4; // eax
     unsigned __int8 v5; // cl
     char *v7; // [esp+28h] [ebp-18h]
     unsigned __int8 *v8; // [esp+2Ch] [ebp-14h]
@@ -214,7 +214,7 @@ int __thiscall CStringEdPackage::ReadLine(const char **psParsePos, char *psDest)
         psDest[iCharsToCopy] = 0;
         for ( *psParsePos += iCharsToCopy; **psParsePos; ++*psParsePos )
         {
-            strchr("\r\n", **psParsePos);
+            v4 = strchr("\r\n", **psParsePos);
             if ( !v4 )
                 break;
         }

@@ -16,26 +16,26 @@
 #include <stdarg.h>
 #include "vpx/vpx_integer.h"
 #include "vpx/internal/vpx_codec_internal.h"
-#include "vpx_version.h"
-
-#define SAVE_STATUS(ctx,var) (ctx?(ctx->err = var):var)
-
-int vpx_codec_version(void)
-{
-    return VERSION_PACKED;
-}
-
-
-const char *vpx_codec_version_str(void)
-{
-    return VERSION_STRING_NOSP;
-}
-
-
-const char *vpx_codec_version_extra_str(void)
-{
-    return VERSION_EXTRA;
-}
+//#include "vpx_version.h"
+//
+//#define SAVE_STATUS(ctx,var) (ctx?(ctx->err = var):var)
+//
+//int vpx_codec_version(void)
+//{
+//    return VERSION_PACKED;
+//}
+//
+//
+//const char *vpx_codec_version_str(void)
+//{
+//    return VERSION_STRING_NOSP;
+//}
+//
+//
+//const char *vpx_codec_version_extra_str(void)
+//{
+//    return VERSION_EXTRA;
+//}
 
 
 const char *vpx_codec_iface_name(vpx_codec_iface_t *iface)

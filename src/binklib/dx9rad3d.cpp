@@ -272,7 +272,7 @@ RADCFUNC void Close_RAD_3D( HRAD3D rad_3d )
 
 RADCFUNC char* Describe_RAD_3D( void )
 {
-  return( "Direct3D9" );
+  return( (char*)"Direct3D9" );
 }
 
 

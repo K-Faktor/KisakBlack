@@ -11,23 +11,24 @@ static void des3_done(symmetric_key *skey)
     // 3DES has no dynamic key state to free
 }
 
-ltc_cipher_descriptor des3_desc =
-{
-    (char *)"3des",            // name
-    14,                        // ID (LTC_CIPHER_DES3)
-    24,                        // min key length (3 × 8 bytes)
-    24,                        // max key length
-    8,                         // block length (DES block size)
-    0,                         // default rounds (0 = use default)
-    &des3_setup,
-    &des3_ecb_encrypt,
-    &des3_ecb_decrypt,
-    &des3_test,
-    &des3_done,
-    &des3_keysize
-};
-
-
+//ltc_cipher_descriptor des3_desc =
+//{
+//    (char *)"3des",            // name
+//    14,                        // ID (LTC_CIPHER_DES3)
+//    24,                        // min key length (3 × 8 bytes)
+//    24,                        // max key length
+//    8,                         // block length (DES block size)
+//    0,                         // default rounds (0 = use default)
+//    &des3_setup,
+//    &des3_ecb_encrypt,
+//    &des3_ecb_decrypt,
+//    &des3_test,
+//    &des3_done,
+//    &des3_keysize
+//};
+//
+//
+//
 
 bdCypher3Des::bdCypher3Des()
 {

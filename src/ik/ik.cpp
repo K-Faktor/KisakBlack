@@ -341,11 +341,11 @@ void    IK_GetJointVars(IKState *ikState)
     int v10; // [esp+11Ch] [ebp-14h]
     IKJointVars *jointVars; // [esp+120h] [ebp-10h]
     //IKJointBones *joint; // [esp+124h] [ebp-Ch]
-    int i; // [esp+128h] [ebp-8h]
-    int retaddr; // [esp+130h] [ebp+0h]
+    //int i; // [esp+128h] [ebp-8h]
+    //int retaddr; // [esp+130h] [ebp+0h]
 
     //joint = a1;
-    i = retaddr;
+    //i = retaddr;
     HIBYTE(jointVars) = 1;
     v10 = 0;
     joints = (int *)ikState->localIkSystem->joints;

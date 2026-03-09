@@ -189,12 +189,13 @@
 /* ---> One-Way Hash Functions <--- */
 #ifndef LTC_NO_HASHES 
 
+// lwss: some mods here
 #define LTC_CHC_HASH
 #define LTC_WHIRLPOOL
 #define LTC_SHA512
-#define LTC_SHA384
+//#define LTC_SHA384
 #define LTC_SHA256
-#define LTC_SHA224
+//#define LTC_SHA224
 #define LTC_TIGER
 #define LTC_SHA1
 #define LTC_MD5

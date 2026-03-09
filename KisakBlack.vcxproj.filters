@@ -3459,9 +3459,6 @@
     <ClCompile Include="src\jpeg\jmemansi.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\jpeg\jmemmac.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\jpeg\jmemmgr.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -3469,9 +3466,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\jpeg\jmemnobs.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\jpeg\jpegtran.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\jpeg\jquant1.c">

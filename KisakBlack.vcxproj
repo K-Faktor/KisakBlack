@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\M1911\Documents\kisak-COD\blops\kisakblack\src\libs;C:\Users\M1911\Documents\kisak-COD\blops\kisakblack;C:\Users\M1911\Documents\kisak-COD\blops\kisakblack\src;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\M1911\Documents\kisak-COD\blops\kisakblack\src\libs;C:\Users\M1911\Documents\kisak-COD\blops\kisakblack;C:\Users\M1911\Documents\kisak-COD\blops\kisakblack\src;C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include;C:\Users\M1911\Documents\kisak-COD\blops\kisakblack\src\libs\libtomcrypt-1.17\src\headers;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -81,6 +81,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -638,86 +639,12 @@
     <ClCompile Include="src\jpeg\jidctint.c" />
     <ClCompile Include="src\jpeg\jidctred.c" />
     <ClCompile Include="src\jpeg\jmemansi.c" />
-    <ClCompile Include="src\jpeg\jmemmac.c" />
     <ClCompile Include="src\jpeg\jmemmgr.c" />
     <ClCompile Include="src\jpeg\jmemname.c" />
     <ClCompile Include="src\jpeg\jmemnobs.c" />
-    <ClCompile Include="src\jpeg\jpegtran.c" />
     <ClCompile Include="src\jpeg\jquant1.c" />
     <ClCompile Include="src\jpeg\jquant2.c" />
     <ClCompile Include="src\jpeg\jutils.c" />
-    <ClCompile Include="src\libjpeg\ansi2knr.c" />
-    <ClCompile Include="src\libjpeg\cdjpeg.c" />
-    <ClCompile Include="src\libjpeg\cjpeg.c" />
-    <ClCompile Include="src\libjpeg\ckconfig.c" />
-    <ClCompile Include="src\libjpeg\djpeg.c" />
-    <ClCompile Include="src\libjpeg\example.c" />
-    <ClCompile Include="src\libjpeg\jaricom.c" />
-    <ClCompile Include="src\libjpeg\jcapimin.c" />
-    <ClCompile Include="src\libjpeg\jcapistd.c" />
-    <ClCompile Include="src\libjpeg\jcarith.c" />
-    <ClCompile Include="src\libjpeg\jccoefct.c" />
-    <ClCompile Include="src\libjpeg\jccolor.c" />
-    <ClCompile Include="src\libjpeg\jcdctmgr.c" />
-    <ClCompile Include="src\libjpeg\jchuff.c" />
-    <ClCompile Include="src\libjpeg\jcinit.c" />
-    <ClCompile Include="src\libjpeg\jcmainct.c" />
-    <ClCompile Include="src\libjpeg\jcmarker.c" />
-    <ClCompile Include="src\libjpeg\jcmaster.c" />
-    <ClCompile Include="src\libjpeg\jcomapi.c" />
-    <ClCompile Include="src\libjpeg\jcparam.c" />
-    <ClCompile Include="src\libjpeg\jcprepct.c" />
-    <ClCompile Include="src\libjpeg\jcsample.c" />
-    <ClCompile Include="src\libjpeg\jctrans.c" />
-    <ClCompile Include="src\libjpeg\jdapimin.c" />
-    <ClCompile Include="src\libjpeg\jdapistd.c" />
-    <ClCompile Include="src\libjpeg\jdarith.c" />
-    <ClCompile Include="src\libjpeg\jdatadst.c" />
-    <ClCompile Include="src\libjpeg\jdatasrc.c" />
-    <ClCompile Include="src\libjpeg\jdcoefct.c" />
-    <ClCompile Include="src\libjpeg\jdcolor.c" />
-    <ClCompile Include="src\libjpeg\jddctmgr.c" />
-    <ClCompile Include="src\libjpeg\jdhuff.c" />
-    <ClCompile Include="src\libjpeg\jdinput.c" />
-    <ClCompile Include="src\libjpeg\jdmainct.c" />
-    <ClCompile Include="src\libjpeg\jdmarker.c" />
-    <ClCompile Include="src\libjpeg\jdmaster.c" />
-    <ClCompile Include="src\libjpeg\jdmerge.c" />
-    <ClCompile Include="src\libjpeg\jdpostct.c" />
-    <ClCompile Include="src\libjpeg\jdsample.c" />
-    <ClCompile Include="src\libjpeg\jdtrans.c" />
-    <ClCompile Include="src\libjpeg\jerror.c" />
-    <ClCompile Include="src\libjpeg\jfdctflt.c" />
-    <ClCompile Include="src\libjpeg\jfdctfst.c" />
-    <ClCompile Include="src\libjpeg\jfdctint.c" />
-    <ClCompile Include="src\libjpeg\jidctflt.c" />
-    <ClCompile Include="src\libjpeg\jidctfst.c" />
-    <ClCompile Include="src\libjpeg\jidctint.c" />
-    <ClCompile Include="src\libjpeg\jmemansi.c" />
-    <ClCompile Include="src\libjpeg\jmemdos.c" />
-    <ClCompile Include="src\libjpeg\jmemmac.c" />
-    <ClCompile Include="src\libjpeg\jmemmgr.c" />
-    <ClCompile Include="src\libjpeg\jmemname.c" />
-    <ClCompile Include="src\libjpeg\jmemnobs.c" />
-    <ClCompile Include="src\libjpeg\jpegtran.c" />
-    <ClCompile Include="src\libjpeg\jquant1.c" />
-    <ClCompile Include="src\libjpeg\jquant2.c" />
-    <ClCompile Include="src\libjpeg\jutils.c" />
-    <ClCompile Include="src\libjpeg\rdbmp.c" />
-    <ClCompile Include="src\libjpeg\rdcolmap.c" />
-    <ClCompile Include="src\libjpeg\rdgif.c" />
-    <ClCompile Include="src\libjpeg\rdjpgcom.c" />
-    <ClCompile Include="src\libjpeg\rdppm.c" />
-    <ClCompile Include="src\libjpeg\rdrle.c" />
-    <ClCompile Include="src\libjpeg\rdswitch.c" />
-    <ClCompile Include="src\libjpeg\rdtarga.c" />
-    <ClCompile Include="src\libjpeg\transupp.c" />
-    <ClCompile Include="src\libjpeg\wrbmp.c" />
-    <ClCompile Include="src\libjpeg\wrgif.c" />
-    <ClCompile Include="src\libjpeg\wrjpgcom.c" />
-    <ClCompile Include="src\libjpeg\wrppm.c" />
-    <ClCompile Include="src\libjpeg\wrrle.c" />
-    <ClCompile Include="src\libjpeg\wrtarga.c" />
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\ciphers\aes\aes.c" />
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\ciphers\aes\aes_tab.c" />
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\ciphers\anubis.c" />
@@ -783,13 +710,9 @@
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\hashes\rmd256.c" />
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\hashes\rmd320.c" />
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\hashes\sha1.c" />
-    <ClCompile Include="src\libs\libtomcrypt-1.17\src\hashes\sha2\sha224.c" />
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\hashes\sha2\sha256.c" />
-    <ClCompile Include="src\libs\libtomcrypt-1.17\src\hashes\sha2\sha384.c" />
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\hashes\sha2\sha512.c" />
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\hashes\tiger.c" />
-    <ClCompile Include="src\libs\libtomcrypt-1.17\src\hashes\whirl\whirl.c" />
-    <ClCompile Include="src\libs\libtomcrypt-1.17\src\hashes\whirl\whirltab.c" />
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\mac\f9\f9_done.c" />
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\mac\f9\f9_file.c" />
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\mac\f9\f9_init.c" />
@@ -1019,8 +942,6 @@
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\prngs\rc4.c" />
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\prngs\rng_get_bytes.c" />
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\prngs\rng_make_prng.c" />
-    <ClCompile Include="src\libs\libtomcrypt-1.17\src\prngs\sober128.c" />
-    <ClCompile Include="src\libs\libtomcrypt-1.17\src\prngs\sober128tab.c" />
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\prngs\sprng.c" />
     <ClCompile Include="src\libs\libtomcrypt-1.17\src\prngs\yarrow.c" />
     <ClCompile Include="src\libs\vpx\src\vpx_codec.c" />
@@ -1800,17 +1721,6 @@
     <ClInclude Include="src\jpeg\jpegint.h" />
     <ClInclude Include="src\jpeg\jpeglib.h" />
     <ClInclude Include="src\jpeg\jversion.h" />
-    <ClInclude Include="src\libjpeg\cderror.h" />
-    <ClInclude Include="src\libjpeg\cdjpeg.h" />
-    <ClInclude Include="src\libjpeg\jdct.h" />
-    <ClInclude Include="src\libjpeg\jerror.h" />
-    <ClInclude Include="src\libjpeg\jinclude.h" />
-    <ClInclude Include="src\libjpeg\jmemsys.h" />
-    <ClInclude Include="src\libjpeg\jmorecfg.h" />
-    <ClInclude Include="src\libjpeg\jpegint.h" />
-    <ClInclude Include="src\libjpeg\jpeglib.h" />
-    <ClInclude Include="src\libjpeg\jversion.h" />
-    <ClInclude Include="src\libjpeg\transupp.h" />
     <ClInclude Include="src\libs\libtomcrypt-1.17\src\headers\tomcrypt.h" />
     <ClInclude Include="src\libs\libtomcrypt-1.17\src\headers\tomcrypt_argchk.h" />
     <ClInclude Include="src\libs\libtomcrypt-1.17\src\headers\tomcrypt_cfg.h" />
@@ -2136,9 +2046,6 @@
     <ClInclude Include="tl\physics\rbc_def_generic.h" />
     <ClInclude Include="tl\physics\rbc_def_ragdoll.h" />
     <ClInclude Include="tl\physics\rbc_def_vehicle.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="src\CubeMapGenLib\resource.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\libjpeg\jmemdosa.asm" />

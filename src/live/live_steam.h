@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdio>
+#include <universal/dvar.h>
 
 void __cdecl SteamAPIDebugTextHook(int severity, const char *pchDebugText);
 void __cdecl    LiveSteam_Quit(bool showErrorMessage);

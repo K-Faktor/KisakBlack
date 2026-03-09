@@ -188,15 +188,15 @@ bool bdByteBuffer::readArrayStart(char type, unsigned int *buf)
     }
     else
     {
-        bdLogMessage(
-            BD_LOG_WARNING,
-            "warn/",
-            "warn",
-            "C:\\projects_pc\\cod\\codsrc\\DemonWare\\bdCore\\bdContainers\\bdByteBuffer.cpp",
-            "bdByteBuffer::readArrayStart",
-            0x6Bu,
-            "readArrayStart: No array %d\n",
-            v4);
+        //bdLogMessage(
+        //    BD_LOG_WARNING,
+        //    "warn/",
+        //    "warn",
+        //    "C:\\projects_pc\\cod\\codsrc\\DemonWare\\bdCore\\bdContainers\\bdByteBuffer.cpp",
+        //    "bdByteBuffer::readArrayStart",
+        //    0x6Bu,
+        //    "readArrayStart: No array %d\n",
+        //    v4);
         *buf = 0;
         return v12;
     }
@@ -273,7 +273,7 @@ bool bdByteBuffer::readDataType(enum bdBitBufferDataType type)
         v7 = bdByteBuffer::read(&v6, 1u);
         if (v7)
         {
-            v5 = v6;
+            v5 = (bdBitBufferDataType)v6;
             v7 = v6 == type;
             if (v6 != type)
             {
@@ -569,7 +569,7 @@ bool bdByteBuffer::writeString(char *buf, unsigned int cnt)
     v14 = 0;
     v13 = 0;
     v16 = bdByteBuffer::writeDataType(BD_BB_SIGNED_CHAR8_STRING_TYPE);
-    memchr((unsigned __int8 *)buf, 0, cnt);
+    v3 = (int)memchr((unsigned __int8 *)buf, 0, cnt);
     v10 = v3;
     if (v3)
         v7 = v10 - (_DWORD)buf;

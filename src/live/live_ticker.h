@@ -1,5 +1,7 @@
 #pragma once
 
+#include <universal/dvar.h>
+
 enum streamName_t : __int32
 {                                       // XREF: streams_t/r ticker_t/r ...
     TICKER_STREAM_COD       = 0x0,

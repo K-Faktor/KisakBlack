@@ -224,38 +224,39 @@ extern "C" {
      * in the future.
      *
      */
-    int vpx_codec_version(void);
-#define VPX_VERSION_MAJOR(v) ((v>>16)&0xff) /**< extract major from packed version */
-#define VPX_VERSION_MINOR(v) ((v>>8)&0xff)  /**< extract minor from packed version */
-#define VPX_VERSION_PATCH(v) ((v>>0)&0xff)  /**< extract patch from packed version */
-
-    /*!\brief Return the version major number */
-#define vpx_codec_version_major() ((vpx_codec_version()>>16)&0xff)
-
-    /*!\brief Return the version minr number */
-#define vpx_codec_version_minor() ((vpx_codec_version()>>8)&0xff)
-
-    /*!\brief Return the version patch number */
-#define vpx_codec_version_patch() ((vpx_codec_version()>>0)&0xff)
-
-
-    /*!\brief Return the version information (as a string)
-     *
-     * Returns a printable string containing the full library version number. This may
-     * contain additional text following the three digit version number, as to indicate
-     * release candidates, prerelease versions, etc.
-     *
-     */
-    const char *vpx_codec_version_str(void);
-
-
-    /*!\brief Return the version information (as a string)
-     *
-     * Returns a printable "extra string". This is the component of the string returned
-     * by vpx_codec_version_str() following the three digit version number.
-     *
-     */
-    const char *vpx_codec_version_extra_str(void);
+    // LWSS: remove versioning crap, I'm not running the makefile to generate a single .h with 3 defines in it, and it's also not in the final game so maybe they did the same lmao
+//    int vpx_codec_version(void);
+//#define VPX_VERSION_MAJOR(v) ((v>>16)&0xff) /**< extract major from packed version */
+//#define VPX_VERSION_MINOR(v) ((v>>8)&0xff)  /**< extract minor from packed version */
+//#define VPX_VERSION_PATCH(v) ((v>>0)&0xff)  /**< extract patch from packed version */
+//
+//    /*!\brief Return the version major number */
+//#define vpx_codec_version_major() ((vpx_codec_version()>>16)&0xff)
+//
+//    /*!\brief Return the version minr number */
+//#define vpx_codec_version_minor() ((vpx_codec_version()>>8)&0xff)
+//
+//    /*!\brief Return the version patch number */
+//#define vpx_codec_version_patch() ((vpx_codec_version()>>0)&0xff)
+//
+//
+//    /*!\brief Return the version information (as a string)
+//     *
+//     * Returns a printable string containing the full library version number. This may
+//     * contain additional text following the three digit version number, as to indicate
+//     * release candidates, prerelease versions, etc.
+//     *
+//     */
+//    const char *vpx_codec_version_str(void);
+//
+//
+//    /*!\brief Return the version information (as a string)
+//     *
+//     * Returns a printable "extra string". This is the component of the string returned
+//     * by vpx_codec_version_str() following the three digit version number.
+//     *
+//     */
+//    const char *vpx_codec_version_extra_str(void);
 
 
     /*!\brief Return the build configuration

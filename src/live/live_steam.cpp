@@ -337,8 +337,9 @@ const char *__cdecl LiveSteam_GetClientPersonaName(bool shortName)
     if (!SteamFriends())
         return "";
 
+    s = SteamFriends()->GetPersonaName();
     if (!shortName)
-        return SteamFriends()->GetPersonaName();
+        return s;
 
     Com_sprintf(shorName, 0x40u, "%.16s", s);
     return shorName;
@@ -404,7 +405,7 @@ int __cdecl LiveSteam_Client_ConnectToSteamServer(unsigned __int64 serverID, voi
     v5 = SteamUser();
     v6 = &v4;
     //return (v5->InitiateGameConnection)(v5, authBlob, bufferSize, serverID, HIDWORD(serverID), 0, 0, 1);
-    SteamUser()->InitiateGameConnection(authBlob, bufferSize, serverID, 0, 0, true);
+    return SteamUser()->InitiateGameConnection(authBlob, bufferSize, serverID, 0, 0, true);
 }
 
 void LiveSteam_Client_SteamDisconnect()

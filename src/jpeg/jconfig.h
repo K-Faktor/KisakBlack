@@ -53,7 +53,8 @@
 #ifdef __GNUC__
 #define INLINE __inline__
 #else
-#define INLINE S3E_INLINE
+//#define INLINE S3E_INLINE
+#define INLINE inline // lwss Mod
 #endif
 
 #endif
