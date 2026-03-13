@@ -25,8 +25,13 @@ int Win_InitLocalization()
     localization.language = 0;
     localization.strings = 0;
     fp = FS_FileOpenReadText("localization.txt");
+
     if (!fp)
+    {
+        iassert(0); // LWSS ADD: you probably need to change the working dir!
         return 0;
+    }
+
     size = FS_FileGetFileSize(fp);
     if (size >= 4096
         && !Assert_MyHandler(

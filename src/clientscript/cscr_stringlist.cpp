@@ -10,8 +10,17 @@
 #include <Windows.h>
 #include "cscr_variable.h"
 
+// server: 0x8000
+// client: 0x4000
+HashEntry gScrStringHashTable[0x8000 + 0x4000 /*49152*/];
+
+scrStringGlob_t gScrStringGlob[2]
+{
+    { &gScrStringHashTable[0] },        // SCRIPTINSTANCE_SERVER
+    { &gScrStringHashTable[0x8000] }    // SCRIPTINSTANCE_CLIENT
+};
+
 scrStringDebugGlob_t *gScrStringDebugGlob[2];
-scrStringGlob_t gScrStringGlob[2];
 
 char *__cdecl SL_ConvertToString(unsigned int stringValue, scriptInstance_t inst)
 {

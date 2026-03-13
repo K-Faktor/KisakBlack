@@ -64,6 +64,13 @@ struct __declspec(align(8)) UIViewer // sizeof=0xA16C0
         int faceColorIndex;                 // XREF: UIViewer::Update(float)+283/w
 
         PlayerParams();
+        PlayerParams(int initialValue) :
+            bodyIndex(initialValue),
+            headIndex(initialValue),
+            facePatternIndex(initialValue),
+            faceColorIndex(initialValue)
+        {
+        }
     };
     struct WeaponParams // sizeof=0x20
     {                                       // XREF: UIViewer::State/r
@@ -78,6 +85,17 @@ struct __declspec(align(8)) UIViewer // sizeof=0xA16C0
 
         WeaponParams(UIViewer::WeaponSlot slot);
         WeaponParams() = default;
+        WeaponParams(int initialValue)
+            : weaponSlot((UIViewer::WeaponSlot)initialValue),
+            weaponIndex(initialValue),
+            attachTopIndex(initialValue),
+            attachBottomIndex(initialValue),
+            attachTriggerIndex(initialValue),
+            attachMuzzleIndex(initialValue),
+            weaponOptions(initialValue),
+            currentAttachmentPoint(initialValue)
+        {
+        }
     };
     struct __declspec(align(4)) State // sizeof=0x58
     {                                       // XREF: UIViewer/r

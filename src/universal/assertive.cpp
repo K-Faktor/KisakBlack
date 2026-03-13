@@ -579,6 +579,7 @@ void __cdecl Assert_SetMonkeyCallbackHandler(void (__cdecl *AssertCallbackFunc)(
 
 bool Assert_MyHandler(const char *filename, int line, int type, const char *fmt, ...)
 {
+#if 0
     char *v4; // eax
     char shouldBreak; // [esp+3h] [ebp-5h]
     va_list va; // [esp+20h] [ebp+18h] BYREF
@@ -617,6 +618,10 @@ bool Assert_MyHandler(const char *filename, int line, int type, const char *fmt,
     isHandlingAssert = 0;
     Sys_LeaveCriticalSection(CRITSECT_ASSERT);
     return shouldBreak == 0;
+#else
+    __debugbreak();
+    return 1;
+#endif
 }
 
 bool CopyMessageToClipboard()

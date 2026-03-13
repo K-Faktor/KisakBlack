@@ -437,6 +437,8 @@ LABEL_8:
     }
 #endif
     // KISAKTODO?
+
+    sysInfo->physicalCpuCount = 8; // HACK!
 }
 
 unsigned int __cdecl Sys_AddApicIdIfUnique(

@@ -37,7 +37,7 @@ int __cdecl SE_BuildFileList(
     //    strResults,
     //    "",
     //    "" + strlen("") + 1 - algn_C60BFA);
-    strResults->assign("", 1);
+    strResults->assign("");
     SE_R_ListFiles((char*)"str", psStartDir, strResults);
     return giFilesFound;
 }

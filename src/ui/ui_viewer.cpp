@@ -1991,29 +1991,35 @@ void __cdecl UI_ViewerCheckStreamer()
     uiViewer.SetupStreamer();
 }
 
-UIViewer::State::State()
+UIViewer::State::State() : playerParams(-1), weaponParams(-1)
 {
     this->mode = -1;
-    this->playerParams.bodyIndex = -1;
-    this->playerParams.headIndex = -1;
-    this->playerParams.facePatternIndex = -1;
-    this->playerParams.faceColorIndex = -1;
-    this->weaponParams.weaponSlot = (UIViewer::WeaponSlot)-1;
-    this->weaponParams.weaponIndex = -1;
-    this->weaponParams.attachTopIndex = -1;
-    this->weaponParams.attachBottomIndex = -1;
-    this->weaponParams.attachTriggerIndex = -1;
-    this->weaponParams.attachMuzzleIndex = -1;
-    this->weaponParams.weaponOptions.i = -1;
-    this->weaponParams.currentAttachmentPoint = -1;
+
+    //this->playerParams.bodyIndex = -1;
+    //this->playerParams.headIndex = -1;
+    //this->playerParams.facePatternIndex = -1;
+    //this->playerParams.faceColorIndex = -1;
+    //
+    //this->weaponParams.weaponSlot = (UIViewer::WeaponSlot)-1;
+    //this->weaponParams.weaponIndex = -1;
+    //this->weaponParams.attachTopIndex = -1;
+    //this->weaponParams.attachBottomIndex = -1;
+    //this->weaponParams.attachTriggerIndex = -1;
+    //this->weaponParams.attachMuzzleIndex = -1;
+    //this->weaponParams.weaponOptions.i = -1;
+    //this->weaponParams.currentAttachmentPoint = -1;
+
     this->locked = 0;
-    *(unsigned int *)this->faction = 0;
-    *(unsigned int *)&this->faction[4] = 0;
-    *(unsigned int *)&this->faction[8] = 0;
-    *(unsigned int *)&this->faction[12] = 0;
-    *(unsigned int *)&this->faction[16] = 0;
-    *(unsigned int *)&this->faction[20] = 0;
-    *(unsigned int *)&this->faction[24] = 0;
-    *(unsigned int *)&this->faction[28] = 0;
+    
+    memset(this->faction, 0, sizeof(faction));
+
+    //*(unsigned int *)this->faction = 0;
+    //*(unsigned int *)&this->faction[4] = 0;
+    //*(unsigned int *)&this->faction[8] = 0;
+    //*(unsigned int *)&this->faction[12] = 0;
+    //*(unsigned int *)&this->faction[16] = 0;
+    //*(unsigned int *)&this->faction[20] = 0;
+    //*(unsigned int *)&this->faction[24] = 0;
+    //*(unsigned int *)&this->faction[28] = 0;
 }
 

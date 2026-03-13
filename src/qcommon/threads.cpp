@@ -30,7 +30,7 @@ const char *s_threadNames[15] =
 };
 
 unsigned int s_cpuCount;
-unsigned int threadId[15];
+DWORD threadId[15];
 void *threadHandle[15];
 void *g_threadValues[15][5];
 
@@ -256,12 +256,12 @@ void __cdecl Sys_CreateThread(void (__cdecl *function)(unsigned int), unsigned i
     }
     threadFunc[threadContext] = function;
     threadHandle[threadContext] = CreateThread(
-                                                                    0,
-                                                                    0,
-                                                                    (LPTHREAD_START_ROUTINE)Sys_ThreadMain,
-                                                                    (LPVOID)threadContext,
-                                                                    4u,
-                                                                    (LPDWORD)(4 * threadContext + 158976240));
+        0,
+        0,
+        (LPTHREAD_START_ROUTINE)Sys_ThreadMain,
+        (LPVOID)threadContext,
+        4u,
+        &threadId[threadContext]);
     if ( !threadHandle[threadContext]
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\threads.cpp",

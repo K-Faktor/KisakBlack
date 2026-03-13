@@ -29,39 +29,17 @@ void __cdecl DB_InitStreams(XBlock *blocks)
 
 void __cdecl DB_PushStreamPos(unsigned int index)
 {
-    if ( index >= 7
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\database\\db_stream.cpp",
-                    66,
-                    0,
-                    "%s",
-                    "index < ARRAY_COUNT( g_streamPosArray )") )
-    {
-        __debugbreak();
-    }
-    if ( g_streamPosIndex >= 7
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\database\\db_stream.cpp",
-                    67,
-                    0,
-                    "%s",
-                    "g_streamPosIndex < ARRAY_COUNT( g_streamPosArray )") )
-    {
-        __debugbreak();
-    }
-    if ( g_streamPosStackIndex >= 0x40
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\database\\db_stream.cpp",
-                    68,
-                    0,
-                    "%s",
-                    "g_streamPosStackIndex < ARRAY_COUNT( g_streamPosStack )") )
-    {
-        __debugbreak();
-    }
-    g_streamPosStack[g_streamPosStackIndex++].index = g_streamPosIndex;
+    iassert(index < ARRAY_COUNT(g_streamPosArray));
+    iassert(g_streamPosIndex < ARRAY_COUNT(g_streamPosArray));
+    iassert(g_streamPosStackIndex < ARRAY_COUNT(g_streamPosStack));
+
+    //g_streamPosStack[g_streamPosStackIndex++].index = g_streamPosIndex;
+    //DB_SetStreamIndex(index);
+    //*(&g_streamPosIndex + 2 * g_streamPosStackIndex) = (unsigned int)g_streamPos;
+
+    g_streamPosStack[g_streamPosStackIndex].index = g_streamPosIndex;
     DB_SetStreamIndex(index);
-    *(&g_streamPosIndex + 2 * g_streamPosStackIndex) = (unsigned int)g_streamPos;
+    g_streamPosStack[g_streamPosStackIndex++].pos = g_streamPos;
 }
 
 void __cdecl DB_SetStreamIndex(unsigned int index)
@@ -112,21 +90,18 @@ unsigned __int8 *__cdecl DB_AllocStreamPos(int alignment)
 
 void __cdecl DB_IncStreamPos(int size)
 {
-    if ( !g_streamPos
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\database\\db_stream.cpp", 118, 0, "%s", "g_streamPos") )
-    {
-        __debugbreak();
-    }
-    if ( &g_streamPos[size] > &g_streamBlocks[g_streamPosIndex].data[g_streamBlocks[g_streamPosIndex].size]
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\database\\db_stream.cpp",
-                    120,
-                    0,
-                    "%s",
-                    "g_streamPos + size <= g_streamBlocks[g_streamPosIndex].data + g_streamBlocks[g_streamPosIndex].size") )
-    {
-        __debugbreak();
-    }
+    iassert(g_streamPos);
+    iassert(g_streamPos + size <= g_streamBlocks[g_streamPosIndex].data + g_streamBlocks[g_streamPosIndex].size);
+    //if ( &g_streamPos[size] > &g_streamBlocks[g_streamPosIndex].data[g_streamBlocks[g_streamPosIndex].size]
+    //    && !Assert_MyHandler(
+    //                "C:\\projects_pc\\cod\\codsrc\\src\\database\\db_stream.cpp",
+    //                120,
+    //                0,
+    //                "%s",
+    //                "g_streamPos + size <= g_streamBlocks[g_streamPosIndex].data + g_streamBlocks[g_streamPosIndex].size") )
+    //{
+    //    __debugbreak();
+    //}
     g_streamPos += size;
 }
 

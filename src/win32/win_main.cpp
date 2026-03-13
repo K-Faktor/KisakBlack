@@ -542,6 +542,7 @@ void __cdecl Sys_Net_Restart_f()
 
 int __cdecl Sys_CheckCrashOrRerun()
 {
+#ifdef KISAK_PURE
     HWND ActiveWindow; // eax
     char *v2; // [esp-Ch] [ebp-20h]
     char *v3; // [esp-8h] [ebp-1Ch]
@@ -590,6 +591,9 @@ int __cdecl Sys_CheckCrashOrRerun()
     }
     CloseHandle(file);
     return 1;
+#else
+    return 1; // LWSS: disable "do you wanna restart in safe mode?" prompt
+#endif
 }
 
 void    Sys_NoFreeFilesError()
