@@ -36,6 +36,9 @@
 #include <gfx_d3d/r_image.h>
 #include <game/g_bsp.h>
 #include <qcommon/com_bsp.h>
+#include <client/cl_keys.h>
+#include <win32/win_input.h>
+#include <client_mp/cl_scrn_mp.h>
 
 
 #define POOLSIZE_XMODELPIECES      64
@@ -1707,6 +1710,23 @@ void __cdecl DB_Sleep(unsigned int msec)
 
     R_BeginRemoteScreenUpdate();
     v2 = *Sys_GetEvent(&result);
+
+    if (!IsDedicatedServer() && Sys_IsMainThread())
+    {
+        bool active = Key_IsCatcherActive(0, 16);
+
+        Key_AddCatcher(0, 16);
+        IN_Frame();
+
+        if (!active)
+            Key_RemoveCatcher(0, -17);
+
+        if (!r_glob.remoteScreenUpdateNesting)
+            SCR_UpdateScreen();
+
+        Sys_WaitRenderer();
+    }
+
     NET_Sleep(msec);
     R_EndRemoteScreenUpdate(0);
 }
@@ -4513,16 +4533,18 @@ void __cdecl DB_SyncExternalAssetsInternal()
         R_ReleaseDXDeviceOwnership();
 }
 
-void DB_SyncExternalAssets()
+void DB_SyncExternalAssets() // inlined in retail
 {
     int depth; // [esp+0h] [ebp-4h]
 
     depth = 0;
     if ( Sys_IsMainThread() )
         depth = R_PopRemoteScreenUpdate();
+
     R_SyncRenderThread();
     Sys_IsRenderThread();
     DB_SyncExternalAssetsInternal();
+
     if ( Sys_IsMainThread() )
         R_PushRemoteScreenUpdate(depth);
 }
@@ -4965,10 +4987,43 @@ void __cdecl DB_LoadFastFilesForPC()
 {
     XZoneInfo zoneInfo[6]; // [esp+0h] [ebp-50h] BYREF
 
-    zoneInfo[0].name = "common_mp";
-    zoneInfo[0].allocFlags = 256;
-    zoneInfo[0].freeFlags = 0;
-    DB_LoadXAssets(zoneInfo, 1u, 0);
+    int zone = 0;
+
+    if (!IsDedicatedServer())
+    {
+        zoneInfo[zone].name = "patch_ui_mp";
+        zoneInfo[zone].allocFlags = 0x4000000;
+        zoneInfo[zone].freeFlags = 0;
+        zone++;
+
+        zoneInfo[zone].name = "ui_mp";
+        zoneInfo[zone].allocFlags = 0x2000000;
+        zoneInfo[zone].freeFlags = 0;
+        zone++;
+
+        DB_LoadXAssets(zoneInfo, 2, 0);
+    }
+
+    zone = 0;
+
+    zoneInfo[zone].name = "common_mp";
+#ifdef KISAK_DEDICATED
+    zoneInfo[zone].allocFlags = 256;
+#else
+    zoneInfo[zone].allocFlags = 64;
+#endif
+    zoneInfo[zone].freeFlags = 0;
+    zone++;
+
+    if (!IsDedicatedServer())
+    {
+        zoneInfo[zone].name = "ui_viewer_mp";
+        zoneInfo[zone].allocFlags = 2048;
+        zoneInfo[zone].freeFlags = 0;
+        zone++;
+    }
+
+    DB_LoadXAssets(zoneInfo, zone, 0);
 }
 
 void __cdecl DB_LoadGraphicsAssetsForPC()

@@ -219,6 +219,7 @@ void    Sys_Error(char *error, ...)
 {
     char string[4100]; // [esp+20h] [ebp-1008h] BYREF
     va_list va; // [esp+1034h] [ebp+Ch] BYREF
+    MSG Msg;
 
     va_start(va, error);
     Sys_EnterCriticalSection(CRITSECT_COM_ERROR);
@@ -226,13 +227,38 @@ void    Sys_Error(char *error, ...)
     com_errorEntered = 1;
     Sys_SuspendOtherThreads();
     _vsnprintf(string, 0x1000u, error, va);
+
     if ( Monkey_IsRunning() )
     {
         Monkey_Error(string);
         exit(0);
     }
+
     FixWindowsDesktop();
-    Sys_SetErrorText(string);
+
+    if (IsDedicatedServer())
+    {
+        Sys_SetErrorText(string);
+    }
+    else
+    {
+        if (Sys_IsMainThread())
+        {
+            Sys_ShowConsole();
+            Conbuf_AppendText((char*)"\n\n");
+            Conbuf_AppendText(string);
+            Conbuf_AppendText((char *)"\n");
+        }
+
+        Sys_SetErrorText(string);
+
+        // wait for the user to quit
+        while (GetMessage(&Msg, 0, 0, 0))
+        {
+            TranslateMessage(&Msg);
+            DispatchMessage(&Msg);
+        }
+    }
     //BLOPS_NULLSUB();
     exit(0);
 }
@@ -391,14 +417,19 @@ sysEvent_t *__cdecl Win_GetEvent(sysEvent_t *result)
     {
         if ( Sys_QueryWin32QuitEvent() )
             Com_Quit_f();
-        while ( PeekMessageA(&msg, 0, 0, 0, 0) )
+
+        if (IsDedicatedServer())
         {
-            if ( !GetMessageA(&msg, 0, 0, 0) )
-                Com_Quit_f();
-            g_msgTime = msg.time;
-            TranslateMessage(&msg);
-            DispatchMessageA(&msg);
+            while (PeekMessageA(&msg, 0, 0, 0, 0))
+            {
+                if (!GetMessageA(&msg, 0, 0, 0))
+                    Com_Quit_f();
+                g_msgTime = msg.time;
+                TranslateMessage(&msg);
+                DispatchMessageA(&msg);
+            }
         }
+        
         s = Sys_ConsoleInput();
         if ( s )
         {
@@ -871,18 +902,32 @@ int __stdcall WinMain(HINSTANCE__ *hInstance, HINSTANCE__ *hPrevInstance, char *
                 __debugbreak();
             }
             Com_Init(sys_cmdline);
+
+            if (!IsDedicatedServer())
+            {
+                Cbuf_AddText(0, "readStats\n");
+            }
+
             PrintWorkingDir();
             SetFocus(g_wv.hWnd);
             if ( com_script_debugger_smoke_test->current.enabled )
                 exit(31415);
             while ( 1 )
             {
-                do
+                // if not running as a game client, sleep a bit
+#ifdef KISAK_MP
+                if (g_wv.isMinimized || (com_dedicated && com_dedicated->current.integer))
+#elif KISAK_SP
+                if (g_wv.isMinimized)
+#endif
                 {
-                    Sleep(5u);
-                    Com_Frame();
+                    Sleep(5);
                 }
-                while ( !Dvar_GetBool("onlinegame") );
+
+                // run the game
+                Com_Frame();
+                
+                //while ( !Dvar_GetBool("onlinegame") );
                 //PbServerProcessEvents();
             }
         }

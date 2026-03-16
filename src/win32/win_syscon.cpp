@@ -153,20 +153,27 @@ LRESULT __stdcall ConWndProc(HWND__ *hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
     switch ( uMsg )
     {
-        case 5u:
+        case WM_SIZE:
             SetWindowPos(s_wcd.hwndBuffer, 0, 5, 70, (unsigned __int16)lParam - 15, HIWORD(lParam) - 100, 0);
             SetWindowPos(s_wcd.hwndInputLine, 0, 5, HIWORD(lParam) - 100 + 78, (unsigned __int16)lParam - 15, 20, 0);
             s_wcd.windowWidth = (unsigned __int16)lParam;
             s_wcd.windowHeight = HIWORD(lParam);
             return DefWindowProcA(hWnd, uMsg, wParam, lParam);
-        case 6u:
+        case WM_ACTIVATE:
             if ( (_WORD)wParam )
                 SetFocus(s_wcd.hwndInputLine);
             return DefWindowProcA(hWnd, uMsg, wParam, lParam);
-        case 0x10u:
-            cmdString = (char *)Com_AllocEvent(5);
-            strcpy(cmdString, "quit");
-            Sys_QueEvent(0, SE_CONSOLE, 0, 0, strlen(cmdString) + 1, cmdString);
+        case WM_CLOSE:
+            if (IsDedicatedServer())
+            {
+                cmdString = (char *)Com_AllocEvent(5);
+                strcpy(cmdString, "quit");
+                Sys_QueEvent(0, SE_CONSOLE, 0, 0, strlen(cmdString) + 1, cmdString);
+            }
+            else
+            {
+                PostQuitMessage(0);
+            }
             return 0;
         default:
             return DefWindowProcA(hWnd, uMsg, wParam, lParam);

@@ -439,6 +439,7 @@ int __cdecl Com_ControllerIndex_GetUIContextIndex(int controllerIndex)
 
 int __cdecl Com_ControllerIndexes_GetPrimary()
 {
+    // There is some extra logic here for IsDedicatedServer() but I believe it will always return 0 unless we enable splitscreen (KISAKTODO)
     return 0;
 }
 

@@ -2041,15 +2041,13 @@ cmd_function_s CL_NukeFavourites_f_VAR;
 
 void __cdecl Live_InitFavourites()
 {
-    unsigned int v0; // ecx
     unsigned int i; // [esp+0h] [ebp-4h]
 
     for ( i = 0; i < 0x29; ++i )
     {
-        v0 = i;
-        LODWORD(s_favourites[v0].uid) = 0;
-        *(unsigned int *)(v0 * 16 + 174313908) = 0;
+        s_favourites[i].uid = 0;
     }
+
     memset(s_profileInfo.m_memberfavsblob, 0, sizeof(s_profileInfo.m_memberfavsblob));
     Cmd_AddCommandInternal("getfavourites", CL_GetFavourites_f, &CL_GetFavourites_f_VAR);
     Cmd_AddCommandInternal("setfavourites", CL_SetFavourites_f, &CL_SetFavourites_f_VAR);

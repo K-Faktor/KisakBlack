@@ -565,6 +565,26 @@ inline bool IsFastFileLoad()
 
 #define IsObjFileLoad() IsFastFileLoad()
 
+extern const dvar_t *dedicated;
+inline bool IsDedicatedServer()
+{
+#ifdef KISAK_DEDICATED
+    return true;
+#else
+    return dedicated && dedicated->current.integer;
+#endif
+}
+
+#ifndef KISAK_DEDICATED
+    #ifdef KISAK_SP
+        #define DEFAULT_CFG "default.cfg"
+    #else
+        #define DEFAULT_CFG "default_mp.cfg"
+    #endif
+#else
+    #define DEFAULT_CFG "default_dedicated.cfg"
+#endif
+
 template <typename T>
 inline void AssignToSmallerType(T *dest, int src)
 {

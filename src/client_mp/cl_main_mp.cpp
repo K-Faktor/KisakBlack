@@ -1833,7 +1833,7 @@ void __cdecl CL_DownloadsComplete(int localClientNum)
 void __cdecl LoadMapLoadscreen(char *mapname)
 {
     DB_AddUserMapDir(mapname);
-    Com_LoadMapLoadingScreenFastFile();
+    Com_LoadMapLoadingScreenFastFile(mapname);
     DB_SyncXAssets();
     DB_UpdateDebugZone();
 }
@@ -2623,10 +2623,18 @@ void __cdecl CL_AllocatePerLocalClientMemory()
 {
     int maxClients; // [esp+4h] [ebp-8h]
 
-    maxClients = sv_dedicatedmaxclients->current.integer;
-    if ( cl_maxLocalClients != 1 || com_maxclients->current.integer != maxClients )
+    if (IsDedicatedServer())
     {
-        AllocatePerLocalClientMemory(1, maxClients, 0);
+        maxClients = sv_dedicatedmaxclients->current.integer;
+    }
+    else
+    {
+        maxClients = 32;
+    }
+
+    if ( cl_maxLocalClients != MAX_LOCAL_CLIENTS || com_maxclients->current.integer != maxClients )
+    {
+        AllocatePerLocalClientMemory(MAX_LOCAL_CLIENTS, maxClients, 0);
         Dvar_SetIntIfChanged((dvar_s *)com_maxclients, maxClients);
     }
 }
@@ -3846,11 +3854,7 @@ cmd_function_s CL_CmdSetNewCustomName_VAR;
 
 void __cdecl CL_InitOnceForAllClients()
 {
-    unsigned int v0; // eax
-    int i; // [esp+18h] [ebp-4h]
-
-    v0 = Sys_MillisecondsRaw();
-    srand(v0);
+    srand(Sys_MillisecondsRaw());
     Con_Init();
     CL_InitInput();
     cl_noprint = _Dvar_RegisterBool("cl_noprint", 0, 0, "Print nothing to the console");
@@ -3872,7 +3876,7 @@ void __cdecl CL_InitOnceForAllClients()
                                          3,
                                          0,
                                          "0 for no custom game mode, 1 if built in, 2 if user created custom game mode.");
-    for ( i = 0; i < 10; ++i )
+    for ( int i = 0; i < 10; ++i )
         customclass[i] = _Dvar_RegisterString(customClassDvars[i], (char *)"", 1u, "Custom class name");
     cl_hudDrawsBehindUI = _Dvar_RegisterBool("cl_hudDrawsBehindUI", 1, 0, "Should the HUD draw when the UI is up?");
     cl_voice = _Dvar_RegisterBool("cl_voice", 1, 3u, "Use voice communications");
@@ -4466,60 +4470,29 @@ void __cdecl CL_ResetStats_f()
 
 void __cdecl CL_Init(int localClientNum)
 {
-    int ControllerIndex; // eax
-
     Com_Printf(14, "----- Client Initialization -----\n");
+
     CL_ClearState(localClientNum);
-    if ( CountBitsEnabled(0xFFFFFFFF) != 32
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\client_mp\\cl_main_mp.cpp",
-                    7702,
-                    0,
-                    "%s",
-                    "CountBitsEnabled( 0xffffffff ) == 32") )
-    {
-        __debugbreak();
-    }
-    if ( CountBitsEnabled(0)
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\client_mp\\cl_main_mp.cpp",
-                    7703,
-                    0,
-                    "%s",
-                    "CountBitsEnabled( 0x00000000 ) == 0") )
-    {
-        __debugbreak();
-    }
-    if ( CountBitsEnabled(0x11111111u) != 8
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\client_mp\\cl_main_mp.cpp",
-                    7704,
-                    0,
-                    "%s",
-                    "CountBitsEnabled( 0x11111111 ) == 8") )
-    {
-        __debugbreak();
-    }
-    if ( CountBitsEnabled(0x77777777u) != 24
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\client_mp\\cl_main_mp.cpp",
-                    7705,
-                    0,
-                    "%s",
-                    "CountBitsEnabled( 0x77777777 ) == 24") )
-    {
-        __debugbreak();
-    }
+
+    //iassert (CountBitsEnabled( 0xffffffff ) == 32)
+    //iassert (CountBitsEnabled( 0x00000000 ) == 0)
+    //iassert (CountBitsEnabled( 0x11111111 ) == 8)
+    //iassert (CountBitsEnabled( 0x77777777 ) == 24)
+
     CL_ClearMutedList();
+
     CL_SetLocalClientConnectionState(localClientNum, CA_DISCONNECTED);
+
     cls.realtime = 0;
+
     Com_LocalClient_SetBeingUsed(localClientNum, 1);
+
     cl_serverLoadingMap = 0;
     cl_waitingOnServerToLoadMap[localClientNum] = 0;
     g_waitingForServer = 0;
+
     FS_DisablePureCheck(0);
-    ControllerIndex = Com_LocalClient_GetControllerIndex(localClientNum);
-    Cbuf_Execute(localClientNum, ControllerIndex);
+    Cbuf_Execute(localClientNum, Com_LocalClient_GetControllerIndex(localClientNum));
     CL_LocalClient_SetCUIFlag(localClientNum, 2);
     Com_Printf(14, "----- Client Initialization Complete -----\n");
 }

@@ -518,6 +518,15 @@ void __cdecl Sys_FrontEndSleep()
 
 int __cdecl Sys_WaitRenderer()
 {
+    if (IsDedicatedServer())
+        return 0;
+
+    if (!Sys_IsMainThread())
+        return 0;
+
+    while (Sys_QueryD3DDeviceOKEvent() && !Sys_WaitForSingleObjectTimeout(&renderCompletedEvent, 1u))
+        ;
+
     return 0;
 }
 

@@ -162,10 +162,21 @@ void Com_InitHunkMemory()
     }
     if (FS_LoadStack())
         Com_Error(ERR_FATAL, "Hunk initialization failed. File system load stack not zero");
-    if (!useFastFile->current.enabled)
+    //if (!useFastFile->current.enabled)
+    //    s_hunkTotal = 0xA000000;
+    //if (useFastFile->current.enabled)
+    //    s_hunkTotal = 0xF00000;
+
+    if (IsFastFileLoad())
+    {
+        //s_hunkTotal = IsDedicatedServer() ? 0xF00000 : 0x500000;
+        s_hunkTotal = 0xF00000; // LWSS: im just gonna give it the higher cap
+    }
+    else
+    {
         s_hunkTotal = 0xA000000;
-    if (useFastFile->current.enabled)
-        s_hunkTotal = 0xF00000;
+    }
+
     R_ReflectionProbeRegisterDvars();
     if (r_reflectionProbeGenerate->current.enabled)
         s_hunkTotal = 0x12C00000;

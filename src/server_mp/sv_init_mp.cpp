@@ -31,6 +31,11 @@
 #include <qcommon/com_gamemodes.h>
 #include <qcommon/threads.h>
 #include <stringed/stringed_hooks.h>
+#include <live/live_sessions_win.h>
+#include <live/live_win.h>
+#include <DW/dwUtils_pc.h>
+#include <client_mp/cl_main_pc_mp.h>
+#include <qcommon/files.h>
 
 const dvar_t *sv_gametype;
 const dvar_t *sv_privateClients;
@@ -381,49 +386,39 @@ void __cdecl SV_SetXUIDConfigStrings()
 
 void __cdecl SV_Startup(int controllerIndex)
 {
-    if ( svs.initialized
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_init_mp.cpp",
-                    563,
-                    0,
-                    "%s",
-                    "!svs.initialized") )
+    iassert(svs.initialized);
+
+    if (IsDedicatedServer())
     {
-        __debugbreak();
-    }
-    SV_ResetDWState();
-    Dvar_SetBoolByName("r_gfxopt_water_simulation", 0);
+        SV_ResetDWState();
+        Dvar_SetBoolByName("r_gfxopt_water_simulation", 0);
 
 #ifdef KISAK_LIVE
-    dwNetStart(1);
-    while ( g_dwNetStatus == DW_NET_STARTING_ONLINE )
-        dwNetPump();
+        dwNetStart(1);
+        while (g_dwNetStatus == DW_NET_STARTING_ONLINE)
+            dwNetPump();
 
-    if ( g_svdedicatedauthstate != SV_DWAUTHORIZED )
-    {
-        DW_DedicatedLogonStart(controllerIndex);
-        while ( g_svdedicatedauthstate == SV_DWAUTHORIZING )
-            DW_DedicatedLogonComplete(0);
-        if ( g_svdedicatedauthstate != SV_DWAUTHORIZED )
-            Com_Error(ERR_DROP, "Dedicated server authentication failure.\n");
-        Com_Printf(0, "should be logged in ok\n");
-    }
+        if (g_svdedicatedauthstate != SV_DWAUTHORIZED)
+        {
+            DW_DedicatedLogonStart(controllerIndex);
+            while (g_svdedicatedauthstate == SV_DWAUTHORIZING)
+                DW_DedicatedLogonComplete(0);
+            if (g_svdedicatedauthstate != SV_DWAUTHORIZED)
+                Com_Error(ERR_DROP, "Dedicated server authentication failure.\n");
+            Com_Printf(0, "should be logged in ok\n");
+        }
 #endif
-    //BLOPS_NULLSUB();
-    if ( com_maxclients->current.integer > 32
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_init_mp.cpp",
-                    607,
-                    0,
-                    "%s\n\t(com_maxclients->current.integer) = %i",
-                    "(com_maxclients->current.integer <= 32)",
-                    com_maxclients->current.integer) )
-    {
-        __debugbreak();
     }
+
+    //BLOPS_NULLSUB();
+
+    iassert(com_maxclients->current.integer <= 32);
+    
     if ( g_entsInSnapshot )
         Dvar_SetInt((dvar_s *)g_entsInSnapshot, 1024);
+
     svs.initialized = 1;
+
     Dvar_SetBool((dvar_s *)com_sv_running, 1);
 }
 
@@ -565,8 +560,14 @@ void __cdecl    SV_SpawnServer(int controllerIndex, char *server, int mapIsPrelo
     {
         DB_AddUserMapDir(server);
         FS_DisablePureCheck(1);
-        Com_LoadMapLoadingScreenFastFile();
+        Com_LoadMapLoadingScreenFastFile(server);
     }
+
+    if (!mapIsPreloaded && !IsDedicatedServer())
+    {
+        CL_SetupClientsForIngame();
+    }
+
     CL_AllocatePerLocalClientMemory();
     Scr_ParseGameTypeList();
     SV_SetGametype();
@@ -734,21 +735,112 @@ void __cdecl    SV_SpawnServer(int controllerIndex, char *server, int mapIsPrelo
     else
         CCS_ClearConstantConfigStrings();
     R_BeginRemoteScreenUpdate();
-    if ( SV_GetServerThreadOwnsGame()
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_init_mp.cpp",
-                    1338,
-                    0,
-                    "%s",
-                    "SV_GetServerThreadOwnsGame() == 0") )
+
+    if (!IsDedicatedServer() && !G_ExitAfterToolComplete())
     {
-        __debugbreak();
+        if (!g_serverSession.sessionHandle)
+        {
+            Session_Init();
+            Session_StartHost(&g_serverSession, 1, Com_GetPrivateClients(), 0x20 - Com_GetPrivateClients());
+        }
+        else
+        {
+            //I_strncpyz(g_matchmakingInfo->m_membermapname, sv_mapname->current.string, 0x21);
+            //g_matchmakingInfo->m_memberGAME_TYPE = Com_GametypeToInt(g_gametype->current.string);
+            //Session_Modify(0, &g_serverSession, 1, Com_GetPrivateClients(), 0x20 - Com_GetPrivateClients());
+        }
     }
+
+    iassert(SV_GetServerThreadOwnsGame() == 0);
+
     SV_SetXUIDConfigStrings();
     Pregame_Reset();
     SV_SetServerDvarsBeforeScriptsInit();
     ProfLoad_Begin("Init game");
     SV_InitGameProgs(savepersist);
+    // === AFTER THIS POINT, IDA GAVE UP AND I FED THE ASM TO AISLOP. ===
+    ProfLoad_End();
+
+    SV_CreateBaseline();
+    Demo_SetDemoClientState(0);
+
+    for (i = 0; i < com_maxclients->current.integer; ++i)
+    {
+        client_t *cl = &svs.clients[i];
+
+        if (cl->header.state >= 3)
+        {
+            // If client had a script-controlled slot, drop them
+            if (cl->scriptId != 0)
+            {
+                SV_DropClient(cl, "EXE_PLAYERKICKED", false, true);
+                continue;
+            }
+
+            const char *denied = ClientConnect(i, cl->scriptId);
+
+            if (denied)
+            {
+                SV_DropClient(cl, denied, true, true);
+                continue;
+            }
+
+            // Restore connected state
+            cl->header.state = 3;
+        }
+    }
+
+    const char *names;
+    const char *checksums;
+
+    if (sv_pure->current.enabled)
+    {
+        FS_LoadedIwds(&checksums, &names);
+
+        if (!*checksums)
+            Com_PrintWarning(15, "WARNING: sv_pure set but no IWD files loaded\n");
+
+        Dvar_SetString((dvar_s*)sv_iwds, checksums);
+        Dvar_SetString((dvar_s*)sv_iwdNames, names);
+    }
+    else
+    {
+        Dvar_SetString((dvar_s *)sv_iwds, "");
+        Dvar_SetString((dvar_s *)sv_iwdNames, "");
+    }
+
+    FS_ReferencedIwds(&checksums, &names);
+
+    Dvar_SetString((dvar_s*)sv_referencedIwds, checksums);
+    Dvar_SetString((dvar_s*)sv_referencedIwdNames, names);
+
+    Dvar_SetString((dvar_s*)sv_referencedFFCheckSums, DB_ReferencedFFChecksums());
+    Dvar_SetString((dvar_s*)sv_referencedFFNames, DB_ReferencedFFNameList());
+
+    SV_SaveSystemInfo();
+
+    if (Dvar_GetBool("playlist_enabled"))
+    {
+        int maxplayers = Dvar_GetInt("party_maxplayers");
+        Dvar_SetIntByName("sv_maxclients", maxplayers);
+    }
+
+    SV_Heartbeat_f();
+
+    ProfLoad_Deactivate();
+
+    Com_Printf(15, "-----------------------------------\n");
+
+    if (G_ExitAfterToolComplete())
+        Dvar_SetBoolByName("sv_punkbuster", false);
+
+    //DisablePbSv();
+
+    R_EndRemoteScreenUpdate(NULL);
+
+    if (G_OnlyConnectingPaths())
+        Path_InitPaths();
+
 }
 
 const int ikStateSize = 3680;
@@ -894,7 +986,7 @@ void __cdecl SV_Init()
                                                 32,
                                                 0,
                                                 "Maximum number of private clients allowed on the server");
-    sv_hostname = _Dvar_RegisterString("sv_hostname", "BlackOpsPublic", 5u, "Host name of the server");
+    sv_hostname = _Dvar_RegisterString("sv_hostname", IsDedicatedServer() ? "BlackOpsPublic" : "BlackOpsPrivate", 5u, "Host name of the server");
     sv_noname = _Dvar_RegisterString(
                                 "sv_noname",
                                 "Unknown Soldier",
@@ -964,7 +1056,7 @@ void __cdecl SV_Init()
                                         "sv_maxclients",
                                         18,
                                         1,
-                                        sv_dedicatedmaxclients->current.integer,
+                                        IsDedicatedServer() ? sv_dedicatedmaxclients->current.integer : 30,
                                         5u,
                                         "The maximum number of clients that can connect to a server");
     sv_maxRate = _Dvar_RegisterInt("sv_maxRate", 5000, 0, 25000, 5u, "Maximum bit rate");
@@ -1167,8 +1259,6 @@ void __cdecl SV_DropAllClients()
 
 void __cdecl SV_Shutdown(const char *finalmsg)
 {
-    const char *v1; // eax
-
     if ( !Sys_IsMainThread()
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_init_mp.cpp",
@@ -1186,8 +1276,10 @@ void __cdecl SV_Shutdown(const char *finalmsg)
             Demo_End(0);
         Com_Printf(15, "----- Server Shutdown -----\n");
         SV_FinalMessage(finalmsg);
-        v1 = va("shutting down: %s", finalmsg);
-        SV_SysLog_LogMessage(5, v1);
+        if (IsDedicatedServer())
+        {
+            SV_SysLog_LogMessage(5, va("shutting down: %s", finalmsg));
+        }
         //BLOPS_NULLSUB();
         SV_ShutdownGameProgs();
         SV_DropAllClients();
@@ -1197,6 +1289,10 @@ void __cdecl SV_Shutdown(const char *finalmsg)
         Dvar_SetBool((dvar_s *)com_sv_running, 0);
         CL_FreePerLocalClientMemory();
         memset((unsigned __int8 *)&svs, 0, sizeof(svs));
+        if (!IsDedicatedServer())
+        {
+            Session_DeleteSession(&g_serverSession);
+        }
         //*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8) = 0;
         bgs = 0;
         Com_Printf(15, "---------------------------\n");

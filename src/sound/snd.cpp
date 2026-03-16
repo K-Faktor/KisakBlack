@@ -37,8 +37,8 @@ bool __cdecl SND_ShouldInit()
 {
     if ( PC_StartWithNoSounds() )
         return 0;
-    else
-        return 0;
+
+    return !IsDedicatedServer() && IsFastFileLoad();
 }
 
 void __cdecl SND_SetPosition(unsigned int index, float *org)

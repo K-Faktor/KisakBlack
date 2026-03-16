@@ -117,6 +117,10 @@ unsigned __int16 __cdecl DevGui_RegisterMenu(unsigned __int16 parentHandle, cons
 
 int __cdecl DevGui_CreateMenu()
 {
+    if (!IsDedicatedServer())
+    {
+        // KISAKTODO: devgui 
+    }
     return 0;
 }
 
@@ -361,7 +365,15 @@ void __cdecl DevGui_AddGraph(const char *path, DevGraph *graph)
     }
     if ( !path && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\devgui\\devgui.cpp", 594, 0, "%s", "path") )
         __debugbreak();
-    DevGui_IsInitialized();
+
+
+    if (DevGui_IsInitialized())
+        return;
+
+    if (IsDedicatedServer())
+        return;
+
+    // KISAKTODO: devgui
 }
 
 void __cdecl DevGui_RemoveMenu(const char *path)

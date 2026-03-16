@@ -83,6 +83,12 @@
 #include <cgame_mp/cg_ents_mp.h>
 #include <bgame/bg_weapons_def.h>
 #include <universal/com_workercmds.h>
+#include <gfx_d3d/r_dvars.h>
+#include <cgame/cg_sound.h>
+#include <win32/win_voice.h>
+#include <gfx_d3d/r_cinematic.h>
+#include <cgame/cg_clouds.h>
+#include <devgui/devgui.h>
 
 cmd_function_s Com_Error_f_VAR;
 cmd_function_s Com_Crash_f_VAR;
@@ -144,6 +150,7 @@ const dvar_t *com_freemoveScale;
 const dvar_t *disconnected_ctrls;
 const dvar_t *com_first_time;
 const dvar_t *com_first_time_pc;
+const dvar_t *dedicated;
 const dvar_t *com_maxfps;
 const dvar_t *arcademode;
 const dvar_t *zombiemode;
@@ -382,12 +389,21 @@ void __cdecl Com_PrintMessage(int channel, char *msg, int error)
         }
         else
         {
-            if ( channel != 6 && Sys_IsRemoteDebugServer() && Sys_DebugSocketReady(0) )
+            if ( channel != 6  )
             {
-                Sys_WriteDebugSocketMessageType(0x2Au);
-                Sys_WriteDebugSocketString(msg);
-                Sys_EndWriteDebugSocket();
+                if (Sys_IsRemoteDebugServer() && Sys_DebugSocketReady(0))
+                {
+                    Sys_WriteDebugSocketMessageType(0x2Au);
+                    Sys_WriteDebugSocketString(msg);
+                    Sys_EndWriteDebugSocket();
+                }
+                
+                if (!IsDedicatedServer())
+                {
+                    //CL_ConsolePrint(0, channel, msg, 0, 0, error * 32);
+                }
             }
+
             if ( *msg == 94 && msg[1] )
                 msg += 2;
             if ( channel != 6
@@ -515,6 +531,12 @@ void Com_PrintWarning(int channel, const char *fmt, ...)
 void __cdecl Com_Shutdown(const char *finalmsg)
 {
     Com_ShutdownInternal(finalmsg);
+
+    if (!IsDedicatedServer())
+    {
+        CL_InitRenderer();
+        Com_AssetLoadUI();
+    }
 }
 
 void __cdecl Com_ShutdownInternal(const char *finalmsg)
@@ -1479,26 +1501,32 @@ void __cdecl Com_RunAutoExec(int localClientNum, int controllerIndex)
 
 void __cdecl Com_ExecStartupConfigs(int localClientNum, const char *configFile)
 {
-    const char *v2; // eax
-    int ControllerIndex; // eax
-    int v4; // eax
-    int v5; // eax
-
-    Cbuf_AddText(localClientNum, "exec default_dedicated.cfg\n");
+    Cbuf_AddText(localClientNum, "exec " DEFAULT_CFG "\n");
     Cbuf_AddText(localClientNum, "exec language.cfg\n");
+
+#ifndef KISAK_DEDICATED
+    if (IsDedicatedServer())
+    {
+        Cbuf_AddText(localClientNum, "exec init_dvars_pc_dedicated_mp.cfg\n");
+    }
+    else
+    {
+        Cbuf_AddText(localClientNum, "exec init_dvars_pc_mp.cfg\n");
+    }
+#endif
+
     if ( configFile )
     {
-        v2 = va("exec %s\n", configFile);
-        Cbuf_AddText(localClientNum, v2);
+        Cbuf_AddText(localClientNum, va("exec %s\n", configFile));
     }
-    ControllerIndex = Com_LocalClient_GetControllerIndex(localClientNum);
-    Cbuf_Execute(localClientNum, ControllerIndex);
-    v4 = Com_LocalClient_GetControllerIndex(localClientNum);
-    Com_RunAutoExec(localClientNum, v4);
+
+    Cbuf_Execute(localClientNum, Com_LocalClient_GetControllerIndex(localClientNum));
+    Com_RunAutoExec(localClientNum, Com_LocalClient_GetControllerIndex(localClientNum));
+
     if ( Com_SafeMode() )
         Cbuf_AddText(localClientNum, "exec safemode_mp.cfg\n");
-    v5 = Com_LocalClient_GetControllerIndex(localClientNum);
-    Cbuf_Execute(localClientNum, v5);
+
+    Cbuf_Execute(localClientNum, Com_LocalClient_GetControllerIndex(localClientNum));
 }
 
 void __cdecl Com_InitUI3DCallback()
@@ -1508,6 +1536,18 @@ void __cdecl Com_InitUI3DCallback()
 
 void __cdecl Com_InitUIAndCommonXAssets()
 {
+    if (!IsDedicatedServer())
+    {
+        Com_UnloadLevelFastFiles();
+        CL_AllocatePerLocalClientMemory();
+        RB_Resource_Callback(Com_InitUI3DCallback);
+        RB_Resource_Flush();
+
+        R_UI3D_SetupTextureWindow(0, 0.0f, 0.0f, 1.0f, 1.0f);
+        ScreenPlacement *scrPlace = R_UI3D_ScrPlaceFromTextureWindow(0);
+        ScrPlace_SetupUI3DForFullscreen(scrPlace, &scrPlaceFull);
+    }
+
     DB_LoadFastFilesForPC();
 }
 
@@ -1518,27 +1558,43 @@ unsigned int __cdecl Com_CalculateStreamBuffer()
 
 void __cdecl Com_Init(char *commandLine)
 {
-    void *Value; // eax
-    char *v2; // eax
-    void *v3; // eax
-
-    Value = Sys_GetValue(2);
-    //if ( _setjmp3(Value, 0) )
-    if ( _setjmp((int *)Value) )
+    if ( _setjmp((int *)Sys_GetValue(2)) )
     {
-        v2 = va("Error during initialization:\n%s\n", com_errorMessage);
-        Sys_Error(v2);
+        Sys_Error(va("Error during initialization:\n%s\n", com_errorMessage));
     }
+
     Com_Init_Try_Block_Function(commandLine);
+
     Monkey_Start();
-    v3 = Sys_GetValue(2);
-    //if ( !_setjmp3(v3, 0) )
-    if ( !_setjmp((int*)v3) )
+
+    if ( !_setjmp((int*)Sys_GetValue(2)) )
         Com_AddStartupCommands();
+
     if ( !I_strcmp(sv_mapname->current.string, "") )
         Com_InitUIAndCommonXAssets();
+
     if ( com_errorEntered )
         Com_ErrorCleanup();
+
+#ifndef KISAK_DEDICATED
+    if (!com_sv_running->current.enabled && !IsDedicatedServer())
+    {
+        if (_setjmp((int *)Sys_GetValue(2)))
+        {
+            Sys_Error(va("Error during initialization:\n%s\n", com_errorMessage));
+        }
+
+        if (!cls.rendererStarted)
+        {
+            CL_InitRenderer();
+        }
+
+        R_BeginRemoteScreenUpdate();
+        CL_StartHunkUsers();
+        R_EndRemoteScreenUpdate(NULL);
+    }
+#endif
+
     if ( !com_sv_running->current.enabled )
     {
         if ( *Dvar_GetString("com_errorMessage") )
@@ -1546,9 +1602,13 @@ void __cdecl Com_Init(char *commandLine)
         //BLOPS_NULLSUB();
         Com_LoadFrontEnd();
     }
-    UI_LoadArenas();
-    UI_LoadCustomMatchGameTypes();
-    UI_LoadMaps();
+
+    if (IsDedicatedServer())
+    {
+        UI_LoadArenas();
+        UI_LoadCustomMatchGameTypes();
+        UI_LoadMaps();
+    }
 }
 
 int lastErrorTime;
@@ -1568,6 +1628,10 @@ void Com_ErrorCleanup()
     LargeLocalReset();
     R_PopRemoteScreenUpdate();
     Com_SyncThreads();
+#ifndef KISAK_DEDICATED
+    if (!IsDedicatedServer())
+        R_ComErrorCleanup();
+#endif
     Cmd_ComErrorCleanup();
     Dvar_SetInAutoExec(0);
     if ( useFastFile->current.enabled )
@@ -1699,7 +1763,6 @@ void __cdecl Com_Init_Try_Block_Function(char *commandLine)
 {
     char *BuildVersion; // eax
     int ControllerIndex; // eax
-    int v3; // eax
     void *v5; // ecx
     unsigned int v6; // eax
     const char *max; // [esp+8h] [ebp-5Ch]
@@ -1720,6 +1783,7 @@ void __cdecl Com_Init_Try_Block_Function(char *commandLine)
     Com_InitDvars();
     IK_InitSystem();
     initStartTime = 0;
+
     if ( useFastFile->current.enabled )
     {
         PMem_Init();
@@ -1729,46 +1793,63 @@ void __cdecl Com_Init_Try_Block_Function(char *commandLine)
         initStartTime = Sys_Milliseconds();
         PMem_BeginAlloc("$init", 1u, TRACK_MISC);
     }
+
     Stream_Init();
     //BLOPS_NULLSUB();
+
     if ( useFastFile->current.enabled )
         Com_InitCodeXAssets();
+
     CL_InitKeyCommands();
     CL_InitGamepadCommands();
     CL_InitGamepadAxisBindings();
+
     FS_InitFilesystem(1);
+
     Con_InitChannels();
     TaskManager2_Init();
+
 #ifdef KISAK_LIVE
     dwInit();
 #endif
+
     DDL_Init();
     Com_InitClientGameStates();
     Con_Restricted_SecureConfigs();
+
     for ( localClientNum = 0; localClientNum < 1; ++localClientNum )
     {
         Com_LocalClient_SetControllerIndex(localClientNum, localClientNum);
         Com_StartupConfigs(localClientNum);
     }
+
     ControllerIndex = Com_LocalClient_GetControllerIndex(0);
     Cbuf_Execute(0, ControllerIndex);
     Con_Restricted_InitLists();
+
     if ( (dvar_modifiedFlags & 0x20) != 0 )
         Com_InitDvars();
-    v3 = Com_CalculateStreamBuffer();
-    R_StreamSetInitData(v3);
+
+    R_StreamSetInitData(Com_CalculateStreamBuffer());
     com_recommendedSet = _Dvar_RegisterBool("com_recommendedSet", 0, 1u, "Use recommended settings");
     Com_CheckSetRecommended(0);
     Com_StartupVariable(0);
+
     if ( !useFastFile->current.enabled )
         SEH_UpdateLanguageInfo();
 
-    CL_InitDedicated();
+    if (IsDedicatedServer())
+    {
+        CL_InitDedicated();
+    }
 
     Com_InitHunkMemory();
     Hunk_UserStartup();
+
     dvar_modifiedFlags &= ~1u;
+
     com_codeTimeScale = 1.0f;
+
     collectors = _Dvar_RegisterBool("collectors", 0, 0x40u, "Set to true if the player has the collector's edition");
     primaryWeaponOffset = _Dvar_RegisterInt(
                                                     "primaryWeaponOffset",
@@ -1785,7 +1866,9 @@ void __cdecl Com_Init_Try_Block_Function(char *commandLine)
     scr_codpointsperchallenge = _Dvar_RegisterFloat("scr_codpointsperchallenge", 0.1, 0.1, 0.1, 0x40u, "");
     scr_rankXpCap = _Dvar_RegisterInt("scr_rankXpCap", 0, 0, 0, 0x40u, "");
     scr_codPointsCap = _Dvar_RegisterInt("scr_codPointsCap", 0, 0, 0, 0x40u, "");
+
     ProfLoad_Init();
+
     if ( com_developer->current.integer )
     {
         Cmd_AddCommandInternal("error", Com_Error_f, &Com_Error_f_VAR);
@@ -1793,31 +1876,85 @@ void __cdecl Com_Init_Try_Block_Function(char *commandLine)
         Cmd_AddCommandInternal("freeze", Com_Freeze_f, &Com_Freeze_f_VAR);
         Cmd_AddCommandInternal("assert", Com_Assert_f, &Com_Assert_f_VAR);
     }
+
     Cmd_AddCommandInternal("quit", (void(__cdecl *)())Com_Quit_f, &Com_Quit_f_VAR);
     Cmd_AddCommandInternal("writeconfig", Com_WriteConfig_f, &Com_WriteConfig_f_VAR);
     Cmd_AddCommandInternal("writekeyconfig", Com_WriteKeyConfig_f, &Com_WriteKeyConfig_f_VAR);
     Cmd_AddCommandInternal("savekeys", Com_SaveKeys_f, &Com_SaveKeys_f_VAR);
     Cmd_AddCommandInternal("restorekeys", Com_RestoreKeys_f, &Com_RestoreKeys_f_VAR);
     Cmd_AddCommandInternal("writedefaults", Com_WriteDefaults_f, &Com_WriteDefaults_f_VAR);
+
     version = _Dvar_RegisterString("version", (char *)"", 0x40u, "Game version");
     Dvar_SetString((dvar_s *)version, va("%s %s build %s %s", Com_GetBuildDisplayName(), Com_GetBuildName(), Com_GetBuildVersion(), "win-x86"));
     shortversion = _Dvar_RegisterString("shortversion", "7", 0x44u, "Short game version");
+
     Sys_Init();
     QueryPerformanceCounter(&PerformanceCount);
     Netchan_Init(PerformanceCount.QuadPart);
+
     Scr_InitVariables(SCRIPTINSTANCE_SERVER);
     Scr_Init(SCRIPTINSTANCE_SERVER);
+
     Com_SetScriptSettings();
     XAnimInit();
     DObjInit();
     SV_Init();
     NET_Init();
     RMsg_Init();
-    CL_InitOnceForAllClients();
-    Com_LocalClient_SetPrimary(0, 1);
+
+#ifndef KISAK_DEDICATED
+    Dvar_ClearModified((dvar_s *)dedicated);
+#endif
+
+    if (!IsDedicatedServer())
+    {
+        CL_InitOnceForAllClients();
+        for (int localClientNum = 0; localClientNum < 1; ++localClientNum)
+        {
+            CL_Init(localClientNum);
+        }
+    }
+    else
+    {
+        CL_InitOnceForAllClients();
+        Com_LocalClient_SetPrimary(0, 1);
+    }
+
+
     com_frameTime = Sys_Milliseconds();
     Com_StartupVariable(0);
+
+#ifndef KISAK_DEDICATED
+    if (IsDedicatedServer())
+    {
+        R_InitWorkerThreads();
+    }
+    else
+    {
+        r_smp_worker_threads = _Dvar_RegisterInt("r_smp_worker_threads",
+            Sys_GetDefaultWorkerThreadsCount(),
+            2,
+            8,
+            0,
+            "Number of worker threads");
+
+        R_InitThreads();
+
+        //KISAK_NULLSUB();
+        CL_InitRenderer();
+        Expression_Init();
+        //KISAK_NULLSUB();
+        iassert(!cls.soundStarted);
+        cls.soundStarted = 1;
+        SND_Init();
+        CG_SndGameReset();
+        Voice_Init();
+        R_Cinematic_Init();
+    }
+#else
     R_InitWorkerThreads();
+#endif
+
     Sys_LoadingKeepAlive();
     Live_Init();
     PC_InitSigninState();
@@ -1828,6 +1965,7 @@ void __cdecl Com_Init_Try_Block_Function(char *commandLine)
     Demo_InitFileHandlerSystem();
     mjpeg_initonce();
     COM_PlayIntroMovies();
+
     if ( useFastFile->current.enabled )
     {
         PMem_EndAlloc("$init", 1u);
@@ -1835,6 +1973,7 @@ void __cdecl Com_Init_Try_Block_Function(char *commandLine)
         v6 = Sys_Milliseconds();
         Com_Printf(16, "end $init %d ms\n", v6 - initStartTime);
     }
+
     R_EndRemoteScreenUpdate(0);
     com_fullyInitialized = 1;
     Com_Printf(16, "--- Common Initialization Complete ---\n");
@@ -1898,10 +2037,15 @@ void __cdecl Com_Assert_f()
     ;
 }
 
-int COM_PlayIntroMovies()
+void COM_PlayIntroMovies()
 {
-    return 1;
+    if (!IsDedicatedServer())
+    {
+        // KISAKTODO: intro movies
+    }
 }
+
+static const char *g_dedicatedEnumNames[4] = { "listen server", "dedicated LAN server", "dedicated internet server", NULL }; // idb
 
 void Com_InitDvars()
 {
@@ -1920,6 +2064,7 @@ void Com_InitDvars()
                                                  (char *)"",
                                                  0,
                                                  "String representing the disconnected controllers");
+    // KISAKTODO: cg_playerState (#1)
     com_first_time = _Dvar_RegisterInt(
                                          "com_first_time",
                                          0,
@@ -1934,6 +2079,12 @@ void Com_InitDvars()
                                                 1,
                                                 1u,
                                                 "non zero if the profile has never run the game before (only accurate after the iis)");
+    // KISAKTODO: cg_playerState (#2)
+#ifndef KISAK_DEDICATED
+    dedicated = _Dvar_RegisterEnum("dedicated", g_dedicatedEnumNames, 0, 32, "Dedicated Server");
+    if (dedicated->current.integer)
+        _Dvar_RegisterEnum("dedicated", g_dedicatedEnumNames, 0, 64, "Dedicated Server");
+#endif
     com_maxfps = _Dvar_RegisterInt("com_maxfps", 85, 0, 1000, 1u, "Cap frames per second");
     arcademode = _Dvar_RegisterBool("arcademode", 0, 0x100u, "Current game is an arcade mode game");
     zombiemode = _Dvar_RegisterBool("zombiemode", 0, 0x40u, "Current game is an zombie game");
@@ -1946,6 +2097,12 @@ void Com_InitDvars()
     zombietron = _Dvar_RegisterBool("zombietron", 0, 0x40u, "Current game is an zombietron top down game");
     zombietron_discovered = _Dvar_RegisterBool("zombietron_discovered", 0, 0x4001u, "Zombietron mode discovered");
     zombiefive_discovered = _Dvar_RegisterBool("zombiefive_discovered", 0, 0x4001u, "Zombie Five map discovered");
+
+    // KISAKTODO
+    //zombiemode_path_minz_bias
+    //zombietron_discovered_override
+    //zombiefive_discovered_override
+
     _Dvar_RegisterBool(
         "zombiefive_norandomchar",
         0,
@@ -1953,11 +2110,30 @@ void Com_InitDvars()
         "Forces no random character when following the end game credits");
     blackopsmode = _Dvar_RegisterBool("blackopsmode", 0, 0x100u, "Current game is a blackops game");
     spmode = _Dvar_RegisterBool("spmode", 0, 0x100u, "Current game is a sp game");
+#ifdef KISAK_DEDICATED
     onlinegame = _Dvar_RegisterBool(
                                  "onlinegame",
                                  1,
                                  0x40u,
                                  "Current game is an online game with stats, custom classes, unlocks");
+#else
+    if (IsDedicatedServer())
+    {
+        onlinegame = _Dvar_RegisterBool(
+            "onlinegame",
+            true,
+            0x40u,
+            "Current game is an online game with stats, custom classes, unlocks");
+    }
+    else
+    {
+        onlinegame = _Dvar_RegisterBool(
+            "onlinegame",
+            false,
+            0,
+            "Current game is an online game with stats, custom classes, unlocks");
+    }
+#endif
     xblive_rankedmatch = _Dvar_RegisterBool("xblive_rankedmatch", 0, 4u, "Current game is a ranked match");
     xblive_privatematch = _Dvar_RegisterBool("xblive_privatematch", 0, 4u, "Current game is a private match");
     useFastFile = _Dvar_RegisterBool("useFastFile", 1, 0x10u, "Enables loading data from fast files.");
@@ -2063,6 +2239,26 @@ void Com_InitDvars()
     band_dedicated = _Dvar_RegisterInt("band_dedicated", 2048000, 0, 0x7FFFFFFF, 0, ">18 player bandwidth req'd");
     G_RegisterRegisterToolDvars();
     Pregame_RegisterDvars();
+
+    // KISAKTODO: add cheats
+    //dword_355E974 = _Dvar_RegisterBool("sv_EnableDevCheats", 0, 0x4000, &String);
+    //dword_35A03DC = _Dvar_RegisterBool("sv_NoClip", 0, 0x4000, &String);
+    //dword_359FB44 = _Dvar_RegisterBool("sv_FullAmmo", 0, 0x4000, &String);
+    //dword_359EB1C = _Dvar_RegisterBool("sv_InfiniteSprint", 0, 0x4000, &String);
+    //dword_359EB04 = _Dvar_RegisterBool("sv_RadarAlwaysOn", 0, 0x4000, &String);
+    //dword_355E8F0 = _Dvar_RegisterBool("sv_Invisible", 0, 0x4000, &String);
+    //dword_359EB0C = _Dvar_RegisterBool("sv_SuperPenetrate", 0, 0x4000, &String);
+    //dword_35A03B8 = _Dvar_RegisterBool("sv_TripleBullet", 0, 0x4000, &String);
+    //dword_355E8B0 = _Dvar_RegisterBool("sv_QuickHealthRecharge", 0, 0x4000, &String);
+    //dword_355E958 = _Dvar_RegisterBool("sv_InstantReload", 0, 0x4000, &String);
+    //dword_35A0364 = _Dvar_RegisterBool("sv_3xEXP", 0, 0x4000, &String);
+    //dword_359EA10 = _Dvar_RegisterBool("sv_UnlockAllIntel", 0, 0x4000, &String);
+    //dword_35B03F4 = _Dvar_RegisterBool("sv_UnlockAllSlots", 0, 0x4000, &String);
+    //dword_35A03A4 = _Dvar_RegisterBool("sv_DoubleCodPoints", 0, 0x4000, &String);
+    //dword_355E8C0 = _Dvar_RegisterBool("sv_SetAllFree", 0, 0x4000, &String);
+    //dword_35B03FC = _Dvar_RegisterBool("sv_EnableSuperuser", 0, 0x4000, &String);
+    //dword_359EA28 = _Dvar_RegisterBool("sv_MakeMeHost", 0, 0x4000, &String);
+    //dword_35A035C = _Dvar_RegisterBool("sv_DisableTheatre", 0, 0x4000, &String);
 }
 
 void __cdecl Com_StartupConfigs(int localClientNum)
@@ -2136,7 +2332,16 @@ void __cdecl Com_WriteConfigToFile(int localClientNum, char *filename)
     if ( f )
     {
         FS_Printf(f, (char*)"// generated by Call of Duty, do not modify\n");
+#ifndef KISAK_DEDICATED
+        if (!IsDedicatedServer())
+        {
+            FS_Printf(f, (char*)"unbindall\n");
+            Key_WriteBindings(localClientNum, f);
+            Gamepad_WriteBindings(localClientNum, f);
+        }
+#else
         Gamepad_WriteBindings(localClientNum, f);
+#endif
         Dvar_WriteVariables(f);
         Con_WriteFilterConfigString(f);
         FS_FCloseFile(f);
@@ -2178,6 +2383,15 @@ void __cdecl Com_WriteKeyConfigToFile(int localClientNum, char *filename)
     if ( f )
     {
         FS_Printf(f, (char *)"// generated by Call of Duty, do not modify\n");
+
+#ifndef KISAK_DEDICATED
+        if (!IsDedicatedServer())
+        {
+            FS_Printf(f, (char*)"unbindall\n");
+            FS_Printf(f, (char*)"unbindallaxis\n");
+            Key_WriteBindings(localClientNum, f);
+        }
+#endif
         dvars[0] = "sensitivity";
         dvars[1] = "cl_freelook";
         dvars[2] = "ui_mousePitch";
@@ -2238,14 +2452,64 @@ double __cdecl Com_GetTimescaleForSnd()
         return com_timescale->current.value * dev_timescale->current.value * com_codeTimeScale;
 }
 
-int Com_LoadUiFastFile()
+void Com_LoadUiFastFile()
 {
-    return 1;
+    // this doesn't show in IDA, but you can actually find it in the asm here
+    // I just byte patch the ASM to 1 instead of 0 in a cmp and it shows it.
+    XZoneInfo zoneInfo[4];
+
+    if (!IsDedicatedServer())
+    {
+        unsigned int zone = 0;
+
+        if (IsFastFileLoad())
+        {
+            zoneInfo[zone].name = 0;
+            zoneInfo[zone].allocFlags = 0;
+            zoneInfo[zone].freeFlags = 0x800;
+            zone++;
+            DB_LoadXAssets(zoneInfo, zone, 0);
+        }
+
+        zone = 0;
+
+        CL_AllocatePerLocalClientMemory();
+        RB_Resource_Callback(Com_InitUI3DCallback);
+        RB_Resource_Flush();
+        R_UI3D_SetupTextureWindow(0, 0.0f, 0.0f, 1.0f, 1.0f);
+
+        ScreenPlacement *scrPlace = R_UI3D_ScrPlaceFromTextureWindow(0);
+        ScrPlace_SetupUI3DForFullscreen(scrPlace, &scrPlaceFull);
+
+        zoneInfo[zone].name = "ui_mp";
+        zoneInfo[zone].allocFlags = 0x4000000;
+        zoneInfo[zone].freeFlags = 0;
+        zone++;
+
+        zoneInfo[zone].name = "ui_viewer_mp";
+        zoneInfo[zone].allocFlags = 0x2000000;
+        zoneInfo[zone].freeFlags = 0;
+        zone++;
+
+        if (fs_usermapDir && fs_usermapDir->current.string[0])
+        {
+            Dvar_SetStringByName("fs_usermapdir", (char*)"");
+        }
+
+        DB_LoadXAssets(zoneInfo, zone, 0);
+    }
 }
 
-void __cdecl Com_LoadMapLoadingScreenFastFile()
+void __cdecl Com_LoadMapLoadingScreenFastFile(const char *mapName)
 {
-    ;
+    if (!IsDedicatedServer())
+    {
+        //track_set_max_memory_level(mapName);
+        DB_ResetZoneSize(0);
+        if (useFastFile->current.enabled)
+            DB_ReleaseXAssets();
+        UI_SetLoadingScreenMaterial(mapName);
+    }
 }
 
 void __cdecl Com_UnloadLevelFastFiles()
@@ -2273,7 +2537,7 @@ void __cdecl Com_LoadLevelFastFiles(char *mapName)
 
     zoneCount = 0;
     DB_ResetZoneSize(0);
-    UI_SetLoadingScreenMaterial();
+    UI_SetLoadingScreenMaterial(mapName);
     Com_sprintf(levelPatchZoneName, 0x40u, "%s_patch", mapName);
     ControllerIndex = Com_LocalClient_GetControllerIndex(0);
     Cbuf_ExecuteBuffer(0, ControllerIndex, (char *)"ui_animate connect * meet 500 1;\n");
@@ -2417,10 +2681,11 @@ void Com_LoadCommonFastFile()
 
 void __cdecl Com_LoadFrontEnd()
 {
-    // KISAKTODO: seems missing?
-#if 0
     Dvar_SetBool((dvar_s *)xblive_matchEndingSoon, 0);
-#endif
+    if (!IsDedicatedServer())
+    {
+        CL_SetupClientsForFrontend();
+    }
 }
 
 void __cdecl Com_UnloadFrontEnd()
@@ -2498,18 +2763,23 @@ void __cdecl Com_Frame()
         Com_Frame_Try_Block_Function();
         ++com_frameNumber;
     }
+
     Sys_EnterCriticalSection(CRITSECT_COM_ERROR);
     if ( com_errorEntered )
         Com_ErrorCleanup();
     Sys_LeaveCriticalSection(CRITSECT_COM_ERROR);
+
+    if (!IsDedicatedServer())
+    {
+        CL_InitRenderer();
+        Com_StartHunkUsers();
+    }
 }
 
 unsigned int Com_Frame_Try_Block_Function()
 {
     CmdArgs *v0; // eax
     unsigned int v1; // edx
-    int ControllerIndex; // eax
-    int v3; // eax
     unsigned int result; // eax
     int localControllerIndex; // [esp+3Ch] [ebp-20h]
     int i; // [esp+44h] [ebp-18h]
@@ -2517,6 +2787,7 @@ unsigned int Com_Frame_Try_Block_Function()
     int msec; // [esp+4Ch] [ebp-10h]
     int mseca; // [esp+4Ch] [ebp-10h]
     int maxFPS; // [esp+58h] [ebp-4h] BYREF
+    int minMsec;
 
     if ( Cmd_Args()->nesting != -1 )
     {
@@ -2534,8 +2805,19 @@ unsigned int Com_Frame_Try_Block_Function()
     Com_WriteConfiguration(0);
     Sys_UpdateHotkeyBlock();
     SetAnimCheck(com_animCheck->current.color[0], SCRIPTINSTANCE_SERVER);
+
+    minMsec = 1;
     maxFPS = com_maxfps->current.integer;
     Com_AdjustMaxFPS(&maxFPS);
+
+    if (!IsDedicatedServer() && maxFPS > 0)
+    {
+        minMsec = 1000 / maxFPS;
+        iassert(minMsec >= 0);
+        if (!minMsec)
+            minMsec = 1;
+    }
+
     if ( sys_lockThreads->modified )
     {
         Dvar_ClearModified(sys_lockThreads);
@@ -2544,46 +2826,122 @@ unsigned int Com_Frame_Try_Block_Function()
         else
             Win_UnlockThreadAffinity();
     }
+
     v1 = com_lastFrameIndex & 0x80000000;
     if ( com_lastFrameIndex < 0 )
         v1 = 0;
     lastFrameIndex = v1;
     ++com_lastFrameIndex;
-    for ( i = 0; i < 50; ++i )
+
+    if (IsDedicatedServer())
     {
-        Com_EventLoop();
-        com_frameTime = Sys_Milliseconds();
-        if ( com_frameTime - com_lastFrameTime[lastFrameIndex] < 0 )
-            com_lastFrameTime[lastFrameIndex] = com_frameTime;
-        msec = com_frameTime - com_lastFrameTime[lastFrameIndex];
-        if ( msec >= 1 )
-            break;
-        NET_Sleep(1u);
+        for (i = 0; i < 50; ++i)
+        {
+            Com_EventLoop();
+            com_frameTime = Sys_Milliseconds();
+            if (com_frameTime - com_lastFrameTime[lastFrameIndex] < 0)
+                com_lastFrameTime[lastFrameIndex] = com_frameTime;
+            msec = com_frameTime - com_lastFrameTime[lastFrameIndex];
+            if (msec >= minMsec)
+                break;
+            NET_Sleep(1u);
+        }
+        com_lastFrameTime[lastFrameIndex] = com_frameTime;
     }
-    com_lastFrameTime[lastFrameIndex] = com_frameTime;
+    else
+    {
+        // adapted from kcod4
+        for (int i = 0; i < 50; ++i)
+        {
+            Com_EventLoop();
+            com_frameTime = Sys_Milliseconds();
+            if (com_frameTime - com_lastFrameTime[lastFrameIndex] < 0)
+                com_lastFrameTime[lastFrameIndex] = com_frameTime;
+
+            if (com_frameTime - com_lastFrameTime[lastFrameIndex] > 0)
+            {
+                break;
+            }
+            NET_Sleep(1u);
+        }
+
+        int v4;
+        if (com_frameTime - com_lastFrameTime[lastFrameIndex] < minMsec)
+            v4 = minMsec;
+        else
+            v4 = com_frameTime - com_lastFrameTime[lastFrameIndex];
+        com_lastFrameTime[lastFrameIndex] += v4;
+        msec = lastFrameIndex + v4;
+        if (!(lastFrameIndex + v4))
+            msec = 1;
+    }
+
     for ( localControllerIndex = 0; localControllerIndex < 1; ++localControllerIndex )
         TaskManager2_ProcessTasks(localControllerIndex);
-    ControllerIndex = Com_LocalClient_GetControllerIndex(0);
-    Cbuf_Execute(0, ControllerIndex);
+
+    Cbuf_Execute(0, Com_LocalClient_GetControllerIndex(0));
     ProcessStringEdCmds();
     ProcessGDTCmds();
+
     if ( Demo_IsPlaying() && msec > maxDemoMsec )
         msec = maxDemoMsec;
+
     cls.inputRealMsec = msec;
     Demo_Frame(msec);
     mseca = Com_ModifyMsec(msec);
     LiveSteam_Frame();
+
     //PIXBeginNamedEvent(-1, "SV frame");
-    v3 = Com_LocalClient_GetControllerIndex(0);
-    SV_Frame(v3, mseca);
+    SV_Frame(Com_LocalClient_GetControllerIndex(0), mseca);
     //if ( GetCurrentThreadId() == g_DXDeviceThread )
         //D3DPERF_EndEvent();
+
     Monkey_Frame();
+
     //BLOPS_NULLSUB();
-    Phys_RunToTime(svsHeader.time);
+
+    if (IsDedicatedServer())
+    {
+        Phys_RunToTime(svsHeader.time);
 #ifdef KISAK_LIVE
-    DWDedicatedLobbyPump();
+        DWDedicatedLobbyPump();
 #endif
+    }
+    else
+    {
+        R_SetEndTime(com_lastFrameTime[lastFrameIndex]);
+        //PIXBeginNamedEvent(-1, "pre frame");
+        CL_RunOncePerClientFrame(Com_LocalClients_GetPrimary(), mseca);
+        Com_EventLoop();
+        for (int localClientNum = 0; localClientNum < 1; ++localClientNum)
+        {
+            if (Demo_IsPlaying())
+                Demo_UpdateDesiredTime(localClientNum);
+            Cbuf_Execute(localClientNum, Com_LocalClient_GetControllerIndex(localClientNum));
+        }
+        //BG_EvalVehicleName(0);
+        //if (GetCurrentThreadId() == (_DWORD)g_DXDeviceThread && !dword_A8402BC)
+        //    D3DPERF_EndEvent();
+        RMsg_SendMessages();
+        //PIXBeginNamedEvent(-1, "CL_Frame");
+        for (int localClientNuma = 0; localClientNuma < 1; ++localClientNuma)
+            CL_Frame(localClientNuma, mseca);
+        //if (GetCurrentThreadId() == (_DWORD)g_DXDeviceThread && !dword_A8402BC)
+        //    D3DPERF_EndEvent();
+        dvar_modifiedFlags &= ~2u;
+        Com_UpdateMenu();
+        CG_UpdateClouds(mseca);
+        PhysicsSystem_Update();
+        //BG_EvalVehicleName(0);
+        SCR_UpdateScreen();
+        gjk_collision_epilog(0);
+        //BG_EvalVehicleName(v8);
+        for (int localClientNumb = 0; localClientNumb < 1; ++localClientNumb)
+            DevGui_Update(localClientNumb, (float)cls.frametime * 0.001);
+        Com_Statmon();
+        R_WaitEndTime();
+    }
+    
     result = GetCurrentThreadId();
     //if ( result == g_DXDeviceThread )
     //    return //D3DPERF_EndEvent();
@@ -2611,6 +2969,7 @@ int __cdecl Com_ModifyMsec(int msec)
     float v2; // [esp+0h] [ebp-20h]
     int originalMsec; // [esp+18h] [ebp-8h]
     bool useTimescale; // [esp+1Fh] [ebp-1h]
+    int clampTime;
 
     originalMsec = msec;
     if ( com_fixedtime->current.integer )
@@ -2631,15 +2990,31 @@ int __cdecl Com_ModifyMsec(int msec)
     }
     if ( msec < 1 )
         msec = 1;
-    if ( msec > 500 && msec < 500000 )
-        Com_PrintWarning(16, "Hitch warning: %i msec frame time\n", msec);
-    if ( msec > 5000 )
-        msec = 5000;
+    if (IsDedicatedServer())
+    {
+        if (msec > 500 && msec < 500000)
+            Com_PrintWarning(16, "Hitch warning: %i msec frame time\n", msec);
+        clampTime = 5000;
+    }
+    else if (com_sv_running->current.enabled)
+    {
+        clampTime = com_maxFrameTime->current.integer;
+    }
+    else
+    {
+        clampTime = 5000;
+    }
+
+    if ( msec > clampTime)
+        msec = clampTime;
+
     if ( useTimescale && originalMsec )
         v2 = (float)msec / (float)originalMsec;
     else
         v2 = 1.0f;
+
     com_timescaleValue = v2;
+
     return msec;
 }
 

@@ -1011,6 +1011,11 @@ void __cdecl BG_EmblemsInit()
 
     if ( !G_ExitAfterToolComplete() )
     {
+        if (!IsDedicatedServer())
+        {
+            s_missingEmblemMaterial = Material_RegisterHandle("emblem_bg_nocod", 7);
+        }
+
         s_emblemSet = DB_FindXAssetHeader(ASSET_TYPE_EMBLEMSET, (char*)"emblemset", 1, -1).emblemSet;
         memset((unsigned __int8 *)s_resultCache, 0, sizeof(s_resultCache));
         allEmblemsUnlocked = _Dvar_RegisterBool("allEmblemsUnlocked", 0, 0x80u, "Unlock all emblem icons and layers");

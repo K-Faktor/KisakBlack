@@ -20,6 +20,9 @@
 #include <qcommon/cmd.h>
 #include <qcommon/com_profilemapload.h>
 #include <database/db_registry.h>
+#include <sound/snd_public_async.h>
+#include <win32/win_net.h>
+#include <sound/snd_stream.h>
 
 const char TEN_SPACE[] = "          ";
 
@@ -2704,6 +2707,13 @@ void __cdecl FS_Restart(int localClientNum, int checksumFeed)
     const char *v2; // eax
     bool defaultConfigLoaded; // [esp+Bh] [ebp-1h]
 
+    if (!IsDedicatedServer())
+    {
+        SND_StopSounds(SND_EVERY_SINGLE_ONE_DONT_ASK_ANY_QUESTIONS);
+        NET_Sleep(1000);
+        SND_StreamCloseFiles();
+    }
+
     FS_Shutdown();
     fs_checksumFeed = checksumFeed;
     FS_ClearIwdReferences();
@@ -2721,12 +2731,12 @@ void __cdecl FS_Restart(int localClientNum, int checksumFeed)
     ProfLoad_Begin("Default config");
     if ( useFastFile->current.enabled )
     {
-        DB_FindXAssetHeader(ASSET_TYPE_RAWFILE, (char*)"default_dedicated.cfg", 1, -1);
-        defaultConfigLoaded = !DB_IsXAssetDefault(ASSET_TYPE_RAWFILE, "default_dedicated.cfg");
+        DB_FindXAssetHeader(ASSET_TYPE_RAWFILE, (char*)DEFAULT_CFG, 1, -1);
+        defaultConfigLoaded = !DB_IsXAssetDefault(ASSET_TYPE_RAWFILE, DEFAULT_CFG);
     }
     else
     {
-        defaultConfigLoaded = FS_ReadFile("default_dedicated.cfg", 0) > 0;
+        defaultConfigLoaded = FS_ReadFile(DEFAULT_CFG, 0) > 0;
     }
     if ( !defaultConfigLoaded )
     {
@@ -2744,7 +2754,7 @@ void __cdecl FS_Restart(int localClientNum, int checksumFeed)
         Com_Error(
             ERR_FATAL,
             "Couldn't load %s.    Make sure Call of Duty is run from the correct folder.",
-            "default_dedicated.cfg");
+            DEFAULT_CFG);
     }
     if ( I_stricmp(fs_gameDirVar->current.string, lastValidGame) && !Com_SafeMode() )
     {

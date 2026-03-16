@@ -2768,7 +2768,15 @@ void __cdecl Script_SetDvarFromLocString(int localClientNum, UiContext *dc, item
 
 void __cdecl Script_Play(int localClientNum, UiContext *dc, itemDef_s *item, const char **args)
 {
-    ;
+    char val[1024];
+
+    if (!IsDedicatedServer())
+    {
+        if (String_Parse(args, val, sizeof(val)))
+        {
+            UI_PlaySound(dc->contextIndex, val);
+        }
+    }
 }
 
 void __cdecl Script_ScriptMenuResponse(int localClientNum, UiContext *dc, itemDef_s *item, const char **args)
@@ -11238,8 +11246,17 @@ char __cdecl Menu_DoesMenuOrParentsHaveControlFlag(UiContext *dc, menuDef_t *men
     return 0;
 }
 
-void __cdecl UI_SetLoadingScreenMaterial()
+void __cdecl UI_SetLoadingScreenMaterial(const char * name)
 {
-    ;
+    Material *mat; // [esp+0h] [ebp-4h]
+
+    iassert(name);
+    iassert(name[0]);
+
+    mat = Material_RegisterHandle(va("loadscreen_%s", name), 36);
+    if (Material_IsDefault(mat))
+        sharedUiInfo.loadingScreen = 0;
+    else
+        sharedUiInfo.loadingScreen = mat;
 }
 

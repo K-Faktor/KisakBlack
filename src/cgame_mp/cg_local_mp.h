@@ -13,6 +13,8 @@
 #include <client_mp/cl_main_mp.h>
 #include <cgame_mp/cg_main_mp.h>
 
+#define MAX_LOCAL_CLIENTS 1
+
 enum link_type_e : __int32
 {                                       // XREF: cg_s/r
     PITCH_CTRL = 0x0,

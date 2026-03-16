@@ -11,6 +11,7 @@
 #include <physics/physpreset_load_obj.h>
 #include <clientscript/cscr_stringlist.h>
 #include "com_math_anglevectors.h"
+#include <EffectsCore/fx_load_obj.h>
 
 struct va_info_t
 {
@@ -1201,8 +1202,16 @@ bool __cdecl KeyValueToField(
                 *(unsigned int *)&pStruct[pField->iOffset] = (int)(atof(pszKeyValue) * 1000.0);
                 return 1;
             case 9:
+                if (!IsDedicatedServer())
+                {
+                    *(FxEffectDef **)&pStruct[pField->iOffset] = (FxEffectDef*)FX_Register(pszKeyValue);
+                }
             case 0xB:
             case 0xC:
+                if (!IsDedicatedServer())
+                {
+                    *(Material **)&pStruct[pField->iOffset] = Material_RegisterHandle(pszKeyValue, 0);
+                }
                 return 1;
             case 0xA:
                 I_strncpyz(dest, pszKeyValue, 0x2000);

@@ -12,8 +12,9 @@ inline connstate_t __cdecl CL_GetLocalClientConnectionState(int localClientNum)
 extern clientActive_t *clients;
 inline clientActive_t *__cdecl CL_GetLocalClientGlobals(int localClientNum)
 {
-    iassert(clients);
+    ///iassert(clients); // WOW! WEIRD
     iassert(localClientNum == 0);
 
-    return &clients[localClientNum];
+    return clients;
+    //return &clients[localClientNum];
 }

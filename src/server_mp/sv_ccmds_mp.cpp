@@ -238,7 +238,10 @@ void __cdecl SV_AddOperatorCommands()
         Demo_RegisterCommands();
         Cmd_AddCommandInternal("killserver", Cbuf_AddServerText_f, &SV_KillServer_f_VAR);
         Cmd_AddServerCommandInternal("killserver", SV_KillServer_f, &SV_KillServer_f_VAR_SERVER);
-        SV_AddDedicatedCommands();
+        if (IsDedicatedServer())
+        {
+            SV_AddDedicatedCommands();
+        }
         Cmd_AddCommandInternal("scriptUsage", Cbuf_AddServerText_f, &SV_ScriptUsage_f_VAR);
         Cmd_AddServerCommandInternal("scriptUsage", SV_ScriptUsage_f, &SV_ScriptUsage_f_VAR_SERVER);
         Cmd_AddCommandInternal("stringUsage", Cbuf_AddServerText_f, &SV_StringUsage_f_VAR);
@@ -292,6 +295,12 @@ void __cdecl SV_Map_f()
             sv_migrate = atoi(v1);
         }
         com_errorPrintsCount = 0;
+
+        if (!IsDedicatedServer())
+        {
+            Cbuf_ExecuteBuffer(0, 0, (char*)"selectStringTableEntryInDvar mp/didyouknow.csv 0 didyouknow");
+        }
+
         basename = SV_GetMapBaseName(map);
         I_strncpyz(mapname, basename, 64);
         I_strlwr(mapname);

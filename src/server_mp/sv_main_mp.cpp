@@ -245,7 +245,6 @@ void __cdecl SV_CullIgnorableServerCommands(client_t *client)
 unsigned __int8 tempServerCommandBuf[65536];
 void SV_SendServerCommand(client_t *cl, svscmd_type type, const char *fmt, ...)
 {
-    const char *v3; // eax
     client_t *client; // [esp+0h] [ebp-Ch]
     int j; // [esp+4h] [ebp-8h]
     va_list va; // [esp+20h] [ebp+14h] BYREF
@@ -258,11 +257,11 @@ void SV_SendServerCommand(client_t *cl, svscmd_type type, const char *fmt, ...)
     }
     else
     {
-        if ( !strncmp((const char *)tempServerCommandBuf, "print", 5u) )
+        if ( IsDedicatedServer() && !strncmp((const char *)tempServerCommandBuf, "print", 5u) )
         {
-            v3 = SV_ExpandNewlines((char *)tempServerCommandBuf);
-            Com_Printf(15, "broadcast: %s\n", v3);
+            Com_Printf(15, "broadcast: %s\n", SV_ExpandNewlines((char *)tempServerCommandBuf));
         }
+
         j = 0;
         client = svs.clients;
         while ( j < com_maxclients->current.integer )
@@ -659,8 +658,14 @@ void __cdecl SVC_Info(netadr_t from, bdSecurityID *secID, bool quick)
             v12 = va("%i", hardcore);
             Info_SetValueForKey(infostring, (char *)"hc", v12);
         }
-        v13 = va("%i", 2);
-        Info_SetValueForKey(infostring, (char *)"hw", v13);
+        if (IsDedicatedServer())
+        {
+            Info_SetValueForKey(infostring, (char *)"hw", va("%i", 2));
+        }
+        else
+        {
+            Info_SetValueForKey(infostring, (char *)"hw", va("%i", 6));
+        }
         if ( !sv_pure->current.enabled || gamedir && *gamedir )
         {
             serverModded = 1;
@@ -704,6 +709,10 @@ void __cdecl SVC_Info(netadr_t from, bdSecurityID *secID, bool quick)
         String = Dvar_GetString("sv_geolocation");
         v24 = va("%s", String);
         Info_SetValueForKey(infostring, "geolocation", v24);
+        if (!IsDedicatedServer())
+        {
+            Info_SetValueForKey(infostring, "countrycode", LiveSteam_GetCountryCode());
+        }
         if ( Dvar_GetBool("xblive_wagermatch") )
         {
             v25 = Dvar_GetInt("scr_wagerbet");

@@ -362,7 +362,7 @@ void UI_LoadArenasFromFile_FastFile()
 
     rawfile = DB_FindXAssetHeader(ASSET_TYPE_RAWFILE, (char *)"mp/mpmaps.arena", 1, -1).rawfile;
     if ( rawfile )
-        ui_numArenas = UI_ParseInfos(rawfile->buffer, 128 - ui_numArenas, (char **)(4 * ui_numArenas + 160058192));
+        ui_numArenas = UI_ParseInfos(rawfile->buffer, 128 - ui_numArenas, &ui_arenaInfos[ui_numArenas]);
     else
         Com_PrintError(13, "file not found: %s\n", "mp/mpmaps.arena");
 }

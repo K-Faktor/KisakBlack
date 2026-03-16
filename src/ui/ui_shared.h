@@ -1362,7 +1362,7 @@ int __cdecl UI_GetMenuScreen();
 int __cdecl UI_GetForcedMenuScreen();
 int __cdecl UI_GetMenuScreenForError();
 char __cdecl Menu_DoesMenuOrParentsHaveControlFlag(UiContext *dc, menuDef_t *menu, int controlFlag);
-void __cdecl UI_SetLoadingScreenMaterial();
+void __cdecl UI_SetLoadingScreenMaterial(const char *name);
 
 
 

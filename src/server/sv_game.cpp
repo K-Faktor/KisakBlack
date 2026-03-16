@@ -801,7 +801,6 @@ void __cdecl    SV_RestartGameProgs(int savepersist)
 
 void __cdecl    SV_InitGameVM(int restart, int registerDvars)
 {
-    unsigned int v2; // eax
     int i; // [esp+Ch] [ebp-4h]
 
     //PIXBeginNamedEvent(-1, "SV_InitGameVM");
@@ -821,8 +820,21 @@ void __cdecl    SV_InitGameVM(int restart, int registerDvars)
     for ( i = 0; i < com_maxclients->current.integer; ++i )
         svs.clients[i].gentity = 0;
     Sys_LoadingKeepAlive();
-    v2 = Sys_MillisecondsRaw();
-    G_InitGame(svs.time, v2, restart, registerDvars);
+    G_InitGame(svs.time, Sys_MillisecondsRaw(), restart, registerDvars);
+
+    if (IsDedicatedServer())
+    {
+        float sprinttime = Dvar_GetFloat("scr_player_sprinttime");
+        Dvar_SetFromStringByNameFromSource("player_sprintTime", va("%f", sprinttime), DVAR_SOURCE_SCRIPT, 0);
+    }
+
+    SV_SetConfigstring(3, va("%i", sv_serverId_value));
+    Sys_LoadingKeepAlive();
+
+    if (IsDedicatedServer())
+    {
+        Com_DvarDump(6, NULL);
+    }
 }
 
 void __cdecl    SV_InitGameProgs(int savepersist)
