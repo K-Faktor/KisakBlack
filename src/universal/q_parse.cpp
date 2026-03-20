@@ -76,13 +76,14 @@ void __cdecl Com_BeginParseSession(const char *filename)
 ParseThreadInfo *__cdecl Com_GetParseThreadInfo()
 {
     if ( Sys_IsMainThread() )
-        return g_parse;
+        return &g_parse[0];
     if ( Sys_IsRenderThread() )
-        return g_parse + 17996;
+        return &g_parse[1];
     if ( Sys_IsServerThread() )
-        return g_parse + 35992;
+        return &g_parse[2];
     if ( Sys_IsDatabaseThread() )
-        return g_parse + 53988;
+        return &g_parse[3];
+
     if ( !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\universal\\q_parse.cpp",
                     124,

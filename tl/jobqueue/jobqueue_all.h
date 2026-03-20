@@ -1,6 +1,8 @@
 #pragma once
 #include <tl/tl_system.h>
 
+#include <Windows.h>
+
 #define JQ_MAX_QUEUES 8
 
 enum jqProcessor : __int32
@@ -18,10 +20,11 @@ enum jqProcessor : __int32
 
 struct tlAtomicMutex // sizeof=0x10
 {                                       // XREF: .data:tlAtomicMutex g_prolog_task_mutex/r
-    unsigned __int64 ThreadId;          // XREF: jqInit(void)+58/w
+    volatile LONG64 ThreadId;          // XREF: jqInit(void)+58/w
     int LockCount;                      // XREF: jqInit(void)+64/w
     tlAtomicMutex *ThisPtr;             // XREF: jqInit(void)+4E/w
 
+    tlAtomicMutex();
     ~tlAtomicMutex();
 
     void Lock();

@@ -23,7 +23,7 @@ broad_phase_base *g_bpb_list_cur;
 volatile unsigned int g_bpb_list_index;
 volatile unsigned int g_bpb_list_max_index;
 
-tlAtomicMutex g_prolog_task_mutex = { 0uLL, 0, &g_prolog_task_mutex };
+tlAtomicMutex g_prolog_task_mutex;
 
 int g_bpb_cluster_sort_axis = -1;
 unsigned volatile int g_thread_id;

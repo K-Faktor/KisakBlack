@@ -14052,41 +14052,45 @@ char __cdecl EvaluateExpression(
                 int resultCount)
 {
     int type; // [esp+0h] [ebp-13C4h]
-    expressionRpn *i; // [esp+4h] [ebp-13C0h]
     expressionRpn *rpn; // [esp+8h] [ebp-13BCh]
-    OperandStack dst; // [esp+Ch] [ebp-13B8h] BYREF
+
+    OperandStack dataStack; // [esp+Ch] [ebp-13B8h] BYREF
 
     rpn = statement->rpn;
     s_currentStatement = statement;
-    if ( uiscript_debug && uiscript_debug->current.integer )
+
+    //if ( uiscript_debug && uiscript_debug->current.integer )
         //BLOPS_NULLSUB();
-    memset((unsigned __int8 *)&dst, 0, sizeof(dst));
-    for ( i = rpn; i->type != 3; ++i )
+
+    memset(&dataStack, 0, sizeof(dataStack));
+
+    for (expressionRpn *i = rpn; i->type != 3; ++i )
     {
         type = i->type;
-        if ( !i->type )
+        if ( !type )
         {
-            AddOperandToStack(&dst, &i->data.constant);
+            AddOperandToStack(&dataStack, &i->data.constant);
             continue;
         }
         if ( type == 1 )
         {
             i->type = 2;
-            i->data.cmdIdx = (int)rpnFunctions[Expression_GetFunctionForOp(i->data.cmdIdx)];
-LABEL_13:
-            ((void (__cdecl *)(int, itemDef_s *, OperandStack *))i->data.constant.dataType)(localClientNum, item, &dst);
+            i->data.cmd = rpnFunctions[Expression_GetFunctionForOp(i->data.cmdIdx)];
+            ((void (__cdecl *)(const int, itemDef_s *, OperandStack *))i->data.cmd)(localClientNum, item, &dataStack);
             continue;
         }
         if ( type == 2 )
-            goto LABEL_13;
+            ((void(__cdecl *)(const int, itemDef_s *, OperandStack *))i->data.cmd)(localClientNum, item, &dataStack);
     }
-    if ( dst.numOperandLists <= 1 )
+
+
+    if ( dataStack.numOperandLists <= 1 )
     {
-        if ( dst.numOperandLists )
+        if ( dataStack.numOperandLists )
         {
-            if ( dst.stack[0].operandCount == resultCount )
+            if ( dataStack.stack[0].operandCount == resultCount )
             {
-                memcpy((unsigned __int8 *)results, (unsigned __int8 *)&dst, 8 * resultCount);
+                memcpy(results, dataStack.stack, sizeof(Operand) * resultCount);
                 s_currentStatement = 0;
                 return 1;
             }

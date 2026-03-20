@@ -1226,19 +1226,14 @@ void    Menu_RunLeaveFocusScript(
                 UiContext *dc,
                 menuDef_t *menu)
 {
-    int v4; // [esp-Ch] [ebp-11Ch] BYREF
-    itemDef_s item; // [esp+0h] [ebp-110h]
-    UIAnimInfo *retaddr; // [esp+110h] [ebp+0h]
+    itemDef_s item;
 
-    //item.onEvent = a1;
-    //item.animInfo = retaddr;
-    if ( !menu && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\ui\\ui_shared.cpp", 789, 0, "%s", "menu") )
-        __debugbreak();
-    if ( menu->onEvent )
+    iassert(menu);
+    if (menu->onEvent)
     {
-        item.enableDvar = (const char *)menu;
-        item.forecolorAExp.numRpn = (int)menu->onEvent;
-        Item_RunEventScript(localClientNum, dc, (itemDef_s *)&v4, "leaveFocus");
+        item.parent = menu;
+        item.onEvent = menu->onEvent;
+        Item_RunEventScript(localClientNum, dc, &item, "leaveFocus");
     }
 }
 
@@ -1336,42 +1331,31 @@ void __cdecl Menu_CallOnFocusDueToOpen(int localClientNum, UiContext *dc, menuDe
     }
 }
 
-void    Menu_RunFocusScript(int localClientNum, UiContext *dc, menuDef_t *menu)
+void Menu_RunFocusScript(int localClientNum, UiContext *dc, menuDef_t *menu)
 {
-    int v4; // [esp-Ch] [ebp-11Ch] BYREF
-    itemDef_s item; // [esp+0h] [ebp-110h]
-    UIAnimInfo *retaddr; // [esp+110h] [ebp+0h]
+    iassert(menu);
 
-    //item.onEvent = a1;
-    //item.animInfo = retaddr;
-    if ( !menu && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\ui\\ui_shared.cpp", 775, 0, "%s", "menu") )
-        __debugbreak();
     if ( menu->onEvent )
     {
-        item.enableDvar = (const char *)menu;
-        item.forecolorAExp.numRpn = (int)menu->onEvent;
-        Item_RunEventScript(localClientNum, dc, (itemDef_s *)&v4, "onFocus");
+        itemDef_s item; // [esp+0h] [ebp-110h]
+
+        item.parent = menu;
+        item.onEvent = menu->onEvent;
+        Item_RunEventScript(localClientNum, dc, &item, "onFocus");
     }
 }
 
-void    Menu_RunCloseScript(int localClientNum, UiContext *dc, menuDef_t *menu)
+void Menu_RunCloseScript(int localClientNum, UiContext *dc, menuDef_t *menu)
 {
-    int v4; // [esp-Ch] [ebp-11Ch] BYREF
-    itemDef_s item; // [esp+0h] [ebp-110h]
-    UIAnimInfo *retaddr; // [esp+110h] [ebp+0h]
+    iassert(menu);
 
-    //item.onEvent = a1;
-    //item.animInfo = retaddr;
-    if ( !menu && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\ui\\ui_shared.cpp", 1685, 0, "%s", "menu") )
-        __debugbreak();
-    if ( Window_IsVisible(dc->contextIndex, &menu->window) )
+    if (Window_IsVisible(dc->contextIndex, &menu->window) && menu->onEvent)
     {
-        if ( menu->onEvent )
-        {
-            item.enableDvar = (const char *)menu;
-            item.forecolorAExp.numRpn = (int)menu->onEvent;
-            Item_RunEventScript(localClientNum, dc, (itemDef_s *)&v4, "onClose");
-        }
+        itemDef_s item;
+
+        item.parent = menu;
+        item.onEvent = menu->onEvent;
+        Item_RunEventScript(localClientNum, dc, &item, "onClose");
     }
 }
 
@@ -4446,32 +4430,36 @@ int __cdecl Menus_OpenImmediateByName(int localClientNum, UiContext *dc, const c
 
 void    Menus_SetupOpenMenu(int localClientNum, UiContext *dc, menuDef_t *menu)
 {
-    int v4; // [esp-Ch] [ebp-11Ch] BYREF
-    itemDef_s item; // [esp+0h] [ebp-110h]
-    UIAnimInfo *retaddr; // [esp+110h] [ebp+0h]
+    itemDef_s item;
 
-    //item.onEvent = a1;
-    //item.animInfo = retaddr;
     Window_AddDynamicFlags(dc->contextIndex, &menu->window, 6);
     Menu_CallOnFocusDueToOpen(localClientNum, dc, menu);
-    if ( Menu_GetCursorItem(dc->contextIndex, menu) == -1 )
+
+    if (Menu_GetCursorItem(dc->contextIndex, menu) == -1)
+    {
         Menu_SetNextCursorItem(localClientNum, dc, menu, 0, 0);
-    if ( menu->onEvent )
-    {
-        item.enableDvar = (const char *)menu;
-        item.forecolorAExp.numRpn = (int)menu->onEvent;
-        Item_RunEventScript(localClientNum, dc, (itemDef_s *)&v4, "onOpen");
     }
-    if ( dc->isCursorVisible )
+
+    if (menu->onEvent)
     {
-        mouseLocationX = 0x80000000;
-        mouseLocationY = 0x80000000;
+        item.parent = menu;
+        item.onEvent = menu->onEvent;
+        Item_RunEventScript(localClientNum, dc, &item, "onOpen");
+    }
+
+    if (dc->isCursorVisible)
+    {
+        mouseLocationX = INT_MIN;
+        mouseLocationY = INT_MIN;
         mouseTimeUntilReadyToMove = Sys_Milliseconds() + 500;
     }
-    if ( menu->soundName )
+
+    if (menu->soundName)
     {
-        if ( !CL_IsLocalClientInGame(localClientNum) )
-            UI_PlaySound(dc->contextIndex, (char *)menu->soundName);
+        if (!CL_IsLocalClientInGame(localClientNum))
+        {
+            UI_PlaySound(dc->contextIndex, (char*)menu->soundName);
+        }
     }
 }
 
@@ -4602,41 +4590,37 @@ int    Menu_CheckOnKey(int localClientNum, UiContext *dc, menuDef_t *menu, int k
 {
     focusItemDef_s *FocusItemDef; // [esp-Ch] [ebp-134h]
     itemDef_s *v7; // [esp-4h] [ebp-12Ch]
-    int focusPtr; // [esp+0h] [ebp-128h]
-    int v9; // [esp+4h] [ebp-124h] BYREF
-    itemDef_s it; // [esp+10h] [ebp-118h]
-    void *v11; // [esp+120h] [ebp-8h]
-    void *retaddr; // [esp+128h] [ebp+0h]
+    int i; // [esp+0h] [ebp-128h]
+    itemDef_s it; // [esp+4h] [ebp-124h] BYREF
+    ItemKeyHandler *handler; // [esp+118h] [ebp-10h]
+    UiContext *dca; // [esp+124h] [ebp-4h] BYREF
+    menuDef_t *menua; // [esp+128h] [ebp+0h]
 
-    //*((unsigned int *)&it.animInfo + 1) = a1;
-    //v11 = retaddr;
-    for ( it.animInfo = (UIAnimInfo *)menu->onKey; it.animInfo; it.animInfo = (UIAnimInfo *)it.animInfo->currentAnimState.name )
+    for (handler = menu->onKey; handler; handler = handler->next)
     {
-        if ( it.animInfo->animStateCount == -1 || it.animInfo->animStateCount == key )
+        if (handler->key == -1 || handler->key == key)
         {
-LABEL_22:
-            it.enableDvar = (const char *)menu;
-            Item_RunSingleEventScript(localClientNum, dc, (itemDef_s *)&v9, (GenericEventScript *)it.animInfo->animStates);
+        LABEL_22:
+            it.parent = menu;
+            Item_RunSingleEventScript(localClientNum, dc, &it, handler->keyScript);
             return 1;
         }
     }
-    for ( focusPtr = 0; focusPtr < menu->itemCount; ++focusPtr )
+    for (i = 0; i < menu->itemCount; ++i)
     {
-        v7 = menu->items[focusPtr];
-        if ( Item_IsFocusDefType(v7)
+        v7 = menu->items[i];
+        if (Item_IsFocusDefType(v7)
             && Window_IsVisible(dc->contextIndex, &v7->window)
             && (Window_HasFocus(dc->contextIndex, &v7->window) || (v7->window.staticFlags & 0x100000) != 0)
             && Item_IsVisible(localClientNum, dc->contextIndex, v7)
-            && ((v7->dvarFlags & 3) == 0 || Item_EnableShowViaDvar(v7, 1)) )
+            && ((v7->dvarFlags & 3) == 0 || Item_EnableShowViaDvar(v7, 1)))
         {
-            FocusItemDef = Item_GetFocusItemDef(menu->items[focusPtr]);
-            if ( FocusItemDef )
+            FocusItemDef = Item_GetFocusItemDef(menu->items[i]);
+            if (FocusItemDef)
             {
-                for ( it.animInfo = (UIAnimInfo *)FocusItemDef->onKey;
-                            it.animInfo;
-                            it.animInfo = (UIAnimInfo *)it.animInfo->currentAnimState.name )
+                for (handler = FocusItemDef->onKey; handler; handler = handler->next)
                 {
-                    if ( it.animInfo->animStateCount == key )
+                    if (handler->key == key)
                         goto LABEL_22;
                 }
             }
@@ -4651,267 +4635,247 @@ void    Menu_HandleKey(int localClientNum, UiContext *dc, menuDef_t *menu, int k
     const rectDef_s *v7; // eax
     const rectDef_s *v8; // eax
     const rectDef_s *Rect; // eax
-    const rectDef_s *v10; // eax
     float x; // [esp+0h] [ebp-16Ch]
     float xa; // [esp+0h] [ebp-16Ch]
     float xb; // [esp+0h] [ebp-16Ch]
     float y; // [esp+4h] [ebp-168h]
     float ya; // [esp+4h] [ebp-168h]
     float yb; // [esp+4h] [ebp-168h]
-    unsigned int v17[2]; // [esp+14h] [ebp-158h] BYREF
-    float w; // [esp+1Ch] [ebp-150h]
-    rectDef_s tmpRect; // [esp+20h] [ebp-14Ch] BYREF
-    menuDef_t *v20; // [esp+F4h] [ebp-78h]
-    GenericEventHandler *onEvent; // [esp+134h] [ebp-38h]
-    int v22; // [esp+144h] [ebp-28h]
-    int j; // [esp+148h] [ebp-24h]
+    rectDef_s tmpRect; // [esp+14h] [ebp-158h] BYREF
+    listBoxDef_s *listPtr; // [esp+2Ch] [ebp-140h]
+    itemDef_s v18; // [esp+30h] [ebp-13Ch] BYREF
+    int v19; // [esp+144h] [ebp-28h]
+    int i; // [esp+148h] [ebp-24h]
     int staticFlags; // [esp+14Ch] [ebp-20h]
-    char *v25; // [esp+150h] [ebp-1Ch]
-    int i; // [esp+154h] [ebp-18h]
-    itemDef_s *v27; // [esp+158h] [ebp-14h]
-    const char *binding; // [esp+15Ch] [ebp-10h]
-    int inHandler; // [esp+160h] [ebp-Ch] BYREF
-    itemDef_s *item; // [esp+164h] [ebp-8h]
-    itemDef_s *retaddr; // [esp+16Ch] [ebp+0h]
+    const char *binding; // [esp+150h] [ebp-1Ch]
+    int inHandler; // [esp+154h] [ebp-18h]
+    itemDef_s *item; // [esp+158h] [ebp-14h]
+    itemDef_s *overItem; // [esp+15Ch] [ebp-10h]
 
-    //inHandler = a1;
-    //item = retaddr;
-    binding = 0;
-    v27 = 0;
-    i = 0;
-    if ( (Window_GetDynamicFlags(dc->contextIndex, &menu->window) & 0xE2000) != 0
-        || Menu_ItemsAreAnimating(localClientNum, dc, menu) )
+    overItem = 0;
+    item = 0;
+    inHandler = 0;
+    if ((Window_GetDynamicFlags(dc->contextIndex, &menu->window) & 0xE2000) != 0
+        || Menu_ItemsAreAnimating(localClientNum, dc, menu))
     {
         return;
     }
-    i = 1;
-    if ( g_waitingForKey && down )
+    inHandler = 1;
+    if (g_waitingForKey && down)
     {
         Item_Bind_HandleKey(localClientNum, dc, g_bindItem, key, down);
-        i = 0;
+        inHandler = 0;
         return;
     }
-    if ( !g_editingField || !down )
+    if (!g_editingField || !down)
         goto LABEL_15;
-    if ( !Item_TextField_HandleKey(localClientNum, dc, g_editItem, key) )
+    if (!Item_TextField_HandleKey(localClientNum, dc, g_editItem, key))
     {
         g_editingField = 0;
         g_editItem = 0;
-        i = 0;
+        inHandler = 0;
         return;
     }
-    if ( key == 200 || key == 201 || key == 202 )
+    if (key == 200 || key == 201 || key == 202)
     {
         g_editingField = 0;
         g_editItem = 0;
         Display_MouseMove(0, dc);
-LABEL_15:
-        if ( menu )
+    LABEL_15:
+        if (menu)
         {
-            if ( !down
+            if (!down
                 || (key & 0x400) != 0
-                || (v25 = (char *)Key_GetBinding(dc->contextIndex, key, 0)) == 0
-                || (!menu->allowedBinding || I_stricmp(v25, menu->allowedBinding)) && I_stricmp(v25, "screenshotJpeg") )
+                || (binding = Key_GetBinding(dc->contextIndex, key, 0)) == 0
+                || (!menu->allowedBinding || I_stricmp(binding, menu->allowedBinding)) && I_stricmp(binding, "screenshotJpeg"))
             {
-                if ( !down
+                if (!down
                     || (staticFlags = menu->window.staticFlags, ((unsigned int)&cls.rankedServers[711].game[35] & staticFlags) != 0)
                     || menu->fullScreen
                     || (y = dc->cursor.y,
-                            x = dc->cursor.x,
-                            v7 = Window_GetRect(&menu->window),
-                            Rect_ContainsPoint(dc->contextIndex, v7, x, y))
+                        x = dc->cursor.x,
+                        v7 = Window_GetRect(&menu->window),
+                        Rect_ContainsPoint(dc->contextIndex, v7, x, y))
                     || inHandleKey
-                    || key != 200 && key != 201 && key != 202 )
+                    || key != 200 && key != 201 && key != 202)
                 {
-                    for ( j = 0; j < menu->itemCount; ++j )
+                    for (i = 0; i < menu->itemCount; ++i)
                     {
-                        if ( Item_IsVisible(localClientNum, dc->contextIndex, menu->items[j]) )
+                        if (Item_IsVisible(localClientNum, dc->contextIndex, menu->items[i]))
                         {
-                            if ( Window_HasFocus(dc->contextIndex, &menu->items[j]->window) )
-                                v27 = menu->items[j];
+                            if (Window_HasFocus(dc->contextIndex, &menu->items[i]->window))
+                                item = menu->items[i];
                         }
                     }
-                    if ( v27 && Item_HandleKey(localClientNum, dc, v27, key, down) && !Dvar_GetInt("ui_choice_noaction") )
+                    if (item && Item_HandleKey(localClientNum, dc, item, key, down) && !Dvar_GetInt("ui_choice_noaction"))
                     {
-                        Item_Action(localClientNum, dc, v27);
-                        i = 0;
+                        Item_Action(localClientNum, dc, item);
+                        inHandler = 0;
                     }
-                    else if ( down )
+                    else if (down)
                     {
-                        if ( (key <= 0 || key > 255 || !Menu_CheckOnKey(localClientNum, dc, menu, key))
-                            && (key != 205 && key != 206 || v27 && v27->type == 4) )
+                        if ((key <= 0 || key > 255 || !Menu_CheckOnKey(localClientNum, dc, menu, key))
+                            && (key != 205 && key != 206 || item && item->type == 4))
                         {
-                            v22 = key - 1;
-                            switch ( key )
+                            v19 = key - 1;
+                            switch (key)
                             {
-                                case 1:
-                                case 13:
-                                case 14:
-                                case 191:
-                                case 202:
-                                    if ( v27 )
+                            case 1:
+                            case 13:
+                            case 14:
+                            case 191:
+                            case 202:
+                                if (item)
+                                {
+                                    if (!Item_IsTextField(item))
+                                        goto LABEL_109;
+                                    item->typeData.textDef->textTypeData.focusItemDef->focusTypeData.listBox->cursorPos[dc->contextIndex] = 0;
+                                    g_editingField = 1;
+                                    g_editItem = item;
+                                    Key_SetOverstrikeMode(localClientNum, 1);
+                                }
+                                break;
+                            case 2:
+                            case 15:
+                            case 27:
+                                if (!g_waitingForKey && menu->onEvent)
+                                {
+                                    v18.parent = menu;
+                                    v18.onEvent = menu->onEvent;
+                                    Item_RunEventScript(localClientNum, dc, &v18, "onESC");
+                                }
+                                break;
+                            case 154:
+                            case 183:
+                            case 206:
+                                Menu_SetPrevCursorItem(localClientNum, dc, menu, 1);
+                                break;
+                            case 155:
+                            case 189:
+                            case 205:
+                                Menu_SetNextCursorItem(localClientNum, dc, menu, 0, 1);
+                                break;
+                            case 177:
+                                if (Dvar_GetInt("developer"))
+                                    g_debugMode ^= 1u;
+                                break;
+                            case 178:
+                                if (Dvar_GetInt("developer"))
+                                    Cbuf_AddText(localClientNum, "screenshot\n");
+                                break;
+                            case 200:
+                            case 201:
+                                if (item)
+                                {
+                                    if (item->type == 1)
                                     {
-                                        if ( !Item_IsTextField(v27) )
-                                            goto LABEL_109;
-                                        v27->typeData.textDef->textTypeData.focusItemDef->focusTypeData.listBox->cursorPos[dc->contextIndex] = 0;
-                                        g_editingField = 1;
-                                        g_editItem = v27;
-                                        Key_SetOverstrikeMode(localClientNum, 1);
+                                        ya = dc->cursor.y;
+                                        xa = dc->cursor.x;
+                                        v8 = Item_CorrectedTextRect(dc->contextIndex, item);
+                                        if (Rect_ContainsPoint(dc->contextIndex, v8, xa, ya))
+                                            Item_Action(localClientNum, dc, item);
                                     }
-                                    break;
-                                case 2:
-                                case 15:
-                                case 27:
-                                    if ( !g_waitingForKey && menu->onEvent )
+                                    else
                                     {
-                                        v20 = menu;
-                                        onEvent = menu->onEvent;
-                                        Item_RunEventScript(localClientNum, dc, (itemDef_s *)&tmpRect.horzAlign, "onESC");
-                                    }
-                                    break;
-                                case 154:
-                                case 183:
-                                case 206:
-                                    Menu_SetPrevCursorItem(localClientNum, dc, menu, 1);
-                                    break;
-                                case 155:
-                                case 189:
-                                case 205:
-                                    Menu_SetNextCursorItem(localClientNum, dc, menu, 0, 1);
-                                    break;
-                                case 177:
-                                    if ( Dvar_GetInt("developer") )
-                                        g_debugMode ^= 1u;
-                                    break;
-                                case 178:
-                                    if ( Dvar_GetInt("developer") )
-                                        Cbuf_AddText(localClientNum, "screenshot\n");
-                                    break;
-                                case 200:
-                                case 201:
-                                    if ( v27 )
-                                    {
-                                        if ( v27->type == 1 )
+                                        yb = dc->cursor.y;
+                                        xb = dc->cursor.x;
+                                        Rect = Window_GetRect(&item->window);
+                                        if (Rect_ContainsPoint(dc->contextIndex, Rect, xb, yb))
                                         {
-                                            ya = dc->cursor.y;
-                                            xa = dc->cursor.x;
-                                            v8 = Item_CorrectedTextRect(dc->contextIndex, v27);
-                                            if ( Rect_ContainsPoint(dc->contextIndex, v8, xa, ya) )
-                                                Item_Action(localClientNum, dc, v27);
-                                        }
-                                        else
-                                        {
-                                            yb = dc->cursor.y;
-                                            xb = dc->cursor.x;
-                                            Rect = Window_GetRect(&v27->window);
-                                            if ( Rect_ContainsPoint(dc->contextIndex, Rect, xb, yb) )
+                                            if (Item_IsTextField(item))
                                             {
-                                                if ( Item_IsTextField(v27) )
+                                                Item_TextField_BeginEdit(localClientNum, dc->contextIndex, item);
+                                            }
+                                            else
+                                            {
+                                                if (item->type != 4)
+                                                    goto LABEL_109;
+                                                listPtr = Item_GetListBoxDef(item);
+                                                if (!listPtr
+                                                    && !Assert_MyHandler(
+                                                        "C:\\projects_pc\\cod\\codsrc\\src\\ui\\ui_shared.cpp",
+                                                        7954,
+                                                        0,
+                                                        "%s",
+                                                        "listPtr"))
                                                 {
-                                                    Item_TextField_BeginEdit(localClientNum, dc->contextIndex, v27);
+                                                    __debugbreak();
+                                                }
+                                                if (!listPtr->noScrollBars
+                                                    && Item_ListBox_RequiresScroll(localClientNum, dc->contextIndex, item))
+                                                {
+                                                    tmpRect = *Window_GetRect(&item->window);
+                                                    tmpRect.w = tmpRect.w - 14.0;
+                                                    if (Rect_ContainsPoint(dc->contextIndex, &tmpRect, dc->cursor.x, dc->cursor.y))
+                                                        Item_Action(localClientNum, dc, item);
                                                 }
                                                 else
                                                 {
-                                                    if ( v27->type != 4 )
-                                                        goto LABEL_109;
-                                                    LODWORD(tmpRect.h) = (DWORD)Item_GetListBoxDef(v27);
-                                                    if ( !LODWORD(tmpRect.h)
-                                                        && !Assert_MyHandler(
-                                                                    "C:\\projects_pc\\cod\\codsrc\\src\\ui\\ui_shared.cpp",
-                                                                    7954,
-                                                                    0,
-                                                                    "%s",
-                                                                    "listPtr") )
-                                                    {
-                                                        __debugbreak();
-                                                    }
-                                                    if ( !*(unsigned int *)(LODWORD(tmpRect.h) + 552)
-                                                        && Item_ListBox_RequiresScroll(localClientNum, dc->contextIndex, v27) )
-                                                    {
-                                                        v10 = Window_GetRect(&v27->window);
-                                                        v17[0] = LODWORD(v10->x);
-                                                        v17[1] = LODWORD(v10->y);
-                                                        w = v10->w;
-                                                        tmpRect.x = v10->h;
-                                                        LODWORD(tmpRect.y) = v10->horzAlign;
-                                                        LODWORD(tmpRect.w) = v10->vertAlign;
-                                                        w = w - 14.0;
-                                                        if ( Rect_ContainsPoint(
-                                                                     dc->contextIndex,
-                                                                     (const rectDef_s *)v17,
-                                                                     dc->cursor.x,
-                                                                     dc->cursor.y) )
-                                                        {
-                                                            Item_Action(localClientNum, dc, v27);
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-LABEL_109:
-                                                        Item_Action(localClientNum, dc, v27);
-                                                    }
-                                                }
-                                            }
-                                            else if ( Item_IsModal(v27) )
-                                            {
-                                                for ( j = 0; j < menu->itemCount; ++j )
-                                                {
-                                                    if ( Item_IsVisible(localClientNum, dc->contextIndex, menu->items[j])
-                                                        && (Window_GetDynamicFlags(dc->contextIndex, &menu->items[j]->window) & 1) != 0
-                                                        && (menu->items[j]->window.staticFlags & 0x100000) == 0 )
-                                                    {
-                                                        binding = (const char *)menu->items[j];
-                                                    }
-                                                }
-                                                if ( binding
-                                                    && (*((unsigned int *)binding + 20) & 0x100000) == 0
-                                                    && Window_IsVisible(dc->contextIndex, (const windowDef_t *)binding) )
-                                                {
-                                                    if ( *((unsigned int *)binding + 41) == 4 )
-                                                    {
-                                                        Item_SetFocus(
-                                                            localClientNum,
-                                                            dc,
-                                                            (itemDef_s *)binding,
-                                                            *((float *)binding + 1),
-                                                            *((float *)binding + 2));
-                                                        Item_ListBox_HandleKey(localClientNum, dc, (itemDef_s *)binding, key, down, 0);
-                                                    }
-                                                    else if ( *((unsigned int *)binding + 13)
-                                                                 && **((_BYTE **)binding + 13)
-                                                                 && v27->window.group
-                                                                 && *v27->window.group
-                                                                 && !I_strcmp(v27->window.group, *((const char **)binding + 13)) )
-                                                    {
-                                                        Item_Action(localClientNum, dc, (itemDef_s *)binding);
-                                                    }
-                                                    else
-                                                    {
-                                                        Item_SetFocus(
-                                                            localClientNum,
-                                                            dc,
-                                                            (itemDef_s *)binding,
-                                                            *((float *)binding + 1),
-                                                            *((float *)binding + 2));
-                                                        Item_Action(localClientNum, dc, (itemDef_s *)binding);
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    Item_LoseFocus(dc->contextIndex, dc, v27);
+                                                LABEL_109:
+                                                    Item_Action(localClientNum, dc, item);
                                                 }
                                             }
                                         }
+                                        else if (Item_IsModal(item))
+                                        {
+                                            for (i = 0; i < menu->itemCount; ++i)
+                                            {
+                                                if (Item_IsVisible(localClientNum, dc->contextIndex, menu->items[i])
+                                                    && (Window_GetDynamicFlags(dc->contextIndex, &menu->items[i]->window) & 1) != 0
+                                                    && (menu->items[i]->window.staticFlags & 0x100000) == 0)
+                                                {
+                                                    overItem = menu->items[i];
+                                                }
+                                            }
+                                            if (overItem
+                                                && (overItem->window.staticFlags & 0x100000) == 0
+                                                && Window_IsVisible(dc->contextIndex, &overItem->window))
+                                            {
+                                                if (overItem->type == 4)
+                                                {
+                                                    Item_SetFocus(
+                                                        localClientNum,
+                                                        dc,
+                                                        overItem,
+                                                        overItem->window.rect.x,
+                                                        overItem->window.rect.y);
+                                                    Item_ListBox_HandleKey(localClientNum, dc, overItem, key, down, 0);
+                                                }
+                                                else if (overItem->window.group
+                                                    && *overItem->window.group
+                                                    && item->window.group
+                                                    && *item->window.group
+                                                    && !I_strcmp(item->window.group, overItem->window.group))
+                                                {
+                                                    Item_Action(localClientNum, dc, overItem);
+                                                }
+                                                else
+                                                {
+                                                    Item_SetFocus(
+                                                        localClientNum,
+                                                        dc,
+                                                        overItem,
+                                                        overItem->window.rect.x,
+                                                        overItem->window.rect.y);
+                                                    Item_Action(localClientNum, dc, overItem);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Item_LoseFocus(dc->contextIndex, dc, item);
+                                            }
+                                        }
                                     }
-                                    break;
-                                default:
-                                    return;
+                                }
+                                break;
+                            default:
+                                return;
                             }
                         }
                     }
                     else
                     {
-                        i = 0;
+                        inHandler = 0;
                     }
                 }
                 else
@@ -4919,18 +4883,18 @@ LABEL_109:
                     inHandleKey = 1;
                     Menus_HandleOOBClick(localClientNum, dc, menu, key, down);
                     inHandleKey = 0;
-                    i = 0;
+                    inHandler = 0;
                 }
             }
             else
             {
                 ControllerIndex = Com_LocalClient_GetControllerIndex(localClientNum);
-                Cbuf_ExecuteBuffer(dc->contextIndex, ControllerIndex, v25);
+                Cbuf_ExecuteBuffer(dc->contextIndex, ControllerIndex, (char *)binding);
             }
         }
         else
         {
-            i = 0;
+            inHandler = 0;
         }
     }
 }
@@ -7867,13 +7831,7 @@ bool __cdecl IsVisible(char flags)
 
 char    Menu_IsVisible(int localClientNum, UiContext *dc, menuDef_t *menu)
 {
-    int v5; // [esp-Ch] [ebp-11Ch] BYREF
-    itemDef_s dummyDef; // [esp+0h] [ebp-110h]
-    UIAnimInfo *retaddr; // [esp+110h] [ebp+0h]
-
-    //dummyDef.onEvent = a1;
-    //dummyDef.animInfo = retaddr;
-    if ( !Window_IsVisible(dc->contextIndex, &menu->window) )
+        if ( !Window_IsVisible(dc->contextIndex, &menu->window) )
         return 0;
     if ( menu->window.ownerDrawFlags && !UI_OwnerDrawVisible(menu->window.ownerDrawFlags) )
         return 0;
@@ -7899,7 +7857,9 @@ LABEL_18:
     {
         return 0;
     }
-    dummyDef.enableDvar = (const char *)menu;
+
+    itemDef_s dummyDef; // [esp+0h] [ebp-110h]
+    dummyDef.parent = menu;
 
     if (__PAIR64__(
         HIDWORD(sharedUiInfo.visibilityBits[localClientNum]) & HIDWORD(menu->showBits),
@@ -7911,7 +7871,7 @@ LABEL_18:
         return 0;
     }
 
-    if ( !menu->visibleExp.filename || IsExpressionTrue(localClientNum, (itemDef_s *)&v5, &menu->visibleExp) )
+    if ( !menu->visibleExp.filename || IsExpressionTrue(localClientNum, &dummyDef, &menu->visibleExp) )
         return 1;
     if ( uiscript_debug && uiscript_debug->current.integer )
     {

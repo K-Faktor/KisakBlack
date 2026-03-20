@@ -386,7 +386,7 @@ void __cdecl SV_SetXUIDConfigStrings()
 
 void __cdecl SV_Startup(int controllerIndex)
 {
-    iassert(svs.initialized);
+    iassert(!svs.initialized);
 
     if (IsDedicatedServer())
     {

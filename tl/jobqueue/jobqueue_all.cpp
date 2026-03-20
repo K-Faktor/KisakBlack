@@ -119,11 +119,12 @@ unsigned __int64 __cdecl tlAtomicOr(volatile unsigned __int64 *var, unsigned __i
 
 void __thiscall tlAtomicMutex::Lock()
 {
-    LONG Target; // [esp+1Ch] [ebp-10h] BYREF
+    //LONG Target; // [esp+1Ch] [ebp-10h] BYREF
     tlAtomicMutex *ThisPtr2; // [esp+20h] [ebp-Ch]
     unsigned __int64 CurThread; // [esp+24h] [ebp-8h]
 
     CurThread = GetCurrentThreadId();
+
     if (this->ThreadId == CurThread)
     {
         ++this->LockCount;
@@ -132,13 +133,12 @@ void __thiscall tlAtomicMutex::Lock()
     {
         while (1)
         {
-            ThisPtr2 = this->ThisPtr;
-            if (!_InterlockedCompareExchange64((volatile signed __int64 *)ThisPtr2, CurThread, 0))
+            if (!_InterlockedCompareExchange64(&this->ThisPtr->ThreadId, CurThread, 0))
                 break;
             SwitchToThread();
         }
-        Target = 0;
-        InterlockedExchange(&Target, 0);
+        //Target = 0;
+        //InterlockedExchange(&Target, 0);
         this->LockCount = 1;
     }
 }
@@ -2432,6 +2432,14 @@ void __cdecl jqStart()
 //  }
 //  return v4;
 //}
+
+tlAtomicMutex::tlAtomicMutex()
+{
+    ThisPtr = this;
+    ThreadId = 0;
+    LockCount = 0;
+}
+
 
 tlAtomicMutex::~tlAtomicMutex()
 {
