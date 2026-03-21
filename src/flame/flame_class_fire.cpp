@@ -7,7 +7,7 @@
 #include <universal/com_math_anglevectors.h>
 #include <cgame/cg_drawtools.h>
 
-flameGeneric_s flameFire;
+flameFire_t flameFire[2400];
 flameFire_t *flameFireFree;
 flameFire_t *flameFireUsed;
 int g_FireCount;
@@ -15,9 +15,9 @@ int g_FireCountWaterMark;
 
 void __cdecl Flame_Class_Fire_Init()
 {
-    memset((unsigned __int8 *)&flameFire, 0, 0x3A980u);
-    Flame_List_Init(&flameFire, 100, 2400);
-    flameFireFree = (flameFire_t *)&flameFire;
+    memset(flameFire, 0, 0x3A980u);
+    Flame_List_Init((flameGeneric_s*)flameFire, 100, 2400);
+    flameFireFree = flameFire;
     flameFireUsed = 0;
     ++g_FireCount;
 }

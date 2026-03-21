@@ -90,6 +90,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>steam_api.lib;binkw32.lib;nvapi.lib;d3dx9d.lib;d3d9.lib;ws2_32.lib;dxguid.lib;dsound.lib;winmm.lib;xinput.lib;xapobase.lib;dxerr.lib;libvpx.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

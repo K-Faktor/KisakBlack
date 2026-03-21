@@ -439,4 +439,4 @@ extern const dvar_t *ui_signedInToProfile;
 extern const dvar_t *emblem_scroll_delay_first;
 extern const dvar_t *emblem_scroll_delay_rest;
 
-extern UiContext uiInfoArray;
+extern uiInfo_s uiInfoArray[1];

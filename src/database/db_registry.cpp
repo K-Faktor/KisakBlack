@@ -4537,12 +4537,22 @@ void DB_SyncExternalAssets() // inlined in retail
     int depth; // [esp+0h] [ebp-4h]
 
     depth = 0;
+
     if ( Sys_IsMainThread() )
         depth = R_PopRemoteScreenUpdate();
 
     R_SyncRenderThread();
-    Sys_IsRenderThread();
-    DB_SyncExternalAssetsInternal();
+
+    if (!Sys_IsRenderThread() && !IsDedicatedServer())
+    {
+        RB_Resource_Callback(DB_SyncExternalAssetsInternal);
+        RB_Resource_Flush();
+    }
+    else
+    {
+        DB_SyncExternalAssetsInternal();
+    }
+
 
     if ( Sys_IsMainThread() )
         R_PushRemoteScreenUpdate(depth);
@@ -4876,7 +4886,7 @@ char *__cdecl DB_ReferencedFFChecksums()
                 if ( g_zoneNameList[0] )
                     I_strncat(g_zoneNameList, 2080, " ");
                 //itoa(g_zoneNames[i].fileSize, zoneSizeStr, 0xAu);
-                I_itoa(g_zoneNames[i].fileSize, zoneSizeStr, 0xAu);
+                _itoa(g_zoneNames[i].fileSize, zoneSizeStr, 10);
                 I_strncat(g_zoneNameList, 2080, zoneSizeStr);
             }
         }

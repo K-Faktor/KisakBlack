@@ -123,7 +123,7 @@ const dvar_t *ui_signedInToProfile;
 const dvar_t *emblem_scroll_delay_first;
 const dvar_t *emblem_scroll_delay_rest;
 
-UiContext uiInfoArray;
+uiInfo_s uiInfoArray[1];
 const serverFilter_s serverFilters[1];
 
 bool g_ingameMenusLoaded[1];
@@ -158,7 +158,7 @@ uiInfo_s *__cdecl UI_UIContext_GetInfo(int contextIndex)
     {
         __debugbreak();
     }
-    return (uiInfo_s *)&uiInfoArray;
+    return &uiInfoArray[contextIndex];
 }
 
 uiInfo_s *__cdecl UI_GetInfo(int localClientNum)
@@ -929,10 +929,10 @@ char *__cdecl UI_GetGameTypeDisplayName(const char *pszGameType)
 {
     int i; // [esp+0h] [ebp-4h]
 
-    for ( i = 0; i < sharedUiInfo.playerClientNums[31]; ++i )
+    for (i = 0; i < sharedUiInfo.numGameTypes; ++i)
     {
-        if ( !I_stricmp(pszGameType, (const char *)&sharedUiInfo.playerClientNums[29 * i + 32]) )
-            return UI_SafeTranslateString(&sharedUiInfo.gameTypes[i].gameType[8]);
+        if (!I_stricmp(pszGameType, sharedUiInfo.gameTypes[i].gameType))
+            return UI_SafeTranslateString(sharedUiInfo.gameTypes[i].gameTypeName);
     }
     return (char *)pszGameType;
 }
@@ -941,10 +941,10 @@ char *__cdecl UI_GetGameTypeDisplayShortName(const char *pszGameType)
 {
     int i; // [esp+0h] [ebp-4h]
 
-    for ( i = 0; i < sharedUiInfo.playerClientNums[31]; ++i )
+    for (i = 0; i < sharedUiInfo.numGameTypes; ++i)
     {
-        if ( !I_stricmp(pszGameType, (const char *)&sharedUiInfo.playerClientNums[29 * i + 32]) )
-            return UI_SafeTranslateString(&sharedUiInfo.gameTypes[i].gameTypeName[28]);
+        if (!I_stricmp(pszGameType, sharedUiInfo.gameTypes[i].gameType))
+            return UI_SafeTranslateString(sharedUiInfo.gameTypes[i].gameTypeShortName);
     }
     return (char *)pszGameType;
 }
@@ -1389,7 +1389,7 @@ void __cdecl UI_RunMenuScript(int localClientNum, int contextIndex, __int64 args
                                                                     }
                                                                     else
                                                                     {
-                                                                        UI_UpdateDisplayServers(localClientNum, (uiInfo_s *)&uiInfoArray);
+                                                                        UI_UpdateDisplayServers(localClientNum, uiInfoArray);
                                                                         if (sharedUiInfo.serverStatus.currentServer >= 0
                                                                             && sharedUiInfo.serverStatus.currentServer < sharedUiInfo.serverStatus.numDisplayServers)
                                                                         {
@@ -1400,14 +1400,14 @@ void __cdecl UI_RunMenuScript(int localClientNum, int contextIndex, __int64 args
                                                                                 - 81328],
                                                                                 (bdSecurityID *)sharedUiInfo.serverStatusSecurityID,
                                                                                 8);
-                                                                            UI_BuildServerStatusScoreBoard(localClientNum, (uiInfo_s *)&uiInfoArray, 1);
+                                                                            UI_BuildServerStatusScoreBoard(localClientNum, uiInfoArray, 1);
                                                                         }
                                                                     }
                                                                 }
                                                                 else
                                                                 {
                                                                     Dvar_SetBool((dvar_s*)ui_browserShowInfo, 0);
-                                                                    UI_UpdateDisplayServers(localClientNum, (uiInfo_s *)&uiInfoArray);
+                                                                    UI_UpdateDisplayServers(localClientNum, uiInfoArray);
                                                                     if (sharedUiInfo.serverStatus.currentServer >= 0
                                                                         && sharedUiInfo.serverStatus.currentServer < sharedUiInfo.serverStatus.numDisplayServers)
                                                                     {
@@ -1418,7 +1418,7 @@ void __cdecl UI_RunMenuScript(int localClientNum, int contextIndex, __int64 args
                                                                             - 81328],
                                                                             (bdSecurityID *)sharedUiInfo.serverStatusSecurityID,
                                                                             8);
-                                                                        UI_BuildServerStatus(localClientNum, (uiInfo_s *)&uiInfoArray, 1);
+                                                                        UI_BuildServerStatus(localClientNum, uiInfoArray, 1);
                                                                     }
                                                                 }
                                                             }
@@ -3281,17 +3281,10 @@ void __cdecl UI_InitOnceForAllClients()
     UI_RegisterDvars();
     UI_AssetCache();
     UI_GetGameTypesList();
-    if ( sharedUiInfo.playerClientNums[31] > 0x20u
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\ui\\ui_main.cpp",
-                    3965,
-                    0,
-                    "%s",
-                    "sharedUiInfo.numGameTypes <= ARRAY_COUNT( sharedUiInfo.gameTypes )") )
-    {
-        __debugbreak();
-    }
-    ui_netGameType = _Dvar_RegisterInt("ui_netGametype", 0, 0, sharedUiInfo.playerClientNums[31] - 1, 1u, "Game type");
+    
+    iassert(sharedUiInfo.numGameTypes <= ARRAY_COUNT(sharedUiInfo.gameTypes));
+    ui_netGameType = _Dvar_RegisterInt("ui_netGametype", 0, 0, sharedUiInfo.numGameTypes - 1, 1u, "Game type");
+
     UI_LoadMods();
     UI_LoadArenas();
     UI_LoadCustomMatchGameTypes();
@@ -3317,9 +3310,7 @@ void __cdecl UI_InitOnceForAllClients()
     {
         __debugbreak();
     }
-    Dvar_SetString(
-        (dvar_s *)ui_netGameTypeName,
-        (const char *)&sharedUiInfo.playerClientNums[29 * ui_netGameType->current.integer + 32]);
+    Dvar_SetString((dvar_s*)ui_netGameTypeName, sharedUiInfo.gameTypes[ui_netGameType->current.integer].gameType);
     uiscript_debug = _Dvar_RegisterInt("uiscript_debug", 0, 0, 2, 0, "spam debug info for the ui script");
     UI_Project_InitOnceForAllClients();
     FontHandleDefault = UI_GetFontHandleDefault(0.315);

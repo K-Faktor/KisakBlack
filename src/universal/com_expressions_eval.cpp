@@ -42,6 +42,8 @@
 #include <cgame/cg_drawtools.h>
 #include <stringed/stringed_hooks.h>
 
+int s_indexToFunctionMap[1024];
+
 void __cdecl GetToastPopupTitle(int localClientNum, itemDef_s *item, OperandStack *dataStack)
 {
     Operand result; // [esp+0h] [ebp-Ch] BYREF
@@ -13997,10 +13999,12 @@ int __cdecl Expression_GetIndexForFunction(int func)
 
 int __cdecl Expression_GetFunctionForOp(int op)
 {
-    if ( op >= 24 )
-        return *(unsigned int *)&s_tempOperandValueAsString[31][4 * op + 168] + 24;
-    else
+    if (op < NUM_EXPRESSION_OPERATORS)
+    {
         return op;
+    }
+
+    return s_indexToFunctionMap[op - NUM_EXPRESSION_OPERATORS] + NUM_EXPRESSION_OPERATORS;
 }
 
 char resultString_2[256];
@@ -14175,7 +14179,6 @@ char *__cdecl GetExpressionResultStringCompile(
         return (char *)"";
 }
 
-int s_indexToFunctionMap[1024];
 
 void __cdecl Expression_MapIndexToFunction(int index, const char *function)
 {

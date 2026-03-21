@@ -843,7 +843,7 @@ DvarValue *__cdecl Dvar_ClampValueToDomain(
             }
             else
             {
-                value.integer = domain.enumeration.stringCount;
+                value.integer = domain.integer.min;
             }
             break;
         case DVAR_TYPE_FLOAT_2:
@@ -858,7 +858,7 @@ DvarValue *__cdecl Dvar_ClampValueToDomain(
             Dvar_ClampVectorToDomain(&value.value, 4, domain.value.min, domain.value.max);
             break;
         case DVAR_TYPE_INT:
-            if ( domain.enumeration.stringCount > domain.integer.max
+            if (domain.integer.min > domain.integer.max
                 && !Assert_MyHandler(
                             "C:\\projects_pc\\cod\\codsrc\\src\\universal\\dvar.cpp",
                             561,
@@ -868,18 +868,18 @@ DvarValue *__cdecl Dvar_ClampValueToDomain(
             {
                 __debugbreak();
             }
-            if ( value.integer >= domain.enumeration.stringCount )
+            if ( value.integer >= domain.integer.min)
             {
                 if ( value.integer > domain.integer.max )
                     value.integer = domain.integer.max;
             }
             else
             {
-                value.integer = domain.enumeration.stringCount;
+                value.integer = domain.integer.min;
             }
             break;
         case DVAR_TYPE_ENUM:
-            if ( value.integer < 0 || value.integer >= domain.enumeration.stringCount )
+            if ( value.integer < 0 || value.integer >= domain.integer.min)
             {
                 value.integer = resetValue.integer;
                 if ( (resetValue.integer < 0 || value.integer >= domain.enumeration.stringCount)

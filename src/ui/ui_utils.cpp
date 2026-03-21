@@ -677,25 +677,25 @@ int __cdecl Float_Parse(const char **p, float *f)
 
 void __cdecl UI_GetGameTypesList()
 {
-    sharedUiInfo.playerClientNums[31] = 0;
-    sharedUiInfo.gameTypeMapCount[31] = 0;
-    I_strncpyz((char *)&sharedUiInfo.numJoinGameTypes, "All", 12);
-    sharedUiInfo.joinGameTypes[sharedUiInfo.gameTypeMapCount[31]++].gameType[8] = 0;
-    if ( useFastFile->current.enabled )
-        ((void (__cdecl *)(void (*)()))UI_GetGameTypesList_FastFile)(UI_GetGameTypesList_FastFile);
+    sharedUiInfo.numGameTypes = 0;
+    sharedUiInfo.numJoinGameTypes = 0;
+    I_strncpyz(sharedUiInfo.joinGameTypes[0].gameType, "All", 12);
+    sharedUiInfo.joinGameTypes[sharedUiInfo.numJoinGameTypes++].gameTypeName[0] = 0;
+    if (useFastFile->current.enabled)
+        UI_GetGameTypesList_FastFile();
     else
-        ((void (__cdecl *)(void (*)()))UI_GetGameTypesList_LoadObj)(UI_GetGameTypesList_LoadObj);
-    if ( !sharedUiInfo.playerClientNums[31] )
+        UI_GetGameTypesList_LoadObj();
+    if (!sharedUiInfo.numGameTypes)
         Com_Error(ERR_FATAL, "No game type scripts found in %sgametypes folder", "maps/mp/");
 }
 
 void UI_GetGameTypesList_LoadObj()
 {
-    char *v0; // eax
-    unsigned int v1; // [esp+0h] [ebp-1030h]
+    char *v1; // eax
+    unsigned int v2; // [esp+0h] [ebp-1030h]
     char *src; // [esp+10h] [ebp-1020h]
     char *data_p; // [esp+18h] [ebp-1018h] BYREF
-    char *v4; // [esp+1Ch] [ebp-1014h]
+    char *v5; // [esp+1Ch] [ebp-1014h]
     char listbuf[4096]; // [esp+20h] [ebp-1010h] BYREF
     int i; // [esp+1024h] [ebp-Ch]
     char *MenuBuffer; // [esp+1028h] [ebp-8h]
@@ -703,57 +703,57 @@ void UI_GetGameTypesList_LoadObj()
 
     FileList = FS_GetFileList("maps/mp/gametypes", (char*)"gsc", FS_LIST_PURE_ONLY, listbuf, 4096);
     src = listbuf;
-    for ( i = 0; i < FileList; ++i )
+    for (i = 0; i < FileList; ++i)
     {
-        v1 = strlen(src);
-        if ( *src == 95 )
+        v2 = strlen(src);
+        if (*src == 95)
         {
-            src += v1 + 1;
+            src += v2 + 1;
         }
         else
         {
-            if ( !I_stricmp(&src[v1 - 4], ".gsc") )
-                src[v1 - 4] = 0;
-            if ( sharedUiInfo.playerClientNums[31] == 32 || sharedUiInfo.gameTypeMapCount[31] == 32 )
+            if (!I_stricmp(&src[v2 - 4], ".gsc"))
+                src[v2 - 4] = 0;
+            if (sharedUiInfo.numGameTypes == 32 || sharedUiInfo.numJoinGameTypes == 32)
             {
                 Com_Printf(13, "Too many game type scripts found! Only loading the first %i\n", 31);
                 return;
             }
-            I_strncpyz((char *)&sharedUiInfo.playerClientNums[29 * sharedUiInfo.playerClientNums[31] + 32], src, 12);
+            I_strncpyz(sharedUiInfo.gameTypes[sharedUiInfo.numGameTypes].gameType, src, 12);
             I_strncpyz(
-                (char *)&sharedUiInfo.gameTypeMapCount[29 * sharedUiInfo.gameTypeMapCount[31] + 32],
-                (const char *)&sharedUiInfo.playerClientNums[29 * sharedUiInfo.playerClientNums[31] + 32],
+                sharedUiInfo.joinGameTypes[sharedUiInfo.numJoinGameTypes].gameType,
+                sharedUiInfo.gameTypes[sharedUiInfo.numGameTypes].gameType,
                 12);
-            v0 = va("%s%s%s.txt", "maps/mp/", "gametypes/", src);
-            MenuBuffer = UI_GetMenuBuffer(v0);
+            v1 = va("%s%s%s.txt", "maps/mp/", "gametypes/", src);
+            MenuBuffer = UI_GetMenuBuffer(v1);
             data_p = MenuBuffer;
-            if ( MenuBuffer )
+            if (MenuBuffer)
             {
-                v4 = (char *)Com_Parse((const char **)&data_p);
-                I_strncpyz(&sharedUiInfo.gameTypes[sharedUiInfo.playerClientNums[31]].gameType[8], v4, 32);
+                v5 = (char *)Com_Parse((const char **)&data_p);
+                I_strncpyz(sharedUiInfo.gameTypes[sharedUiInfo.numGameTypes].gameTypeName, v5, 32);
             }
             else
             {
                 I_strncpyz(
-                    &sharedUiInfo.gameTypes[sharedUiInfo.playerClientNums[31]].gameType[8],
-                    (const char *)&sharedUiInfo.playerClientNums[29 * sharedUiInfo.playerClientNums[31] + 32],
+                    sharedUiInfo.gameTypes[sharedUiInfo.numGameTypes].gameTypeName,
+                    sharedUiInfo.gameTypes[sharedUiInfo.numGameTypes].gameType,
                     32);
             }
             I_strncpyz(
-                &sharedUiInfo.joinGameTypes[sharedUiInfo.gameTypeMapCount[31]].gameType[8],
-                &sharedUiInfo.gameTypes[sharedUiInfo.playerClientNums[31]].gameType[8],
+                sharedUiInfo.joinGameTypes[sharedUiInfo.numJoinGameTypes].gameTypeName,
+                sharedUiInfo.gameTypes[sharedUiInfo.numGameTypes].gameTypeName,
                 32);
-            ++sharedUiInfo.playerClientNums[31];
-            ++sharedUiInfo.gameTypeMapCount[31];
-            src += v1 + 1;
+            ++sharedUiInfo.numGameTypes;
+            ++sharedUiInfo.numJoinGameTypes;
+            src += v2 + 1;
         }
     }
 }
 
 void UI_GetGameTypesList_FastFile()
 {
-    const char *v0; // eax
     char *v1; // eax
+    char *v2; // eax
     parseInfo_t *pszFileName; // [esp+4h] [ebp-18h]
     const char *pBuffParse; // [esp+8h] [ebp-14h] BYREF
     const char *pToken; // [esp+Ch] [ebp-10h]
@@ -761,66 +761,63 @@ void UI_GetGameTypesList_FastFile()
     char *pBuff; // [esp+14h] [ebp-8h]
     const char *gametypesBuf; // [esp+18h] [ebp-4h] BYREF
 
-    v0 = va("%sgametypes/_gametypes.txt", "maps/mp/");
-    gametypesFile = DB_FindXAssetHeader(ASSET_TYPE_RAWFILE, (char*)v0, 1, -1).rawfile;
-    if ( gametypesFile )
+    v1 = va("%sgametypes/_gametypes.txt", "maps/mp/");
+    gametypesFile = DB_FindXAssetHeader(ASSET_TYPE_RAWFILE, v1, 1, -1).rawfile;
+    if (gametypesFile)
     {
         gametypesBuf = gametypesFile->buffer;
-        while ( 1 )
+        while (1)
         {
             pszFileName = Com_Parse(&gametypesBuf);
-            if ( !gametypesBuf )
+            if (!gametypesBuf)
                 break;
-            if ( sharedUiInfo.playerClientNums[31] == 32 || sharedUiInfo.gameTypeMapCount[31] == 32 )
+            if (sharedUiInfo.numGameTypes == 32 || sharedUiInfo.numJoinGameTypes == 32)
             {
                 Com_Printf(13, "Too many game type scripts found! Only loading the first %i\n", 31);
                 return;
             }
+            I_strncpyz(sharedUiInfo.gameTypes[sharedUiInfo.numGameTypes].gameType, pszFileName->token, 12);
             I_strncpyz(
-                (char *)&sharedUiInfo.playerClientNums[29 * sharedUiInfo.playerClientNums[31] + 32],
-                pszFileName->token,
+                sharedUiInfo.joinGameTypes[sharedUiInfo.numJoinGameTypes].gameType,
+                sharedUiInfo.gameTypes[sharedUiInfo.numGameTypes].gameType,
                 12);
-            I_strncpyz(
-                (char *)&sharedUiInfo.gameTypeMapCount[29 * sharedUiInfo.gameTypeMapCount[31] + 32],
-                (const char *)&sharedUiInfo.playerClientNums[29 * sharedUiInfo.playerClientNums[31] + 32],
-                12);
-            v1 = va("%sgametypes/%s.txt", "maps/mp/", pszFileName->token);
-            pBuff = UI_GetMenuBuffer(v1);
+            v2 = va("%sgametypes/%s.txt", "maps/mp/", pszFileName->token);
+            pBuff = UI_GetMenuBuffer(v2);
             pBuffParse = pBuff;
-            if ( pBuff )
+            if (pBuff)
             {
                 pToken = (const char *)Com_Parse(&pBuffParse);
-                I_strncpyz(&sharedUiInfo.gameTypes[sharedUiInfo.playerClientNums[31]].gameType[8], pToken, 32);
+                I_strncpyz(sharedUiInfo.gameTypes[sharedUiInfo.numGameTypes].gameTypeName, pToken, 32);
                 I_strncpyz(
-                    &sharedUiInfo.joinGameTypes[sharedUiInfo.gameTypeMapCount[31]].gameType[8],
-                    &sharedUiInfo.gameTypes[sharedUiInfo.playerClientNums[31]].gameType[8],
+                    sharedUiInfo.joinGameTypes[sharedUiInfo.numJoinGameTypes].gameTypeName,
+                    sharedUiInfo.gameTypes[sharedUiInfo.numGameTypes].gameTypeName,
                     32);
                 pToken = (const char *)Com_Parse(&pBuffParse);
-                I_strncpyz(&sharedUiInfo.gameTypes[sharedUiInfo.playerClientNums[31]].gameTypeShortName[28], pToken, 32);
+                I_strncpyz(sharedUiInfo.gameTypes[sharedUiInfo.numGameTypes].gameTypeNameCaps, pToken, 32);
                 I_strncpyz(
-                    &sharedUiInfo.joinGameTypes[sharedUiInfo.gameTypeMapCount[31]].gameTypeShortName[28],
-                    &sharedUiInfo.gameTypes[sharedUiInfo.playerClientNums[31]].gameTypeShortName[28],
+                    sharedUiInfo.joinGameTypes[sharedUiInfo.numJoinGameTypes].gameTypeNameCaps,
+                    sharedUiInfo.gameTypes[sharedUiInfo.numGameTypes].gameTypeNameCaps,
                     32);
                 pToken = (const char *)Com_Parse(&pBuffParse);
-                I_strncpyz(&sharedUiInfo.gameTypes[sharedUiInfo.playerClientNums[31]].gameTypeName[28], pToken, 32);
+                I_strncpyz(sharedUiInfo.gameTypes[sharedUiInfo.numGameTypes].gameTypeShortName, pToken, 32);
             }
             else
             {
                 I_strncpyz(
-                    &sharedUiInfo.gameTypes[sharedUiInfo.playerClientNums[31]].gameType[8],
-                    (const char *)&sharedUiInfo.playerClientNums[29 * sharedUiInfo.playerClientNums[31] + 32],
+                    sharedUiInfo.gameTypes[sharedUiInfo.numGameTypes].gameTypeName,
+                    sharedUiInfo.gameTypes[sharedUiInfo.numGameTypes].gameType,
                     32);
                 I_strncpyz(
-                    &sharedUiInfo.joinGameTypes[sharedUiInfo.gameTypeMapCount[31]].gameType[8],
-                    &sharedUiInfo.gameTypes[sharedUiInfo.playerClientNums[31]].gameType[8],
+                    sharedUiInfo.joinGameTypes[sharedUiInfo.numJoinGameTypes].gameTypeName,
+                    sharedUiInfo.gameTypes[sharedUiInfo.numGameTypes].gameTypeName,
                     32);
                 I_strncpyz(
-                    &sharedUiInfo.gameTypes[sharedUiInfo.playerClientNums[31]].gameTypeName[28],
-                    &sharedUiInfo.gameTypes[sharedUiInfo.playerClientNums[31]].gameType[8],
+                    sharedUiInfo.gameTypes[sharedUiInfo.numGameTypes].gameTypeShortName,
+                    sharedUiInfo.gameTypes[sharedUiInfo.numGameTypes].gameTypeName,
                     32);
             }
-            ++sharedUiInfo.playerClientNums[31];
-            ++sharedUiInfo.gameTypeMapCount[31];
+            ++sharedUiInfo.numGameTypes;
+            ++sharedUiInfo.numJoinGameTypes;
         }
     }
 }

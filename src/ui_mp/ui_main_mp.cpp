@@ -2433,32 +2433,32 @@ void __cdecl UI_RunMenuScript_StartListenServer()
 
 void __cdecl UI_RunMenuScript_StartServer(int localClientNum)
 {
-    char *v1; // eax
-    const char *v2; // eax
+    char *v2; // eax
+    char *v3; // eax
     char *map; // [esp+0h] [ebp-8h]
     parseInfo_t *value; // [esp+4h] [ebp-4h]
 
     CG_SetThirdPerson(0);
-    v1 = va("%i", ui_dedicated->current.integer);
-    Dvar_SetFromStringByNameFromSource("dedicated", v1, DVAR_SOURCE_EXTERNAL, 0);
-    Dvar_SetStringByName("g_gametype", (char *)&sharedUiInfo.playerClientNums[29 * ui_netGameType->current.integer + 32]);
-    map = &sharedUiInfo.mapList[ui_currentNetMap->current.integer].mapName[28];
-    Dvar_SetString((dvar_s *)sv_mapRotationCurrent, sv_mapRotation->current.string);
-    for ( value = UI_GetMapRotationToken(); value && I_strcmp(value->token, map); value = UI_GetMapRotationToken() )
+    v2 = va("%i", ui_dedicated->current.integer);
+    Dvar_SetFromStringByNameFromSource("dedicated", v2, DVAR_SOURCE_EXTERNAL, 0);
+    Dvar_SetStringByName("g_gametype", sharedUiInfo.gameTypes[ui_netGameType->current.integer].gameType);
+    map = sharedUiInfo.mapList[ui_currentNetMap->current.integer].mapLoadName;
+    Dvar_SetString((dvar_s*)sv_mapRotationCurrent, sv_mapRotation->current.string);
+    for (value = UI_GetMapRotationToken(); value && I_strcmp(value->token, map); value = UI_GetMapRotationToken())
         ;
-    //BLOPS_NULLSUB();
-    //BLOPS_NULLSUB();
-    v2 = va("wait ; wait ; map %s\n", map);
-    Cbuf_AddText(localClientNum, v2);
+    //BG_EvalVehicleName();
+    //BG_EvalVehicleName();
+    v3 = va("wait ; wait ; map %s\n", map);
+    Cbuf_AddText(localClientNum, v3);
 }
 
 void __cdecl UI_RunMenuScript_ResetServerSettings()
 {
     Dvar_SetIntByName("ui_netGameType", 0);
     Dvar_SetIntByName("ui_currentNetMap", 0);
-    Dvar_SetStringByName("g_gametype", (char *)&sharedUiInfo.playerClientNums[29 * ui_netGameType->current.integer + 32]);
-    Dvar_SetStringByName("ui_gametype", (char *)&sharedUiInfo.playerClientNums[29 * ui_netGameType->current.integer + 32]);
-    Dvar_SetStringByName("ui_mapname", &sharedUiInfo.mapList[ui_currentNetMap->current.integer].mapName[28]);
+    Dvar_SetStringByName("g_gametype", sharedUiInfo.gameTypes[ui_netGameType->current.integer].gameType);
+    Dvar_SetStringByName("ui_gametype", sharedUiInfo.gameTypes[ui_netGameType->current.integer].gameType);
+    Dvar_SetStringByName("ui_mapname", sharedUiInfo.mapList[ui_currentNetMap->current.integer].mapLoadName);
 }
 
 char info_6[1024];
@@ -2806,10 +2806,10 @@ char *__cdecl UI_GetGameTypeDisplayNameCaps(const char *pszGameType)
 {
     int i; // [esp+0h] [ebp-4h]
 
-    for ( i = 0; i < sharedUiInfo.playerClientNums[31]; ++i )
+    for (i = 0; i < sharedUiInfo.numGameTypes; ++i)
     {
-        if ( !I_stricmp(pszGameType, (const char *)&sharedUiInfo.playerClientNums[29 * i + 32]) )
-            return UI_SafeTranslateString(&sharedUiInfo.gameTypes[i].gameTypeShortName[28]);
+        if (!I_stricmp(pszGameType, sharedUiInfo.gameTypes[i].gameType))
+            return UI_SafeTranslateString(sharedUiInfo.gameTypes[i].gameTypeNameCaps);
     }
     return (char *)pszGameType;
 }
@@ -2818,10 +2818,10 @@ char *__cdecl UI_GetMapDisplayNameCaps(const char *pszMap)
 {
     int i; // [esp+0h] [ebp-4h]
 
-    for ( i = 0; i < sharedUiInfo.mapCount; ++i )
+    for (i = 0; i < sharedUiInfo.mapCount; ++i)
     {
-        if ( !I_stricmp(pszMap, sharedUiInfo.mapList[i].mapLoadName) )
-            return UI_SafeTranslateString(&sharedUiInfo.mapList[i].mapLoadName[20]);
+        if (!I_stricmp(pszMap, sharedUiInfo.mapList[i].mapLoadName))
+            return UI_SafeTranslateString(sharedUiInfo.mapList[i].mapNameCaps);
     }
     return (char *)pszMap;
 }

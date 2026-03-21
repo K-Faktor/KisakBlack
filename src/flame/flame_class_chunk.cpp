@@ -7,25 +7,29 @@
 #include <cgame_mp/cg_local_mp.h>
 #include <cgame/cg_drawtools.h>
 
-flameGeneric_s flameChunks;
+flameChunk_s flameChunks[800];
 flameChunk_s *flameChunksFree;
 flameChunk_s *flameChunksUsed;
-flameGeneric_s sv_flameChunks;
+
+flameChunk_s sv_flameChunks[800];
 flameChunk_s *sv_flameChunksFree;
 flameChunk_s *sv_flameChunksUsed;
+
 int g_ChunkCount;
 int g_ChunkCountWaterMark;
 
 void __cdecl Flame_Class_Chunk_Init()
 {
-    memset((unsigned __int8 *)&flameChunks, 0, 0x15E00u);
-    Flame_List_Init(&flameChunks, 112, 800);
-    flameChunksFree = (flameChunk_s *)&flameChunks;
+    memset(flameChunks, 0, 0x15E00u);
+    Flame_List_Init((flameGeneric_s*)flameChunks, 112, 800);
+    flameChunksFree = flameChunks;
     flameChunksUsed = 0;
-    memset((unsigned __int8 *)&sv_flameChunks, 0, 0x15E00u);
-    Flame_List_Init(&sv_flameChunks, 112, 800);
-    sv_flameChunksFree = (flameChunk_s *)&sv_flameChunks;
+
+    memset(sv_flameChunks, 0, 0x15E00u);
+    Flame_List_Init((flameGeneric_s *)sv_flameChunks, 112, 800);
+    sv_flameChunksFree = sv_flameChunks;
     sv_flameChunksUsed = 0;
+
     ++g_ChunkCount;
 }
 

@@ -185,12 +185,12 @@ void __cdecl UI_SelectCurrentGameType()
     int i; // [esp+4h] [ebp-4h]
 
     currType = Dvar_GetString("g_gametype");
-    for ( i = 0; i < sharedUiInfo.playerClientNums[31]; ++i )
+    for (i = 0; i < sharedUiInfo.numGameTypes; ++i)
     {
-        if ( !I_stricmp(currType, (const char *)&sharedUiInfo.playerClientNums[29 * i + 32]) )
+        if (!I_stricmp(currType, sharedUiInfo.gameTypes[i].gameType))
         {
-            Dvar_SetInt((dvar_s *)ui_netGameType, i);
-            Dvar_SetString((dvar_s *)ui_netGameTypeName, (const char *)&sharedUiInfo.playerClientNums[29 * i + 32]);
+            Dvar_SetInt((dvar_s*)ui_netGameType, i);
+            Dvar_SetString((dvar_s *)ui_netGameTypeName, sharedUiInfo.gameTypes[i].gameType);
             return;
         }
     }
@@ -233,13 +233,13 @@ int __cdecl UI_MapCountByGameType()
 
     game = ui_netGameType->current.integer;
     c = 0;
-    for ( i = 0; i < sharedUiInfo.mapCount; ++i )
+    for (i = 0; i < sharedUiInfo.mapCount; ++i)
     {
-        sharedUiInfo.mapList[i].levelShot = 0;
-        if ( (*(unsigned int *)sharedUiInfo.contentPackList[19 * i - 2422].mapPackName & (1 << game)) != 0 )
+        sharedUiInfo.mapList[i].active = 0;
+        if ((sharedUiInfo.mapList[i].typeBits & (1 << game)) != 0)
         {
             ++c;
-            sharedUiInfo.mapList[i].levelShot = (Material *)1;
+            sharedUiInfo.mapList[i].active = 1;
         }
     }
     return c;
@@ -255,21 +255,21 @@ void __cdecl UI_SelectCurrentMap(int localClientNum)
     uiClientState_s cstate; // [esp+50h] [ebp-810h] BYREF
 
     CL_GetClientState(localClientNum, &cstate);
-    if ( cstate.connState == CA_ACTIVE )
+    if (cstate.connState == CA_ACTIVE)
     {
         info = CL_GetConfigString(0);
-        if ( *info )
+        if (*info)
         {
             v1 = Info_ValueForKey(info, "mapname");
             I_strncpyz(szMap, v1, 64);
             iCount = 0;
-            for ( i = 0; i < sharedUiInfo.mapCount; ++i )
+            for (i = 0; i < sharedUiInfo.mapCount; ++i)
             {
-                if ( sharedUiInfo.mapList[i].levelShot )
+                if (sharedUiInfo.mapList[i].active)
                 {
-                    if ( !I_stricmp(szMap, &sharedUiInfo.joinGameTypes[32].gameType[304 * i]) )
+                    if (!I_stricmp(szMap, sharedUiInfo.mapList[i].mapName))
                     {
-                        Menu_SetFeederSelection(0, &uiInfoArray, 0, 4, iCount, "pc_gamesetup_coop");
+                        Menu_SetFeederSelection(0, &uiInfoArray->uiDC, 0, 4, iCount, "pc_gamesetup_coop");
                         return;
                     }
                     ++iCount;
@@ -355,14 +355,14 @@ void __cdecl UI_RemoveServerFromDisplayList(int num)
 
     for (i = 0; i < sharedUiInfo.serverStatus.numDisplayServers; ++i)
     {
-        if (*(_DWORD *)&sharedUiInfo.serverStatusAddress[4 * i - 81328] == num)
+        if (sharedUiInfo.serverStatus.displayServers[i] == num)
         {
             --sharedUiInfo.serverStatus.numDisplayServers;
             for (j = i; j < sharedUiInfo.serverStatus.numDisplayServers; ++j)
             {
-                *(_DWORD *)&sharedUiInfo.serverStatusAddress[4 * j - 81328] = *(_DWORD *)&sharedUiInfo.serverStatusAddress[4 * j - 81324];
+                sharedUiInfo.serverStatus.displayServers[j] = sharedUiInfo.serverStatus.displayServers[j + 1];
                 if (ui_netSource->current.integer == 4 && sharedUiInfo.serverStatus.numDisplayServers < 256)
-                    sharedUiInfo.serverStatusAddress[j - 256] = sharedUiInfo.serverStatusAddress[j - 255];
+                    sharedUiInfo.serverStatus.displayServersFriendNameInd[j] = sharedUiInfo.serverStatus.displayServersFriendNameInd[j + 1];
             }
             return;
         }
@@ -657,7 +657,7 @@ int __cdecl ScoreBar_CompareScores(const char **sv1, const char **sv2)
 
 void __cdecl UI_RefreshServers()
 {
-    UI_UpdateDisplayServers(0, (uiInfo_s *)&uiInfoArray);
+    UI_UpdateDisplayServers(0, uiInfoArray);
 }
 
 void __cdecl UI_BuildFindPlayerList()
@@ -671,7 +671,7 @@ void __cdecl UI_BuildFindPlayerList()
     int i; // [esp+14DCh] [ebp-40Ch]
     char buf[1028]; // [esp+14E0h] [ebp-408h] BYREF
 
-    uiInfo = (uiInfo_s *)&uiInfoArray;
+    uiInfo = uiInfoArray;
     if ( unk_98B4B40 && uiInfo->nextFindPlayerRefresh <= uiInfo->uiDC.realTime )
     {
         UI_UpdateDisplayServers(0, uiInfo);
@@ -819,14 +819,14 @@ char *__cdecl UI_SelectedMap(int index, int *actual)
 
     c = 0;
     *actual = 0;
-    for ( i = 0; i < sharedUiInfo.mapCount; ++i )
+    for (i = 0; i < sharedUiInfo.mapCount; ++i)
     {
-        if ( sharedUiInfo.mapList[i].levelShot )
+        if (sharedUiInfo.mapList[i].active)
         {
-            if ( c == index )
+            if (c == index)
             {
                 *actual = i;
-                return UI_SafeTranslateString(&sharedUiInfo.joinGameTypes[32].gameType[304 * i]);
+                return UI_SafeTranslateString(sharedUiInfo.mapList[i].mapName);
             }
             ++c;
         }
@@ -839,33 +839,33 @@ int __cdecl UI_GameType_HandleKey(int flags, int key, int resetMap)
     int oldCount; // [esp+0h] [ebp-8h]
     int nextGameType; // [esp+4h] [ebp-4h]
 
-    if ( key != 200 && key != 201 && key != 13 && key != 191 )
+    if (key != 200 && key != 201 && key != 13 && key != 191)
         return 0;
     oldCount = UI_MapCountByGameType();
-    if ( key != 201 )
+    if (key != 201)
     {
         nextGameType = ui_netGameTypeName->current.integer + 1;
-        if ( nextGameType >= sharedUiInfo.playerClientNums[31] )
+        if (nextGameType >= sharedUiInfo.numGameTypes)
             goto LABEL_7;
-        if ( ui_netGameTypeName->current.integer == 1 )
+        if (ui_netGameTypeName->current.integer == 1)
             nextGameType = 3;
-LABEL_14:
-        Dvar_SetInt((dvar_s *)ui_netGameTypeName, nextGameType);
+    LABEL_14:
+        Dvar_SetInt((dvar_s*)ui_netGameTypeName, nextGameType);
         goto LABEL_15;
     }
     nextGameType = ui_netGameTypeName->current.integer - 1;
-    if ( ui_netGameTypeName->current.integer != 3 )
+    if (ui_netGameTypeName->current.integer != 3)
     {
-        if ( nextGameType < 2 )
-            nextGameType = sharedUiInfo.playerClientNums[31] - 1;
+        if (nextGameType < 2)
+            nextGameType = sharedUiInfo.numGameTypes - 1;
         goto LABEL_14;
     }
 LABEL_7:
     Dvar_SetInt((dvar_s *)ui_netGameTypeName, 1);
 LABEL_15:
-    if ( resetMap )
+    if (resetMap)
     {
-        if ( oldCount != UI_MapCountByGameType() )
+        if (oldCount != UI_MapCountByGameType())
             Dvar_SetInt((dvar_s *)ui_currentMap, 0);
     }
     return 1;
@@ -876,28 +876,26 @@ int __cdecl UI_NetGameType_HandleKey(int flags, int key)
     int integer; // [esp+0h] [ebp-8h]
     int nextNetGameType; // [esp+4h] [ebp-4h]
 
-    if ( key != 200 && key != 201 && key != 13 && key != 191 )
+    if (key != 200 && key != 201 && key != 13 && key != 191)
         return 0;
-    if ( key == 201 )
+    if (key == 201)
     {
-        if ( ui_netGameType->current.integer )
+        if (ui_netGameType->current.integer)
             integer = ui_netGameType->current.integer;
         else
-            integer = sharedUiInfo.playerClientNums[31];
-        Dvar_SetInt((dvar_s *)ui_netGameType, integer - 1);
+            integer = sharedUiInfo.numGameTypes;
+        Dvar_SetInt((dvar_s*)ui_netGameType, integer - 1);
     }
     else
     {
         nextNetGameType = ui_netGameType->current.integer + 1;
-        if ( nextNetGameType == sharedUiInfo.playerClientNums[31] )
+        if (nextNetGameType == sharedUiInfo.numGameTypes)
             nextNetGameType = 0;
         Dvar_SetInt((dvar_s *)ui_netGameType, nextNetGameType);
     }
-    Dvar_SetString(
-        (dvar_s *)ui_netGameTypeName,
-        (const char *)&sharedUiInfo.playerClientNums[29 * ui_netGameType->current.integer + 32]);
+    Dvar_SetString((dvar_s *)ui_netGameTypeName, sharedUiInfo.gameTypes[ui_netGameType->current.integer].gameType);
     UI_MapCountByGameType();
-    if ( UI_IsMapActive(ui_currentNetMap->current.integer) )
+    if (UI_IsMapActive(ui_currentNetMap->current.integer))
         UI_SelectListIndexForMapIndex(ui_currentNetMap->current.integer);
     else
         UI_SelectFirstActiveMap();
@@ -930,7 +928,7 @@ int UI_SelectFirstActiveMap()
     {
         if ( sharedUiInfo.mapList[mapIndex].levelShot )
         {
-            Menu_SetFeederSelection(0, &uiInfoArray, 0, 4, 0, "createserver");
+            Menu_SetFeederSelection(0, &uiInfoArray->uiDC, 0, 4, 0, "createserver");
             Dvar_SetInt((dvar_s *)ui_currentNetMap, mapIndex);
             return 1;
         }
@@ -944,7 +942,7 @@ void __cdecl UI_SelectListIndexForMapIndex(int mapIndex)
     int listIndex; // [esp+0h] [ebp-4h]
 
     listIndex = UI_GetListIndexFromMapIndex(mapIndex);
-    Menu_SetFeederSelection(0, &uiInfoArray, 0, 4, listIndex, "createserver");
+    Menu_SetFeederSelection(0, &uiInfoArray->uiDC, 0, 4, listIndex, "createserver");
 }
 
 int __cdecl UI_JoinGameType_HandleKey(int flags, int key)
@@ -969,7 +967,7 @@ int __cdecl UI_JoinGameType_HandleKey(int flags, int key)
             nextJoinGameType = 0;
         Dvar_SetInt((dvar_s *)ui_joinGameType, nextJoinGameType);
     }
-    UI_BuildServerDisplayList(0, (uiInfo_s *)&uiInfoArray, 1);
+    UI_BuildServerDisplayList(0, uiInfoArray, 1);
     return 1;
 }
 
@@ -1007,14 +1005,14 @@ int __cdecl UI_JoinMod_HandleKey(int flags, int key)
         __debugbreak();
     }
     Dvar_SetInt((dvar_s *)ui_browserMod, nextJoinModa);
-    UI_BuildServerDisplayList(0, (uiInfo_s *)&uiInfoArray, 1);
+    UI_BuildServerDisplayList(0, uiInfoArray, 1);
     return 1;
 }
 
 void __cdecl UI_NetSource_UpdateDisplayList(int source)
 {
     Dvar_SetInt((dvar_s *)ui_netSource, source);
-    UI_BuildServerDisplayList(0, (uiInfo_s *)&uiInfoArray, 1);
+    UI_BuildServerDisplayList(0, uiInfoArray, 1);
 }
 
 int __cdecl UI_NetSource_HandleKey(int flags, int key)
@@ -1060,7 +1058,7 @@ int __cdecl UI_NetFilter_HandleKey(int flags, int key)
     {
         ui_serverFilterType = 0;
     }
-    UI_BuildServerDisplayList(0, (uiInfo_s *)&uiInfoArray, 1);
+    UI_BuildServerDisplayList(0, uiInfoArray, 1);
     return 1;
 }
 
@@ -1102,15 +1100,17 @@ void __cdecl UI_DrawNetGameType(
 {
     char *v6; // eax
 
-    if ( ui_netGameType->current.integer > sharedUiInfo.playerClientNums[31] )
+    if (ui_netGameType->current.integer > sharedUiInfo.numGameTypes)
     {
-        Dvar_SetInt((dvar_s *)ui_netGameType, 0);
-        Dvar_SetString((dvar_s *)ui_netGameTypeName, (const char *)&sharedUiInfo.numGameTypes);
+        Dvar_SetInt((dvar_s*)ui_netGameType, 0);
+        Dvar_SetString((dvar_s *)ui_netGameTypeName, sharedUiInfo.gameTypes[0].gameType);
     }
-    if ( sharedUiInfo.gameTypes[ui_netGameType->current.integer].gameType[8] )
-        v6 = UI_SafeTranslateString(&sharedUiInfo.gameTypes[ui_netGameType->current.integer].gameType[8]);
+
+    if (sharedUiInfo.gameTypes[ui_netGameType->current.integer].gameTypeName[0])
+        v6 = UI_SafeTranslateString(sharedUiInfo.gameTypes[ui_netGameType->current.integer].gameTypeName);
     else
         v6 = UI_SafeTranslateString("EXE_ALL");
+
     UI_DrawText(
         &scrPlaceView[contextIndex],
         v6,
@@ -1135,10 +1135,10 @@ void __cdecl UI_DrawJoinGameType(
 {
     char *v6; // eax
 
-    if ( ui_joinGameType->current.integer > sharedUiInfo.gameTypeMapCount[31] )
-        Dvar_SetInt((dvar_s *)ui_joinGameType, 0);
-    if ( sharedUiInfo.joinGameTypes[ui_joinGameType->current.integer].gameType[8] )
-        v6 = UI_SafeTranslateString(&sharedUiInfo.joinGameTypes[ui_joinGameType->current.integer].gameType[8]);
+    if (ui_joinGameType->current.integer > sharedUiInfo.numJoinGameTypes)
+        Dvar_SetInt((dvar_s*)ui_joinGameType, 0);
+    if (sharedUiInfo.joinGameTypes[ui_joinGameType->current.integer].gameTypeName[0])
+        v6 = UI_SafeTranslateString(sharedUiInfo.joinGameTypes[ui_joinGameType->current.integer].gameTypeName);
     else
         v6 = UI_SafeTranslateString("EXE_ALL");
     UI_DrawText(
@@ -1165,30 +1165,30 @@ void __cdecl UI_DrawJoinMod(
 {
     char *v6; // eax
 
-    if ( ui_browserMod->current.integer > (int)sharedUiInfo.modList[63].modDescr )
-        Dvar_SetInt((dvar_s *)ui_browserMod, -2);
-    if ( ui_browserMod->current.integer == -2 )
+    if (ui_browserMod->current.integer > sharedUiInfo.modCount)
+        Dvar_SetInt((dvar_s*)ui_browserMod, -2);
+    if (ui_browserMod->current.integer == -2)
     {
         v6 = UI_SafeTranslateString("EXE_ALL");
     }
-    else if ( ui_browserMod->current.integer == -1 )
+    else if (ui_browserMod->current.integer == -1)
     {
         v6 = UI_SafeTranslateString("EXE_NO");
     }
     else
     {
-        if ( ui_browserMod->current.integer >= 0x40u
+        if (ui_browserMod->current.integer >= 0x40u
             && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\ui\\ui_main_pc.cpp",
-                        1247,
-                        0,
-                        "ui_browserMod->current.integer doesn't index MAX_MODS\n\t%i not in [0, %i)",
-                        ui_browserMod->current.integer,
-                        64) )
+                "C:\\projects_pc\\cod\\codsrc\\src\\ui\\ui_main_pc.cpp",
+                1247,
+                0,
+                "ui_browserMod->current.integer doesn't index MAX_MODS\n\t%i not in [0, %i)",
+                ui_browserMod->current.integer,
+                64))
         {
             __debugbreak();
         }
-        v6 = UI_SafeTranslateString((const char *)sharedUiInfo.serverHardwareIconList[2 * ui_browserMod->current.integer + 9]);
+        v6 = UI_SafeTranslateString(sharedUiInfo.modList[ui_browserMod->current.integer].modName);
     }
     UI_DrawText(
         &scrPlaceView[contextIndex],

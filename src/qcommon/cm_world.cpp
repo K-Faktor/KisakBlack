@@ -263,10 +263,12 @@ void __cdecl CM_AddEntityToNode(svEntity_s *ent, unsigned __int16 childNodeIndex
     unsigned __int16 *prevEnt; // [esp+0h] [ebp-8h]
     unsigned int entnum; // [esp+4h] [ebp-4h]
 
-    entnum = ((char *)ent - (char *)sv.svEntities[0].baseline.s.lerp.apos.trBase) / 360;
-    for ( prevEnt = (unsigned __int16 *)(24 * childNodeIndex + 66327132);
-                (unsigned int)*prevEnt - 1 <= entnum;
-                prevEnt = &sv.configstrings[180 * *prevEnt + 3082] )
+    //entnum = ((char *)ent - (char *)sv.svEntities[0].baseline.s.lerp.apos.trBase) / 360;
+    entnum = ent - sv.svEntities;
+
+    for (prevEnt = &cm_world.sectors[childNodeIndex].contents.entities;
+        (unsigned int)*prevEnt - 1 <= entnum;
+        prevEnt = &sv.configstrings[180 * *prevEnt + 3082])
     {
         ;
     }
@@ -530,9 +532,9 @@ void __cdecl CM_AddStaticModelToNode(cStaticModel_s *staticModel, unsigned __int
     cStaticModel_s *prevStaticModel; // [esp+4h] [ebp-4h]
 
     modelnum = staticModel - cm.staticModelList;
-    for ( prevStaticModel = (cStaticModel_s *)(24 * childNodeIndex + 66327134);
-                (unsigned int)prevStaticModel->writable.nextModelInWorldSector - 1 <= modelnum;
-                prevStaticModel = &cm.staticModelList[prevStaticModel->writable.nextModelInWorldSector - 1] )
+    for (prevStaticModel = (cStaticModel_s *)&cm_world.sectors[childNodeIndex].contents.staticModels;
+        (unsigned int)prevStaticModel->writable.nextModelInWorldSector - 1 <= modelnum;
+        prevStaticModel = &cm.staticModelList[prevStaticModel->writable.nextModelInWorldSector - 1])
     {
         ;
     }

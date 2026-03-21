@@ -5,25 +5,29 @@
 #include <universal/com_math_anglevectors.h>
 #include <cgame/cg_drawtools.h>
 
-flameGeneric_s flameDrips;
+flameDrips_t flameDrips[250];
 flameDrips_t *flameDripsFree;
 flameDrips_t *flameDripsUsed;
-flameGeneric_s sv_flameDrips;
+
+flameDrips_t sv_flameDrips[250];
 flameDrips_t *sv_flameDripsFree;
 flameDrips_t *sv_flameDripsUsed;
+
 int g_DripsCount;
 int g_DripsCountWaterMark;
 
 void __cdecl Flame_Class_Drips_Init()
 {
-    memset((unsigned __int8 *)&flameDrips, 0, 0x61A8u);
-    Flame_List_Init(&flameDrips, 100, 250);
-    flameDripsFree = (flameDrips_t *)&flameDrips;
+    memset(flameDrips, 0, 0x61A8u);
+    Flame_List_Init((flameGeneric_s *)flameDrips, 100, 250);
+    flameDripsFree = flameDrips;
     flameDripsUsed = 0;
-    memset((unsigned __int8 *)&sv_flameDrips, 0, 0x61A8u);
-    Flame_List_Init(&sv_flameDrips, 100, 250);
-    sv_flameDripsFree = (flameDrips_t *)&sv_flameDrips;
+
+    memset(sv_flameDrips, 0, 0x61A8u);
+    Flame_List_Init((flameGeneric_s*)sv_flameDrips, 100, 250);
+    sv_flameDripsFree = sv_flameDrips;
     sv_flameDripsUsed = 0;
+
     ++g_DripsCount;
 }
 

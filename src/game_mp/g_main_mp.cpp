@@ -86,7 +86,7 @@ const char *g_entinfoNames[9] =
   NULL
 };
 
-const char *moveOrientModeStrings[7] =
+const char *moveOrientModeStrings[8] =
 {
   "invalid",
   "dont_change",
@@ -94,7 +94,8 @@ const char *moveOrientModeStrings[7] =
   "enemy",
   "enemy_or_motion",
   "enemy_or_motion_sidestep",
-  "goal"
+  "goal",
+  NULL
 };
 
 const dvar_t *g_connectpaths;

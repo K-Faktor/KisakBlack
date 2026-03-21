@@ -360,7 +360,6 @@ int __cdecl mixerGetRecordSource(char *srcName)
     unsigned int err; // [esp+20h] [ebp-E4h]
     int iNumChannels; // [esp+24h] [ebp-E0h]
     int iMultipleItems; // [esp+28h] [ebp-DCh]
-    HMIXER__ *phmx; // [esp+2Ch] [ebp-D8h] BYREF
     tMIXERCONTROLDETAILS_BOOLEAN *lpListBool; // [esp+30h] [ebp-D4h]
     int ii; // [esp+34h] [ebp-D0h]
     tagMIXERCONTROLDETAILS_LISTTEXTA *lpListText; // [esp+38h] [ebp-CCh]
@@ -368,17 +367,29 @@ int __cdecl mixerGetRecordSource(char *srcName)
     tMIXERCONTROLDETAILS mxcd; // [esp+E8h] [ebp-1Ch] BYREF
     tagMIXERCONTROLA *lpmxc; // [esp+100h] [ebp-4h]
 
+    HMIXER mixerHandle;
+
     if ( !waveInGetNumDevs() )
         return 0;
     if ( !mixerGetNumDevs() )
         return 0;
-    if ( mixerOpen(&phmx, 0, 0, 0, 0) )
+    if ( mixerOpen(&mixerHandle, 0, 0, 0, 0) )
         return 0;
+
+    HMIXEROBJ phmx = (HMIXEROBJ)mixerHandle;
+
     lpmxc = 0;
     lpListText = 0;
     lpListBool = 0;
     mixerline.cbStruct = 168;
     mixerline.dwComponentType = 7;
+
+    if (mixerGetLineInfoA(phmx, &mixerline, 3u) != MMSYSERR_NOERROR)
+    {
+        mixerClose(mixerHandle); // KISAKTODO: this fails always for some reason.
+        return 0;
+    }
+
     mixerGetLineInfoA((HMIXEROBJ)phmx, &mixerline, 3u);
     lpmxc = (tagMIXERCONTROLA *)calloc(148 * mixerline.cControls, 1u);
     mxlc.cbStruct = 24;
@@ -455,7 +466,6 @@ int __cdecl mixerSetRecordSource(char *SrcName)
     unsigned int err; // [esp+1Ch] [ebp-E4h]
     int iNumChannels; // [esp+20h] [ebp-E0h]
     int iMultipleItems; // [esp+24h] [ebp-DCh]
-    HMIXER__ *phmx; // [esp+28h] [ebp-D8h] BYREF
     tMIXERCONTROLDETAILS_BOOLEAN *lpListBool; // [esp+2Ch] [ebp-D4h]
     int ii; // [esp+30h] [ebp-D0h]
     tagMIXERCONTROLDETAILS_LISTTEXTA *lpListText; // [esp+34h] [ebp-CCh]
@@ -463,17 +473,29 @@ int __cdecl mixerSetRecordSource(char *SrcName)
     tMIXERCONTROLDETAILS mxcd; // [esp+E4h] [ebp-1Ch] BYREF
     tagMIXERCONTROLA *lpmxc; // [esp+FCh] [ebp-4h]
 
+    HMIXER mixerHandle;
+
     if ( !waveInGetNumDevs() )
         return 0;
     if ( !mixerGetNumDevs() )
         return 0;
-    if ( mixerOpen(&phmx, 0, 0, 0, 0) )
+    if ( mixerOpen(&mixerHandle, 0, 0, 0, 0) )
         return 0;
+
+    HMIXEROBJ phmx = (HMIXEROBJ)mixerHandle;
+
     lpmxc = 0;
     lpListText = 0;
     lpListBool = 0;
     mixerline.cbStruct = 168;
     mixerline.dwComponentType = 7;
+
+    if (mixerGetLineInfoA(phmx, &mixerline, 3u) != MMSYSERR_NOERROR)
+    {
+        mixerClose(mixerHandle); // KISAKTODO: this fails always for some reason.
+        return 0;
+    }
+
     mixerGetLineInfoA((HMIXEROBJ)phmx, &mixerline, 3u);
     lpmxc = (tagMIXERCONTROLA *)calloc(148 * mixerline.cControls, 1u);
     mxlc.cbStruct = 24;

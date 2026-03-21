@@ -596,18 +596,15 @@ CStringEdPackage::CStringEdPackage()
 
 void __cdecl SE_ShutDown()
 {
-    CStringEdPackage *v0; // [esp+44h] [ebp-4h]
-
     if ( TheStringPackage )
     {
         //CStringEdPackage::Clear(TheStringPackage);
         TheStringPackage->Clear();
-        v0 = TheStringPackage;
         if ( TheStringPackage )
         {
             //CStringEdPackage::~CStringEdPackage(TheStringPackage);
             delete TheStringPackage;
-            Z_Free((char *)v0, 34);
+            //Z_Free((char *)TheStringPackage, 34); // defined in operator delete
         }
         TheStringPackage = 0;
     }

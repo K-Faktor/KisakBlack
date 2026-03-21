@@ -14,7 +14,8 @@ int g_current_bandwidth_setting;
 
 void __cdecl Encode_SetOptions(int frequency, int quality)
 {
-    bool yes; // [esp+3h] [ebp-1h] BYREF
+    //bool yes; // [esp+3h] [ebp-1h] BYREF
+    int yes; // LWSS: this needs to be 4byte, otherwise ASAN chimps out
 
     yes = 1;
     speex_encoder_ctl(g_encoder, 24, &frequency);

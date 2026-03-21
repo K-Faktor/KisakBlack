@@ -8,16 +8,16 @@
 #include <cgame/cg_drawtools.h>
 
 
-flameGeneric_s flameSmoke;
+flameSmoke_t flameSmoke[250];
 flameSmoke_t *flameSmokeFree;
 flameSmoke_t *flameSmokeUsed;
 int g_SmokeCount;
 
 void __cdecl Flame_Class_Smoke_Init()
 {
-    memset((unsigned __int8 *)&flameSmoke, 0, 0x7148u);
-    Flame_List_Init(&flameSmoke, 116, 250);
-    flameSmokeFree = (flameSmoke_t *)&flameSmoke;
+    memset(flameSmoke, 0, 0x7148u);
+    Flame_List_Init((flameGeneric_s*)flameSmoke, 116, 250);
+    flameSmokeFree = flameSmoke;
     flameSmokeUsed = 0;
     ++g_SmokeCount;
 }
