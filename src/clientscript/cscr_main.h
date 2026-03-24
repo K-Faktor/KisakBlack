@@ -2,6 +2,8 @@
 
 #undef GetObject
 
+#define MAX_PRECACHE_ENTRIES 0x700 /*1792*/
+
 enum scriptInstance_t : __int32
 {                                                                             // XREF: ScriptTokenizer/r
                                                                                 // ?Path_CallFunctionForNodes@@YAXW4scriptInstance_t@@P6AX0PAUpathnode_t@@@Z@Z/r ...

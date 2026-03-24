@@ -56,11 +56,11 @@ int __cdecl yyparse()
     sval_u v14; // eax
     sval_u v15; // eax
     sval_u v16; // eax
-    const char *v17; // [esp-4h] [ebp-CECh]
-    int v18; // [esp+0h] [ebp-CE8h] BYREF
-    int v19; // [esp+4h] [ebp-CE4h]
-    int *v20; // [esp+8h] [ebp-CE0h]
-    int *v21; // [esp+Ch] [ebp-CDCh]
+    //const char *v17; // [esp-4h] [ebp-CECh]
+    //int v18; // [esp+0h] [ebp-CE8h] BYREF
+    //int v19; // [esp+4h] [ebp-CE4h]
+    //int *v20; // [esp+8h] [ebp-CE0h]
+    //int *v21; // [esp+Ch] [ebp-CDCh]
     sval_u v22; // [esp+10h] [ebp-CD8h]
     sval_u v23; // [esp+14h] [ebp-CD4h]
     sval_u v24; // [esp+18h] [ebp-CD0h]
@@ -384,8 +384,10 @@ int __cdecl yyparse()
     int yystacksize; // [esp+CE4h] [ebp-4h]
 
     yychar1 = 0;
+
     yyss = yyssa;
     yyvs = yyvsa;
+
     yystacksize = 200;
     yyfree_stacks = 0;
     yystate = 0;
@@ -393,22 +395,24 @@ int __cdecl yyparse()
     yynerrs = 0;
     yyval.pos = 0;
     yychar = -2;
-    yyssp = (__int16 *)&yyssp + 1;
-    yyvsp = yyvsa;
-    while ( 1 )
+
+    yyssp = yyss;
+    yyvsp = yyvs;
+
+    while (1)
     {
-yynewstate:
+    yynewstate:
         *++yyssp = yystate;
-        if ( yyssp >= &yyss[yystacksize - 1] )
+        if (yyssp >= &yyss[yystacksize - 1])
         {
             yyvs1 = yyvs;
             yyss1 = yyss;
             size = yyssp - yyss + 1;
-            if ( yystacksize >= 10000 )
+            if (yystacksize >= 10000)
             {
-                v17 = "parser stack overflow";
+                //v17 = "parser stack overflow";
                 yyerror();
-                if ( yyfree_stacks )
+                if (yyfree_stacks)
                 {
                     free(yyss);
                     free(yyvs);
@@ -416,30 +420,35 @@ yynewstate:
                 return 2;
             }
             yystacksize *= 2;
-            if ( yystacksize > 10000 )
+            if (yystacksize > 10000)
                 yystacksize = 10000;
-            v1 = alloca(2 * yystacksize);
-            v21 = &v18;
-            yyss = (__int16 *)&v18;
-            _yy_memcpy((char *)&v18, (char *)yyss1, 2 * size);
-            v2 = alloca(8 * yystacksize);
-            v20 = &v18;
-            yyvs = (stype_t *)&v18;
-            _yy_memcpy((char *)&v18, (char *)yyvs1, 8 * size);
+
+            //v1 = alloca(sizeof(short) * yystacksize);
+            //v21 = &v18;
+            //yyss = (__int16 *)&v18;
+            yyss = (short *)alloca(sizeof(short) * yystacksize);
+            memcpy(yyss, yyss1, sizeof(short) * size);
+
+            //v2 = alloca(sizeof(stype_t) * yystacksize);
+            //v20 = &v18;
+            //yyvs = (stype_t *)&v18;
+            yyvs = (stype_t *)alloca(sizeof(stype_t) * yystacksize);
+            memcpy(yyvs, yyvs1, sizeof(stype_t) * size);
+
             yyssp = &yyss[size - 1];
             yyvsp = &yyvs[size - 1];
-            if ( yyssp >= &yyss[yystacksize - 1] )
+
+            if (yyssp >= &yyss[yystacksize - 1])
                 goto yyabortlab;
         }
         yyn = yypact[yystate];
-        if ( yyn == -32768 )
+        if (yyn == -32768)
             break;
-        if ( yychar == -2 )
+        if (yychar == -2)
             yychar = yylex();
-        if ( yychar > 0 )
+        if (yychar > 0)
         {
-            v19 = (unsigned int)yychar > 0x159 ? 120 : yytranslate[yychar];
-            yychar1 = v19;
+            yychar1 = (unsigned int)yychar > 0x159 ? 120 : yytranslate[yychar];
         }
         else
         {
@@ -447,822 +456,850 @@ yynewstate:
             yychar = 0;
         }
         yyn += yychar1;
-        if ( (unsigned int)yyn >= 0x59C || yycheck[yyn] != yychar1 )
+        if ((unsigned int)yyn >= 0x59C || yycheck[yyn] != yychar1)
             break;
         yyn = yytable[yyn];
-        if ( yyn >= 0 )
+        if (yyn >= 0)
         {
-            if ( !yyn )
+            if (!yyn)
                 goto yyerrlab;
-            if ( yyn == 267 )
+            if (yyn == 267)
                 goto yyacceptlab;
-            if ( yychar )
+            if (yychar)
                 yychar = -2;
             *++yyvsp = yylval;
-            if ( yyerrstatus )
+            if (yyerrstatus)
                 --yyerrstatus;
             yystate = yyn;
         }
         else
         {
-            if ( yyn == -32768 )
+            if (yyn == -32768)
                 goto yyerrlab;
             yyn = -yyn;
-yyreduce:
+        yyreduce:
             yylen = yyr2[yyn];
-            if ( yylen > 0 )
+            if (yylen > 0)
             {
                 pos = yyvsp[1 - yylen].pos;
                 yyval.val.stringValue = yyvsp[1 - yylen].val.stringValue;
                 yyval.pos = pos;
             }
-            v18 = yyn - 1;
-            switch ( yyn )
+            //v18 = yyn - 1; // assuming this is jumptable asm prep
+            switch (yyn)
             {
-                case 1:
-                    v325 = node2_(gInst, yyvsp[-1].val, yyvsp->val);
-                    yaccResult = v325;
-                    break;
-                case 2:
-                    v324 = node1(gInst, 0x43u, yyvsp->val);
-                    yaccResult = v324;
-                    break;
-                case 3:
-                    v323 = node1(gInst, 0x55u, yyvsp->val);
-                    yaccResult = v323;
-                    break;
-                case 4:
-                    v322 = node1(gInst, 0x55u, yyvsp->val);
-                    yaccResult = v322;
-                    break;
-                case 5:
-                    val2.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v321 = node2(gInst, 8u, yyvsp->val, val2);
-                    yyval.val = v321;
-                    break;
-                case 6:
-                    val5.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    val4.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    val3.stringValue = (unsigned int)node_pos((void *)yyvsp[-2].pos).xmodelPieces;
-                    v319 = node5(gInst, 0x31u, yyvsp[-2].val, yyvsp->val, val3, val4, val5);
-                    yyval.val = v319;
-                    yyval.pos = yyvsp[-1].pos;
-                    break;
-                case 7:
-                    v314.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v313.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v312.stringValue = (unsigned int)node_pos((void *)yyvsp[-2].pos).xmodelPieces;
-                    v315 = node5(gInst, 0x32u, yyvsp[-2].val, yyvsp->val, v312, v313, v314);
-                    yyval.val = v315;
-                    yyval.pos = yyvsp[-1].pos;
-                    break;
-                case 8:
-                    v310.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v309 = node1_(gInst, 102);
-                    v311 = node4(gInst, 0x33u, yyvsp[-2].val, yyvsp->val, v309, v310);
-                    yyval.val = v311;
-                    yyval.pos = yyvsp[-1].pos;
-                    break;
-                case 9:
-                    v307.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v306 = node1_(gInst, 103);
-                    v308 = node4(gInst, 0x33u, yyvsp[-2].val, yyvsp->val, v306, v307);
-                    yyval.val = v308;
-                    yyval.pos = yyvsp[-1].pos;
-                    break;
-                case 10:
-                    v304.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v303 = node1_(gInst, 104);
-                    v305 = node4(gInst, 0x33u, yyvsp[-2].val, yyvsp->val, v303, v304);
-                    yyval.val = v305;
-                    yyval.pos = yyvsp[-1].pos;
-                    break;
-                case 11:
-                    v301.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v300 = node1_(gInst, 105);
-                    v302 = node4(gInst, 0x33u, yyvsp[-2].val, yyvsp->val, v300, v301);
-                    yyval.val = v302;
-                    yyval.pos = yyvsp[-1].pos;
-                    break;
-                case 12:
-                    v298.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v297 = node1_(gInst, 106);
-                    v299 = node4(gInst, 0x33u, yyvsp[-2].val, yyvsp->val, v297, v298);
-                    yyval.val = v299;
-                    yyval.pos = yyvsp[-1].pos;
-                    break;
-                case 13:
-                    v295.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v294 = node1_(gInst, 107);
-                    v296 = node4(gInst, 0x33u, yyvsp[-2].val, yyvsp->val, v294, v295);
-                    yyval.val = v296;
-                    yyval.pos = yyvsp[-1].pos;
-                    break;
-                case 14:
-                    v292.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v291 = node1_(gInst, 108);
-                    v293 = node4(gInst, 0x33u, yyvsp[-2].val, yyvsp->val, v291, v292);
-                    yyval.val = v293;
-                    yyval.pos = yyvsp[-1].pos;
-                    break;
-                case 15:
-                    v289.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v288 = node1_(gInst, 109);
-                    v290 = node4(gInst, 0x33u, yyvsp[-2].val, yyvsp->val, v288, v289);
-                    yyval.val = v290;
-                    yyval.pos = yyvsp[-1].pos;
-                    break;
-                case 16:
-                    v286.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v285 = node1_(gInst, 110);
-                    v287 = node4(gInst, 0x33u, yyvsp[-2].val, yyvsp->val, v285, v286);
-                    yyval.val = v287;
-                    yyval.pos = yyvsp[-1].pos;
-                    break;
-                case 17:
-                    v283.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v282 = node1_(gInst, 111);
-                    v284 = node4(gInst, 0x33u, yyvsp[-2].val, yyvsp->val, v282, v283);
-                    yyval.val = v284;
-                    yyval.pos = yyvsp[-1].pos;
-                    break;
-                case 18:
-                    v280.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v279 = node1_(gInst, 112);
-                    v281 = node4(gInst, 0x33u, yyvsp[-2].val, yyvsp->val, v279, v280);
-                    yyval.val = v281;
-                    yyval.pos = yyvsp[-1].pos;
-                    break;
-                case 19:
-                    v277.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v276 = node1_(gInst, 113);
-                    v278 = node4(gInst, 0x33u, yyvsp[-2].val, yyvsp->val, v276, v277);
-                    yyval.val = v278;
-                    yyval.pos = yyvsp[-1].pos;
-                    break;
-                case 20:
-                    v274.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v273 = node1_(gInst, 114);
-                    v275 = node4(gInst, 0x33u, yyvsp[-2].val, yyvsp->val, v273, v274);
-                    yyval.val = v275;
-                    yyval.pos = yyvsp[-1].pos;
-                    break;
-                case 21:
-                    v271.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v270 = node1_(gInst, 115);
-                    v272 = node4(gInst, 0x33u, yyvsp[-2].val, yyvsp->val, v270, v271);
-                    yyval.val = v272;
-                    yyval.pos = yyvsp[-1].pos;
-                    break;
-                case 22:
-                    v268.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v267 = node1_(gInst, 116);
-                    v269 = node4(gInst, 0x33u, yyvsp[-2].val, yyvsp->val, v267, v268);
-                    yyval.val = v269;
-                    yyval.pos = yyvsp[-1].pos;
-                    break;
-                case 23:
-                    v265.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v264 = node1_(gInst, 117);
-                    v266 = node4(gInst, 0x33u, yyvsp[-2].val, yyvsp->val, v264, v265);
-                    yyval.val = v266;
-                    yyval.pos = yyvsp[-1].pos;
-                    break;
-                case 24:
-                    v262.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v263 = node2(gInst, 0x34u, yyvsp->val, v262);
-                    yyval.val = v263;
-                    break;
-                case 25:
-                    v260.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v261 = node2(gInst, 0x35u, yyvsp->val, v260);
-                    yyval.val = v261;
-                    break;
-                case 26:
-                    v259 = node1(gInst, 0x43u, yyvsp->val);
-                    yyval.val = v259;
-                    break;
-                case 27:
-                    v258 = node0(gInst, 0);
-                    yyval.val = v258;
-                    break;
-                case 28:
-                case 29:
-                    v4.stringValue = LowerCase(yyvsp->val.stringValue);
-                    yyvsp->val = v4;
-                    yyval.val.stringValue = yyvsp->val.stringValue;
-                    break;
-                case 30:
-                    v5.stringValue = LowerCase(yyvsp->val.stringValue);
-                    yyvsp->val = v5;
-                    v256.stringValue = (unsigned int)node_pos((void *)yyvsp[-2].pos).xmodelPieces;
-                    v257 = node3(gInst, 0x17u, yyvsp[-2].val, yyvsp->val, v256);
-                    yyval.val = v257;
-                    ++gScrCompilePub[gInst].far_function_count;
-                    break;
-                case 31:
-                    v6.stringValue = LowerCase(yyvsp->val.stringValue);
-                    yyvsp->val = v6;
-                    v254.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v255 = node2(gInst, 0x16u, yyvsp->val, v254);
-                    yyval.val = v255;
-                    break;
-                case 32:
-                    v7.stringValue = LowerCase(yyvsp->val.stringValue);
-                    yyvsp->val = v7;
-                    v252.stringValue = (unsigned int)node_pos((void *)yyvsp[-2].pos).xmodelPieces;
-                    v253 = node3(gInst, 0x17u, yyvsp[-2].val, yyvsp->val, v252);
-                    yyval.val = v253;
-                    yyval.pos = yyvsp[-1].pos;
-                    ++gScrCompilePub[gInst].far_function_count;
-                    break;
-                case 33:
-                    v8.stringValue = LowerCase(yyvsp->val.stringValue);
-                    yyvsp->val = v8;
-                    v250.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v251 = node2(gInst, 0x16u, yyvsp->val, v250);
-                    yyval.val = v251;
-                    break;
-                case 34:
-                    v248.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v249 = node2(gInst, 0x14u, yyvsp->val, v248);
-                    yyval.val = v249;
-                    break;
-                case 35:
-                    v246.stringValue = (unsigned int)node_pos((void *)yyvsp[-2].pos).xmodelPieces;
-                    v247 = node2(gInst, 0x18u, yyvsp[-2].val, v246);
-                    yyval.val = v247;
-                    break;
-                case 36:
-                    v244.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v245 = node2(gInst, 0x1Cu, yyvsp->val, v244);
-                    yyval.val = v245;
-                    break;
-                case 37:
-                    v242.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v241.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v243 = node3(gInst, 0x20u, yyvsp->val, v241, v242);
-                    yyval.val = v243;
-                    yyval.pos = yyvsp->pos;
-                    break;
-                case 38:
-                    v239.stringValue = (unsigned int)node_pos((void *)yyvsp[-2].pos).xmodelPieces;
-                    v240 = node3(gInst, 0x19u, yyvsp[-3].val, yyvsp[-1].val, v239);
-                    yyval.val = v240;
-                    yyval.pos = yyvsp[-2].pos;
-                    break;
-                case 39:
-                    v237.stringValue = (unsigned int)node_pos((void *)yyvsp[-2].pos).xmodelPieces;
-                    v236.stringValue = (unsigned int)node_pos((void *)yyvsp[-4].pos).xmodelPieces;
-                    v238 = node5(gInst, 0x1Au, yyvsp[-4].val, yyvsp[-3].val, yyvsp[-1].val, v236, v237);
-                    yyval.val = v238;
-                    yyval.pos = yyvsp[-2].pos;
-                    break;
-                case 40:
-                    v234.stringValue = (unsigned int)node_pos((void *)yyvsp[-2].pos).xmodelPieces;
-                    v235 = node2(gInst, 0x30u, yyvsp[-1].val, v234);
-                    yyval.val = v235;
-                    break;
-                case 41:
-                    v232.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v233 = node2(gInst, 9u, yyvsp->val, v232);
-                    yyval.val = v233;
-                    break;
-                case 42:
-                    v230.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v231 = node2(gInst, 0xAu, yyvsp->val, v230);
-                    yyval.val = v231;
-                    break;
-                case 43:
-                    v228.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v229 = node2(gInst, 0xBu, yyvsp->val, v228);
-                    yyval.val = v229;
-                    break;
-                case 44:
-                    v226.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v227 = node2(gInst, 0xCu, yyvsp->val, v226);
-                    yyval.val = v227;
-                    break;
-                case 45:
-                    v224.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v225 = node2(gInst, 0xDu, yyvsp->val, v224);
-                    yyval.val = v225;
-                    break;
-                case 46:
-                    v222.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v223 = node2(gInst, 0xEu, yyvsp->val, v222);
-                    yyval.val = v223;
-                    break;
-                case 47:
-                    v220.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v221 = node2(gInst, 9u, yyvsp->val, v220);
-                    yyval.val = v221;
-                    break;
-                case 48:
-                    v219 = node1(gInst, 0x15u, yyvsp->val);
-                    yyval.val = v219;
-                    break;
-                case 49:
-                    v217.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v218 = node2(gInst, 0x13u, yyvsp->val, v217);
-                    yyval.val = v218;
-                    break;
-                case 50:
-                    val1.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v216 = node1(gInst, 0x21u, val1);
-                    yyval.val = v216;
-                    break;
-                case 51:
-                    v213.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v214 = node1(gInst, 0x22u, v213);
-                    yyval.val = v214;
-                    break;
-                case 52:
-                    v211.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v212 = node1(gInst, 0x24u, v211);
-                    yyval.val = v212;
-                    break;
-                case 53:
-                    v209.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v210 = node1(gInst, 0x25u, v209);
-                    yyval.val = v210;
-                    break;
-                case 54:
-                    v207.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v208 = node1(gInst, 0x26u, v207);
-                    yyval.val = v208;
-                    break;
-                case 55:
-                    v205.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v206 = node2(gInst, 0x36u, yyvsp[-1].val, v205);
-                    yyval.val = v206;
-                    yyval.pos = yyvsp->pos;
-                    break;
-                case 56:
-                    v203.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v204 = node2(gInst, 0x14u, yyvsp->val, v203);
-                    yyval.val = v204;
-                    break;
-                case 57:
-                    v201.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v202 = node1(gInst, 0x44u, v201);
-                    yyval.val = v202;
-                    break;
-                case 58:
-                    v9.stringValue = LowerCase(yyvsp->val.stringValue);
-                    yyvsp->val = v9;
-                    v199.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v200 = node2(gInst, 0x45u, yyvsp->val, v199);
-                    yyval.val = v200;
-                    break;
-                case 59:
-                    v197.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v198 = node1(gInst, 0x4Au, v197);
-                    yyval.val = v198;
-                    break;
-                case 60:
-                    v195.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v196 = node1(gInst, 0x4Bu, v195);
-                    yyval.val = v196;
-                    break;
-                case 61:
-                    v193.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v194 = node1(gInst, 0x4Cu, v193);
-                    yyval.val = v194;
-                    break;
-                case 62:
-                    v191.stringValue = (unsigned int)node_pos((void *)yyvsp[-3].pos).xmodelPieces;
-                    v192 = node3(gInst, 0x4Du, yyvsp[-4].val, yyvsp[-1].val, v191);
-                    yyval.val = v192;
-                    break;
-                case 63:
-                    v10.stringValue = LowerCase(yyvsp->val.stringValue);
-                    yyvsp->val = v10;
-                    v189.stringValue = (unsigned int)node_pos((void *)yyvsp[-2].pos).xmodelPieces;
-                    v190 = node3(gInst, 0x11u, yyvsp[-2].val, yyvsp->val, v189);
-                    yyval.val = v190;
-                    yyval.pos = yyvsp->pos;
-                    break;
-                case 64:
-                    v187.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v186.stringValue = (unsigned int)node_pos((void *)yyvsp[-3].pos).xmodelPieces;
-                    v188 = node4(gInst, 0xFu, yyvsp[-3].val, yyvsp[-1].val, v186, v187);
-                    yyval.val = v188;
-                    yyval.pos = yyvsp[-2].pos;
-                    break;
-                case 65:
-                    v11.stringValue = LowerCase(yyvsp->val.stringValue);
-                    yyvsp->val = v11;
-                    v184.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v185 = node2(gInst, 5u, yyvsp->val, v184);
-                    yyval.val = v185;
-                    break;
-                case 66:
-                    v12.stringValue = LowerCase(yyvsp->val.stringValue);
-                    yyvsp->val = v12;
-                    v182.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v183 = node2(gInst, 0x52u, yyvsp->val, v182);
-                    yyval.val = v183;
-                    break;
-                case 67:
-                    v180.stringValue = (unsigned int)node_pos((void *)yyvsp[-2].pos).xmodelPieces;
-                    v181 = node2(gInst, 0x37u, yyvsp[-2].val, v180);
-                    yyval.val = v181;
-                    yyval.pos = yyvsp->pos;
-                    break;
-                case 68:
-                    v178.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v177.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v179 = node4(gInst, 2u, yyvsp[-2].val, yyvsp->val, v177, v178);
-                    yyval.val = v179;
-                    break;
-                case 69:
-                    v175.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v176 = node2(gInst, 0x1Du, yyvsp->val, v175);
-                    yyval.val = v176;
-                    break;
-                case 70:
-                    v173.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v174 = node1(gInst, 0x1Eu, v173);
-                    yyval.val = v174;
-                    break;
-                case 71:
-                    v171.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v170.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v172 = node3(gInst, 0x1Fu, yyvsp->val, v170, v171);
-                    yyval.val = v172;
-                    break;
-                case 72:
-                    v168.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v169 = node2(gInst, 0x2Bu, yyvsp[-1].val, v168);
-                    yyval.val = v169;
-                    break;
-                case 73:
-                    v166.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v167 = node2(gInst, 0x2Cu, yyvsp[-1].val, v166);
-                    yyval.val = v167;
-                    break;
-                case 74:
-                    v164.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v163 = node1_(gInst, 102);
-                    v165 = node4(gInst, 0x2Du, yyvsp[-2].val, yyvsp->val, v163, v164);
-                    yyval.val = v165;
-                    break;
-                case 75:
-                    v161.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v160 = node1_(gInst, 103);
-                    v162 = node4(gInst, 0x2Du, yyvsp[-2].val, yyvsp->val, v160, v161);
-                    yyval.val = v162;
-                    break;
-                case 76:
-                    v158.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v157 = node1_(gInst, 104);
-                    v159 = node4(gInst, 0x2Du, yyvsp[-2].val, yyvsp->val, v157, v158);
-                    yyval.val = v159;
-                    break;
-                case 77:
-                    v155.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v154 = node1_(gInst, 111);
-                    v156 = node4(gInst, 0x2Du, yyvsp[-2].val, yyvsp->val, v154, v155);
-                    yyval.val = v156;
-                    break;
-                case 78:
-                    v152.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v151 = node1_(gInst, 112);
-                    v153 = node4(gInst, 0x2Du, yyvsp[-2].val, yyvsp->val, v151, v152);
-                    yyval.val = v153;
-                    break;
-                case 79:
-                    v149.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v148 = node1_(gInst, 113);
-                    v150 = node4(gInst, 0x2Du, yyvsp[-2].val, yyvsp->val, v148, v149);
-                    yyval.val = v150;
-                    break;
-                case 80:
-                    v146.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v145 = node1_(gInst, 114);
-                    v147 = node4(gInst, 0x2Du, yyvsp[-2].val, yyvsp->val, v145, v146);
-                    yyval.val = v147;
-                    break;
-                case 81:
-                    v143.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v142 = node1_(gInst, 115);
-                    v144 = node4(gInst, 0x2Du, yyvsp[-2].val, yyvsp->val, v142, v143);
-                    yyval.val = v144;
-                    break;
-                case 82:
-                    v140.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v139 = node1_(gInst, 116);
-                    v141 = node4(gInst, 0x2Du, yyvsp[-2].val, yyvsp->val, v139, v140);
-                    yyval.val = v141;
-                    break;
-                case 83:
-                    v137.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v136 = node1_(gInst, 117);
-                    v138 = node4(gInst, 0x2Du, yyvsp[-2].val, yyvsp->val, v136, v137);
-                    yyval.val = v138;
-                    break;
-                case 84:
-                    v134.stringValue = (unsigned int)node_pos((void *)yyvsp[-3].pos).xmodelPieces;
-                    v133.stringValue = (unsigned int)node_pos((void *)yyvsp[-4].pos).xmodelPieces;
-                    v135 = node4(gInst, 0x39u, yyvsp[-4].val, yyvsp[-1].val, v133, v134);
-                    yyval.val = v135;
-                    break;
-                case 85:
-                    v131.stringValue = (unsigned int)node_pos((void *)yyvsp[-3].pos).xmodelPieces;
-                    v130.stringValue = (unsigned int)node_pos((void *)yyvsp[-4].pos).xmodelPieces;
-                    v132 = node4(gInst, 0x3Au, yyvsp[-4].val, yyvsp[-1].val, v130, v131);
-                    yyval.val = v132;
-                    break;
-                case 86:
-                    v128.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v129 = node1(gInst, 0x3Bu, v128);
-                    yyval.val = v129;
-                    break;
-                case 87:
-                    v126.stringValue = (unsigned int)node_pos((void *)yyvsp[-3].pos).xmodelPieces;
-                    v125.stringValue = (unsigned int)node_pos((void *)yyvsp[-4].pos).xmodelPieces;
-                    v127 = node4(gInst, 0x3Cu, yyvsp[-4].val, yyvsp[-1].val, v125, v126);
-                    yyval.val = v127;
-                    break;
-                case 88:
-                    v123.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v122.stringValue = (unsigned int)node_pos((void *)yyvsp[-4].pos).xmodelPieces;
-                    v124 = node4(gInst, 0x3Du, yyvsp[-4].val, yyvsp[-1].val, v122, v123);
-                    yyval.val = v124;
-                    break;
-                case 89:
-                    v120.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v121 = node1(gInst, 0x41u, v120);
-                    yyval.val = v121;
-                    break;
-                case 90:
-                    v118.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v119 = node1(gInst, 0x42u, v118);
-                    yyval.val = v119;
-                    break;
-                case 91:
-                    v116.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v117 = node1(gInst, 0x4Eu, v116);
-                    yyval.val = v117;
-                    break;
-                case 92:
-                    v114.stringValue = (unsigned int)node_pos((void *)yyvsp[-3].pos).xmodelPieces;
-                    v115 = node2(gInst, 0x4Fu, yyvsp[-1].val, v114);
-                    yyval.val = v115;
-                    break;
-                case 93:
-                    v112.stringValue = (unsigned int)node_pos((void *)yyvsp[-3].pos).xmodelPieces;
-                    v113 = node2(gInst, 0x50u, yyvsp[-1].val, v112);
-                    yyval.val = v113;
-                    break;
-                case 94:
-                    v111 = node1(gInst, 0x1Bu, yyvsp->val);
-                    yyval.val = v111;
-                    break;
-                case 96:
-                    v110 = node0(gInst, 0);
-                    yyval.val = v110;
-                    break;
-                case 99:
-                    v108.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v107.stringValue = (unsigned int)node_pos((void *)yyvsp[-2].pos).xmodelPieces;
-                    v109 = node3(gInst, 0x2Eu, yyvsp[-1].val, v107, v108);
-                    yyval.val = v109;
-                    break;
-                case 100:
-                    v105.stringValue = (unsigned int)node_pos((void *)yyvsp[-2].pos).xmodelPieces;
-                    v106 = node4(gInst, 0x27u, yyvsp[-2].val, yyvsp->val, v105, g_dummyVal);
-                    yyval.val = v106;
-                    break;
-                case 101:
-                    v103.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v102.stringValue = (unsigned int)node_pos((void *)yyvsp[-4].pos).xmodelPieces;
-                    v104 = node7(gInst, 0x28u, yyvsp[-4].val, yyvsp[-2].val, yyvsp->val, v102, v103, g_dummyVal, g_dummyVal);
-                    yyval.val = v104;
-                    break;
-                case 102:
-                    v100.stringValue = (unsigned int)node_pos((void *)yyvsp[-2].pos).xmodelPieces;
-                    v99.stringValue = (unsigned int)node_pos((void *)yyvsp[-6].pos).xmodelPieces;
-                    v101 = node7(gInst, 0x28u, yyvsp[-6].val, yyvsp[-3].val, yyvsp[-1].val, v99, v100, g_dummyVal, g_dummyVal);
-                    yyval.val = v101;
-                    break;
-                case 103:
-                    v97.stringValue = (unsigned int)node_pos((void *)yyvsp[-4].pos).xmodelPieces;
-                    v96.stringValue = (unsigned int)node_pos((void *)yyvsp[-2].pos).xmodelPieces;
-                    v98 = node5(gInst, 0x29u, yyvsp[-2].val, yyvsp->val, v96, v97, g_dummyVal);
-                    yyval.val = v98;
-                    break;
-                case 104:
-                    val6.stringValue = (unsigned int)node_pos((void *)yyvsp[-7].pos).xmodelPieces;
-                    v93.stringValue = (unsigned int)node_pos((void *)yyvsp[-4].pos).xmodelPieces;
-                    v95 = node8(
-                                    gInst,
-                                    0x2Au,
-                                    yyvsp[-5].val,
-                                    yyvsp[-4].val,
-                                    yyvsp[-2].val,
-                                    yyvsp->val,
-                                    v93,
-                                    val6,
-                                    g_dummyVal,
-                                    g_dummyVal);
-                    yyval.val = v95;
-                    break;
-                case 105:
-                    v91.stringValue = (unsigned int)node_pos((void *)yyvsp[-4].pos).xmodelPieces;
-                    v92 = node3(gInst, 0x3Eu, yyvsp[-4].val, yyvsp[-1].val, v91);
-                    yyval.val = v92;
-                    break;
-                case 106:
-                    v89.stringValue = (unsigned int)node_pos((void *)yyvsp[-2].pos).xmodelPieces;
-                    v90 = node3(gInst, 0x2Fu, yyvsp[-1].val, v89, g_dummyVal);
-                    yyval.val = v90;
-                    break;
-                case 107:
-                    v88 = node0(gInst, 0);
-                    yyval.val = v88;
-                    break;
-                case 108:
-                    v86.stringValue = (unsigned int)node_pos((void *)yyvsp[-2].pos).xmodelPieces;
-                    v87 = node3(gInst, 0x3Fu, yyvsp[-1].val, v86, g_dummyVal);
-                    yyval.val = v87;
-                    break;
-                case 109:
-                    v84.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v85 = node2(gInst, 0x40u, v84, g_dummyVal);
-                    yyval.val = v85;
-                    break;
-                case 111:
-                    appended = append_node(gInst, yyvsp[-1].val, yyvsp->val);
-                    yyval.val = appended;
-                    break;
-                case 112:
-                    val = node0(gInst, 0);
-                    v82 = linked_list_end(gInst, val);
-                    yyval.val = v82;
-                    break;
-                case 113:
-                    v78.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v79 = node2_(gInst, yyvsp->val, v78);
-                    v80 = prepend_node(gInst, v79, yyvsp[-2].val);
-                    yyval.val = v80;
-                    break;
-                case 114:
-                    v76 = node0(gInst, 0);
-                    v74.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v75 = node2_(gInst, yyvsp->val, v74);
-                    v77 = prepend_node(gInst, v75, v76);
-                    yyval.val = v77;
-                    break;
-                case 116:
-                    v73 = node0(gInst, 0);
-                    yyval.val = v73;
-                    break;
-                case 117:
-                    v13.stringValue = LowerCase(yyvsp->val.stringValue);
-                    yyvsp->val = v13;
-                    v70.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v71 = node2_(gInst, yyvsp->val, v70);
-                    v72 = append_node(gInst, yyvsp[-2].val, v71);
-                    yyval.val = v72;
-                    break;
-                case 118:
-                    v14.stringValue = LowerCase(yyvsp->val.stringValue);
-                    yyvsp->val = v14;
-                    v67.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v68 = node2_(gInst, yyvsp->val, v67);
-                    v65 = node0(gInst, 0);
-                    v66 = linked_list_end(gInst, v65);
-                    v69 = append_node(gInst, v66, v68);
-                    yyval.val = v69;
-                    break;
-                case 120:
-                    v63 = node0(gInst, 0);
-                    v64 = linked_list_end(gInst, v63);
-                    yyval.val = v64;
-                    break;
-                case 121:
-                    v15.stringValue = LowerCase(yyvsp->val.stringValue);
-                    yyvsp->val = v15;
-                    v60.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v61 = node2_(gInst, yyvsp->val, v60);
-                    v62 = append_node(gInst, yyvsp[-2].val, v61);
-                    yyval.val = v62;
-                    break;
-                case 122:
-                    v57.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v58 = node2_(gInst, yyvsp->val, v57);
-                    v55 = node0(gInst, 0);
-                    v56 = linked_list_end(gInst, v55);
-                    v59 = append_node(gInst, v56, v58);
-                    yyval.val = v59;
-                    break;
-                case 123:
-                    v52.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v53 = node2_(gInst, yyvsp->val, v52);
-                    v54 = append_node(gInst, yyvsp[-2].val, v53);
-                    yyval.val = v54;
-                    break;
-                case 124:
-                    v49.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v50 = node2_(gInst, yyvsp->val, v49);
-                    v47 = node0(gInst, 0);
-                    v48 = linked_list_end(gInst, v47);
-                    v51 = append_node(gInst, v48, v50);
-                    yyval.val = v51;
-                    break;
-                case 125:
-                    v44.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v45 = node2_(gInst, yyvsp->val, v44);
-                    v46 = prepend_node(gInst, v45, yyvsp[-2].val);
-                    yyval.val = v46;
-                    break;
-                case 126:
-                    v42 = node0(gInst, 0);
-                    v40.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v41 = node2_(gInst, yyvsp->val, v40);
-                    v43 = prepend_node(gInst, v41, v42);
-                    yyval.val = v43;
-                    break;
-                case 127:
-                    v16.stringValue = LowerCase(yyvsp[-6].val.stringValue);
-                    yyvsp[-6].val = v16;
-                    v38.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v37.stringValue = (unsigned int)node_pos((void *)yyvsp[-6].pos).xmodelPieces;
-                    v39 = node6(gInst, 0x46u, yyvsp[-6].val, yyvsp[-4].val, yyvsp[-1].val, v37, v38, g_dummyVal);
-                    yyval.val = v39;
-                    break;
-                case 128:
-                    v35.stringValue = (unsigned int)node_pos((void *)yyvsp[-2].pos).xmodelPieces;
-                    v34.stringValue = (unsigned int)node_pos((void *)yyvsp[-4].pos).xmodelPieces;
-                    v36 = node3(gInst, 0x49u, yyvsp[-2].val, v34, v35);
-                    yyval.val = v36;
-                    break;
-                case 129:
-                    v32.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v33 = node1(gInst, 0x47u, v32);
-                    yyval.val = v33;
-                    break;
-                case 130:
-                    v30.stringValue = (unsigned int)node_pos((void *)yyvsp->pos).xmodelPieces;
-                    v31 = node1(gInst, 0x48u, v30);
-                    yyval.val = v31;
-                    break;
-                case 131:
-                    v29 = append_node(gInst, yyvsp[-1].val, yyvsp->val);
-                    yyval.val = v29;
-                    break;
-                case 132:
-                    v27 = node0(gInst, 0);
-                    v28 = linked_list_end(gInst, v27);
-                    yyval.val = v28;
-                    break;
-                case 133:
-                    v25.stringValue = (unsigned int)node_pos((void *)yyvsp[-1].pos).xmodelPieces;
-                    v26 = node2(gInst, 0x58u, yyvsp->val, v25);
-                    yyval.val = v26;
-                    ++gScrCompilePub[gInst].far_function_count;
-                    break;
-                case 134:
-                    v24 = append_node(gInst, yyvsp[-2].val, yyvsp[-1].val);
-                    yyval.val = v24;
-                    break;
-                case 135:
-                    v22 = node0(gInst, 0);
-                    v23 = linked_list_end(gInst, v22);
-                    yyval.val = v23;
-                    break;
-                default:
-                    break;
+            case 1:
+                v325 = node2_(gInst, yyvsp[-1].val, yyvsp->val);
+                yaccResult = v325;
+                break;
+            case 2:
+                v324 = node1(gInst, ENUM_expression, yyvsp->val);
+                yaccResult = v324;
+                break;
+            case 3:
+                v323 = node1(gInst, ENUM_statement, yyvsp->val);
+                yaccResult = v323;
+                break;
+            case 4:
+                v322 = node1(gInst, ENUM_statement, yyvsp->val);
+                yaccResult = v322;
+                break;
+            case 5:
+                val2 = node_pos(yyvsp->pos);
+                v321 = node2(gInst, ENUM_primitive_expression, yyvsp->val, val2);
+                yyval.val = v321;
+                break;
+            case 6:
+                val5 = node_pos(yyvsp[-1].pos);
+                val4 = node_pos(yyvsp->pos);
+                val3 = node_pos(yyvsp[-2].pos);
+                v319 = node5(gInst, ENUM_bool_or, yyvsp[-2].val, yyvsp->val, val3, val4, val5);
+                yyval.val = v319;
+                yyval.pos = yyvsp[-1].pos;
+                break;
+            case 7:
+                v314 = node_pos(yyvsp[-1].pos);
+                v313 = node_pos(yyvsp->pos);
+                v312 = node_pos(yyvsp[-2].pos);
+                v315 = node5(gInst, ENUM_bool_and, yyvsp[-2].val, yyvsp->val, v312, v313, v314);
+                yyval.val = v315;
+                yyval.pos = yyvsp[-1].pos;
+                break;
+            case 8:
+                v310 = node_pos(yyvsp[-1].pos);
+                v309 = node1_(gInst, 102);
+                v311 = node4(gInst, ENUM_binary, yyvsp[-2].val, yyvsp->val, v309, v310);
+                yyval.val = v311;
+                yyval.pos = yyvsp[-1].pos;
+                break;
+            case 9:
+                v307 = node_pos(yyvsp[-1].pos);
+                v306 = node1_(gInst, 103);
+                v308 = node4(gInst, ENUM_binary, yyvsp[-2].val, yyvsp->val, v306, v307);
+                yyval.val = v308;
+                yyval.pos = yyvsp[-1].pos;
+                break;
+            case 10:
+                v304 = node_pos(yyvsp[-1].pos);
+                v303 = node1_(gInst, 104);
+                v305 = node4(gInst, ENUM_binary, yyvsp[-2].val, yyvsp->val, v303, v304);
+                yyval.val = v305;
+                yyval.pos = yyvsp[-1].pos;
+                break;
+            case 11:
+                v301 = node_pos(yyvsp[-1].pos);
+                v300 = node1_(gInst, 105);
+                v302 = node4(gInst, ENUM_binary, yyvsp[-2].val, yyvsp->val, v300, v301);
+                yyval.val = v302;
+                yyval.pos = yyvsp[-1].pos;
+                break;
+            case 12:
+                v298 = node_pos(yyvsp[-1].pos);
+                v297 = node1_(gInst, 106);
+                v299 = node4(gInst, ENUM_binary, yyvsp[-2].val, yyvsp->val, v297, v298);
+                yyval.val = v299;
+                yyval.pos = yyvsp[-1].pos;
+                break;
+            case 13:
+                v295 = node_pos(yyvsp[-1].pos);
+                v294 = node1_(gInst, 107);
+                v296 = node4(gInst, ENUM_binary, yyvsp[-2].val, yyvsp->val, v294, v295);
+                yyval.val = v296;
+                yyval.pos = yyvsp[-1].pos;
+                break;
+            case 14:
+                v292 = node_pos(yyvsp[-1].pos);
+                v291 = node1_(gInst, 108);
+                v293 = node4(gInst, ENUM_binary, yyvsp[-2].val, yyvsp->val, v291, v292);
+                yyval.val = v293;
+                yyval.pos = yyvsp[-1].pos;
+                break;
+            case 15:
+                v289 = node_pos(yyvsp[-1].pos);
+                v288 = node1_(gInst, 109);
+                v290 = node4(gInst, ENUM_binary, yyvsp[-2].val, yyvsp->val, v288, v289);
+                yyval.val = v290;
+                yyval.pos = yyvsp[-1].pos;
+                break;
+            case 16:
+                v286 = node_pos(yyvsp[-1].pos);
+                v285 = node1_(gInst, 110);
+                v287 = node4(gInst, ENUM_binary, yyvsp[-2].val, yyvsp->val, v285, v286);
+                yyval.val = v287;
+                yyval.pos = yyvsp[-1].pos;
+                break;
+            case 17:
+                v283 = node_pos(yyvsp[-1].pos);
+                v282 = node1_(gInst, 111);
+                v284 = node4(gInst, ENUM_binary, yyvsp[-2].val, yyvsp->val, v282, v283);
+                yyval.val = v284;
+                yyval.pos = yyvsp[-1].pos;
+                break;
+            case 18:
+                v280 = node_pos(yyvsp[-1].pos);
+                v279 = node1_(gInst, 112);
+                v281 = node4(gInst, ENUM_binary, yyvsp[-2].val, yyvsp->val, v279, v280);
+                yyval.val = v281;
+                yyval.pos = yyvsp[-1].pos;
+                break;
+            case 19:
+                v277 = node_pos(yyvsp[-1].pos);
+                v276 = node1_(gInst, 113);
+                v278 = node4(gInst, ENUM_binary, yyvsp[-2].val, yyvsp->val, v276, v277);
+                yyval.val = v278;
+                yyval.pos = yyvsp[-1].pos;
+                break;
+            case 20:
+                v274 = node_pos(yyvsp[-1].pos);
+                v273 = node1_(gInst, 114);
+                v275 = node4(gInst, ENUM_binary, yyvsp[-2].val, yyvsp->val, v273, v274);
+                yyval.val = v275;
+                yyval.pos = yyvsp[-1].pos;
+                break;
+            case 21:
+                v271 = node_pos(yyvsp[-1].pos);
+                v270 = node1_(gInst, 115);
+                v272 = node4(gInst, ENUM_binary, yyvsp[-2].val, yyvsp->val, v270, v271);
+                yyval.val = v272;
+                yyval.pos = yyvsp[-1].pos;
+                break;
+            case 22:
+                v268 = node_pos(yyvsp[-1].pos);
+                v267 = node1_(gInst, 116);
+                v269 = node4(gInst, ENUM_binary, yyvsp[-2].val, yyvsp->val, v267, v268);
+                yyval.val = v269;
+                yyval.pos = yyvsp[-1].pos;
+                break;
+            case 23:
+                v265 = node_pos(yyvsp[-1].pos);
+                v264 = node1_(gInst, 117);
+                v266 = node4(gInst, ENUM_binary, yyvsp[-2].val, yyvsp->val, v264, v265);
+                yyval.val = v266;
+                yyval.pos = yyvsp[-1].pos;
+                break;
+            case 24:
+                v262 = node_pos(yyvsp->pos);
+                v263 = node2(gInst, ENUM_bool_not, yyvsp->val, v262);
+                yyval.val = v263;
+                break;
+            case 25:
+                v260 = node_pos(yyvsp->pos);
+                v261 = node2(gInst, ENUM_bool_complement, yyvsp->val, v260);
+                yyval.val = v261;
+                break;
+            case 26:
+                v259 = node1(gInst, ENUM_expression, yyvsp->val);
+                yyval.val = v259;
+                break;
+            case 27:
+                v258 = node0(gInst, ENUM_NOP);
+                yyval.val = v258;
+                break;
+            case 28:
+            case 29:
+                v4.stringValue = LowerCase(yyvsp->val.stringValue);
+                yyvsp->val = v4;
+                yyval.val.stringValue = yyvsp->val.stringValue;
+                break;
+            case 30:
+                v5.stringValue = LowerCase(yyvsp->val.stringValue);
+                yyvsp->val = v5;
+                v256 = node_pos(yyvsp[-2].pos);
+                v257 = node3(gInst, ENUM_far_function, yyvsp[-2].val, yyvsp->val, v256);
+                yyval.val = v257;
+                ++gScrCompilePub[gInst].far_function_count;
+                break;
+            case 31:
+                v6.stringValue = LowerCase(yyvsp->val.stringValue);
+                yyvsp->val = v6;
+                v254 = node_pos(yyvsp->pos);
+                v255 = node2(gInst, ENUM_local_function, yyvsp->val, v254);
+                yyval.val = v255;
+                break;
+            case 32:
+                v7.stringValue = LowerCase(yyvsp->val.stringValue);
+                yyvsp->val = v7;
+                v252 = node_pos(yyvsp[-2].pos);
+                v253 = node3(gInst, ENUM_far_function, yyvsp[-2].val, yyvsp->val, v252);
+                yyval.val = v253;
+                yyval.pos = yyvsp[-1].pos;
+                ++gScrCompilePub[gInst].far_function_count;
+                break;
+            case 33:
+                v8.stringValue = LowerCase(yyvsp->val.stringValue);
+                yyvsp->val = v8;
+                v250 = node_pos(yyvsp[-1].pos);
+                v251 = node2(gInst, ENUM_local_function, yyvsp->val, v250);
+                yyval.val = v251;
+                break;
+            case 34:
+                v248 = node_pos(yyvsp->pos);
+                v249 = node2(gInst, ENUM_function, yyvsp->val, v248);
+                yyval.val = v249;
+                break;
+            case 35:
+                v246 = node_pos(yyvsp[-2].pos);
+                v247 = node2(gInst, ENUM_function_pointer, yyvsp[-2].val, v246);
+                yyval.val = v247;
+                break;
+            case 36:
+                v244 = node_pos(yyvsp->pos);
+                v245 = node2(gInst, ENUM_script_call, yyvsp->val, v244);
+                yyval.val = v245;
+                break;
+            case 37:
+                v242 = node_pos(yyvsp->pos);
+                v241 = node_pos(yyvsp[-1].pos);
+                v243 = node3(gInst, ENUM_script_thread_call, yyvsp->val, v241, v242);
+                yyval.val = v243;
+                yyval.pos = yyvsp->pos;
+                break;
+            case 38:
+                v239 = node_pos(yyvsp[-2].pos);
+                v240 = node3(gInst, ENUM_call, yyvsp[-3].val, yyvsp[-1].val, v239);
+                yyval.val = v240;
+                yyval.pos = yyvsp[-2].pos;
+                break;
+            case 39:
+                v237 = node_pos(yyvsp[-2].pos);
+                v236 = node_pos(yyvsp[-4].pos);
+                v238 = node5(gInst, ENUM_method, yyvsp[-4].val, yyvsp[-3].val, yyvsp[-1].val, v236, v237);
+                yyval.val = v238;
+                yyval.pos = yyvsp[-2].pos;
+                break;
+            case 40:
+                v234 = node_pos(yyvsp[-2].pos);
+                v235 = node2(gInst, ENUM_expression_list, yyvsp[-1].val, v234);
+                yyval.val = v235;
+                break;
+            case 41:
+                v232 = node_pos(yyvsp->pos);
+                v233 = node2(gInst, ENUM_integer, yyvsp->val, v232);
+                yyval.val = v233;
+                break;
+            case 42:
+                v230 = node_pos(yyvsp->pos);
+                v231 = node2(gInst, ENUM_float, yyvsp->val, v230);
+                yyval.val = v231;
+                break;
+            case 43:
+                v228 = node_pos(yyvsp[-1].pos);
+                v229 = node2(gInst, ENUM_minus_integer, yyvsp->val, v228);
+                yyval.val = v229;
+                break;
+            case 44:
+                v226 = node_pos(yyvsp[-1].pos);
+                v227 = node2(gInst, ENUM_minus_float, yyvsp->val, v226);
+                yyval.val = v227;
+                break;
+            case 45:
+                v224 = node_pos(yyvsp->pos);
+                v225 = node2(gInst, ENUM_string, yyvsp->val, v224);
+                yyval.val = v225;
+                break;
+            case 46:
+                v222 = node_pos(yyvsp->pos);
+                v223 = node2(gInst, ENUM_istring, yyvsp->val, v222);
+                yyval.val = v223;
+                break;
+            case 47:
+                v220 = node_pos(yyvsp->pos);
+                v221 = node2(gInst, ENUM_integer, yyvsp->val, v220);
+                yyval.val = v221;
+                break;
+            case 48:
+                v219 = node1(gInst, ENUM_call_expression, yyvsp->val);
+                yyval.val = v219;
+                break;
+            case 49:
+                v217 = node_pos(yyvsp->pos);
+                v218 = node2(gInst, ENUM_variable, yyvsp->val, v217);
+                yyval.val = v218;
+                break;
+            case 50:
+                val1 = node_pos(yyvsp->pos);
+                v216 = node1(gInst, ENUM_undefined, val1);
+                yyval.val = v216;
+                break;
+            case 51:
+                v213 = node_pos(yyvsp->pos);
+                v214 = node1(gInst, ENUM_self, v213);
+                yyval.val = v214;
+                break;
+            case 52:
+                v211 = node_pos(yyvsp->pos);
+                v212 = node1(gInst, ENUM_level, v211);
+                yyval.val = v212;
+                break;
+            case 53:
+                v209 = node_pos(yyvsp->pos);
+                v210 = node1(gInst, ENUM_game, v209);
+                yyval.val = v210;
+                break;
+            case 54:
+                v207 = node_pos(yyvsp->pos);
+                v208 = node1(gInst, ENUM_anim, v207);
+                yyval.val = v208;
+                break;
+            case 55:
+                v205 = node_pos(yyvsp[-1].pos);
+                v206 = node2(gInst, ENUM_size_field, yyvsp[-1].val, v205);
+                yyval.val = v206;
+                yyval.pos = yyvsp->pos;
+                break;
+            case 56:
+                v203 = node_pos(yyvsp->pos);
+                v204 = node2(gInst, ENUM_function, yyvsp->val, v203);
+                yyval.val = v204;
+                break;
+            case 57:
+                v201 = node_pos(yyvsp[-1].pos);
+                v202 = node1(gInst, ENUM_empty_array, v201);
+                yyval.val = v202;
+                break;
+            case 58:
+                v9.stringValue = LowerCase(yyvsp->val.stringValue);
+                yyvsp->val = v9;
+                v199 = node_pos(yyvsp->pos);
+                v200 = node2(gInst, ENUM_animation, yyvsp->val, v199);
+                yyval.val = v200;
+                break;
+            case 59:
+                v197 = node_pos(yyvsp->pos);
+                v198 = node1(gInst, ENUM_false, v197);
+                yyval.val = v198;
+                break;
+            case 60:
+                v195 = node_pos(yyvsp->pos);
+                v196 = node1(gInst, ENUM_true, v195);
+                yyval.val = v196;
+                break;
+            case 61:
+                v193 = node_pos(yyvsp->pos);
+                v194 = node1(gInst, ENUM_animtree, v193);
+                yyval.val = v194;
+                break;
+            case 62:
+                v191 = node_pos(yyvsp[-3].pos);
+                v192 = node3(gInst, ENUM_breakon, yyvsp[-4].val, yyvsp[-1].val, v191);
+                yyval.val = v192;
+                break;
+            case 63:
+                v10.stringValue = LowerCase(yyvsp->val.stringValue);
+                yyvsp->val = v10;
+                v189 = node_pos(yyvsp[-2].pos);
+                v190 = node3(gInst, ENUM_field_variable, yyvsp[-2].val, yyvsp->val, v189);
+                yyval.val = v190;
+                yyval.pos = yyvsp->pos;
+                break;
+            case 64:
+                v187 = node_pos(yyvsp[-1].pos);
+                v186 = node_pos(yyvsp[-3].pos);
+                v188 = node4(gInst, ENUM_array_variable, yyvsp[-3].val, yyvsp[-1].val, v186, v187);
+                yyval.val = v188;
+                yyval.pos = yyvsp[-2].pos;
+                break;
+            case 65:
+                v11.stringValue = LowerCase(yyvsp->val.stringValue);
+                yyvsp->val = v11;
+                v184 = node_pos(yyvsp->pos);
+                v185 = node2(gInst, ENUM_local_variable, yyvsp->val, v184);
+                yyval.val = v185;
+                break;
+            case 66:
+                v12.stringValue = LowerCase(yyvsp->val.stringValue);
+                yyvsp->val = v12;
+                v182 = node_pos(yyvsp[-1].pos);
+                v183 = node2(gInst, ENUM_object, yyvsp->val, v182);
+                yyval.val = v183;
+                break;
+            case 67:
+                v180 = node_pos(yyvsp[-2].pos);
+                v181 = node2(gInst, ENUM_self_field, yyvsp[-2].val, v180);
+                yyval.val = v181;
+                yyval.pos = yyvsp->pos;
+                break;
+            case 68:
+                v178 = node_pos(yyvsp->pos);
+                v177 = node_pos(yyvsp[-1].pos);
+                v179 = node4(gInst, ENUM_assignment, yyvsp[-2].val, yyvsp->val, v177, v178);
+                yyval.val = v179;
+                break;
+            case 69:
+                v175 = node_pos(yyvsp[-1].pos);
+                v176 = node2(gInst, ENUM_return, yyvsp->val, v175);
+                yyval.val = v176;
+                break;
+            case 70:
+                v173 = node_pos(yyvsp->pos);
+                v174 = node1(gInst, ENUM_return2, v173);
+                yyval.val = v174;
+                break;
+            case 71:
+                v171 = node_pos(yyvsp[-1].pos);
+                v170 = node_pos(yyvsp->pos);
+                v172 = node3(gInst, ENUM_wait, yyvsp->val, v170, v171);
+                yyval.val = v172;
+                break;
+            case 72:
+                v168 = node_pos(yyvsp[-1].pos);
+                v169 = node2(gInst, ENUM_inc, yyvsp[-1].val, v168);
+                yyval.val = v169;
+                break;
+            case 73:
+                v166 = node_pos(yyvsp[-1].pos);
+                v167 = node2(gInst, ENUM_dec, yyvsp[-1].val, v166);
+                yyval.val = v167;
+                break;
+            case 74:
+                v164 = node_pos(yyvsp[-1].pos);
+                v163 = node1_(gInst, 102);
+                v165 = node4(gInst, ENUM_binary_equals, yyvsp[-2].val, yyvsp->val, v163, v164);
+                yyval.val = v165;
+                break;
+            case 75:
+                v161 = node_pos(yyvsp[-1].pos);
+                v160 = node1_(gInst, 103);
+                v162 = node4(gInst, ENUM_binary_equals, yyvsp[-2].val, yyvsp->val, v160, v161);
+                yyval.val = v162;
+                break;
+            case 76:
+                v158 = node_pos(yyvsp[-1].pos);
+                v157 = node1_(gInst, 104);
+                v159 = node4(gInst, ENUM_binary_equals, yyvsp[-2].val, yyvsp->val, v157, v158);
+                yyval.val = v159;
+                break;
+            case 77:
+                v155 = node_pos(yyvsp[-1].pos);
+                v154 = node1_(gInst, 111);
+                v156 = node4(gInst, ENUM_binary_equals, yyvsp[-2].val, yyvsp->val, v154, v155);
+                yyval.val = v156;
+                break;
+            case 78:
+                v152 = node_pos(yyvsp[-1].pos);
+                v151 = node1_(gInst, 112);
+                v153 = node4(gInst, ENUM_binary_equals, yyvsp[-2].val, yyvsp->val, v151, v152);
+                yyval.val = v153;
+                break;
+            case 79:
+                v149 = node_pos(yyvsp[-1].pos);
+                v148 = node1_(gInst, 113);
+                v150 = node4(gInst, ENUM_binary_equals, yyvsp[-2].val, yyvsp->val, v148, v149);
+                yyval.val = v150;
+                break;
+            case 80:
+                v146 = node_pos(yyvsp[-1].pos);
+                v145 = node1_(gInst, 114);
+                v147 = node4(gInst, ENUM_binary_equals, yyvsp[-2].val, yyvsp->val, v145, v146);
+                yyval.val = v147;
+                break;
+            case 81:
+                v143 = node_pos(yyvsp[-1].pos);
+                v142 = node1_(gInst, 115);
+                v144 = node4(gInst, ENUM_binary_equals, yyvsp[-2].val, yyvsp->val, v142, v143);
+                yyval.val = v144;
+                break;
+            case 82:
+                v140 = node_pos(yyvsp[-1].pos);
+                v139 = node1_(gInst, 116);
+                v141 = node4(gInst, ENUM_binary_equals, yyvsp[-2].val, yyvsp->val, v139, v140);
+                yyval.val = v141;
+                break;
+            case 83:
+                v137 = node_pos(yyvsp[-1].pos);
+                v136 = node1_(gInst, 117);
+                v138 = node4(gInst, ENUM_binary_equals, yyvsp[-2].val, yyvsp->val, v136, v137);
+                yyval.val = v138;
+                break;
+            case 84:
+                v134 = node_pos(yyvsp[-3].pos);
+                v133 = node_pos(yyvsp[-4].pos);
+                v135 = node4(gInst, ENUM_waittill, yyvsp[-4].val, yyvsp[-1].val, v133, v134);
+                yyval.val = v135;
+                break;
+            case 85:
+                v131 = node_pos(yyvsp[-3].pos);
+                v130 = node_pos(yyvsp[-4].pos);
+                v132 = node4(gInst, ENUM_waittillmatch, yyvsp[-4].val, yyvsp[-1].val, v130, v131);
+                yyval.val = v132;
+                break;
+            case 86:
+                v128 = node_pos(yyvsp->pos);
+                v129 = node1(gInst, ENUM_waittillFrameEnd, v128);
+                yyval.val = v129;
+                break;
+            case 87:
+                v126 = node_pos(yyvsp[-3].pos);
+                v125 = node_pos(yyvsp[-4].pos);
+                v127 = node4(gInst, ENUM_notify, yyvsp[-4].val, yyvsp[-1].val, v125, v126);
+                yyval.val = v127;
+                break;
+            case 88:
+                v123 = node_pos(yyvsp[-1].pos);
+                v122 = node_pos(yyvsp[-4].pos);
+                v124 = node4(gInst, ENUM_endon, yyvsp[-4].val, yyvsp[-1].val, v122, v123);
+                yyval.val = v124;
+                break;
+            case 89:
+                v120 = node_pos(yyvsp->pos);
+                v121 = node1(gInst, ENUM_break, v120);
+                yyval.val = v121;
+                break;
+            case 90:
+                v118 = node_pos(yyvsp->pos);
+                v119 = node1(gInst, ENUM_continue, v118);
+                yyval.val = v119;
+                break;
+            case 91:
+                v116 = node_pos(yyvsp->pos);
+                v117 = node1(gInst, ENUM_breakpoint, v116);
+                yyval.val = v117;
+                break;
+            case 92:
+                v114 = node_pos(yyvsp[-3].pos);
+                v115 = node2(gInst, ENUM_prof_begin, yyvsp[-1].val, v114);
+                yyval.val = v115;
+                break;
+            case 93:
+                v112 = node_pos(yyvsp[-3].pos);
+                v113 = node2(gInst, ENUM_prof_end, yyvsp[-1].val, v112);
+                yyval.val = v113;
+                break;
+            case 94:
+                v111 = node1(gInst, ENUM_call_expression_statement, yyvsp->val);
+                yyval.val = v111;
+                break;
+            case 96:
+                v110 = node0(gInst, ENUM_NOP);
+                yyval.val = v110;
+                break;
+            case 99:
+                v108 = node_pos(yyvsp->pos);
+                v107 = node_pos(yyvsp[-2].pos);
+                v109 = node3(gInst, ENUM_statement_list, yyvsp[-1].val, v107, v108);
+                yyval.val = v109;
+                break;
+            case 100:
+                v105 = node_pos(yyvsp[-2].pos);
+                v106 = node4(gInst, ENUM_if, yyvsp[-2].val, yyvsp->val, v105, g_dummyVal);
+                yyval.val = v106;
+                break;
+            case 101:
+                v103 = node_pos(yyvsp[-1].pos);
+                v102 = node_pos(yyvsp[-4].pos);
+                v104 = node7(
+                    gInst,
+                    ENUM_if_else,
+                    yyvsp[-4].val,
+                    yyvsp[-2].val,
+                    yyvsp->val,
+                    v102,
+                    v103,
+                    g_dummyVal,
+                    g_dummyVal);
+                yyval.val = v104;
+                break;
+            case 102:
+                v100 = node_pos(yyvsp[-2].pos);
+                v99 = node_pos(yyvsp[-6].pos);
+                v101 = node7(
+                    gInst,
+                    ENUM_if_else,
+                    yyvsp[-6].val,
+                    yyvsp[-3].val,
+                    yyvsp[-1].val,
+                    v99,
+                    v100,
+                    g_dummyVal,
+                    g_dummyVal);
+                yyval.val = v101;
+                break;
+            case 103:
+                v97 = node_pos(yyvsp[-4].pos);
+                v96 = node_pos(yyvsp[-2].pos);
+                v98 = node5(gInst, ENUM_while, yyvsp[-2].val, yyvsp->val, v96, v97, g_dummyVal);
+                yyval.val = v98;
+                break;
+            case 104:
+                val6 = node_pos(yyvsp[-7].pos);
+                v93 = node_pos(yyvsp[-4].pos);
+                v95 = node8(
+                    gInst,
+                    ENUM_for,
+                    yyvsp[-5].val,
+                    yyvsp[-4].val,
+                    yyvsp[-2].val,
+                    yyvsp->val,
+                    v93,
+                    val6,
+                    g_dummyVal,
+                    g_dummyVal);
+                yyval.val = v95;
+                break;
+            case 105:
+                v91 = node_pos(yyvsp[-4].pos);
+                v92 = node3(gInst, ENUM_switch, yyvsp[-4].val, yyvsp[-1].val, v91);
+                yyval.val = v92;
+                break;
+            case 106:
+                v89 = node_pos(yyvsp[-2].pos);
+                v90 = node3(gInst, ENUM_developer_statement_list, yyvsp[-1].val, v89, g_dummyVal);
+                yyval.val = v90;
+                break;
+            case 107:
+                v88 = node0(gInst, ENUM_NOP);
+                yyval.val = v88;
+                break;
+            case 108:
+                v86 = node_pos(yyvsp[-2].pos);
+                v87 = node3(gInst, ENUM_case, yyvsp[-1].val, v86, g_dummyVal);
+                yyval.val = v87;
+                break;
+            case 109:
+                v84 = node_pos(yyvsp[-1].pos);
+                v85 = node2(gInst, ENUM_default, v84, g_dummyVal);
+                yyval.val = v85;
+                break;
+            case 111:
+                appended = append_node(gInst, yyvsp[-1].val, yyvsp->val);
+                yyval.val = appended;
+                break;
+            case 112:
+                val = node0(gInst, ENUM_NOP);
+                v82 = linked_list_end(gInst, val);
+                yyval.val = v82;
+                break;
+            case 113:
+                v78 = node_pos(yyvsp->pos);
+                v79 = node2_(gInst, yyvsp->val, v78);
+                v80 = prepend_node(gInst, v79, yyvsp[-2].val);
+                yyval.val = v80;
+                break;
+            case 114:
+                v76 = node0(gInst, ENUM_NOP);
+                v74 = node_pos(yyvsp->pos);
+                v75 = node2_(gInst, yyvsp->val, v74);
+                v77 = prepend_node(gInst, v75, v76);
+                yyval.val = v77;
+                break;
+            case 116:
+                v73 = node0(gInst, ENUM_NOP);
+                yyval.val = v73;
+                break;
+            case 117:
+                v13.stringValue = LowerCase(yyvsp->val.stringValue);
+                yyvsp->val = v13;
+                v70 = node_pos(yyvsp->pos);
+                v71 = node2_(gInst, yyvsp->val, v70);
+                v72 = append_node(gInst, yyvsp[-2].val, v71);
+                yyval.val = v72;
+                break;
+            case 118:
+                v14.stringValue = LowerCase(yyvsp->val.stringValue);
+                yyvsp->val = v14;
+                v67 = node_pos(yyvsp->pos);
+                v68 = node2_(gInst, yyvsp->val, v67);
+                v65 = node0(gInst, ENUM_NOP);
+                v66 = linked_list_end(gInst, v65);
+                v69 = append_node(gInst, v66, v68);
+                yyval.val = v69;
+                break;
+            case 120:
+                v63 = node0(gInst, ENUM_NOP);
+                v64 = linked_list_end(gInst, v63);
+                yyval.val = v64;
+                break;
+            case 121:
+                v15.stringValue = LowerCase(yyvsp->val.stringValue);
+                yyvsp->val = v15;
+                v60 = node_pos(yyvsp->pos);
+                v61 = node2_(gInst, yyvsp->val, v60);
+                v62 = append_node(gInst, yyvsp[-2].val, v61);
+                yyval.val = v62;
+                break;
+            case 122:
+                v57 = node_pos(yyvsp->pos);
+                v58 = node2_(gInst, yyvsp->val, v57);
+                v55 = node0(gInst, ENUM_NOP);
+                v56 = linked_list_end(gInst, v55);
+                v59 = append_node(gInst, v56, v58);
+                yyval.val = v59;
+                break;
+            case 123:
+                v52 = node_pos(yyvsp->pos);
+                v53 = node2_(gInst, yyvsp->val, v52);
+                v54 = append_node(gInst, yyvsp[-2].val, v53);
+                yyval.val = v54;
+                break;
+            case 124:
+                v49 = node_pos(yyvsp->pos);
+                v50 = node2_(gInst, yyvsp->val, v49);
+                v47 = node0(gInst, ENUM_NOP);
+                v48 = linked_list_end(gInst, v47);
+                v51 = append_node(gInst, v48, v50);
+                yyval.val = v51;
+                break;
+            case 125:
+                v44 = node_pos(yyvsp->pos);
+                v45 = node2_(gInst, yyvsp->val, v44);
+                v46 = prepend_node(gInst, v45, yyvsp[-2].val);
+                yyval.val = v46;
+                break;
+            case 126:
+                v42 = node0(gInst, ENUM_NOP);
+                v40 = node_pos(yyvsp->pos);
+                v41 = node2_(gInst, yyvsp->val, v40);
+                v43 = prepend_node(gInst, v41, v42);
+                yyval.val = v43;
+                break;
+            case 127:
+                v16.stringValue = LowerCase(yyvsp[-6].val.stringValue);
+                yyvsp[-6].val = v16;
+                v38 = node_pos(yyvsp->pos);
+                v37 = node_pos(yyvsp[-6].pos);
+                v39 = node6(gInst, ENUM_thread, yyvsp[-6].val, yyvsp[-4].val, yyvsp[-1].val, v37, v38, g_dummyVal);
+                yyval.val = v39;
+                break;
+            case 128:
+                v35 = node_pos(yyvsp[-2].pos);
+                v34 = node_pos(yyvsp[-4].pos);
+                v36 = node3(gInst, ENUM_usingtree, yyvsp[-2].val, v34, v35);
+                yyval.val = v36;
+                break;
+            case 129:
+                v32 = node_pos(yyvsp->pos);
+                v33 = node1(gInst, ENUM_begin_developer_thread, v32);
+                yyval.val = v33;
+                break;
+            case 130:
+                v30 = node_pos(yyvsp->pos);
+                v31 = node1(gInst, ENUM_end_developer_thread, v30);
+                yyval.val = v31;
+                break;
+            case 131:
+                v29 = append_node(gInst, yyvsp[-1].val, yyvsp->val);
+                yyval.val = v29;
+                break;
+            case 132:
+                v27 = node0(gInst, ENUM_NOP);
+                v28 = linked_list_end(gInst, v27);
+                yyval.val = v28;
+                break;
+            case 133:
+                v25 = node_pos(yyvsp[-1].pos);
+                v26 = node2(gInst, ENUM_include, yyvsp->val, v25);
+                yyval.val = v26;
+                ++gScrCompilePub[gInst].far_function_count;
+                break;
+            case 134:
+                v24 = append_node(gInst, yyvsp[-2].val, yyvsp[-1].val);
+                yyval.val = v24;
+                break;
+            case 135:
+                v22 = node0(gInst, ENUM_NOP);
+                v23 = linked_list_end(gInst, v22);
+                yyval.val = v23;
+                break;
+            default:
+                break;
             }
             yyvsp -= yylen;
             yyssp -= yylen;
             *++yyvsp = yyval;
+
             yyn = yyr1[yyn];
-            yystate = *yyssp + yypact[yyn + 176];
-            if ( (unsigned int)yystate < 0x59C && yycheck[yystate] == *yyssp )
+
+#define YYNTOKENS 92
+            //yystate = *yyssp + yypact[yyn + 176]; // LWSS CHANGE
+            yystate = *yyssp + yypgoto[yyn - YYNTOKENS];
+
+            //if ((unsigned int)yystate < 0x59C && yycheck[yystate] == *yyssp)
+            //    yystate = yytable[yystate];
+            //else
+            //    yystate = yydefact[yyn + 176];
+
+            if ((unsigned int)yystate < YYTABLESIZE && yycheck[yystate] == *yyssp)
                 yystate = yytable[yystate];
             else
-                yystate = yydefact[yyn + 176];
+                yystate = yydefgoto[yyn - YYNTOKENS];
         }
     }
     yyn = yydefact[yystate];
-    if ( yyn )
+    if (yyn)
         goto yyreduce;
 yyerrlab:
-    if ( !yyerrstatus )
+    if (!yyerrstatus)
     {
         ++yynerrs;
-        v17 = "parse error";
+        //v17 = "parse error";
         yyerror();
     }
-    if ( yyerrstatus == 3 )
+    if (yyerrstatus == 3)
     {
-        if ( !yychar )
+        if (!yychar)
         {
-yyabortlab:
-            if ( yyfree_stacks )
+        yyabortlab:
+            if (yyfree_stacks)
             {
                 free(yyss);
                 free(yyvs);
@@ -1272,27 +1309,27 @@ yyabortlab:
         yychar = -2;
     }
     yyerrstatus = 3;
-    while ( 2 )
+    while (2)
     {
         yyn = yypact[yystate];
-        if ( yyn == -32768 )
+        if (yyn == -32768)
             goto yyerrpop;
-        if ( (unsigned int)++yyn >= 0x59C || yycheck[yyn] != 1 )
+        if ((unsigned int)++yyn >= 0x59C || yycheck[yyn] != 1)
             goto yyerrpop;
         yyn = yytable[yyn];
-        if ( yyn < 0 )
+        if (yyn < 0)
         {
-            if ( yyn != -32768 )
+            if (yyn != -32768)
             {
                 yyn = -yyn;
                 goto yyreduce;
             }
             goto yyerrpop;
         }
-        if ( !yyn )
+        if (!yyn)
         {
-yyerrpop:
-            if ( yyssp == yyss )
+        yyerrpop:
+            if (yyssp == yyss)
                 goto yyabortlab;
             --yyvsp;
             yystate = *--yyssp;
@@ -1300,14 +1337,14 @@ yyerrpop:
         }
         break;
     }
-    if ( yyn != 267 )
+    if (yyn != 267)
     {
         *++yyvsp = yylval;
         yystate = yyn;
         goto yynewstate;
     }
 yyacceptlab:
-    if ( yyfree_stacks )
+    if (yyfree_stacks)
     {
         free(yyss);
         free(yyvs);

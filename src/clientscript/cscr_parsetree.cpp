@@ -10,9 +10,9 @@ HunkUser *g_allocNodeUser[2];
 
 debugger_sval_s *g_debugExprHead = NULL;
 
-XAssetHeader __cdecl node_pos(void *pool)
+sval_u node_pos(unsigned int pool)
 {
-    return (XAssetHeader)pool;
+    return (sval_u)pool;
 }
 
 sval_u __cdecl node1_(scriptInstance_t inst, int val1)
@@ -44,7 +44,7 @@ void __cdecl Scr_ShutdownAllocNode(scriptInstance_t inst)
     }
 }
 
-sval_u __cdecl node0(scriptInstance_t inst, unsigned __int8 type)
+sval_u __cdecl node0(scriptInstance_t inst, ParseToken_t type)
 {
     sval_u result; // eax
 
@@ -68,7 +68,7 @@ sval_u *__cdecl Scr_AllocNode(scriptInstance_t inst, int size)
     return (sval_u *)Hunk_UserAlloc(g_allocNodeUser[inst], 4 * size, 4, 0);
 }
 
-sval_u __cdecl node1(scriptInstance_t inst, unsigned __int8 type, sval_u val1)
+sval_u __cdecl node1(scriptInstance_t inst, ParseToken_t type, sval_u val1)
 {
     sval_u result; // eax
 
@@ -78,7 +78,7 @@ sval_u __cdecl node1(scriptInstance_t inst, unsigned __int8 type, sval_u val1)
     return result;
 }
 
-sval_u __cdecl node2(scriptInstance_t inst, unsigned __int8 type, sval_u val1, sval_u val2)
+sval_u __cdecl node2(scriptInstance_t inst, ParseToken_t type, sval_u val1, sval_u val2)
 {
     sval_u result; // eax
 
@@ -99,7 +99,7 @@ sval_u __cdecl node2_(scriptInstance_t inst, sval_u val1, sval_u val2)
     return result;
 }
 
-sval_u __cdecl node3(scriptInstance_t inst, unsigned __int8 type, sval_u val1, sval_u val2, sval_u val3)
+sval_u __cdecl node3(scriptInstance_t inst, ParseToken_t type, sval_u val1, sval_u val2, sval_u val3)
 {
     sval_u result; // eax
 
@@ -111,7 +111,7 @@ sval_u __cdecl node3(scriptInstance_t inst, unsigned __int8 type, sval_u val1, s
     return result;
 }
 
-sval_u __cdecl node4(scriptInstance_t inst, unsigned __int8 type, sval_u val1, sval_u val2, sval_u val3, sval_u val4)
+sval_u __cdecl node4(scriptInstance_t inst, ParseToken_t type, sval_u val1, sval_u val2, sval_u val3, sval_u val4)
 {
     sval_u result; // eax
 
@@ -126,7 +126,7 @@ sval_u __cdecl node4(scriptInstance_t inst, unsigned __int8 type, sval_u val1, s
 
 sval_u __cdecl node5(
                 scriptInstance_t inst,
-                unsigned __int8 type,
+                ParseToken_t type,
                 sval_u val1,
                 sval_u val2,
                 sval_u val3,
@@ -147,7 +147,7 @@ sval_u __cdecl node5(
 
 sval_u __cdecl node6(
                 scriptInstance_t inst,
-                unsigned __int8 type,
+                ParseToken_t type,
                 sval_u val1,
                 sval_u val2,
                 sval_u val3,
@@ -170,7 +170,7 @@ sval_u __cdecl node6(
 
 sval_u __cdecl node7(
                 scriptInstance_t inst,
-                unsigned __int8 type,
+                ParseToken_t type,
                 sval_u val1,
                 sval_u val2,
                 sval_u val3,
@@ -195,7 +195,7 @@ sval_u __cdecl node7(
 
 sval_u __cdecl node8(
                 scriptInstance_t inst,
-                unsigned __int8 type,
+                ParseToken_t type,
                 sval_u val1,
                 sval_u val2,
                 sval_u val3,
@@ -268,7 +268,7 @@ void __cdecl Scr_ClearDebugExpr(scriptInstance_t inst, debugger_sval_s *debugExp
     }
 }
 
-sval_u *__cdecl Scr_AllocDebugExpr(scriptInstance_t inst, unsigned __int8 type, int size, const char *name)
+sval_u *__cdecl Scr_AllocDebugExpr(scriptInstance_t inst, ParseToken_t type, int size, const char *name)
 {
     sval_u *val; // eax
     debugger_sval_s *debugval;
@@ -312,14 +312,14 @@ void __cdecl Scr_FreeDebugExpr(scriptInstance_t inst, ScriptExpression_t *expr)
     }
 }
 
-sval_u __cdecl debugger_node0(scriptInstance_t inst, unsigned __int8 type)
+sval_u __cdecl debugger_node0(scriptInstance_t inst, ParseToken_t type)
 {
     sval_u result;
     result.node = Scr_AllocDebugExpr(inst, type, 4, "debugger_node0");
     return result;
 }
 
-sval_u __cdecl debugger_node1(scriptInstance_t inst, unsigned __int8 type, sval_u val1)
+sval_u __cdecl debugger_node1(scriptInstance_t inst, ParseToken_t type, sval_u val1)
 {
     sval_u result; // eax
 
@@ -329,7 +329,7 @@ sval_u __cdecl debugger_node1(scriptInstance_t inst, unsigned __int8 type, sval_
     return result;
 }
 
-sval_u __cdecl debugger_node2(scriptInstance_t inst, unsigned __int8 type, sval_u val1, sval_u val2)
+sval_u __cdecl debugger_node2(scriptInstance_t inst, ParseToken_t type, sval_u val1, sval_u val2)
 {
     sval_u result; // eax
 
@@ -339,7 +339,7 @@ sval_u __cdecl debugger_node2(scriptInstance_t inst, unsigned __int8 type, sval_
     return result;
 }
 
-sval_u __cdecl debugger_node3(scriptInstance_t inst, unsigned __int8 type, sval_u val1, sval_u val2, sval_u val3)
+sval_u __cdecl debugger_node3(scriptInstance_t inst, ParseToken_t type, sval_u val1, sval_u val2, sval_u val3)
 {
     sval_u result; // eax
 
@@ -353,7 +353,7 @@ sval_u __cdecl debugger_node3(scriptInstance_t inst, unsigned __int8 type, sval_
 
 sval_u __cdecl debugger_node4(
                 scriptInstance_t inst,
-                unsigned __int8 type,
+                ParseToken_t type,
                 sval_u val1,
                 sval_u val2,
                 sval_u val3,
@@ -378,7 +378,7 @@ sval_u __cdecl debugger_prepend_node(scriptInstance_t inst, sval_u val1, sval_u 
 
 sval_u __cdecl debugger_buffer(
                 scriptInstance_t inst,
-                unsigned __int8 type,
+                ParseToken_t type,
                 char *buf,
                 unsigned int size,
                 int alignment)
@@ -418,7 +418,7 @@ sval_u __cdecl debugger_buffer(
     return *result; // sus deref
 }
 
-sval_u __cdecl debugger_string(scriptInstance_t inst, unsigned __int8 type, char *s)
+sval_u __cdecl debugger_string(scriptInstance_t inst, ParseToken_t type, char *s)
 {
     return debugger_buffer(inst, type, s, strlen(s) + 1, 1);
 }

@@ -488,36 +488,36 @@ void __cdecl Scr_EvalFieldVariable(
 }
 void __cdecl Scr_CompileExpression(scriptInstance_t inst, sval_u *expr)
 {
-    switch ( *(_BYTE *)expr->stringValue )
+    switch (expr->node[0].type)
     {
-        case 8:
-            Scr_CompilePrimitiveExpression(inst, (sval_u *)(expr->stringValue + 4));
-            *expr = debugger_node1(inst, 8u, *(sval_u *)(expr->stringValue + 4));
+        case ENUM_primitive_expression:
+            Scr_CompilePrimitiveExpression(inst, &expr->node[1]);
+            *expr = debugger_node1(inst, ENUM_primitive_expression, expr->node[1]);
             break;
-        case 0x31:
-        case 0x32:
-            Scr_CompileExpression(inst, (sval_u *)(expr->stringValue + 4));
-            Scr_CompileExpression(inst, (sval_u *)(expr->stringValue + 8));
+        case ENUM_bool_or:
+        case ENUM_bool_and:
+            Scr_CompileExpression(inst, &expr->node[1]);
+            Scr_CompileExpression(inst, &expr->node[2]);
             *expr = debugger_node2(
                                 inst,
-                                *(_BYTE *)expr->stringValue,
-                                *(sval_u *)(expr->stringValue + 4),
-                                *(sval_u *)(expr->stringValue + 8));
+                expr->node[0].type,
+                expr->node[1],
+                expr->node[2]);
             break;
-        case 0x33:
-            Scr_CompileExpression(inst, (sval_u *)(expr->stringValue + 4));
-            Scr_CompileExpression(inst, (sval_u *)(expr->stringValue + 8));
+        case ENUM_binary:
+            Scr_CompileExpression(inst, &expr->node[1]);
+            Scr_CompileExpression(inst, &expr->node[2]);
             *expr = debugger_node3(
                                 inst,
-                                *(_BYTE *)expr->stringValue,
-                                *(sval_u *)(expr->stringValue + 4),
-                                *(sval_u *)(expr->stringValue + 8),
-                                *(sval_u *)(expr->stringValue + 12));
+                                expr->node[0].type,
+                                expr->node[1],
+                                expr->node[2],
+                                expr->node[3]);
             break;
-        case 0x34:
-        case 0x35:
-            Scr_CompileExpression(inst, (sval_u *)(expr->stringValue + 4));
-            *expr = debugger_node1(inst, *(_BYTE *)expr->stringValue, *(sval_u *)(expr->stringValue + 4));
+        case ENUM_bool_not:
+        case ENUM_bool_complement:
+            Scr_CompileExpression(inst, &expr->node[1]);
+            *expr = debugger_node1(inst, expr->node[0].type, expr->node[1]);
             break;
         default:
             return;
@@ -526,69 +526,67 @@ void __cdecl Scr_CompileExpression(scriptInstance_t inst, sval_u *expr)
 
 void __cdecl Scr_CompilePrimitiveExpression(scriptInstance_t inst, sval_u *expr)
 {
-    char *v2; // eax
     sval_u tempVariableId; // [esp+2Ch] [ebp-8h]
     sval_u tempVariableIda; // [esp+2Ch] [ebp-8h]
 
-    switch (*(_BYTE *)expr->stringValue)
+    switch (expr->node[0].type)
     {
-    case 9:
-    case 0xA:
-    case 0xB:
-    case 0xC:
-        *expr = debugger_node1(inst, *(_BYTE *)expr->stringValue, *(sval_u *)(expr->stringValue + 4));
+    case ENUM_integer:
+    case ENUM_float:
+    case ENUM_minus_integer:
+    case ENUM_minus_float:
+        *expr = debugger_node1(inst, expr->node[0].type, expr->node[1]);
         break;
-    case 0xD:
-    case 0xE:
-        v2 = SL_ConvertToString(*(_DWORD *)(expr->stringValue + 4), inst);
-        *expr = debugger_string(inst, *(_BYTE *)expr->stringValue, v2);
+    case ENUM_string:
+    case ENUM_istring:
+        *expr = debugger_string(inst, expr->node[0].type, SL_ConvertToString(*(_DWORD *)(expr->stringValue + 4), inst));
         break;
-    case 0x13:
-        Scr_CompileVariableExpression(inst, (sval_u *)(expr->stringValue + 4));
+    case ENUM_variable:
+        Scr_CompileVariableExpression(inst, &expr->node[1]);
         tempVariableId.stringValue = AllocValue(inst);
-        *expr = debugger_node2(inst, 0x13u, *(sval_u *)(expr->stringValue + 4), tempVariableId);
+        *expr = debugger_node2(inst, ENUM_variable, expr->node[1], tempVariableId);
         break;
-    case 0x15:
-        if (!Scr_CompileCallExpression(inst, (sval_u *)(expr->stringValue + 4)))
+    case ENUM_call_expression:
+        if (!Scr_CompileCallExpression(inst, &expr->node[1]))
             goto LABEL_13;
         tempVariableIda.stringValue = AllocValue(inst);
-        *expr = debugger_node2(inst, 0x15u, *(sval_u *)(expr->stringValue + 4), tempVariableIda);
+        *expr = debugger_node2(inst, ENUM_call_expression, expr->node[1], tempVariableIda);
         break;
-    case 0x21:
-    case 0x24:
-    case 0x25:
-    case 0x26:
-    case 0x44:
-    case 0x4A:
-    case 0x4B:
-        *expr = debugger_node0(inst, *(_BYTE *)expr->stringValue);
+    case ENUM_undefined:
+    case ENUM_level:
+    case ENUM_game:
+    case ENUM_anim:
+    case ENUM_empty_array:
+    case ENUM_false:
+    case ENUM_true:
+        *expr = debugger_node0(inst, expr->node[0].type);
         break;
-    case 0x22:
-        *expr = debugger_node2(inst, *(_BYTE *)expr->stringValue, 0, 0);
+    case ENUM_self:
+        *expr = debugger_node2(inst, expr->node[0].type, 0, 0);
         break;
-    case 0x30:
-        Scr_CompilePrimitiveExpressionList(inst, (sval_u *)(expr->stringValue + 4));
-        *expr = debugger_node1(inst, 0x30u, *(sval_u *)(expr->stringValue + 4));
+    case ENUM_expression_list:
+        Scr_CompilePrimitiveExpressionList(inst, &expr->node[1]);
+        *expr = debugger_node1(inst, ENUM_expression_list, expr->node[1]);
         break;
-    case 0x36:
-        Scr_CompilePrimitiveExpression(inst, (sval_u *)(expr->stringValue + 4));
-        *expr = debugger_node1(inst, 0x36u, *(sval_u *)(expr->stringValue + 4));
+    case ENUM_size_field:
+        Scr_CompilePrimitiveExpression(inst, &expr->node[1]);
+        *expr = debugger_node1(inst, ENUM_size_field, expr->node[1]);
         break;
-    case 0x4D:
+    case ENUM_breakon:
         ++gScrVmDebugPub[inst].checkBreakon;
         g_breakonExpr = 1;
-        Scr_CompilePrimitiveExpression(inst, (sval_u *)(expr->stringValue + 4));
-        Scr_CompileExpression(inst, (sval_u *)(expr->stringValue + 8));
+        Scr_CompilePrimitiveExpression(inst, &expr->node[1]);
+        Scr_CompileExpression(inst, &expr->node[2]);
         *expr = debugger_node3(
             inst,
-            *(_BYTE *)expr->stringValue,
-            *(sval_u *)(expr->stringValue + 4),
-            *(sval_u *)(expr->stringValue + 8),
+            expr->node[0].type,
+            expr->node[1],
+            expr->node[2],
             0);
         break;
     default:
     LABEL_13:
-        *expr = debugger_node0(inst, 0x56u);
+        *expr = debugger_node0(inst, ENUM_bad_expression);
         break;
     }
 }
@@ -603,36 +601,36 @@ void __cdecl Scr_CompileVariableExpression(scriptInstance_t inst, sval_u *expr)
     sval_u entnum; // [esp+60h] [ebp-Ch]
     sval_u idValue; // [esp+68h] [ebp-4h]
 
-    switch ( *(_BYTE *)expr->stringValue )
+    switch ( expr->node[0].type )
     {
         case 5:
             *(unsigned int *)(expr->stringValue + 4) = Scr_CompileCanonicalString(inst, *(unsigned int *)(expr->stringValue + 4));
             if ( *(unsigned int *)(expr->stringValue + 4) )
             {
                 tempVariableId.stringValue = AllocValue(inst);
-                *expr = debugger_node4(inst, 5u, *(sval_u *)(expr->stringValue + 4), 0, 0, tempVariableId);
+                *expr = debugger_node4(inst, ENUM_local_variable, expr->node[1], 0, 0, tempVariableId);
             }
             else
             {
-                *expr = debugger_node0(inst, 3u);
+                *expr = debugger_node0(inst, ENUM_unknown_variable);
             }
             break;
         case 0xF:
-            Scr_CompileExpression(inst, (sval_u *)(expr->stringValue + 8));
-            Scr_CompilePrimitiveExpression(inst, (sval_u *)(expr->stringValue + 4));
-            *expr = debugger_node2(inst, 0xFu, *(sval_u *)(expr->stringValue + 4), *(sval_u *)(expr->stringValue + 8));
+            Scr_CompileExpression(inst, &expr->node[2]);
+            Scr_CompilePrimitiveExpression(inst, &expr->node[1]);
+            *expr = debugger_node2(inst, ENUM_array_variable, expr->node[1], expr->node[2]);
             break;
         case 0x11:
-            Scr_CompilePrimitiveExpressionFieldObject(inst, (sval_u *)(expr->stringValue + 4));
+            Scr_CompilePrimitiveExpressionFieldObject(inst, &expr->node[1]);
             *(unsigned int *)(expr->stringValue + 8) = Scr_CompileCanonicalString(inst, *(unsigned int *)(expr->stringValue + 8));
             if ( *(unsigned int *)(expr->stringValue + 8) )
-                *expr = debugger_node3(inst, 0x11u, *(sval_u *)(expr->stringValue + 4), *(sval_u *)(expr->stringValue + 8), 0);
+                *expr = debugger_node3(inst, ENUM_field_variable, expr->node[1], expr->node[2], 0);
             else
-                *expr = debugger_node0(inst, 0x10u);
+                *expr = debugger_node0(inst, ENUM_unknown_field);
             break;
         case 0x37:
-            Scr_CompilePrimitiveExpression(inst, (sval_u *)(expr->stringValue + 4));
-            *expr = debugger_node1(inst, 0x37u, *(sval_u *)(expr->stringValue + 4));
+            Scr_CompilePrimitiveExpression(inst, &expr->node[1]);
+            *expr = debugger_node1(inst, ENUM_self_field, expr->node[1]);
             break;
         case 0x52:
             s = SL_ConvertToString(*(unsigned int *)(expr->stringValue + 4), inst);
@@ -648,7 +646,7 @@ void __cdecl Scr_CompileVariableExpression(scriptInstance_t inst, sval_u *expr)
                 ObjectType = GetObjectType(inst, idValue.stringValue);
                 if ( ObjectType < 13 || ObjectType > 16 && ObjectType != 21 )
                     goto LABEL_28;
-                *expr = debugger_node1(inst, 0x53u, idValue);
+                *expr = debugger_node1(inst, ENUM_thread_object, idValue);
                 AddRefToObject(inst, idValue.stringValue);
             }
             else if ( *s == 97 )
@@ -656,7 +654,7 @@ void __cdecl Scr_CompileVariableExpression(scriptInstance_t inst, sval_u *expr)
                 argumentIndex = atoi(s + 1);
                 if ( argumentIndex <= 0 && strcmp(s + 1, "0") )
                     goto LABEL_28;
-                *expr = debugger_node1(inst, 0x59u, (sval_u)argumentIndex);
+                *expr = debugger_node1(inst, ENUM_argument, (sval_u)argumentIndex);
             }
             else
             {
@@ -666,12 +664,12 @@ void __cdecl Scr_CompileVariableExpression(scriptInstance_t inst, sval_u *expr)
                 entnum.stringValue = atoi(s + 1);
                 if ( !entnum.stringValue && s[1] != 48 )
                     goto LABEL_28;
-                *expr = debugger_node3(inst, 0x52u, classnum, entnum, 0);
+                *expr = debugger_node3(inst, ENUM_object, classnum, entnum, 0);
             }
             break;
         default:
 LABEL_28:
-            *expr = debugger_node0(inst, 0x56u);
+            *expr = debugger_node0(inst, ENUM_bad_expression);
             break;
     }
 }
@@ -681,27 +679,27 @@ void __cdecl Scr_CompilePrimitiveExpressionFieldObject(scriptInstance_t inst, sv
     sval_u tempVariableId; // [esp+18h] [ebp-8h]
     sval_u tempVariableIda; // [esp+18h] [ebp-8h]
 
-    switch ( *(_BYTE *)expr->stringValue )
+    switch ( expr->node[0].type )
     {
         case 0x13:
-            Scr_CompileVariableExpression(inst, (sval_u *)(expr->stringValue + 4));
+            Scr_CompileVariableExpression(inst, &expr->node[1]);
             tempVariableId.stringValue = AllocValue(inst);
-            *expr = debugger_node2(inst, 0x13u, *(sval_u *)(expr->stringValue + 4), tempVariableId);
+            *expr = debugger_node2(inst, ENUM_variable, expr->node[1], tempVariableId);
             break;
         case 0x15:
-            Scr_CompileCallExpression(inst, (sval_u *)(expr->stringValue + 4));
+            Scr_CompileCallExpression(inst, &expr->node[1]);
             tempVariableIda.stringValue = AllocValue(inst);
-            *expr = debugger_node2(inst, 0x15u, *(sval_u *)(expr->stringValue + 4), tempVariableIda);
+            *expr = debugger_node2(inst, ENUM_call_expression, expr->node[1], tempVariableIda);
             break;
         case 0x22:
-            *expr = debugger_node2(inst, *(_BYTE *)expr->stringValue, 0, 0);
+            *expr = debugger_node2(inst, expr->node[0].type, 0, 0);
             break;
         case 0x24:
         case 0x26:
-            *expr = debugger_node0(inst, *(_BYTE *)expr->stringValue);
+            *expr = debugger_node0(inst, expr->node[0].type);
             break;
         default:
-            *expr = debugger_node0(inst, 0x56u);
+            *expr = debugger_node0(inst, ENUM_bad_expression);
             break;
     }
 }
@@ -729,40 +727,37 @@ void __cdecl Scr_CompilePrimitiveExpressionList(scriptInstance_t inst, sval_u *e
             Scr_CompileExpression(inst, node->node);
             expr[i++] = *node->node;
         }
-        *exprlist = debugger_node3(inst, 0x51u, expr[0], expr[1], expr[2]);
+        *exprlist = debugger_node3(inst, ENUM_vector, expr[0], expr[1], expr[2]);
     }
     else
     {
-        *exprlist = debugger_node0(inst, 0x56u);
+        *exprlist = debugger_node0(inst, ENUM_bad_expression);
     }
 }
 
 char __cdecl Scr_CompileCallExpression(scriptInstance_t inst, sval_u *expr)
 {
-    char v3; // [esp+0h] [ebp-Ch]
-
-    v3 = *(_BYTE *)expr->stringValue;
-    if ( v3 == 25 )
+    if (expr->node[0].type == ENUM_call)
     {
-        if ( Scr_CompileFunction(inst, (sval_u *)(expr->stringValue + 4), (sval_u *)(expr->stringValue + 8)) )
+        if ( Scr_CompileFunction(inst, &expr->node[1], &expr->node[2]) )
         {
-            *expr = debugger_node2(inst, 0x19u, *(sval_u *)(expr->stringValue + 4), *(sval_u *)(expr->stringValue + 8));
+            *expr = debugger_node2(inst, ENUM_call, expr->node[1], expr->node[2]);
             return 1;
         }
     }
-    else if ( v3 == 26
+    else if (expr->node[0].type == ENUM_method
                  && Scr_CompileMethod(
                             inst,
-                            (sval_u *)(expr->stringValue + 4),
-                            (sval_u *)(expr->stringValue + 8),
-                            (sval_u *)(expr->stringValue + 12)) )
+                            &expr->node[1],
+                            &expr->node[2],
+                            &expr->node[3]) )
     {
         *expr = debugger_node3(
                             inst,
-                            0x1Au,
-                            *(sval_u *)(expr->stringValue + 4),
-                            *(sval_u *)(expr->stringValue + 8),
-                            *(sval_u *)(expr->stringValue + 12));
+                            ENUM_method,
+                            expr->node[1],
+                            expr->node[2],
+                            expr->node[3]);
         return 1;
     }
     return 0;
@@ -793,7 +788,7 @@ void __cdecl Scr_CompileCallExpressionList(scriptInstance_t inst, sval_u *exprli
     sval_u *node; // [esp+8h] [ebp-8h]
     sval_u expr; // [esp+Ch] [ebp-4h]
 
-    expr = debugger_node0(inst, 0);
+    expr = debugger_node0(inst, ENUM_NOP);
     for ( node = *(sval_u **)exprlist->stringValue; node; node = node[1].node )
     {
         Scr_CompileExpression(inst, node->node);
@@ -852,7 +847,7 @@ void __cdecl Scr_CompileTextInternal(scriptInstance_t inst, const char *text, Sc
 
     if (!strcmp(text, "<locals>"))
     {
-        scriptExpr->parseData = debugger_node1(inst, 0x54u, 0);
+        scriptExpr->parseData = debugger_node1(inst, ENUM_local, 0);
     }
     else
     {
@@ -885,7 +880,7 @@ void __cdecl Scr_CompileTextInternal(scriptInstance_t inst, const char *text, Sc
             if (*text)
                 Com_PrintError(24, "%s\n", gScrVarPub[inst].error_message);
             Scr_ClearErrorMessage(inst);
-            scriptExpr->parseData = debugger_node0(inst, 0x56u);
+            scriptExpr->parseData = debugger_node0(inst, ENUM_bad_expression);
             SL_ShutdownSystem(inst, 2u);
         }
         else
@@ -932,13 +927,13 @@ void __cdecl Scr_CompileTextInternal(scriptInstance_t inst, const char *text, Sc
                 {
                     Com_PrintError(24, "%s\n", gScrVarPub[inst].error_message);
                     Scr_ClearErrorMessage(inst);
-                    scriptExpr->parseData = debugger_node0(inst, 0x57u);
+                    scriptExpr->parseData = debugger_node0(inst, ENUM_bad_statement);
                     SL_ShutdownSystem(inst, 2u);
                 }
                 else
                 {
                     end = TempMallocAlignStrict(0);
-                    scriptExpr->parseData = debugger_buffer(inst, 0x55u, start, end - start, 32);
+                    scriptExpr->parseData = debugger_buffer(inst, ENUM_statement, start, end - start, 32);
                 }
                 Hunk_UserDestroy(user);
             }

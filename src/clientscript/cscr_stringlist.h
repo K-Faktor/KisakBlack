@@ -12,6 +12,7 @@ struct scrStringDebugGlob_t // sizeof=0x40008
     int ignoreLeaks;
 };
 
+// KISAKTODO: guessing because the below function has inst as the 2nd arg, it's got a default val
 char *__cdecl SL_ConvertToString(unsigned int stringValue, scriptInstance_t inst);
 RefString *__cdecl GetRefString(scriptInstance_t inst, unsigned int stringValue);
 const char *__cdecl SL_DebugConvertToString(unsigned int stringValue, scriptInstance_t inst);

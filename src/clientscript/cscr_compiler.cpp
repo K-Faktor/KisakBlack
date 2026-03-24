@@ -112,7 +112,7 @@ void __cdecl ScriptCompile(
         v9 = 0;
     precachescriptList = v9;
     entriesCount_ = gScrCompilePub[inst].far_function_count + entriesCount;
-    if ( entriesCount_ > 1792 )
+    if ( entriesCount_ > MAX_PRECACHE_ENTRIES)
         Com_Error(
             ERR_DROP,
             "MAX_PRECACHE_ENTRIES exceeded.\nThis means that the script recursion is too deep.\nPlease see a coder.");

@@ -140,84 +140,108 @@ static const int g_poolSize[43] =
 };
 
 void __cdecl DB_FreeXAssetHeader_EmblemSet_(XAssetPoolEntry<EmblemSet> **pool, XAssetHeader header);
-XAssetHeader __cdecl DB_AllocXAsset_EmblemSet_(void *arg);
+
+template <typename T>
+XAssetHeader DB_AllocXAsset(void *pool)
+{
+    XAssetHeader header;
+    XAssetPool<T, 1> *castPool = (XAssetPool<T, 1> *) pool;
+    XAssetPoolEntry<T> *freeHead = castPool->freeHead;
+
+    if (freeHead)
+    {
+        header.data = &freeHead->entry;
+        castPool->freeHead = freeHead->next;
+    }
+    else
+    {
+        header.data = NULL;
+    }
+
+    return header;
+}
+
+XAssetHeader XASSET_SINGLETON(void *pool)
+{
+    return (XAssetHeader)pool;
+}
 
 XAssetHeader(__cdecl *DB_AllocXAssetHeaderHandler[43])(void *) =
 {
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_,
+  DB_AllocXAsset<XModelPieces>,
+  DB_AllocXAsset<PhysPreset>,
+  DB_AllocXAsset<PhysConstraints>,
+  DB_AllocXAsset<DestructibleDef>,
+  DB_AllocXAsset<XAnimParts>,
+  DB_AllocXAsset<XModel>,
   DB_AllocMaterial,
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_,
-  node_pos,
-  node_pos,
-  node_pos,
-  node_pos,
-  node_pos,
-  DB_AllocXAsset_EmblemSet_,
-  node_pos,
-  DB_AllocXAsset_EmblemSet_,
-  NULL,
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_,
-  NULL,
-  NULL,
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_,
-  DB_AllocXAsset_EmblemSet_
+  DB_AllocXAsset<MaterialTechniqueSet>,
+  DB_AllocXAsset<GfxImage>,
+  DB_AllocXAsset<SndBank>,
+  DB_AllocXAsset<snd_alias_list_t>, //SOUND_PATCH
+  XASSET_SINGLETON, // COL_MAP_SP
+  XASSET_SINGLETON, // COL_MAP_MP
+  XASSET_SINGLETON, // COM_MAP
+  XASSET_SINGLETON, // GAME_MAP_SP
+  XASSET_SINGLETON, // GAME_MAP_MP
+  DB_AllocXAsset<MapEnts>,
+  XASSET_SINGLETON, // GFX_MAP
+  DB_AllocXAsset<GfxLightDef>,
+  NULL,             // UI_MAP
+  DB_AllocXAsset<Font_s>,
+  DB_AllocXAsset<MenuList>,
+  DB_AllocXAsset<menuDef_t>,
+  DB_AllocXAsset<LocalizeEntry>,
+  DB_AllocXAsset<WeaponVariantDef>,
+  NULL,             // WEAPONDEF
+  NULL,             // WEAPONVARIANT
+  DB_AllocXAsset<SndDriverGlobals>, // should be a singleton?
+  DB_AllocXAsset<FxEffectDef>,
+  DB_AllocXAsset<FxImpactTable>,
+  NULL,             // AITYPE
+  NULL,             // MPTYPE
+  NULL,             // MPBODY
+  NULL,             // MPHEAD
+  NULL,             // CHARACTER
+  NULL,             // XMODELALIAS
+  DB_AllocXAsset<RawFile>,
+  DB_AllocXAsset<StringTable>,
+  DB_AllocXAsset<PackIndex>,
+  DB_AllocXAsset<XGlobals>,
+  DB_AllocXAsset<ddlDef_t>,
+  DB_AllocXAsset<Glasses>,
+  DB_AllocXAsset<EmblemSet>
 };
 
 
-XAssetPool<XModelPieces, POOLSIZE_XMODELPIECES>      g_XModelPiecesPool;
-XAssetPool<PhysPreset, POOLSIZE_PHYSPRESET>        g_PhysPresetPool;
+XAssetPool<XModelPieces, POOLSIZE_XMODELPIECES>         g_XModelPiecesPool;
+XAssetPool<PhysPreset, POOLSIZE_PHYSPRESET>             g_PhysPresetPool;
 XAssetPool<PhysConstraints, POOLSIZE_PHYSCONSTRAINTS>   g_PhysConstraintsPool;
 XAssetPool<DestructibleDef, POOLSIZE_DESTRUCTIBLEDEF>   g_DestructibleDefPool;
-XAssetPool<XAnimParts, POOLSIZE_XANIM>             g_XAnimPartsPool;
-XAssetPool<XModel, POOLSIZE_XMODEL>            g_XModelPool;
-XAssetPool<Material, POOLSIZE_MATERIAL>          g_MaterialPool;
-XAssetPool<MaterialTechniqueSet, POOLSIZE_TECHSET>           g_MaterialTechniqueSetPool;
-XAssetPool<GfxImage, POOLSIZE_IMAGE>             g_GfxImagePool;
-XAssetPool<SndBank, POOLSIZE_SOUND>             g_SoundPool;
-XAssetPool<snd_alias_list_t, POOLSIZE_SOUND_PATCH>       g_SoundPatchPool;
-XAssetPool<MapEnts, POOLSIZE_MAP_ENTS>          g_MapEntsPool;
-XAssetPool<GfxLightDef, POOLSIZE_LIGHTDEF>          g_GfxLightDefPool;
-XAssetPool<Font_s, POOLSIZE_FONT>              g_FontPool;
-XAssetPool<MenuList, POOLSIZE_MENUFILE>          g_MenuListPool;
-XAssetPool<menuDef_t, POOLSIZE_MENU>              g_MenuPool;
-XAssetPool<LocalizeEntry, POOLSIZE_LOCALIZE>          g_LocalizeEntryPool;
-XAssetPool<WeaponVariantDef, POOLSIZE_WEAPON>            g_WeaponVariantDefPool;
-XAssetPool<SndDriverGlobals, POOLSIZE_SNDDRIVERGLOBALS>  g_SndDriverGlobalsPool;
-XAssetPool<FxEffectDef, POOLSIZE_FX>                g_FxEffectDefPool;
-XAssetPool<FxImpactTable, POOLSIZE_IMPACTFX>          g_FxImpactTablePool;
-XAssetPool<RawFile, POOLSIZE_RAWFILE>           g_RawFilePool;
-XAssetPool<StringTable, POOLSIZE_STRINGTABLE>       g_StringTablePool;
-XAssetPool<PackIndex, POOLSIZE_PACKINDEX>         g_PackIndexPool;
-XAssetPool<XGlobals, POOLSIZE_XGLOBALS>          g_XGlobalsPool;
-XAssetPool<ddlDef_t, POOLSIZE_DDL>               g_DDLPool;
-XAssetPool<Glasses, POOLSIZE_GLASSES>           g_GlassesPool;
-XAssetPool<EmblemSet, POOLSIZE_EMBLEMSET>         g_EmblemSetPool;
+XAssetPool<XAnimParts, POOLSIZE_XANIM>                  g_XAnimPartsPool;
+XAssetPool<XModel, POOLSIZE_XMODEL>                     g_XModelPool;
+XAssetPool<Material, POOLSIZE_MATERIAL>                 g_MaterialPool;
+XAssetPool<MaterialTechniqueSet, POOLSIZE_TECHSET>      g_MaterialTechniqueSetPool;
+XAssetPool<GfxImage, POOLSIZE_IMAGE>                    g_GfxImagePool;
+XAssetPool<SndBank, POOLSIZE_SOUND>                     g_SoundPool;
+XAssetPool<snd_alias_list_t, POOLSIZE_SOUND_PATCH>      g_SoundPatchPool;
+XAssetPool<MapEnts, POOLSIZE_MAP_ENTS>                  g_MapEntsPool;
+XAssetPool<GfxLightDef, POOLSIZE_LIGHTDEF>              g_GfxLightDefPool;
+XAssetPool<Font_s, POOLSIZE_FONT>                       g_FontPool;
+XAssetPool<MenuList, POOLSIZE_MENUFILE>                 g_MenuListPool;
+XAssetPool<menuDef_t, POOLSIZE_MENU>                    g_MenuPool;
+XAssetPool<LocalizeEntry, POOLSIZE_LOCALIZE>            g_LocalizeEntryPool;
+XAssetPool<WeaponVariantDef, POOLSIZE_WEAPON>           g_WeaponVariantDefPool;
+XAssetPool<SndDriverGlobals, POOLSIZE_SNDDRIVERGLOBALS> g_SndDriverGlobalsPool;
+XAssetPool<FxEffectDef, POOLSIZE_FX>                    g_FxEffectDefPool;
+XAssetPool<FxImpactTable, POOLSIZE_IMPACTFX>            g_FxImpactTablePool;
+XAssetPool<RawFile, POOLSIZE_RAWFILE>                   g_RawFilePool;
+XAssetPool<StringTable, POOLSIZE_STRINGTABLE>           g_StringTablePool;
+XAssetPool<PackIndex, POOLSIZE_PACKINDEX>               g_PackIndexPool;
+XAssetPool<XGlobals, POOLSIZE_XGLOBALS>                 g_XGlobalsPool;
+XAssetPool<ddlDef_t, POOLSIZE_DDL>                      g_DDLPool;
+XAssetPool<Glasses, POOLSIZE_GLASSES>                   g_GlassesPool;
+XAssetPool<EmblemSet, POOLSIZE_EMBLEMSET>               g_EmblemSetPool;
 
 void *DB_XAssetPool[43] =
 {
@@ -272,6 +296,15 @@ static void FREE_NULLSUB(void *, XAssetHeader)
 
 }
 
+//template <typename T>
+//void __cdecl DB_FreeXAssetHeader(XAssetPoolEntry<T> **pool, XAssetHeader header)
+//{
+//    XAssetPoolEntry<T> *oldFreeHead; // [esp+8h] [ebp-4h]
+//
+//    oldFreeHead = *pool;
+//    *pool = (XAssetPoolEntry<T> *)header.xmodelPieces;
+//    header.xmodelPieces->name = (const char *)oldFreeHead;
+//}
 
 // casting all cuz it's easier
 void(__cdecl *DB_FreeXAssetHeaderHandler[43])(void *, XAssetHeader) =
@@ -922,23 +955,6 @@ void __cdecl Mark_EmblemSetAsset(EmblemSet *emblemSet)
     DB_GetXAsset(ASSET_TYPE_EMBLEMSET, (XAssetHeader)emblemSet);
 }
 
-XAssetHeader __cdecl DB_AllocXAsset_EmblemSet_(void *arg)
-{
-    XAssetHeader header; // [esp+4h] [ebp-8h]
-
-    XAssetHeader *pool = (XAssetHeader *)arg;
-    if (pool->xmodelPieces)
-    {
-        header.xmodelPieces = pool->xmodelPieces;
-        pool->xmodelPieces = (XModelPieces *)pool->xmodelPieces->name;
-    }
-    else
-    {
-        header.xmodelPieces = 0;
-    }
-    return header;
-}
-
 void __cdecl DB_FreeXAssetHeader_EmblemSet_(XAssetPoolEntry<EmblemSet> **pool, XAssetHeader header)
 {
     XAssetPoolEntry<EmblemSet> *oldFreeHead; // [esp+8h] [ebp-4h]
@@ -952,7 +968,7 @@ XAssetHeader __cdecl DB_AllocMaterial(void *arg)
 {
     XAssetHeader *pool = (XAssetHeader *)arg;
     Material_DirtySort();
-    return DB_AllocXAsset_EmblemSet_(pool);
+    return DB_AllocXAsset<Material>(pool);
 }
 
 void __cdecl DB_FreeMaterial(XAssetPoolEntry<EmblemSet> **pool, XAssetHeader header)

@@ -21,6 +21,7 @@ struct scr_block_s // sizeof=0x218
     scr_localVar_t localVars[64];
 };
 
+enum ParseToken_t : __int32;
 union sval_u // sizeof=0x4
 {                                       // XREF: GetExpressionCount(sval_u)+D/r
                                         // Scr_GetBuiltin(scriptInstance_t,sval_u)+3/r ...
@@ -32,7 +33,12 @@ union sval_u // sizeof=0x4
     {
         intValue = val;
     }
-    unsigned __int8 type;
+    sval_u(unsigned int val)
+    {
+        sourcePosValue = val;
+    }
+    //unsigned __int8 type;
+    ParseToken_t type; // this is changed to int32, but shouldn't matter cuz of the union I believe
     unsigned int stringValue;
     unsigned int idValue;
     float floatValue;

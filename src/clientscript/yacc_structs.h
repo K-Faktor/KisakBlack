@@ -2,7 +2,9 @@
 
 #pragma optimize("", off)
 
-const char yytranslate[] =
+#define YYTABLESIZE 1436
+
+const char yytranslate[352] =
 {
   '\0',
   '\x02',
@@ -4121,7 +4123,7 @@ const __int16 yycheck[1436] =
   31
 };
 
-const __int16 yy_accept[] =
+const __int16 yy_accept[264] =
 {
   0,
   0,
@@ -4648,7 +4650,7 @@ const int yy_ec[256] =
   1
 };
 
-const int yy_meta[] =
+const int yy_meta[60] =
 {
   0,
   1,
@@ -4712,7 +4714,7 @@ const int yy_meta[] =
   0x00, // LWSS: alignment
 };
 
-const __int16 yy_base[] =
+const __int16 yy_base[272] =
 {
   0,
   439,
@@ -4988,7 +4990,7 @@ const __int16 yy_base[] =
   0x00 // LWSS alignment
 };
 
-const __int16 yy_def[] =
+const __int16 yy_def[272] =
 {
   0,
   262,
@@ -5264,7 +5266,7 @@ const __int16 yy_def[] =
   0x00 // LWSS: align
 };
 
-const __int16 yy_nxt[] =
+const __int16 yy_nxt[504] =
 {
   0,
   8,

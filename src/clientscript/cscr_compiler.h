@@ -106,7 +106,8 @@ enum $BB7F4801BC8A3FB836B39ECFF8B5BEFB : __int32
     FUNC_SCOPE_FAR   = 0x1,
 };
 
-enum $4595A41124E79A03522668AB0CFC531F : __int32
+//enum $4595A41124E79A03522668AB0CFC531F : __int32
+enum ParseToken_t : __int32 // LWSS: not a real enum name!
 {
     ENUM_NOP                       = 0x0,
     ENUM_program                   = 0x1,
