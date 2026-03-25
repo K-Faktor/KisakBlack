@@ -309,9 +309,7 @@ void __thiscall UIViewer::Show()
                     BG_PostLoadAnim(comWorld.name);
                     ::bgs = 0;
                     //*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8) = 0;
-                    this->animTree = XAnimCreateTree(
-                                                         this->bgs.animData->generic_human.tree.anims,
-                                                         (void *(__cdecl *)(int))Hunk_AllocXAnimPrecache);
+                    this->animTree = XAnimCreateTree(this->bgs.animData->generic_human.tree.anims, Hunk_AllocXAnimPrecache);
                 }
                 BG_ShutdownWeaponDefFiles();
                 BG_ClearWeaponDef();

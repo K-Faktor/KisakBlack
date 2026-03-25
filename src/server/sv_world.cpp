@@ -1181,55 +1181,14 @@ void __cdecl SV_TraceCapsule(
     {
         __debugbreak();
     }
-    if ( ((*(unsigned int *)mins & 0x7F800000) == 0x7F800000
-         || ((unsigned int)mins[1] & 0x7F800000) == 0x7F800000
-         || ((unsigned int)mins[2] & 0x7F800000) == 0x7F800000)
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server\\sv_world.cpp",
-                    885,
-                    0,
-                    "%s",
-                    "!IS_NAN((mins)[0]) && !IS_NAN((mins)[1]) && !IS_NAN((mins)[2])") )
-    {
-        __debugbreak();
-    }
-    if ( ((*(unsigned int *)maxs & 0x7F800000) == 0x7F800000
-         || ((unsigned int)maxs[1] & 0x7F800000) == 0x7F800000
-         || ((unsigned int)maxs[2] & 0x7F800000) == 0x7F800000)
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server\\sv_world.cpp",
-                    885,
-                    0,
-                    "%s",
-                    "!IS_NAN((maxs)[0]) && !IS_NAN((maxs)[1]) && !IS_NAN((maxs)[2])") )
-    {
-        __debugbreak();
-    }
-    if ( ((*(unsigned int *)start & 0x7F800000) == 0x7F800000
-         || ((unsigned int)start[1] & 0x7F800000) == 0x7F800000
-         || ((unsigned int)start[2] & 0x7F800000) == 0x7F800000)
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server\\sv_world.cpp",
-                    886,
-                    0,
-                    "%s",
-                    "!IS_NAN((start)[0]) && !IS_NAN((start)[1]) && !IS_NAN((start)[2])") )
-    {
-        __debugbreak();
-    }
-    if ( ((*(unsigned int *)end & 0x7F800000) == 0x7F800000
-         || ((unsigned int)end[1] & 0x7F800000) == 0x7F800000
-         || ((unsigned int)end[2] & 0x7F800000) == 0x7F800000)
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server\\sv_world.cpp",
-                    887,
-                    0,
-                    "%s",
-                    "!IS_NAN((end)[0]) && !IS_NAN((end)[1]) && !IS_NAN((end)[2])") )
-    {
-        __debugbreak();
-    }
+
+    iassert(!IS_NAN((mins)[0]) && !IS_NAN((mins)[1]) && !IS_NAN((mins)[2]));
+    iassert(!IS_NAN((maxs)[0]) && !IS_NAN((maxs)[1]) && !IS_NAN((maxs)[2]));
+    iassert(!IS_NAN((start)[0]) && !IS_NAN((start)[1]) && !IS_NAN((start)[2]));
+    iassert(!IS_NAN((end)[0]) && !IS_NAN((end)[1]) && !IS_NAN((end)[2]));
+
     CM_BoxTrace(results, start, end, mins, maxs, context->mask, context);
+
     if ( (LODWORD(results->fraction) & 0x7F800000) == 0x7F800000
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\server\\sv_world.cpp",

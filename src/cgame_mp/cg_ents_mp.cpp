@@ -3487,7 +3487,7 @@ DObj *__cdecl CG_PreProcess_GetDObj(int localClientNum, int entIndex, int entTyp
         {
             anims = CG_GetAnimations(localClientNum, entIndex, entType);
             if ( anims )
-                Tree = XAnimCreateTree(anims, (void *(__cdecl *)(int))CG_AllocAnimTree);
+                Tree = XAnimCreateTree(anims, (void *(__cdecl *)(unsigned int))CG_AllocAnimTree);
             else
                 Tree = 0;
             animTree = Tree;

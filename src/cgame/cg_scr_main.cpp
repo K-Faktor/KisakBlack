@@ -8242,7 +8242,7 @@ void __cdecl CScr_UseAnimTree(scr_entref_t entref)
         }
         Scr_Error(SCRIPTINSTANCE_CLIENT, "Cannot set an animtree into an entity that has no model.", 0);
     }
-    pSelf->tree = XAnimCreateTree(animtree.anims, (void *(__cdecl *)(int))CG_AllocAnimTree);
+    pSelf->tree = XAnimCreateTree(animtree.anims, (void *(__cdecl *)(unsigned int))CG_AllocAnimTree);
     DObjSetTree(obj, pSelf->tree);
     Scr_AddInt(1, SCRIPTINSTANCE_CLIENT);
 }

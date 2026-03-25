@@ -381,8 +381,8 @@ void __cdecl G_CreateDObj(
     clientInfo_t *__formal);
 DObj *__cdecl G_GetDObj(unsigned int handle, int unusedLocalClientNum);
 void __cdecl G_SafeDObjFree(unsigned int handle, int unusedLocalClientNum);
-XAnim_s *G_LoadAnimTreeInstances();
-unsigned __int8 *__cdecl Hunk_AllocActorXAnimServer(unsigned int size);
+void G_LoadAnimTreeInstances();
+void* __cdecl Hunk_AllocActorXAnimServer(int size);
 void G_PrintAllFastFileErrors();
 void __cdecl G_PrintFastFileErrors(char *fastfile);
 unsigned __int16 __cdecl G_AttachWeapon(DObjModel_s *dobjModels, unsigned __int16 numModels, clientInfo_t *ci);

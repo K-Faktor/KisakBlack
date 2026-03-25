@@ -389,7 +389,7 @@ bool __cdecl XAnimTreeHasInfo(const XAnimTree_s *tree);
 void __cdecl XAnimInit();
 void __cdecl XAnimShutdown();
 void __cdecl XAnimFree(XAnimParts *parts, scriptInstance_t inst);
-unsigned __int8 *__cdecl Hunk_AllocXAnimPrecache(unsigned int size);
+void *__cdecl Hunk_AllocXAnimPrecache(unsigned int size);
 XAnimParts *__cdecl XAnimPrecache(char *name, void *(__cdecl *Alloc)(int));
 XAnimParts *__cdecl XAnimFindData_LoadObj(char *name, void *(__cdecl *Alloc)(int));
 XAnimParts *__cdecl XAnimFindData_FastFile(const char *name);
@@ -417,7 +417,7 @@ XAnim_s *__cdecl XAnimCreateAnimsWithValues(
                 unsigned int iTotalValueCount,
                 void *(__cdecl *Alloc)(int));
 void __cdecl XAnimFreeList(XAnim_s *anims);
-XAnimTree_s *__cdecl XAnimCreateTree(XAnim_s *anims, void *(__cdecl *Alloc)(int));
+XAnimTree_s *__cdecl XAnimCreateTree(XAnim_s *anims, void *(__cdecl *Alloc)(unsigned int));
 void __cdecl XAnimFreeTree(
                 XAnimTree_s *tree,
                 void (__cdecl *Free)(void *, int, scriptInstance_t),

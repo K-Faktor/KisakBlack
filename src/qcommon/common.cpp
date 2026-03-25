@@ -3180,7 +3180,7 @@ void __cdecl Com_Restart()
 
 XAnimTree_s *__cdecl Com_XAnimCreateSmallTree(XAnim_s *anims)
 {
-    return XAnimCreateTree(anims, (void *(__cdecl *)(int))CG_AllocAnimTree);
+    return XAnimCreateTree(anims, (void *(__cdecl *)(unsigned int))CG_AllocAnimTree);
 }
 
 void __cdecl Com_XAnimFreeSmallTree(XAnimTree_s *animtree)

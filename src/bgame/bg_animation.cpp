@@ -630,20 +630,9 @@ int __cdecl BG_GetVehicleAnimSetIndex(unsigned __int16 animSetStr)
 
 void __cdecl BG_ParseCommands(const char **input, animScriptItem_t *scriptItem, animScriptData_t *scriptData)
 {
-    __int16 v3; // ax
     __int16 v4; // ax
-    unsigned __int16 v5; // ax
-    int v6; // eax
-    int v7; // eax
     unsigned __int16 String; // ax
-    unsigned __int16 v9; // ax
     int v10; // eax
-    const char *v11; // eax
-    snd_alias_list_t *v12; // eax
-    float v13; // [esp+18h] [ebp-BCh]
-    char *v15; // [esp+20h] [ebp-B4h]
-    const char *v16; // [esp+34h] [ebp-A0h]
-    char *v18; // [esp+3Ch] [ebp-98h]
     const char *v19; // [esp+4Ch] [ebp-88h]
     unsigned int v20; // [esp+50h] [ebp-84h]
     parseInfo_t *v21; // [esp+74h] [ebp-60h]
@@ -663,11 +652,13 @@ void __cdecl BG_ParseCommands(const char **input, animScriptItem_t *scriptItem, 
         token = (const char *)v21;
         if ( !v21 || !*token )
             break;
+
         if ( !I_stricmp(token, "}") )
         {
             *input -= strlen(token);
             return;
         }
+
         if ( !partIndex )
         {
             if ( scriptItem->numCommands >= 8 )
@@ -675,28 +666,25 @@ void __cdecl BG_ParseCommands(const char **input, animScriptItem_t *scriptItem, 
             command = &scriptItem->commands[scriptItem->numCommands++];
             *(unsigned int *)command->bodyPart = 0;
         }
-        v3 = BG_IndexForString(token, animBodyPartsStr, 1);
-        command->bodyPart[partIndex] = v3;
+
+        command->bodyPart[partIndex] = BG_IndexForString(token, animBodyPartsStr, 1);
         if ( command->bodyPart[partIndex] <= 0 )
         {
             *input -= strlen(token);
             goto LABEL_198;
         }
+
         animName[0] = 0;
         numAnimTokens = 1;
         while ( numAnimTokens > 0 )
         {
-            token = (const char *)Com_ParseOnLine(input);
+            token = Com_ParseOnLine(input)->token;
             if ( token && *token )
             {
                 --numAnimTokens;
                 if ( I_stricmp(token, "%vehicle_name") )
                 {
-                    v16 = &token[strlen(token) + 1];
-                    v15 = (char *)&partIndex + 3;
-                    while ( *++v15 )
-                        ;
-                    memcpy(v15, token, v16 - token);
+                    strcat(animName, token);
                 }
                 else
                 {
@@ -706,14 +694,10 @@ void __cdecl BG_ParseCommands(const char **input, animScriptItem_t *scriptItem, 
                     {
                         BG_AnimParseError("BG_ParseCommands: %vehicle_name variable used outside #FOR_ALL_VEHICLES loop");
                     }
-                    v19 = BG_StringForIndex(parseVehicleNameIndex, animVehicleNameStr, 0);
-                    v20 = (unsigned int)&v19[strlen(v19) + 1];
-                    v18 = (char *)&partIndex + 3;
-                    while ( *++v18 )
-                        ;
-                    memcpy(v18, v19, v20 - (unsigned int)v19);
+
+                    strcat(animName, BG_StringForIndex(parseVehicleNameIndex, animVehicleNameStr, 0));
                 }
-                token = (const char *)Com_ParseOnLine(input);
+                token = Com_ParseOnLine(input)->token;
                 if ( token )
                 {
                     if ( I_stricmp(token, "+") )
@@ -734,6 +718,8 @@ void __cdecl BG_ParseCommands(const char **input, animScriptItem_t *scriptItem, 
         command->animDuration[partIndex] = scriptData->animations[command->animIndex[partIndex]].duration;
         if ( command->animDuration[partIndex] != scriptData->animations[command->animIndex[partIndex]].duration )
             scriptData->animations[command->animIndex[partIndex]].flags |= 0x1000u;
+
+
         if ( !g_pLoadAnims )
         {
             if ( (parseMovetype || parseEvent) && command->bodyPart[partIndex] != 2 )
@@ -881,7 +867,7 @@ void __cdecl BG_ParseCommands(const char **input, animScriptItem_t *scriptItem, 
         do
         {
             bCommandFound = 0;
-            token = (const char *)Com_ParseOnLine(input);
+            token = Com_ParseOnLine(input)->token;
             if ( !token || !*token )
             {
 LABEL_192:
@@ -933,13 +919,12 @@ LABEL_192:
                                                 {
                                                     __debugbreak();
                                                 }
-                                                token = (const char *)Com_ParseOnLine(input);
+                                                token = Com_ParseOnLine(input)->token;
                                                 if ( !token || !*token )
                                                     BG_AnimParseError("BG_ParseCommands: expected animrate value");
                                                 if ( !g_pLoadAnims )
                                                 {
-                                                    v13 = atof(token);
-                                                    scriptData->animations[command->animIndex[partIndex]].forceAnimRate = v13;
+                                                    scriptData->animations[command->animIndex[partIndex]].forceAnimRate = atof(token);
                                                 }
                                             }
                                             else
@@ -999,41 +984,38 @@ LABEL_192:
                             else
                             {
                                 bCommandFound = 1;
-                                token = (const char *)Com_ParseOnLine(input);
+                                token = Com_ParseOnLine(input)->token;
                                 if ( !token || !*token )
                                     BG_AnimParseError("BG_ParseCommands: expected attach tag name");
                                 String = SL_FindString(token, SCRIPTINSTANCE_SERVER);
                                 command->tagName = String;
                                 if ( !command->tagName )
                                 {
-                                    v9 = SL_GetString_(SCRIPTINSTANCE_SERVER, (char *)token, 0, 17);
-                                    command->tagName = v9;
+                                    command->tagName = SL_GetString_(SCRIPTINSTANCE_SERVER, (char *)token, 0, 17);
                                 }
                             }
                         }
                         else
                         {
                             bCommandFound = 1;
-                            token = (const char *)Com_ParseOnLine(input);
+                            token = Com_ParseOnLine(input)->token;
                             if ( !token || !*token )
                                 BG_AnimParseError("BG_ParseCommands: expected blendtime value");
                             if ( !g_pLoadAnims )
                             {
-                                v7 = atoi(token);
-                                scriptData->animations[command->animIndex[partIndex]].finalLerp = v7;
+                                scriptData->animations[command->animIndex[partIndex]].finalLerp = atoi(token);
                             }
                         }
                     }
                     else
                     {
                         bCommandFound = 1;
-                        token = (const char *)Com_ParseOnLine(input);
+                        token = Com_ParseOnLine(input)->token;
                         if ( !token || !*token )
                             BG_AnimParseError("BG_ParseCommands: expected blendtime value");
                         if ( !g_pLoadAnims )
                         {
-                            v6 = atoi(token);
-                            scriptData->animations[command->animIndex[partIndex]].initialLerp = v6;
+                            scriptData->animations[command->animIndex[partIndex]].initialLerp = atoi(token);
                         }
                     }
                 }
@@ -1049,11 +1031,10 @@ LABEL_192:
             else
             {
                 bCommandFound = 1;
-                token = (const char *)Com_ParseOnLine(input);
+                token = Com_ParseOnLine(input)->token;
                 if ( !token || !*token )
                     BG_AnimParseError("BG_ParseCommands: expected duration value");
-                v5 = atoi(token);
-                command->animDuration[partIndex] = v5;
+                command->animDuration[partIndex] = atoi(token);
             }
         }
         while ( bCommandFound );
@@ -1066,7 +1047,7 @@ LABEL_192:
 LABEL_198:
         while ( 1 )
         {
-            token = (const char *)Com_ParseOnLine(input);
+            token = Com_ParseOnLine(input)->token;
             if ( !token || !*token )
                 break;
             if ( I_stricmp(token, "sound") )
@@ -1075,11 +1056,10 @@ LABEL_198:
             }
             else
             {
-                token = (const char *)Com_ParseOnLine(input);
+                token = Com_ParseOnLine(input)->token;
                 if ( !token || !*token )
                     BG_AnimParseError("BG_ParseCommands: expected sound");
-                v11 = strstr(token, ".wav");
-                if ( v11 )
+                if (strstr(token, ".wav"))
                     BG_AnimParseError("BG_ParseCommands: wav files not supported, only sound scripts");
                 command->soundAlias = bgs->animData->animScriptData.soundAlias(token);
             }
@@ -3432,19 +3412,21 @@ scr_animtree_t __cdecl BG_FindAnimTree(const char *filename, int bEnforceExists)
 unsigned int iNumPlayerAnims;
 void __cdecl BG_LoadAnim(const char *levelName)
 {
-    LargeLocal playerAnims_large_local(73728); // [esp+0h] [ebp-Ch] BYREF
-    loadAnim_t (*playerAnims)[1024]; // [esp+8h] [ebp-4h]
+    LargeLocal playerAnims_large_local(sizeof(loadAnim_t) * 1024 /*73728*/); // [esp+0h] [ebp-Ch] BYREF
+    //loadAnim_t (*playerAnims)[1024]; // [esp+8h] [ebp-4h]
 
     //LargeLocal::LargeLocal(&playerAnims_large_local, 73728);
     //playerAnims = (loadAnim_t (*)[1024])LargeLocal::GetBuf(&playerAnims_large_local);
-    playerAnims = (loadAnim_t (*)[1024]) playerAnims_large_local.GetBuf();
+    loadAnim_t *playerAnims = (loadAnim_t *)playerAnims_large_local.GetBuf();
     BG_CheckThread();
     iassert(bgs);
+
     iNumPlayerAnims = 0;
+
     BG_FindAnims();
     BG_AnimParseAnimScript(
-        (animScriptData_t *)bgs->animData,
-        (loadAnim_t *)playerAnims,
+        &bgs->animData->animScriptData,
+        playerAnims,
         &iNumPlayerAnims,
         levelName);
     Scr_PrecacheAnimTrees(
@@ -3453,6 +3435,7 @@ void __cdecl BG_LoadAnim(const char *levelName)
         bgs->anim_user,
         bgs == &level_bgs);
     BG_FindAnimTrees();
+
     //LargeLocal::~LargeLocal(&playerAnims_large_local);
 }
 

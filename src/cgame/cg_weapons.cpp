@@ -925,7 +925,7 @@ void __cdecl ChangeViewmodelDobj(
                     {
                         __debugbreak();
                     }
-                    viewModelInfo->tree = XAnimCreateTree(viewModelInfo->anims, (void*(*)(int))Hunk_AllocXAnimClient);
+                    viewModelInfo->tree = XAnimCreateTree(viewModelInfo->anims, (void*(*)(unsigned int))Hunk_AllocXAnimClient);
                     if (!viewModelInfo->tree
                         && !Assert_MyHandler(
                             "C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp",

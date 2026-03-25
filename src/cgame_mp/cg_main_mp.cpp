@@ -3639,31 +3639,34 @@ void __cdecl CG_LoadAnimTreeInstances(int localClientNum)
     XAnim_s *generic_human; // [esp+0h] [ebp-14h]
     cg_s *cgameGlob; // [esp+4h] [ebp-10h]
     cgs_t *cgs; // [esp+8h] [ebp-Ch]
-    int i; // [esp+Ch] [ebp-8h]
-    int ia; // [esp+Ch] [ebp-8h]
-    int ib; // [esp+Ch] [ebp-8h]
-    int ic; // [esp+Ch] [ebp-8h]
     XAnim_s *anims; // [esp+10h] [ebp-4h]
 
     cgameGlob = CG_GetLocalClientGlobals(localClientNum);
     generic_human = cgameGlob->bgs.animData->generic_human.tree.anims;
-    for ( i = 0; i < com_maxclients->current.integer; ++i )
-        cgameGlob->bgs.clientinfo[i].pXAnimTree = XAnimCreateTree(generic_human, (void *(*)(int))Hunk_AllocXAnimClient);
+
+    for ( int i = 0; i < com_maxclients->current.integer; ++i )
+        cgameGlob->bgs.clientinfo[i].pXAnimTree = XAnimCreateTree(generic_human, Hunk_AllocXAnimClient);
+
     cgs = CG_GetLocalClientStaticGlobals(localClientNum);
-    for ( ia = 0; ia < 4; ++ia )
-        *(unsigned int *)&cgs->corpseinfo[1480 * ia + 1332] = (unsigned int)XAnimCreateTree(generic_human, (void*(*)(int))Hunk_AllocXAnimClient);
-    anims = Dog_GetAnims();
-    if ( !anims
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame_mp\\cg_main_mp.cpp", 2223, 0, "%s", "anims") )
+    for (int i = 0; i < 4; ++i)
     {
-        __debugbreak();
+        cgs->corpseinfo[i].pXAnimTree = XAnimCreateTree(generic_human, Hunk_AllocXAnimClient);
+        //*(unsigned int *)&cgs->corpseinfo[1480 * ia + 1332] = (unsigned int)XAnimCreateTree(generic_human, Hunk_AllocXAnimClient);
     }
-    for ( ib = 0; ib < 16; ++ib )
-        cgameGlob->bgs.actorinfo[ib].pXAnimTree = XAnimCreateTree(anims, (void *(*)(int))Hunk_AllocXAnimClient);
-    for ( ic = 0; ic < 8; ++ic )
+
+    anims = Dog_GetAnims();
+
+    iassert(anims);
+
+    for ( int i = 0; i < 16; ++i )
+        cgameGlob->bgs.actorinfo[i].pXAnimTree = XAnimCreateTree(anims, Hunk_AllocXAnimClient);
+
+    for ( int i = 0; i < 8; ++i )
     {
-        cgs->actorCorpseInfo[ic + 1].animInfo.legs.yawing = (int)XAnimCreateTree(anims, (void *(*)(int))Hunk_AllocXAnimClient);
-        cgs->actorCorpseInfo[ic].animInfo.legs.animation = (animation_s *)-1;
+        cgs->actorCorpseInfo[i].pXAnimTree = XAnimCreateTree(anims, Hunk_AllocXAnimClient);
+        cgs->actorCorpseInfo[i].entityNum = -1;
+        //cgs->actorCorpseInfo[ic + 1].animInfo.legs.yawing = (int)XAnimCreateTree(anims, Hunk_AllocXAnimClient);
+        //cgs->actorCorpseInfo[ic].animInfo.legs.animation = (animation_s *)-1;
     }
 }
 

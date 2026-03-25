@@ -895,11 +895,7 @@ void __cdecl Scr_LoadAnimTreeAtIndex(
     bool modCheckSum)
 {
     ClientTreeStorage *v5; // edx
-    char *v6; // eax
-    unsigned int v7; // eax
     char *v8; // eax
-    char *v9; // eax
-    const char *v10; // eax
     char *v11; // eax
     unsigned int Variable; // eax
     unsigned int animtree_node; // [esp-8h] [ebp-98h]
@@ -919,150 +915,101 @@ void __cdecl Scr_LoadAnimTreeAtIndex(
     unsigned int id; // [esp+8Ch] [ebp-4h]
 
     id = gScrAnimGlob[inst].using_xanim_lookup[user][index];
-    if (!gScrAnimPub[inst].animtree_loading
-        && !Assert_MyHandler(
-            "C:\\projects_pc\\cod\\codsrc\\src\\clientscript\\cscr_animtree.cpp",
-            2588,
-            0,
-            "%s",
-            "gScrAnimPub[inst].animtree_loading"))
-    {
-        __debugbreak();
-    }
+
+    iassert(gScrAnimPub[inst].animtree_loading);
+
     Hunk_CheckTempMemoryClear();
     Hunk_CheckTempMemoryHighClear();
-    if (GetVariableName(inst, id) >= 0x10000
-        && !Assert_MyHandler(
-            "C:\\projects_pc\\cod\\codsrc\\src\\clientscript\\cscr_animtree.cpp",
-            2592,
-            0,
-            "%s",
-            "GetVariableName( inst, id ) < SL_MAX_STRING_INDEX"))
-    {
-        __debugbreak();
-    }
+
+    iassert(GetVariableName(inst, id) < SL_MAX_STRING_INDEX);
+
     filenameId = GetVariableName(inst, id);
     fileId = FindObject(inst, id);
-    if (!fileId
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\clientscript\\cscr_animtree.cpp", 2597, 0, "%s", "fileId"))
+
+    iassert(fileId);
+
+    if (FindVariable(inst, fileId, 1u))
     {
-        __debugbreak();
+        return;
     }
-    if (!FindVariable(inst, fileId, 1u))
+
+    animtree.anims = 0;
+    names = FindVariable(inst, fileId, 0);
+
+    if (!names)
     {
-        animtree.anims = 0;
-        names = FindVariable(inst, fileId, 0);
-        if (names)
+        gScrAnimPub[inst].xanim_lookup[user][index] = animtree;
+        if (inst == SCRIPTINSTANCE_SERVER)
         {
-            names = FindObject(inst, names);
-            if (!names
-                && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\clientscript\\cscr_animtree.cpp",
-                    2614,
-                    0,
-                    "%s",
-                    "names"))
-            {
-                __debugbreak();
-            }
-            if (inst != SCRIPTINSTANCE_CLIENT)
-            {
-                g_pCurrClientData = &gGScrXAnimTreesForClient[user][index];
-                if (gScrAnimPub[inst].animtree_node
-                    && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\clientscript\\cscr_animtree.cpp",
-                        2632,
-                        0,
-                        "%s",
-                        "!gScrAnimPub[inst].animtree_node"))
-                {
-                    __debugbreak();
-                }
-                gScrAnimPub[inst].animtree_node = Scr_AllocArray(inst);
-                animtree_node = gScrAnimPub[inst].animtree_node;
-                v8 = SL_ConvertToString(filenameId, inst);
-                if (!Scr_LoadAnimTreeInternal(inst, v8, animtree_node, names))
-                {
-                    v9 = SL_ConvertToString(filenameId, inst);
-                    v10 = va("unknown anim tree '%s'", v9);
-                    Com_Error(ERR_DROP, v10);
-                }
-                Hunk_CheckTempMemoryClear();
-                Hunk_CheckTempMemoryHighClear();
-                rootName = SL_GetString_(inst, (char *)NODE_ROOT_NAME, 2u, 4);
-                nodeVariable = FindVariable(inst, gScrAnimPub[inst].animtree_node, rootName);
-                nodeData = GetArray(inst, nodeVariable);
-                size = Scr_GetAnimTreeSize(inst, nodeData);
-                if (!size
-                    && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\clientscript\\cscr_animtree.cpp",
-                        2647,
-                        0,
-                        "%s",
-                        "size"))
-                {
-                    __debugbreak();
-                }
-                iValueCount = Scr_GetAnimTreeValueCount(inst, gScrAnimPub[inst].animtree_node);
-                g_pCurrClientData->pTreeNameMap = (TreeNameMap *)Hunk_Alloc(84 * size, "Client AnimScript", 16);
-                memset((unsigned __int8 *)g_pCurrClientData->pTreeNameMap, 0, 84 * size);
-                g_pCurrClientData->numIndices = size;
-                v11 = SL_ConvertToString(filenameId, inst);
-                animtree.anims = XAnimCreateAnimsWithValues(v11, size, iValueCount, Alloc);
-                name = SL_GetString_(inst, "root", 0, 4);
-                ConnectScriptToAnim(inst, names, 0, filenameId, name, index);
-                SL_RemoveRefToString(inst, name);
-                if (!useFastFile->current.enabled)
-                    Scr_PrecacheAnimationTree(inst, nodeData);
-                g_bChangeChecksum = sv.state != SS_GAME && modCheckSum;
-                size2 = Scr_CreateAllAnimTreeData(
-                    inst,
-                    gScrAnimPub[inst].animtree_node,
-                    names,
-                    &animtree,
-                    filenameId,
-                    index,
-                    Alloc);
-                g_bChangeChecksum = 1;
-                if (size != size2
-                    && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\clientscript\\cscr_animtree.cpp",
-                        2683,
-                        0,
-                        "%s",
-                        "size == size2"))
-                {
-                    __debugbreak();
-                }
-                Scr_CheckAnimsDefined(inst, names, filenameId);
-                RemoveVariable(inst, fileId, 0);
-                RemoveRefToObject(inst, gScrAnimPub[inst].animtree_node);
-                gScrAnimPub[inst].animtree_node = 0;
-                tempValue.type = 7;
-                tempValue.u.intValue = (int)animtree.anims;
-                Variable = GetVariable(inst, fileId, 1u);
-                SetVariableValue(inst, Variable, &tempValue);
-                XAnimSetupSyncNodes(animtree.anims);
-            }
-            v6 = SL_ConvertToString(filenameId, SCRIPTINSTANCE_CLIENT);
-            gScrAnimPub[1].xanim_lookup[user][index] = CScr_RetrieveAnimTree(v6, names, filenameId, index);
-            insertValue.type = 7;
-            insertValue.u.intValue = (int)gScrAnimPub[1].xanim_lookup[user][index].anims;
-            v7 = GetVariable(SCRIPTINSTANCE_CLIENT, fileId, 1u);
-            SetVariableValue(SCRIPTINSTANCE_CLIENT, v7, &insertValue);
+            v5 = &gGScrXAnimTreesForClient[user][index];
+            v5->strName = 0;
+            v5->animTree.anims = 0;
+            v5->numIndices = 0;
+            v5->pTreeNameMap = 0;
         }
-        else
+
+        return;
+    }
+
+    names = FindObject(inst, names);
+    iassert(names);
+    if (inst != SCRIPTINSTANCE_CLIENT)
+    {
+        g_pCurrClientData = &gGScrXAnimTreesForClient[user][index];
+        iassert(!gScrAnimPub[inst].animtree_node);
+        gScrAnimPub[inst].animtree_node = Scr_AllocArray(inst);
+        animtree_node = gScrAnimPub[inst].animtree_node;
+        v8 = SL_ConvertToString(filenameId, inst);
+        if (!Scr_LoadAnimTreeInternal(inst, v8, animtree_node, names))
         {
-            gScrAnimPub[inst].xanim_lookup[user][index] = animtree;
-            if (inst == SCRIPTINSTANCE_SERVER)
-            {
-                v5 = &gGScrXAnimTreesForClient[user][index];
-                v5->strName = 0;
-                v5->animTree.anims = 0;
-                v5->numIndices = 0;
-                v5->pTreeNameMap = 0;
-            }
+            Com_Error(ERR_DROP, va("unknown anim tree '%s'", SL_ConvertToString(filenameId, inst)));
         }
+        Hunk_CheckTempMemoryClear();
+        Hunk_CheckTempMemoryHighClear();
+        rootName = SL_GetString_(inst, (char *)NODE_ROOT_NAME, 2u, 4);
+        nodeVariable = FindVariable(inst, gScrAnimPub[inst].animtree_node, rootName);
+        nodeData = GetArray(inst, nodeVariable);
+        size = Scr_GetAnimTreeSize(inst, nodeData);
+        iassert(size);
+        iValueCount = Scr_GetAnimTreeValueCount(inst, gScrAnimPub[inst].animtree_node);
+        g_pCurrClientData->pTreeNameMap = (TreeNameMap *)Hunk_Alloc(84 * size, "Client AnimScript", 16);
+        memset((unsigned __int8 *)g_pCurrClientData->pTreeNameMap, 0, 84 * size);
+        g_pCurrClientData->numIndices = size;
+        v11 = SL_ConvertToString(filenameId, inst);
+        animtree.anims = XAnimCreateAnimsWithValues(v11, size, iValueCount, Alloc);
+        name = SL_GetString_(inst, "root", 0, 4);
+        ConnectScriptToAnim(inst, names, 0, filenameId, name, index);
+        SL_RemoveRefToString(inst, name);
+        if (!useFastFile->current.enabled)
+            Scr_PrecacheAnimationTree(inst, nodeData);
+        g_bChangeChecksum = sv.state != SS_GAME && modCheckSum;
+        size2 = Scr_CreateAllAnimTreeData(
+            inst,
+            gScrAnimPub[inst].animtree_node,
+            names,
+            &animtree,
+            filenameId,
+            index,
+            Alloc);
+        g_bChangeChecksum = 1;
+
+        iassert(size == size2);
+        Scr_CheckAnimsDefined(inst, names, filenameId);
+        RemoveVariable(inst, fileId, 0);
+        RemoveRefToObject(inst, gScrAnimPub[inst].animtree_node);
+        gScrAnimPub[inst].animtree_node = 0;
+        tempValue.type = VAR_CODEPOS;
+        tempValue.u.codePosValue = (char*)animtree.anims;
+        Variable = GetVariable(inst, fileId, 1u);
+        SetVariableValue(inst, Variable, &tempValue);
+        XAnimSetupSyncNodes(animtree.anims);
+    }
+    else // IDA MOMENT
+    {
+        gScrAnimPub[1].xanim_lookup[user][index] = CScr_RetrieveAnimTree(SL_ConvertToString(filenameId, SCRIPTINSTANCE_CLIENT), names, filenameId, index);
+        insertValue.type = VAR_CODEPOS;
+        insertValue.u.codePosValue = (char*)gScrAnimPub[1].xanim_lookup[user][index].anims;
+        SetVariableValue(SCRIPTINSTANCE_CLIENT, GetVariable(SCRIPTINSTANCE_CLIENT, fileId, 1u), &insertValue);
     }
 }
 

@@ -326,7 +326,6 @@ void __cdecl G_DropPathNodeToFloor(unsigned int nodeIndex)
     G_InitPathBaseNode(&gameWorldCurrent->path.basenodes[nodeIndex], &gameWorldCurrent->path.nodes[nodeIndex]);
 }
 
-// local variable allocation has failed, the output may be wrong!
 void    node_droptofloor(pathnode_t *node)
 {
     float origin_loc[3]; // [esp+18h] [ebp-15Ch] BYREF
@@ -353,25 +352,30 @@ void    node_droptofloor(pathnode_t *node)
     //
     //v20[0] = a1;
     //v20[1] = (_UNKNOWN *)vars0;
-    memset(&trace, 0, 16);
+    //memset(&trace, 0, 16);
     //col_context_t::col_context_t(&context);
     //LODWORD(vOrigin[3]) = node + 20;
-    vOrigin[0] = *(float *)(node + 20);
-    vOrigin[1] = *(float *)(node + 24);
-    vOrigin[2] = *(float *)(node + 28);
+    vOrigin[0] = node->constant.vOrigin[0];
+    vOrigin[1] = node->constant.vOrigin[1];
+    vOrigin[2] = node->constant.vOrigin[2];
+
     vEnd[0] = vOrigin[0];
     vEnd[1] = vOrigin[1];
     vEnd[2] = vOrigin[2] - 256.0;
+
     endpos[0] = vOrigin[0];
     endpos[1] = vOrigin[1];
     endpos[2] = vOrigin[2] + 1.0;
+
     dropMins[0] = actorMins[0];
     dropMins[1] = actorMins[1];
     dropMins[2] = actorMins[2];
+
     dropMaxs[0] = actorMaxs[0];
     dropMaxs[1] = actorMaxs[1];
     dropMaxs[2] = (float)(15.0 - -15.0) + 0.0;
-    G_TraceCapsule(&trace, endpos, dropMins, dropMaxs, vEnd, 1023, (int)0x82000C + 5, &context);
+
+    G_TraceCapsule(&trace, endpos, dropMins, dropMaxs, vEnd, 1023, 0x820011, &context);
     if (trace.startsolid || trace.allsolid)
         goto LABEL_3;
     if (trace.fraction == 1.0)
@@ -396,7 +400,7 @@ void    node_droptofloor(pathnode_t *node)
         Vec3Lerp(endpos, vEnd, trace.fraction, endpos);
         save_hitType = trace.hitType;
         LOWORD(save_hitId) = trace.hitId;
-        G_TraceCapsule(&trace, endpos, actorMins, actorMaxs, endpos, 1023, (int)0x82000C + 5, &context);
+        G_TraceCapsule(&trace, endpos, actorMins, actorMaxs, endpos, 1023, 0x820011, &context);
         if (trace.startsolid || trace.allsolid)
         {
         LABEL_3:
@@ -438,7 +442,7 @@ void    node_droptofloor(pathnode_t *node)
                 node_pos.y = v3->y;
                 node_pos.z = v3->z;
                 Phys_NitrousVecToVec3(&node_pos, origin_loc);
-                setup_pathnode_parent((pathnode_t *)node, gentnum, origin_loc);
+                setup_pathnode_parent(node, gentnum, origin_loc);
             }
         }
     }

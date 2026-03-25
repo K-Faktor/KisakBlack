@@ -2128,45 +2128,26 @@ void __cdecl G_SafeDObjFree(unsigned int handle, int unusedLocalClientNum)
     Com_SafeServerDObjFree(handle);
 }
 
-XAnim_s *G_LoadAnimTreeInstances()
+void G_LoadAnimTreeInstances()
 {
-    XAnim_s *result; // eax
-    XAnim_s *generic_human; // [esp+0h] [ebp-Ch]
-    int i; // [esp+4h] [ebp-8h]
-    int ia; // [esp+4h] [ebp-8h]
-    int ib; // [esp+4h] [ebp-8h]
     XAnim_s *anims; // [esp+8h] [ebp-4h]
 
-    generic_human = level_bgs.animData->generic_human.tree.anims;
-    for ( i = 0; i < com_maxclients->current.integer; ++i )
-        level_bgs.clientinfo[i].pXAnimTree = XAnimCreateTree(generic_human, (void *(__cdecl *)(int))Hunk_AllocXAnimServer);
-    for ( ia = 0; ia < 4; ++ia )
-        g_scr_data.actorXAnimTrees[376 * ia - 1496] = XAnimCreateTree(
-                                                                                                        generic_human,
-                                                                                                        (void *(__cdecl *)(int))Hunk_AllocXAnimServer);
-    result = Dog_GetAnims();
-    anims = result;
-    if ( !result )
+    for ( int i = 0; i < com_maxclients->current.integer; ++i )
+        level_bgs.clientinfo[i].pXAnimTree = XAnimCreateTree(level_bgs.animData->generic_human.tree.anims, Hunk_AllocXAnimServer);
+    for ( int i = 0; i < 4; ++i )
+        g_scr_data.playerCorpseInfo[i].tree = XAnimCreateTree(level_bgs.animData->generic_human.tree.anims, Hunk_AllocXAnimServer);
+
+    anims = Dog_GetAnims();
+    iassert(anims);
+
+    for ( int i = 0; i < 8; ++i )
     {
-        result = (XAnim_s *)Assert_MyHandler(
-                                                    "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_main_mp.cpp",
-                                                    1647,
-                                                    0,
-                                                    "%s",
-                                                    "anims");
-        if ( !(_BYTE)result )
-            __debugbreak();
+        g_scr_data.actorCorpseInfo[i].tree = XAnimCreateTree(anims, (void* (*)(unsigned int))Hunk_AllocActorXAnimServer);
+        g_scr_data.actorCorpseInfo[i].entnum = -1;
     }
-    for ( ib = 0; ib < 8; ++ib )
-    {
-        result = (XAnim_s *)XAnimCreateTree(anims, (void *(__cdecl *)(int))Hunk_AllocActorXAnimServer);
-        *(unsigned int *)&g_scr_data.actorCorpseInfo[1504 * ib + 32] = (unsigned int)result;
-        *(unsigned int *)&g_scr_data.actorCorpseInfo[1504 * ib + 36] = -1;
-    }
-    return result;
 }
 
-unsigned __int8 *__cdecl Hunk_AllocActorXAnimServer(unsigned int size)
+void *__cdecl Hunk_AllocActorXAnimServer(int size)
 {
     return Hunk_AllocLow(size, "Hunk_AllocActorXAnimServer", 5);
 }

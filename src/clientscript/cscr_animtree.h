@@ -4,6 +4,8 @@
 #include "cscr_variable.h"
 #include <cstddef>
 
+#define SL_MAX_STRING_INDEX 0x10000
+
 struct XAnim_s;
 
 struct scr_anim_s // sizeof=0x4
