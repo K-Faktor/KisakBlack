@@ -589,7 +589,7 @@ void __cdecl CL_WriteUncompressedDemoInfo(int localClientNum)
         if ( !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\client_mp\\cl_main_mp.cpp", 1603, 0, v4) )
             __debugbreak();
     }
-    for ( i = 0; i < 3260; ++i )
+    for ( i = 0; i < MAX_CONFIGSTRINGS; ++i )
     {
         writeConfigString = 1;
         if ( i == 1 )
@@ -629,7 +629,7 @@ void __cdecl CL_WriteUncompressedDemoInfo(int localClientNum)
     nextConstConfigStringNumber = CCS_GetConfigStringNum(0);
     numConfigStringsWritten = 0;
     lastStringIndex = -1;
-    for ( i = 0; i < 3260; ++i )
+    for ( i = 0; i < MAX_CONFIGSTRINGS; ++i )
     {
         if ( i == 1 )
         {
@@ -1670,7 +1670,7 @@ void __cdecl CL_Configstrings_f()
     if ( CL_GetLocalClientConnectionState(0) == 10 )
     {
         CL_GetLocalClientGlobals(0);
-        for ( i = 0; i < 3260; ++i )
+        for ( i = 0; i < MAX_CONFIGSTRINGS; ++i )
         {
             ofs = cls.gameState.stringOffsets[i];
             if ( ofs )

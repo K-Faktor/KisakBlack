@@ -22,6 +22,7 @@
 #include <bgame/bg_misc.h>
 #include "cl_input_mp.h"
 #include <database/db_registry.h>
+#include "sv_client_mp.h"
 
 const char *svc_strings[256] =
 {
@@ -649,7 +650,7 @@ void __cdecl CL_ParseGamestate(int localClientNum, msg_t *msg)
                 numConfigStrings = MSG_ReadShort(msg);
                 nextConstConfigStringIndex = 0;
                 for ( nextConstConfigStringNumber = CCS_GetConfigStringNum(0);
-                            !nextConstConfigStringNumber && nextConstConfigStringIndex < 3260;
+                            !nextConstConfigStringNumber && nextConstConfigStringIndex < MAX_CONFIGSTRINGS;
                             nextConstConfigStringNumber = CCS_GetConfigStringNum(nextConstConfigStringIndex) )
                 {
                     ++nextConstConfigStringIndex;
@@ -887,20 +888,21 @@ LABEL_24:
         }
         switch ( cmd )
         {
-            case 0:
+            case svc_nop:
                 continue;
-            case 1:
+            case svc_gamestate:
                 CL_ParseGamestate(localClientNum, &msgCompressed);
                 continue;
-            case 10:
+            case svc_serverCommand:
                 CL_ParseCommandString(localClientNum, &msgCompressed);
                 continue;
-            case 11:
+            case svc_download:
                 CL_ParseDownload(localClientNum, &msgCompressed);
                 continue;
-            case 12:
+            case svc_snapshot:
                 CL_ParseSnapshot(localClientNum, &msgCompressed);
                 continue;
+
             default:
                 file = FS_FOpenFileWrite((char *)"badpacket.dat");
                 if ( file )

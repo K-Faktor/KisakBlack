@@ -11,7 +11,7 @@ int __cdecl SV_GetClientNumForBdOnlineUserID(unsigned __int64 uid)
     retval = -1;
     for ( i = 0; i < com_maxclients->current.integer; ++i )
     {
-        if ( svs.clients[i].header.state > 1 && svs.clients[i].dw_userID == uid )
+        if ( svs.clients[i].header.state > CS_ZOMBIE && svs.clients[i].dw_userID == uid )
             return i;
     }
     return retval;

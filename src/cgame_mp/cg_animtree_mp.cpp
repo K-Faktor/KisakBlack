@@ -14,7 +14,7 @@ void __cdecl CGScr_LoadAnimTrees()
     char *string; // [esp+18h] [ebp-4h]
 
     Scr_BeginLoadAnimTrees(SCRIPTINSTANCE_SERVER, 0);
-    for ( i = 3244; i < 3260; ++i )
+    for ( i = 3244; i < MAX_CONFIGSTRINGS; ++i )
     {
         string = CL_GetConfigString(i);
         if ( *string )

@@ -72,7 +72,7 @@ void __cdecl SV_DWUserDisconnected(unsigned __int64 userID)
     {
         for ( i = 0; i < com_maxclients->current.integer; ++i )
         {
-            if ( svs.clients[i].header.state >= 3
+            if ( svs.clients[i].header.state >= CS_CONNECTED
                 && !svs.clients[i].bIsTestClient
                 && !svs.clients[i].bIsDemoClient
                 && svs.clients[i].dw_userID == userID )
@@ -223,7 +223,7 @@ unsigned int __cdecl SV_GetClientCount()
         {
             for ( i = 0; i < com_maxclients->current.integer; ++i )
             {
-                if ( svs.clients[i].header.state >= 3 )
+                if ( svs.clients[i].header.state >= CS_CONNECTED )
                     ++clientCount;
             }
         }
@@ -582,7 +582,7 @@ void __cdecl SV_MasterHeartbeat(int controllerIndex)
             notifyCount = 0;
             for ( i = 0; i < com_maxclients->current.integer; ++i )
             {
-                if ( svs.clients[i].header.state >= 3 && !svs.clients[i].bIsTestClient && !svs.clients[i].bIsDemoClient )
+                if ( svs.clients[i].header.state >= CS_CONNECTED && !svs.clients[i].bIsTestClient && !svs.clients[i].bIsDemoClient )
                 {
                     if ( svs.clients[i].notifyJoin )
                     {
@@ -657,7 +657,7 @@ void __cdecl SV_MasterHeartbeat(int controllerIndex)
                                         "DWCHALLENGERESPONSE: Dropping client %s because it's been %i msec and we've had no challengeresponse\n",
                                         drop->name,
                                         svs.g_msgTime - drop->lastConnectTime);
-                                    if ( drop->header.state == 5 )
+                                    if ( drop->header.state == CS_ACTIVE )
                                         SV_DropClient(drop, "EXE_BAD_CHALLENGE", 1, 1);
                                     else
                                         NET_OutOfBandPrint(NS_SERVER, drop->header.netchan.remoteAddress, "error\nEXE_BAD_CHALLENGE");

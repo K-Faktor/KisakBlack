@@ -3196,7 +3196,7 @@ void __cdecl Demo_WriteConfigStrings(int localClientNum, msg_t *msg)
         if ( !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\demo\\demo_playback.cpp", 4737, 0, v2) )
             __debugbreak();
     }
-    for ( i = 0; i < 3260; ++i )
+    for ( i = 0; i < MAX_CONFIGSTRINGS; ++i )
     {
         if ( i == 1 )
         {
@@ -3235,7 +3235,7 @@ void __cdecl Demo_WriteConfigStrings(int localClientNum, msg_t *msg)
     nextConstConfigStringNumbera = CCS_GetConfigStringNum(0);
     numConfigStringsWritten = 0;
     lastStringIndex = -1;
-    for ( ia = 0; ia < 3260; ++ia )
+    for ( ia = 0; ia < MAX_CONFIGSTRINGS; ++ia )
     {
         if ( ia == 1 )
         {
@@ -3379,7 +3379,7 @@ void __cdecl Demo_ReadConfigStrings(int localClientNum, msg_t *msg)
     nextConstConfigStringIndex = 0;
     nextConstConfigStringNumber = CCS_GetConfigStringNum(0);
     newConfigStringsCount = 0;
-    while ( !nextConstConfigStringNumber && nextConstConfigStringIndex < 3260 )
+    while ( !nextConstConfigStringNumber && nextConstConfigStringIndex < MAX_CONFIGSTRINGS)
         nextConstConfigStringNumber = CCS_GetConfigStringNum(++nextConstConfigStringIndex);
     cls.gameState.dataCount = 1;
     lastStringIndex = -1;

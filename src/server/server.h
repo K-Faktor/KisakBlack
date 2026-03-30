@@ -5,7 +5,23 @@
 #include <server_mp/sv_snapshot_mp.h>
 #include <server_mp/sv_voice_mp.h>
 
+#ifdef KISAK_DEMON 
+#define KISAK_STATS
+#endif
+
+#define ALL_STATS_PACKETS_RECEIVED 0x7FFFFFFFF
+
 struct gentity_s;
+
+enum SignonState // LWSS: not a real enum name!
+{
+    CS_FREE = 0,
+    CS_ZOMBIE = 1,
+    CS_RECONNECTING = 2,
+    CS_CONNECTED = 3,
+    CS_CLIENTLOADING = 4,
+    CS_ACTIVE = 5,
+};
 
 struct PredictedVehicleInfo // sizeof=0x34
 {                                                                             // XREF: clientActive_t/r
@@ -22,7 +38,8 @@ struct PredictedVehicleInfo // sizeof=0x34
 
 struct clientHeader_t // sizeof=0x714
 {                                       // XREF: client_t/r
-    int state;
+    //int state;
+    SignonState state;
     int sendAsActive;
     int deltaMessage;
     int rateDelayed;
@@ -120,7 +137,7 @@ struct client_t // sizeof=0x84D00
     // padding byte
     int statsSentIndex;
     int statsModified;
-    __int64 statPacketsReceived;
+    __int64 statPacketsReceived; // ctrl-f "KISAK_STATS"
     int statsValidated;
     char PBguid[33];
     char clientPBguid[33];

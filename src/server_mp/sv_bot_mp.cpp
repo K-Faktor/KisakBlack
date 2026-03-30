@@ -619,7 +619,7 @@ void __cdecl Bot_UpdateThreat(bot_info_t *botInfo, const client_t *bot)
     while ( i < com_maxclients->current.integer )
     {
         if ( enemy != bot
-            && enemy->header.state == 5
+            && enemy->header.state == CS_ACTIVE
             && enemy->gentity->health > 0
             && (enemy->gentity->client->flags & 1) == 0
             && (!sv_botsIgnoreHumans->current.enabled || enemy->bIsTestClient) )
@@ -3205,7 +3205,7 @@ void __cdecl Bot_DrawDebug(const ScreenPlacement *scrPlace)
     if ( clientNum >= 0 )
     {
         v50 = &svs.clients[clientNum];
-        if ( v50->header.state == 5 && v50->bIsTestClient && v50->gentity )
+        if ( v50->header.state == CS_ACTIVE && v50->bIsTestClient && v50->gentity )
         {
             botInfo = &botInfos[clientNum];
             ps = G_GetPlayerState(clientNum);
@@ -3483,7 +3483,7 @@ void __cdecl Bot_DrawPath(const client_t *bot)
 {
     bot_info_t *botPath; // [esp+0h] [ebp-4h]
 
-    if ( bot->header.state == 5 && bot->bIsTestClient && bot->gentity->health > 0 )
+    if ( bot->header.state == CS_ACTIVE && bot->bIsTestClient && bot->gentity->health > 0 )
     {
         botPath = &botInfos[bot->gentity->s.number];
         if ( Path_Exists(&botPath->path) )
@@ -3550,7 +3550,7 @@ void    Bot_DrawThreat(const client_t *bot)
     //
     //v22 = a1;
     //bota = (const client_t *)vars0;
-    if (bot->header.state == 5 && bot->bIsTestClient && bot->gentity->health > 0)
+    if (bot->header.state == CS_ACTIVE && bot->bIsTestClient && bot->gentity->health > 0)
     {
         clientNum = bot->gentity->s.number;
         botInfo = &botInfos[clientNum];

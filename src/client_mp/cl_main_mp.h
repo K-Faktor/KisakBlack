@@ -552,7 +552,7 @@ struct clientDebug_t // sizeof=0x98
 
 struct gameState_t // sizeof=0x132F8
 {                                                                             // XREF: clientStatic_t/r
-        int stringOffsets[3260];                        // XREF: CL_ConfigstringModified+1FF/w
+        int stringOffsets[MAX_CONFIGSTRINGS];                        // XREF: CL_ConfigstringModified+1FF/w
                                                                                 // CL_GetConfigString(int)+6A/r ...
         char stringData[65536];                         // XREF: CL_ConfigstringModified+13B/o
                                                                                 // CL_ConfigstringModified+216/o ...
@@ -561,6 +561,7 @@ struct gameState_t // sizeof=0x132F8
         int matchUIVisibilityFlags;                 // XREF: CG_SetupGameInformation+16/r
                                                                                 // CL_WriteUncompressedDemoInfo(int)+83B/r ...
 };
+static_assert(sizeof(gameState_t) == 78584);
 
 struct clientStatic_t // sizeof=0x1CF2800
 {                                                                             // XREF: .data:clientStatic_t cls/r

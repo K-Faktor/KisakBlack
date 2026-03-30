@@ -687,7 +687,7 @@ void __cdecl SV_AP_Frame()
 
 bool __cdecl SV_AP_ServerIsFull()
 {
-#ifdef KISAK_LIVE
+//#ifdef KISAK_LIVE
     int i; // [esp+0h] [ebp-8h]
     bool retval; // [esp+7h] [ebp-1h]
 
@@ -696,14 +696,14 @@ bool __cdecl SV_AP_ServerIsFull()
     {
         for ( i = 0; i < com_maxclients->current.integer; ++i )
         {
-            if ( !svs.clients[i].header.state )
+            if ( svs.clients[i].header.state == CS_FREE )
                 return 0;
         }
     }
     return retval;
-#else
-    return false;
-#endif
+//#else
+//    return false;
+//#endif
 }
 
 

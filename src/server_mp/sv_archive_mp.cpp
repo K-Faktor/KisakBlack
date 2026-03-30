@@ -148,7 +148,7 @@ void __cdecl SV_ArchiveSnapshot(msg_t *msg)
         //PIXBeginNamedEvent(3158271, "clients");
         while ( clientNum < maxclients || v22 < num_clients )
         {
-            if ( clientNum >= maxclients || svsHeader.clients[clientNum].header.state >= 3 )
+            if ( clientNum >= maxclients || svsHeader.clients[clientNum].header.state >= CS_CONNECTED )
             {
                 if ( v22 < num_clients )
                 {
@@ -331,7 +331,7 @@ LABEL_84:
     clients = svsHeader.clients;
     while ( i < svsHeader.maxclients )
     {
-        if ( clients->header.state >= 3 )
+        if ( clients->header.state >= CS_CONNECTED )
         {
             v40 = &svsHeader.cachedSnapshotClients[svsHeader.nextCachedSnapshotClients % svsHeader.numCachedSnapshotClients];
             v7 = G_GetClientStateLocal(i);

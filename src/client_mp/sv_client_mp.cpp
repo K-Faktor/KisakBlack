@@ -188,11 +188,11 @@ void __cdecl SV_CacheClientStatChange(unsigned int clientNum, ddlState_t *search
 void __cdecl SV_SetClientDIntStat(unsigned int clientNum, ddlState_t *searchState, unsigned int value)
 {
     ddlDef_t *StatsDDL; // eax
-    client_t *v4; // [esp+8h] [ebp-50h]
+    client_t *cl; // [esp+8h] [ebp-50h]
     char *buffer; // [esp+Ch] [ebp-4Ch]
     ddlResult_t oldValue; // [esp+10h] [ebp-48h] BYREF
 
-    v4 = &svs.clients[clientNum];
+    cl = &svs.clients[clientNum];
     if ( clientNum >= com_maxclients->current.integer
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
@@ -204,23 +204,16 @@ void __cdecl SV_SetClientDIntStat(unsigned int clientNum, ddlState_t *searchStat
     {
         __debugbreak();
     }
-    if ( (LODWORD(v4->statPacketsReceived) != -1 || HIDWORD(v4->statPacketsReceived) != 7)
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                    529,
-                    0,
-                    "%s",
-                    "cl->statPacketsReceived == ALL_STATS_PACKETS_RECEIVED") )
-    {
-        __debugbreak();
-    }
-    if ( LODWORD(v4->statPacketsReceived) == -1 && HIDWORD(v4->statPacketsReceived) == 7 && v4->header.state >= 2 )
+
+    iassert(cl->statPacketsReceived == ALL_STATS_PACKETS_RECEIVED);
+    
+    if (cl->statPacketsReceived == ALL_STATS_PACKETS_RECEIVED && cl->header.state >= CS_RECONNECTING)
     {
         if ( xblive_basictraining->current.enabled )
             buffer = (char *)svs.clients[clientNum].stats;
         else
             buffer = (char *)svs.clients[clientNum].globalStats;
-        if ( !v4->statsValidated )
+        if ( !cl->statsValidated )
         {
             StatsDDL = LiveStats_GetStatsDDL();
             if ( !DDL_AssociateBuffer(buffer, 40168, StatsDDL) )
@@ -228,7 +221,7 @@ void __cdecl SV_SetClientDIntStat(unsigned int clientNum, ddlState_t *searchStat
                 DDL_PrintError("DDL: Could not get stat. Buffer error.");
                 return;
             }
-            v4->statsValidated = 1;
+            cl->statsValidated = 1;
         }
         if ( !DDL_GetValue(searchState, &oldValue, buffer) || oldValue.intValue != value )
         {
@@ -242,11 +235,11 @@ void __cdecl SV_SetClientDIntStat(unsigned int clientNum, ddlState_t *searchStat
 void __cdecl SV_SetClientDStringStat(unsigned int clientNum, ddlState_t *searchState, const char *value)
 {
     ddlDef_t *StatsDDL; // eax
-    client_t *v4; // [esp+8h] [ebp-50h]
+    client_t *cl; // [esp+8h] [ebp-50h]
     char *buffer; // [esp+Ch] [ebp-4Ch]
     ddlResult_t result; // [esp+10h] [ebp-48h] BYREF
 
-    v4 = &svs.clients[clientNum];
+    cl = &svs.clients[clientNum];
     if ( clientNum >= com_maxclients->current.integer
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
@@ -258,23 +251,16 @@ void __cdecl SV_SetClientDStringStat(unsigned int clientNum, ddlState_t *searchS
     {
         __debugbreak();
     }
-    if ( (LODWORD(v4->statPacketsReceived) != -1 || HIDWORD(v4->statPacketsReceived) != 7)
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                    586,
-                    0,
-                    "%s",
-                    "cl->statPacketsReceived == ALL_STATS_PACKETS_RECEIVED") )
-    {
-        __debugbreak();
-    }
-    if ( LODWORD(v4->statPacketsReceived) == -1 && HIDWORD(v4->statPacketsReceived) == 7 && v4->header.state >= 2 )
+    
+    iassert(cl->statPacketsReceived == ALL_STATS_PACKETS_RECEIVED);
+
+    if (cl->statPacketsReceived == ALL_STATS_PACKETS_RECEIVED && cl->header.state >= CS_RECONNECTING)
     {
         if ( xblive_basictraining->current.enabled )
             buffer = (char *)svs.clients[clientNum].stats;
         else
             buffer = (char *)svs.clients[clientNum].globalStats;
-        if ( !v4->statsValidated )
+        if ( !cl->statsValidated )
         {
             StatsDDL = LiveStats_GetStatsDDL();
             if ( !DDL_AssociateBuffer(buffer, 40168, StatsDDL) )
@@ -282,7 +268,7 @@ void __cdecl SV_SetClientDStringStat(unsigned int clientNum, ddlState_t *searchS
                 DDL_PrintError("DDL: Could not get stat. Buffer error.");
                 return;
             }
-            v4->statsValidated = 1;
+            cl->statsValidated = 1;
         }
         if ( !DDL_GetValue(searchState, &result, buffer) || I_strcmp(value, (const char *)&result) )
         {
@@ -296,11 +282,11 @@ void __cdecl SV_SetClientDStringStat(unsigned int clientNum, ddlState_t *searchS
 void __cdecl SV_SetClientDInt64Stat(unsigned int clientNum, ddlState_t *searchState, unsigned __int64 value)
 {
     ddlDef_t *StatsDDL; // eax
-    client_t *v4; // [esp+8h] [ebp-50h]
+    client_t *cl; // [esp+8h] [ebp-50h]
     char *buffer; // [esp+Ch] [ebp-4Ch]
     ddlResult_t result; // [esp+10h] [ebp-48h] BYREF
 
-    v4 = &svs.clients[clientNum];
+    cl = &svs.clients[clientNum];
     if ( clientNum >= com_maxclients->current.integer
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
@@ -312,23 +298,16 @@ void __cdecl SV_SetClientDInt64Stat(unsigned int clientNum, ddlState_t *searchSt
     {
         __debugbreak();
     }
-    if ( (LODWORD(v4->statPacketsReceived) != -1 || HIDWORD(v4->statPacketsReceived) != 7)
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                    643,
-                    0,
-                    "%s",
-                    "cl->statPacketsReceived == ALL_STATS_PACKETS_RECEIVED") )
-    {
-        __debugbreak();
-    }
-    if ( LODWORD(v4->statPacketsReceived) == -1 && HIDWORD(v4->statPacketsReceived) == 7 && v4->header.state >= 2 )
+
+    iassert(cl->statPacketsReceived == ALL_STATS_PACKETS_RECEIVED);
+    
+    if (cl->statPacketsReceived == ALL_STATS_PACKETS_RECEIVED && cl->header.state >= CS_RECONNECTING)
     {
         if ( xblive_basictraining->current.enabled )
             buffer = (char *)svs.clients[clientNum].stats;
         else
             buffer = (char *)svs.clients[clientNum].globalStats;
-        if ( !v4->statsValidated )
+        if ( !cl->statsValidated )
         {
             StatsDDL = LiveStats_GetStatsDDL();
             if ( !DDL_AssociateBuffer(buffer, 40168, StatsDDL) )
@@ -336,7 +315,7 @@ void __cdecl SV_SetClientDInt64Stat(unsigned int clientNum, ddlState_t *searchSt
                 DDL_PrintError("DDL: Could not get stat. Buffer error.");
                 return;
             }
-            v4->statsValidated = 1;
+            cl->statsValidated = 1;
         }
         if ( !DDL_GetValue(searchState, &result, buffer) || value != result.int64Value )
         {
@@ -363,12 +342,17 @@ unsigned int __cdecl SV_GetClientDIntStat(unsigned int clientNum, ddlState_t *se
     {
         __debugbreak();
     }
-    if ( LODWORD(svs.clients[clientNum].statPacketsReceived) != -1
-        || HIDWORD(svs.clients[clientNum].statPacketsReceived) != 7 )
+
+#ifndef KISAK_STATS
+    iassert(0);
+#endif
+
+    if (svs.clients[clientNum].statPacketsReceived != ALL_STATS_PACKETS_RECEIVED)
     {
         return 0;
     }
-    if ( svs.clients[clientNum].header.state < 2 )
+
+    if ( svs.clients[clientNum].header.state < CS_RECONNECTING)
         return 0;
     if ( xblive_basictraining->current.enabled || searchState->member->permission != 2 )
         buffer = (char *)svs.clients[clientNum].stats;
@@ -403,27 +387,10 @@ char *__cdecl SV_GetClientDStringStat(unsigned int clientNum, ddlState_t *search
     {
         __debugbreak();
     }
-    if ( (LODWORD(svs.clients[clientNum].statPacketsReceived) != -1
-         || HIDWORD(svs.clients[clientNum].statPacketsReceived) != 7)
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                    743,
-                    0,
-                    "%s",
-                    "svs.clients[clientNum].statPacketsReceived == ALL_STATS_PACKETS_RECEIVED") )
-    {
-        __debugbreak();
-    }
-    if ( svs.clients[clientNum].header.state < 2
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                    744,
-                    0,
-                    "%s",
-                    "svs.clients[clientNum].header.state >= CS_RECONNECTING") )
-    {
-        __debugbreak();
-    }
+
+    iassert(svs.clients[clientNum].statPacketsReceived == ALL_STATS_PACKETS_RECEIVED);
+    iassert(svs.clients[clientNum].header.state >= CS_RECONNECTING);
+
     if ( xblive_basictraining->current.enabled || searchState->member->permission != 2 )
         buffer = (char *)svs.clients[clientNum].stats;
     else
@@ -457,27 +424,14 @@ unsigned int __cdecl SV_GetClientDInt64Stat(unsigned int clientNum, ddlState_t *
     {
         __debugbreak();
     }
-    if ( (LODWORD(svs.clients[clientNum].statPacketsReceived) != -1
-         || HIDWORD(svs.clients[clientNum].statPacketsReceived) != 7)
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                    779,
-                    0,
-                    "%s",
-                    "svs.clients[clientNum].statPacketsReceived == ALL_STATS_PACKETS_RECEIVED") )
-    {
-        __debugbreak();
-    }
-    if ( svs.clients[clientNum].header.state < 2
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                    780,
-                    0,
-                    "%s",
-                    "svs.clients[clientNum].header.state >= CS_RECONNECTING") )
-    {
-        __debugbreak();
-    }
+
+#ifndef KISAK_STATS
+    iassert(0);
+#endif
+
+    iassert(svs.clients[clientNum].statPacketsReceived == ALL_STATS_PACKETS_RECEIVED);
+    iassert(svs.clients[clientNum].header.state >= CS_RECONNECTING);
+
     if ( xblive_basictraining->current.enabled || searchState->member->permission != 2 )
         buffer = (char *)svs.clients[clientNum].stats;
     else
@@ -713,16 +667,8 @@ void __cdecl SV_UpdateSplitscreenStateForAddr()
 
 void __cdecl SV_FreeClient(client_t *cl)
 {
-    if ( cl->header.state <= 1
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                    1309,
-                    0,
-                    "%s",
-                    "cl->header.state > CS_ZOMBIE") )
-    {
-        __debugbreak();
-    }
+    iassert(cl->header.state > CS_ZOMBIE);
+
     if ( (unsigned int)(cl - svs.clients) >= com_maxclients->current.integer
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
@@ -751,7 +697,7 @@ void __cdecl SV_FreeClients()
     clients = svs.clients;
     while ( i < com_maxclients->current.integer )
     {
-        if ( clients->header.state >= 3 )
+        if ( clients->header.state >= CS_CONNECTED )
             SV_FreeClient(clients);
         ++i;
         ++clients;
@@ -917,7 +863,7 @@ void __cdecl SV_DirectConnect(netadr_t from)
                     v26 = from.port == clients->header.netchan.remoteAddress.port;
                     v24 = clients->header.netchan.qport == qport;
                     Com_Printf(15, "%s:reconnect. same qport: %i, same port: %i\n", NET_AdrToString(from), v24, v26);
-                    if (clients->header.state >= 3)
+                    if (clients->header.state >= CS_CONNECTED)
                     {
                         NET_OutOfBandPrint(NS_SERVER, from, "error\nEXE_ERR_QPORT");
                         return;
@@ -1088,7 +1034,7 @@ void __cdecl SV_DirectConnect(netadr_t from)
                     newcl->name,
                     clientNum,
                     newcl->guid);
-                newcl->header.state = 3;
+                newcl->header.state = CS_CONNECTED;
                 newcl->nextSnapshotTime = svs.time;
                 newcl->lastSnapshotTime = -1;
                 newcl->lastPacketTime = svs.time;
@@ -1106,7 +1052,7 @@ void __cdecl SV_DirectConnect(netadr_t from)
                 clients = svs.clients;
                 while (i < com_maxclients->current.integer)
                 {
-                    if (svs.clients[i].header.state >= 3)
+                    if (svs.clients[i].header.state >= CS_CONNECTED)
                         ++count;
                     ++i;
                     ++clients;
@@ -1132,7 +1078,7 @@ void __cdecl SV_FreeClientScriptPers()
     clients = svs.clients;
     while ( i < com_maxclients->current.integer )
     {
-        if ( clients->header.state >= 3 )
+        if ( clients->header.state >= CS_CONNECTED )
         {
             SV_FreeClientScriptId(clients);
             clients->scriptId = Scr_AllocArray(SCRIPTINSTANCE_SERVER);
@@ -1202,7 +1148,6 @@ void __cdecl SV_SendDisconnect(
 
 void __cdecl SV_DropClient(client_t *drop, const char *reason, bool tellThem, bool writeStats)
 {
-    const char *v4; // eax
     int j; // [esp+14h] [ebp-3Ch]
     int dropState; // [esp+18h] [ebp-38h]
     char droppedClientName[32]; // [esp+1Ch] [ebp-34h] BYREF
@@ -1211,58 +1156,41 @@ void __cdecl SV_DropClient(client_t *drop, const char *reason, bool tellThem, bo
     int i; // [esp+48h] [ebp-8h]
     int clientNum; // [esp+4Ch] [ebp-4h]
 
-    if (!drop->header.state
-        && !Assert_MyHandler(
-            "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-            2312,
-            0,
-            "%s",
-            "drop->header.state != CS_FREE"))
-    {
-        __debugbreak();
-    }
+    iassert(drop->header.state != CS_FREE);
+
     dropState = drop->header.state;
-    if (drop->header.state == 1)
+    if (drop->header.state == CS_ZOMBIE)
     {
-        if (drop->dropReason)
-        {
-            if (!Assert_MyHandler(
-                "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                2319,
-                0,
-                "%s\n\t(drop->dropReason) = %s",
-                "(drop->dropReason == 0)",
-                drop->dropReason))
-                __debugbreak();
-        }
+        iassert(drop->dropReason == 0);
     }
     else
     {
         drop->dropReason = 0;
-        if (dropState < 1
-            && !Assert_MyHandler(
-                "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                2324,
-                0,
-                "%s",
-                "dropState >= CS_ZOMBIE"))
-        {
-            __debugbreak();
-        }
+
+        iassert(dropState >= CS_ZOMBIE);
+
         for (j = 0; j < 32; ++j)
         {
-            if (!(HIDWORD(g_notifyLeave[j]) | LODWORD(g_notifyLeave[j])))
+            if (g_notifyLeave[j] == 0)
             {
-                LODWORD(g_notifyLeave[j]) = drop->dw_userID;
-                HIDWORD(g_notifyLeave[j]) = HIDWORD(drop->dw_userID);
+                g_notifyLeave[j] = drop->dw_userID;
             }
+            //if (!(HIDWORD(g_notifyLeave[j]) | LODWORD(g_notifyLeave[j])))
+            //{
+            //    LODWORD(g_notifyLeave[j]) = drop->dw_userID;
+            //    HIDWORD(g_notifyLeave[j]) = HIDWORD(drop->dw_userID);
+            //}
         }
-        if (LODWORD(drop->statPacketsReceived) == -1 && HIDWORD(drop->statPacketsReceived) == 7 && writeStats)
+
+#ifdef KISAK_STATS
+        if (drop->statPacketsReceived == ALL_STATS_PACKETS_RECEIVED && writeStats)
             SV_DWWriteClientStats(drop);
+#endif
+
         if (drop->reservedSlot > 0)
             SV_FreeReservedSlot(drop->reservedSlot);
-        v4 = Com_DisplayName(drop->name, drop->clanAbbrev, 3);
-        I_strncpyz(droppedClientName, v4, 32);
+
+        I_strncpyz(droppedClientName, Com_DisplayName(drop->name, drop->clanAbbrev, 3), 32);
         clientNum = drop - svs.clients;
         if ((unsigned int)clientNum >= level.maxclients
             && !Assert_MyHandler(
@@ -1282,7 +1210,7 @@ void __cdecl SV_DropClient(client_t *drop, const char *reason, bool tellThem, bo
         LiveSteam_Server_ClientSteamDisconnect(drop->steamID);
         SV_FreeClient(drop);
         Com_DPrintf(15, "Going to CS_ZOMBIE from %i for %s due to %s\n", dropState, droppedClientName, reason);
-        drop->header.state = 1;
+        drop->header.state = CS_ZOMBIE;
         if (!drop->gentity)
         {
             challenge = svs.challenges;
@@ -1336,11 +1264,13 @@ void __cdecl SV_DropClient(client_t *drop, const char *reason, bool tellThem, bo
         {
             drop->bIsDemoClient = 0;
             drop->bIsTestClient = 0;
-            if (drop->header.state == 1)
-                drop->header.state = 0;
+            if (drop->header.state == CS_ZOMBIE)
+                drop->header.state = CS_FREE;
         }
-        for (i = 0; i < com_maxclients->current.integer && svs.clients[i].header.state < 3; ++i)
+
+        for (i = 0; i < com_maxclients->current.integer && svs.clients[i].header.state < CS_CONNECTED; ++i)
             ;
+
         if (i == com_maxclients->current.integer)
             SV_Heartbeat_f();
     }
@@ -1348,39 +1278,13 @@ void __cdecl SV_DropClient(client_t *drop, const char *reason, bool tellThem, bo
 
 void __cdecl SV_DelayDropClient(client_t *drop, const char *reason)
 {
-    if ( !drop
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp", 2489, 0, "%s", "drop") )
+    iassert(drop);
+    iassert(reason);
+    iassert(drop->header.state != CS_FREE);
+
+    if ( drop->header.state == CS_ZOMBIE )
     {
-        __debugbreak();
-    }
-    if ( !reason
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp", 2490, 0, "%s", "reason") )
-    {
-        __debugbreak();
-    }
-    if ( !drop->header.state
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                    2492,
-                    0,
-                    "%s",
-                    "drop->header.state != CS_FREE") )
-    {
-        __debugbreak();
-    }
-    if ( drop->header.state == 1 )
-    {
-        if ( drop->dropReason )
-        {
-            if ( !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                            2495,
-                            0,
-                            "%s\n\t(drop->dropReason) = %s",
-                            "(drop->dropReason == 0)",
-                            drop->dropReason) )
-                __debugbreak();
-        }
+        iassert(drop->dropReason == 0); 
     }
     else if ( !drop->dropReason )
     {
@@ -1390,13 +1294,7 @@ void __cdecl SV_DelayDropClient(client_t *drop, const char *reason)
 
 void __cdecl SV_SendClientGameState(client_t *client)
 {
-    char *v1; // eax
-    const char *v2; // eax
-    char *v3; // eax
-    const char *v4; // eax
-    int Checksum; // eax
     const char *ConfigStringValue; // eax
-    char *v7; // eax
     const char *v8; // eax
     const char *v9; // eax
     const char *v11; // [esp-4h] [ebp-1C8h]
@@ -1429,71 +1327,66 @@ void __cdecl SV_SendClientGameState(client_t *client)
 
     //LargeLocal::LargeLocal(&msgBuffer_large_local, 0x10000);
     msgBuffer = msgBuffer_large_local.GetBuf(); // LargeLocal::GetBuf(&msgBuffer_large_local);
-    if ( (unsigned int)(client - svs.clients) >= com_maxclients->current.integer
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                    2574,
-                    0,
-                    "client - svs.clients doesn't index com_maxclients->current.integer\n\t%i not in [0, %i)",
-                    client - svs.clients,
-                    com_maxclients->current.integer) )
+
+    bcassert(client - svs.clients, com_maxclients->current.integer);
+
+    if ( client->header.state != CS_FREE && client->header.netchan.unsentFragments && client->header.netchan.reliable_fragments )
     {
-        __debugbreak();
-    }
-    if ( client->header.state && client->header.netchan.unsentFragments && client->header.netchan.reliable_fragments )
-    {
-        v1 = va(
-                     "Would have gone into INFINITE LOOP OF DOOM for client %s, unsentlength %i, state %i\n",
-                     client->name,
-                     client->header.netchan.unsentLength,
-                     client->header.state);
-        Com_PrintError(0, v1);
-        v2 = va(
-                     "Would have gone into INFINITE LOOP OF DOOM for client %s, unsentlength %i, state %i\n",
-                     client->name,
-                     client->header.netchan.unsentLength,
-                     client->header.state);
-        SV_SysLog_LogMessage(0, v2);
-        //LargeLocal::~LargeLocal(&msgBuffer_large_local);
+        Com_PrintError(0, va(
+            "Would have gone into INFINITE LOOP OF DOOM for client %s, unsentlength %i, state %i\n",
+            client->name,
+            client->header.netchan.unsentLength,
+            client->header.state));
+        SV_SysLog_LogMessage(0, va(
+            "Would have gone into INFINITE LOOP OF DOOM for client %s, unsentlength %i, state %i\n",
+            client->name,
+            client->header.netchan.unsentLength,
+            client->header.state));
         return;
     }
-    while ( client->header.state && client->header.netchan.unsentFragments && !client->header.netchan.reliable_fragments )
+
+    while ( client->header.state != CS_FREE && client->header.netchan.unsentFragments && !client->header.netchan.reliable_fragments )
     {
         if ( !SV_Netchan_TransmitNextFragment(client, &client->header.netchan) )
         {
-            v3 = va(
-                         "Dropping client %s, unsentlength %i, state %i\n",
-                         client->name,
-                         client->header.netchan.unsentLength,
-                         client->header.state);
-            Com_PrintError(0, v3);
-            v4 = va(
-                         "Dropping client %s, unsentlength %i, state %i\n",
-                         client->name,
-                         client->header.netchan.unsentLength,
-                         client->header.state);
-            SV_SysLog_LogMessage(0, v4);
+            Com_PrintError(0, va(
+                "Dropping client %s, unsentlength %i, state %i\n",
+                client->name,
+                client->header.netchan.unsentLength,
+                client->header.state));
+            SV_SysLog_LogMessage(0, va(
+                "Dropping client %s, unsentlength %i, state %i\n",
+                client->name,
+                client->header.netchan.unsentLength,
+                client->header.state));
             SV_DropClient(client, "EXE_TRANSMITERROR", 0, 1);
-            //LargeLocal::~LargeLocal(&msgBuffer_large_local);
             return;
         }
     }
-    if ( client->bIsTestClient || client->bIsDemoClient )
+
+#ifdef KISAK_STATS
+    // to pass the below check if it's just a testclient/democlient 
+    if (client->bIsTestClient || client->bIsDemoClient)
     {
         memset(client->stats, 0, sizeof(client->stats));
-        client->statPacketsReceived = 0x7FFFFFFFFLL;
+        client->statPacketsReceived = ALL_STATS_PACKETS_RECEIVED;
     }
-    if ( LODWORD(client->statPacketsReceived) != -1 || HIDWORD(client->statPacketsReceived) != 7 )
+
+    if ( client->statPacketsReceived != ALL_STATS_PACKETS_RECEIVED )
     {
         Com_DPrintf(15, "Not sending state to %s, waiting on stats\n", client->name);
-        //LargeLocal::~LargeLocal(&msgBuffer_large_local);
         return;
     }
+#else
+    memset(client->stats, 0, sizeof(client->stats));
+    client->statPacketsReceived = ALL_STATS_PACKETS_RECEIVED;
+#endif
+
     memset(&snapInfo, 0, sizeof(snapInfo));
     SV_SetServerStaticHeader();
     Com_Printf(15, "SV_SendClientGameState() for %s\n", client->name);
     Com_Printf(15, "Going from CS_CONNECTED to CS_CLIENTLOADING for %s\n", client->name);
-    client->header.state = 4;
+    client->header.state = CS_CLIENTLOADING;
     client->pureAuthentic = 0;
     client->gamestateMessageNum = client->header.netchan.outgoingSequence;
     MSG_Init(&msg, msgBuffer, 0x10000);
@@ -1505,54 +1398,29 @@ void __cdecl SV_SendClientGameState(client_t *client)
         Dvar_SetInt((dvar_s *)sv_debugPacketContentsQuick, 0);
     SV_UpdateServerCommandsToClient(client, &msg);
     Com_Printf(15, "Gamestate has %i bytes of server commands\n", msg.cursize - dataStart);
-    if ( !*(_BYTE *)sv_mapname->current.integer
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                    2668,
-                    0,
-                    "%s",
-                    "sv_mapname->current.string[0]") )
-    {
-        __debugbreak();
-    }
-    if ( !*(_BYTE *)sv_gametype->current.integer
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                    2669,
-                    0,
-                    "%s",
-                    "sv_gametype->current.string[0]") )
-    {
-        __debugbreak();
-    }
-    MSG_WriteByte(&msg, 1u);
+
+    iassert(sv_mapname->current.string[0]);
+    iassert(sv_gametype->current.string[0]);
+
+    MSG_WriteByte(&msg, svc_gamestate);
     MSG_WriteLong(&msg, client->reliableSequence);
     MSG_WriteString(&msg, sv_mapname->current.string);
     MSG_WriteString(&msg, sv_gametype->current.string);
-    Checksum = CCS_GetChecksum();
-    MSG_WriteLong(&msg, Checksum);
+    MSG_WriteLong(&msg, CCS_GetChecksum());
     numWritten = 0;
     largestString = 0;
     totalStringSize = 0;
     dataStart = msg.cursize;
-    MSG_WriteByte(&msg, 2u);
+
+    MSG_WriteByte(&msg, svc_configstring);
     configStringCount = 0;
     nextConstConfigStringIndex = 0;
     nextConstConfigStringNumber = CCS_GetConfigStringNum(0);
-    for ( configStringNum = 0; configStringNum < 3260; ++configStringNum )
+    for ( configStringNum = 0; configStringNum < MAX_CONFIGSTRINGS; ++configStringNum )
     {
         if ( configStringNum == 1 )
         {
-            if ( nextConstConfigStringNumber == 1
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                            2701,
-                            0,
-                            "%s",
-                            "nextConstConfigStringNumber != configStringNum") )
-            {
-                __debugbreak();
-            }
+            iassert(nextConstConfigStringNumber != configStringNum);
             ++configStringCount;
         }
         else if ( nextConstConfigStringNumber == configStringNum )
@@ -1577,19 +1445,20 @@ void __cdecl SV_SendClientGameState(client_t *client)
             ++configStringCount;
         }
     }
+
     f = 0;
     if ( client->header.netchan.remoteAddress.type == NA_LOOPBACK
         && onlinegame->current.enabled
         && sv_writeConfigStrings->current.enabled )
     {
-        v7 = va("configStrings_pc_%s_%s.csv", sv_mapname->current.string, g_gametype->current.string);
-        f = FS_SV_FOpenFileWrite(v7, (char*)"devOutput");
+        f = FS_SV_FOpenFileWrite(va("configStrings_pc_%s_%s.csv", sv_mapname->current.string, g_gametype->current.string), (char*)"devOutput");
     }
+
     if ( f )
     {
         Com_Printf(15, "Starting writing config strings to file\n");
         startTime = Sys_Milliseconds();
-        for ( configStringNuma = 0; configStringNuma < 3260; ++configStringNuma )
+        for ( configStringNuma = 0; configStringNuma < MAX_CONFIGSTRINGS; ++configStringNuma )
         {
             if ( SV_ConfigStringIsConstant(configStringNuma) && sv.configstrings[configStringNuma] != sv.emptyConfigString )
             {
@@ -1628,11 +1497,12 @@ void __cdecl SV_SendClientGameState(client_t *client)
     {
         Com_Printf(15, "Could not write config strings to file\n");
     }
+
     MSG_WriteShort(&msg, configStringCount);
     nextConstConfigStringIndex = 0;
     nextConstConfigStringNumber = CCS_GetConfigStringNum(0);
     lastStringIndex = -1;
-    for ( configStringNumb = 0; configStringNumb < 3260; ++configStringNumb )
+    for ( configStringNumb = 0; configStringNumb < MAX_CONFIGSTRINGS; ++configStringNumb )
     {
         if ( configStringNumb == 1 )
         {
@@ -1760,24 +1630,15 @@ process_configString:
     dataStart = msg.cursize;
     numWritten = 0;
     clientNum = client - svs.clients;
-    if ( (unsigned int)clientNum >= com_maxclients->current.integer
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                    2908,
-                    0,
-                    "clientNum doesn't index com_maxclients->current.integer\n\t%i not in [0, %i)",
-                    clientNum,
-                    com_maxclients->current.integer) )
-    {
-        __debugbreak();
-    }
+
+    bcassert(clientNum, com_maxclients->current.integer);
     memset((unsigned __int8 *)&nullstate, 0, sizeof(nullstate));
     for ( entNum = 0; entNum < 1024; ++entNum )
     {
         base = &sv.svEntities[entNum].baseline.s;
         if ( base->number )
         {
-            MSG_WriteByte(&msg, 4u);
+            MSG_WriteByte(&msg, svc_baseline);
             snapInfo.clientNum = client - svs.clients;
             snapInfo.snapshotDeltaTime = -1;
             snapInfo.fromBaseline = 1;
@@ -1795,26 +1656,37 @@ process_configString:
         15,
         "Gamestate has %i bytes of entity deltas\n",
         msg.cursize - dataStart - numWritten - 10 * numWritten / 8);
-    MSG_WriteByte(&msg, 3u);
+
+
+    MSG_WriteByte(&msg, svc_gameinformation);
     MSG_WriteLong(
         &msg,
         level.matchState.unarchivedState.matchUIVisibilityFlags | level.matchState.archivedState.matchUIVisibilityFlags);
-    MSG_WriteByte(&msg, 0xEu);
+    MSG_WriteByte(&msg, svc_EOF);
     MSG_WriteLong(&msg, client - svs.clients);
+
     MSG_WriteLong(&msg, sv.checksumFeed);
-    MSG_WriteByte(&msg, 6u);
+
+    MSG_WriteByte(&msg, svc_dynentstate);
     DynEnt_WriteGameState(&msg);
-    MSG_WriteByte(&msg, 7u);
+
+    MSG_WriteByte(&msg, svc_destructiblestate);
     Destructible_WriteGameState(&msg);
-    MSG_WriteByte(&msg, 8u);
+
+    MSG_WriteByte(&msg, svc_ropestate);
     Rope_WriteGameState(&msg);
-    MSG_WriteByte(&msg, 9u);
+
+    MSG_WriteByte(&msg, svc_glassstate);
     GlassSv_WriteGameState(&msg);
+
     UI_Gametype_Custom_WriteClientData(&msg);
-    MSG_WriteByte(&msg, 0xEu);
+    MSG_WriteByte(&msg, svc_EOF);
+
     Com_DPrintf(15, "Sending %i bytes in gamestate to client: %i\n", msg.cursize, client - svs.clients);
+
     if ( Demo_IsRecording() && clientNum == Demo_GetDemoClientIndex() )
         Demo_WriteGamestateToBuffer(clientNum, 3, &msg, client->header.netchan.outgoingSequence);
+
     SV_SendMessageToClient(&msg, client, 1);
     SV_GetServerStaticHeader();
     //LargeLocal::~LargeLocal(&msgBuffer_large_local);
@@ -1845,7 +1717,7 @@ void __cdecl SV_ClientEnterWorld(client_t *client, usercmd_s *cmd)
     unsigned int clientNum; // [esp+10h] [ebp-4h]
 
     Com_DPrintf(15, "Going from CS_CLIENTLOADING to CS_ACTIVE for %s\n", client->name);
-    client->header.state = 5;
+    client->header.state = CS_ACTIVE;
     clientNum = client - svs.clients;
     if (clientNum >= com_maxclients->current.integer
         && !Assert_MyHandler(
@@ -2412,7 +2284,7 @@ char __cdecl SV_ValidateName(client_t *newcl, const char *name)
     for ( i = 0; i < com_maxclients->current.integer; ++i )
     {
         v8 = &svs.clients[i];
-        if ( v8 != newcl && v8->header.state == 5 )
+        if ( v8 != newcl && v8->header.state == CS_ACTIVE )
         {
             SV_StringToLower(v8->name, tempLower, 32);
             if ( !I_strcmp(nameLower, tempLower) )
@@ -2735,7 +2607,7 @@ void __cdecl SV_ClientThink(client_t *cl, usercmd_s *cmd)
         goto LABEL_11;
     }
     memcpy(&cl->lastUsercmd, cmd, sizeof(cl->lastUsercmd));
-    if ( cl->header.state == 5 )
+    if ( cl->header.state == CS_ACTIVE )
     {
         G_SetLastServerTime(cl - svs.clients, cmd->serverTime);
         ClientThink(cl - svs.clients);
@@ -2765,7 +2637,6 @@ void __cdecl SV_UserMove(client_t *cl, msg_t *msg, int delta)
     int m; // [esp+2Ch] [ebp-6F0h]
     int j; // [esp+34h] [ebp-6E8h]
     int n; // [esp+3Ch] [ebp-6E0h]
-    char *pszString; // [esp+40h] [ebp-6DCh]
     usercmd_s nullcmd; // [esp+44h] [ebp-6D8h] BYREF
     usercmd_s *oldcmd; // [esp+78h] [ebp-6A4h]
     int cmdCount; // [esp+7Ch] [ebp-6A0h]
@@ -2887,24 +2758,23 @@ void __cdecl SV_UserMove(client_t *cl, msg_t *msg, int delta)
                         Com_Printf(15, "---- %i Client Info\n", cl - svs.clients);
                         switch ( cl->header.state )
                         {
-                            case 0:
+                            case CS_FREE:
                                 Com_Printf(15, "state: %s\n", "free");
                                 break;
-                            case 1:
+                            case CS_ZOMBIE:
                                 Com_Printf(15, "state: %s\n", "zombie");
                                 break;
-                            case 3:
+                            case CS_CONNECTED:
                                 Com_Printf(15, "state: %s\n", "connected");
                                 break;
-                            case 4:
+                            case CS_CLIENTLOADING:
                                 Com_Printf(15, "state: %s\n", "clientloading");
                                 break;
-                            case 5:
+                            case CS_ACTIVE:
                                 Com_Printf(15, "state: %s\n", "active");
                                 break;
                             default:
-                                pszString = va("unknown(%i)", cl->header.state);
-                                Com_Printf(15, "state: %s\n", pszString);
+                                Com_Printf(15, "state: %s\n", va("unknown(%i)", cl->header.state));
                                 break;
                         }
                         Com_Printf(15, "userinfo: '%s'\n", cl->userinfo);
@@ -2987,11 +2857,11 @@ void __cdecl SV_UserMove(client_t *cl, msg_t *msg, int delta)
                 }
                 if ( cl->frames[cl->messageAcknowledge & 0x1F].messageAcked <= 0 )
                     cl->frames[cl->messageAcknowledge & 0x1F].messageAcked = Sys_Milliseconds();
-                if ( cl->header.state == 4 )
+                if ( cl->header.state == CS_CLIENTLOADING )
                     SV_ClientEnterWorld(cl, cmds);
                 if ( !sv_pure->current.enabled || cl->pureAuthentic )
                 {
-                    if ( cl->header.state == 5 )
+                    if ( cl->header.state == CS_ACTIVE )
                     {
                         for ( i = 0; i < cmdCount; ++i )
                         {
@@ -3073,7 +2943,7 @@ void __cdecl SV_ExecuteClientMessage(client_t *cl, msg_t *msg)
     {
         if ( (cl->serverId & 0xF0) == (sv_serverId_value & 0xF0) )
         {
-            if ( cl->header.state == 4 )
+            if ( cl->header.state == CS_CLIENTLOADING )
                 SV_ClientEnterWorld(cl, &cl->lastUsercmd);
             //LargeLocal::~LargeLocal(&msgCompressed_buf_large_local);
             return;
@@ -3089,28 +2959,30 @@ void __cdecl SV_ExecuteClientMessage(client_t *cl, msg_t *msg)
                 4902);
             SV_SendClientGameState(cl);
         }
-LABEL_17:
         //LargeLocal::~LargeLocal(&msgCompressed_buf_large_local);
         return;
     }
-    if ( !SV_ProcessClientCommands(cl, &msgCompressed, 0, &c) )
-        goto LABEL_17;
-    if ( sv_pure->current.enabled && cl->pureAuthentic == 2 && cl->header.state >= 5 )
+
+    if (!SV_ProcessClientCommands(cl, &msgCompressed, 0, &c))
+        return;
+
+    if ( sv_pure->current.enabled && cl->pureAuthentic == 2 && cl->header.state >= CS_ACTIVE )
     {
         cl->nextSnapshotTime = -1;
         cl->lastSnapshotTime = -1;
         SV_DropClient(cl, "EXE_UNPURECLIENTDETECTED", 1, 1);
-        cl->header.state = 5;
-        if ( cl->header.state == 5 || cl->header.state == 1 )
+        cl->header.state = CS_ACTIVE;
+        if ( cl->header.state == CS_ACTIVE || cl->header.state == CS_ZOMBIE)
             SV_BuildClientSnapshot(cl);
         SV_SetServerStaticHeader();
         SV_BeginClientSnapshot(cl, &v2);
-        if ( cl->header.state == 5 || cl->header.state == 1 )
+        if ( cl->header.state == CS_ACTIVE || cl->header.state == CS_ZOMBIE)
             SV_WriteSnapshotToClient(cl, &v2);
         SV_EndClientSnapshot(cl, &v2);
         SV_GetServerStaticHeader();
-        cl->header.state = 1;
+        cl->header.state = CS_ZOMBIE;
     }
+
     iassert(bgs == 0);
     
     if ( c )
@@ -3145,7 +3017,7 @@ int __cdecl SV_ProcessClientCommands(client_t *cl, msg_t *msg, int fromOldServer
         if ( !SV_ClientCommand(cl, msg, fromOldServer) )
             return 0;
     }
-    while ( cl->header.state != 1 );
+    while ( cl->header.state != CS_ZOMBIE );
     return 0;
 }
 
@@ -3173,7 +3045,7 @@ int __cdecl SV_ClientCommand(client_t *cl, msg_t *msg, int fromOldServer)
     }
     seq = MSG_ReadLong(msg);
     s = MSG_ReadString(msg, strBuf, 0x400u);
-    v5 = sv_floodProtect->current.integer && cl->header.state >= 5 && cl->header.netchan.remoteAddress.type != NA_LOOPBACK;
+    v5 = sv_floodProtect->current.integer && cl->header.state >= CS_ACTIVE && cl->header.netchan.remoteAddress.type != NA_LOOPBACK;
     floodprotect = v5;
     if ( cl->lastClientCommand >= seq )
         return 1;
@@ -3278,7 +3150,7 @@ gentity_s *__cdecl SV_AddTestClient()
     drop = svs.clients;
     while (i < com_maxclients->current.integer)
     {
-        if (drop->bIsTestClient && drop->header.state != 5 && drop->header.state >= 3)
+        if (drop->bIsTestClient && drop->header.state != CS_ACTIVE && drop->header.state >= CS_CONNECTED)
         {
             Com_Printf(15, "TEST client[%d] '%s' removed\n", i, drop->name);
             SV_DropClient(drop, "EXE_PLAYERKICKED", 0, 1);
@@ -3323,7 +3195,7 @@ gentity_s *__cdecl SV_AddTestClient()
         i = 0;
         for (dropb = svs.clients;
             i < com_maxclients->current.integer
-            && (!dropb->header.state || !NET_CompareBaseAdr(a, dropb->header.netchan.remoteAddress));
+            && (dropb->header.state == CS_FREE || !NET_CompareBaseAdr(a, dropb->header.netchan.remoteAddress));
             ++dropb)
         {
             ++i;
@@ -3397,7 +3269,7 @@ char __cdecl SV_AddDemoClient()
     if ( !com_sv_running->current.enabled )
         return 0;
     client = svs.clients;
-    if ( svs.clients->header.state )
+    if ( svs.clients->header.state != CS_FREE )
     {
         Cbuf_AddText(0, "wait 10; demo_stoprecord\n");
         Com_Printf(15, "SV_AddDemoClient: can not add democlient because client[0] is being used. Recording Stopped.\n");
@@ -3454,7 +3326,7 @@ void __cdecl SV_RemoveDemoClient()
         drop = svs.clients;
         while ( i < com_maxclients->current.integer )
         {
-            if ( drop && drop->header.state )
+            if ( drop && drop->header.state != CS_FREE )
             {
                 if ( drop->bIsDemoClient )
                 {

@@ -3,6 +3,25 @@
 #include <ddl/ddl_api.h>
 #include <server/server.h>
 
+enum svc_ops_e : __int32
+{
+    svc_nop               = 0x0,
+    svc_gamestate         = 0x1,
+    svc_configstring      = 0x2,
+    svc_gameinformation   = 0x3,
+    svc_baseline          = 0x4,
+    svc_entitycache       = 0x5,
+    svc_dynentstate       = 0x6,
+    svc_destructiblestate = 0x7,
+    svc_ropestate         = 0x8,
+    svc_glassstate        = 0x9,
+    svc_serverCommand     = 0xA,
+    svc_download          = 0xB,
+    svc_snapshot          = 0xC,
+    svc_servercommands    = 0xD,
+    svc_EOF               = 0xE,
+};
+
 void __cdecl SV_HandleDWChallengeResponse(netadr_t from, msg_t *msg);
 void __cdecl SV_GetChallenge(netadr_t from);
 void __cdecl SV_CacheClientStatChange(unsigned int clientNum, ddlState_t *searchState);

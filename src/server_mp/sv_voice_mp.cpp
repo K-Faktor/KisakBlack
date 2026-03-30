@@ -31,7 +31,7 @@ void __cdecl SV_SendClientVoiceData(client_t *client)
     {
         __debugbreak();
     }
-    if ( client->header.state == 5 && client->voicePacketCount )
+    if ( client->header.state == CS_ACTIVE && client->voicePacketCount )
     {
         MSG_Init(&msg, msg_buf, 0x10000);
         if ( msg.cursize
@@ -320,7 +320,7 @@ void __cdecl SV_PreGameUserVoice(client_t *cl, msg_t *msg)
             for ( otherPlayer = 0; otherPlayer < com_maxclients->current.integer; ++otherPlayer )
             {
                 if ( otherPlayer != talker
-                    && svs.clients[otherPlayer].header.state >= 3
+                    && svs.clients[otherPlayer].header.state >= CS_CONNECTED
                     && !SV_ClientHasClientMuted(otherPlayer, talker)
                     && SV_ClientWantsVoiceData(otherPlayer) )
                 {

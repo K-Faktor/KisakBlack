@@ -160,7 +160,7 @@ void __cdecl SV_SetConfigstring(int index, char *val)
                 client = svs.clients;
                 while ( i < com_maxclients->current.integer )
                 {
-                    if ( client->header.state >= 4 )
+                    if ( client->header.state >= CS_CLIENTLOADING )
                     {
                         if ( len <= maxChunk )
                         {
@@ -350,7 +350,7 @@ void __cdecl SV_SetXUIDConfigStrings()
     for ( i = 0; i < com_maxclients->current.integer; ++i )
     {
         client = &svs.clients[i];
-        if ( client->header.state == 5 )
+        if ( client->header.state == CS_ACTIVE )
         {
             XUIDToString(&client->dw_userID, xuidStr);
             I_strncpyz(filteredName, client->name, 32);
@@ -455,7 +455,7 @@ void __cdecl SV_ClearServer()
 {
     int i; // [esp+0h] [ebp-4h]
 
-    for ( i = 0; i < 3260; ++i )
+    for ( i = 0; i < MAX_CONFIGSTRINGS; ++i )
     {
         if ( sv.configstrings[i] )
             SL_RemoveRefToString(SCRIPTINSTANCE_SERVER, sv.configstrings[i]);
@@ -510,11 +510,6 @@ void __cdecl SV_SetServerDvarsBeforeScriptsInit()
 
 void __cdecl    SV_SpawnServer(int controllerIndex, char *server, int mapIsPreloaded, int savegame)
 {
-    unsigned int v5; // eax
-    int v6; // esi
-    int v7; // esi
-    int v8; // eax
-    unsigned __int16 String; // ax
     //jpeg_decompress_struct *v10; // [esp+0h] [ebp-84h]
     unsigned int bspVersion; // [esp+1Ch] [ebp-68h]
     client_t *client; // [esp+20h] [ebp-64h]
@@ -568,7 +563,7 @@ void __cdecl    SV_SpawnServer(int controllerIndex, char *server, int mapIsPrelo
         client = svs.clients;
         while ( i < com_maxclients->current.integer )
         {
-            if ( client->header.state >= 4 )
+            if ( client->header.state >= CS_CLIENTLOADING )
             {
                 Com_sprintf(filename, 64, "loadingnewmap\n%s\n%s", server, sv_gametype->current.string);
                 NET_OutOfBandPrint(NS_SERVER, client->header.netchan.remoteAddress, filename);
@@ -621,17 +616,16 @@ void __cdecl    SV_SpawnServer(int controllerIndex, char *server, int mapIsPrelo
 
     Dvar_ClearModified(com_maxclients);
     I_strncpyz(sv.gametype, sv_gametype->current.string, 64);
-    v5 = Sys_MillisecondsRaw();
-    G_srand(v5);
-    v6 = G_rand() << 16;
-    v7 = G_rand() ^ v6;
-    sv.checksumFeed = Sys_Milliseconds() ^ v7;
+    G_srand(Sys_MillisecondsRaw());
+    sv.checksumFeed = Sys_Milliseconds() ^ (G_rand() ^ (G_rand() << 16));
     FS_Restart(0, sv.checksumFeed);
+
     if ( !useFastFile->current.enabled )
     {
         Com_GetBspFilename(filename, 64, server);
         SV_SetExpectedHunkUsage(filename);
     }
+
     if ( !mapIsPreloaded )
     {
         ProfLoad_Begin("start loading client");
@@ -640,29 +634,21 @@ void __cdecl    SV_SpawnServer(int controllerIndex, char *server, int mapIsPrelo
         if ( useFastFile->current.enabled )
         {
             Com_LoadLevelFastFiles(server);
-            if ( !sv_loadMyChanges
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_init_mp.cpp",
-                            1143,
-                            0,
-                            "%s",
-                            "sv_loadMyChanges") )
-            {
-                __debugbreak();
-            }
+
+            iassert(sv_loadMyChanges);
+
             if ( sv_loadMyChanges->current.enabled )
             {
-                v8 = Com_LocalClient_GetControllerIndex(0);
-                Cbuf_ExecuteBuffer(0, v8, (char*)"loadzone mychanges\n");
+                Cbuf_ExecuteBuffer(0, Com_LocalClient_GetControllerIndex(0), (char*)"loadzone mychanges\n");
             }
         }
     }
+
     R_BeginRemoteScreenUpdate();
     sv.emptyConfigString = SL_GetString_(SCRIPTINSTANCE_SERVER, "", 0, 19);
-    for ( i = 0; i < 3260; ++i )
+    for ( i = 0; i < MAX_CONFIGSTRINGS; ++i )
     {
-        String = SL_GetString_(SCRIPTINSTANCE_SERVER, "", 0, 19);
-        sv.configstrings[i] = String;
+        sv.configstrings[i] = SL_GetString_(SCRIPTINSTANCE_SERVER, "", 0, 19);
     }
     Dvar_ResetScriptInfo();
     svs.nextSnapshotEntities = 0;
@@ -742,7 +728,7 @@ void __cdecl    SV_SpawnServer(int controllerIndex, char *server, int mapIsPrelo
     {
         client_t *cl = &svs.clients[i];
 
-        if (cl->header.state >= 3)
+        if (cl->header.state >= CS_CONNECTED)
         {
             // If client had a script-controlled slot, drop them
             if (cl->scriptId != 0)
@@ -760,7 +746,7 @@ void __cdecl    SV_SpawnServer(int controllerIndex, char *server, int mapIsPrelo
             }
 
             // Restore connected state
-            cl->header.state = 3;
+            cl->header.state = CS_CONNECTED;
         }
     }
 
@@ -1220,7 +1206,7 @@ void __cdecl SV_DropAllClients()
     drop = svs.clients;
     while ( i < com_maxclients->current.integer )
     {
-        if ( drop->header.state >= 3 )
+        if ( drop->header.state >= CS_CONNECTED )
             SV_DropClient(drop, "EXE_DISCONNECTED", 1, !xblive_wagermatch->current.enabled);
         ++i;
         ++drop;
@@ -1284,7 +1270,7 @@ void __cdecl SV_FinalMessage(const char *message)
         client = svs.clients;
         while ( i < com_maxclients->current.integer )
         {
-            if ( client->header.state >= 3 )
+            if ( client->header.state >= CS_CONNECTED )
             {
                 if ( client->header.netchan.remoteAddress.type != NA_LOOPBACK )
                     SV_SendDisconnect(client, client->header.state, message, translationForReason, client->name);
@@ -1292,7 +1278,7 @@ void __cdecl SV_FinalMessage(const char *message)
                 client->lastSnapshotTime = -1;
                 SV_SetServerStaticHeader();
                 SV_BeginClientSnapshot(client, &msg);
-                if ( client->header.state == 5 || client->header.state == 1 )
+                if ( client->header.state == CS_ACTIVE || client->header.state == CS_ZOMBIE )
                     SV_WriteSnapshotToClient(client, &msg);
                 SV_EndClientSnapshot(client, &msg);
                 SV_GetServerStaticHeader();

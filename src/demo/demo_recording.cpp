@@ -487,8 +487,7 @@ bool __cdecl Demo_IsInFinalKillcam()
     result = 1;
     for (i = 0; i < demo.header.maxClients; ++i)
     {
-        if (svs.clients[i].header.state >= 5 
-            && svs.clients[i].gentity->client->sess.forceSpectatorClient < 0)
+        if (svs.clients[i].header.state >= CS_ACTIVE && svs.clients[i].gentity->client->sess.forceSpectatorClient < 0)
             return 0;
     }
     return result;
@@ -773,7 +772,7 @@ void __cdecl Demo_WriteServerCommands(msg_t *msg)
     for ( clientNum = 0; clientNum < demo.header.maxClients; ++clientNum )
     {
         v2 = &svs.clients[clientNum];
-        if ( v2->header.state == 5 )
+        if ( v2->header.state == CS_ACTIVE )
         {
             for ( i = demo.lastReliableCommandRecorded[clientNum] + 1; i <= v2->reliableSequence; ++i )
             {
@@ -888,7 +887,7 @@ void __cdecl Demo_WritePlayerStates(msg_t *msg)
     {
         g_snapInfo.clientNum = clientNum;
         g_snapInfo.client = &svs.clients[clientNum].header;
-        if ( svs.clients[clientNum].header.state == 5 && G_GetPlayerState(clientNum) )
+        if ( svs.clients[clientNum].header.state == CS_ACTIVE && G_GetPlayerState(clientNum) )
         {
             UsedBitCount = MSG_GetUsedBitCount(msg);
             MSG_WriteBit1(msg);
@@ -1133,7 +1132,7 @@ void __cdecl Demo_WritePacketClients(msg_t *msg)
     //PIXBeginNamedEvent(-16711681, "Demo Recording - Writing ClientStates");
     for ( i = 0; i < demo.header.maxClients; ++i )
     {
-        if ( svs.clients[i].header.state >= 5 )
+        if ( svs.clients[i].header.state >= CS_ACTIVE )
             clientNums[numClients++] = i;
     }
     initBitsUsed = MSG_GetUsedBitCount(msg);

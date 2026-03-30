@@ -188,14 +188,13 @@ void __cdecl CL_WritePacket(int localClientNum)
     int v2; // eax
     unsigned __int8 *v3; // ecx
     unsigned __int8 *v4; // edx
-    char *v5; // eax
     int v6; // [esp-Ch] [ebp-918h]
     char *v7; // [esp+8h] [ebp-904h]
     const char *v8; // [esp+Ch] [ebp-900h]
     int j; // [esp+5Ch] [ebp-8B0h]
     bool forceAngles; // [esp+63h] [ebp-8A9h]
     usercmd_s nullcmd; // [esp+68h] [ebp-8A4h] BYREF
-    clientActive_t *LocalClientGlobals; // [esp+9Ch] [ebp-870h]
+    clientActive_t *cl; // [esp+9Ch] [ebp-870h]
     LargeLocal compressedBuf_large_local(2048); // [esp+A0h] [ebp-86Ch] BYREF
     usercmd_s *oldcmd; // [esp+A8h] [ebp-864h]
     int compressedSize; // [esp+ACh] [ebp-860h]
@@ -229,13 +228,13 @@ void __cdecl CL_WritePacket(int localClientNum)
         //LargeLocal::~LargeLocal(&compressedBuf_large_local);
     }
 
-    LocalClientGlobals = CL_GetLocalClientGlobals(localClientNum);
-    MSG_SetDefaultUserCmd(&LocalClientGlobals->snap.ps, &nullcmd);
+    cl = CL_GetLocalClientGlobals(localClientNum);
+    MSG_SetDefaultUserCmd(&cl->snap.ps, &nullcmd);
     oldcmd = &nullcmd;
     cmd = &nullcmd;
     memset((unsigned __int8 *)&buf, 0, sizeof(buf));
     MSG_Init(&buf, data, 2048);
-    MSG_WriteByte(&buf, LocalClientGlobals->serverId);
+    MSG_WriteByte(&buf, cl->serverId);
     MSG_WriteLong(&buf, clc->serverMessageSequence);
     MSG_WriteLong(&buf, clc->serverCommandSequence);
     for ( i = clc->reliableAcknowledge + 1; i <= clc->reliableSequence; ++i )
@@ -245,7 +244,7 @@ void __cdecl CL_WritePacket(int localClientNum)
         MSG_WriteString(&buf, clc->reliableCommands[i & 0x7F]);
     }
     oldPacketNum = (clc->netchan.outgoingSequence - 1 - cl_packetdup->current.integer) & 0x1F;
-    count = LocalClientGlobals->cmdNumber - LocalClientGlobals->outPackets[oldPacketNum].p_cmdNumber;
+    count = cl->cmdNumber - cl->outPackets[oldPacketNum].p_cmdNumber;
     if ( count > 32 )
     {
         count = 32;
@@ -261,8 +260,8 @@ void __cdecl CL_WritePacket(int localClientNum)
             MSG_WriteBits(&buf, 1, 3u);
         }
         else if ( !cl_nodelta->current.enabled
-                        && LocalClientGlobals->snap.valid
-                        && clc->serverMessageSequence == LocalClientGlobals->snap.messageNum )
+                        && cl->snap.valid
+                        && clc->serverMessageSequence == cl->snap.messageNum )
         {
             MSG_WriteBits(&buf, 0, 3u);
         }
@@ -295,50 +294,40 @@ void __cdecl CL_WritePacket(int localClientNum)
         forceAngles = CG_IsRemoteGuidingMissile(localClientNum);
         for ( i = 0; i < count; ++i )
         {
-            cmd = &LocalClientGlobals->cmds[((unsigned __int8)LocalClientGlobals->cmdNumber - (_BYTE)count + (_BYTE)i + 1)
-                                                                        & 0x7F];
+            cmd = &cl->cmds[((unsigned __int8)cl->cmdNumber - (_BYTE)count + (_BYTE)i + 1) & 0x7F];
             MSG_WriteDeltaUsercmdKey(&buf, key, oldcmd, cmd, forceAngles);
             oldcmd = cmd;
         }
-        MSG_WriteLong(&buf, LODWORD(LocalClientGlobals->cgameOrigin[0]));
-        MSG_WriteLong(&buf, LODWORD(LocalClientGlobals->cgameOrigin[1]));
-        MSG_WriteLong(&buf, LODWORD(LocalClientGlobals->cgameOrigin[2]));
-        if ( ((LODWORD(LocalClientGlobals->cgameVelocity[0]) & 0x7F800000) == 0x7F800000
-                || (LODWORD(LocalClientGlobals->cgameVelocity[1]) & 0x7F800000) == 0x7F800000
-                || (LODWORD(LocalClientGlobals->cgameVelocity[2]) & 0x7F800000) == 0x7F800000)
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\client_mp\\cl_input_mp.cpp",
-                        2969,
-                        0,
-                        "%s",
-                        "!IS_NAN((cl->cgameVelocity)[0]) && !IS_NAN((cl->cgameVelocity)[1]) && !IS_NAN((cl->cgameVelocity)[2])") )
-        {
-            __debugbreak();
-        }
-        MSG_WriteLong(&buf, LocalClientGlobals->cgamePredictedDataServerTime);
+        MSG_WriteLong(&buf, LODWORD(cl->cgameOrigin[0]));
+        MSG_WriteLong(&buf, LODWORD(cl->cgameOrigin[1]));
+        MSG_WriteLong(&buf, LODWORD(cl->cgameOrigin[2]));
+
+        nanassertvec3(cl->cgameVelocity);
+
+        MSG_WriteLong(&buf, cl->cgamePredictedDataServerTime);
         CL_SavePredictedOriginForServerTime(
-            LocalClientGlobals,
-            LocalClientGlobals->cgamePredictedDataServerTime,
-            LocalClientGlobals->cgameOrigin,
-            LocalClientGlobals->cgameVelocity,
-            LocalClientGlobals->cgameViewangles,
-            LocalClientGlobals->cgameBobCycle,
-            LocalClientGlobals->cgameMovementDir);
-        if ( LocalClientGlobals->cgameVehicle.inVehicle )
+            cl,
+            cl->cgamePredictedDataServerTime,
+            cl->cgameOrigin,
+            cl->cgameVelocity,
+            cl->cgameViewangles,
+            cl->cgameBobCycle,
+            cl->cgameMovementDir);
+        if ( cl->cgameVehicle.inVehicle )
         {
             MSG_WriteBit1(&buf);
-            MSG_WriteLong(&buf, LODWORD(LocalClientGlobals->cgameVehicle.origin[0]));
-            MSG_WriteLong(&buf, LODWORD(LocalClientGlobals->cgameVehicle.origin[1]));
-            MSG_WriteLong(&buf, LODWORD(LocalClientGlobals->cgameVehicle.origin[2]));
-            MSG_WriteLong(&buf, LODWORD(LocalClientGlobals->cgameVehicle.angles[0]));
-            MSG_WriteLong(&buf, LODWORD(LocalClientGlobals->cgameVehicle.angles[1]));
-            MSG_WriteLong(&buf, LODWORD(LocalClientGlobals->cgameVehicle.angles[2]));
-            MSG_WriteLong(&buf, LODWORD(LocalClientGlobals->cgameVehicle.tVel[0]));
-            MSG_WriteLong(&buf, LODWORD(LocalClientGlobals->cgameVehicle.tVel[1]));
-            MSG_WriteLong(&buf, LODWORD(LocalClientGlobals->cgameVehicle.tVel[2]));
-            MSG_WriteLong(&buf, LODWORD(LocalClientGlobals->cgameVehicle.aVel[0]));
-            MSG_WriteLong(&buf, LODWORD(LocalClientGlobals->cgameVehicle.aVel[1]));
-            MSG_WriteLong(&buf, LODWORD(LocalClientGlobals->cgameVehicle.aVel[2]));
+            MSG_WriteLong(&buf, LODWORD(cl->cgameVehicle.origin[0]));
+            MSG_WriteLong(&buf, LODWORD(cl->cgameVehicle.origin[1]));
+            MSG_WriteLong(&buf, LODWORD(cl->cgameVehicle.origin[2]));
+            MSG_WriteLong(&buf, LODWORD(cl->cgameVehicle.angles[0]));
+            MSG_WriteLong(&buf, LODWORD(cl->cgameVehicle.angles[1]));
+            MSG_WriteLong(&buf, LODWORD(cl->cgameVehicle.angles[2]));
+            MSG_WriteLong(&buf, LODWORD(cl->cgameVehicle.tVel[0]));
+            MSG_WriteLong(&buf, LODWORD(cl->cgameVehicle.tVel[1]));
+            MSG_WriteLong(&buf, LODWORD(cl->cgameVehicle.tVel[2]));
+            MSG_WriteLong(&buf, LODWORD(cl->cgameVehicle.aVel[0]));
+            MSG_WriteLong(&buf, LODWORD(cl->cgameVehicle.aVel[1]));
+            MSG_WriteLong(&buf, LODWORD(cl->cgameVehicle.aVel[2]));
         }
         else
         {
@@ -365,14 +354,13 @@ void __cdecl CL_WritePacket(int localClientNum)
         Com_Error(ERR_DROP, "Overflow compressed msg buf in CL_WritePacket()");
     compressedSize = MSG_WriteBitsCompress(0, buf.data + 9, buf.cursize - 9, &(*compressedBuf)[9], 2039) + 9;
     packetNum = clc->netchan.outgoingSequence & 0x1F;
-    LocalClientGlobals->outPackets[packetNum].p_realtime = cls.realtime;
-    LocalClientGlobals->outPackets[packetNum].p_serverTime = oldcmd->serverTime;
-    LocalClientGlobals->outPackets[packetNum].p_cmdNumber = LocalClientGlobals->cmdNumber;
+    cl->outPackets[packetNum].p_realtime = cls.realtime;
+    cl->outPackets[packetNum].p_serverTime = oldcmd->serverTime;
+    cl->outPackets[packetNum].p_cmdNumber = cl->cmdNumber;
     clc->lastPacketSentTime = cls.realtime;
     if ( cl_showSend->current.enabled )
     {
-        v5 = NET_AdrToString(clc->netchan.remoteAddress);
-        Com_Printf(14, "%i to %s\n", compressedSize, v5);
+        Com_Printf(14, "%i to %s\n", compressedSize, NET_AdrToString(clc->netchan.remoteAddress));
     }
     CL_Netchan_Transmit(&clc->netchan, (unsigned __int8 *)compressedBuf, compressedSize);
     while ( clc->netchan.unsentFragments )

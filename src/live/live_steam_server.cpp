@@ -54,7 +54,7 @@ void LiveSteamServer::RunFrame()
             for ( i = 0; i < com_maxclients->current.integer; ++i )
             {
                 client = &svs.clients[i];
-                if ( client->header.state >= 5 && !client->bIsTestClient && !client->bIsDemoClient && !client->steamAuthorized )
+                if ( client->header.state >= CS_ACTIVE && !client->bIsTestClient && !client->bIsDemoClient && !client->steamAuthorized )
                 {
                     if ( ++client->steamAuthFailCount == 4 )
                     {
@@ -114,7 +114,7 @@ void LiveSteamServer::OnSteamServersDisconnected(SteamServersDisconnected_t *pLo
     for ( i = 0; i < com_maxclients->current.integer; ++i )
     {
         client = &svs.clients[i];
-        if ( client->header.state >= 5 && !client->bIsTestClient && !client->bIsDemoClient && !client->steamAuthorized )
+        if ( client->header.state >= CS_ACTIVE && !client->bIsTestClient && !client->bIsDemoClient && !client->steamAuthorized )
             client->steamAuthFailCount = 0;
     }
 }
@@ -165,7 +165,7 @@ void __thiscall LiveSteamServer::OnGSClientApprove(GSClientApprove_t *pGSClientA
     for ( i = 0; i < com_maxclients->current.integer; ++i )
     {
         client = &svs.clients[i];
-        if ( client->header.state >= 3 )
+        if ( client->header.state >= CS_CONNECTED )
         {
             if ( this->currentMapDlcAppID )
             {
@@ -230,7 +230,7 @@ void __cdecl KickClientFromSteamGameServer(CSteamID clientID, EDenyReason reason
         for ( i = 0; i < com_maxclients->current.integer; ++i )
         {
             client = &svs.clients[i];
-            if ( client->header.state >= 3 && client->steamID == clientID.ConvertToUint64() )
+            if ( client->header.state >= CS_CONNECTED && client->steamID == clientID.ConvertToUint64() )
             {
                 //v7 = _SteamGameServer();
                 //(*(void (__thiscall **)(int, unsigned int, unsigned int))(*(unsigned int *)v7 + 28))(

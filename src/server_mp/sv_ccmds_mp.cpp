@@ -39,7 +39,7 @@ void __cdecl SV_ReconnectClients(int savepersist)
     for ( i = 0; i < com_maxclients->current.integer; ++i )
     {
         client = &svs.clients[i];
-        if ( client->header.state >= 3 )
+        if ( client->header.state >= CS_CONNECTED )
         {
             v1 = va("%c", savepersist != 0 ? 110 : 66);
             SV_AddServerCommand(client, SV_CMD_RELIABLE, v1);
@@ -49,7 +49,7 @@ void __cdecl SV_ReconnectClients(int savepersist)
                 SV_DropClient(client, denied, 1, 1);
                 Com_Printf(0, "SV_MapRestart_f: dropped client %i - denied!\n", i);
             }
-            else if ( client->header.state == 5 )
+            else if ( client->header.state == CS_ACTIVE )
             {
                 SV_ClientEnterWorld(client, &client->lastUsercmd);
             }
@@ -88,7 +88,7 @@ void __cdecl SV_MapRestart(int fast_restart)
             for ( i = 0; i < com_maxclients->current.integer; ++i )
             {
                 client = &svs.clients[i];
-                if ( client->header.state >= 3 )
+                if ( client->header.state >= CS_CONNECTED )
                 {
                     if ( savepersist || !client->bIsTestClient )
                         NET_OutOfBandPrint(NS_SERVER, client->header.netchan.remoteAddress, "fastrestart");
@@ -581,7 +581,7 @@ int __cdecl SV_KickUser_f(char *playerName, int maxPlayerNameLen)
                     clients = svs.clients;
                     while ( clientNum < com_maxclients->current.integer )
                     {
-                        if ( clients->header.state )
+                        if ( clients->header.state != CS_FREE )
                         {
                             if ( !clients->bIsDemoClient )
                                 SV_KickClient(clients, 0, 0, reason);
@@ -623,7 +623,7 @@ client_t *__cdecl SV_GetPlayerByName()
         clients = svs.clients;
         while ( i < com_maxclients->current.integer )
         {
-            if ( clients->header.state )
+            if ( clients->header.state != CS_FREE )
             {
                 if ( !I_stricmp(clients->name, s) )
                     return clients;
@@ -770,7 +770,7 @@ client_t *__cdecl SV_GetPlayerByNum()
         idnum = atoi(s);
         if ( idnum >= 0 && idnum < com_maxclients->current.integer )
         {
-            if ( svs.clients[idnum].header.state )
+            if ( svs.clients[idnum].header.state != CS_FREE )
             {
                 return &svs.clients[idnum];
             }
@@ -887,17 +887,17 @@ void __cdecl SV_Status_f()
         clients = svs.clients;
         while ( i < com_maxclients->current.integer )
         {
-            if ( clients->header.state )
+            if ( clients->header.state != CS_FREE )
             {
                 Com_Printf(0, "%3i ", i);
                 SV_GameClientNum(i);
                 ClientScore = G_GetClientScore(clients - svs.clients);
                 Com_Printf(0, "%5i ", ClientScore);
-                if ( clients->header.state == 3 )
+                if ( clients->header.state == CS_CONNECTED )
                 {
                     Com_Printf(0, "CNCT ");
                 }
-                else if ( clients->header.state == 1 )
+                else if ( clients->header.state == CS_ZOMBIE )
                 {
                     Com_Printf(0, "ZMBI ");
                 }
@@ -956,17 +956,17 @@ void __cdecl SV_TeamStatus_f()
         clients = svs.clients;
         while ( i < com_maxclients->current.integer )
         {
-            if ( clients->header.state )
+            if ( clients->header.state != CS_FREE )
             {
                 Com_Printf(0, "%3i ", i);
                 SV_GameClientNum(i);
                 ClientScore = G_GetClientScore(clients - svs.clients);
                 Com_Printf(0, "%5i ", ClientScore);
-                if ( clients->header.state == 3 )
+                if ( clients->header.state == CS_CONNECTED )
                 {
                     Com_Printf(0, "CNCT ");
                 }
-                else if ( clients->header.state == 1 )
+                else if ( clients->header.state == CS_ZOMBIE )
                 {
                     Com_Printf(0, "ZMBI ");
                 }
@@ -1185,7 +1185,7 @@ void __cdecl SV_ConTell_f()
             if ( clientNum >= 0 && clientNum < com_maxclients->current.integer )
             {
                 v1 = &svs.clients[clientNum];
-                if ( v1->header.state == 5 )
+                if ( v1->header.state == CS_ACTIVE )
                 {
                     SV_AssembleConSayMessage(2, text, 1024);
                     SV_SendServerCommand(v1, SV_CMD_CAN_IGNORE, "\"%c %s\"", 104, text);

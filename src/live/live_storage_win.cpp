@@ -1227,7 +1227,7 @@ void SV_CommitClientLeaderboards()
                 v28 = 0;
                 for ( clientNum = 0; clientNum < com_maxclients->current.integer; ++clientNum )
                 {
-                    if ( svs.clients[clientNum].header.state >= 3
+                    if ( svs.clients[clientNum].header.state >= CS_CONNECTED
                         && svs.clients[clientNum].header.netchan.remoteAddress.type
                         && svs.clients[clientNum].statsValidated
                         && svs.clients[clientNum].header.sendAsActive )

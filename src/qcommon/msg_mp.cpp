@@ -2677,11 +2677,9 @@ int __cdecl MSG_GetByte(msg_t *msg, int where)
 {
     if ( where < msg->cursize )
         return msg->data[where];
-    if ( !msg->splitData
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\msg_mp.cpp", 147, 0, "%s", "msg->splitData") )
-    {
-        __debugbreak();
-    }
+
+    iassert(msg->splitData);
+
     return msg->splitData[where - msg->cursize];
 }
 
@@ -3139,17 +3137,19 @@ int __cdecl MSG_ReadByte(msg_t *msg)
     else
     {
         c = MSG_GetByte(msg, msg->readcount);
-        if ( c != (unsigned __int8)c
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\msg_mp.cpp",
-                        811,
-                        0,
-                        "c == static_cast< byte >( c )\n\t%i, %i",
-                        c,
-                        (unsigned __int8)c) )
-        {
-            __debugbreak();
-        }
+
+        iassert(c == (unsigned char)c);
+        //if ( c != (unsigned __int8)c
+        //    && !Assert_MyHandler(
+        //                "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\msg_mp.cpp",
+        //                811,
+        //                0,
+        //                "c == static_cast< byte >( c )\n\t%i, %i",
+        //                c,
+        //                (unsigned __int8)c) )
+        //{
+        //    __debugbreak();
+        //}
         ++msg->readcount;
         return c;
     }

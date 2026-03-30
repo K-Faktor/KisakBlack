@@ -650,7 +650,7 @@ void __cdecl Demo_StreamingSuccessCallback(int controllerIndex, unsigned __int64
     {
         for ( i = 0; i < demo.header.maxClients; ++i )
         {
-            if ( svs.clients[i].header.state == 5 )
+            if ( svs.clients[i].header.state == CS_ACTIVE )
                 SV_SetClientDInt64Stat(i, &localState, fileID);
         }
     }
@@ -780,7 +780,7 @@ void __cdecl Demo_StartRecord_f()
             {
                 for ( i = 0; i < demo.header.maxClients; ++i )
                 {
-                    if ( svs.clients[i].header.state == 5 )
+                    if ( svs.clients[i].header.state == CS_ACTIVE )
                         demo.lastReliableCommandRecorded[i] = svs.clients[i].reliableAcknowledge;
                 }
             }

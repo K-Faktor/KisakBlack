@@ -446,64 +446,67 @@ $LN7_31:
 
 void __cdecl CL_ConfigstringModified(int localClientNum)
 {
-    const char *v1; // eax
-    unsigned int v2; // [esp+0h] [ebp-5Ch]
+    const char *v2; // eax
+    unsigned int v3; // [esp+0h] [ebp-5Ch]
     clientActive_t *LocalClientGlobals; // [esp+34h] [ebp-28h]
-    unsigned __int8 *oldGs; // [esp+38h] [ebp-24h]
+    gameState_t *oldGs; // [esp+38h] [ebp-24h]
     char *dup; // [esp+3Ch] [ebp-20h]
-    LargeLocal oldGs_large_local(78584); // [esp+44h] [ebp-18h] BYREF
     int index; // [esp+4Ch] [ebp-10h]
     const char *s; // [esp+50h] [ebp-Ch]
     int i; // [esp+54h] [ebp-8h]
     const char *old; // [esp+58h] [ebp-4h]
 
+    LargeLocal oldGs_large_local(sizeof(gameState_t)); // [esp+44h] [ebp-18h] BYREF
     //LargeLocal::LargeLocal(&oldGs_large_local, 78584);
-    oldGs = oldGs_large_local.GetBuf(); // LargeLocal::GetBuf(&oldGs_large_local);
-    v1 = Cmd_Argv(1);
-    index = atoi(v1);
-    if ( (unsigned int)index >= 0xCBC )
+    //oldGs = (gameState_t *)LargeLocal::GetBuf(&oldGs_large_local);
+    oldGs = (gameState_t *)oldGs_large_local.GetBuf();
+    v2 = Cmd_Argv(1);
+    index = atoi(v2);
+    if ((unsigned int)index >= 0xCBC)
         Com_Error(ERR_DROP, "configstring > MAX_CONFIGSTRINGS");
     s = Cmd_Argv(2);
     LocalClientGlobals = CL_GetLocalClientGlobals(localClientNum);
     old = CL_GetConfigString(index);
-    if ( !strcmp(old, s) )
+    if (!strcmp(old, s))
     {
-        if ( LocalClientGlobals->serverId != cls.serverId && index == 3 )
+        if (LocalClientGlobals->serverId != cls.serverId && index == 3)
             CL_ServerIdChanged(localClientNum);
     }
     else
     {
-        memcpy(oldGs, (unsigned __int8 *)&cls.gameState, 0x132F8u);
-        memset((unsigned __int8 *)&cls.gameState, 0, 0x32F0u);
-        memset((unsigned __int8 *)cls.gameState.stringData, 0, sizeof(cls.gameState.stringData));
+        memcpy(oldGs, &cls.gameState, sizeof(gameState_t));
+        memset(&cls.gameState, 0, 0x32F0u);
+        memset(cls.gameState.stringData, 0, sizeof(cls.gameState.stringData));
+
         cls.gameState.dataCount = 1;
-        for ( i = 0; i < 3260; ++i )
+
+        for (i = 0; i < MAX_CONFIGSTRINGS; ++i)
         {
-            if ( i == index )
+            if (i == index)
                 dup = (char *)s;
             else
-                dup = (char *)&oldGs[*(unsigned int *)&oldGs[4 * i] + 13040];
-            if ( *dup )
+                dup = &oldGs->stringData[oldGs->stringOffsets[i]];
+            if (*dup)
             {
-                v2 = strlen(dup);
-                if ( (int)(v2 + cls.gameState.dataCount + 1) > 0x10000 )
+                v3 = strlen(dup);
+                if ((int)(v3 + cls.gameState.dataCount + 1) > 0x10000)
                     Com_Error(ERR_DROP, "MAX_GAMESTATE_CHARS exceeded");
                 cls.gameState.stringOffsets[i] = cls.gameState.dataCount;
-                memcpy((unsigned __int8 *)&cls.gameState.stringData[cls.gameState.dataCount], (unsigned __int8 *)dup, v2 + 1);
-                cls.gameState.dataCount += v2 + 1;
+                memcpy((unsigned __int8 *)&cls.gameState.stringData[cls.gameState.dataCount], (unsigned __int8 *)dup, v3 + 1);
+                cls.gameState.dataCount += v3 + 1;
             }
         }
-        if ( index == 1
+        if (index == 1
             && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\client_mp\\cl_cgame_mp.cpp",
-                        466,
-                        0,
-                        "%s",
-                        "index != CS_SYSTEMINFO") )
+                "C:\\projects_pc\\cod\\codsrc\\src\\client_mp\\cl_cgame_mp.cpp",
+                466,
+                0,
+                "%s",
+                "index != CS_SYSTEMINFO"))
         {
             __debugbreak();
         }
-        if ( index == 3 )
+        if (index == 3)
             CL_ServerIdChanged(localClientNum);
     }
     //LargeLocal::~LargeLocal(&oldGs_large_local);
@@ -679,17 +682,8 @@ LABEL_8:
 
 char *__cdecl CL_GetConfigString(unsigned int configStringIndex)
 {
-    if ( configStringIndex >= 0xCBC
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\client_mp\\cl_cgame_mp.cpp",
-                    848,
-                    0,
-                    "configStringIndex doesn't index MAX_CONFIGSTRINGS\n\t%i not in [0, %i)",
-                    configStringIndex,
-                    3260) )
-    {
-        __debugbreak();
-    }
+    bcassert(configStringIndex, MAX_CONFIGSTRINGS);
+    
     if ( cls.gameState.stringData[0]
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\client_mp\\cl_cgame_mp.cpp",

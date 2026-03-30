@@ -1330,7 +1330,7 @@ int __cdecl Live_GetAveragePerformance()
     for ( i = 0; i < com_maxclients->current.integer; ++i )
     {
         xuid = 0;
-        if ( svs.clients && svs.clients[i].header.state >= 3 )
+        if ( svs.clients && svs.clients[i].header.state >= CS_CONNECTED )
         {
             LODWORD(xuid) = svs.xuids[i];
             HIDWORD(xuid) = LODWORD(svs.mapCenter[2 * i - 63]);

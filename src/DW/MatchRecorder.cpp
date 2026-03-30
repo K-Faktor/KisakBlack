@@ -1153,7 +1153,7 @@ unsigned int __cdecl MatchRecord_SearchCreateForPlayer(gclient_s *client, ddlSta
         MatchRecorderDDLSetString(playerState, "gamertag", client->sess.cs.name);
     for ( i = 0; i < com_maxclients->current.integer; ++i )
     {
-        if ( svs.clients[i].header.state >= 3 )
+        if ( svs.clients[i].header.state >= CS_CONNECTED )
             connectedBits |= 1 << i;
     }
     MatchRecorderDDLSetInt(playerState, "connectedBits", connectedBits);

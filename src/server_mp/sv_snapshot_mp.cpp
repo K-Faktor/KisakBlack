@@ -95,22 +95,22 @@ void __cdecl SV_WriteSnapshotToClient(client_t *client, msg_t *msg)
     {
         __debugbreak();
     }
-    if ( client->header.deltaMessage > 0 && client->header.state == 5 )
+    if ( client->header.deltaMessage > 0 && client->header.state == CS_ACTIVE )
     {
         if ( client->header.netchan.outgoingSequence - client->header.deltaMessage < 29 )
         {
             v2 = client->header.deltaMessage & 0x1F;
             oldframe = &client->frames[v2];
-            if ( (client_t *)((char *)client + v2 * 9932) == (client_t *)-22388
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
-                            911,
-                            0,
-                            "%s",
-                            "oldframe") )
-            {
-                __debugbreak();
-            }
+            //if ( (client_t *)((char *)client + v2 * 9932) == (client_t *)-22388
+            //    && !Assert_MyHandler(
+            //                "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
+            //                911,
+            //                0,
+            //                "%s",
+            //                "oldframe") )
+            //{
+            //    __debugbreak();
+            //}
             lastframe = client->header.netchan.outgoingSequence - client->header.deltaMessage;
             lastServerTime = oldframe->serverTime;
             if ( oldframe->first_entity < svsHeader.nextSnapshotEntities - svsHeader.numSnapshotEntities )
@@ -152,11 +152,11 @@ void __cdecl SV_WriteSnapshotToClient(client_t *client, msg_t *msg)
     if ( client->header.rateDelayed )
         snapFlags |= 1u;
     sendAsActive = client->header.sendAsActive;
-    if ( client->header.state == 5 )
+    if ( client->header.state == CS_ACTIVE )
     {
         sendAsActive = 1;
     }
-    else if ( client->header.state != 1 )
+    else if ( client->header.state != CS_ZOMBIE )
     {
         sendAsActive = 0;
     }
@@ -1816,7 +1816,7 @@ int __cdecl SV_GetCurrentClientInfo(unsigned int clientNum, playerState_s *ps, c
     {
         __debugbreak();
     }
-    if ( svs.clients[clientNum].header.state != 5 )
+    if ( svs.clients[clientNum].header.state != CS_ACTIVE )
         return 0;
     if ( !GetFollowPlayerState(clientNum, ps) )
         return 0;
@@ -2117,7 +2117,7 @@ void __cdecl SV_BuildClientSnapshot(client_t *client)
     v7->num_clients = 0;
     if ( client->gentity )
     {
-        if ( client->header.state != 1 )
+        if ( client->header.state != CS_ZOMBIE )
         {
             v7->matchState = svs.nextSnapshotMatchStates;
             v7->first_entity = svs.nextSnapshotEntities;
@@ -2241,7 +2241,7 @@ void __cdecl SV_BuildClientSnapshot(client_t *client)
                     clients = svs.clients;
                     while ( i < com_maxclients->current.integer )
                     {
-                        if ( clients->header.state >= 3 )
+                        if ( clients->header.state >= CS_CONNECTED )
                         {
                             v12 = &svs.snapshotClients[svs.nextSnapshotClients % svs.numSnapshotClients];
                             ClientState = G_GetClientState(i);
@@ -2515,7 +2515,7 @@ void __cdecl SV_SendMessageToClient(msg_t *msg, client_t *client, bool reliable)
         __debugbreak();
     }
     *(unsigned int *)svCompressedBuf = *(unsigned int *)msg->data;
-    compressedSize = MSG_WriteBitsCompress(client->header.state == 5, msg->data + 4, msg->cursize - 4, to, 65532) + 4;
+    compressedSize = MSG_WriteBitsCompress(client->header.state == CS_ACTIVE, msg->data + 4, msg->cursize - 4, to, 65532) + 4;
     if ( sv_showHuffmanData->current.enabled )
     {
         showHuffmanData();
@@ -2537,26 +2537,9 @@ void __cdecl SV_SendMessageToClient(msg_t *msg, client_t *client, bool reliable)
     if ( client->dropReason )
     {
         SV_DropClient(client, client->dropReason, 1, 1);
-        if ( client->dropReason
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
-                        3279,
-                        0,
-                        "%s",
-                        "!client->dropReason") )
-        {
-            __debugbreak();
-        }
-        if ( client->header.state != 1
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_snapshot_mp.cpp",
-                        3280,
-                        0,
-                        "%s",
-                        "client->header.state == CS_ZOMBIE") )
-        {
-            __debugbreak();
-        }
+        
+        iassert(!client->dropReason);
+        iassert(client->header.state == CS_ZOMBIE);
     }
     client->frames[client->header.netchan.outgoingSequence & 0x1F].messageSize = compressedSize;
     client->frames[client->header.netchan.outgoingSequence & 0x1F].messageSent = Sys_Milliseconds();
@@ -2567,12 +2550,12 @@ void __cdecl SV_SendMessageToClient(msg_t *msg, client_t *client, bool reliable)
         if ( reliable )
         {
             lowest_send_count = client->header.netchan.lowest_send_count;
-            while ( client->header.state && lowest_send_count == client->header.netchan.lowest_send_count )
+            while ( client->header.state != CS_FREE && lowest_send_count == client->header.netchan.lowest_send_count )
                 SV_Netchan_TransmitNextFragment(client, &client->header.netchan);
         }
         else
         {
-            while ( client->header.state && client->header.netchan.unsentFragments )
+            while ( client->header.state != CS_FREE && client->header.netchan.unsentFragments )
                 SV_Netchan_TransmitNextFragment(client, &client->header.netchan);
         }
         if ( client->header.netchan.remoteAddress.type == NA_LOOPBACK
@@ -2606,7 +2589,7 @@ void __cdecl SV_SendMessageToClient(msg_t *msg, client_t *client, bool reliable)
         }
         client->nextSnapshotTime = rateMsec + svs.time;
         client->lastSnapshotTime = svs.time;
-        if ( client->header.state != 5 && !client->downloadName[0] && client->nextSnapshotTime < svs.time + 1000 )
+        if ( client->header.state != CS_ACTIVE && !client->downloadName[0] && client->nextSnapshotTime < svs.time + 1000 )
             client->nextSnapshotTime = svs.time + 1000;
         sv.bpsTotalBytes += compressedSize;
     }
@@ -2683,7 +2666,7 @@ void __cdecl SV_BeginClientSnapshot(client_t *client, msg_t *msg)
     MSG_Init(msg, tempSnapshotMsgBuf, 0x10000);
     MSG_ClearLastReferencedEntity(msg);
     MSG_WriteLong(msg, client->lastClientCommand);
-    if ( client->header.state == 5 || client->header.state == 1 )
+    if ( client->header.state == CS_ACTIVE || client->header.state == CS_ZOMBIE )
         SV_UpdateServerCommandsToClient(client, msg);
 }
 
@@ -2700,13 +2683,13 @@ void __cdecl SV_EndClientSnapshot(client_t *client, msg_t *msg)
     {
         __debugbreak();
     }
-    if ( client->header.state != 1 )
+    if ( client->header.state != CS_ZOMBIE )
         SV_WriteDownloadToClient(client, msg);
     MSG_WriteByte(msg, 0xEu);
     if ( msg->overflowed )
     {
         Com_PrintWarning(15, "WARNING: msg overflowed for %s, trying to recover\n", client->name);
-        if ( client->header.state == 5 || client->header.state == 1 )
+        if ( client->header.state == CS_ACTIVE || client->header.state == CS_ZOMBIE )
         {
             SV_PrintServerCommandsForClient(client);
             MSG_Init(msg, tempSnapshotMsgBuf, 0x10000);
@@ -3152,7 +3135,7 @@ void __cdecl SV_SendClientMessages()
             else
             {
                 valid[clientNum] = 1;
-                if (sv.bpsTotalBytes < maxBytesPerFrame && (c->header.state == 5 || c->header.state == 1))
+                if (sv.bpsTotalBytes < maxBytesPerFrame && (c->header.state == CS_ACTIVE || c->header.state == CS_ZOMBIE))
                 {
                     //PIXBeginNamedEvent(-1, "SV_BuildClientSnapshot");
                     SV_BuildClientSnapshot(c);
@@ -3178,7 +3161,7 @@ void __cdecl SV_SendClientMessages()
             v1 = va("SV_SendClientSnapshot %d", clientNum);
             //PIXBeginNamedEvent(-1, v1);
             SV_BeginClientSnapshot(ca, &msg);
-            if (ca->header.state == 5 || ca->header.state == 1)
+            if (ca->header.state == CS_ACTIVE || ca->header.state == CS_ZOMBIE)
             {
                 //PIXBeginNamedEvent(-1, "SV_WriteSnapshotToClient");
                 SV_WriteSnapshotToClient(ca, &msg);
@@ -3211,7 +3194,7 @@ void __cdecl SV_SendClientMessages()
         {
             __debugbreak();
         }
-        if (cb->header.state == 5 || cb->header.state == 1)
+        if (cb->header.state == CS_ACTIVE || cb->header.state == CS_ZOMBIE)
             Demo_BuildDemoSnapshot();
         //if (g_DXDeviceThread == GetCurrentThreadId())
             //D3DPERF_EndEvent();

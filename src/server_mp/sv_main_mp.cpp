@@ -87,7 +87,7 @@ void __cdecl SV_AddServerCommand(client_t *client, svscmd_type type, char *cmd)
 
     if ( !client->bIsTestClient && !client->bIsDemoClient )
     {
-        if ( client->reliableSequence - client->reliableAcknowledge < 64 && client->header.state == 5
+        if ( client->reliableSequence - client->reliableAcknowledge < 64 && client->header.state == CS_ACTIVE
             || (SV_CullIgnorableServerCommands(client), type) )
         {
             to = SV_CanReplaceServerCommand(client, cmd);
@@ -266,7 +266,7 @@ void SV_SendServerCommand(client_t *cl, svscmd_type type, const char *fmt, ...)
         client = svs.clients;
         while ( j < com_maxclients->current.integer )
         {
-            if ( client->header.state >= 4 )
+            if ( client->header.state >= CS_CLIENTLOADING )
                 SV_AddServerCommand(client, type, (char *)tempServerCommandBuf);
             ++j;
             ++client;
@@ -307,10 +307,10 @@ void __cdecl SV_VoicePacket(netadr_t from, msg_t *msg)
 
     qport = MSG_ReadShort(msg);
     ClientByAddress = SV_FindClientByAddress(from, qport);
-    if ( ClientByAddress && ClientByAddress->header.state != 1 )
+    if ( ClientByAddress && ClientByAddress->header.state != CS_ZOMBIE )
     {
         ClientByAddress->lastPacketTime = svs.time;
-        if ( ClientByAddress->header.state >= 5 )
+        if ( ClientByAddress->header.state >= CS_ACTIVE )
         {
             if ( !ClientByAddress->gentity
                 && !Assert_MyHandler(
@@ -467,7 +467,7 @@ void __cdecl SVC_StatusScoreBoard(netadr_t from, bdSecurityID *secID)
     for ( i = 0; i < com_maxclients->current.integer; ++i )
     {
         v14 = &svs.clients[i];
-        if ( v14->header.state >= 3 )
+        if ( v14->header.state >= CS_CONNECTED )
         {
             if ( v14->clanAbbrev[0] )
                 _snprintf(string, 0x20u, "[%s]%s", v14->clanAbbrev, v14->name);
@@ -574,7 +574,7 @@ void __cdecl SVC_Info(netadr_t from, bdSecurityID *secID, bool quick)
     privateClientCount = 0;
     for ( i = 0; i < Com_GetPrivateClients(); ++i )
     {
-        if ( svs.clients[i].header.state >= 3 )
+        if ( svs.clients[i].header.state >= CS_CONNECTED )
             ++privateClientCount;
     }
     if ( (unsigned int)privateClientCount >= com_maxclients->current.integer
@@ -591,7 +591,7 @@ void __cdecl SVC_Info(netadr_t from, bdSecurityID *secID, bool quick)
     clientCount = privateClientCount;
     for ( i = Com_GetPrivateClients(); i < com_maxclients->current.integer; ++i )
     {
-        if ( !svs.clients[i].bIsDemoClient && svs.clients[i].header.state >= 3 )
+        if ( !svs.clients[i].bIsDemoClient && svs.clients[i].header.state >= CS_CONNECTED )
             ++clientCount;
     }
     infostring[0] = 0;
@@ -901,7 +901,7 @@ void __cdecl SV_PacketEvent(netadr_t from, msg_t *msg)
                     ClientByAddress->reliableAcknowledge = MSG_ReadLong(msg);
                     if ( ClientByAddress->reliableSequence - ClientByAddress->reliableAcknowledge < 128 )
                     {
-                        if ( ClientByAddress->header.state != 1 )
+                        if ( ClientByAddress->header.state != CS_ZOMBIE )
                         {
                             iassert(bgs == 0);
                             ClientByAddress->lastPacketTime = svs.time;
@@ -947,7 +947,7 @@ void __cdecl SV_CalcPings()
     for ( i = 0; i < com_maxclients->current.integer; ++i )
     {
         v1 = &svs.clients[i];
-        if ( v1->header.state == 5 )
+        if ( v1->header.state == CS_ACTIVE )
         {
             if ( v1->gentity )
             {
@@ -1039,26 +1039,26 @@ void __cdecl SV_CheckTimeouts()
             drop->lastPacketTime = svs.time;
         if ( drop->bIsTestClient || drop->bIsDemoClient )
         {
-            if ( drop->header.state == 1 )
+            if ( drop->header.state == CS_ZOMBIE )
             {
                 if ( drop->bIsDemoClient )
                     Com_Printf(0, "Going zombie --> free for client %s(%s)\n", drop->name, "demo");
                 else
                     Com_Printf(0, "Going zombie --> free for client %s(%s)\n", drop->name, "test");
-                drop->header.state = 0;
+                drop->header.state = CS_FREE;
                 drop->lastPacketTime = 0;
             }
         }
-        else if ( drop->header.state == 1 && drop->lastPacketTime < zombiepoint )
+        else if ( drop->header.state == CS_ZOMBIE && drop->lastPacketTime < zombiepoint )
         {
             Com_Printf(15, "Going from CS_ZOMBIE to CS_FREE for client #%i\n", clientNum);
-            drop->header.state = 0;
+            drop->header.state = CS_FREE;
             drop->lastPacketTime = 0;
 #ifdef KISAK_LIVE // why is this here? I dont see this in kcod4
             dwCloseConnection(&drop->header.netchan.remoteAddress);
 #endif
         }
-        else if ( drop->header.state == 5 && drop->lastPacketTime < droppoint )
+        else if ( drop->header.state == CS_ACTIVE && drop->lastPacketTime < droppoint )
         {
             if ( ++drop->timeoutCount > 5 )
             {
@@ -1066,7 +1066,7 @@ void __cdecl SV_CheckTimeouts()
                 SV_DropClient(drop, "EXE_TIMEDOUT", 1, 1);
             }
         }
-        else if ( drop->header.state <= 1 || drop->lastPacketTime >= connectdroppoint )
+        else if ( drop->header.state <= CS_ZOMBIE || drop->lastPacketTime >= connectdroppoint )
         {
             drop->timeoutCount = 0;
         }
@@ -1095,7 +1095,7 @@ int __cdecl SV_CheckPaused()
     clients = svs.clients;
     while ( i < com_maxclients->current.integer )
     {
-        if ( clients->header.state >= 3 )
+        if ( clients->header.state >= CS_CONNECTED )
             ++count;
         ++i;
         ++clients;
@@ -1172,7 +1172,7 @@ void __cdecl SV_UpdateBots()
     bot = svs.clients;
     while ( i < com_maxclients->current.integer )
     {
-        if ( bot->header.state && bot->header.state != 2 && bot->bIsTestClient && !bot->bIsDemoClient )
+        if ( bot->header.state != CS_FREE && bot->header.state != CS_RECONNECTING && bot->bIsTestClient && !bot->bIsDemoClient )
         {
             SV_BotThink(bot, &botcmd);
             SV_ClientThink(bot, &botcmd);

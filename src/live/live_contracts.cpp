@@ -1661,16 +1661,8 @@ char *__cdecl LiveContracts_SV_GetStatBuffer(unsigned int clientNum)
     //{
     //    __debugbreak();
     //}
-    if ( svs.clients[clientNum].header.state < 2
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\live\\live_contracts.cpp",
-                    1139,
-                    0,
-                    "%s",
-                    "svs.clients[clientNum].header.state >= CS_RECONNECTING") )
-    {
-        __debugbreak();
-    }
+    iassert(svs.clients[clientNum].header.state >= CS_RECONNECTING);
+
     return (char *)svs.clients[clientNum].globalStats;
 }
 
