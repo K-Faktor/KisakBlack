@@ -2159,76 +2159,22 @@ HRESULT STDMETHODCALLTYPE SDXA2Effect::LockForProcess(
                 unsigned int OutputLockedParameterCount,
                 const XAPO_LOCKFORPROCESS_BUFFER_PARAMETERS *out)
 {
-    if ( this->locked
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_driver_xaudio2_dsp.cpp", 46, 0, "%s", "!locked") )
-    {
-        __debugbreak();
-    }
+    iassert(!locked);
+
     this->locked = 1;
     this->started = 0;
-    if ( in->MaxFrameCount != out->MaxFrameCount
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_driver_xaudio2_dsp.cpp",
-                    50,
-                    0,
-                    "%s",
-                    "in->MaxFrameCount == out->MaxFrameCount") )
-    {
-        __debugbreak();
-    }
-    if ( in->pFormat->wBitsPerSample != out->pFormat->wBitsPerSample
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_driver_xaudio2_dsp.cpp",
-                    51,
-                    0,
-                    "%s",
-                    "in->pFormat->wBitsPerSample == out->pFormat->wBitsPerSample") )
-    {
-        __debugbreak();
-    }
-    if ( in->pFormat->wFormatTag != out->pFormat->wFormatTag
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_driver_xaudio2_dsp.cpp",
-                    52,
-                    0,
-                    "%s",
-                    "in->pFormat->wFormatTag == out->pFormat->wFormatTag") )
-    {
-        __debugbreak();
-    }
-    if ( in->pFormat->nSamplesPerSec != out->pFormat->nSamplesPerSec
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_driver_xaudio2_dsp.cpp",
-                    53,
-                    0,
-                    "%s",
-                    "in->pFormat->nSamplesPerSec == out->pFormat->nSamplesPerSec") )
-    {
-        __debugbreak();
-    }
-    if ( in->pFormat->wFormatTag != 65534
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_driver_xaudio2_dsp.cpp",
-                    54,
-                    0,
-                    "%s",
-                    "in->pFormat->wFormatTag == WAVE_FORMAT_EXTENSIBLE") )
-    {
-        __debugbreak();
-    }
-    if ( in->pFormat->wBitsPerSample != 32
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_driver_xaudio2_dsp.cpp",
-                    55,
-                    0,
-                    "%s",
-                    "in->pFormat->wBitsPerSample == 32") )
-    {
-        __debugbreak();
-    }
+
+    iassert(in->MaxFrameCount == out->MaxFrameCount);
+    iassert(in->pFormat->wBitsPerSample == out->pFormat->wBitsPerSample);
+    iassert(in->pFormat->wFormatTag == out->pFormat->wFormatTag);
+    iassert(in->pFormat->nSamplesPerSec == out->pFormat->nSamplesPerSec);
+    iassert(in->pFormat->wFormatTag == WAVE_FORMAT_EXTENSIBLE);
+    iassert(in->pFormat->wBitsPerSample == 32);
+
     this->frameRate = in->pFormat->nSamplesPerSec;
     this->frameCount = in->MaxFrameCount;
     this->channelCount = in->pFormat->nChannels;
+
     return 0;
 }
 
@@ -2371,17 +2317,8 @@ void __thiscall SDXA2SourceEffect::Process(
 
 void SDXA2SourceEffect::SetParameters(const void *pParams, unsigned int cbParams)
 {
-    if ( cbParams != 64
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_driver_xaudio2_dsp.cpp",
-                    191,
-                    0,
-                    "%s",
-                    "cbParams == sizeof(params)") )
-    {
-        __debugbreak();
-    }
-    memcpy(&this->interleave[3832], pParams, 0x40u);
+    iassert(cbParams == sizeof(params));
+    memcpy(&params, pParams, sizeof(params));
 }
 
 SDXA2MasterNoVoiceBusEffect::SDXA2MasterNoVoiceBusEffect() : SDXA2Effect(&g_masterNoVoiceEffectProps)
@@ -2417,17 +2354,8 @@ void SDXA2MasterNoVoiceBusEffect::SetParameters(
                 const void *pParams,
                 unsigned int cbParams)
 {
-    if ( cbParams != 28
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_driver_xaudio2_dsp.cpp",
-                    237,
-                    0,
-                    "%s",
-                    "cbParams == sizeof(params)") )
-    {
-        __debugbreak();
-    }
-    memcpy(&this->interleave[3832], pParams, 0x1Cu);
+    iassert(cbParams == sizeof(params));
+    memcpy(&params, pParams, sizeof(params));
 }
 
 SDXA2MasterBusEffect::SDXA2MasterBusEffect() : SDXA2Effect(&g_masterEffectProps)
@@ -2497,17 +2425,8 @@ void __thiscall SDXA2MasterBusEffect::Process(
 
 void SDXA2MasterBusEffect::SetParameters(const void *pParams, unsigned int cbParams)
 {
-    if ( cbParams != 96
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_driver_xaudio2_dsp.cpp",
-                    315,
-                    0,
-                    "%s",
-                    "cbParams == sizeof(params)") )
-    {
-        __debugbreak();
-    }
-    memcpy(&this->interleave[3832], pParams, 0x60u);
+    iassert(cbParams == sizeof(params));
+    memcpy(&params, pParams, 96);
 }
 
 SDXA2RadverbEffect::SDXA2RadverbEffect() : SDXA2Effect(&g_RadverbEffectProps)
@@ -2556,41 +2475,14 @@ void __thiscall SDXA2RadverbEffect::Process(
         &this->temp[frameCount],
         this->temp,
         &this->temp[2 * frameCount]);
-    memcpy((unsigned __int8 *)data, (unsigned __int8 *)this->temp, frameCount * 4 * channelCount);
+    memcpy(data, this->temp, frameCount * 4 * channelCount);
 }
 
 void SDXA2RadverbEffect::SetParameters(const void *pParams, unsigned int cbParams)
 {
-    if ( cbParams != 100
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_driver_xaudio2_dsp.cpp",
-                    368,
-                    0,
-                    "%s",
-                    "cbParams == sizeof(params)") )
-    {
-        __debugbreak();
-    }
-    memcpy(&this->state.delayIndex + 15, pParams, 0x64u);
-    if ( *((float *)&this->state.delayIndex + 15) <= 1000.0
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_driver_xaudio2_dsp.cpp",
-                    370,
-                    0,
-                    "%s",
-                    "params.frameRate > 1000.0f") )
-    {
-        __debugbreak();
-    }
-    if ( *((float *)&this->state.delayIndex + 15) >= 100000.0
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_driver_xaudio2_dsp.cpp",
-                    371,
-                    0,
-                    "%s",
-                    "params.frameRate < 100000.0f") )
-    {
-        __debugbreak();
-    }
+    iassert(cbParams == sizeof(params));
+    memcpy(&params, pParams, sizeof(params));
+    iassert(params.frameRate > 1000.0f);
+    iassert(params.frameRate < 100000.0f);
 }
 

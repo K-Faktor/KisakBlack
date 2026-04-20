@@ -1348,43 +1348,21 @@ int __cdecl updatesound_workerCallback(jqBatch *batch)
 
 void SND_Frame()
 {
-    if ( entryCount
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                    1261,
-                    0,
-                    "%s",
-                    "entryCount == 0") )
-    {
-        __debugbreak();
-    }
+    iassert(entryCount == 0);
     _InterlockedExchangeAdd(&entryCount, 1u);
-    if ( entryCount != 1
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                    1263,
-                    0,
-                    "%s",
-                    "entryCount == 1") )
+    iassert(entryCount == 1);
+    
     {
-        __debugbreak();
+        //PIXBeginNamedEvent(-1, "SND_Frame");
+        SND_EntStateFrame();
+        SND_CommandPump();
+        SNDL_Update();
+        //if ( g_DXDeviceThread == GetCurrentThreadId() )
+            //D3DPERF_EndEvent();
     }
-    //PIXBeginNamedEvent(-1, "SND_Frame");
-    SND_EntStateFrame();
-    SND_CommandPump();
-    SNDL_Update();
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    if ( entryCount != 1
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async.cpp",
-                    1282,
-                    0,
-                    "%s",
-                    "entryCount == 1") )
-    {
-        __debugbreak();
-    }
+    
+    iassert(entryCount == 1);
+    
     _InterlockedExchangeAdd(&entryCount, 0xFFFFFFFF);
 
     iassert(entryCount == 0);

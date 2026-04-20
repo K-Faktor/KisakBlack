@@ -273,7 +273,7 @@ void __cdecl Snd_StreamOpen(
     }
     //tlAtomicMutex::Lock(&s->mutex);
     s->mutex.Lock();
-    strncpy((char *)s, filename, 0x104u);
+    strncpy(s->filename, filename, 0x104u);
     s->prime_size = prime_size;
     s->looping = looping;
     s->in_use = 1;

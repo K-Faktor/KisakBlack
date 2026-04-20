@@ -53,7 +53,7 @@ unsigned int __cdecl SND_ActiveListenerCount()
     unsigned int count; // [esp+4h] [ebp-4h]
 
     count = 0;
-    for ( i = 0; !i; i = 1 )
+    for ( i = 0; i < 1; i++ )
     {
         if ( g_snd.listeners[0].active )
             ++count;
@@ -688,24 +688,15 @@ void __cdecl SND_FaderSetRate(snd_fader_t *fader, float r)
 
 void __cdecl SND_FaderSetGoal(snd_fader_t *fader, float g)
 {
-    float value; // [esp+0h] [ebp-14h]
+    iassert(!IS_NAN(g));
 
-    if ( (LODWORD(g) & 0x7F800000) == 0x7F800000
-        && !Assert_MyHandler("c:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_utils.h", 63, 0, "%s", "!IS_NAN(g)") )
-    {
-        __debugbreak();
-    }
     fader->goal = g;
+
     //if (COERCE_FLOAT(COERCE_UNSIGNED_INT(fader->rate - 0.0) & _mask__AbsFloat_ ^ _mask__NegFloat_) < 0.0)
-    if (-(fabs(fader->rate)) < 0.0)
-    {
-        value = fader->value;
-    }
-    else
-    {
-        value = g;
-    }
-    fader->value = value;
+    //if (-(fabs(fader->rate)) < 0.0) // this seems retarded, fabs doesnt return < 0?
+
+    if (fader->rate == 0.0f)
+        fader->value = g;
 }
 
 bool __cdecl SND_IsAliasPausable(const snd_alias_t *alias)
@@ -2773,7 +2764,7 @@ void __cdecl SND_Shutdown()
         SD_Shutdown();
         SND_LosOcclusionFini();
         memset(&g_snd, 0, sizeof(g_snd));
-        Sleep(0x3E8u);
+        Sleep(1000);
         Snd_StreamFini();
     }
 }
@@ -3878,31 +3869,10 @@ void __cdecl SND_UpdateVoice(snd_voice_t *voice, float dt)
             }
             li = SND_GetListenerIndexNearestToOrigin(voice->position);
             voice->closestListenerIndex = li;
-            if ( ((LODWORD(voice->position[0]) & 0x7F800000) == 0x7F800000
-                 || (LODWORD(voice->position[1]) & 0x7F800000) == 0x7F800000
-                 || (LODWORD(voice->position[2]) & 0x7F800000) == 0x7F800000)
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                            3058,
-                            0,
-                            "%s",
-                            "!IS_NAN((voice->position)[0]) && !IS_NAN((voice->position)[1]) && !IS_NAN((voice->position)[2])") )
-            {
-                __debugbreak();
-            }
-            if ( ((LODWORD(g_snd.listeners[li].orient.origin[0]) & 0x7F800000) == 0x7F800000
-                 || (LODWORD(g_snd.listeners[li].orient.origin[1]) & 0x7F800000) == 0x7F800000
-                 || (LODWORD(g_snd.listeners[li].orient.origin[2]) & 0x7F800000) == 0x7F800000)
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp",
-                            3059,
-                            0,
-                            "%s",
-                            "!IS_NAN((g_snd.listeners[ li ].orient.origin)[0]) && !IS_NAN((g_snd.listeners[ li ].orient.origin)[1]) && "
-                            "!IS_NAN((g_snd.listeners[ li ].orient.origin)[2])") )
-            {
-                __debugbreak();
-            }
+
+            nanassertvec3(voice->position);
+            nanassertvec3(g_snd.listeners[li].orient.origin);
+            
             voice->baseDistance = Vec3Distance(g_snd.listeners[li].orient.origin, voice->position);
             distMax = (float)alias->distMax;
             distMin = (float)alias->distMin;
@@ -4162,8 +4132,7 @@ double __cdecl SND_GetOmni(const snd_voice_t *voice)
 
     alias = voice->alias;
     globalOmni = snd_omnidirectionalPercentage->current.value;
-    if ( !alias && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd.cpp", 3225, 0, "%s", "alias") )
-        __debugbreak();
+    iassert(alias);
     if ( globalOmni >= fabs((float)alias->envelopPercentage / 65535.0) )
         return globalOmni;
     if ( (float)((float)alias->envelopPercentage / 65535.0) >= 0.0 )
@@ -4196,7 +4165,7 @@ snd_voice_t *__cdecl SND_GetPlaybackVoice(int playbackId)
 
     if (playbackId == -1)
         return 0;
-    for (i = 0; i < 0x4A; ++i)
+    for (i = 0; i < 74; ++i)
     {
         if (g_snd.voice[i].playbackId == playbackId)
             return &g_snd.voice[i];

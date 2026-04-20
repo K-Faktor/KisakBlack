@@ -1763,9 +1763,9 @@ void __cdecl XAnimCalcNonLoopEnd(
     //float v25; // [esp+124h] [ebp-80h]
     //float v26; // [esp+128h] [ebp-7Ch]
     //float v27; // [esp+12Ch] [ebp-78h]
-    float v28[2]; // [esp+130h] [ebp-74h] BYREF
-    float v29; // [esp+138h] [ebp-6Ch]
-    float v30; // [esp+13Ch] [ebp-68h]
+    float dir_2[4]; // [esp+130h] [ebp-74h] BYREF
+    //float v29; // [esp+138h] [ebp-6Ch]
+    //float v30; // [esp+13Ch] [ebp-68h]
     float dir[4]; // [esp+144h] [ebp-60h] BYREF
     //float v32; // [esp+148h] [ebp-5Ch]
     //float v33; // [esp+14Ch] [ebp-58h]
@@ -1942,17 +1942,17 @@ void __cdecl XAnimCalcNonLoopEnd(
         }
         if ( !ignorePartBits->testBit(modelPartIndex) )
         {
-            v28[0] = 0.0f;
-            v28[1] = 0.0f;
-            v29 = (float)*dataShort * 0.000030518509;
-            v30 = (float)dataShort[1] * 0.000030518509;
+            dir_2[0] = 0.0f;
+            dir_2[1] = 0.0f;
+            dir_2[2] = (float)*dataShort * 0.000030518509; // v29
+            dir_2[3] = (float)dataShort[1] * 0.000030518509; // v30
             v12 = weightScale;
             if ( (float)((float)((float)((float)(0.0 * rotTransArray[modelPartIndex].quat[0])
                                                                  + (float)(0.0 * rotTransArray[modelPartIndex].quat[1]))
-                                                 + (float)(v29 * rotTransArray[modelPartIndex].quat[2]))
-                                 + (float)(v30 * rotTransArray[modelPartIndex].quat[3])) < 0.0 )
+                                                 + (float)(dir[2] * rotTransArray[modelPartIndex].quat[2]))
+                                 + (float)(dir[3] * rotTransArray[modelPartIndex].quat[3])) < 0.0 )
                 v12 = -weightScale;
-            Vec4Mad(rotTransArray[modelPartIndex].quat, v12, v28, rotTransArray[modelPartIndex].quat);
+            Vec4Mad(rotTransArray[modelPartIndex].quat, v12, dir_2, rotTransArray[modelPartIndex].quat);
         }
         ++animPartIndex;
         dataShort += 2;

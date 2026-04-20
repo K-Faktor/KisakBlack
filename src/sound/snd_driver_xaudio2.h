@@ -94,54 +94,29 @@ struct VoiceInfo // sizeof=0x44
 struct __declspec(align(128)) SoundState // sizeof=0x3EF600
 {                                       // XREF: .data:g_sd/r
     int deviceIndex;                    // XREF: SD_XAudio2Done(void)+35/w
-                                        // SD_Init(void):loc_93F222/w ...
     int deviceGUIDValid;                // XREF: SD_XAudio2Done(void)+2B/w
-                                        // SD_Init(void)+2C/w ...
     _GUID deviceGUID;                   // XREF: SD_XAudio2Done(void)+41/w
-                                        // SD_XAudio2Done(void)+47/w ...
     IXAudio2 *xa2;                      // XREF: SD_XAudio2Done(void)+3/r
-                                        // SD_XAudio2Done(void):loc_93E0DE/r ...
     XAUDIO2_DEVICE_DETAILS details;     // XREF: SD_Init(void)+5D/o
-                                        // SD_SwitchDevice+8D/o ...
     IXAudio2MasteringVoice *masterVoice; // XREF: SD_Init(void)+6A/w
-                                        // SND_InitMasterVoice+64/o ...
     XAUDIO2_VOICE_DETAILS masterVoiceDetails; // XREF: SD_Init(void)+76/w
-                                        // SD_Init(void)+7C/w ...
     IXAudio2SubmixVoice *masterBus;     // XREF: iSND_CreateVoice+51F/r
-                                        // SD_Init(void)+88/w ...
-    
     SDXA2MasterBusEffect masterDsp;     // XREF: SND_InitMasterVoice+122/o
     snd_dsp_master_params masterParams; // XREF: SD_Init(void)+96/o
-                                        // SD_PreUpdate(int)+2F7/o ...
     IXAudio2SubmixVoice *novoiceBus;    // XREF: iSND_CreateVoice:loc_93EF9C/r
-                                        // SD_Init(void)+A3/w ...
-    
     SDXA2MasterNoVoiceBusEffect novoiceDsp;
-                                        // XREF: SND_InitMasterVoice+14F/o
     snd_dsp_master_no_voice_params novoiceParams;
-                                        // XREF: SD_Init(void)+AF/w
-                                        // SD_Init(void)+B5/w ...
     IXAudio2SubmixVoice *radverbBus;    // XREF: iSND_CreateVoice+548/r
-                                        // SD_Init(void)+D9/w ...
-   
     SDXA2RadverbEffect radverbDsp;      // XREF: SND_InitMasterVoice+17C/o
-                                        // .data:00E1F218/o ...
     snd_rv_params radverbParams;        // XREF: SD_Init(void)+E7/o
-                                        // SD_PreUpdate(int)+6/o ...
-    
     SDXA2SourceEffect voiceDsp[148];    // XREF: SDXA2_VoiceDspAllocate(void)+2E/o
-                                        // SDXA2_VoiceDspAssertUnused+2E/o ...
     IXAudio2SourceVoice *voices[74];    // XREF: SD_StopVoice(int)+9/r
-                                        // SD_StopVoice(int)+1A/r ...
     VoiceInfo voiceInfos[74];           // XREF: iSND_CreateVoice+7D/o
-                                        // SDXA2_UpdateVoiceSends+72/o
     StreamVoice streamVoices[10];       // XREF: iSND_ReleaseStreamBuffer+64/o
-                                        // SD_UpdateStreamVoice(int,int)+22E/o ...
     XAUDIO2_PERFORMANCE_DATA perfData;  // XREF: SD_Init(void)+10C/o
 
-
-    SoundState();
-    ~SoundState();
+    SoundState() = default;
+    ~SoundState() = default;
 };
 
 bool __cdecl SD_Xaudio2CanInit();
