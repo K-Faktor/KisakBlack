@@ -1477,9 +1477,9 @@ bool __cdecl SV_FrameIsStillInArchivedSnapshotBuffer(int frameStart)
     {
         __debugbreak();
     }
-    bufferStart = svs.nextArchivedSnapshotBuffer - (unsigned int)&cls.rankedServers[711].game[35];
+    bufferStart = svs.nextArchivedSnapshotBuffer - 0x1000000;
     if ( svs.nextArchivedSnapshotBuffer - 0x1000000 < 0 )
-        return frameStart < svs.nextArchivedSnapshotBuffer || frameStart >= bufferStart + 671088640;
+        return frameStart < svs.nextArchivedSnapshotBuffer || frameStart >= bufferStart + 0x28000000;
     return frameStart >= bufferStart && frameStart < svs.nextArchivedSnapshotBuffer;
 }
 

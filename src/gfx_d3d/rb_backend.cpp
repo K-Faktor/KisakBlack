@@ -1705,7 +1705,6 @@ void __cdecl R_DrawSurfs(GfxCmdBufContext context, GfxCmdBufState *prepassState,
 
 unsigned int __cdecl R_RenderDrawSurfListMaterial(const GfxDrawSurfListArgs *listArgs, GfxCmdBufContext prepassContext)
 {
-    int packed_high; // edx
     const ShaderConstantSet *v3; // eax
     unsigned int v5; // [esp+10h] [ebp-B8h]
     unsigned int v6; // [esp+14h] [ebp-B4h]
@@ -1724,12 +1723,8 @@ unsigned int __cdecl R_RenderDrawSurfListMaterial(const GfxDrawSurfListArgs *lis
     drawSurfCount = listArgs->info->drawSurfCount - firstDrawSurfIndex;
     drawSurfList = &listArgs->info->drawSurfs[firstDrawSurfIndex];
     iassert(*((unsigned int *)drawSurfList) != 0xb0b0b0b0);
-    packed_high = HIDWORD(drawSurfList->packed);
-    //*(unsigned int *)&drawSurf.fields = drawSurfList->fields;
     drawSurf.packed = drawSurfList->packed;
-    HIDWORD(drawSurf.packed) = packed_high;
     v3 = RB_ShaderConstantSetFromDrawSurf(listArgs->context.source->input.data, &drawSurf);
-
 
     ScopedShaderConstantSetUndo shaderConstantUndo(listArgs->context.source, v3); // [esp+30h] [ebp-98h] BYREF
     //ScopedShaderConstantSetUndo::ScopedShaderConstantSetUndo(&shaderConstantUndo, listArgs->context.source, v3);

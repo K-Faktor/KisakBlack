@@ -2337,7 +2337,7 @@ void __cdecl UpdatePacketEnt(int localClientNum, int entnum, int timeNow, int *p
     {
         *((unsigned int *)cent + 201) |= (unsigned int)0x800000;
         if ( contextKey )
-            v5 = (unsigned int)&cls.rankedServers[711].game[35] | *((unsigned int *)cent + 201);
+            v5 = *((_DWORD *)cent + 201) | 0x1000000;
         else
             v5 = *((unsigned int *)cent + 201) & 0xFEFFFFFF;
         *((unsigned int *)cent + 201) = v5;

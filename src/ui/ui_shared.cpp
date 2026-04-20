@@ -4690,7 +4690,7 @@ void    Menu_HandleKey(int localClientNum, UiContext *dc, menuDef_t *menu, int k
                 || (!menu->allowedBinding || I_stricmp(binding, menu->allowedBinding)) && I_stricmp(binding, "screenshotJpeg"))
             {
                 if (!down
-                    || (staticFlags = menu->window.staticFlags, ((unsigned int)&cls.rankedServers[711].game[35] & staticFlags) != 0)
+                    || (staticFlags = menu->window.staticFlags, (staticFlags & 0x1000000) != 0)
                     || menu->fullScreen
                     || (y = dc->cursor.y,
                         x = dc->cursor.x,
@@ -6520,7 +6520,7 @@ void __cdecl Menus_HandleOOBClick(int localClientNum, UiContext *dc, menuDef_t *
         __debugbreak();
     if ( menu )
     {
-        if ( down && ((unsigned int)&cls.wagerServers[5331].basictraining & menu->window.staticFlags) != 0 )
+        if (down && (menu->window.staticFlags & 0x2000000) != 0)
             Menus_Close(localClientNum, dc, menu);
         Menu_ClearFocus(localClientNum, dc, menu);
         for ( i = dc->openMenuCount - 1; i >= 0; --i )
@@ -6635,9 +6635,7 @@ void __cdecl Item_TextColor(UiContext *dc, itemDef_s *item, float (*newColor)[4]
     Window_SetDynamicFlags(dc->contextIndex, &item->window, flags);
     if (Window_HasFocus(dc->contextIndex, &item->window))
     {
-        if (!var
-            || I_strcmp(var->table[0].u.string, "popmenu")
-            || ((unsigned int)&cls.rankedServers[711].game[35] & item->parent->window.staticFlags) != 0)
+        if (!var || I_strcmp(var->table[0].u.string, "popmenu") || (item->parent->window.staticFlags & 0x1000000) != 0)
         {
             (*newColor)[0] = item->window.foreColor[0];
             (*newColor)[1] = item->window.foreColor[1];
@@ -10966,7 +10964,7 @@ int __cdecl Display_MouseMove(int localClientNum, UiContext *dc)
     if ( x == mouseLocationX && y == mouseLocationY )
         return 0;
     menu = Menu_GetFocused(dc);
-    if ( menu && ((unsigned int)&cls.rankedServers[711].game[35] & menu->window.staticFlags) != 0 )
+    if (menu && (menu->window.staticFlags & 0x1000000) != 0)
     {
         Menu_HandleMouseMove(localClientNum, dc, menu);
         UI_ResetCachedMousePosition(localClientNum, dc);

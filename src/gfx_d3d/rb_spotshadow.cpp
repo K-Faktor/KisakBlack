@@ -95,38 +95,6 @@ void    R_DrawSpotShadowMapArray(const GfxViewInfo *viewInfo, GfxCmdBuf *cmdBuf)
             cmdBuf,
             0);
     }
-
-    R_InitCmdBufSourceState(&state, &viewInfo->input, 0);
-    R_SetWindShaderConstants(&state);
-
-    for (int i = 0; i < viewInfo->input.data->spotShadowCount; i++)
-    {
-        const GfxSpotShadow *spotShadow = &viewInfo->input.data->spotShadows[i];
-
-        R_SetRenderTargetSize(&state, spotShadow->renderTargetId);
-        R_UpdateCodeConstant(
-            &state,
-            CONST_SRC_CODE_SHADOWMAP_POLYGON_OFFSET,
-            sm_polygonOffsetBias->current.value * 0.25,
-            sm_polygonOffsetScale->current.value,
-            0.0,
-            0.0);
-        R_SetViewportValues(&state, spotShadow->viewport.x, spotShadow->viewport.y, spotShadow->viewport.width, spotShadow->viewport.height);
-
-
-
-        R_DrawCall(
-            R_DrawSpotShadowMapCallback,
-            spotShadow,
-            &state,
-            viewInfo,
-            &viewInfo->drawList[i + 10],
-            &spotShadow->shadowViewParms,
-            cmdBuf,
-            0);
-    }
-
-
 }
 
 void __cdecl RB_DrawSpotShadowOverlay()

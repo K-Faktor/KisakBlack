@@ -207,7 +207,7 @@ LABEL_38:
                 }
             }
             if ( dx.supportsIntZ && context.state->renderTargetId != 22 )
-                actualTechType = R_Get_NvFloatZLitTech(rgp.sortedMaterials[(drawSurf.packed >> 31) & 0xFFF], actualTechType);
+                actualTechType = R_Get_NvFloatZLitTech(rgp.sortedMaterials[drawSurf.fields.materialSortedIndex], actualTechType);
             result = actualTechType;
             break;
         case 0x73u:
@@ -302,14 +302,14 @@ int __cdecl R_SetTechnique(
         if ( info->baseTechType == 10 )
             R_SetShadowableLight(context.source, (unsigned __int8)(drawSurf.packed >> 43));
         if ( !R_TrySetMaterialWithFunc(
-                        (int (__cdecl *)(GfxCmdBufContext, GfxDrawSurf, const unsigned __int8))R_SetMaterial,
+                        R_SetMaterial,
                         context,
                         drawSurf,
                         techTypes) )
             return 0;
     }
     else if ( !R_TrySetMaterialWithFunc(
-                             (int (__cdecl *)(GfxCmdBufContext, GfxDrawSurf, const unsigned __int8))R_SetPrepassMaterial,
+                             R_SetPrepassMaterial,
                              context,
                              drawSurf,
                              techTypes) )
@@ -322,9 +322,12 @@ int __cdecl R_SetTechnique(
     context.state->origTechType = context.state->techType;
     if ( pixelCostMode > GFX_PIXEL_COST_MODE_MEASURE_MSEC )
     {
-        v5 = ((R_PixelCost_GetAccumulationMaterial(context.state->material)->info.drawSurf.packed >> 31) & 0xFFF) << 31;
-        *(unsigned int *)&overrideDrawSurf.fields = v5 | *(unsigned int *)&drawSurf.fields & 0x7FFFFFFF;
-        HIDWORD(overrideDrawSurf.packed) = HIDWORD(v5) | HIDWORD(drawSurf.packed) & 0xFFFFF800;
+        //v5 = ((R_PixelCost_GetAccumulationMaterial(context.state->material)->info.drawSurf.packed >> 31) & 0xFFF) << 31;
+        //*(unsigned int *)&overrideDrawSurf.fields = v5 | *(unsigned int *)&drawSurf.fields & 0x7FFFFFFF;
+        //HIDWORD(overrideDrawSurf.packed) = HIDWORD(v5) | HIDWORD(drawSurf.packed) & 0xFFFFF800;
+        overrideDrawSurf = drawSurf;
+        overrideDrawSurf.fields.materialSortedIndex = R_PixelCost_GetAccumulationMaterial(context.state->material)->info.drawSurf.fields.materialSortedIndex;
+
         R_SetMaterial(context, overrideDrawSurf, 4u);
     }
     return 1;
@@ -341,7 +344,7 @@ int __cdecl R_SetPrepassMaterial(GfxCmdBufContext context, GfxDrawSurf drawSurf,
         return 0;
     if ( R_GfxDrawSurf_GetFade(&drawSurf) )
         return 0;
-    material = rgp.sortedMaterials[(drawSurf.packed >> 31) & 0xFFF];
+    material = rgp.sortedMaterials[drawSurf.fields.materialSortedIndex];
     if ( !prepass && (material->stateFlags & 1) != 0 )
         material = rgp.depthPrepassMaterial;
     context.state->material = material;
@@ -392,7 +395,7 @@ int __cdecl R_SetMaterial(GfxCmdBufContext context, GfxDrawSurf drawSurf, unsign
 
     while ( 1 )
     {
-        material = rgp.sortedMaterials[(drawSurf.packed >> 31) & 0xFFF];
+        material = rgp.sortedMaterials[drawSurf.fields.materialSortedIndex];
         technique = Material_GetTechnique(material, techType);
         context.state->material = material;
         context.state->technique = technique;
@@ -468,12 +471,7 @@ int __cdecl R_TrySetMaterialWithFunc(
     techAssigned = -1;
     for ( i = 0; techType[i] != 255; ++i )
     {
-        if ( ((int (__cdecl *)(GfxCmdBufSourceState *, GfxCmdBufState *, unsigned int, unsigned int, unsigned int))func)(
-                     context.source,
-                     context.state,
-                     *(unsigned int *)&drawSurf.fields,
-                     HIDWORD(drawSurf.packed),
-                     techType[i]) )
+        if (func(context, drawSurf, techType[i] ))
         {
             if ( !i )
                 return 1;
@@ -489,7 +487,7 @@ int __cdecl R_TrySetMaterialWithFunc(
         v5 = RB_LogTechniqueType(techAssigned);
     R_WarnOncePerFrame(
         R_WARN_MISSING_TECHNIQUE,
-        rgp.sortedMaterials[(drawSurf.packed >> 31) & 0xFFF]->info.name,
+        rgp.sortedMaterials[drawSurf.fields.materialSortedIndex]->info.name,
         techName,
         *techType,
         v5,

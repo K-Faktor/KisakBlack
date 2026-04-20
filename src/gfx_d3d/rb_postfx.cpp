@@ -2711,106 +2711,60 @@ void RB_GetResolvedScene()
 
 void    RB_ApplyDepthOfField(const GfxViewInfo *viewInfo)
 {
-  double v2; // xmm0_8
-  const char *v3; // eax
-  float farOutOfFocus; // [esp+10h] [ebp-48h]
-  long double v5; // [esp+1Ch] [ebp-3Ch]
-  long double v6; // [esp+24h] [ebp-34h]
-  float v7; // [esp+24h] [ebp-34h]
-  float DepthOfFieldBlurFraction; // [esp+28h] [ebp-30h]
-  float v9[3]; // [esp+3Ch] [ebp-1Ch] BYREF
-  float dofEquation[4]; // [esp+48h] [ebp-10h]
-  float retaddr; // [esp+58h] [ebp+0h]
+    float mediumFrac; // [esp+24h] [ebp-34h]
+    float smallFrac; // [esp+28h] [ebp-30h]
+    float dofEquation[4]; // [esp+3Ch] [ebp-1Ch] BYREF
 
-  //dofEquation[1] = a1;
-  //dofEquation[2] = retaddr;
-  if ( !RB_UsingDepthOfFieldFX(viewInfo)
-    && !Assert_MyHandler(
-          "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\rb_postfx.cpp",
-          3910,
-          0,
-          "%s",
-          "RB_UsingDepthOfFieldFX( viewInfo )") )
-  {
-    __debugbreak();
-  }
-  if ( viewInfo->isMissileCamera
-    && !Assert_MyHandler(
-          "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\rb_postfx.cpp",
-          3912,
-          0,
-          "%s",
-          "!viewInfo->isMissileCamera") )
-  {
-    __debugbreak();
-  }
-  if ( !dx.supportsIntZ
-    && !viewInfo->needsFloatZ
-    && !Assert_MyHandler(
-          "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\rb_postfx.cpp",
-          3913,
-          0,
-          "%s",
-          "dx.supportsIntZ || viewInfo->needsFloatZ") )
-  {
-    __debugbreak();
-  }
-  RB_GetSceneDepthOfFieldEquation(
-    viewInfo->dof.nearStart,
-    viewInfo->dof.nearEnd,
-    viewInfo->dof.farStart,
-    viewInfo->dof.farEnd,
-    v9,
-    viewInfo->cullViewInfo.viewParms.zNear);
-  R_UpdateCodeConstantFromVec4(&gfxCmdBufSourceState, CONST_SRC_CODE_DOF_EQUATION_SCENE, v9);
-  RB_GetViewModelDepthOfFieldEquation(viewInfo->dof.viewModelStart, viewInfo->dof.viewModelEnd, v9);
+    iassert(RB_UsingDepthOfFieldFX(viewInfo));
+    iassert(!viewInfo->isMissileCamera);
+    iassert(dx.supportsIntZ || viewInfo->needsFloatZ);
 
-  {
-      float blurRatio = viewInfo->dof.farBlur / viewInfo->dof.nearBlur;
-      dofEquation[0] = powf(blurRatio, 2.0f);
-  }
-  //v2 = (float)(viewInfo->dof.farBlur / viewInfo->dof.nearBlur);
-  //__libm_sse2_pow(v5, v6);
-  //*(float *)&v2 = v2;
-  //dofEquation[0] = *(float *)&v2;
-  R_UpdateCodeConstantFromVec4(&gfxCmdBufSourceState, CONST_SRC_CODE_DOF_EQUATION_VIEWMODEL_AND_FAR_BLUR, v9);
-  farOutOfFocus = 1.0 / (double)vidConfig.sceneHeight;
-  R_UpdateCodeConstant(&gfxCmdBufSourceState, CONST_SRC_CODE_DOF_ROW_DELTA, 0.0, farOutOfFocus, 0.0, 0.0);
-  DepthOfFieldBlurFraction = RB_GetDepthOfFieldBlurFraction(viewInfo, 1.4);
-  v7 = RB_GetDepthOfFieldBlurFraction(viewInfo, 3.5999999);
-  if ( DepthOfFieldBlurFraction <= 0.0 || v7 <= DepthOfFieldBlurFraction || v7 >= 1.0 )
-  {
-    v3 = va("%g, %g, %g, %i", DepthOfFieldBlurFraction, v7, viewInfo->dof.nearBlur, vidConfig.sceneHeight);
-    if ( !Assert_MyHandler(
+    RB_GetSceneDepthOfFieldEquation(
+        viewInfo->dof.nearStart,
+        viewInfo->dof.nearEnd,
+        viewInfo->dof.farStart,
+        viewInfo->dof.farEnd,
+        dofEquation,
+        viewInfo->cullViewInfo.viewParms.zNear);
+    R_UpdateCodeConstantFromVec4(&gfxCmdBufSourceState, CONST_SRC_CODE_DOF_EQUATION_SCENE, dofEquation);
+    RB_GetViewModelDepthOfFieldEquation(viewInfo->dof.viewModelStart, viewInfo->dof.viewModelEnd, dofEquation);
+    dofEquation[3] = pow((float)(viewInfo->dof.farBlur / viewInfo->dof.nearBlur), r_dof_bias->current.value);
+    R_UpdateCodeConstantFromVec4(&gfxCmdBufSourceState, CONST_SRC_CODE_DOF_EQUATION_VIEWMODEL_AND_FAR_BLUR, dofEquation);
+    R_UpdateCodeConstant(&gfxCmdBufSourceState, CONST_SRC_CODE_DOF_ROW_DELTA, 0.0, 1.0 / (double)vidConfig.sceneHeight, 0.0, 0.0);
+    smallFrac = RB_GetDepthOfFieldBlurFraction(viewInfo, 1.4);
+    mediumFrac = RB_GetDepthOfFieldBlurFraction(viewInfo, 3.5999999);
+    if (smallFrac <= 0.0 || mediumFrac <= smallFrac || mediumFrac >= 1.0)
+    {
+        if (!Assert_MyHandler(
             "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\rb_postfx.cpp",
             3928,
             0,
             "%s\n\t%s",
             "0.0f < smallFrac && smallFrac < mediumFrac && mediumFrac < 1.0f",
-            v3) )
-      __debugbreak();
-  }
-  R_UpdateCodeConstant(
-    &gfxCmdBufSourceState,
-      CONST_SRC_CODE_DOF_LERP_SCALE,
-    -1.0 / DepthOfFieldBlurFraction,
-    -1.0 / (float)(v7 - DepthOfFieldBlurFraction),
-    -1.0 / (float)(1.0 - v7),
-    1.0 / (float)(1.0 - v7));
-  R_UpdateCodeConstant(
-    &gfxCmdBufSourceState,
-    CONST_SRC_CODE_DOF_LERP_BIAS,
-    1.0,
-    v7 / (float)(v7 - DepthOfFieldBlurFraction),
-    1.0 / (float)(1.0 - v7),
-    (-(v7)) / (float)(1.0 - v7));
-  RB_GetDepthOfFieldInputImages(viewInfo->dof.nearBlur);
-  R_SetRenderTargetSize(&gfxCmdBufSourceState, 2u);
-  R_SetRenderTarget(gfxCmdBufContext, 2u);
-  if ( dx.supportsIntZ )
-    RB_Filter(rgp.postFxDofNvIntzMaterial, viewInfo);
-  else
-    RB_Filter(rgp.postFxDofMaterial, viewInfo);
+            va("%g, %g, %g, %i", smallFrac, mediumFrac, viewInfo->dof.nearBlur, vidConfig.sceneHeight)))
+            __debugbreak();
+    }
+    R_UpdateCodeConstant(
+        &gfxCmdBufSourceState,
+        CONST_SRC_CODE_DOF_LERP_SCALE,
+        -1.0 / smallFrac,
+        -1.0 / (float)(mediumFrac - smallFrac),
+        -1.0 / (float)(1.0 - mediumFrac),
+        1.0 / (float)(1.0 - mediumFrac));
+    R_UpdateCodeConstant(
+        &gfxCmdBufSourceState,
+        CONST_SRC_CODE_DOF_LERP_BIAS,
+        1.0,
+        mediumFrac / (float)(mediumFrac - smallFrac),
+        1.0 / (float)(1.0 - mediumFrac),
+        -mediumFrac / (float)(1.0 - mediumFrac));
+    RB_GetDepthOfFieldInputImages(viewInfo->dof.nearBlur);
+    R_SetRenderTargetSize(&gfxCmdBufSourceState, 2u);
+    R_SetRenderTarget(gfxCmdBufContext, 2u);
+    if (dx.supportsIntZ)
+        RB_Filter(rgp.postFxDofNvIntzMaterial, viewInfo);
+    else
+        RB_Filter(rgp.postFxDofMaterial, viewInfo);
 }
 
 void __cdecl RB_GetSceneDepthOfFieldEquation(

@@ -4625,6 +4625,7 @@ void __cdecl LiveStats_PresetigeStatsResetCmd()
 
 void __cdecl SV_UpdatePersonalBestsForClient(int clientnum)
 {
+#ifdef KISAK_LIVE
     char *v1; // eax
     ddlState_t searchStateGameModeBests; // [esp+4h] [ebp-94h] BYREF
     const char *gameModeName; // [esp+14h] [ebp-84h]
@@ -4763,6 +4764,7 @@ void __cdecl SV_UpdatePersonalBestsForClient(int clientnum)
             }
         }
     }
+#endif
 }
 
 cmd_function_s LiveStats_StatSetByNameCmd_VAR;

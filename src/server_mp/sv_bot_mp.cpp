@@ -1377,7 +1377,7 @@ char __cdecl Bot_PathValid(const gentity_s *bot, const path_t *path)
                 bot->s.number,
                 0x1000000,
                 &context);
-            if ( ((unsigned int)&cls.rankedServers[711].game[35] & trace.cflags) != 0 )
+            if ((trace.cflags & 0x1000000) != 0)
             {
                 //if ( g_DXDeviceThread == GetCurrentThreadId() )
                     //D3DPERF_EndEvent();

@@ -482,7 +482,7 @@ bool __cdecl MSG_ValuesAreEqual(int clientNum, int bits, int size, const int *fr
             result = (unsigned __int16)(int)(float)(*(float *)fromF * 182.04445) == (unsigned __int16)(int)(float)(*(float *)toF * 182.04445);
             break;
         case -98:
-            result = ((unsigned int)&cls.rankedServers[711].game[34] & (*toF ^ *fromF)) == 0;
+            result = ((*toF ^ *fromF) & 0xFFFFFF) == 0;
             break;
         case -95:
             result = *fromF / 100 == *toF / 100;
@@ -1368,7 +1368,7 @@ void __cdecl MSG_WriteEFlags(int clientNum, msg_t *msg, int oldFlags, int newFla
     {
         __debugbreak();
     }
-    flagDiff = (unsigned int)&cls.rankedServers[711].game[34] & (newFlags ^ oldFlags);
+    flagDiff = (newFlags ^ oldFlags) & 0xFFFFFF;
     if ( flagDiff && (flagDiff & (flagDiff - 1)) == 0 )
     {
         changedBitIndex = 0;
@@ -1388,7 +1388,7 @@ void __cdecl MSG_WriteEFlags(int clientNum, msg_t *msg, int oldFlags, int newFla
         {
             __debugbreak();
         }
-        if ( 1 << changedBitIndex != ((unsigned int)&cls.rankedServers[711].game[34] & (newFlags ^ oldFlags))
+        if (1 << changedBitIndex != ((newFlags ^ oldFlags) & 0xFFFFFF)
             && !Assert_MyHandler(
                         "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\sv_msg_write.cpp",
                         1020,

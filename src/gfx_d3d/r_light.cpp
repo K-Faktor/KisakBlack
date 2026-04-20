@@ -648,24 +648,15 @@ void __cdecl R_GetStaticModelLightSurfs(const GfxLight *visibleLights, int visib
                     {
                         __debugbreak();
                     }
-                    if ( rgp.sortedMaterials[(material->info.drawSurf.packed >> 31) & 0xFFF] != material
-                        && !Assert_MyHandler(
-                                    "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_light.cpp",
-                                    772,
-                                    0,
-                                    "%s",
-                                    "rgp.sortedMaterials[material->info.drawSurf.fields.materialSortedIndex] == material") )
-                    {
-                        __debugbreak();
-                    }
+                    iassert(rgp.sortedMaterials[material->info.drawSurf.fields.materialSortedIndex] == material);
+
                     if ( (material->info.gameFlags & 1) == 0 && Material_GetTechnique(material, 0x74u) )
                     {
                         //drawSurf.fields = (GfxDrawSurfFields)material->info.drawSurf;
                         drawSurf.packed = material->info.drawSurf.packed;
                         if ( needsCharredTech )
                         {
-                            HIDWORD(drawSurf.packed) = (unsigned int)&cls.rankedServers[711].game[35]
-                                                                             | HIDWORD(drawSurf.packed) & 0xFE7FFFFF;
+                            HIDWORD(drawSurf.packed) = HIDWORD(drawSurf.packed) & 0xFE7FFFFF | 0x1000000;
                             v2 = ((drawSurf.packed >> 20) & 0x1D | 2) << 20;
                         }
                         else

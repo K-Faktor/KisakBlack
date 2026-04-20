@@ -682,16 +682,7 @@ void __cdecl R_SkinStaticModelsCameraForLod_Internal(
         {
             __debugbreak();
         }
-        if ( rgp.sortedMaterials[(material->info.drawSurf.packed >> 31) & 0xFFF] != material
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_add_staticmodel.cpp",
-                        380,
-                        0,
-                        "%s",
-                        "rgp.sortedMaterials[material->info.drawSurf.fields.materialSortedIndex] == material") )
-        {
-            __debugbreak();
-        }
+        iassert(rgp.sortedMaterials[material->info.drawSurf.fields.materialSortedIndex] == material);
         region = material->cameraRegion;
         if ( region != 3 )
         {
@@ -702,8 +693,7 @@ void __cdecl R_SkinStaticModelsCameraForLod_Internal(
                                                              | HIDWORD(drawSurf.packed) & 0xFF8007FF;
             if ( needsCharredTech )
             {
-                HIDWORD(drawSurf.packed) = (unsigned int)&cls.rankedServers[711].game[35]
-                                                                 | HIDWORD(drawSurf.packed) & 0xFE7FFFFF;
+                HIDWORD(drawSurf.packed) = HIDWORD(drawSurf.packed) & 0xFE7FFFFF | 0x1000000;
                 v12 = ((drawSurf.packed >> 20) & 0x1D | 2) << 20;
             }
             else
@@ -715,16 +705,9 @@ void __cdecl R_SkinStaticModelsCameraForLod_Internal(
                                                                     | v12 & 0x9FFFFFFF
                                                                     | *(unsigned int *)&drawSurf.fields & 0x9E0FFFFF;
             HIDWORD(drawSurf.packed) = (noDynamicShadow << 25) | (HIDWORD(v12) | HIDWORD(drawSurf.packed)) & 0xFDFFFFFF;
-            if ( rgp.sortedMaterials[(material->info.drawSurf.packed >> 31) & 0xFFF] != material
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_add_staticmodel.cpp",
-                            433,
-                            0,
-                            "%s",
-                            "rgp.sortedMaterials[material->info.drawSurf.fields.materialSortedIndex] == material") )
-            {
-                __debugbreak();
-            }
+
+            iassert(rgp.sortedMaterials[material->info.drawSurf.fields.materialSortedIndex] == material);
+
             if ( (material->info.gameFlags & 1) == 0 )
             {
                 if ( surfType != 4
@@ -1330,16 +1313,8 @@ void __cdecl R_SkinStaticModelsShadowForLod(
         {
             __debugbreak();
         }
-        if ( rgp.sortedMaterials[(material->info.drawSurf.packed >> 31) & 0xFFF] != material
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_add_staticmodel.cpp",
-                        544,
-                        0,
-                        "%s",
-                        "rgp.sortedMaterials[material->info.drawSurf.fields.materialSortedIndex] == material") )
-        {
-            __debugbreak();
-        }
+        iassert(rgp.sortedMaterials[material->info.drawSurf.fields.materialSortedIndex] == material);
+
         v6 = (material->info.gameFlags & 0x40) == 0;
         castsShadow = (material->info.gameFlags & 0x40) != 0;
         if ( !v6 )
@@ -1420,9 +1395,9 @@ void __cdecl R_AddAllStaticModelSurfacesSpotShadow(
 {
     double v3; // st7
     double v4; // st7
-    float adjustedDist; // [esp+0h] [ebp-10CCh]
-    float val; // [esp+4h] [ebp-10C8h]
-    float v7; // [esp+Ch] [ebp-10C0h]
+    float v5; // [esp+0h] [ebp-10CCh]
+    float v6; // [esp+4h] [ebp-10C8h]
+    float val; // [esp+Ch] [ebp-10C0h]
     GfxStaticModelId StaticModelId; // [esp+34h] [ebp-1098h]
     GfxStaticModelDrawInst *smodelDrawInst; // [esp+38h] [ebp-1094h]
     float scale; // [esp+3Ch] [ebp-1090h]
@@ -1439,98 +1414,87 @@ void __cdecl R_AddAllStaticModelSurfacesSpotShadow(
     unsigned int i; // [esp+1068h] [ebp-64h]
     unsigned int smodelCount; // [esp+106Ch] [ebp-60h]
     _WORD *v23; // [esp+1070h] [ebp-5Ch] BYREF
-    float v2[3]; // [esp+1074h] [ebp-58h] BYREF
-    unsigned __int16 staticModelLodCount[4]; // [esp+1080h] [ebp-4Ch] BYREF
-    int v26; // [esp+1088h] [ebp-44h]
-    int v27; // [esp+108Ch] [ebp-40h]
-    int v28; // [esp+1090h] [ebp-3Ch]
-    int v29; // [esp+1094h] [ebp-38h]
-    int v30; // [esp+1098h] [ebp-34h]
-    int v31; // [esp+109Ch] [ebp-30h]
-    GfxSModelDrawSurfLightingData surfData; // [esp+10A4h] [ebp-28h] BYREF
+    float origin[3]; // [esp+1074h] [ebp-58h] BYREF
+    unsigned __int16 staticModelLodCount[4][4]; // [esp+1080h] [ebp-4Ch] BYREF
+    GfxSModelDrawSurfData surfData; // [esp+10A4h] [ebp-28h] BYREF
+    float v14_; // [esp+10BCh] [ebp-10h]
+    unsigned int v28; // [esp+10C0h] [ebp-Ch]
+    unsigned int v29; // [esp+10C4h] [ebp-8h]
+    int surfCount; // [esp+10C8h] [ebp-4h]
 
     smodelCount = rgp.world->dpvs.smodelCount;
     smodelDrawInsts = rgp.world->dpvs.smodelDrawInsts;
-    if ( !rg.lodParms.valid
+    if (!rg.lodParms.valid
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_add_staticmodel.cpp",
-                    1935,
-                    0,
-                    "%s",
-                    "rg.lodParms.valid") )
+            "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_add_staticmodel.cpp",
+            1935,
+            0,
+            "%s",
+            "rg.lodParms.valid"))
     {
         __debugbreak();
     }
     scale = rg.correctedLodParms[viewIndex].ramp[0].scale;
     bias = rg.correctedLodParms[viewIndex].ramp[0].bias;
-    v2[0] = rg.correctedLodParms[viewIndex].origin[0];
-    v2[1] = rg.correctedLodParms[viewIndex].origin[1];
-    v2[2] = rg.correctedLodParms[viewIndex].origin[2];
-    R_InitBspDrawSurf(&surfData);
+    origin[0] = rg.correctedLodParms[viewIndex].origin[0];
+    origin[1] = rg.correctedLodParms[viewIndex].origin[1];
+    origin[2] = rg.correctedLodParms[viewIndex].origin[2];
+    R_InitBspDrawSurf((GfxSModelDrawSurfLightingData *)&surfData);
     v18 = 3 * spotShadowIndex + 28;
-    surfData.drawSurf[0].current = scene.drawSurfs[v18];
-    surfData.drawSurf[0].end = &scene.drawSurfs[v18][scene.maxDrawSurfCount[v18]];
+    surfData.drawSurfList.current = scene.drawSurfs[v18];
+    surfData.drawSurfList.end = &scene.drawSurfs[v18][scene.maxDrawSurfCount[v18]];
     v17 = 0;
     v16 = &rgp.world->shadowGeom[primaryLightIndex];
-    for ( i = 0; i < v16->smodelCount; ++i )
+    for (i = 0; i < v16->smodelCount; ++i)
     {
-        surfData.drawSurf[2].current = (GfxDrawSurf *)v16->smodelIndex[i];
-        smodelDrawInst = &smodelDrawInsts[(int)surfData.drawSurf[2].current];
+        v29 = v16->smodelIndex[i];
+        smodelDrawInst = &smodelDrawInsts[v29];
         model = smodelDrawInst->model;
-        if ( (smodelDrawInst->flags & 1) == 0 )
+        if ((smodelDrawInst->flags & 1) == 0)
         {
-            v14 = Vec3Distance(smodelDrawInst->placement.origin, v2);
-            *(float *)&surfData.drawSurf[1].current = v14;
+            v14 = Vec3Distance(smodelDrawInst->placement.origin, origin);
+            v14_ = v14;
             v14 = (float)(v14 * scale) + bias;
-            if ( *(float *)&surfData.drawSurf[1].current < smodelDrawInst->cullDist )
+            if (v14_ < smodelDrawInst->cullDist)
             {
                 model = smodelDrawInst->model;
-                v7 = smodelDrawInst->placement.scale >= 1.0 ? smodelDrawInst->placement.scale : 1.0f;
-                v3 = I_fres(v7);
-                val = v3 * *(float *)&surfData.drawSurf[1].current;
-                v4 = I_fres(v7);
-                adjustedDist = v4 * v14;
-                lod = XModelGetLodForDist(model, adjustedDist, val, 0);
-                if ( lod >= 0 )
+                val = smodelDrawInst->placement.scale >= 1.0 ? smodelDrawInst->placement.scale : 1.0f;
+                v3 = I_fres(val);
+                v6 = v3 * v14_;
+                v4 = I_fres(val);
+                v5 = v4 * v14;
+                lod = XModelGetLodForDist(model, v5, v6, 0);
+                if (lod >= 0)
                 {
-                    if ( R_AllocStaticModelLighting(smodelDrawInst, (unsigned int)surfData.drawSurf[2].current) )
+                    if (R_AllocStaticModelLighting(smodelDrawInst, v29))
                     {
-                        if ( model != v17 )
+                        if (model != v17)
                         {
-                            if ( v17 )
-                                R_SkinStaticModelsShadow(
-                                    v17,
-                                    staticModelLodList,
-                                    (unsigned __int16 (*)[4])staticModelLodCount,
-                                    (GfxSModelDrawSurfData *)&surfData);
+                            if (v17)
+                                R_SkinStaticModelsShadow(v17, staticModelLodList, staticModelLodCount, &surfData);
                             v17 = model;
                             memset(staticModelLodCount, 0, sizeof(staticModelLodCount));
-                            v26 = 0;
-                            v27 = 0;
-                            v28 = 0;
-                            v29 = 0;
-                            v30 = 0;
-                            v31 = 0;
                         }
-                        StaticModelId = R_GetStaticModelId((unsigned int)surfData.drawSurf[2].current, lod);
-                        v23 = (_WORD *)&v2[2 * StaticModelId.surfType - 1] + lod;
+                        StaticModelId = R_GetStaticModelId(v29, lod);
+                        //v23 = (_WORD *)&origin[2 * StaticModelId.surfType - 1] + lod;
+                        v23 = &staticModelLodCount[StaticModelId.surfType - 2][lod];
                         list = staticModelLodList[StaticModelId.surfType - 2][lod];
-                        surfData.drawSurf[1].end = (GfxDrawSurf *)(unsigned __int16)*v23;
-                        list[(int)surfData.drawSurf[1].end++] = StaticModelId.objectId;
-                        if ( surfData.drawSurf[1].end >= (GfxDrawSurf *)0x80 )
+                        v28 = (unsigned __int16)*v23;
+                        list[v28++] = StaticModelId.objectId;
+                        if (v28 >= 0x80)
                         {
                             R_SkinStaticModelsShadowForLod(
                                 model,
                                 (unsigned __int8 *)list,
-                                (unsigned int)surfData.drawSurf[1].end,
+                                v28,
                                 StaticModelId.surfType,
                                 lod,
-                                (GfxSModelDrawSurfData *)&surfData);
+                                &surfData);
                             *v23 = 0;
                         }
                         else
                         {
-                            *v23 = (uint16)surfData.drawSurf[1].end;
+                            *v23 = v28;
                         }
                     }
                     else
@@ -1541,18 +1505,14 @@ void __cdecl R_AddAllStaticModelSurfacesSpotShadow(
             }
         }
     }
-    if ( v17 )
-        R_SkinStaticModelsShadow(
-            v17,
-            staticModelLodList,
-            (unsigned __int16 (*)[4])staticModelLodCount,
-            (GfxSModelDrawSurfData *)&surfData);
+    if (v17)
+        R_SkinStaticModelsShadow(v17, staticModelLodList, staticModelLodCount, &surfData);
     R_EndCmdBuf(&surfData.delayedCmdBuf);
-    surfData.drawSurf[2].end = (GfxDrawSurf *)(surfData.drawSurf[0].current - scene.drawSurfs[v18]);
-    scene.drawSurfCount[v18] = (volatile int)surfData.drawSurf[2].end;
+    surfCount = surfData.drawSurfList.current - scene.drawSurfs[v18];
+    scene.drawSurfCount[v18] = surfCount;
     //PIXBeginNamedEvent(-1, "sort surfs");
-    R_SortDrawSurfs(scene.drawSurfs[v18], (int)surfData.drawSurf[2].end);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+    R_SortDrawSurfs(scene.drawSurfs[v18], surfCount);
+    //if (GetCurrentThreadId() == g_DXDeviceThread)
+    //    D3DPERF_EndEvent();
 }
 

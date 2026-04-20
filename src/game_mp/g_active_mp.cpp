@@ -2047,7 +2047,7 @@ int __cdecl StuckInClient(gentity_s *self)
         return 0;
     if ( self->client->sess.sessionState )
         return 0;
-    if ( (unsigned __int8 *)self->r.contents != &cls.wagerServers[5331].basictraining && self->r.contents != 0x4000000 )
+    if (self->r.contents != 0x2000000 && self->r.contents != 0x4000000)
         return 0;
     hit = g_entities;
     for ( i = 0; ; ++i )
@@ -2060,7 +2060,7 @@ int __cdecl StuckInClient(gentity_s *self)
             && hit != self
             && hit->client
             && hit->health > 0
-            && ((unsigned __int8 *)hit->r.contents == &cls.wagerServers[5331].basictraining || hit->r.contents == 0x4000000)
+            && (hit->r.contents == 0x2000000 || hit->r.contents == 0x4000000)
             && hit->r.absmin[0] <= self->r.absmax[0]
             && self->r.absmin[0] <= hit->r.absmax[0]
             && hit->r.absmin[1] <= self->r.absmax[1]

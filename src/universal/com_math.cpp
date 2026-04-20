@@ -1284,10 +1284,10 @@ void __cdecl MatrixInverse44(const mat4x4 &mat, mat4x4 &dst)
 
         for (i = 0; i < 4; ++i)
         {
-                src[i] = (mat)[i][0];
-                src[i + 4] = (mat)[i][1];
-                src[i + 8] = (mat)[i][2];
-                src[i + 12] = (mat)[i][3];
+            src[i] = (mat)[i][0];
+            src[i + 4] = (mat)[i][1];
+            src[i + 8] = (mat)[i][2];
+            src[i + 12] = (mat)[i][3];
         }
         tmp[0] = src[10] * src[15];
         tmp[1] = src[11] * src[14];

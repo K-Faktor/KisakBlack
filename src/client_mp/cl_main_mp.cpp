@@ -4496,9 +4496,9 @@ int __cdecl CountBitsEnabled(unsigned int num)
     unsigned int numb; // [esp+1Ch] [ebp+8h]
 
     numa = (((((num >> 1) & 0x55555555) + (num & 0x55555555)) >> 2) & 0x33333333)
-             + ((((num >> 1) & 0x55555555) + (num & 0x55555555)) & 0x33333333);
-    numb = ((unsigned int)&cls.rankedServers[537].city[61] & ((((numa >> 4) & 0xF0F0F0F) + (numa & 0xF0F0F0F)) >> 8))
-             + ((unsigned int)&cls.rankedServers[537].city[61] & (((numa >> 4) & 0xF0F0F0F) + (numa & 0xF0F0F0F)));
+        + ((((num >> 1) & 0x55555555) + (num & 0x55555555)) & 0x33333333);
+    numb = (((((numa >> 4) & 0xF0F0F0F) + (numa & 0xF0F0F0F)) >> 8) & 0xFF00FF)
+        + ((((numa >> 4) & 0xF0F0F0F) + (numa & 0xF0F0F0F)) & 0xFF00FF);
     return HIWORD(numb) + (unsigned __int16)numb;
 }
 

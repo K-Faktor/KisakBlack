@@ -1787,9 +1787,9 @@ void __fastcall Actor_UpdatePlayerPush(actor_s *self, gentity_s *player)
     {
         __debugbreak();
     }
-    if ( !self->bDontAvoidPlayer
-        && ((unsigned int)&cls.wagerServers[5331].basictraining & self->Physics.iTraceMask) != 0
-        && self->eState[self->stateLevel] != AIS_TURRET )
+    if (!self->bDontAvoidPlayer
+        && (self->Physics.iTraceMask & 0x2000000) != 0
+        && self->eState[self->stateLevel] != AIS_TURRET)
     {
         playerTeamFlags = ~(1 << Sentient_EnemyTeam(player->sentient->eTeam));
         if ( (playerTeamFlags & (1 << self->sentient->eTeam)) != 0 )
@@ -2712,7 +2712,7 @@ void __cdecl Actor_EntInfo(gentity_s *self, float *source)
                             xyz[2] = xyz[2] - (float)(infoScale * 7.0);
                             G_AddDebugString(xyz, colorWhite, infoScale * 0.60000002, (char *)"dontavoidplayer", 0);
                         }
-                        if ( ((unsigned int)&cls.wagerServers[5331].basictraining & actor->Physics.iTraceMask) == 0 )
+                        if ((actor->Physics.iTraceMask & 0x2000000) == 0)
                         {
                             xyz[2] = xyz[2] - (float)(infoScale * 7.0);
                             G_AddDebugString(xyz, colorWhite, infoScale * 0.60000002, (char *)"pushPlayer", 0);

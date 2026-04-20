@@ -1462,10 +1462,10 @@ void __cdecl FX_DrawElement(FxSystem *system, const FxElemDef *elemDef, FxElem *
 {
     float v4; // [esp+10h] [ebp-B8h]
     unsigned int rotationAxis; // [esp+84h] [ebp-44h]
-    float v; // [esp+88h] [ebp-40h] BYREF
-    float v7; // [esp+8Ch] [ebp-3Ch]
-    float v8; // [esp+90h] [ebp-38h]
-    float v9; // [esp+94h] [ebp-34h]
+    float v[4]; // [esp+88h] [ebp-40h] BYREF
+    //float v7; // [esp+8Ch] [ebp-3Ch]
+    //float v8; // [esp+90h] [ebp-38h]
+    //float v9; // [esp+94h] [ebp-34h]
     float v10; // [esp+98h] [ebp-30h]
     float4 fAxis; // [esp+9Ch] [ebp-2Ch]
     float4 qAxis; // [esp+B0h] [ebp-18h] BYREF
@@ -1493,25 +1493,23 @@ void __cdecl FX_DrawElement(FxSystem *system, const FxElemDef *elemDef, FxElem *
             if ( (0x800000 & elemDef->flags) != 0 )
             {
                 rotationAxis = elemDef->rotationAxis;
-                v = (float)(COERCE_FLOAT((rotationAxis & 0x1FF) + 1077936128 - 2 * (rotationAxis & 0x100)) - 3.0) * 16448.252;
-                v7 = (float)(COERCE_FLOAT(((rotationAxis >> 9) & 0x3FF) + 1077936128 - 2 * ((rotationAxis >> 9) & 0x200)) - 3.0)
-                     * 8208.0312;
-                v8 = (float)(COERCE_FLOAT(((rotationAxis >> 19) & 0x3FF) + 1077936128 - 2 * ((rotationAxis >> 19) & 0x200)) - 3.0)
-                     * 8208.0312;
-                v9 = 1.0f;
-                v10 = Vec4Length(&v);
+                v[0] = (float)(COERCE_FLOAT((rotationAxis & 0x1FF) + 1077936128 - 2 * (rotationAxis & 0x100)) - 3.0) * 16448.252;
+                v[1] = (float)(COERCE_FLOAT(((rotationAxis >> 9) & 0x3FF) + 1077936128 - 2 * ((rotationAxis >> 9) & 0x200)) - 3.0) * 8208.0312;
+                v[2] = (float)(COERCE_FLOAT(((rotationAxis >> 19) & 0x3FF) + 1077936128 - 2 * ((rotationAxis >> 19) & 0x200)) - 3.0) * 8208.0312;
+                v[3] = 1.0f;
+                v10 = Vec4Length(v);
                 if ( (rotationAxis & 0x80000000) == 0 )
                     v4 = 1.0f;
                 else
                     v4 = -1.0f;
-                v = (float)(v4 / v10) * v;
-                v7 = (float)(v4 / v10) * v7;
-                v8 = (float)(v4 / v10) * v8;
-                v9 = (float)(v4 / v10) * v9;
-                fAxis.v[0] = *(&v + ((rotationAxis >> 29) & 3));
-                fAxis.v[1] = *(&v + ((((rotationAxis >> 29) & 3) + 1) & 3));
-                fAxis.v[2] = *(&v + ((((rotationAxis >> 29) & 3) + 2) & 3));
-                fAxis.v[3] = *(&v + ((((rotationAxis >> 29) & 3) + 3) & 3));
+                v[0] = (float)(v4 / v10) * v[0];
+                v[1] = (float)(v4 / v10) * v[1];
+                v[2] = (float)(v4 / v10) * v[2];
+                v[3] = (float)(v4 / v10) * v[3];
+                fAxis.v[0] = *(&v[0] + ((rotationAxis >> 29) & 3));
+                fAxis.v[1] = *(&v[0] + ((((rotationAxis >> 29) & 3) + 1) & 3));
+                fAxis.v[2] = *(&v[0] + ((((rotationAxis >> 29) & 3) + 2) & 3));
+                fAxis.v[3] = *(&v[0] + ((((rotationAxis >> 29) & 3) + 3) & 3));
                 qAxis = fAxis;
                 UnitQuatToAxis(qAxis.v, draw->rotationAxis);
             }

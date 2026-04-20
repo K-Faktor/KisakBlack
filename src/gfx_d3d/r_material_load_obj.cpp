@@ -7019,16 +7019,10 @@ Material *__cdecl Material_LoadRaw(const MaterialRaw *mtlRaw, unsigned int mater
     memcpy((unsigned __int8 *)materialMem + 192, (unsigned __int8 *)g_materialTypeInfo[materialType].prefix, prefixLen);
     memcpy((unsigned __int8 *)&strDest[prefixLen], (unsigned __int8 *)name, v6 + 1);
     material->info.name = strDest;
-    if ( ((material->info.drawSurf.packed >> 31) & 0xFFF) != 0
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_material_load_obj.cpp",
-                    10369,
-                    0,
-                    "%s",
-                    "!material->info.drawSurf.fields.materialSortedIndex") )
-    {
-        __debugbreak();
-    }
+
+    iassert(!material->info.drawSurf.fields.materialSortedIndex);
+
+
     material->info.gameFlags = mtlRaw->info.gameFlags;
     v4 = (int)(0x3F00000 & mtlRaw->info.surfaceFlags) >> 20;
     if ( (_BYTE)v4 )

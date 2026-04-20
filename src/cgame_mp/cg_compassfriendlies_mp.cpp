@@ -1698,10 +1698,7 @@ void __cdecl CG_CompassUpdateActors(int localClientNum)
                 actor->perks[0] = cgameGlob->bgs.clientinfo[index].perks[0];
                 v5->perks[1] = v6->bgs.clientinfo[v4].perks[1];
                 posDelta[0] = (float)(4 * ((cgameGlob->nextSnap->ps.iCompassPlayerInfo & 0x7FC0) >> 6) - 1020);
-                posDelta[1] = (float)(4
-                                                        * ((int)((unsigned int)&cls.rankedServers[624].mapName[11]
-                                                                     & cgameGlob->nextSnap->ps.iCompassPlayerInfo) >> 15)
-                                                        - 1020);
+                posDelta[1] = (float)(4 * ((cgameGlob->nextSnap->ps.iCompassPlayerInfo & 0xFF8000) >> 15) - 1020);
                 clientPos[0] = cgameGlob->refdef.vieworg[0];
                 clientPos[1] = cgameGlob->refdef.vieworg[1];
                 clientPos[2] = cgameGlob->refdef.vieworg[2];

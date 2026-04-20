@@ -1591,7 +1591,7 @@ void __cdecl FX_IntegrateVelocityAcrossSegments(
     w0[0] = t0ScaledByIntegral - w0[1];
     w1[1] = (float)(0.5 * t1) * (float)(t1 * integralScale);
     w1[0] = (float)(t1 * integralScale) - w1[1];
-    if ( ((unsigned int)&cls.rankedServers[711].game[35] & elemDefFlags) != 0 )
+    if ((elemDefFlags & 0x1000000) != 0)
     {
         FX_IntegrateVelocityFromZeroInSegment(
             &velState1->local,
@@ -1609,7 +1609,7 @@ void __cdecl FX_IntegrateVelocityAcrossSegments(
             posLocal);
     }
     FX_OrientationPosToWorldPos(orient, posLocal, posWorld);
-    if ( ((unsigned int)&cls.wagerServers[5331].basictraining & elemDefFlags) != 0 )
+    if ((elemDefFlags & 0x2000000) != 0)
     {
         FX_IntegrateVelocityFromZeroInSegment(
             &velState1->world,
@@ -1704,7 +1704,7 @@ void __cdecl FX_IntegrateVelocityInSegment(
     }
     weight[1] = (float)(integralScale * 0.5) * (float)((float)(t1 * t1) - (float)(t0 * t0));
     weight[0] = (float)((float)(t1 - t0) * integralScale) - weight[1];
-    if ( ((unsigned int)&cls.rankedServers[711].game[35] & elemDefFlags) != 0 )
+    if ((elemDefFlags & 0x1000000) != 0)
         FX_IntegrateVelocityInSegmentInFrame(
             &velState->local,
             &velState[1].local,
@@ -1713,7 +1713,7 @@ void __cdecl FX_IntegrateVelocityInSegment(
             integralScale,
             posLocal);
     FX_OrientationPosToWorldPos(orient, posLocal, posWorld);
-    if ( ((unsigned int)&cls.wagerServers[5331].basictraining & elemDefFlags) != 0 )
+    if ((elemDefFlags & 0x2000000) != 0)
         FX_IntegrateVelocityInSegmentInFrame(
             &velState->world,
             &velState[1].world,

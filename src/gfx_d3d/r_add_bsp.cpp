@@ -266,8 +266,7 @@ void __cdecl R_AddAllBspDrawSurfacesRangeCamera(
                         HIDWORD(drawSurf.packed) |= HIDWORD(v10);
                         if ( fade > 0 )
                         {
-                            HIDWORD(drawSurf.packed) = (unsigned int)&cls.rankedServers[711].game[35]
-                                                                             | HIDWORD(drawSurf.packed) & 0xFE7FFFFF;
+                            HIDWORD(drawSurf.packed) = HIDWORD(drawSurf.packed) & 0xFE7FFFFF | 0x1000000;
                             HIDWORD(drawSurf.packed) = HIDWORD(drawSurf.packed) & 0x3FFFFFF | 0xAC000000;
                         }
                         if ( drawSurf.packed != prevDrawSurf.packed )

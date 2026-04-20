@@ -136,7 +136,7 @@ void __cdecl CG_Laser_Add_Core(
     {
         laserLightBeginDist = cg_laserLightBeginOffset->current.value;
         laserLightEndDist = laserLength - cg_laserLightEndOffset->current.value;
-        if ( ((unsigned int)&cls.wagerServers[5462].game[11] & traceResults.cflags) != 0 )
+        if ((traceResults.cflags & 0x200C000) != 0)
             laserLightEndDist = laserLightEndDist + cg_laserLightBodyTweak->current.value;
         if ( (float)(laserLightEndDist - laserLightBeginDist) < 4.0 )
         {

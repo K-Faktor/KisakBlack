@@ -1801,7 +1801,7 @@ void __cdecl ActorCmd_PushPlayer(scr_entref_t entref)
     if ( Scr_GetInt(0, SCRIPTINSTANCE_SERVER) )
         v1 = self->Physics.iTraceMask & 0xFDFFFFFF;
     else
-        v1 = (unsigned int)&cls.wagerServers[5331].basictraining | self->Physics.iTraceMask;
+        v1 = self->Physics.iTraceMask | 0x2000000;
     self->Physics.iTraceMask = v1;
 }
 

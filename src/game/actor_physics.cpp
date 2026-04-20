@@ -863,7 +863,7 @@ void __cdecl AIPhys_GroundTrace(actor_physics_t *pPhys)
     memcpy(&g_apl.groundTrace, &trace, sizeof(g_apl.groundTrace));
     if ( !trace.startsolid )
         goto LABEL_24;
-    if ( ((unsigned int)&cls.wagerServers[5331].basictraining & trace.cflags) != 0 )
+    if ((trace.cflags & 0x2000000) != 0)
     {
         EntityHitId = Trace_GetEntityHitId(&trace);
         AIPhys_AddTouchEnt(pPhys, EntityHitId);

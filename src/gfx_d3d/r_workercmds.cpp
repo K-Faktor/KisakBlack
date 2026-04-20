@@ -26,7 +26,7 @@ jqModule fx_update_spotModule =
 {
   .Name = "fx_update_spot",
   .Type = JQ_WORKER_GENERIC,
-  .Code = (int(__cdecl *)(jqBatch *))fx_update_spotCallback,
+  .Code = fx_update_spotCallback,
 };
 jqWorkerCmd fx_update_spotWorkerCmd = { &fx_update_spotModule, 52u, 0, 0, &fx_update_spotLimit, NULL, 0u };
 
@@ -36,7 +36,7 @@ jqModule fx_updateModule =
 {
     .Name = "fx_update",
     .Type = JQ_WORKER_GENERIC,
-    .Code = (int(__cdecl *)(jqBatch *))fx_updateCallback,
+    .Code = fx_updateCallback,
 };
 jqWorkerCmd fx_updateWorkerCmd = { &fx_updateModule, 52u, 0, 0, &fx_updateLimit, NULL, 0u };
 
@@ -46,7 +46,7 @@ jqModule fx_update_remainingModule =
 {
     .Name = "fx_update_remaining",
     .Type = JQ_WORKER_GENERIC, 
-    .Code = (int(__cdecl *)(jqBatch *))fx_update_remainingCallback, 
+    .Code = fx_update_remainingCallback, 
 };
 jqWorkerCmd fx_update_remainingWorkerCmd = { &fx_update_remainingModule, 52u, 0, 0, &fx_update_remainingLimit, NULL, 0u };
 
@@ -56,7 +56,7 @@ jqModule r_dpvs_staticModule =
 {
     .Name = "r_dpvs_static",
     .Type = JQ_WORKER_GENERIC,
-    .Code = (int(__cdecl *)(jqBatch *))r_dpvs_staticCallback,
+    .Code = r_dpvs_staticCallback,
 };
 jqWorkerCmd r_dpvs_staticWorkerCmd = { &r_dpvs_staticModule, 12u, 0, 0, &r_dpvs_staticLimit, NULL, 0u };
 
@@ -76,7 +76,7 @@ jqModule r_dpvs_dynmodelModule =
 {
     .Name = "r_dpvs_dynmodel",
     .Type = JQ_WORKER_GENERIC,
-    .Code = (int(__cdecl *)(jqBatch *))r_dpvs_dynmodelCallback,
+    .Code = r_dpvs_dynmodelCallback,
 };
 jqWorkerCmd r_dpvs_dynmodelWorkerCmd = { &r_dpvs_dynmodelModule, 12u, 0, 0, &r_dpvs_dynmodelLimit, NULL, 0u };
 
@@ -87,7 +87,7 @@ jqModule r_dpvs_dynbrushModule =
 {
     .Name = "r_dpvs_dynbrush",
     .Type = JQ_WORKER_GENERIC,
-    .Code = (int(__cdecl *)(jqBatch *))r_dpvs_dynbrushCallback,
+    .Code = r_dpvs_dynbrushCallback,
 };
 jqWorkerCmd r_dpvs_dynbrushWorkerCmd = { &r_dpvs_dynbrushModule, 12u, 0, 0, &r_dpvs_dynbrushLimit, NULL, 0u };
 
@@ -98,7 +98,7 @@ jqModule r_dpvs_entityModule =
 {
     .Name = "r_dpvs_entity",
     .Type = JQ_WORKER_GENERIC,
-    .Code = (int(__cdecl *)(jqBatch *))r_dpvs_entityCallback,
+    .Code = r_dpvs_entityCallback,
 };
 jqWorkerCmd r_dpvs_entityWorkerCmd = { &r_dpvs_entityModule, 16u, 0, 0, &r_dpvs_entityLimit, NULL, 0u };
 
@@ -118,7 +118,7 @@ jqModule r_spot_shadow_entModule =
 {
     .Name = "r_spot_shadow_ent",
     .Type = JQ_WORKER_GENERIC,
-    .Code = (int(__cdecl *)(jqBatch *))r_spot_shadow_entCallback,
+    .Code = r_spot_shadow_entCallback,
 };
 jqWorkerCmd r_spot_shadow_entWorkerCmd = { &r_spot_shadow_entModule, 8u, 0, 0, &r_spot_shadow_entLimit, NULL, 0u };
 
@@ -138,7 +138,7 @@ jqModule dobj_skinModule =
 {
     .Name = "dobj_skin",
     .Type = JQ_WORKER_GENERIC,
-    .Code = (int(__cdecl *)(jqBatch *))dobj_skinCallback,
+    .Code = dobj_skinCallback,
     //.Group = 0,
 };
 jqWorkerCmd dobj_skinWorkerCmd = { &dobj_skinModule, 4u, 0, 0, &dobj_skinLimit, NULL, 0u };
@@ -148,16 +148,16 @@ jqModule fx_drawModule =
 {
     .Name = "fx_draw",
     .Type = JQ_WORKER_GENERIC,
-    .Code = (int(__cdecl *)(jqBatch *))fx_drawCallback
+    .Code = fx_drawCallback
 };
-jqWorkerCmd fx_drawWorkerCmd = { &fx_drawModule, 80u, 0, 0, &fx_drawLimit, NULL, 0u };
+jqWorkerCmd fx_drawWorkerCmd = { &fx_drawModule, sizeof(FxGenerateVertsCmd), 0, 0, &fx_drawLimit, NULL, 0u};
 
 volatile unsigned int fx_marks_drawLimit = 1;
 jqModule fx_marks_drawModule =
 {
     .Name = "fx_marks_draw",
     .Type = JQ_WORKER_GENERIC,
-    .Code = (int(__cdecl *)(jqBatch *))fx_marks_drawCallback
+    .Code = fx_marks_drawCallback
 };
 jqWorkerCmd fx_marks_drawWorkerCmd = { &fx_marks_drawModule, 52u, 0, 0, &fx_marks_drawLimit, NULL, 0u };
 
@@ -176,7 +176,7 @@ jqModule r_skin_cached_staticmodelModule =
 {
     .Name = "r_skin_cached_staticmodel",
     .Type = JQ_WORKER_GENERIC,
-    .Code = (int(__cdecl *)(jqBatch *))r_skin_cached_staticmodelCallback,
+    .Code = r_skin_cached_staticmodelCallback,
 };
 jqWorkerCmd r_skin_cached_staticmodelWorkerCmd =
 {
@@ -194,7 +194,7 @@ jqModule r_water_simModule =
 {
     .Name = "r_water_sim",
     .Type = JQ_WORKER_GENERIC,
-    .Code = (int(__cdecl *)(jqBatch *))r_water_simCallback,
+    .Code = r_water_simCallback,
 };
 jqWorkerCmd r_water_simWorkerCmd = { &r_water_simModule, 84u, 0, 0, &r_water_simLimit, NULL, 0u };
 
@@ -204,7 +204,7 @@ jqModule fx_update_remaining_ppuModule =
 {
     .Name = "fx_update_remaining_ppu",
     .Type = JQ_WORKER_GENERIC,
-    .Code = (int(__cdecl *)(jqBatch *))fx_update_remaining_ppuCallback,
+    .Code = fx_update_remaining_ppuCallback,
 };
 jqWorkerCmd fx_update_remaining_ppuWorkerCmd =
 {

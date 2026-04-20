@@ -13160,7 +13160,7 @@ void __cdecl GScr_StartDoorBreach(scr_entref_t entref)
     ent = GetEntity(entref);
     if ( !ent->client )
         Scr_ObjectError("Not a player entity", SCRIPTINSTANCE_SERVER);
-    ent->client->ps.pm_flags |= (unsigned int)&cls.rankedServers[711].game[35];
+    ent->client->ps.pm_flags |= 0x1000000u;
 }
 
 void __cdecl GScr_StopDoorBreach(scr_entref_t entref)

@@ -691,7 +691,7 @@ void __cdecl render_debug_brushes()
                         color[2] = player_clip_color[2];
                         color[3] = player_clip_color[3];
                     }
-                    else if ( ((unsigned int)&cls.rankedServers[711].game[35] & brush->contents) != 0 )
+                    else if ((brush->contents & 0x1000000) != 0)
                     {
                         color[0] = mantle_color[0];
                         color[1] = mantle_color[1];

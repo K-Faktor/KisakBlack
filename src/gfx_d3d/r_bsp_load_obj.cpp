@@ -2661,73 +2661,58 @@ bool __cdecl R_CompareSurfaces(const GfxSurface &surf0, const GfxSurface &surf1)
 {
     int v3; // [esp+0h] [ebp-ACh]
     int v4; // [esp+4h] [ebp-A8h]
-    int materialSortedIndex; // [esp+38h] [ebp-74h]
-    int materialSortedIndex_4; // [esp+3Ch] [ebp-70h]
-    const MaterialTechnique *techniqueBuildDepth; // [esp+40h] [ebp-6Ch]
-    const MaterialTechnique *techniqueBuildDepth_4; // [esp+44h] [ebp-68h]
-    int surfIndex; // [esp+50h] [ebp-5Ch]
-    int surfIndex_4; // [esp+54h] [ebp-58h]
-    const MaterialTechnique *techniqueLit; // [esp+58h] [ebp-54h]
-    const MaterialTechnique *techniqueLit_4; // [esp+5Ch] [ebp-50h]
-    Material *material; // [esp+60h] [ebp-4Ch]
-    Material *material_4; // [esp+64h] [ebp-48h]
-    int firstVertex; // [esp+68h] [ebp-44h]
-    int firstVertex_4; // [esp+6Ch] [ebp-40h]
-    int reflectionProbeIndex; // [esp+78h] [ebp-34h]
-    int reflectionProbeIndex_4; // [esp+7Ch] [ebp-30h]
-    int hasTechniqueEmissive; // [esp+80h] [ebp-2Ch]
-    int hasTechniqueEmissive_4; // [esp+84h] [ebp-28h]
-    int primarySortKey; // [esp+88h] [ebp-24h]
-    int primarySortKey_4; // [esp+8Ch] [ebp-20h]
-    int lightmapIndex; // [esp+98h] [ebp-14h]
-    int lightmapIndex_4; // [esp+9Ch] [ebp-10h]
-    MaterialTechniqueSet *techSet; // [esp+A0h] [ebp-Ch]
-    MaterialTechniqueSet *techSet_4; // [esp+A4h] [ebp-8h]
+    int materialSortedIndex[2]; // [esp+38h] [ebp-74h]
+    const MaterialTechnique *techniqueBuildDepth[2]; // [esp+40h] [ebp-6Ch]
+    int surfIndex[2]; // [esp+50h] [ebp-5Ch]
+    const MaterialTechnique *techniqueLit[2]; // [esp+58h] [ebp-54h]
+    Material *material[2]; // [esp+60h] [ebp-4Ch]
+    int firstVertex[2]; // [esp+68h] [ebp-44h]
+    int reflectionProbeIndex[2]; // [esp+78h] [ebp-34h]
+    int hasTechniqueEmissive[2]; // [esp+80h] [ebp-2Ch]
+    int primarySortKey[2]; // [esp+88h] [ebp-24h]
+    int lightmapIndex[2]; // [esp+98h] [ebp-14h]
+    MaterialTechniqueSet *techSet[2]; // [esp+A0h] [ebp-Ch]
     int comparison; // [esp+A8h] [ebp-4h]
 
-    material = surf0.material;
-    material_4 = surf1.material;
-    techSet = Material_GetTechniqueSet(material);
-    techSet_4 = Material_GetTechniqueSet(material_4);
-    if ( (!techSet || !techSet_4)
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_bsp_load_obj.cpp",
-                    2988,
-                    0,
-                    "%s",
-                    "techSet[0] && techSet[1]") )
-    {
-        __debugbreak();
-    }
-    techniqueLit = Material_GetTechnique(material, 0xAu);
-    techniqueLit_4 = Material_GetTechnique(material_4, 0xAu);
-    techniqueBuildDepth = Material_GetTechnique(material, 2u);
-    techniqueBuildDepth_4 = Material_GetTechnique(material_4, 2u);
-    v4 = techniqueLit || techniqueBuildDepth;
-    v3 = techniqueLit_4 || techniqueBuildDepth_4;
+    material[0] = surf0.material;
+    material[1] = surf1.material;
+
+    techSet[0] = Material_GetTechniqueSet(material[0]);
+    techSet[1] = Material_GetTechniqueSet(material[1]);
+
+    iassert(techSet[0] && techSet[1]);
+
+    techniqueLit[0] = Material_GetTechnique(material[0], 0xAu);
+    techniqueLit[1] = Material_GetTechnique(material[1], 0xAu);
+    techniqueBuildDepth[0] = Material_GetTechnique(material[0], 2u);
+    techniqueBuildDepth[1] = Material_GetTechnique(material[1], 2u);
+
+    v4 = techniqueLit[0] || techniqueBuildDepth[0];
+    v3 = techniqueLit[1] || techniqueBuildDepth[1];
     if ( v3 != v4 )
         return v3 - v4 < 0;
+
     if ( !v4 )
     {
-        hasTechniqueEmissive = Material_GetTechnique(material, 5u) != 0;
-        hasTechniqueEmissive_4 = Material_GetTechnique(material_4, 5u) != 0;
-        if ( hasTechniqueEmissive_4 != hasTechniqueEmissive )
-            return hasTechniqueEmissive_4 - hasTechniqueEmissive < 0;
+        hasTechniqueEmissive[0] = Material_GetTechnique(material[0], 5u) != 0;
+        hasTechniqueEmissive[1] = Material_GetTechnique(material[1], 5u) != 0;
+        if (hasTechniqueEmissive[1] != hasTechniqueEmissive[0])
+            return hasTechniqueEmissive[1] - hasTechniqueEmissive[0] < 0;
     }
-    primarySortKey = (material->info.drawSurf.packed >> 58) & 0x3F;
-    primarySortKey_4 = (material_4->info.drawSurf.packed >> 58) & 0x3F;
-    if ( primarySortKey != primarySortKey_4 )
-        return primarySortKey - primarySortKey_4 < 0;
+    primarySortKey[0] = material[0]->info.drawSurf.fields.primarySortKey;
+    primarySortKey[1] = material[1]->info.drawSurf.fields.primarySortKey;
+    if ( primarySortKey[0] != primarySortKey[1])
+        return primarySortKey[0] - primarySortKey[1] < 0;
     Com_GetPrimaryLight(surf0.primaryLightIndex);
     Com_GetPrimaryLight(surf1.primaryLightIndex);
     comparison = surf0.primaryLightIndex - surf1.primaryLightIndex;
     if ( comparison )
         return comparison < 0;
-    materialSortedIndex = (material->info.drawSurf.packed >> 31) & 0xFFF;
-    materialSortedIndex_4 = (material_4->info.drawSurf.packed >> 31) & 0xFFF;
-    if ( materialSortedIndex == materialSortedIndex_4 )
+    materialSortedIndex[0] = material[0]->info.drawSurf.fields.materialSortedIndex;
+    materialSortedIndex[1] = material[1]->info.drawSurf.fields.materialSortedIndex;
+    if ( materialSortedIndex[0] == materialSortedIndex[1])
     {
-        if ( material != material_4
+        if (material[0] != material[1]
             && !Assert_MyHandler(
                         "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_bsp_load_obj.cpp",
                         3041,
@@ -2737,21 +2722,21 @@ bool __cdecl R_CompareSurfaces(const GfxSurface &surf0, const GfxSurface &surf1)
         {
             __debugbreak();
         }
-        reflectionProbeIndex = surf0.reflectionProbeIndex;
-        reflectionProbeIndex_4 = surf1.reflectionProbeIndex;
-        if ( reflectionProbeIndex == reflectionProbeIndex_4 )
+        reflectionProbeIndex[0] = surf0.reflectionProbeIndex;
+        reflectionProbeIndex[1] = surf1.reflectionProbeIndex;
+        if ( reflectionProbeIndex[0] == reflectionProbeIndex[1])
         {
-            lightmapIndex = surf0.lightmapIndex;
-            lightmapIndex_4 = surf1.lightmapIndex;
-            if ( lightmapIndex == lightmapIndex_4 )
+            lightmapIndex[0] = surf0.lightmapIndex;
+            lightmapIndex[1] = surf1.lightmapIndex;
+            if ( lightmapIndex[0] == lightmapIndex[1] )
             {
-                firstVertex = surf0.tris.firstVertex;
-                firstVertex_4 = surf1.tris.firstVertex;
-                if ( firstVertex == firstVertex_4 )
+                firstVertex[0] = surf0.tris.firstVertex;
+                firstVertex[1] = surf1.tris.firstVertex;
+                if ( firstVertex[0] == firstVertex[1])
                 {
-                    surfIndex = surf0.tris.vertexCount;
-                    surfIndex_4 = surf1.tris.vertexCount;
-                    if ( surfIndex == surfIndex_4
+                    surfIndex[0] = surf0.tris.vertexCount;
+                    surfIndex[1] = surf1.tris.vertexCount;
+                    if (surfIndex[0] == surfIndex[1]
                         && !Assert_MyHandler(
                                     "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_bsp_load_obj.cpp",
                                     3065,
@@ -2761,36 +2746,27 @@ bool __cdecl R_CompareSurfaces(const GfxSurface &surf0, const GfxSurface &surf1)
                     {
                         __debugbreak();
                     }
-                    return surfIndex - surfIndex_4 < 0;
+                    return surfIndex[0] - surfIndex[1] < 0;
                 }
                 else
                 {
-                    return firstVertex - firstVertex_4 < 0;
+                    return firstVertex[0] - firstVertex[1] < 0;
                 }
             }
             else
             {
-                return lightmapIndex - lightmapIndex_4 < 0;
+                return lightmapIndex[0] - lightmapIndex[1] < 0;
             }
         }
         else
         {
-            return reflectionProbeIndex - reflectionProbeIndex_4 < 0;
+            return reflectionProbeIndex[0] - reflectionProbeIndex[1] < 0;
         }
     }
     else
     {
-        if ( surf0.tris.firstVertex == surf1.tris.firstVertex
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_bsp_load_obj.cpp",
-                        3036,
-                        0,
-                        "%s",
-                        "surf0.tris.firstVertex != surf1.tris.firstVertex") )
-        {
-            __debugbreak();
-        }
-        return materialSortedIndex - materialSortedIndex_4 < 0;
+        iassert(surf0.tris.firstVertex != surf1.tris.firstVertex);
+        return materialSortedIndex[0] - materialSortedIndex[1] < 0;
     }
 }
 

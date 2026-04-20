@@ -995,7 +995,7 @@ void __cdecl R_StoreDirect3DCaps(unsigned int adapterIndex)
     gfxMetrics.hasAnisotropicMinFilter = (caps.TextureFilterCaps & 0x400) != 0;
     gfxMetrics.hasAnisotropicMagFilter = (caps.TextureFilterCaps & 0x4000000) != 0;
     gfxMetrics.maxAnisotropy = caps.MaxAnisotropy;
-    gfxMetrics.slopeScaleDepthBias = ((unsigned int)&cls.wagerServers[5331].basictraining & caps.RasterCaps) != 0;
+    gfxMetrics.slopeScaleDepthBias = (caps.RasterCaps & 0x2000000) != 0;
     gfxMetrics.canMipCubemaps = (caps.TextureCaps & 0x10000) != 0;
     gfxMetrics.hasTransparencyMsaa = R_CheckTransparencyMsaa(adapterIndex);
     R_SetShadowmapFormats_DX(adapterIndex);

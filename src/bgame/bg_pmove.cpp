@@ -260,7 +260,7 @@ void __cdecl PM_playerTrace(
     context.prims = pm->proximity_data.prims;
     context.nprims = pm->proximity_data.nprims;
     pmoveHandlers[pm->handler].trace(results, start, mins, maxs, end, passEntityNum, contentMask, &context);
-    if ( results->startsolid && ((unsigned int)&cls.wagerServers[5418].city[54] & results->cflags) != 0 )
+    if (results->startsolid && (results->cflags & 0x2008000) != 0)
     {
         EntityHitId = Trace_GetEntityHitId(results);
         PM_AddTouchEnt(pm, EntityHitId);

@@ -919,7 +919,7 @@ void gjk_query_output::add(
                 centity_s *cent)
 {
     gjk_entity_info_t *m_data; // [esp-8h] [ebp-5Ch]
-    float v5[3]; // [esp-4h] [ebp-58h] OVERLAPPED BYREF
+    float axis[3][3]; // [esp-4h] [ebp-58h] OVERLAPPED BYREF
     phys_vec3 *p_w; // [esp+20h] [ebp-34h]
     const phys_vec3 *v7; // [esp+24h] [ebp-30h]
     phys_vec3 v8; // [esp+28h] [ebp-2Ch] BYREF
@@ -955,8 +955,8 @@ void gjk_query_output::add(
         }
         else
         {
-            AnglesToAxis(cent->pose.angles, (float (*)[3])v5);
-            Phys_AxisToNitrousMat((float (*)[3])v5, &entity_info->m_mat);
+            AnglesToAxis(cent->pose.angles, axis);
+            Phys_AxisToNitrousMat(axis, &entity_info->m_mat);
             Phys_Vec3ToNitrousVec(cent->pose.origin, &entity_info->m_mat.w);
         }
         ent_info->m_data = entity_info;
@@ -992,7 +992,7 @@ void gjk_query_output::add(
 
 void __thiscall gjk_query_output::add(const gjk_query_input *input, const Glass *glass)
 {
-    float axis[6]; // [esp+4h] [ebp-34h] BYREF
+    float axis[3][3]; // [esp+4h] [ebp-34h] BYREF
     gjk_entity_info_t *glass_id; // [esp+28h] [ebp-10h]
     broad_phase_environment_info *ent_info; // [esp+2Ch] [ebp-Ch]
     gjk_entity_info_t *m_data; // [esp+30h] [ebp-8h]
@@ -1005,8 +1005,8 @@ void __thiscall gjk_query_output::add(const gjk_query_input *input, const Glass 
         glass_id = gjk_query_output::create_entity_info();
         glass_id->m_ent_type = gjk_entity_info_t::ENTITY_TYPE::ET_GLASS;
         glass_id->m_ent = glass;
-        AnglesToAxis(glass->angles, (float (*)[3])axis);
-        Phys_AxisToNitrousMat((float (*)[3])axis, &glass_id->m_mat);
+        AnglesToAxis(glass->angles, axis);
+        Phys_AxisToNitrousMat(axis, &glass_id->m_mat);
         Phys_Vec3ToNitrousVec(glass->origin, &glass_id->m_mat.w);
         ent_info->m_data = glass_id;
     }

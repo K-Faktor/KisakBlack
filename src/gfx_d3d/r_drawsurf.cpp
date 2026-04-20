@@ -438,16 +438,7 @@ void __cdecl R_AddCodeMeshDrawSurf(
     {
         __debugbreak();
     }
-    if ( rgp.sortedMaterials[(material->info.drawSurf.packed >> 31) & 0xFFF] != material
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_drawsurf.cpp",
-                    639,
-                    0,
-                    "%s",
-                    "rgp.sortedMaterials[material->info.drawSurf.fields.materialSortedIndex] == material") )
-    {
-        __debugbreak();
-    }
+    iassert(rgp.sortedMaterials[material->info.drawSurf.fields.materialSortedIndex] == material);
     if ( Material_GetTechnique(material, gfxDrawMethod.emissiveTechType) && (material->info.gameFlags & 2) == 0 )
     {
         codeMeshIndex = _InterlockedExchangeAdd(&frontEndDataOut->codeMeshCount, 1u);
@@ -622,13 +613,13 @@ void __cdecl R_AddRopeCodeMeshDrawSurf(
     {
         __debugbreak();
     }
-    if ( rgp.sortedMaterials[(material->info.drawSurf.packed >> 31) & 0xFFF] != material )
+    if ( rgp.sortedMaterials[material->info.drawSurf.fields.materialSortedIndex] != material )
     {
         v7 = va(
                      "index = 0x%08x, sortedMaterials = 0x%08x, material = 0x%08x\n",
-                     (unsigned int)(material->info.drawSurf.packed >> 31) & 0xFFF,
+                     (unsigned int)(material->info.drawSurf.fields.materialSortedIndex,
                      0,
-                     rgp.sortedMaterials[(material->info.drawSurf.packed >> 31) & 0xFFF]);
+                     rgp.sortedMaterials[material->info.drawSurf.fields.materialSortedIndex]));
         if ( !Assert_MyHandler(
                         "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_drawsurf.cpp",
                         740,
@@ -741,13 +732,13 @@ void __cdecl R_AddGlassDrawSurf(
     {
         __debugbreak();
     }
-    if ( rgp.sortedMaterials[(material->info.drawSurf.packed >> 31) & 0xFFF] != material )
+    if ( rgp.sortedMaterials[material->info.drawSurf.fields.materialSortedIndex] != material )
     {
         v7 = va(
                      "index = 0x%08x, sortedMaterials = 0x%08x, material = 0x%08x\n",
-                     (unsigned int)(material->info.drawSurf.packed >> 31) & 0xFFF,
+                     material->info.drawSurf.fields.materialSortedIndex,
                      0,
-                     rgp.sortedMaterials[(material->info.drawSurf.packed >> 31) & 0xFFF]);
+                     rgp.sortedMaterials[material->info.drawSurf.fields.materialSortedIndex]);
         if ( !Assert_MyHandler(
                         "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_drawsurf.cpp",
                         827,
@@ -830,7 +821,7 @@ void __cdecl R_AddMarkMeshDrawSurf(
     {
         __debugbreak();
     }
-    if ( rgp.sortedMaterials[(material->info.drawSurf.packed >> 31) & 0xFFF] != material
+    if ( rgp.sortedMaterials[material->info.drawSurf.fields.materialSortedIndex] != material
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_drawsurf.cpp",
                     903,
@@ -956,16 +947,7 @@ char __cdecl R_AddParticleCloudDrawSurf(volatile unsigned int cloudIndex, Materi
     {
         __debugbreak();
     }
-    if ( rgp.sortedMaterials[(material->info.drawSurf.packed >> 31) & 0xFFF] != material
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_drawsurf.cpp",
-                    1011,
-                    0,
-                    "%s",
-                    "rgp.sortedMaterials[material->info.drawSurf.fields.materialSortedIndex] == material") )
-    {
-        __debugbreak();
-    }
+    iassert(rgp.sortedMaterials[material->info.drawSurf.fields.materialSortedIndex] == material);
     if ( Material_GetTechnique(material, gfxDrawMethod.emissiveTechType) )
     {
         MaterialSortKey = R_GetMaterialSortKey(material);

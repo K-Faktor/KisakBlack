@@ -538,8 +538,8 @@ void __cdecl Flame_Client_Trace(
                 if ( dobj )
                 {
                     contents = CG_GetEntityDObjContents(ent, dobj);
-                    character_collision = ((unsigned int)&cls.wagerServers[5418].city[54] & contents) != 0;
-                    if ( ((unsigned int)&cls.wagerServers[5418].city[54] & contents) != 0 )
+                    character_collision = (contents & 0x2008000) != 0;
+                    if ((contents & 0x2008000) != 0)
                     {
                         actorMins[0] = -15.0f;
                         actorMins[1] = -15.0f;

@@ -876,10 +876,9 @@ unsigned int __cdecl G_GetNonPVSPlayerInfo(gentity_s *pSelf, float *vPosition, i
         iPos_4 = 1024;
     }
     return ((unsigned __int8)(int)(float)(pEnt->r.currentAngles[1] * 0.71111113) << 24)
-             | (unsigned int)&cls.rankedServers[711].game[34]
-             & (((((unsigned __int16)((iPos_4 + 2) / 4) + 255) & 0x1FF) << 15)
-                | ((((unsigned __int16)((iPos + 2) / 4) + 255) & 0x1FF) << 6) & 0x7FFF
-                | pEnt->s.number & 0xFF00003F);
+        | ((((unsigned __int16)((iPos_4 + 2) / 4) + 255) & 0x1FF) << 15) & 0xFFFFFF
+        | ((((unsigned __int16)((iPos + 2) / 4) + 255) & 0x1FF) << 6) & 0x7FFF
+        | pEnt->s.number & 0x3F;
 }
 
 void __cdecl G_BroadcastVoice(gentity_s *talker, VoicePacket_t *voicePacket)

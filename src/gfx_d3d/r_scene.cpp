@@ -1834,8 +1834,7 @@ void __cdecl R_AddDObjSurfacesCamera(
                         if ( gfxEntIndexToUse && frontEndDataOut->gfxEnts[gfxEntIndexToUse].destructibleBurnAmount > 0.0 )
                         {
                             customIndex |= 2u;
-                            HIDWORD(drawSurf.packed) = (unsigned int)&cls.rankedServers[711].game[35]
-                                                                             | HIDWORD(drawSurf.packed) & 0xFE7FFFFF;
+                            HIDWORD(drawSurf.packed) = HIDWORD(drawSurf.packed) & 0xFE7FFFFF | 0x1000000;
                         }
                         HIDWORD(drawSurf.packed) = ((((drawSurf.packed >> 58) & 0x3F) - depthHack) << 26)
                                                                          | HIDWORD(drawSurf.packed) & 0x3FFFFFF;
@@ -2016,8 +2015,7 @@ LABEL_24:
                 if ( sceneEnt->gfxEntIndex && frontEndDataOut->gfxEnts[sceneEnt->gfxEntIndex].destructibleBurnAmount > 0.0 )
                 {
                     customIndex = 2;
-                    HIDWORD(newDrawSurf.packed) = (unsigned int)&cls.rankedServers[711].game[35]
-                                                                            | HIDWORD(newDrawSurf.packed) & 0xFE7FFFFF;
+                    HIDWORD(newDrawSurf.packed) = HIDWORD(newDrawSurf.packed) & 0xFE7FFFFF | 0x1000000;
                 }
                 surfId = (_BYTE *)modelSurf - (_BYTE *)frontEndDataOut;
                 if ( (((_BYTE)modelSurf - (_BYTE)frontEndDataOut) & 3) != 0
@@ -3280,9 +3278,9 @@ void __cdecl R_CheckShadowMapVolumes(const float *position)
             {
                 if ( j >= (unsigned int)BYTE2(control) + 1 )
                 {
-                    if ( ((unsigned int)&cls.rankedServers[711].game[35] & control) != 0 )
+                    if ((control & 0x1000000) != 0)
                         Dvar_SetBoolIfChanged((dvar_s *)sm_sunEnable, 0);
-                    if ( ((unsigned int)&cls.wagerServers[5331].basictraining & control) != 0 )
+                    if ((control & 0x2000000) != 0)
                         Dvar_SetBoolIfChanged((dvar_s *)sm_sunShadowSmallEnable, 1);
                     if ( (control & 0x4000000) != 0 )
                         Dvar_SetBoolIfChanged((dvar_s *)sm_spotEnable, 0);

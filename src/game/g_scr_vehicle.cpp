@@ -2679,7 +2679,7 @@ void __cdecl VEH_RinitVehiclesUsingInfo(int infoIdx)
                 "%c %d %d",
                 61,
                 veh->entNum,
-                (unsigned int)&cls.wagerServers[5331].basictraining & g_entities[veh->entNum].s.lerp.eFlags2);
+                g_entities[veh->entNum].s.lerp.eFlags2 & 0x2000000);
         }
     }
 }

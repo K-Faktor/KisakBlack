@@ -1308,291 +1308,436 @@ void phys_contact_manifold_process::process(
         this->m_cpi->set_closest_cached_psc((contact_point_info*)m_first);
     }
 #else
-    // Reset manifolds and contact lists
-    cman1.m_list_mesh_point = nullptr;
-    cman1.m_list_sorted_mesh_point = nullptr;
-    cman1.m_list_contact_point = nullptr;
-    cman2.m_list_mesh_point = nullptr;
-    cman2.m_list_sorted_mesh_point = nullptr;
-    cman2.m_list_contact_point = nullptr;
-    m_list_isect_point = nullptr;
-    m_cpi = nullptr;
-
+// Initialize manifolds
+    cman1.m_list_mesh_point = 0;
+    cman1.m_list_sorted_mesh_point = 0;
+    cman1.m_list_contact_point = 0;
+    cman2.m_list_mesh_point = 0;
+    cman2.m_list_sorted_mesh_point = 0;
+    cman2.m_list_contact_point = 0;
+    m_list_isect_point = 0;
+    m_cpi = 0;
     m_allocator.m_buffer_cur = m_allocator.m_buffer_start;
 
-    rigid_body* rb1 = (rigid_body*)pcp->m_bpi1->m_cg_to_world_xform;
-    const phys_mat44* cg1_to_rb1_xform = pcp->m_bpi1->m_cg_to_rb_xform;
-    const phys_mat44* rb2_to_world_xform = pcp->m_bpi2->m_rb_to_world_xform;
+    contact_point_info *cpi;
 
-    // Compute cg1 -> rb2 transform
-    phys_full_inv_multiply_mat(&cg1_to_rb2_xform, rb2_to_world_xform, (const phys_mat44*)rb1);
+    // Extract transforms from collision pair
+    const phys_mat44 *cg1_to_world_xform = pcp->m_bpi1->m_cg_to_world_xform;
+    const phys_mat44 *cg1_to_rb1_xform   = pcp->m_bpi1->m_cg_to_rb_xform;
+    const phys_mat44 *rb2_to_world_xform  = pcp->m_bpi2->m_rb_to_world_xform;
 
-    // Compute relative translation for contact point
-    phys_vec3 cg1_relative_translation_loc;
-    cg1_relative_translation_loc.x = gjk_info->cg1_cinfo_loc.m_n.x * 0.34f;
-    cg1_relative_translation_loc.y = gjk_info->cg1_cinfo_loc.m_n.y * 0.34f;
-    cg1_relative_translation_loc.z = gjk_info->cg1_cinfo_loc.m_n.z * 0.34f;
+    // Compute cg1_to_rb2 = inv(rb2_to_world) * cg1_to_world
+    phys_full_inv_multiply_mat(&cg1_to_rb2_xform, rb2_to_world_xform, cg1_to_world_xform);
 
-    phys_vec3 p2_displaced = gjk_info->cg1_cinfo_loc.m_p2;
+    const phys_vec3 *contact_normal = &gjk_info->cg1_cinfo_loc.m_n;
 
-    // Offset p1 by cg1_relative_translation_loc
-    gjk_info->cg1_cinfo_loc.m_p1.x += cg1_relative_translation_loc.x;
-    gjk_info->cg1_cinfo_loc.m_p1.y += cg1_relative_translation_loc.y;
-    gjk_info->cg1_cinfo_loc.m_p1.z += cg1_relative_translation_loc.z;
+    // Displace p1 and p2 by 0.34 * normal (separation offset)
+    phys_vec3 disp;
+    disp.x = contact_normal->x * 0.34f;
+    disp.y = contact_normal->y * 0.34f;
+    disp.z = contact_normal->z * 0.34f;
 
-    // Offset p2 in opposite direction
-    gjk_info->cg1_cinfo_loc.m_p2.x -= cg1_relative_translation_loc.x;
-    gjk_info->cg1_cinfo_loc.m_p2.y -= cg1_relative_translation_loc.y;
-    gjk_info->cg1_cinfo_loc.m_p2.z -= cg1_relative_translation_loc.z;
+    phys_vec3 p1_orig = gjk_info->cg1_cinfo_loc.m_p1;
+    phys_vec3 p2_orig = gjk_info->cg1_cinfo_loc.m_p2;
 
-    // Compute vector between displaced points
-    cg1_relative_translation_loc.x = gjk_info->cg1_cinfo_loc.m_p1.x - p2_displaced.x;
-    cg1_relative_translation_loc.y = gjk_info->cg1_cinfo_loc.m_p1.y - p2_displaced.y;
-    cg1_relative_translation_loc.z = gjk_info->cg1_cinfo_loc.m_p1.z - p2_displaced.z;
+    gjk_info->cg1_cinfo_loc.m_p1.x += disp.x;
+    gjk_info->cg1_cinfo_loc.m_p1.y += disp.y;
+    gjk_info->cg1_cinfo_loc.m_p1.z += disp.z;
+    gjk_info->cg1_cinfo_loc.m_p2.x -= disp.x;
+    gjk_info->cg1_cinfo_loc.m_p2.y -= disp.y;
+    gjk_info->cg1_cinfo_loc.m_p2.z -= disp.z;
 
-    float dist_p1_p2_n = gjk_info->cg1_cinfo_loc.m_n.x * cg1_relative_translation_loc.x +
-                          gjk_info->cg1_cinfo_loc.m_n.y * cg1_relative_translation_loc.y +
-                          gjk_info->cg1_cinfo_loc.m_n.z * cg1_relative_translation_loc.z;
+    // Compute relative translation (p1_orig - p2_orig)
+    phys_vec3 p1_to_p2;
+    p1_to_p2.x = p1_orig.x - p2_orig.x;
+    p1_to_p2.y = p1_orig.y - p2_orig.y;
+    p1_to_p2.z = p1_orig.z - p2_orig.z;
 
-    float t = dist_p1_p2_n / -10.2f;
-    t = t < 0.0f ? 0.0f : (t > 1.0f ? 1.0f : t);
+    // dist_p1_p2_n = dot(normal, p1_to_p2)
+    float dist_p1_p2_n = contact_normal->x * p1_to_p2.x
+                       + contact_normal->y * p1_to_p2.y
+                       + contact_normal->z * p1_to_p2.z;
 
-    // Set feature parameters in manifolds
-    float d1 = phys_contact_manifold::get_STD_GET_FEATURE_DISTANCE_EPS(t);
-    float d2 = phys_contact_manifold::get_STD_GET_FEATURE_SIN_ANGULAR_EPS_SQ(t);
-    cman1.set_get_feature_params(&gjk_info->cg1_cinfo_loc.m_p1, &gjk_info->cg1_cinfo_loc.m_n, d1, d2);
+    // penetration_t in [0,1]: how far along the contact we are
+    float penetration_t = dist_p1_p2_n / -10.2f;
+    penetration_t = penetration_t < 0.0f ? 0.0f
+                  : penetration_t > 1.0f ? 1.0f
+                  : penetration_t;
 
-    // Extract features from GJK geometry
+    float feature_distance_eps = phys_contact_manifold::get_STD_GET_FEATURE_DISTANCE_EPS(penetration_t);
+    float sin_angular_eps_sq   = phys_contact_manifold::get_STD_GET_FEATURE_SIN_ANGULAR_EPS_SQ(penetration_t);
+
+    // Set feature params for cman1 and get feature from bpi1's geom
+    cman1.set_get_feature_params(
+        &gjk_info->cg1_cinfo_loc.m_p1,
+        contact_normal,
+        feature_distance_eps,
+        sin_angular_eps_sq);
     pcp->m_bpi1->m_gjk_geom->get_feature(&cman1);
 
-    // Prepare second manifold
-    phys_vec3 neg_n = {-gjk_info->cg1_cinfo_loc.m_n.x,
-                       -gjk_info->cg1_cinfo_loc.m_n.y,
-                       -gjk_info->cg1_cinfo_loc.m_n.z};
+    // Transform normal negated into cg2 space for cman2
+    phys_vec3 neg_normal;
+    neg_normal.x = -contact_normal->x;
+    neg_normal.y = -contact_normal->y;
+    neg_normal.z = -contact_normal->z;
 
-    phys_vec3 v129;
-    v129.x = gjk_info->cg2_to_cg1_xform.x.x * neg_n.x + gjk_info->cg2_to_cg1_xform.x.y * neg_n.y +
-              gjk_info->cg2_to_cg1_xform.x.z * neg_n.z;
-    v129.y = gjk_info->cg2_to_cg1_xform.y.x * neg_n.x + gjk_info->cg2_to_cg1_xform.y.y * neg_n.y +
-              gjk_info->cg2_to_cg1_xform.y.z * neg_n.z;
-    v129.z = gjk_info->cg2_to_cg1_xform.z.x * neg_n.x + gjk_info->cg2_to_cg1_xform.z.y * neg_n.y +
-              gjk_info->cg2_to_cg1_xform.z.z * neg_n.z;
+    phys_vec3 cg2_normal;
+    cg2_normal.x = gjk_info->cg2_to_cg1_xform.x.x * neg_normal.x
+                 + gjk_info->cg2_to_cg1_xform.x.y * neg_normal.y
+                 + gjk_info->cg2_to_cg1_xform.x.z * neg_normal.z;
+    cg2_normal.y = gjk_info->cg2_to_cg1_xform.y.x * neg_normal.x
+                 + gjk_info->cg2_to_cg1_xform.y.y * neg_normal.y
+                 + gjk_info->cg2_to_cg1_xform.y.z * neg_normal.z;
+    cg2_normal.z = gjk_info->cg2_to_cg1_xform.z.x * neg_normal.x
+                 + gjk_info->cg2_to_cg1_xform.z.y * neg_normal.y
+                 + gjk_info->cg2_to_cg1_xform.z.z * neg_normal.z;
 
-    phys_vec3 v120;
-    phys_vec3* p_feature_pos = phys_full_inv_multiply(&v120, &gjk_info->cg2_to_cg1_xform, &gjk_info->cg1_cinfo_loc.m_p2);
-    cman2.set_get_feature_params(p_feature_pos, &v129, d1, d2);
+    // Transform p2 into cg2 local space
+    phys_vec3 p2_in_cg2;
+    phys_full_inv_multiply(&p2_in_cg2, &gjk_info->cg2_to_cg1_xform, &gjk_info->cg1_cinfo_loc.m_p2);
+
+    cman2.set_get_feature_params(&p2_in_cg2, &cg2_normal, feature_distance_eps, sin_angular_eps_sq);
     pcp->m_bpi2->m_gjk_geom->get_feature(&cman2);
 
-    // Generate convex polys for both manifolds
-    cman1.generate_convex_poly(&contact_mat);
-    phys_vec3 translation = {-cg1_relative_translation_loc.x, -cg1_relative_translation_loc.y, -cg1_relative_translation_loc.z};
-    cman2.xform_and_translate_mesh_points(&gjk_info->cg2_to_cg1_xform, &translation);
-    cman2.generate_convex_poly(&contact_mat);
+    // Continuous collision translation
+    float cc_lambda = gjk_info->m_continuous_collision_lambda;
+    phys_vec3 cg1_rel_trans;
+    cg1_rel_trans.x = cc_lambda * gjk_info->m_cg1_relative_translation_loc.x;
+    cg1_rel_trans.y = cc_lambda * gjk_info->m_cg1_relative_translation_loc.y;
+    cg1_rel_trans.z = cc_lambda * gjk_info->m_cg1_relative_translation_loc.z;
 
-    phys_vec3 *p1;
-    phys_vec3 *p2;
-    // Fallback if not enough contact points
-    if (m_contact_point_count == 0)
+    // Check if both manifolds have enough points for polygon clipping
+    bool enough_points = cman1.m_list_mesh_point_count >= 2
+                      && cman2.m_list_mesh_point_count >= 2
+                      && !(cman1.m_list_mesh_point_count == 2
+                           && cman2.m_list_mesh_point_count == 2);
+
+    if (enough_points)
     {
-        m_cpi = contact_point_info::create_cpi(1, false, m_cpi_allocator);
-        if (!m_cpi)
-            return;
+        float comp_dist_eps = phys_contact_manifold::get_STD_COMP_FEATURE_NORMAL_DISTANCE_EPS(penetration_t);
+        float comp_sin_sq   = phys_contact_manifold::get_STD_COMP_FEATURE_NORMAL_SIN_ANGULAR_EPS_SQ(penetration_t);
 
-        p1 = m_cpi->m_list_b1_r_loc;
-        const phys_vec3* r1 = phys_full_multiply(&v120, cg1_to_rb1_xform, &gjk_info->cg1_cinfo_loc.m_p1);
-        *p1 = *r1;
+        cman1.m_feature_distance_eps    = comp_dist_eps;
+        cman1.m_sin_feautre_angular_eps_sq = comp_sin_sq;
+        cman1.comp_feature_normal();
 
-        p2 = m_cpi->m_list_b2_r_loc;
-        const phys_vec3* r2 = phys_full_multiply(&v120, &cg1_to_rb2_xform, &p2_displaced);
-        *p2 = *r2;
+        cman2.m_feature_distance_eps    = comp_dist_eps;
+        cman2.m_sin_feautre_angular_eps_sq = comp_sin_sq;
+        cman2.comp_feature_normal();
 
-        m_contact_point_count = 1;
-        return;
-    }
+        enough_points = cman1.m_list_mesh_point_count >= 2
+                     && cman2.m_list_mesh_point_count >= 2
+                     && !(cman1.m_list_mesh_point_count == 2
+                          && cman2.m_list_mesh_point_count == 2);
 
-    // Safety checks
-    if (m_contact_point_count <= 0 && _tlAssert("source/phys_collision.cpp", 83, "m_contact_point_count > 0", ""))
-        __debugbreak();
-
-    if (!m_list_isect_point && _tlAssert("source/phys_collision.cpp", 84, "m_list_isect_point", ""))
-        __debugbreak();
-
-    // Feature normals
-    phys_contact_manifold *cmanA = &this->cman1;
-    phys_contact_manifold *cmanB = &this->cman2;
-
-    // Dot products of GJK normal with feature normals
-    d1 = gjk_info->cg1_cinfo_loc.m_n.dot(cmanA->m_feature_normal);
-    d2 = gjk_info->cg1_cinfo_loc.m_n.dot(cmanB->m_feature_normal);
-
-    // Ensure they are non-zero
-    if (fabsf(d1) <= 1e-7f)
-    {
-        if (_tlAssert("source/phys_collision.cpp", 88, "fabsf(d1) > 0.0000001f", ""))
-            __debugbreak();
-    }
-
-    if (fabsf(d2) <= 1e-7f)
-    {
-        if (_tlAssert("source/phys_collision.cpp", 89, "fabsf(d2) > 0.0000001f", ""))
-            __debugbreak();
-    }
-
-    //phys_vec3 ip_3d_ = *p1; // body 1 contact position
-    //// Compute projected distances along feature normals
-    //float n1 = cmanA->m_feature_normal.dot(ip_3d_);
-    //float n2 = cmanB->m_feature_normal.dot(p2_displaced);
-
-    contact_manifold_mesh_point *first_mp = m_list_isect_point[0];
-
-    // Convert its 2D contact coordinates to 3D
-    phys_vec3 ip_3d_;
-    phys_vec2 contact_pos_2d = { first_mp->m_contact_p.x, first_mp->m_contact_p.y };
-    phys_v2_to_v3_multiply(&ip_3d_, &contact_mat, &contact_pos_2d);
-
-    // Now project along feature normals
-    float n1 = cmanA->m_feature_normal.dot(ip_3d_);
-    float n2 = cmanB->m_feature_normal.dot(p2_displaced);
-
-    // If too many contact points, prune to 5
-    if (m_contact_point_count > 5)
-    {
-        contact_manifold_mesh_point *closest_mp = nullptr;
-
-        // Compute displacement along normals
-        phys_vec3 dispA = cmanA->m_feature_normal / d1;
-        phys_vec3 dispB = cmanB->m_feature_normal / d2;
-
-        // Compute initial metric for contact points (using contact_mat as weight)
-        phys_vec3 delta = dispB - dispA;
-        float metricX = contact_mat.x.dot(delta);   // dot with contact_mat row X
-        float metricY = contact_mat.y.dot(delta);   // dot with contact_mat row Y
-        float minMetric = 1e7f;
-
-        // Find closest contact point according to metric
-        for (int i = 0; i < m_contact_point_count; ++i)
+        if (enough_points)
         {
-            contact_manifold_mesh_point *mp = m_list_isect_point[i];
-            contact_manifold_mesh_point *prev_mp = (i > 0) ? m_list_isect_point[i - 1] : nullptr;
+            comp_contact_mat(contact_normal);
+            cman1.generate_convex_poly(&contact_mat);
 
-            // Area-like metric (2D cross product)
-            float dx = mp->m_contact_p.x - prev_mp->m_contact_p.x;
-            float dy = mp->m_contact_p.y - prev_mp->m_contact_p.y;
-            float cross = fabsf(dy * (dispB.x - dispA.x) - dx * (dispB.y - dispA.y));
+            // Negate cg1_rel_trans for mesh point translation
+            phys_vec3 neg_cg1_rel_trans;
+            neg_cg1_rel_trans.x = -cg1_rel_trans.x;
+            neg_cg1_rel_trans.y = -cg1_rel_trans.y;
+            neg_cg1_rel_trans.z = -cg1_rel_trans.z;
 
-            mp->m_p.x = cross;
+            cman2.xform_and_translate_mesh_points(&gjk_info->cg2_to_cg1_xform, &neg_cg1_rel_trans);
+            cman2.generate_convex_poly(&contact_mat);
 
-            float metric = mp->m_contact_p.y * metricY + mp->m_contact_p.x * metricX;
-            if (metric < minMetric)
+            enough_points = cman1.m_list_contact_point_count >= 2
+                         && cman2.m_list_contact_point_count >= 2
+                         && !(cman1.m_list_contact_point_count == 2
+                              && cman2.m_list_contact_point_count == 2);
+
+            if (enough_points)
             {
-                minMetric = metric;
-                closest_mp = mp;
+                intersect_poly_poly();
             }
         }
-
-        if (!closest_mp && _tlAssert("source/phys_collision.cpp", 115, "closest_mp", ""))
-            __debugbreak();
-
-        // Reorder remaining points to keep the top 5
-        std::sort(m_list_isect_point, m_list_isect_point + m_contact_point_count,
-            [](const contact_manifold_mesh_point *a, const contact_manifold_mesh_point *b) {
-                return a->m_p.x < b->m_p.x;
-            });
-
-        m_contact_point_count = 5;
     }
 
-    // Create contact point info structure
-    this->m_cpi = contact_point_info::create_cpi(this->m_contact_point_count, false, this->m_cpi_allocator);
-
-    if (this->m_cpi)
+    if (!enough_points || !m_contact_point_count)
     {
-        auto *cpi = this->m_cpi;
+        // Single contact point fallback
+        cpi = contact_point_info::create_cpi(1, false, m_cpi_allocator);
+        m_cpi = cpi;
+        if (!cpi)
+            return;
 
-        contact_manifold_mesh_point **b1_list = reinterpret_cast<contact_manifold_mesh_point **>(cpi->m_list_b1_r_loc);
-        contact_manifold_mesh_point **b2_list = reinterpret_cast<contact_manifold_mesh_point **>(cpi->m_list_b2_r_loc);
+        // Transform ip_3d_ (p1 displaced) to rb1 space
+        phys_vec3 b1_r_loc_tmp;
+        const phys_vec3 *b1_r = phys_full_multiply(&b1_r_loc_tmp, cg1_to_rb1_xform, &gjk_info->cg1_cinfo_loc.m_p1);
+        m_cpi->m_list_b1_r_loc->x = b1_r->x;
+        m_cpi->m_list_b1_r_loc->y = b1_r->y;
+        m_cpi->m_list_b1_r_loc->z = b1_r->z;
 
-        contact_manifold_mesh_point **src_points = this->m_list_isect_point;
+        // Transform p2_orig to rb2 space via cg1_to_rb2_xform
+        phys_vec3 b2_r_loc_tmp;
+        const phys_vec3 *b2_r = phys_full_multiply(&b2_r_loc_tmp, &cg1_to_rb2_xform, &p2_orig);
+        m_cpi->m_list_b2_r_loc->x = b2_r->x;
+        m_cpi->m_list_b2_r_loc->y = b2_r->y;
+        m_cpi->m_list_b2_r_loc->z = b2_r->z;
 
-        // Transform and copy each contact point
-        for (int i = 0; i < m_contact_point_count; ++i)
+        m_contact_point_count = 1;
+    }
+    else
+    {
+        iassert(m_contact_point_count > 0);
+        iassert(m_list_isect_point);
+
+        // Compute d1 = dot(cman1.feature_normal, contact_normal)
+        // Compute d2 = dot(cman2.feature_normal, contact_normal)
+        float d1 = cman1.m_feature_normal.x * contact_normal->x
+                 + cman1.m_feature_normal.y * contact_normal->y
+                 + cman1.m_feature_normal.z * contact_normal->z;
+        float d2 = cman2.m_feature_normal.x * contact_normal->x
+                 + cman2.m_feature_normal.y * contact_normal->y
+                 + cman2.m_feature_normal.z * contact_normal->z;
+
+        iassert(fabsf(d1) > 0.0000001f);
+        iassert(fabsf(d2) > 0.0000001f);
+
+        // Project contact points onto contact_normal plane
+        float n1 = cman1.m_feature_normal.x * gjk_info->cg1_cinfo_loc.m_p1.x
+                 + cman1.m_feature_normal.y * gjk_info->cg1_cinfo_loc.m_p1.y
+                 + cman1.m_feature_normal.z * gjk_info->cg1_cinfo_loc.m_p1.z;
+        float n2 = cman2.m_feature_normal.x * p2_orig.x
+                 + cman2.m_feature_normal.y * p2_orig.y
+                 + cman2.m_feature_normal.z * p2_orig.z;
+
+        if (m_contact_point_count > 5)
         {
-            contact_manifold_mesh_point *mp = src_points[i];
+            // Reduce to 5 most significant contact points
+            // Find contact point with smallest area contribution to remove
+            phys_vec3 inv_d1_normal, inv_d2_normal;
+            float inv_d1 = 1.0f / d1;
+            inv_d1_normal.x = cman1.m_feature_normal.x * inv_d1;
+            inv_d1_normal.y = cman1.m_feature_normal.y * inv_d1;
+            inv_d1_normal.z = cman1.m_feature_normal.z * inv_d1;
 
-            // Convert 2D manifold coordinates to 3D using contact_mat
+            float inv_d2 = 1.0f / d2;
+            inv_d2_normal.x = cman2.m_feature_normal.x * inv_d2;
+            inv_d2_normal.y = cman2.m_feature_normal.y * inv_d2;
+            inv_d2_normal.z = cman2.m_feature_normal.z * inv_d2;
+
+            // Contact mat projected axes for 2D area computation
+            phys_vec2 axis1 = { contact_mat.x.x * inv_d1_normal.x - contact_mat.x.x * inv_d2_normal.x,
+                                contact_mat.x.y * inv_d1_normal.y - contact_mat.x.y * inv_d2_normal.y };
+            phys_vec2 axis2 = { contact_mat.y.x * inv_d1_normal.x - contact_mat.y.x * inv_d2_normal.x,
+                                contact_mat.y.y * inv_d1_normal.y - contact_mat.y.y * inv_d2_normal.y };
+
+            contact_manifold_mesh_point **end = m_list_isect_point + m_contact_point_count;
+            contact_manifold_mesh_point **best = nullptr;
+            float best_score = 10000000.0f;
+
+            // Find point with smallest area contribution (cross product magnitude)
+            contact_manifold_mesh_point **prev = end - 2;
+            contact_manifold_mesh_point **cur  = end - 1;
+            contact_manifold_mesh_point **next = m_list_isect_point;
+
+            while (next != end)
+            {
+                // Compute 2D cross product of adjacent edge vectors
+                float ax = (*cur)->m_contact_p.x  - (*prev)->m_contact_p.x;
+                float ay = (*cur)->m_contact_p.y  - (*prev)->m_contact_p.y;
+                float bx = (*next)->m_contact_p.x - (*prev)->m_contact_p.x;
+                float by = (*next)->m_contact_p.y - (*prev)->m_contact_p.y;
+                float area = fabsf(ay * bx - by * ax);
+                (*cur)->m_contact_p.x = area; // store area score temporarily
+
+                // Compute dot with projected axes for scoring
+                float score = (*cur)->m_contact_p.x * axis1.x
+                            + (*cur)->m_contact_p.y * axis2.x;
+                if (best_score > score)
+                {
+                    best_score = score;
+                    best = cur;
+                }
+
+                prev = cur;
+                cur  = next;
+                ++next;
+            }
+
+            if (!best)
+            {
+                iassert(best); // "closest_mp"
+                best = end - 1;
+            }
+
+            // Remove the least significant point by shifting array
+            contact_manifold_mesh_point **limit = m_list_isect_point + 5;
+            while (end > limit)
+            {
+                // Recompute areas after removal and find next worst
+                // ... (selection sort down to 5 points)
+                // Update areas for neighbors of removed point
+                contact_manifold_mesh_point **b_prev = (best > m_list_isect_point) ? best - 1 : end - 2;
+                contact_manifold_mesh_point **b_next = (best < end - 1)            ? best + 1 : m_list_isect_point;
+
+                float ax2 = (*b_next)->m_contact_p.x - (*b_prev)->m_contact_p.x;
+                float ay2 = (*b_next)->m_contact_p.y - (*b_prev)->m_contact_p.y;
+                float bx2 = (*best)->m_contact_p.x   - (*b_prev)->m_contact_p.x;
+                float by2 = (*best)->m_contact_p.y   - (*b_prev)->m_contact_p.y;
+                (*b_next)->m_contact_p.x = fabsf(ay2 * bx2 - by2 * ax2);
+
+                float cx2 = (*b_next)->m_contact_p.x - (*b_next)->m_contact_p.x; // simplified
+                float cy2 = (*b_next)->m_contact_p.y - (*b_next)->m_contact_p.y;
+                (*b_prev)->m_contact_p.x = fabsf(cy2 - cx2);
+
+                // Shift remaining points left to fill gap
+                if (best < end - 1)
+                {
+                    memmove(best, best + 1,
+                        sizeof(contact_manifold_mesh_point *) * (end - best - 1));
+                }
+                --end;
+
+                // Find next worst among remaining
+                best = nullptr;
+                best_score = 10000000.0f;
+                for (auto it = m_list_isect_point; it != end; ++it)
+                {
+                    float s = (*it)->m_contact_p.x * axis1.x + (*it)->m_contact_p.y * axis2.x;
+                    if (best_score > s)
+                    {
+                        best_score = s;
+                        best = it;
+                    }
+                }
+                if (!best)
+                    break;
+            }
+            m_contact_point_count = 5;
+        }
+
+        // Allocate final contact point info
+        cpi = contact_point_info::create_cpi(m_contact_point_count, false, m_cpi_allocator);
+        m_cpi = cpi;
+        if (!cpi)
+            return;
+
+        phys_vec3 *b1_r_ptr = m_cpi->m_list_b1_r_loc;
+        phys_vec3 *b2_r_ptr = m_cpi->m_list_b2_r_loc;
+        contact_manifold_mesh_point **mp = m_list_isect_point;
+        contact_manifold_mesh_point **mp_end = m_list_isect_point + m_contact_point_count;
+
+        while (mp != mp_end)
+        {
+            // Convert 2D contact point to 3D in cg1 space
             phys_vec3 ip_3d;
-            phys_v2_to_v3_multiply(&ip_3d, &this->contact_mat, &mp->m_contact_p);
+            phys_v2_to_v3_multiply(&ip_3d, &contact_mat, &(*mp)->m_contact_p);
 
-            // Displacement along cman1 feature normal
-            phys_vec3 disp1 = mp->m_p * ((ip_3d.dot(this->cman1.m_feature_normal) - n1) / d1);
-            phys_vec3 world_pos1 = ip_3d + disp1;
+            // Project onto cman1 plane to get b1_r_loc
+            float dot1 = cman1.m_feature_normal.x * ip_3d.x
+                       + cman1.m_feature_normal.y * ip_3d.y
+                       + cman1.m_feature_normal.z * ip_3d.z;
+            float t1 = (n1 - dot1) / d1;
+            phys_vec3 ip_on_cman1;
+            ip_on_cman1.x = ip_3d.x + t1 * contact_normal->x;
+            ip_on_cman1.y = ip_3d.y + t1 * contact_normal->y;
+            ip_on_cman1.z = ip_3d.z + t1 * contact_normal->z;
 
-            // Apply transformation to body 1
-            phys_vec3 rb1_pos;
-            phys_multiply(&rb1_pos, cg1_to_rb1_xform, &world_pos1);
-            rb1_pos += cg1_to_rb1_xform->w; // translation
-            //b1_list[i]->m_contact_p = rb1_pos;
-            b1_list[i]->m_contact_p.x = rb1_pos.x;
-            b1_list[i]->m_contact_p.y = rb1_pos.y;
+            phys_vec3 b1_r_tmp;
+            const phys_vec3 *b1_r = phys_multiply(&b1_r_tmp, cg1_to_rb1_xform, &ip_on_cman1);
+            b1_r_ptr->x = b1_r->x + cg1_to_rb1_xform->w.x;
+            b1_r_ptr->y = b1_r->y + cg1_to_rb1_xform->w.y;
+            b1_r_ptr->z = b1_r->z + cg1_to_rb1_xform->w.z;
 
-            // Displacement along cman2 feature normal relative to body 2
-            phys_vec3 ip2 = ip_3d + cg1_relative_translation_loc;
-            phys_vec3 disp2 = mp->m_p * ((ip2.dot(this->cman2.m_feature_normal) - n2) / d2);
-            phys_vec3 world_pos2 = ip2 + disp2;
+            // Add continuous collision offset and project onto cman2 plane
+            phys_vec3 ip_3d_cc;
+            ip_3d_cc.x = ip_3d.x + cg1_rel_trans.x;
+            ip_3d_cc.y = ip_3d.y + cg1_rel_trans.y;
+            ip_3d_cc.z = ip_3d.z + cg1_rel_trans.z;
 
-            // Apply transformation to body 2
-            phys_vec3 rb2_pos;
-            phys_mat44 *cg2_to_rb2_xform = &pcp->m_bpi2->m_rb->m_mat;
-            phys_multiply(&rb2_pos, cg2_to_rb2_xform, &world_pos2);
-            rb2_pos += cg2_to_rb2_xform->w; // translation
-            //b2_list[i]->m_contact_p = rb2_pos;
-            b2_list[i]->m_contact_p.x = rb2_pos.x;
-            b2_list[i]->m_contact_p.y = rb2_pos.y;
+            float dot2 = cman2.m_feature_normal.x * ip_3d_cc.x
+                       + cman2.m_feature_normal.y * ip_3d_cc.y
+                       + cman2.m_feature_normal.z * ip_3d_cc.z;
+            float t2 = (n2 - dot2) / d2;
+            phys_vec3 ip_on_cman2;
+            ip_on_cman2.x = ip_3d_cc.x + t2 * contact_normal->x;
+            ip_on_cman2.y = ip_3d_cc.y + t2 * contact_normal->y;
+            ip_on_cman2.z = ip_3d_cc.z + t2 * contact_normal->z;
+
+            phys_vec3 b2_r_tmp;
+            const phys_vec3 *b2_r = phys_multiply(&b2_r_tmp, &cg1_to_rb2_xform, &ip_on_cman2);
+            b2_r_ptr->x = b2_r->x + cg1_to_rb2_xform.w.x;
+            b2_r_ptr->y = b2_r->y + cg1_to_rb2_xform.w.y;
+            b2_r_ptr->z = b2_r->z + cg1_to_rb2_xform.w.z;
+
+            ++mp;
+            ++b1_r_ptr;
+            ++b2_r_ptr;
         }
+    }
 
-        // Set the normal for the CPI (negated contact manifold normal transformed to body A space)
-        phys_vec3 p_m_n = this->cman1.m_feature_normal;
-        phys_vec3 negated_p = -p_m_n;
-        phys_vec3 cpi_normal;
-        phys_multiply(&cpi_normal, cg1_to_rb1_xform, &negated_p);
-        cpi->m_normal = cpi_normal;
-        PHYS_ASSERT_UNIT(&cpi->m_normal);
+    // Compute normal in rb1 space: normal = phys_multiply(rb1_xform, -contact_normal)
+    iassert(m_cpi);
+    phys_vec3 neg_cn = { -contact_normal->x, -contact_normal->y, -contact_normal->z };
+    phys_vec3 normal_tmp;
+    const phys_vec3 *rb1_normal = phys_multiply(&normal_tmp, cg1_to_rb1_xform, &neg_cn);
+    m_cpi->m_normal.x = rb1_normal->x;
+    m_cpi->m_normal.y = rb1_normal->y;
+    m_cpi->m_normal.z = rb1_normal->z;
+    PHYS_ASSERT_UNIT(&m_cpi->m_normal);
 
-        // Compute translation lambda along GJK relative translation
-        float denom = p_m_n.dot(gjk_info->m_cg1_relative_translation_loc);
-        float lambda = -(dist_p1_p2_n) / denom;
-        cpi->m_translation_lambda = (denom >= -0.17f) ? 1.0f : std::clamp(lambda, 0.0f, 1.0f);
+    // Compute translation lambda
+    float vel_dot = contact_normal->x * gjk_info->m_cg1_relative_translation_loc.x
+                  + contact_normal->y * gjk_info->m_cg1_relative_translation_loc.y
+                  + contact_normal->z * gjk_info->m_cg1_relative_translation_loc.z;
 
-        // Set CPI parameters from the physics pair
-        set_cpi_params(cpi, pcp);
+    if (vel_dot >= -0.17f)
+    {
+        m_cpi->m_translation_lambda = 1.0f;
+    }
+    else
+    {
+        float lambda = -dist_p1_p2_n / vel_dot;
+        m_cpi->m_translation_lambda = lambda < 0.0f ? 0.0f
+                                    : lambda > 1.0f ? 1.0f
+                                    : lambda;
+    }
 
-        // Add CPI to linked list
-        if (!this->m_list_cpi.m_last_next_ptr && _tlAssert("phys_mem.h", 230, "m_last_next_ptr", ""))
-            __debugbreak();
+    set_cpi_params(m_cpi, pcp);
 
-        *this->m_list_cpi.m_last_next_ptr = cpi;
-        this->m_list_cpi.m_last_next_ptr = &cpi->m_next_link;
-        ++this->m_list_cpi.m_alloc_count;
+    // Add to cpi list
+    iassert(m_list_cpi.m_last_next_ptr);
+    m_cpi->m_next_link = nullptr;
+    ++m_list_cpi.m_alloc_count;
+    *m_list_cpi.m_last_next_ptr = m_cpi;
+    m_list_cpi.m_last_next_ptr = &m_cpi->m_next_link;
 
-        // Set rigid bodies
-        rigid_body *rbA = pcp->m_bpi1->m_rb;
-        rigid_body *rbB = pcp->m_bpi2->m_rb;
-        cpi->m_pcp = pcp;
+    // Set pcp on cpi
+    rigid_body *rb1 = pcp->m_bpi1->m_rb;
+    rigid_body *rb2 = pcp->m_bpi2->m_rb;
+    m_cpi->m_pcp = pcp;
 
-        // Lookup contact in AVL tree
-        rigid_body_pair_key key(rbA, rbB);
-        cpi->m_rbc_contact = avl_tree_find(this->m_rbc_contact_search_tree_root, &key);
+    // Find existing contact constraint for this pair
+    rigid_body_pair_key key(rb1, rb2);
+    rigid_body_constraint_contact *rbc = avl_tree_find(this->m_rbc_contact_search_tree_root, &key);
+    m_cpi->m_rbc_contact = rbc;
 
-        // If found contact has bodies flipped, swap
-        if (cpi->m_rbc_contact && cpi->m_rbc_contact->b1 != rbA)
+    if (rbc)
+    {
+        // If rb1/rb2 are swapped relative to constraint, flip normal and r_locs
+        if (rbc->b1 != rb1)
         {
-            std::swap(cpi->m_list_b1_r_loc, cpi->m_list_b2_r_loc);
-            cpi->m_normal = -cpi->m_normal;
+            phys_vec3 *tmp_b1 = m_cpi->m_list_b1_r_loc;
+            m_cpi->m_list_b1_r_loc = m_cpi->m_list_b2_r_loc;
+            m_cpi->m_list_b2_r_loc = tmp_b1;
+            m_cpi->m_normal.x = -m_cpi->m_normal.x;
+            m_cpi->m_normal.y = -m_cpi->m_normal.y;
+            m_cpi->m_normal.z = -m_cpi->m_normal.z;
         }
-
-        // Set closest cached PSC
-        contact_point_info *closest_psc = cpi->m_rbc_contact ? cpi->m_rbc_contact->m_list_contact_point_info_buffer_2.m_first : nullptr;
-        cpi->set_closest_cached_psc(closest_psc);
+        m_cpi->set_closest_cached_psc(rbc->m_list_contact_point_info_buffer_2.m_first);
+        //contact_point_info::set_closest_cached_psc(
+        //    m_cpi,
+        //    rbc->m_list_contact_point_info_buffer_2.m_first);
+    }
+    else
+    {
+        //contact_point_info::set_closest_cached_psc(m_cpi, nullptr);
+        m_cpi->set_closest_cached_psc(nullptr);
     }
 #endif
 }
