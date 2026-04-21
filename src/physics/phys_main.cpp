@@ -859,81 +859,75 @@ void __cdecl destroy_broad_phase_info(rigid_body *body)
     }
 }
 
-// local variable allocation has failed, the output may be wrong!
-PhysObjUserData * Phys_CreateUserBody(
-                float *position,
-                int id,
-                PhysicsGeomType geomType)
+PhysObjUserData * Phys_CreateUserBody(float *position, int id, PhysicsGeomType geomType)
 {
     int j; // [esp+14h] [ebp-21Ch]
-    phys_vec3 *p_w; // [esp+20h] [ebp-210h]
     float v7; // [esp+28h] [ebp-208h]
     float v8; // [esp+2Ch] [ebp-204h]
     float x; // [esp+94h] [ebp-19Ch]
     float y; // [esp+98h] [ebp-198h]
     float z; // [esp+9Ch] [ebp-194h]
-    float v12[3]; // [esp+ACh] [ebp-184h] BYREF
-    float v13[3]; // [esp+B8h] [ebp-178h] BYREF
+    float max_[3]; // [esp+ACh] [ebp-184h] BYREF
+    float mn_[3]; // [esp+B8h] [ebp-178h] BYREF
     float mx[3]; // [esp+C4h] [ebp-16Ch] BYREF
-    float mn[19]; // [esp+D0h] [ebp-160h] BYREF
-    float v16[3]; // [esp+11Ch] [ebp-114h] BYREF
+    float mn[3]; // [esp+D0h] [ebp-160h] BYREF
+    float v16; // [esp+DCh] [ebp-154h]
+    float v17; // [esp+E0h] [ebp-150h]
+    float capsuleCenter[3]; // [esp+E4h] [ebp-14Ch] BYREF
+    float rot[3][3]; // [esp+F0h] [ebp-140h] BYREF
+    float v20; // [esp+114h] [ebp-11Ch]
+    float v21; // [esp+118h] [ebp-118h]
+    float trans[3]; // [esp+11Ch] [ebp-114h] BYREF
     gjk_base_t *gjk_geom; // [esp+128h] [ebp-108h]
-    float orientation[3][3]; // [esp+12Ch] [ebp-104h] BYREF
+    float rot_[3][3]; // [esp+12Ch] [ebp-104h] BYREF
     float hheight; // [esp+150h] [ebp-E0h]
     float radius; // [esp+154h] [ebp-DCh]
-    float v21[4]; // [esp+158h] [ebp-D8h] BYREF
+    float trans_[4]; // [esp+158h] [ebp-D8h] BYREF
     user_rigid_body *body; // [esp+168h] [ebp-C8h]
     int bodyId; // [esp+16Ch] [ebp-C4h]
     PhysObjUserData *userData; // [esp+170h] [ebp-C0h]
-    PhysGlob *v25; // [esp+174h] [ebp-BCh]
+    PhysGlob *v31; // [esp+174h] [ebp-BCh]
     phys_free_list<PhysObjUserData>::iterator i; // [esp+178h] [ebp-B8h]
     phys_free_list<PhysObjUserData>::T_internal_base *m_next_T_internal; // [esp+17Ch] [ebp-B4h]
-    float centerOfMass[17]; // [esp+180h] [ebp-B0h] BYREF
+    float centerOfMass[3]; // [esp+180h] [ebp-B0h] BYREF
     phys_mat44 dictator; // [esp+1C4h] [ebp-6Ch] BYREF
-    float v30; // [esp+204h] [ebp-2Ch]
-    int v31; // [esp+208h] [ebp-28h]
-    int v32; // [esp+20Ch] [ebp-24h]
+    float v36; // [esp+204h] [ebp-2Ch]
+    float v37; // [esp+208h] [ebp-28h]
+    float v38; // [esp+20Ch] [ebp-24h]
     phys_vec3 pos; // [esp+214h] [ebp-1Ch] BYREF
-    //_UNKNOWN *v34[2]; // [esp+224h] [ebp-Ch] BYREF
+    //_UNKNOWN *v40[2]; // [esp+224h] [ebp-Ch] BYREF
     //PhysicsGeomType geomTypea; // [esp+230h] [ebp+0h]
     //
-    //*(float *)v34 = a1;
-    //v34[1] = (_UNKNOWN *)geomTypea;
+    //*(float *)v40 = a1;
+    //v40[1] = (_UNKNOWN *)geomTypea;
     Phys_Vec3ToNitrousVec(position, &pos);
-    v30 = 1.0f;
-    v31 = 0.0f;
-    v32 = 0.0f;
+    
     dictator.x.x = 1.0f;
     dictator.x.y = 0.0f;
     dictator.x.z = 0.0f;
-    centerOfMass[13] = 0.0f;
-    centerOfMass[14] = 1.0f;
-    centerOfMass[15] = 0.0f;
-    //LODWORD(centerOfMass[12]) = &dictator.y;
     dictator.y.x = 0.0f;
     dictator.y.y = 1.0f;
     dictator.y.z = 0.0f;
-    centerOfMass[5] = 0.0f;
-    centerOfMass[6] = 0.0f;
-    centerOfMass[7] = 1.0f;
-    //LODWORD(centerOfMass[4]) = &dictator.z;
     dictator.z.x = 0.0f;
     dictator.z.y = 0.0f;
     dictator.z.z = 1.0f;
-    //LODWORD(centerOfMass[3]) = &dictator.w;
     dictator.w.x = pos.x;
     dictator.w.y = pos.y;
     dictator.w.z = pos.z;
+
     memset(centerOfMass, 0, 12);
+
     Sys_EnterCriticalSection(CRITSECT_PHYSICS);
-    m_next_T_internal = physGlob.objects.m_dummy_head.m_next_T_internal;
-    for (i.m_ptr = physGlob.objects.m_dummy_head.m_next_T_internal; ; i.m_ptr = i.m_ptr->m_next_T_internal)
+
+    // aislopped loop cleanup
+    for (auto *node = physGlob.objects.m_dummy_head.m_next_T_internal;
+        node != &physGlob.objects.m_dummy_head;
+        node = node->m_next_T_internal)
     {
-        v25 = &physGlob;
-        if (&physGlob == (PhysGlob *)i.m_ptr)
-            break;
-        userData = (PhysObjUserData *)&i.m_ptr[2];
-        if ((int)i.m_ptr[29].m_next_T_internal == id) // ungodly hack
+        using TI = phys_free_list<PhysObjUserData>::T_internal;
+        TI *ti = (TI *)node;
+        userData = &ti->m_data;
+        if (userData->id == id)
         {
             iassert(userData->body->is_user_rigid_body());
             ++userData->refcount;
@@ -941,73 +935,87 @@ PhysObjUserData * Phys_CreateUserBody(
             return userData;
         }
     }
+
+    //m_next_T_internal = physGlob.objects.m_dummy_head.m_next_T_internal;
+    //for (i.m_ptr = physGlob.objects.m_dummy_head.m_next_T_internal; ; i.m_ptr = i.m_ptr->m_next_T_internal)
+    //{
+    //    v31 = &physGlob;
+    //    if (&physGlob == (PhysGlob *)i.m_ptr)
+    //        break;
+    //    userData = (PhysObjUserData *)&i.m_ptr[2];
+    //    if (i.m_ptr[29].m_next_T_internal == id)
+    //    {
+    //        iassert(userData->body->is_user_rigid_body());
+    //        ++userData->refcount;
+    //        Sys_LeaveCriticalSection(CRITSECT_PHYSICS);
+    //        return userData;
+    //    }
+    //}
+
     body = phys_sys::create_user_rigid_body(1);
     if (body)
     {
         userData = Phys_CreateUserData(0);
         if (userData)
         {
-            //LODWORD(v21[3]) = geomType - 3;
+            //LODWORD(trans_[3]) = geomType - 3;
             switch (geomType)
             {
-            case 3:
-                v21[0] = 0.0f;
-                v21[1] = 0.0f;
-                v21[2] = 35.0f;
+            case PHYS_GEOM_CYLINDER:
+                trans_[0] = 0.0f;
+                trans_[1] = 0.0f;
+                trans_[2] = 35.0f;
                 radius = 15.0f;
                 hheight = 35.0f;
-                orientation[0][0] = 0.0f;
-                //*(_QWORD *)&orientation[0][1] = __PAIR64__(LODWORD(1.0f), *(unsigned int *)&FLOAT_0_0);
-                orientation[0][1] = 0.0f;
-                orientation[0][1] = 1.0f;
-                //*(_QWORD *)&orientation[1][0] = __PAIR64__(LODWORD(-1.0f), *(unsigned int *)&FLOAT_0_0);
-                orientation[1][0] = 0.0f;
-                orientation[1][1] = -1.0f;
-                orientation[1][2] = 0.0f;
-                //*(_QWORD *)&orientation[2][0] = __PAIR64__(*(unsigned int *)&FLOAT_0_0, LODWORD(1.0f));
-                orientation[2][0] = 1.0f;
-                orientation[2][1] = 0.0f;
-                orientation[2][2] = 0.0f;
+                rot_[0][0] = 0.0f;
+                rot_[0][1] = 0.0f;
+                rot_[0][2] = 1.0f;
+                rot_[1][0] = 0.0f;
+                rot_[1][1] = -1.0f;
+                rot_[1][2] = 0.0f;
+                rot_[2][0] = 1.0f;
+                rot_[2][0] = 0.0f;
+                rot_[2][2] = 0.0f;
                 gjk_geom = create_cylinder_gjk_geom(
-                    orientation,
-                    v21,
+                    rot_,
+                    trans_,
                     15.0,
                     35.0,
                     7,
                     &g_empty_collision_visitor);
                 break;
-            case 4:
-                v16[0] = 0.0f;
-                v16[1] = 0.0f;
-                v16[2] = 20.0f;
-                mn[18] = 35.0f;
-                mn[17] = 20.0f;
-                mn[8] = 0.0f;
-                mn[9] = 0.0f;
-                mn[10] = 1.0f;
-                mn[11] = 0.0f;
-                mn[12] = -1.0f;
-                mn[13] = 0.0f;
-                mn[14] = 1.0f;
-                mn[15] = 0.0f;
-                mn[16] = 0.0f;
-                gjk_geom = create_cylinder_gjk_geom(
-                    (float (*)[3]) & mn[8],
-                    v16,
-                    35.0,
-                    20.0,
+            case PHYS_GEOM_CYLINDER_LARGE:
+                trans[0] = 0.0f;
+                trans[1] = 0.0f;
+                trans[2] = 20.0f;
+                v21 = 35.0f;
+                v20 = 20.0f;
+                rot[0][0] = 0.0f;
+                rot[0][1] = 0.0f;
+                rot[0][2] = 1.0f;
+                rot[1][0] = 0.0f;
+                rot[1][1] = -1.0f;
+                rot[1][2] = 0.0f;
+                rot[2][0] = 1.0f;
+                rot[2][1] = 0.0f;
+                rot[2][2] = 0.0f;
+                gjk_geom = create_cylinder_gjk_geom(rot, trans, 35.0, 20.0, 7, &g_empty_collision_visitor);
+                break;
+            case PHYS_GEOM_CAPSULE:
+                capsuleCenter[0] = 0.0f;
+                capsuleCenter[1] = 0.0f;
+                capsuleCenter[2] = 45.0f;
+                v17 = 15.0f;
+                v16 = 5.0f;
+                gjk_geom = create_capsule_gjk_geom(
+                    capsuleCenter,
+                    15.0,
+                    5.0,
+                    2u,
                     7,
                     &g_empty_collision_visitor);
                 break;
-            case 5:
-                mn[5] = 0.0f;
-                mn[6] = 0.0f;
-                mn[7] = 45.0f;
-                mn[4] = 15.0f;
-                mn[3] = 5.0f;
-                gjk_geom = create_capsule_gjk_geom(&mn[5], 15.0, 5.0, 2u, 7, &g_empty_collision_visitor);
-                break;
-            case 6:
+            case PHYS_GEOM_POINT:
                 mn[0] = -1.0f;
                 mn[1] = -1.0f;
                 mn[2] = -1.0f;
@@ -1017,21 +1025,20 @@ PhysObjUserData * Phys_CreateUserBody(
                 gjk_geom = create_aabb_gjk_geom(mn, mx, 7, &g_empty_collision_visitor);
                 break;
             default:
-                v13[0] = -15.0f;
-                v13[1] = -15.0f;
-                v13[2] = 0.0f;
-                v12[0] = 15.0f;
-                v12[1] = 15.0f;
-                v12[2] = 60.0f;
-                gjk_geom = create_aabb_gjk_geom(v13, v12, 7, &g_empty_collision_visitor);
+                mn_[0] = -15.0f;
+                mn_[1] = -15.0f;
+                mn_[2] = 0.0f;
+                max_[0] = 15.0f;
+                max_[1] = 15.0f;
+                max_[2] = 60.0f;
+                gjk_geom = create_aabb_gjk_geom(mn_, max_, 7, &g_empty_collision_visitor);
                 break;
             }
             gjk_geom->comp_aabb_loc();
             userData->cg2rb = PHYS_IDENTITY_MATRIX;
             userData->cg2w = PHYS_IDENTITY_MATRIX;
-            //phys_mat44::operator=(&userData->cg2rb, &PHYS_IDENTITY_MATRIX_43);
-            //phys_mat44::operator=(&userData->cg2w, &PHYS_IDENTITY_MATRIX_43);
-
+            //phys_mat44::operator=(&userData->cg2rb, &PHYS_IDENTITY_MATRIX);
+            //phys_mat44::operator=(&userData->cg2w, &PHYS_IDENTITY_MATRIX);
             if ((gjk_geom->m_flags & 2) == 0
                 && _tlAssert(
                     "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
@@ -1053,23 +1060,14 @@ PhysObjUserData * Phys_CreateUserBody(
             {
                 __debugbreak();
             }
-            (v7) = -(0.5 * (float)(gjk_geom->m_aabb_mn_loc.y + y));
-            (v8) = -(0.5 * (float)(gjk_geom->m_aabb_mn_loc.z + z));
-            p_w = &userData->cg2rb.w;
-            (userData->cg2rb.w.x) = -(0.5 * (float)(gjk_geom->m_aabb_mn_loc.x + x));
-            p_w->y = v7;
-            p_w->z = v8;
-            //if (gjk_geom_list_t::get_geom_count(&userData->m_gjk_geom_list)
-            //    && _tlAssert(
-            //        "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp",
-            //        595,
-            //        "userData->m_gjk_geom_list.get_geom_count() == 0",
-            //        ""))
-            //{
-            //    __debugbreak();
-            //}
-            //gjk_geom_list_t::add_geom(&userData->m_gjk_geom_list, gjk_geom);
+            userData->cg2rb.w.x = -(0.5 * (gjk_geom->m_aabb_mn_loc.x + x));
+            userData->cg2rb.w.y = -(0.5 * (gjk_geom->m_aabb_mn_loc.y + y));
+            userData->cg2rb.w.z = -(0.5 * (gjk_geom->m_aabb_mn_loc.z + z));
+
+            iassert(userData->m_gjk_geom_list.get_geom_count() == 0);
+
             userData->m_gjk_geom_list.add_geom(gjk_geom);
+            //gjk_geom_list_t::add_geom(&userData->m_gjk_geom_list, gjk_geom);
             userData->m_time_since_last_event = phys_impact_silence_window->current.value + 0.0099999998;
             userData->m_time_since_last_reeval = phys_reeval_frequency->current.value + 0.0099999998;
             userData->m_flags = 0;
@@ -1080,7 +1078,7 @@ PhysObjUserData * Phys_CreateUserBody(
             body->set(&dictator);
             body->m_userdata = userData;
             //rigid_body::set_flag(body, 0x40u, 1);
-            body->set_flag(0x40u, 1);
+            body->set_flag(64, 1);
             userData->body = body;
             userData->refcount = 1;
             userData->id = (int)id;

@@ -1122,14 +1122,22 @@ extern int unzReadCurrentFile  (unzFile file, void *buf, unsigned len)
 				uDoCopy = pfile_in_zip_read_info->stream.avail_out ;
 			else
 				uDoCopy = pfile_in_zip_read_info->stream.avail_in ;
-				
-			for (i=0;i<uDoCopy;i++)
-				*(pfile_in_zip_read_info->stream.next_out+i) = *(pfile_in_zip_read_info->stream.next_in+i);
+			
+            // LWSS: added if(buf) here from blops (it's real!)
+            if (buf)
+            {
+                for (i = 0; i < uDoCopy; i++)
+                    *(pfile_in_zip_read_info->stream.next_out + i) = *(pfile_in_zip_read_info->stream.next_in + i);
+            }
+
 					
 			pfile_in_zip_read_info->rest_read_uncompressed-=uDoCopy;
 			pfile_in_zip_read_info->stream.avail_in -= uDoCopy;
 			pfile_in_zip_read_info->stream.avail_out -= uDoCopy;
-			pfile_in_zip_read_info->stream.next_out += uDoCopy;
+            if (buf) // LWSS: added if(buf) here from blops (it's real!)
+            {
+                pfile_in_zip_read_info->stream.next_out += uDoCopy;
+            }
 			pfile_in_zip_read_info->stream.next_in += uDoCopy;
             pfile_in_zip_read_info->stream.total_out += uDoCopy;
 			iRead += uDoCopy;
