@@ -138,6 +138,14 @@ struct static_colgeom_visitor_t : colgeom_visitor_t // sizeof=0x1078
     //00000014     void (__thiscall *update)(struct static_colgeom_visitor_t *this, const float *, const float *, int, const float *);
     //00000018 };
 
+    // LWSS ADD constructor 
+    static_colgeom_visitor_t()
+    {
+        ntrees = 0;
+        //memset(trees, 0, sizeof(trees));
+        nbrushes = 0;
+        //memset(brushes, 0, sizeof(brushes));
+    }
     virtual ~static_colgeom_visitor_t() = default;
 
     virtual void prolog()

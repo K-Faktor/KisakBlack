@@ -1018,7 +1018,8 @@ void __cdecl Com_EventLoop()
     sysEvent_t v1; // [esp+30h] [ebp-34h]
     sysEvent_t ev; // [esp+4Ch] [ebp-18h]
 
-    //PIXBeginNamedEvent(-1, "Com_EventLoop");
+    PROF_SCOPED("Com_EventLoop");
+
     while (1)
     {
         v1 = *Sys_GetEvent(&result);
@@ -1027,8 +1028,6 @@ void __cdecl Com_EventLoop()
         {
         case SE_NONE:
             Com_ClientPacketEvent();
-            //if (g_DXDeviceThread == GetCurrentThreadId())
-            //    D3DPERF_EndEvent();
             return;
         case SE_KEY:
             CL_KeyEvent(0, ev.evValue, ev.evValue2, ev.evTime);
@@ -2811,19 +2810,10 @@ unsigned int Com_Frame_Try_Block_Function()
     int maxFPS; // [esp+58h] [ebp-4h] BYREF
     int minMsec;
 
-    if ( Cmd_Args()->nesting != -1 )
-    {
-        v0 = Cmd_Args();
-        if ( !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\common.cpp",
-                        6266,
-                        0,
-                        "Cmd_Args()->nesting == -1\n\t%i, %i",
-                        v0->nesting,
-                        -1) )
-            __debugbreak();
-    }
-    //PIXBeginNamedEvent(-1, "Com_Frame");
+    iassert(Cmd_Args()->nesting == -1);
+
+    PROF_SCOPED("Com_Frame");
+
     Com_WriteConfiguration(0);
     Sys_UpdateHotkeyBlock();
     SetAnimCheck(com_animCheck->current.color[0], SCRIPTINSTANCE_SERVER);
@@ -2913,10 +2903,10 @@ unsigned int Com_Frame_Try_Block_Function()
     mseca = Com_ModifyMsec(msec);
     LiveSteam_Frame();
 
-    //PIXBeginNamedEvent(-1, "SV frame");
-    SV_Frame(Com_LocalClient_GetControllerIndex(0), mseca);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+    {
+        PROF_SCOPED("SV frame");
+        SV_Frame(Com_LocalClient_GetControllerIndex(0), mseca);
+    }
 
     Monkey_Frame();
 
@@ -2932,24 +2922,27 @@ unsigned int Com_Frame_Try_Block_Function()
     else
     {
         R_SetEndTime(com_lastFrameTime[lastFrameIndex]);
-        //PIXBeginNamedEvent(-1, "pre frame");
-        CL_RunOncePerClientFrame(Com_LocalClients_GetPrimary(), mseca);
-        Com_EventLoop();
-        for (int localClientNum = 0; localClientNum < 1; ++localClientNum)
         {
-            if (Demo_IsPlaying())
-                Demo_UpdateDesiredTime(localClientNum);
-            Cbuf_Execute(localClientNum, Com_LocalClient_GetControllerIndex(localClientNum));
+            PROF_SCOPED("pre frame");
+            CL_RunOncePerClientFrame(Com_LocalClients_GetPrimary(), mseca);
+            Com_EventLoop();
+            for (int localClientNum = 0; localClientNum < 1; ++localClientNum)
+            {
+                if (Demo_IsPlaying())
+                    Demo_UpdateDesiredTime(localClientNum);
+                Cbuf_Execute(localClientNum, Com_LocalClient_GetControllerIndex(localClientNum));
+            }
+            //BG_EvalVehicleName(0);
         }
-        //BG_EvalVehicleName(0);
-        //if (GetCurrentThreadId() == (_DWORD)g_DXDeviceThread && !dword_A8402BC)
-        //    D3DPERF_EndEvent();
+        
         RMsg_SendMessages();
-        //PIXBeginNamedEvent(-1, "CL_Frame");
-        for (int localClientNuma = 0; localClientNuma < 1; ++localClientNuma)
-            CL_Frame(localClientNuma, mseca);
-        //if (GetCurrentThreadId() == (_DWORD)g_DXDeviceThread && !dword_A8402BC)
-        //    D3DPERF_EndEvent();
+
+        {
+            PROF_SCOPED("CL_Frame");
+            for (int localClientNuma = 0; localClientNuma < 1; ++localClientNuma)
+                CL_Frame(localClientNuma, mseca);
+        }
+
         dvar_modifiedFlags &= ~2u;
         Com_UpdateMenu();
         CG_UpdateClouds(mseca);
@@ -2965,8 +2958,6 @@ unsigned int Com_Frame_Try_Block_Function()
     }
     
     result = GetCurrentThreadId();
-    //if ( result == g_DXDeviceThread )
-    //    return //D3DPERF_EndEvent();
     return result;
 }
 
@@ -3079,6 +3070,8 @@ void __cdecl Com_AdjustMaxFPS(int *maxFPS)
 
 char Com_UpdateMenu()
 {
+    PROF_SCOPED("Com_UpdateMenu"); // LWSS ADD
+
     int IsFullscreen; // eax
     uiMenuCommand_t MenuScreen; // eax
     connstate_t clcState; // [esp+4h] [ebp-4h]

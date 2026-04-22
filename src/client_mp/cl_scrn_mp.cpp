@@ -72,12 +72,11 @@ void __cdecl SCR_Init()
 
 void __cdecl CL_DrawScreen(int localClientNum)
 {
-    //PIXBeginNamedEvent(-1, "CL_DrawScreen");
+    PROF_SCOPED("CL_DrawScreen");
+
     if ( !cls.rendererStarted )
     {
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-            //return;
-        goto LABEL_13;
+        return;
     }
     if ( CL_GetLocalClientConnectionState(localClientNum) == 10 )
     {
@@ -92,10 +91,6 @@ void __cdecl CL_DrawScreen(int localClientNum)
         CG_DrawVersion();
     Con_DrawConsole(localClientNum);
     DevGui_Draw(localClientNum);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-LABEL_13:
-    ;
-        //D3DPERF_EndEvent();
 }
 
 double __cdecl CL_GetMenuBlurRadius(int localClientNum)
@@ -157,7 +152,8 @@ void __cdecl CL_UpdateUIVisibilityBits(int localClientNum)
     bool uiActive; // [esp+F1h] [ebp-Bh]
     bool spectatingClient; // [esp+F2h] [ebp-Ah]
 
-    //PIXBeginNamedEvent(-1, "CL_UpdateUIVisibilityBits");
+    PROF_SCOPED("CL_UpdateUIVisibilityBits");
+
     spectatingClient = 0;
     inKillCam = 0;
     uiActive = 0;
@@ -430,12 +426,12 @@ void __cdecl CL_UpdateUIVisibilityBits(int localClientNum)
             }
         }
     }
-    //if (GetCurrentThreadId() == g_DXDeviceThread)
-    //    D3DPERF_EndEvent();
 }
 
 void    SCR_UpdateScreen()
 {
+    PROF_SCOPED("SCR_UpdateScreen"); // LWSS ADD
+
     dvar_s *v1; // ecx
     int shouldSkipRender; // [esp+14h] [ebp-8h]
 
@@ -487,19 +483,14 @@ void    SCR_UpdateFrame()
     int refreshedUI; // [esp+28h] [ebp-10h]
     unsigned int streamingFrame; // [esp+30h] [ebp-8h]
 
+    PROF_SCOPED("SCR_UpdateFrame"); // LWSS ADD
+
     streamingFrame = streamFrontendGlob.frame;
-    if ( !Sys_IsMainThread()
-        && !Sys_IsRenderThread()
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\client_mp\\cl_scrn_mp.cpp",
-                    1210,
-                    0,
-                    "%s",
-                    "Sys_IsMainThread() || Sys_IsRenderThread()") )
-    {
-        __debugbreak();
-    }
+
+    iassert(Sys_IsMainThread() || Sys_IsRenderThread());
+
     R_BeginFrame();
+
     v5 = Demo_IsPaused() || Demo_IsCompleted() || Demo_GetClipPausedState();
     if ( Demo_IsPlaying() && CL_LocalClient_IsCUIFlagSet(0, 32) )
         seed = CG_GetLocalClientGlobals(0)->latestSnapshotNum;
@@ -554,8 +545,11 @@ int    CL_CGameRendering(int localClientNum)
     cgameGlob = CG_GetLocalClientGlobals(localClientNum);
     if (CL_GetLocalClientConnectionState(localClientNum) != CA_ACTIVE)
         return 0;
-    Name = va("CL_CGameRendering(cl=%d)", localClientNum);
-    //PIXBeginNamedEvent(-1, Name);
+
+    //Name = va("CL_CGameRendering(cl=%d)", localClientNum);
+    PROF_SCOPED("CL_CGameRendering");
+    ZoneTextF("(cl=%d)", localClientNum);
+
     R_UI3D_PerframeInit();
     R_BeginClientCmdList2D();
     if (extraCamActive)
@@ -671,19 +665,12 @@ int    CL_CGameRendering(int localClientNum)
             CG_DrawExtraCamFrame(localClientNum, LocalClientGlobals->serverTime, v5, CUBEMAPSHOT_NONE, 0, v7);
             rg.renderHiResShot = hiRes;
         }
-        //PIXBeginNamedEvent(-1, "wait Draw2D");
-        //if (GetCurrentThreadId() == g_DXDeviceThread)
-        //    D3DPERF_EndEvent();
         R_AddCmdEndOfList();
-        //if (GetCurrentThreadId() == g_DXDeviceThread)
-        //    D3DPERF_EndEvent();
         return 1;
     }
     else
     {
         CL_SendCmd(localClientNum);
-        //if (GetCurrentThreadId() == g_DXDeviceThread)
-        //    D3DPERF_EndEvent();
         return 0;
     }
 }

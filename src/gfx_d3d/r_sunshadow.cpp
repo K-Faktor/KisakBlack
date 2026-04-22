@@ -948,7 +948,7 @@ void __cdecl R_SunShadowMaps()
     {
         __debugbreak();
     }
-    //PIXBeginNamedEvent(-1, "shadow maps");
+    PROF_SCOPED("shadow maps");
     shadowGlob.defaultShadowCasterTechnique = Material_GetTechnique(
                                                                                             rgp.depthPrepassMaterial,
                                                                                             gfxMetrics.shadowmapBuildTechType);
@@ -968,8 +968,6 @@ void __cdecl R_SunShadowMaps()
         }
         R_AddWorldSurfacesFrustumOnly(viewIndex);
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl R_MergeAndEmitSunShadowMapsSurfs(GfxViewInfo *viewInfo)
@@ -981,7 +979,9 @@ void __cdecl R_MergeAndEmitSunShadowMapsSurfs(GfxViewInfo *viewInfo)
     GfxSunShadow *sunShadow; // [esp+1Ch] [ebp-8h]
 
     sunShadow = &frontEndDataOut->sunShadow;
-    //PIXBeginNamedEvent(-1, "emit sun shadow map surfs");
+
+    PROF_SCOPED("emit sun shadow map surfs");
+
     if ( frontEndDataOut->sunLight.type != 1
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_sunshadow.cpp",
@@ -1020,7 +1020,5 @@ void __cdecl R_MergeAndEmitSunShadowMapsSurfs(GfxViewInfo *viewInfo)
         viewInfo->drawList[partitionIndex + 8].drawSurfCount = frontEndDataOut->drawSurfCount - firstDrawSurf;
         sunShadow->partition[partitionIndex].partitionIndex = partitionIndex;
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 

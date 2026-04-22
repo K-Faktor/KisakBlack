@@ -4,7 +4,8 @@
 
 void __fastcall Actor_Generic_Suspend(actor_s *self, ai_state_t eNextState)
 {
-    //PIXBeginNamedEvent(-1, "genericsuspend");
+    PROF_SCOPED("genericsuspend");
+
     if ( self->stateLevel >= 6
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_generic.cpp",
@@ -39,8 +40,6 @@ void __fastcall Actor_Generic_Suspend(actor_s *self, ai_state_t eNextState)
         __debugbreak();
     }
     AIFuncTable[self->species][self->eState[self->stateLevel]].pfnFinish(self, eNextState);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 bool __fastcall Actor_Generic_Resume(actor_s *self, ai_state_t ePrevState)

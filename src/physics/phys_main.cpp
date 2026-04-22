@@ -1887,7 +1887,9 @@ void    Phys_AddCacheImpulses()
     //
     //v11 = a1;
     //v12 = vars0;
-    //PIXBeginNamedEvent(-1, "Phys_AddCacheImpulses");
+
+    PROF_SCOPED("Phys_AddCacheImpulses");
+
     for (i = 0; i < gImpulseCacheNum; ++i)
     {
         impulse = &gImpulseCache[i];
@@ -1919,8 +1921,6 @@ void    Phys_AddCacheImpulses()
     }
 
     gImpulseCacheNum = 0;
-    //if (g_DXDeviceThread == GetCurrentThreadId())
-    //    D3DPERF_EndEvent();
 }
 
 void __cdecl Phys_ObjAddCustomForce(
@@ -4440,70 +4440,76 @@ void    UpdateRigidBody(float delta_t)
     //
     //gravity_dir.y = a1;
     //gravity_dir.z = retaddr;
-    //PIXBeginNamedEvent(-1, "update 1");
-    //BLOPS_NULLSUB();
-    debug_loop();
-    free_chull_lists();
-    Sys_EnterCriticalSection(CRITSECT_PHYSICS_UPDATE);
-    if ( gravityChange )
+
     {
-        Phys_Vec3ToNitrousVec(&phys_gravity_dir->current.value, &gravity_dir);
-        //m_next_T_internal = g_physics_system->m_list_rigid_body.m_dummy_head.m_next_T_internal;
-        //p_m_list_rigid_body = &g_physics_system->m_list_rigid_body;
-        //while ( p_m_list_rigid_body != (phys_free_list<rigid_body> *)m_next_T_internal )
-        //{
-        //    value = phys_gravity->current.value;
-        //    v3 = value * *(float *)&i.m_ptr;
-        //    v4 = value * v10;
-        //    *(float *)&m_next_T_internal[18].m_prev_T_internal = value * *(float *)&i_end.m_ptr;
-        //    *(float *)&m_next_T_internal[18].m_next_T_internal = v3;
-        //    *(float *)&m_next_T_internal[19].m_prev_T_internal = v4;
-        //    m_next_T_internal = m_next_T_internal->m_next_T_internal;
-        //}
+        PROF_SCOPED("update 1");
 
-        phys_free_list<rigid_body>::T_internal_base *node = g_physics_system->m_list_rigid_body.m_dummy_head.m_next_T_internal;
-        phys_free_list<rigid_body>::T_internal_base *end = &g_physics_system->m_list_rigid_body.m_dummy_head;
-
-        while (node != end)
+        //BLOPS_NULLSUB();
+        debug_loop();
+        free_chull_lists();
+        Sys_EnterCriticalSection(CRITSECT_PHYSICS_UPDATE);
+        if (gravityChange)
         {
-            rigid_body *rb =
-                &static_cast<phys_free_list<rigid_body>::T_internal *>(node)->m_data;
+            Phys_Vec3ToNitrousVec(&phys_gravity_dir->current.value, &gravity_dir);
+            //m_next_T_internal = g_physics_system->m_list_rigid_body.m_dummy_head.m_next_T_internal;
+            //p_m_list_rigid_body = &g_physics_system->m_list_rigid_body;
+            //while ( p_m_list_rigid_body != (phys_free_list<rigid_body> *)m_next_T_internal )
+            //{
+            //    value = phys_gravity->current.value;
+            //    v3 = value * *(float *)&i.m_ptr;
+            //    v4 = value * v10;
+            //    *(float *)&m_next_T_internal[18].m_prev_T_internal = value * *(float *)&i_end.m_ptr;
+            //    *(float *)&m_next_T_internal[18].m_next_T_internal = v3;
+            //    *(float *)&m_next_T_internal[19].m_prev_T_internal = v4;
+            //    m_next_T_internal = m_next_T_internal->m_next_T_internal;
+            //}
 
-            float g = phys_gravity->current.value;
+            phys_free_list<rigid_body>::T_internal_base *node = g_physics_system->m_list_rigid_body.m_dummy_head.m_next_T_internal;
+            phys_free_list<rigid_body>::T_internal_base *end = &g_physics_system->m_list_rigid_body.m_dummy_head;
 
-            rb->m_t_vel.x = g * gravity_dir.x;
-            rb->m_t_vel.y = g * gravity_dir.y;
-            rb->m_t_vel.z = g * gravity_dir.z;
+            while (node != end)
+            {
+                rigid_body *rb =
+                    &static_cast<phys_free_list<rigid_body>::T_internal *>(node)->m_data;
 
-            node = node->m_next_T_internal;
+                float g = phys_gravity->current.value;
+
+                rb->m_t_vel.x = g * gravity_dir.x;
+                rb->m_t_vel.y = g * gravity_dir.y;
+                rb->m_t_vel.z = g * gravity_dir.z;
+
+                node = node->m_next_T_internal;
+            }
+
+            gravityChange = 0;
         }
-
-        gravityChange = 0;
+        if (delta_t >= 0.1)
+            t = 0.1f;
+        else
+            t = delta_t;
+        Phys_AddCacheImpulses();
+        //Nitrous_ForEachBody<void (__cdecl *)(PhysObjUserData &,float)>(Phys_BodyGrabSnapshotNitrous, t);
+        Nitrous_ForEachBody(Phys_BodyGrabSnapshotNitrous, t);
+        //Nitrous_ForEachBody<void (__cdecl *)(PhysObjUserData &,float)>((void (__cdecl *)(PhysObjUserData *, float))Phys_DebugRender, t);
+        Nitrous_ForEachBody((void(__cdecl *)(PhysObjUserData *, float))Phys_DebugRender, t);
+        render_debug_draw_gjk_trace_geom();
+        NitrousVehicle::frame_prolog_all_systems(t);
     }
-    if ( delta_t >= 0.1 )
-        t = 0.1f;
-    else
-        t = delta_t;
-    Phys_AddCacheImpulses();
-    //Nitrous_ForEachBody<void (__cdecl *)(PhysObjUserData &,float)>(Phys_BodyGrabSnapshotNitrous, t);
-    Nitrous_ForEachBody(Phys_BodyGrabSnapshotNitrous, t);
-    //Nitrous_ForEachBody<void (__cdecl *)(PhysObjUserData &,float)>((void (__cdecl *)(PhysObjUserData *, float))Phys_DebugRender, t);
-    Nitrous_ForEachBody((void (__cdecl *)(PhysObjUserData *, float))Phys_DebugRender, t);
-    render_debug_draw_gjk_trace_geom();
-    NitrousVehicle::frame_prolog_all_systems(t);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "phys_frame_advance");
-    phys_sys::phys_frame_advance(t);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "update 2");
-    NitrousVehicle::debug_render_all();
-    NitrousVehicle::frame_epilog_all_systems(t);
-    process_destructible_hits();
-    process_dynent_hits();
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+
+    {
+        PROF_SCOPED("phys_frame_advance");
+        phys_sys::phys_frame_advance(t);
+    }
+    
+    {
+        PROF_SCOPED("update 2");
+
+        NitrousVehicle::debug_render_all();
+        NitrousVehicle::frame_epilog_all_systems(t);
+        process_destructible_hits();
+        process_dynent_hits();
+    }
+    
     Sys_LeaveCriticalSection(CRITSECT_PHYSICS_UPDATE);
 }
 
@@ -4606,7 +4612,9 @@ void collide_vehicle_wheels(PhysObjUserData *userData)
     //
     //v41[0] = a1;
     //v41[1] = (_UNKNOWN *)vars0;
-    //PIXBeginNamedEvent(-1, "phys_wheel_collision");
+    
+    PROF_SCOPED("phys_wheel_collision");
+
     v40 = 6;
     for (i = traces; --v40 >= 0; ++i)
     {
@@ -4618,9 +4626,7 @@ void collide_vehicle_wheels(PhysObjUserData *userData)
     rb = userData->body;
     if (!rb || (rb->m_flags & 0x20) != 0)
     {
-        //if (GetCurrentThreadId() != g_DXDeviceThread)
-        //    return;
-        goto LABEL_10;
+        return;
     }
     if (userData->vehicle)
     {
@@ -4720,14 +4726,6 @@ void collide_vehicle_wheels(PhysObjUserData *userData)
                 }
             }
         }
-        //if (g_DXDeviceThread == GetCurrentThreadId())
-        //    D3DPERF_EndEvent();
-    }
-    else //if (GetCurrentThreadId() == g_DXDeviceThread)
-    {
-    LABEL_10:
-    ;
-        //D3DPERF_EndEvent();
     }
 }
 
@@ -4932,6 +4930,8 @@ char __cdecl Phys_ShouldCollideCallback(const broad_phase_base *bpi1, const broa
 
 void __cdecl PhysicsSystem_Update()
 {
+    PROF_SCOPED("PhysicsSystem_Update"); // LWSS ADD
+
     cg_s *cgameGlob; // [esp+0h] [ebp-Ch]
     int i; // [esp+4h] [ebp-8h]
     cg_s *cg; // [esp+8h] [ebp-4h]
@@ -4962,44 +4962,44 @@ void __cdecl Phys_RunToTime(int timeNow)
 
     proftimer_physics_frame_advance.stamp = tlPcGetTick().QuadPart;
     ++proftimer_physics_frame_advance.calls;
-    v1 = va("Physics update (obj=%d)", physGlob.objects.m_list_count);
-    //PIXBeginNamedEvent(-1, v1);
-    if ( !physInited
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_main.cpp", 2680, 0, "%s", "physInited") )
+
     {
-        __debugbreak();
-    }
-    physGlob.timeLastSnapshot = physGlob.timeLastUpdate;
-    time_msec = timeNow - physGlob.timeLastUpdate;
-    if ( timeNow != physGlob.timeLastUpdate )
-    {
-        //PIXBeginNamedEvent(-1, "auto_rigid_body");
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
-        auto_rigid_body::update();
-        if ( !Demo_IsPlaying() || !Demo_IsPaused() && time_msec > 0 && time_msec < 100 )
+        v1 = va("Physics update (obj=%d)", physGlob.objects.m_list_count);
+        PROF_SCOPED_RUNTIME_NAME(v1);
+
+        iassert(physInited);
+
+        physGlob.timeLastSnapshot = physGlob.timeLastUpdate;
+        time_msec = timeNow - physGlob.timeLastUpdate;
+        if (timeNow != physGlob.timeLastUpdate)
         {
-            if ( time_msec < 100 )
-                v3 = time_msec;
-            else
-                v3 = 100;
-            if ( v3 > 1 )
-                v2 = v3;
-            else
-                v2 = 1;
-            time_msec = v2;
-            UpdateRigidBody((float)v2 * 0.001);
+            PROF_SCOPED("auto_rigid_body");
+
+            auto_rigid_body::update();
+            if (!Demo_IsPlaying() || !Demo_IsPaused() && time_msec > 0 && time_msec < 100)
+            {
+                if (time_msec < 100)
+                    v3 = time_msec;
+                else
+                    v3 = 100;
+                if (v3 > 1)
+                    v2 = v3;
+                else
+                    v2 = 1;
+                time_msec = v2;
+                UpdateRigidBody((float)v2 * 0.001);
+            }
+            physGlob.timeLastUpdate = timeNow;
         }
-        physGlob.timeLastUpdate = timeNow;
+        proftimer_physics_frame_advance.value += tlPcGetTick().QuadPart - proftimer_physics_frame_advance.stamp;
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
-    proftimer_physics_frame_advance.value += tlPcGetTick().QuadPart - proftimer_physics_frame_advance.stamp;
-    //PIXBeginNamedEvent(-1, "Ragdoll_Update/XDoll_Update");
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
-    Ragdoll_Update(time_msec);
-    XDoll_Update(time_msec);
+
+    {
+        PROF_SCOPED("Ragdoll_Update/XDoll_Update");
+
+        Ragdoll_Update(time_msec);
+        XDoll_Update(time_msec);
+    }
 }
 
 void __cdecl Phys_ObjGetInterpolatedState(int id, float *outPos, float *outQuat)

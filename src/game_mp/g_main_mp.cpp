@@ -695,7 +695,9 @@ void __cdecl    G_InitGame(int levelTime, int randomSeed, int restart, int regis
     {
         __debugbreak();
     }
-    //PIXBeginNamedEvent(-1, "G_InitGame");
+    
+    PROF_SCOPED("G_InitGame");
+
     Com_Printf(15, "------- Game Initialization -------\n");
     Com_Printf(15, "gamename: %s\n", "Call of Duty®");
     Com_Printf(15, "gamedate: %s\n", "Nov    5 2010");
@@ -811,12 +813,11 @@ void __cdecl    G_InitGame(int levelTime, int randomSeed, int restart, int regis
         //*(_DWORD *)(a1 - 2076) = Dvar_GetString("mapname");
 
         {
-            //PIXBeginNamedEvent(-1, "GScr_LoadScripts");
+            PROF_SCOPED("GScr_LoadScripts");
             if (!G_ExitAfterToolComplete())
                 DB_SyncXAssets();
 
             GScr_LoadScripts(SCRIPTINSTANCE_SERVER);
-            //PIXEndNamedEvent();
         }
         
         // IDA being annoying here too
@@ -898,64 +899,48 @@ void __cdecl    G_InitGame(int levelTime, int randomSeed, int restart, int regis
     Scr_SetLoading(1, SCRIPTINSTANCE_SERVER);
     Scr_AllocGameVariable(SCRIPTINSTANCE_SERVER);
 
-    //PIXBeginNamedEvent(-1, "Load Scripts");
-    if (g_loadScripts && g_loadScripts->current.enabled)
     {
-        {
-            //PIXBeginNamedEvent(-1, "Load Structs");
-            G_LoadStructs();
-            //*(_DWORD *)(a1 - 2096) = GetCurrentThreadId();
-            //*(_DWORD *)(a1 - 2092) = 0;
-            //if (*(_QWORD *)(a1 - 2096) == g_DXDeviceThread)
-            //    D3DPERF_EndEvent();
-        }
-        
-        if (!r_reflectionProbeGenerate->current.enabled)
-        {
-            Path_InitPaths();
-            Actor_FinishSpawningAll();
-            Path_AutoDisconnectPaths();
-        }
+        PROF_SCOPED("Load Scripts");
 
+        if (g_loadScripts && g_loadScripts->current.enabled)
         {
-            //PIXBeginNamedEvent(-1, "Load Game");
-            if (Pregame_ShouldLoadPregame())
             {
-                Pregame_StartPregame();
-                Scr_LoadPreGame();
+                PROF_SCOPED("Load Structs");
+                G_LoadStructs();
             }
-            else
+
+            if (!r_reflectionProbeGenerate->current.enabled)
             {
-                Scr_LoadGameType();
+                Path_InitPaths();
+                Actor_FinishSpawningAll();
+                Path_AutoDisconnectPaths();
             }
-            //*(_DWORD *)(a1 - 2104) = GetCurrentThreadId();
-            //*(_DWORD *)(a1 - 2100) = 0;
-            //if (*(_QWORD *)(a1 - 2104) == g_DXDeviceThread)
-            //    D3DPERF_EndEvent();
-        }
 
-        {
-            //PIXBeginNamedEvent(-1, "Load Level");
-            Scr_LoadLevel();
-            //*(_DWORD *)(a1 - 2112) = GetCurrentThreadId();
-            //*(_DWORD *)(a1 - 2108) = 0;
-            //if (*(_QWORD *)(a1 - 2112) == g_DXDeviceThread)
-            //    D3DPERF_EndEvent();
-        }
+            {
+                PROF_SCOPED("Load Game");
+                if (Pregame_ShouldLoadPregame())
+                {
+                    Pregame_StartPregame();
+                    Scr_LoadPreGame();
+                }
+                else
+                {
+                    Scr_LoadGameType();
+                }
+            }
 
-        {
-            //PIXBeginNamedEvent(-1, "Startup Gametype");
-            Scr_StartupGameType();
-            //*(_DWORD *)(a1 - 2120) = GetCurrentThreadId();
-            //*(_DWORD *)(a1 - 2116) = 0;
-            //if (*(_QWORD *)(a1 - 2120) == g_DXDeviceThread)
-            //    D3DPERF_EndEvent();
+            {
+                PROF_SCOPED("Load Level");
+                Scr_LoadLevel();
+            }
+
+            {
+                PROF_SCOPED("Startup Gametype");
+                Scr_StartupGameType();
+            }
         }
     }
-    //*(_DWORD *)(a1 - 2128) = GetCurrentThreadId();
-    //*(_DWORD *)(a1 - 2124) = 0;
-    //if (*(_QWORD *)(a1 - 2128) == g_DXDeviceThread)
-    //    D3DPERF_EndEvent();
+
     
     for (int i = 0; i < 4; i++)
     {
@@ -2986,31 +2971,33 @@ void    G_RunFrame(int levelTime)
     {
         __debugbreak();
     }
-    //PIXBeginNamedEvent(-1, "Update clients");
-    ent = g_entities;
-    i = 0;
-    while ( i < level.maxclients )
+
     {
-        if ( ent->r.inuse )
+        PROF_SCOPED("Update clients");
+        ent = g_entities;
+        i = 0;
+        while (i < level.maxclients)
         {
-            if ( !ent->client
-                && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_main_mp.cpp", 3600, 0, "%s", "ent->client") )
+            if (ent->r.inuse)
             {
-                __debugbreak();
+                if (!ent->client
+                    && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_main_mp.cpp", 3600, 0, "%s", "ent->client"))
+                {
+                    __debugbreak();
+                }
+                if ((ent->client->flags & 3) == 0)
+                    G_DoTouchTriggers(ent);
+                G_UpdateWeapons(ent);
+                G_UpdateTimedDamage(ent);
+                G_UpdateIKPlayerClipTerrainTimeout(ent);
+                G_UpdateIKDisableTerrainMappingTimeout(ent);
+                G_UpdateIKCulling(ent);
             }
-            if ( (ent->client->flags & 3) == 0 )
-                G_DoTouchTriggers(ent);
-            G_UpdateWeapons(ent);
-            G_UpdateTimedDamage(ent);
-            G_UpdateIKPlayerClipTerrainTimeout(ent);
-            G_UpdateIKDisableTerrainMappingTimeout(ent);
-            G_UpdateIKCulling(ent);
+            ++i;
+            ++ent;
         }
-        ++i;
-        ++ent;
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+
 #ifdef KISAK_LIVE
     if ( onlinegame->current.enabled && com_sv_running->current.enabled )
         MatchRecordMovement();
@@ -3020,103 +3007,82 @@ void    G_RunFrame(int levelTime)
     SV_Flame_Age_All_Objects(Time);
     v3 = G_GetTime();
     IK_UpdateTimeAll(v3, -1, 0);
-    //PIXBeginNamedEvent(-1, "G_XAnimUpdate");
-    ent = g_entities;
-    i = 0;
-    while ( i < level.num_entities )
+
     {
-        if ( ent->r.inuse )
-            SV_DObjInitServerTime(ent, (float)level.frametime * 0.001);
-        ++i;
-        ++ent;
+        PROF_SCOPED("G_XAnimUpdate");
+        ent = g_entities;
+        i = 0;
+        while (i < level.num_entities)
+        {
+            if (ent->r.inuse)
+                SV_DObjInitServerTime(ent, (float)level.frametime * 0.001);
+            ++i;
+            ++ent;
+        }
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+
     memset(entIndex, 0, 0x400u);
     index = 0;
-    //PIXBeginNamedEvent(-1, "G_TriggerChecks");
-    if ( level.currentTriggerListSize
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_main_mp.cpp",
-                    3654,
-                    0,
-                    "%s",
-                    "level.currentTriggerListSize == 0") )
+
     {
-        __debugbreak();
-    }
-    Com_Memcpy(level.currentTriggerList, level.pendingTriggerList, 12 * level.pendingTriggerListSize);
-    level.currentTriggerListSize = level.pendingTriggerListSize;
-    level.pendingTriggerListSize = 0;
-    do
-    {
-        bMoreTriggered = 0;
-        ++index;
-        for ( i = 0; i < level.currentTriggerListSize; ++i )
+        PROF_SCOPED("G_TriggerChecks");
+
+        if (level.currentTriggerListSize
+            && !Assert_MyHandler(
+                "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_main_mp.cpp",
+                3654,
+                0,
+                "%s",
+                "level.currentTriggerListSize == 0"))
         {
-            trigger_info = &level.currentTriggerList[i];
-            entnum = trigger_info->entnum;
-            ent = &g_entities[entnum];
-            if ( ent->useCount == trigger_info->useCount )
-            {
-                if ( !ent->r.inuse
-                    && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_main_mp.cpp",
-                                3670,
-                                0,
-                                "%s",
-                                "ent->r.inuse") )
-                {
-                    __debugbreak();
-                }
-                other = &g_entities[trigger_info->otherEntnum];
-                if ( other->useCount == trigger_info->otherUseCount )
-                {
-                    if ( !other->r.inuse
-                        && !Assert_MyHandler(
-                                    "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_main_mp.cpp",
-                                    3674,
-                                    0,
-                                    "%s",
-                                    "other->r.inuse") )
-                    {
-                        __debugbreak();
-                    }
-                    if ( entIndex[entnum] == index )
-                    {
-                        bMoreTriggered = 1;
-                        continue;
-                    }
-                    entIndex[entnum] = index;
-                    Scr_AddEntity(other, SCRIPTINSTANCE_SERVER);
-                    Scr_Notify(ent, scr_const.trigger, 1u);
-                }
-            }
-            --level.currentTriggerListSize;
-            --i;
-            v4 = &level.currentTriggerList[level.currentTriggerListSize];
-            *(unsigned int *)&trigger_info->entnum = *(unsigned int *)&v4->entnum;
-            trigger_info->useCount = v4->useCount;
-            trigger_info->otherUseCount = v4->otherUseCount;
+            __debugbreak();
         }
-        //PIXBeginNamedEvent(-1, "Scr_RunCurrentThreads");
-        Scr_RunCurrentThreads(SCRIPTINSTANCE_SERVER);
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
+        Com_Memcpy(level.currentTriggerList, level.pendingTriggerList, 12 * level.pendingTriggerListSize);
+        level.currentTriggerListSize = level.pendingTriggerListSize;
+        level.pendingTriggerListSize = 0;
+        do
+        {
+            bMoreTriggered = 0;
+            ++index;
+            for (i = 0; i < level.currentTriggerListSize; ++i)
+            {
+                trigger_info = &level.currentTriggerList[i];
+                entnum = trigger_info->entnum;
+                ent = &g_entities[entnum];
+                if (ent->useCount == trigger_info->useCount)
+                {
+                    iassert(ent->r.inuse);
+                    other = &g_entities[trigger_info->otherEntnum];
+                    if (other->useCount == trigger_info->otherUseCount)
+                    {
+                        iassert(other->r.inuse);
+                        
+                        if (entIndex[entnum] == index)
+                        {
+                            bMoreTriggered = 1;
+                            continue;
+                        }
+                        entIndex[entnum] = index;
+                        Scr_AddEntity(other, SCRIPTINSTANCE_SERVER);
+                        Scr_Notify(ent, scr_const.trigger, 1u);
+                    }
+                }
+                --level.currentTriggerListSize;
+                --i;
+                v4 = &level.currentTriggerList[level.currentTriggerListSize];
+                *(unsigned int *)&trigger_info->entnum = *(unsigned int *)&v4->entnum;
+                trigger_info->useCount = v4->useCount;
+                trigger_info->otherUseCount = v4->otherUseCount;
+            }
+
+            {
+                PROF_SCOPED("Scr_RunCurrentThreads");
+                Scr_RunCurrentThreads(SCRIPTINSTANCE_SERVER);
+            }
+        } while (bMoreTriggered);
+        iassert(level.currentTriggerListSize == 0);
     }
-    while ( bMoreTriggered );
-    if ( level.currentTriggerListSize
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_main_mp.cpp",
-                    3698,
-                    0,
-                    "%s",
-                    "level.currentTriggerListSize == 0") )
-    {
-        __debugbreak();
-    }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+    
     ent = g_entities;
     i = 0;
     while ( i < level.maxclients )
@@ -3126,103 +3092,111 @@ void    G_RunFrame(int levelTime)
         ++i;
         ++ent;
     }
-    //PIXBeginNamedEvent(-1, "G_XAnimUpdate");
-    ent = g_entities;
-    i = 0;
-    while ( i < level.num_entities )
+
     {
-        G_XAnimUpdateEnt(ent);
-        ++i;
-        ++ent;
+        PROF_SCOPED("G_XAnimUpdate");
+        ent = g_entities;
+        i = 0;
+        while (i < level.num_entities)
+        {
+            G_XAnimUpdateEnt(ent);
+            ++i;
+            ++ent;
+        }
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+
     Scr_IncTime(SCRIPTINSTANCE_SERVER);
     SV_ResetSkeletonCache();
-    //PIXBeginNamedEvent(-1, "G_RunFrameForEntity");
-    if ( level.currentEntityThink != -1
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_main_mp.cpp",
-                    3730,
-                    0,
-                    "%s",
-                    "level.currentEntityThink == -1") )
+
     {
-        __debugbreak();
-    }
-    ent = g_entities;
-    level.currentEntityThink = 0;
-    while ( level.currentEntityThink < level.num_entities )
-    {
-        if ( ent->r.inuse )
+        PROF_SCOPED("G_RunFrameForEntity");
+        if (level.currentEntityThink != -1
+            && !Assert_MyHandler(
+                "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_main_mp.cpp",
+                3730,
+                0,
+                "%s",
+                "level.currentEntityThink == -1"))
         {
-            G_RunFrameForEntity(ent);
-            G_UpdateClientLinkInfo(ent);
+            __debugbreak();
         }
-        ++level.currentEntityThink;
-        ++ent;
-    }
-    level.currentEntityThink = -1;
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "G_UpdateObjectiveToClients");
-    G_UpdateObjectiveToClients();
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "G_UpdateHudElemsToClients");
-    G_UpdateHudElemsToClients();
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "ClientEndFrame");
-    ent = g_entities;
-    i = 0;
-    while ( i < level.maxclients )
-    {
-        if ( ent->r.inuse )
+        ent = g_entities;
+        level.currentEntityThink = 0;
+        while (level.currentEntityThink < level.num_entities)
         {
-            if ( (unsigned int)i >= 0x20
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_main_mp.cpp",
-                            3765,
-                            0,
-                            "i doesn't index MAX_CLIENTS\n\t%i not in [0, %i)",
-                            i,
-                            32) )
+            if (ent->r.inuse)
             {
-                __debugbreak();
+                G_RunFrameForEntity(ent);
+                G_UpdateClientLinkInfo(ent);
             }
-            if ( !level_bgs.clientinfo[i].infoValid
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_main_mp.cpp",
-                            3766,
-                            0,
-                            "%s",
-                            "level_bgs.clientinfo[i].infoValid") )
-            {
-                __debugbreak();
-            }
-            if ( ent->client - level.clients != i
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_main_mp.cpp",
-                            3767,
-                            0,
-                            "ent->client - level.clients == i\n\t%i, %i",
-                            ent->client - level.clients,
-                            i) )
-            {
-                __debugbreak();
-            }
-            ClientEndFrame(ent);
+            ++level.currentEntityThink;
+            ++ent;
         }
-        ++i;
-        ++ent;
+        level.currentEntityThink = -1;
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "CheckTeamStatus");
-    CheckTeamStatus();
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+    
+    {
+        PROF_SCOPED("G_UpdateObjectiveToClients");
+        G_UpdateObjectiveToClients();
+    }
+    {
+        PROF_SCOPED("G_UpdateHudElemsToClients");
+        G_UpdateHudElemsToClients();
+    }
+    
+    {
+        PROF_SCOPED("ClientEndFrame");
+
+        ent = g_entities;
+        i = 0;
+        while (i < level.maxclients)
+        {
+            if (ent->r.inuse)
+            {
+                if ((unsigned int)i >= 0x20
+                    && !Assert_MyHandler(
+                        "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_main_mp.cpp",
+                        3765,
+                        0,
+                        "i doesn't index MAX_CLIENTS\n\t%i not in [0, %i)",
+                        i,
+                        32))
+                {
+                    __debugbreak();
+                }
+                if (!level_bgs.clientinfo[i].infoValid
+                    && !Assert_MyHandler(
+                        "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_main_mp.cpp",
+                        3766,
+                        0,
+                        "%s",
+                        "level_bgs.clientinfo[i].infoValid"))
+                {
+                    __debugbreak();
+                }
+                if (ent->client - level.clients != i
+                    && !Assert_MyHandler(
+                        "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_main_mp.cpp",
+                        3767,
+                        0,
+                        "ent->client - level.clients == i\n\t%i, %i",
+                        ent->client - level.clients,
+                        i))
+                {
+                    __debugbreak();
+                }
+                ClientEndFrame(ent);
+            }
+            ++i;
+            ++ent;
+        }
+    }
+    
+    {
+        PROF_SCOPED("CheckTeamStatus");
+        CheckTeamStatus();
+    }
+    
     if ( g_oldVoting->current.enabled )
         CheckVote();
     if ( g_listEntity->current.enabled )

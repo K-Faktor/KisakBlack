@@ -251,167 +251,109 @@ void __cdecl CL_CompositeRender()
 {
     CompositeState state; // [esp+1Ch] [ebp-1Ch]
     int idx; // [esp+2Ch] [ebp-Ch]
-    int idxa; // [esp+2Ch] [ebp-Ch]
     CompositeJob *job; // [esp+30h] [ebp-8h]
-    CompositeJob *joba; // [esp+30h] [ebp-8h]
     bool renderBusy; // [esp+37h] [ebp-1h]
-    int savedregs; // [esp+38h] [ebp+0h] BYREF
+
+    PROF_SCOPED("CL_CompositeRender"); // LWSS ADD
 
     renderBusy = 0;
     if ( !Sys_IsMainThread() )
     {
-        if ( !Sys_IsRenderThread()
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\client\\cl_compositing.cpp",
-                        395,
-                        0,
-                        "%s",
-                        "Sys_IsRenderThread()") )
-        {
-            __debugbreak();
-        }
+        iassert(Sys_IsRenderThread());
         return;
     }
-    for ( idx = 0; idx < 4; ++idx )
+
     {
-        job = &s_jobs[idx];
-        state = job->state;
-        if ( job->state == COMPOSITE_STATE_RENDERING )
+        PROF_SCOPED("jobs 1"); // lwss add
+
+        for (idx = 0; idx < 4; ++idx)
         {
-            if ( renderBusy
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\client\\cl_compositing.cpp",
-                            405,
-                            0,
-                            "%s",
-                            "renderBusy == false") )
+            job = &s_jobs[idx];
+            state = job->state;
+            if (job->state == COMPOSITE_STATE_RENDERING)
             {
-                __debugbreak();
+                iassert(renderBusy == false);
+                renderBusy = true;
             }
-            renderBusy = 1;
-        }
-        else
-        {
-            if ( state == COMPOSITE_STATE_POST )
+            else
             {
-                if ( renderBusy
-                    && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\client\\cl_compositing.cpp",
-                                410,
-                                0,
-                                "%s",
-                                "renderBusy == false") )
+                if (state == COMPOSITE_STATE_POST)
                 {
-                    __debugbreak();
+                    iassert(renderBusy == false);
+                    iassert(job->resultImage == NULL);
+
+                    if (job->cancel)
+                    {
+                        job->state = COMPOSITE_STATE_IDLE;
+                        continue;
+                    }
+                    RB_Resource_CallbackParam((void(__cdecl *)(void *))CL_CompositeSetupImageCallback, &job->resultImage);
+                    RB_Resource_Flush();
+                    if (!job->resultImage)
+                    {
+                        renderBusy = 1;
+                        continue;
+                    }
+                    job->state = COMPOSITE_STATE_POST_ALLOCED;
                 }
-                if ( job->resultImage
-                    && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\client\\cl_compositing.cpp",
-                                412,
-                                0,
-                                "%s",
-                                "job->resultImage == NULL") )
+                else if (state != COMPOSITE_STATE_POST_ALLOCED)
                 {
-                    __debugbreak();
-                }
-                if ( job->cancel )
-                {
-                    job->state = COMPOSITE_STATE_IDLE;
                     continue;
                 }
-                RB_Resource_CallbackParam((void (__cdecl *)(void *))CL_CompositeSetupImageCallback, &job->resultImage);
-                RB_Resource_Flush();
-                if ( !job->resultImage )
+
+                iassert(renderBusy == false);
+
+                renderBusy = 1;
+
+                if (!R_HW_IsFencePending(&s_compositingFence))
                 {
-                    renderBusy = 1;
-                    continue;
+                    iassert(job->renderImage != NULL);
+                    iassert(job->resultImage != NULL);
+
+                    job->state = COMPOSITE_STATE_PC_WAITING_FOR_GPU;
+                    R_BeginCompositingCmdList();
+                    R_AddCmdPCCopyImageGenMIP((void(__cdecl *)(void *))CL_PCCopyImageGenMIPCallback, job->resultImage, job);
+                    R_AddCmdEndOfList();
                 }
-                job->state = COMPOSITE_STATE_POST_ALLOCED;
-            }
-            else if ( state != COMPOSITE_STATE_POST_ALLOCED )
-            {
-                continue;
-            }
-            if ( renderBusy
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\client\\cl_compositing.cpp",
-                            436,
-                            0,
-                            "%s",
-                            "renderBusy == false") )
-            {
-                __debugbreak();
-            }
-            renderBusy = 1;
-            if ( !R_HW_IsFencePending(&s_compositingFence) )
-            {
-                if ( !job->renderImage
-                    && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\client\\cl_compositing.cpp",
-                                444,
-                                0,
-                                "%s",
-                                "job->renderImage != NULL") )
-                {
-                    __debugbreak();
-                }
-                if ( !job->resultImage
-                    && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\client\\cl_compositing.cpp",
-                                445,
-                                0,
-                                "%s",
-                                "job->resultImage != NULL") )
-                {
-                    __debugbreak();
-                }
-                job->state = COMPOSITE_STATE_PC_WAITING_FOR_GPU;
-                R_BeginCompositingCmdList();
-                R_AddCmdPCCopyImageGenMIP((void (__cdecl *)(void *))CL_PCCopyImageGenMIPCallback, job->resultImage, job);
-                R_AddCmdEndOfList();
             }
         }
     }
-    for ( idxa = 0; idxa < 4; ++idxa )
+
     {
-        joba = &s_jobs[idxa];
-        if ( joba->state == COMPOSITE_STATE_PRE )
+        PROF_SCOPED("jobs 2"); // lwss add
+
+        for (idx = 0; idx < 4; ++idx)
         {
-            if ( joba->cancel )
-                joba->state = COMPOSITE_STATE_IDLE;
-            if ( !renderBusy && joba->type == COMPOSITE_EMBLEM && CL_CompositeCheckStreaming(joba->layers, joba->layerCount) )
+            job = &s_jobs[idx];
+            if (job->state == COMPOSITE_STATE_PRE)
             {
-                joba->state = COMPOSITE_STATE_RENDERING;
-                renderBusy = 1;
-                R_BeginCompositingCmdList();
-                R_AddCmdProjectionSet2D();
-                R_AddCmdClearScreen(1, colorBlackBlank, 1.0, 0);
-                CL_CompositeDrawEmblemPhysical(
-                    0.0,
-                    0.0,
-                    256.0,
-                    256.0,
-                    colorWhite,
-                    joba->layers,
-                    joba->layerCount);
-                R_AddCmdResolveComposite(CL_CompositeEmblemCallback);
-                R_AddCmdEndOfList();
+                if (job->cancel)
+                    job->state = COMPOSITE_STATE_IDLE;
+                if (!renderBusy && job->type == COMPOSITE_EMBLEM && CL_CompositeCheckStreaming(job->layers, job->layerCount))
+                {
+                    job->state = COMPOSITE_STATE_RENDERING;
+                    renderBusy = 1;
+                    R_BeginCompositingCmdList();
+                    R_AddCmdProjectionSet2D();
+                    R_AddCmdClearScreen(1, colorBlackBlank, 1.0, 0);
+                    CL_CompositeDrawEmblemPhysical(
+                        0.0,
+                        0.0,
+                        256.0,
+                        256.0,
+                        colorWhite,
+                        job->layers,
+                        job->layerCount);
+                    R_AddCmdResolveComposite(CL_CompositeEmblemCallback);
+                    R_AddCmdEndOfList();
+                }
             }
-        }
-        else if ( joba->state == COMPOSITE_STATE_COMPLETE && joba->cancel )
-        {
-            if ( !joba->resultImage
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\client\\cl_compositing.cpp",
-                            519,
-                            0,
-                            "%s",
-                            "job->resultImage") )
+            else if (job->state == COMPOSITE_STATE_COMPLETE && job->cancel)
             {
-                __debugbreak();
+                iassert(job->resultImage);
+                CL_CompositeReleaseImage(job->resultImage);
+                job->state = COMPOSITE_STATE_IDLE;
             }
-            CL_CompositeReleaseImage(joba->resultImage);
-            joba->state = COMPOSITE_STATE_IDLE;
         }
     }
 }

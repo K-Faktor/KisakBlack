@@ -374,7 +374,8 @@ void __cdecl CG_PointTraceToEntity(const pointtrace_t *clip, unsigned int entInd
     int partBits[5]; // [esp+1CCh] [ebp-20h] BYREF
     float absMins[3]; // [esp+1E0h] [ebp-Ch] BYREF
 
-    //PIXBeginNamedEvent(-1, "CG_PointTraceToEntity");
+    PROF_SCOPED("CG_PointTraceToEntity");
+
     if ( !clip && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_world.cpp", 573, 0, "%s", "clip") )
         __debugbreak();
     if ( entIndex >= 0x600
@@ -401,16 +402,10 @@ void __cdecl CG_PointTraceToEntity(const pointtrace_t *clip, unsigned int entInd
         {
             if ( ignoreEntParams->ignoreSelf && entIndex == ignoreEntParams->baseEntity )
             {
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
-                goto LABEL_97;
+                return;
             }
             if ( ignoreEntParams->ignoreParent && entIndex == ignoreEntParams->parentEntity )
             {
-                //if ( GetCurrentThreadId() != g_DXDeviceThread )
-                //    return;
-LABEL_97:
-                //D3DPERF_EndEvent();
                 return;
             }
         }
@@ -436,7 +431,8 @@ LABEL_97:
     {
         if ( !dobjEA )
         {
-            //PIXBeginNamedEvent(-1, "non_dobj");
+            PROF_SCOPED("non_dobj");
+
             if ( !p_nextState->solid
                 && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_world.cpp", 691, 0, "%s", "es->solid") )
             {
@@ -444,27 +440,15 @@ LABEL_97:
             }
             if (p_nextState->solid == 0xFFFFFF && (p_nextState->lerp.eFlags & 1) != 0)
             {
-                //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                    //D3DPERF_EndEvent();
-                //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                    goto LABEL_97;
                 return;
             }
             contents = CG_GetEntityBModelContents(cent);
             if ( (clip->contentmask & contents) == 0 )
             {
-                //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                    //D3DPERF_EndEvent();
-                //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                    goto LABEL_97;
                 return;
             }
             if ( !intersect_extents_aabb(&clip->extents, cent->pose.absmin, cent->pose.absmax, results->fraction) )
             {
-                //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                    //D3DPERF_EndEvent();
-                //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                    goto LABEL_97;
                 return;
             }
             if (p_nextState->solid == 0xFFFFFF)
@@ -484,19 +468,11 @@ LABEL_97:
                 {
                     if ( !DObjHasCollmap(v5) )
                     {
-                        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                            //D3DPERF_EndEvent();
-                        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                            goto LABEL_97;
                         return;
                     }
                     geoms = DObjGetCollmap(v5);
                     if ( !geoms )
                     {
-                        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                            //D3DPERF_EndEvent();
-                        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                            goto LABEL_97;
                         return;
                     }
                     cmodel = CM_TempBrushModel(geoms);
@@ -530,20 +506,12 @@ LABEL_97:
                 angles);
             if ( results->fraction >= oldFraction )
             {
-                //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                    //D3DPERF_EndEvent();
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
-LABEL_117:
-                //D3DPERF_EndEvent();
                 return;
             }
             results->modelIndex = 0;
             results->partName = 0;
             results->partGroup = 0;
             results->boneIndex = 254;
-            //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                //D3DPERF_EndEvent();
 LABEL_113:
             number = p_nextState->number;
             if ( !results
@@ -559,12 +527,12 @@ LABEL_113:
             results->hitType = TRACE_HITTYPE_ENTITY;
             results->hitId = number;
             results->cflags = contents;
-            //if ( g_DXDeviceThread != GetCurrentThreadId() )
-            //    return;
-            goto LABEL_117;
+            return;
         }
         dobj = dobjEA;
-        //PIXBeginNamedEvent(-1, "dobj");
+
+        PROF_SCOPED("dobj");
+
         hasCollMap = DObjHasCollmap(dobjEA);
         character = cent->nextState.eType == 19
                          || cent->nextState.eType == 17
@@ -585,18 +553,10 @@ LABEL_113:
             contents = 0x8000;
         if ( (clip->contentmask & contents) == 0 )
         {
-            //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                //D3DPERF_EndEvent();
-            //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                goto LABEL_97;
             return;
         }
         if ( !intersect_extents_aabb(&clip->extents, absMins, absMaxs, results->fraction) )
         {
-            //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                //D3DPERF_EndEvent();
-            //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                //D3DPERF_EndEvent();
             return;
         }
         cgameGlob = CG_GetLocalClientGlobals(localClientNum);
@@ -607,32 +567,30 @@ LABEL_113:
         objTrace.fraction = results->fraction;
         if ( character )
         {
+            PROF_SCOPED("DObjTraceline");
             v3 = DObjGetName(dobj);
-            Name = va("char: %s", v3);
-            //PIXBeginNamedEvent(-1, Name);
+            //Name = va("char: %s", v3);
+            ZoneTextF("char: %s", v3);
+
             DObjTracelinePartBits(dobj, partBits);
             CG_DObjCalcPose(&centEA->pose, dobj, partBits);
             DObjTraceline(dobj, localStart, localEnd, clip->priorityMap, &objTrace);
-            //if ( GetCurrentThreadId() != g_DXDeviceThread )
-            //    goto LABEL_57;
         }
         else
         {
+            PROF_SCOPED("DObjGeomTraceline");
+
             v4 = DObjGetName(dobj);
-            v9 = va("non_char: %s", v4);
-            //PIXBeginNamedEvent(-1, v9);
+            //v9 = va("non_char: %s", v4);
+            ZoneTextF("non_char: %s", v4);
+
             DObjGeomTracelinePartBits(dobj, clip->contentmask, partBits);
             CG_DObjCalcPose(&centEA->pose, dobj, partBits);
             DObjGeomTraceline(dobj, localStart, localEnd, clip->contentmask, &objTrace);
-            //if ( GetCurrentThreadId() != g_DXDeviceThread )
             {
 LABEL_57:
                 if ( objTrace.fraction >= results->fraction )
                 {
-                    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                        //D3DPERF_EndEvent();
-                    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                        //D3DPERF_EndEvent();
                     return;
                 }
                 results->fraction = objTrace.fraction;
@@ -644,16 +602,9 @@ LABEL_57:
                 *(_QWORD *)results->normal.vec.v = *(_QWORD *)objTrace.normal;
                 results->normal.vec.u[2] = LODWORD(objTrace.normal[2]);
                 results->walkable = results->normal.vec.v[2] >= 0.69999999;
-                //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                    //D3DPERF_EndEvent();
-                goto LABEL_113;
             }
         }
-        //D3DPERF_EndEvent();
-        goto LABEL_57;
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        goto LABEL_97;
 }
 
 void __cdecl CG_PointTraceToEntities(const pointtrace_t *clip, trace_t *results)
@@ -661,7 +612,8 @@ void __cdecl CG_PointTraceToEntities(const pointtrace_t *clip, trace_t *results)
     _QWORD start[2]; // [esp+18h] [ebp-20h] BYREF
     _QWORD end[2]; // [esp+28h] [ebp-10h] BYREF
 
-    //PIXBeginNamedEvent(-1, "cg_pointtracetoentities");
+    PROF_SCOPED("cg_pointtracetoentities");
+
     if ( !clip && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_world.cpp", 839, 0, "%s", "clip") )
         __debugbreak();
     if ( !results && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_world.cpp", 840, 0, "%s", "results") )
@@ -695,8 +647,6 @@ void __cdecl CG_PointTraceToEntities(const pointtrace_t *clip, trace_t *results)
     HIDWORD(start[1]) = 0;
     HIDWORD(end[1]) = LODWORD(results->fraction);
     CG_PointTraceToEntities_r(clip, 1u, (const float *)start, (const float *)end, results);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl CG_PointTraceToEntities_r(
@@ -860,7 +810,8 @@ void __cdecl CG_TraceCapsule(
 {
     float delta[3]; // [esp+B8h] [ebp-Ch]
 
-    //PIXBeginNamedEvent(-1, "CG_TraceCapsule");
+    PROF_SCOPED("CG_TraceCapsule");
+
     if ( !results && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_world.cpp", 863, 0, "%s", "results") )
         __debugbreak();
     if ( !mins && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_world.cpp", 864, 0, "%s", "mins") )
@@ -920,8 +871,7 @@ void __cdecl CG_TraceCapsule(
     }
     if ( results->fraction == 0.0 )
     {
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
+        return;
     }
     else
     {
@@ -958,8 +908,6 @@ void __cdecl CG_TraceCapsule(
         CM_CalcTraceExtents(&clip.extents);
         CG_ClipMoveToEntities(&clip, results);
         GlassCl_ClipMoveTrace(&clip, results);
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
     }
 }
 
@@ -968,7 +916,8 @@ void __cdecl CG_ClipMoveToEntities(const moveclip_t *clip, trace_t *results)
     _QWORD start[2]; // [esp+1Ch] [ebp-20h] BYREF
     _QWORD end[2]; // [esp+2Ch] [ebp-10h] BYREF
 
-    //PIXBeginNamedEvent(-1, "cg_clipmovetoentities");
+    PROF_SCOPED("cg_clipmovetoentities");
+
     if ( !clip && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_world.cpp", 543, 0, "%s", "clip") )
         __debugbreak();
     if ( !results && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_world.cpp", 544, 0, "%s", "results") )
@@ -1002,8 +951,6 @@ void __cdecl CG_ClipMoveToEntities(const moveclip_t *clip, trace_t *results)
     HIDWORD(start[1]) = 0;
     HIDWORD(end[1]) = LODWORD(results->fraction);
     CG_ClipMoveToEntities_r(clip, 1u, (const float *)start, (const float *)end, results);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl CG_ClipMoveToEntities_r(
@@ -1426,7 +1373,7 @@ void __cdecl CG_TracePoint(
     float _end[3]; // [esp+4Ch] [ebp-64h] BYREF
     IgnoreEntParams ignoreEntParams; // [esp+A0h] [ebp-10h] BYREF
 
-    //PIXBeginNamedEvent(-1, "CG_TracePoint");
+    PROF_SCOPED("CG_TracePoint");
 
     nanassertvec3(start);
     nanassertvec3(end);
@@ -1464,8 +1411,7 @@ void __cdecl CG_TracePoint(
     }
     if ( results->fraction == 0.0 )
     {
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
+        return;
     }
     else
     {
@@ -1487,8 +1433,7 @@ void __cdecl CG_TracePoint(
         }
         if ( results->fraction == 0.0 )
         {
-            //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                //D3DPERF_EndEvent();
+            return;
         }
         else
         {
@@ -1519,8 +1464,6 @@ LABEL_34:
                 Rope_Trace(start, _end);
                 GlassCl_TracePoint(&clip, results);
             }
-            //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                //D3DPERF_EndEvent();
         }
     }
 }
@@ -1673,7 +1616,8 @@ int __cdecl CG_AreaEntities(const float *mins, const float *maxs, int *entityLis
     int count; // [esp+20h] [ebp-20h]
     CEntityAreaParms areaParms; // [esp+24h] [ebp-1Ch] BYREF
 
-    //PIXBeginNamedEvent(-1, "CG_AreaEntities");
+    PROF_SCOPED("CG_AreaEntities");
+
     if ( !mins && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_world.cpp", 1097, 0, "%s", "mins") )
         __debugbreak();
     if ( !maxs && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_world.cpp", 1097, 0, "%s", "maxs") )
@@ -1721,8 +1665,6 @@ int __cdecl CG_AreaEntities(const float *mins, const float *maxs, int *entityLis
     areaParms.count = 0;
     CG_AreaEntities_r(1u, &areaParms);
     count = areaParms.count;
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
     return count;
 }
 

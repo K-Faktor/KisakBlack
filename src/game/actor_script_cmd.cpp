@@ -780,7 +780,8 @@ void __cdecl ActorCmd_CanSee(scr_entref_t entref)
     actor_s *self; // [esp+14h] [ebp-8h]
     int iLatency; // [esp+18h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "ActorCmd_CanSee");
+    PROF_SCOPED("ActorCmd_CanSee");
+
     self = Actor_Get(entref);
     pOther = Scr_GetEntity(0);
     if ( !pOther
@@ -806,8 +807,6 @@ void __cdecl ActorCmd_CanSee(scr_entref_t entref)
         bVisible = Actor_CanSeeEntity(self, pOther);
     }
     Scr_AddBool(bVisible, SCRIPTINSTANCE_SERVER);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl ActorCmd_MayMoveToPoint(scr_entref_t entref)
@@ -817,7 +816,8 @@ void __cdecl ActorCmd_MayMoveToPoint(scr_entref_t entref)
     actor_s *self; // [esp+5Ch] [ebp-10h]
     float myPos[3]; // [esp+60h] [ebp-Ch] BYREF
 
-    //PIXBeginNamedEvent(-1, "MayMoveToPoint");
+    PROF_SCOPED("MayMoveToPoint");
+
     self = Actor_Get(entref);
     Scr_GetVector(0, vPoint, SCRIPTINSTANCE_SERVER);
     checkDrop = (unsigned int)Scr_GetNumParam(SCRIPTINSTANCE_SERVER) <= 1
@@ -826,8 +826,6 @@ void __cdecl ActorCmd_MayMoveToPoint(scr_entref_t entref)
     {
         DEBUGMAYMOVE(self->ent->r.currentOrigin, vPoint, colorMagenta, DEBUGMAYMOVE_LIFTED);
         Scr_AddInt(0, SCRIPTINSTANCE_SERVER);
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
     }
     else
     {
@@ -837,17 +835,12 @@ void __cdecl ActorCmd_MayMoveToPoint(scr_entref_t entref)
             self->mayMoveTime = level.time;
             DEBUGMAYMOVE(self->ent->r.currentOrigin, vPoint, colorGreen, DEBUGMAYMOVE_LIFTED);
             Scr_AddInt(1, SCRIPTINSTANCE_SERVER);
-            //if ( g_DXDeviceThread != GetCurrentThreadId() )
-            //    return;
         }
         else
         {
             Scr_AddInt(0, SCRIPTINSTANCE_SERVER);
-            //if ( g_DXDeviceThread != GetCurrentThreadId() )
-            //    return;
         }
     }
-    //D3DPERF_EndEvent();
 }
 
 void __cdecl DEBUGMAYMOVE(
@@ -965,7 +958,8 @@ void __cdecl ActorCmd_MayMoveFromPointToPoint(scr_entref_t entref)
     actor_s *self; // [esp+54h] [ebp-10h]
     float vStart[3]; // [esp+58h] [ebp-Ch] BYREF
 
-    //PIXBeginNamedEvent(-1, "MayMoveFromPointToPoint");
+    PROF_SCOPED("MayMoveFromPointToPoint");
+
     self = Actor_Get(entref);
     Scr_GetVector(0, vStart, SCRIPTINSTANCE_SERVER);
     Scr_GetVector(1u, vEnd, SCRIPTINSTANCE_SERVER);
@@ -975,9 +969,7 @@ void __cdecl ActorCmd_MayMoveFromPointToPoint(scr_entref_t entref)
     {
         DEBUGMAYMOVE(vStart, vEnd, colorMagenta, DEBUGMAYMOVE_LIFTED);
         Scr_AddInt(0, SCRIPTINSTANCE_SERVER);
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_11;
+        return;
     }
     if ( MayMove_TraceCheck(self, vStart, vEnd, 0, checkDrop) )
     {
@@ -989,10 +981,6 @@ void __cdecl ActorCmd_MayMoveFromPointToPoint(scr_entref_t entref)
     {
         Scr_AddInt(0, SCRIPTINSTANCE_SERVER);
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-LABEL_11:
-        //D3DPERF_EndEvent();
-    ;
 }
 
 void __cdecl ActorCmd_Teleport(scr_entref_t entref)
@@ -1447,7 +1435,8 @@ void __cdecl ActorCmd_GetMotionAngle(scr_entref_t entref)
     float fDeltaYaw; // [esp+2Ch] [ebp-8h]
     actor_s *self; // [esp+30h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "GetMotionAngle");
+    PROF_SCOPED("GetMotionAngle");
+
     self = Actor_Get(entref);
     if ( (float)((float)(self->Physics.vVelocity[0] * self->Physics.vVelocity[0])
                          + (float)(self->Physics.vVelocity[1] * self->Physics.vVelocity[1])) <= 1.0 )
@@ -1468,8 +1457,6 @@ void __cdecl ActorCmd_GetMotionAngle(scr_entref_t entref)
         fDeltaYaw = AngleNormalize180(fMoveYaw - self->ent->r.currentAngles[1]);
     }
     Scr_AddFloat(fDeltaYaw, SCRIPTINSTANCE_SERVER);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl ActorCmd_GetAnglesToLikelyEnemyPath(scr_entref_t entref)

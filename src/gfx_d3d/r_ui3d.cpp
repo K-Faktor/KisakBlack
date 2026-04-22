@@ -399,7 +399,7 @@ void __cdecl RB_UI3D_RenderToTexture(const void *cmds, const GfxUI3DBackend *rbU
         g_ui3dStatus.rendering = 1;
         if ( g_ui3dStatus.initialized )
         {
-          //PIXBeginNamedEvent(-1, "RB_UI3D_RenderToTexture");
+          PROF_SCOPED("RB_UI3D_RenderToTexture");
           R_InitCmdBufSourceState(&gfxCmdBufSourceState, input, 0);
           gfxCmdBufSourceState.input.data = backEndData;
           R_InitLocalCmdBufState(&gfxCmdBufState);
@@ -485,8 +485,6 @@ void __cdecl RB_UI3D_RenderToTexture(const void *cmds, const GfxUI3DBackend *rbU
             RB_GaussianFilterImage(rbUI3D->blurRadius, 0x15u, 0x14u);
           }
           g_ui3dStatus.rendering = 0;
-          //if ( g_DXDeviceThread == GetCurrentThreadId() )
-          //  D3DPERF_EndEvent();
         }
         else
         {

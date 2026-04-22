@@ -1555,28 +1555,26 @@ void __cdecl Flame_List_Sub_Local(flameGeneric_s *item, flameGeneric_s **localLi
 
 void __cdecl CG_Flame_Age_All_Objects(int time)
 {
-    //PIXBeginNamedEvent(-1, "CG_Flame_Age_All_Objects");
+    PROF_SCOPED("CG_Flame_Age_All_Objects");
+
     cl_flames.m_alloc_count = 0;
     Flame_Class_Chunk_Age(0, time);
     Flame_Class_Fire_Age(0, time);
     Flame_Class_Smoke_Age(0, time);
     Flame_Class_Stream_Age(0);
     Flame_Class_Drips_Age(0, time);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl SV_Flame_Age_All_Objects(int time)
 {
-    //PIXBeginNamedEvent(-1, "SV_Flame_Age_All_Objects");
+    PROF_SCOPED("SV_Flame_Age_All_Objects");
+
     sv_flames.m_alloc_count = 0;
     Flame_Class_Chunk_Age(1, time);
     Flame_Class_Fire_Age(1, time);
     Flame_Class_Smoke_Age(1, time);
     Flame_Class_Stream_Age(1);
     Flame_Class_Drips_Age(1, time);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 
 flameSource_t *__cdecl Flame_Source_Alloc(int entityNum)
@@ -2057,8 +2055,8 @@ void __cdecl Flame_Generate_Verts(int localClientNum)
     char *Name; // [esp+8h] [ebp-Ch]
     int i; // [esp+10h] [ebp-4h]
 
-    Name = va("Flame_Generate_Verts(cl=%d)", localClientNum);
-    //PIXBeginNamedEvent(-1, Name);
+    PROF_SCOPED("Flame_Generate_Verts");
+    ZoneTextF("(cl=%d)", localClientNum);
     if ( flame_render->current.enabled )
     {
         Flame_Class_Smoke_Render_All(localClientNum);
@@ -2072,8 +2070,6 @@ void __cdecl Flame_Generate_Verts(int localClientNum)
             Flame_Class_Drips_Render_Local_List(localClientNum, (flameDrips_t *)flameVarList[i].dripsList);
         }
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl CG_Flame_Update_ViewModel(int localClientNum, centity_s *cent)

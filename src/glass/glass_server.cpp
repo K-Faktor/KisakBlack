@@ -120,7 +120,8 @@ void __thiscall GlassesServer::Update()
 
     if ( this->numGlasses )
     {
-        //PIXBeginNamedEvent(-1, "GlassesServer.Update");
+        PROF_SCOPED("GlassesServer.Update");
+
         for ( i = 0; i < this->numGlasses; ++i )
         {
             if ( (this->glasses[i].state.val.i & 0xF) == 1 )
@@ -172,8 +173,6 @@ void __thiscall GlassesServer::Update()
                 this->nextShatterTime += this->shatterIntervalsMS;
             }
         }
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
     }
 }
 
@@ -316,7 +315,8 @@ void __cdecl GlassSv_ClipMoveTrace(const moveclip_t *clip, trace_t *results)
 
     if ( (clip->contentmask & 0x10) != 0 && svGlasses.numGlasses )
     {
-        //PIXBeginNamedEvent(-1, "GlassSv_ClipMoveTrace");
+        PROF_SCOPED("GlassSv_ClipMoveTrace");
+
         for ( i = 0; i < 3; ++i )
         {
             if ( (float)(clip->extents.end.vec.v[i] - clip->extents.start.vec.v[i]) < 0.0 )
@@ -382,8 +382,6 @@ void __cdecl GlassSv_ClipMoveTrace(const moveclip_t *clip, trace_t *results)
                 results->hitId = index;
             }
         }
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
     }
 }
 
@@ -395,7 +393,8 @@ void __cdecl GlassSv_PointTrace(const pointtrace_t *clip, trace_t *results)
 
     if ( (clip->contentmask & 0x10) != 0 && svGlasses.numGlasses )
     {
-        //PIXBeginNamedEvent(-1, "GlassSv_PointTrace");
+        PROF_SCOPED("GlassSv_PointTrace");
+
         for ( i = 0; i < svGlasses.numGlasses; ++i )
         {
             glass = &svGlasses.glasses[i];
@@ -437,8 +436,6 @@ void __cdecl GlassSv_PointTrace(const pointtrace_t *clip, trace_t *results)
                 }
             }
         }
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
     }
 }
 
@@ -447,7 +444,8 @@ void __cdecl GlassSv_Damage(unsigned int glassId, int damage, int mod, float *po
     char v6; // [esp+4h] [ebp-20h]
     GlassServer *glass; // [esp+20h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "GlassSv_Damage");
+    PROF_SCOPED("GlassSv_Damage");
+
     if ( glassId >= svGlasses.numGlasses
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\glass\\glass_server.cpp",
@@ -463,9 +461,7 @@ void __cdecl GlassSv_Damage(unsigned int glassId, int damage, int mod, float *po
         || (float)(5.0 * svGlasses.damageMultiplier->current.value) > (float)damage
         && (mod == 3 || mod == 5 || mod == 7 || mod == 8 || mod == 17 || mod == 16 ? (v6 = 1) : (v6 = 0), !v6) )
     {
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_32;
+        return;
     }
     if ( mod == 3 || mod == 5 || mod == 7 || mod == 8 || mod == 17 || mod == 16 )
         glass->health = 0.0f;
@@ -481,10 +477,6 @@ void __cdecl GlassSv_Damage(unsigned int glassId, int damage, int mod, float *po
         //GlassServer::SetState(glass, CRACKED, 0, 0);
         glass->SetState(GlassState::State::CRACKED, 0, 0);
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-LABEL_32:
-    ;
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl GlassSv_RadiusDamage(
@@ -513,7 +505,8 @@ void __cdecl GlassSv_RadiusDamage(
 
     if ( svGlasses.numGlasses )
     {
-        //PIXBeginNamedEvent(-1, "GlassSv_RadiusDamage");
+        PROF_SCOPED("GlassSv_RadiusDamage");
+
         MAX_CLOSESTS = 100;
         radiusSqr = radius * radius;
         //LODWORD(v9) = (1.4142135 * radius) ^ _mask__NegFloat_;
@@ -562,8 +555,6 @@ void __cdecl GlassSv_RadiusDamage(
                 }
             }
         }
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
     }
 }
 
@@ -667,7 +658,8 @@ void __cdecl GlassSv_PredictTouch(gentity_s *other)
             v27 = actor->Physics.vVelocity[1];
             v28 = actor->Physics.vVelocity[2];
         }
-        //PIXBeginNamedEvent(-1, "GlassSv_PredictTouch");
+        PROF_SCOPED("GlassSv_PredictTouch");
+
         maxs = other->r.absmax[0];
         v24 = other->r.absmax[1];
         v25 = other->r.absmax[2];
@@ -724,8 +716,6 @@ void __cdecl GlassSv_PredictTouch(gentity_s *other)
                 }
             }
         }
-        //if (g_DXDeviceThread == GetCurrentThreadId())
-        //    D3DPERF_EndEvent();
     }
 }
 
@@ -747,7 +737,8 @@ void __thiscall GlassesServer::WriteSnapshotToClient(msg_t *msg, int sinceTime)
     _numGlasses = this->numGlasses;
     if ( _numGlasses )
     {
-        //PIXBeginNamedEvent(-1, "GlassesServer::WriteSnapshotToClient");
+        PROF_SCOPED("GlassesServer::WriteSnapshotToClient");
+
         sendFull = 1;
         numChanges = 0;
         if ( sinceTime > 0 )
@@ -769,8 +760,6 @@ void __thiscall GlassesServer::WriteSnapshotToClient(msg_t *msg, int sinceTime)
             {
                 MSG_WriteBit0(msg);
                 MSG_WriteShort(msg, 30154);
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
                 return;
             }
             if ( 192 * numShattered + 2 * _numGlasses > 192 * numPositions + 12 * numChanges )
@@ -819,8 +808,6 @@ void __thiscall GlassesServer::WriteSnapshotToClient(msg_t *msg, int sinceTime)
             }
         }
         MSG_WriteShort(msg, 30154);
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
     }
 }
 

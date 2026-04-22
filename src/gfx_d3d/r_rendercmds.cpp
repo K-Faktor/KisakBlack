@@ -377,6 +377,8 @@ void __cdecl R_InitRenderThread()
 
 void __cdecl R_SyncRenderThread()
 {
+    PROF_SCOPED("R_SyncRenderThread");
+
     if ( !Sys_IsRenderThread() )
     {
         if ( !Sys_IsMainThread()
@@ -529,24 +531,29 @@ void __cdecl R_ToggleSmpFrameCmd(char type)
         __debugbreak();
     }
     //BLOPS_NULLSUB();
-    //PIXBeginNamedEvent(-1, "wait renderer");
-    sem = R_ReleaseDXDeviceOwnership();
-    Sys_WaitRenderer();
-    if ( sem )
-        R_AcquireDXDeviceOwnership(0);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+    {
+        PROF_SCOPED("wait renderer");
+        sem = R_ReleaseDXDeviceOwnership();
+        Sys_WaitRenderer();
+        if (sem)
+            R_AcquireDXDeviceOwnership(0);
+    }
+    
     RB_CopyBackendStats();
-    if ( (type & 2) != 0 )
+    if ((type & 2) != 0)
+    {
         R_PerformanceCounters();
-    //PIXBeginNamedEvent(-1, "wait frontend workercmds");
-    semaphore = R_ReleaseDXDeviceOwnership();
-    while ( !R_FinishedFrontendWorkerCmds() )
-        NET_Sleep(1u);
-    if ( semaphore )
-        R_AcquireDXDeviceOwnership(0);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+    }
+
+    {
+        PROF_SCOPED("wait frontend workercmds");
+        semaphore = R_ReleaseDXDeviceOwnership();
+        while (!R_FinishedFrontendWorkerCmds())
+            NET_Sleep(1u);
+        if (semaphore)
+            R_AcquireDXDeviceOwnership(0);
+    }
+
     R_UpdateSkinCacheUsage();
     //BLOPS_NULLSUB();
     R_UnlockSkinnedCache();
@@ -747,7 +754,7 @@ void R_ToggleSmpFrame()
     volatile int surfPos; // [esp+0h] [ebp-20h]
     DebugGlobals *debugGlobalsEntry; // [esp+1Ch] [ebp-4h]
 
-    //PIXBeginNamedEvent((int)&cls.rankedServers[537].city[61], "R_ToggleSmpFrame");
+    PROF_SCOPED("R_ToggleSmpFrame");
     if ( !rg.viewInfoCount )
         CG_PerfUpdate();
     s_smpFrame = (s_smpFrame + 1) % 2;
@@ -792,56 +799,58 @@ void R_ToggleSmpFrame()
     frontEndDataOut->modelLightingPatchCount = 0;
     frontEndDataOut->skinnedCacheVb->used = 0;
     s_cmdList = frontEndDataOut->commands;
-    //PIXBeginNamedEvent(-1, "dev clear buffers");
-    if ( frontEndDataOut->drawSurfCount > 0x8000u
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_rendercmds.cpp",
-                    1607,
-                    0,
-                    "frontEndDataOut->drawSurfCount not in [0, static_cast< int >( ARRAY_COUNT( frontEndDataOut->drawSurfs ) )]\n"
-                    "\t%i not in [%i, %i]",
-                    frontEndDataOut->drawSurfCount,
-                    0,
-                    0x8000) )
+
     {
-        __debugbreak();
+        PROF_SCOPED("dev clear buffers");
+        if (frontEndDataOut->drawSurfCount > 0x8000u
+            && !Assert_MyHandler(
+                "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_rendercmds.cpp",
+                1607,
+                0,
+                "frontEndDataOut->drawSurfCount not in [0, static_cast< int >( ARRAY_COUNT( frontEndDataOut->drawSurfs ) )]\n"
+                "\t%i not in [%i, %i]",
+                frontEndDataOut->drawSurfCount,
+                0,
+                0x8000))
+        {
+            __debugbreak();
+        }
+        if (frontEndDataOut->surfPos < 0
+            && !Assert_MyHandler(
+                "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_rendercmds.cpp",
+                1608,
+                0,
+                "%s\n\t(frontEndDataOut->surfPos) = %i",
+                "(frontEndDataOut->surfPos >= 0)",
+                frontEndDataOut->surfPos))
+        {
+            __debugbreak();
+        }
+        if (frontEndDataOut->surfPos > 0x40000)
+            surfPos = 0x40000;
+        else
+            surfPos = frontEndDataOut->surfPos;
+        frontEndDataOut->surfPos = surfPos;
+        if (frontEndDataOut->cloudCount > 0x100u
+            && !Assert_MyHandler(
+                "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_rendercmds.cpp",
+                1610,
+                0,
+                "frontEndDataOut->cloudCount not in [0, GFX_PARTICLE_CLOUD_LIMIT]\n\t%i not in [%i, %i]",
+                frontEndDataOut->cloudCount,
+                0,
+                256))
+        {
+            __debugbreak();
+        }
+        Com_Memset((unsigned int *)frontEndDataOut->drawSurfs, 176, 8 * frontEndDataOut->drawSurfCount);
+        Com_Memset((unsigned int *)frontEndDataOut->surfsBuffer, 176, frontEndDataOut->surfPos);
+        Com_Memset((unsigned int *)frontEndDataOut->clouds, 176, frontEndDataOut->cloudCount << 6);
+        Com_Memset(&frontEndDataOut->codeMeshes[0].triCount, 176, 0x8000);
+        Com_Memset(frontEndDataOut->primDrawSurfsBuf, 176, 4 * frontEndDataOut->primDrawSurfPos);
+        Com_Memset((unsigned int *)&frontEndDataOut->fogSettings, 176, 80);
     }
-    if ( frontEndDataOut->surfPos < 0
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_rendercmds.cpp",
-                    1608,
-                    0,
-                    "%s\n\t(frontEndDataOut->surfPos) = %i",
-                    "(frontEndDataOut->surfPos >= 0)",
-                    frontEndDataOut->surfPos) )
-    {
-        __debugbreak();
-    }
-    if ( frontEndDataOut->surfPos > 0x40000 )
-        surfPos = 0x40000;
-    else
-        surfPos = frontEndDataOut->surfPos;
-    frontEndDataOut->surfPos = surfPos;
-    if ( frontEndDataOut->cloudCount > 0x100u
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_rendercmds.cpp",
-                    1610,
-                    0,
-                    "frontEndDataOut->cloudCount not in [0, GFX_PARTICLE_CLOUD_LIMIT]\n\t%i not in [%i, %i]",
-                    frontEndDataOut->cloudCount,
-                    0,
-                    256) )
-    {
-        __debugbreak();
-    }
-    Com_Memset((unsigned int *)frontEndDataOut->drawSurfs, 176, 8 * frontEndDataOut->drawSurfCount);
-    Com_Memset((unsigned int *)frontEndDataOut->surfsBuffer, 176, frontEndDataOut->surfPos);
-    Com_Memset((unsigned int *)frontEndDataOut->clouds, 176, frontEndDataOut->cloudCount << 6);
-    Com_Memset(&frontEndDataOut->codeMeshes[0].triCount, 176, 0x8000);
-    Com_Memset(frontEndDataOut->primDrawSurfsBuf, 176, 4 * frontEndDataOut->primDrawSurfPos);
-    Com_Memset((unsigned int *)&frontEndDataOut->fogSettings, 176, 80);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+    
     frontEndDataOut->drawSurfCount = 0;
     frontEndDataOut->primDrawSurfPos = 0;
     frontEndDataOut->surfPos = 0;
@@ -867,14 +876,6 @@ void R_ToggleSmpFrame()
     debugGlobalsEntry->stringCount = 0;
     debugGlobalsEntry->polySet.vertCount = 0;
     R_DynSModelInitGfxState(&frontEndDataOut->dynSModelState);
-    //result = GetCurrentThreadId();
-    //if ( result == (unsigned int)g_DXDeviceThread )
-    //{
-    //    result = 0;
-    //    if ( !HIDWORD(g_DXDeviceThread) )
-    //        return //D3DPERF_EndEvent();
-    //}
-    //return result;
 }
 
 void R_FreeTempSkinBuffer()
@@ -1919,13 +1920,12 @@ void __cdecl R_BeginFrame()
     _D3DADAPTER_IDENTIFIER9 id; // [esp+10h] [ebp-458h] BYREF
     int n; // [esp+464h] [ebp-4h]
 
+    PROF_SCOPED("R_BeginFrame"); // LWSS ADD
+
     if ( rg.registered )
     {
-        if ( rg.inFrame
-            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_rendercmds.cpp", 2698, 0, "%s", "!rg.inFrame") )
-        {
-            __debugbreak();
-        }
+        iassert(!rg.inFrame);
+
         rg.inFrame = 1;
         rg.lodParms.valid = 0;
         for ( n = 0; n < 4; ++n )
@@ -1971,6 +1971,8 @@ void R_UpdateFrontEndDvarOptions()
 {
     bool v2; // [esp+0h] [ebp-10h]
     GfxImage *image; // [esp+4h] [ebp-Ch]
+
+    PROF_SCOPED("R_UpdateFrontEndDvarOptions"); // LWSS ADD
 
     if (R_LightTweaksModified())
         R_UpdateLightsFromDvars();

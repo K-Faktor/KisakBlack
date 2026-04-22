@@ -252,7 +252,8 @@ void __fastcall Sentient_GetVelocity(const sentient_s *self, float *vVelOut)
 
 void __fastcall Sentient_GetEyePosition(const sentient_s *self, float *vEyePosOut)
 {
-    //PIXBeginNamedEvent(-1, "Sentient_GetEyePosition");
+    PROF_SCOPED("Sentient_GetEyePosition");
+
     if ( !self && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\sentient.cpp", 299, 0, "%s", "self") )
         __debugbreak();
     if ( !self->ent
@@ -280,8 +281,6 @@ void __fastcall Sentient_GetEyePosition(const sentient_s *self, float *vEyePosOu
         Actor_GetEyePosition(self->ent->actor, vEyePosOut);
     else
         G_GetPlayerViewOrigin(&self->ent->client->ps, vEyePosOut);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __fastcall Sentient_GetThirdPersonEyePosition(const sentient_s *self, float *vEyePosOut)

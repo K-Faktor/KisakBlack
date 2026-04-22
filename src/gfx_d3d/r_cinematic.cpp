@@ -793,21 +793,22 @@ char __cdecl R_Cinematic_Advance(bool force_wait)
                 ++bt;
                 ++Frames;
             }
-            //PIXBeginNamedEvent(-1, "R_Cinematic_Thread2");
-            BinkDoFrame(cinematicGlob.bink);
-            while (R_Cinematic_BinkShouldSkip(useCustomSkipLogic)
-                && ((cinematicGlob.playbackFlags & 2) != 0 || cinematicGlob.bink->FrameNum != cinematicGlob.bink->Frames))
             {
-                if (cinematicGlob.bink->FrameNum == 1)
-                {
-                    cinematicGlob.startTimeMS = Sys_Milliseconds();
-                    cinematicGlob.frameNum = cinematicGlob.bink->FrameNum;
-                }
-                BinkNextFrame(cinematicGlob.bink);
+                PROF_SCOPED("R_Cinematic_Thread2");
                 BinkDoFrame(cinematicGlob.bink);
+                while (R_Cinematic_BinkShouldSkip(useCustomSkipLogic)
+                    && ((cinematicGlob.playbackFlags & 2) != 0 || cinematicGlob.bink->FrameNum != cinematicGlob.bink->Frames))
+                {
+                    if (cinematicGlob.bink->FrameNum == 1)
+                    {
+                        cinematicGlob.startTimeMS = Sys_Milliseconds();
+                        cinematicGlob.frameNum = cinematicGlob.bink->FrameNum;
+                    }
+                    BinkNextFrame(cinematicGlob.bink);
+                    BinkDoFrame(cinematicGlob.bink);
+                }
             }
-            //if (GetCurrentThreadId() == g_DXDeviceThread)
-            //    D3DPERF_EndEvent();
+            
             if (Sys_IsRenderThread())
             {
                 Unlock_Bink_textures2(dx.device, &cinematicGlob.binkTextureSet);
@@ -1580,7 +1581,8 @@ void __cdecl R_Cinematic_UpdateFrame(bool force_wait)
 {
     CINE_JQ_CMD cmd; // [esp+14h] [ebp-8h] BYREF
 
-    //PIXBeginNamedEvent(-1, "R_Cinematic_UpdateFrame");
+    PROF_SCOPED("R_Cinematic_UpdateFrame");
+
     if ( g_cinematicInitialized )
     {
         do
@@ -1593,12 +1595,6 @@ void __cdecl R_Cinematic_UpdateFrame(bool force_wait)
             }
         }
         while ( force_wait );
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
-    }
-    else //if ( g_DXDeviceThread == GetCurrentThreadId() )
-    {
-        //D3DPERF_EndEvent();
     }
 }
 

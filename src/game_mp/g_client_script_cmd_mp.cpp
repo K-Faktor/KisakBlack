@@ -4011,28 +4011,28 @@ void __cdecl PlayerCmd_finishPlayerDamage(scr_entref_t entref)
                 pSelf->client->ps.damageTimer = (int)max_damage_time;
             pSelf->client->ps.damageDuration = pSelf->client->ps.damageTimer;
             pSelf->health -= damage;
-            //PIXBeginNamedEvent(-1, "damage notify");
-            Scr_AddEntity(attacker, SCRIPTINSTANCE_SERVER);
-            Scr_AddInt(damage, SCRIPTINSTANCE_SERVER);
-            Scr_Notify(pSelf, scr_const.damage, 2u);
-            //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                //D3DPERF_EndEvent();
+
+            {
+                PROF_SCOPED("damage notify");
+                Scr_AddEntity(attacker, SCRIPTINSTANCE_SERVER);
+                Scr_AddInt(damage, SCRIPTINSTANCE_SERVER);
+                Scr_Notify(pSelf, scr_const.damage, 2u);
+            }
+            
             if (!entityHandlers[pSelf->handler].die)
                 Com_Printf(1, "No die handler for player entity type %i", pSelf->handler);
             if ( pSelf->health > 0 )
             {
-                //PIXBeginNamedEvent(-1, "pain");
+                PROF_SCOPED("pain");
                 ApplyKnockBack(pSelf, damage, localdir, dflags, 0);
                 pain = entityHandlers[pSelf->handler].pain;
                 if ( pain )
                     pain(pSelf, attacker, damage, point, mod, localdir, hitLoc, iWeapon);
-                //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                    //D3DPERF_EndEvent();
                 goto LABEL_130;
             }
             if ( !pSelf->client->lastStand && (pSelf->client->ps.perks[1] & 0x20) != 0 && !pSelf->client->ps.waterlevel )
             {
-                //PIXBeginNamedEvent(-1, "enter last stand");
+                PROF_SCOPED("enter last stand");
                 if ( (pSelf->client->ps.pm_flags & 2) != 0 )
                 {
                     BG_AnimScriptEvent(&g_pmove[pSelf->client->ps.clientNum], ANIM_ET_CROUCH_TO_LASTSTAND, 0, 1);
@@ -4060,34 +4060,33 @@ void __cdecl PlayerCmd_finishPlayerDamage(scr_entref_t entref)
                 }
                 ForceGrenadeThrow(&pSelf->client->ps);
                 Scr_PlayerLastStand(pSelf, inflictor, attacker, damage, mod, iWeapon, localdir, hitLoc, psTimeOffset);
-                //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                    //D3DPERF_EndEvent();
             }
             if ( pSelf->health > 0 )
                 goto LABEL_130;
-            //PIXBeginNamedEvent(-1, "die");
-            if ( tempBulletHitEntity )
-                tempBulletHitEntity->s.un1.scale |= 2u;
-            if ( pSelf->health <= 0xFFFFFC18 )
-                pSelf->health = -999;
-            ApplyKnockBack(pSelf, damage, localdir, dflags, 1);
-            if ( (pSelf->client->ps.eFlags & 0x4000) != 0 )
             {
-                if ( pSelf->r.ownerNum.isDefined() )
+                PROF_SCOPED("die");
+                if (tempBulletHitEntity)
+                    tempBulletHitEntity->s.un1.scale |= 2u;
+                if (pSelf->health <= 0xFFFFFC18)
+                    pSelf->health = -999;
+                ApplyKnockBack(pSelf, damage, localdir, dflags, 1);
+                if ((pSelf->client->ps.eFlags & 0x4000) != 0)
                 {
-                    v8 = pSelf->r.ownerNum.ent();
-                    if ( G_GetVehicleSeatPlayerOccupies(v8, pSelf) > 0 )
+                    if (pSelf->r.ownerNum.isDefined())
                     {
-                        Scr_AddBool(0, SCRIPTINSTANCE_SERVER);
-                        Scr_Notify(pSelf, scr_const.vehicle_death, 1u);
+                        v8 = pSelf->r.ownerNum.ent();
+                        if (G_GetVehicleSeatPlayerOccupies(v8, pSelf) > 0)
+                        {
+                            Scr_AddBool(0, SCRIPTINSTANCE_SERVER);
+                            Scr_Notify(pSelf, scr_const.vehicle_death, 1u);
+                        }
                     }
                 }
+                die = entityHandlers[pSelf->handler].die;
+                if (die)
+                    die(pSelf, inflictor, attacker, damage, mod, iWeapon, localdir, hitLoc, psTimeOffset);
             }
-            die = entityHandlers[pSelf->handler].die;
-            if ( die )
-                die(pSelf, inflictor, attacker, damage, mod, iWeapon, localdir, hitLoc, psTimeOffset);
-            //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                //D3DPERF_EndEvent();
+
             if ( pSelf->r.inuse )
             {
 LABEL_130:
@@ -5026,7 +5025,8 @@ void __cdecl PlayerCmd_spawn(scr_entref_t entref)
     float spawn_angles[3]; // [esp+10h] [ebp-18h] BYREF
     float spawn_origin[3]; // [esp+1Ch] [ebp-Ch] BYREF
 
-    //PIXBeginNamedEvent(-1, "PlayerCmd_spawn");
+    PROF_SCOPED("PlayerCmd_spawn");
+
     if ( entref.classnum )
     {
         Scr_ObjectError("not an entity", SCRIPTINSTANCE_SERVER);
@@ -5062,9 +5062,6 @@ void __cdecl PlayerCmd_spawn(scr_entref_t entref)
         MatchRecordSpawn(pSelf->client);
     }
 #endif
-
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl PlayerCmd_setEnterTime(scr_entref_t entref)

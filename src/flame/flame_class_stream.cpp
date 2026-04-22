@@ -535,14 +535,11 @@ void __cdecl CG_Flame_Render()
 {
     const flameStream_s *stream; // [esp+14h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "CG_Flame_Render");
+    PROF_SCOPED("CG_Flame_Render");
+
     stream = flameStreamsUsed;
     if ( flameStreamsUsed && !Flame_GetLocalClientSourceRange() )
     {
-        //if ( GetCurrentThreadId() != g_DXDeviceThread )
-        //    return;
-LABEL_10:
-        //D3DPERF_EndEvent();
         return;
     }
     while ( stream )
@@ -551,7 +548,5 @@ LABEL_10:
             Flame_Class_Stream_Light_Chunks(stream);
         stream = (const flameStream_s *)stream->gen.listGlobal.next;
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        goto LABEL_10;
 }
 

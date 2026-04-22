@@ -1602,7 +1602,8 @@ unsigned int __cdecl SND_ContinueLoopingSound(
 {
     signed int i; // [esp+40h] [ebp-4h]
 
-    //PIXBeginNamedEvent(0xFFFFFF, "SND_ContinueLoopingSound");
+    PROF_SCOPED("SND_ContinueLoopingSound");
+
     for (i = 0; i < 74; ++i)
     {
         if (g_snd.voiceAliasHash[i]
@@ -1613,13 +1614,10 @@ unsigned int __cdecl SND_ContinueLoopingSound(
             SND_ContinueLoopingSound_Internal(i, volumeScale, fadeTime, org, playback);
             if (org)
                 SND_SetPosition(i, org);
-            //if (GetCurrentThreadId() == g_DXDeviceThread)
-            //    D3DPERF_EndEvent();
             return g_snd.voice[i].playbackId;
         }
     }
-    //if (GetCurrentThreadId() == g_DXDeviceThread)
-    //    D3DPERF_EndEvent();
+
     return -1;
 }
 
@@ -2262,53 +2260,54 @@ void __cdecl SNDL_Update()
         return;
     }
 
-    //PIXBeginNamedEvent(0xFFFFFF, "SNDL_Update");
-    //PIXBeginNamedEvent(-1, "time update");
-    frametime = Sys_Milliseconds() - g_snd.time;
-    g_snd.time = Sys_Milliseconds();
-    fdt = (float)frametime / 1000.0;
-    ++g_snd.frame;
-    SND_UpdateDebugAlias();
+    PROF_SCOPED("SNDL_Update");
 
-    g_snd.timescale = (float)((float)((float)((float)(1.0 - g_snd.scriptTimescale) * 1.0)
-                                                                    + (float)(g_snd.gameState.timescale * g_snd.scriptTimescale))
-                                                    * snd_timescale_filter->current.value)
-                                    + (float)((float)(1.0 - snd_timescale_filter->current.value) * g_snd.timescale);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "SND_UpdateStaticSounds");
-    SND_UpdateStaticSounds();
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+    {
+        PROF_SCOPED("time update");
+        frametime = Sys_Milliseconds() - g_snd.time;
+        g_snd.time = Sys_Milliseconds();
+        fdt = (float)frametime / 1000.0;
+        ++g_snd.frame;
+        SND_UpdateDebugAlias();
+
+        g_snd.timescale = (float)((float)((float)((float)(1.0 - g_snd.scriptTimescale) * 1.0)
+            + (float)(g_snd.gameState.timescale * g_snd.scriptTimescale))
+            * snd_timescale_filter->current.value)
+            + (float)((float)(1.0 - snd_timescale_filter->current.value) * g_snd.timescale);
+    }
+
+    {
+        PROF_SCOPED("SND_UpdateStaticSounds");
+        SND_UpdateStaticSounds();
+    }
+    
     SD_PreUpdate();
     SND_UpdatePause();
-    //PIXBeginNamedEvent(-1, "faders");
-    SND_UpdateMasterVolumes(fdt);
-    SND_UpdateRoomEffects(frametime);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "mixing");
-    SND_UpdateSnapshot(fdt);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "systems");
-    SND_LosOcclusionUpdate();
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "update voices");
-    SND_UpdateVoices(frametime);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "Driver Post Update");
-    //BLOPS_NULLSUB();
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "debug");
-    SND_DebugDrawWorldSounds(snd_draw3D->current.integer);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
+    {
+        PROF_SCOPED("faders");
+        SND_UpdateMasterVolumes(fdt);
+        SND_UpdateRoomEffects(frametime);
+    }
+    {
+        PROF_SCOPED("mixing");
+        SND_UpdateSnapshot(fdt);
+    }
+    {
+        PROF_SCOPED("systems");
+        SND_LosOcclusionUpdate();
+    }
+    {
+        PROF_SCOPED("update voices");
+        SND_UpdateVoices(frametime);
+    }
+    {
+        PROF_SCOPED("Driver Post Update");
+        //BLOPS_NULLSUB();
+    }
+    {
+        PROF_SCOPED("debug");
+        SND_DebugDrawWorldSounds(snd_draw3D->current.integer);
+    }
 }
 
 void SND_UpdatePause()
@@ -2410,33 +2409,34 @@ void __cdecl SND_UpdateVoices(int frametime)
     else
         dt = 0.0f;
     count = 0;
-    //PIXBeginNamedEvent(-1, "SND_UpdateVoicePosition");
-    for (i = 0; i < SND_MAX_VOICES; ++i)
+
     {
-        if (g_snd.voiceAliasHash[i])
-            SND_UpdateVoicePosition(&g_snd.voice[i], 0);
-    }
-    //if (g_DXDeviceThread == GetCurrentThreadId())
-    //    D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "SND_UpdateVoice");
-    for (j = 0; j < SND_MAX_VOICES; ++j)
-    {
-        if (g_snd.voiceAliasHash[j])
-            SND_UpdateVoice(&g_snd.voice[j], dt);
-    }
-    //if (g_DXDeviceThread == GetCurrentThreadId())
-    //    D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "SD_UpdateVoice");
-    for (voiceIndex = 0; voiceIndex < SND_MAX_VOICES; ++voiceIndex)
-    {
-        if (g_snd.voiceAliasHash[voiceIndex])
+        PROF_SCOPED("SND_UpdateVoicePosition");
+        for (i = 0; i < SND_MAX_VOICES; ++i)
         {
-            SD_UpdateVoice(voiceIndex);
-            ++count;
+            if (g_snd.voiceAliasHash[i])
+                SND_UpdateVoicePosition(&g_snd.voice[i], 0);
         }
     }
-    //if (GetCurrentThreadId() == g_DXDeviceThread)
-    //    D3DPERF_EndEvent();
+    {
+        PROF_SCOPED("SND_UpdateVoice");
+        for (j = 0; j < SND_MAX_VOICES; ++j)
+        {
+            if (g_snd.voiceAliasHash[j])
+                SND_UpdateVoice(&g_snd.voice[j], dt);
+        }
+    }
+    {
+        PROF_SCOPED("SD_UpdateVoice");
+        for (voiceIndex = 0; voiceIndex < SND_MAX_VOICES; ++voiceIndex)
+        {
+            if (g_snd.voiceAliasHash[voiceIndex])
+            {
+                SD_UpdateVoice(voiceIndex);
+                ++count;
+            }
+        }
+    }
 }
 
 void __cdecl SND_UpdateRoomEffects(int frametime)

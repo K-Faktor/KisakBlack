@@ -2098,6 +2098,8 @@ void __cdecl NitrousVehicle::frame_prolog_all_systems(float delta_t)
 
     NodeBase *head = &g_rb_vehicle_list.m_dummy_head;
 
+    PROF_SCOPED("NitrousVehicle::frame_prolog");
+
     for (NodeBase *it = head->m_next_T_internal;
         it != head;
         it = it->m_next_T_internal)
@@ -2129,6 +2131,8 @@ void __cdecl NitrousVehicle::frame_epilog_all_systems(float delta_t)
     using NodeBase = List::T_internal_base;
 
     NodeBase *head = &g_rb_vehicle_list.m_dummy_head;
+
+    PROF_SCOPED("NitrousVehicle::frame_epilog");
 
     for (NodeBase *it = head->m_next_T_internal;
         it != head;
@@ -3644,7 +3648,8 @@ void __cdecl G_ClearVehicleInputs()
 
     if ( g_rb_vehicle_list.m_list_count > 0 )
     {
-        //PIXBeginNamedEvent(-1, "G_ClearVehicleInputs");
+        PROF_SCOPED("G_ClearVehicleInputs");
+
         Sys_EnterCriticalSection(CRITSECT_PHYSICS_UPDATE);
         Sys_EnterCriticalSection(CRITSECT_PHYSICS);
         for ( i = g_rb_vehicle_list.m_dummy_head.m_next_T_internal;
@@ -3660,8 +3665,6 @@ void __cdecl G_ClearVehicleInputs()
         }
         Sys_LeaveCriticalSection(CRITSECT_PHYSICS);
         Sys_LeaveCriticalSection(CRITSECT_PHYSICS_UPDATE);
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
     }
 }
 

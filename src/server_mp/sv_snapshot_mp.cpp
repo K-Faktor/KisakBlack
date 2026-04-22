@@ -3109,86 +3109,93 @@ void __cdecl SV_SendClientMessages()
     int maxBytesPerFrame; // [esp+108h] [ebp-4h]
 
     numclients = 0;
-    //PIXBeginNamedEvent(-1, "SV_SendClientMessages");
+
+    PROF_SCOPED("SV_SendClientMessages");
+
     sv.bpsTotalBytes = 0;
     sv.ubpsTotalBytes = 0;
     memset(valid, 0, sizeof(valid));
     maxclients = com_maxclients->current.integer;
     maxBytesPerFrame = Live_GetNecessaryBandwidth() / 160;
     startClient = (lastClientSent + 1) % maxclients;
-    //PIXBeginNamedEvent(-1, "extra messages");
-    for (clientCounter = 0; clientCounter < maxclients; ++clientCounter)
+
     {
-        clientNum = (clientCounter + startClient) % maxclients;
-        c = &svs.clients[clientNum];
-        if (c->header.state
-            && svs.time >= c->nextSnapshotTime
-            && (!c->bIsTestClient || c->header.netchan.remoteAddress.type || sv_botSnapshotDebug->current.enabled))
+        PROF_SCOPED("extra messages");
+
+        for (clientCounter = 0; clientCounter < maxclients; ++clientCounter)
         {
-            if (sv.bpsTotalBytes > maxBytesPerFrame)
-                break;
-            ++numclients;
-            if (c->header.netchan.unsentFragments)
+            clientNum = (clientCounter + startClient) % maxclients;
+            c = &svs.clients[clientNum];
+            if (c->header.state
+                && svs.time >= c->nextSnapshotTime
+                && (!c->bIsTestClient || c->header.netchan.remoteAddress.type || sv_botSnapshotDebug->current.enabled))
             {
-                if (c->header.netchan.remoteAddress.type == NA_LOOPBACK)
-                    c->nextSnapshotTime = svs.time - 1;
-                else
-                    c->nextSnapshotTime = 50 * c->header.netchan.lowest_send_count + svs.time + SV_WindowedRateMsec(c);
-                c->lastSnapshotTime = svs.time;
-                SV_Netchan_TransmitNextFragment(c, &c->header.netchan);
-                lastClientSent = clientNum;
-            }
-            else
-            {
-                valid[clientNum] = 1;
-                if (sv.bpsTotalBytes < maxBytesPerFrame && (c->header.state == CS_ACTIVE || c->header.state == CS_ZOMBIE))
+                if (sv.bpsTotalBytes > maxBytesPerFrame)
+                    break;
+                ++numclients;
+                if (c->header.netchan.unsentFragments)
                 {
-                    //PIXBeginNamedEvent(-1, "SV_BuildClientSnapshot");
-                    SV_BuildClientSnapshot(c);
-                    //if (GetCurrentThreadId() == g_DXDeviceThread)
-                    //    D3DPERF_EndEvent();
+                    if (c->header.netchan.remoteAddress.type == NA_LOOPBACK)
+                        c->nextSnapshotTime = svs.time - 1;
+                    else
+                        c->nextSnapshotTime = 50 * c->header.netchan.lowest_send_count + svs.time + SV_WindowedRateMsec(c);
+                    c->lastSnapshotTime = svs.time;
+                    SV_Netchan_TransmitNextFragment(c, &c->header.netchan);
+                    lastClientSent = clientNum;
+                }
+                else
+                {
+                    valid[clientNum] = 1;
+                    if (sv.bpsTotalBytes < maxBytesPerFrame && (c->header.state == CS_ACTIVE || c->header.state == CS_ZOMBIE))
+                    {
+                        PROF_SCOPED("SV_BuildClientSnapshot");
+                        SV_BuildClientSnapshot(c);
+                    }
                 }
             }
         }
     }
-    //if (GetCurrentThreadId() == g_DXDeviceThread)
-    //    D3DPERF_EndEvent();
+
     SV_SetServerStaticHeader();
-    //PIXBeginNamedEvent(-1, "SV_SendClientSnapshot");
-    for (clientCounter = 0; clientCounter < maxclients; ++clientCounter)
+
     {
-        clientNum = (clientCounter + startClient) % maxclients;
-        ca = &svs.clients[clientNum];
-        if (valid[clientNum])
+        PROF_SCOPED("SV_SendClientSnapshot");
+        for (clientCounter = 0; clientCounter < maxclients; ++clientCounter)
         {
-            if (sv.bpsTotalBytes >= maxBytesPerFrame)
-                break;
-            lastClientSent = clientNum;
-            v1 = va("SV_SendClientSnapshot %d", clientNum);
-            //PIXBeginNamedEvent(-1, v1);
-            SV_BeginClientSnapshot(ca, &msg);
-            if (ca->header.state == CS_ACTIVE || ca->header.state == CS_ZOMBIE)
+            clientNum = (clientCounter + startClient) % maxclients;
+            ca = &svs.clients[clientNum];
+            if (valid[clientNum])
             {
-                //PIXBeginNamedEvent(-1, "SV_WriteSnapshotToClient");
-                SV_WriteSnapshotToClient(ca, &msg);
-                //if (GetCurrentThreadId() == g_DXDeviceThread)
-                //    D3DPERF_EndEvent();
+                if (sv.bpsTotalBytes >= maxBytesPerFrame)
+                    break;
+                lastClientSent = clientNum;
+                
+                {
+                    v1 = va("SV_SendClientSnapshot %d", clientNum);
+                    PROF_SCOPED_RUNTIME_NAME(v1);
+
+                    SV_BeginClientSnapshot(ca, &msg);
+                    if (ca->header.state == CS_ACTIVE || ca->header.state == CS_ZOMBIE)
+                    {
+                        PROF_SCOPED("SV_WriteSnapshotToClient");
+                        SV_WriteSnapshotToClient(ca, &msg);
+                    }
+                    SV_EndClientSnapshot(ca, &msg);
+                }
+                
+                SV_SendClientVoiceData(ca);
             }
-            SV_EndClientSnapshot(ca, &msg);
-            //if (GetCurrentThreadId() == g_DXDeviceThread)
-                //D3DPERF_EndEvent();
-            SV_SendClientVoiceData(ca);
         }
     }
-    //if (GetCurrentThreadId() == g_DXDeviceThread)
-        //D3DPERF_EndEvent();
+
     if (sv.bpsTotalBytes >= maxBytesPerFrame)
         StatMon_Warning(13, 3000, (char*)"code_warning_bandwidthlimited");
     else
         lastClientSent = -1;
     if (Demo_ShouldBuildDemoSnapshot() && Demo_IsRecording())
     {
-        //PIXBeginNamedEvent(-1, "Demo_BuildDemoSnapshot");
+        PROF_SCOPED("Demo_BuildDemoSnapshot");
+
         cb = &svs.clients[Demo_GetDemoClientIndex()];
         if (!cb->bIsDemoClient
             && !Assert_MyHandler(
@@ -3202,8 +3209,6 @@ void __cdecl SV_SendClientMessages()
         }
         if (cb->header.state == CS_ACTIVE || cb->header.state == CS_ZOMBIE)
             Demo_BuildDemoSnapshot();
-        //if (g_DXDeviceThread == GetCurrentThreadId())
-            //D3DPERF_EndEvent();
     }
     if (numclients > 0)
     {
@@ -3245,11 +3250,9 @@ void __cdecl SV_SendClientMessages()
     g_archivingSnapshot = 1;
     if (sv.state == SS_GAME)
     {
-        //PIXBeginNamedEvent(-1, "SV_ArchiveSnapshot");
+        PROF_SCOPED("SV_ArchiveSnapshot");
         MSG_Init(&g_archiveMsg, tempServerMsgBuf, 0x10000);
         SV_ArchiveSnapshot(&g_archiveMsg);
-        //if (GetCurrentThreadId() == g_DXDeviceThread)
-        //    D3DPERF_EndEvent();
     }
     SV_GetServerStaticHeader();
     if (sv.state == SS_GAME)

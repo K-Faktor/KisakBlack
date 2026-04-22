@@ -666,6 +666,8 @@ char __cdecl CG_SoundWhizbyPath(const float *p1, const float *p2, const float *p
 
 void __cdecl CG_SndUpdate()
 {
+    PROF_SCOPED("CG_SndUpdate"); // LWSS ADD
+
     CG_SndUpdateAutoSim();
     CG_SndUpdateFire();
 }

@@ -102,14 +102,12 @@ void __cdecl R_DrawEmissiveCallback(const void *userData, GfxCmdBufContext conte
 {
     GfxViewInfo *viewInfo = (GfxViewInfo *)userData;
 
-    //PIXBeginNamedEvent(-1, "R_DrawEmissiveCallback");
+    PROF_SCOPED("R_DrawEmissiveCallback");
     R_UpdateCodeConstant(context.source, CONST_SRC_CODE_FRAMEBUFFER_READ, 0.0, 0.0, 1.0, 1.0);
 
     {
-        //PIXBeginNamedEvent(-1, "emissive");
+        PROF_SCOPED("emissive");
         R_DrawSurfs(context, 0, &viewInfo->drawList[4]);
-        //if (GetCurrentThreadId() == g_DXDeviceThread)
-        //    D3DPERF_EndEvent();
     }
     
     R_ShowTris(context, viewInfo->drawList);
@@ -117,8 +115,6 @@ void __cdecl R_DrawEmissiveCallback(const void *userData, GfxCmdBufContext conte
     R_ShowTris(context, &viewInfo->drawList[4]);
     if ((viewInfo->sceneComposition.renderingMode & 7) == 0)
         R_HW_DisableScissor(context.state->prim.device);
-    //if (g_DXDeviceThread == GetCurrentThreadId())
-    //    D3DPERF_EndEvent();
 }
 
 void __cdecl R_HW_DisableScissor(IDirect3DDevice9 *device)
@@ -186,11 +182,8 @@ void __cdecl R_DrawReflectedCallback(const void *userData, GfxCmdBufContext cont
     R_ClearScreen(context.state->prim.device, 1u, clearColor, 1.0, 0, 0);
 
     {
-        ////PIXBeginNamedEvent(-1, "reflected");
-        //R_DrawSurfs(context, 0, (const GfxDrawSurfListInfo *)(userData + 9152));
+        PROF_SCOPED("reflected");
         R_DrawSurfs(context, 0, &viewInfo->drawList[5]);
-        ////if ( GetCurrentThreadId() == g_DXDeviceThread )
-            ////D3DPERF_EndEvent();
     }
     
     R_HW_DisableScissor(context.state->prim.device);
@@ -255,7 +248,8 @@ void __cdecl RB_FullbrightDrawCommands(const GfxViewInfo *viewInfo)
     const GfxBackEndData *data; // [esp+30h] [ebp-8h]
     GfxCmdBuf cmdBuf; // [esp+34h] [ebp-4h] BYREF
 
-    ////PIXBeginNamedEvent(-1, "RB_FullbrightDrawCommands");
+    PROF_SCOPED("RB_FullbrightDrawCommands");
+
     data = backEndData;
     R_SetAndClearSceneTarget(0, viewInfo);
     R_InitContext(data, &cmdBuf);
@@ -269,25 +263,23 @@ void __cdecl RB_FullbrightDrawCommands(const GfxViewInfo *viewInfo)
     RB_DrawSun(viewInfo->localClientNum);
     memcpy(gfxCmdBufState.refSamplerState, gfxCmdBufContext.state->refSamplerState, sizeof(gfxCmdBufState));
     RB_EndSceneRendering(gfxCmdBufContext, &viewInfo->input, viewInfo);
-    ////if ( g_DXDeviceThread == GetCurrentThreadId() )
-        ////D3DPERF_EndEvent();
 }
 
 void __cdecl RB_EndSceneRendering(GfxCmdBufContext context, const GfxCmdBufInput *input, const GfxViewInfo *viewInfo)
 {
-  ////PIXBeginNamedEvent(-1, "RB_EndSceneRendering()");
-  R_HW_InsertFence(&backEndData->endFence);
-  R_InitCmdBufSourceState(context.source, input, 0);
-  R_InitLocalCmdBufState(context.state);
-  R_SetRenderTargetSize(&gfxCmdBufSourceState, viewInfo->sceneComposition.mainSceneMSAA);
-  R_BeginView(&gfxCmdBufSourceState, &viewInfo->sceneDef, &viewInfo->cullViewInfo.viewParms);
-  R_SetViewportStruct(&gfxCmdBufSourceState, &viewInfo->cullViewInfo.sceneViewport);
-  R_SetRenderTarget(gfxCmdBufContext, viewInfo->sceneComposition.mainSceneMSAA);
-  if ( developer->current.integer )
-  {
+    PROF_SCOPED("RB_EndSceneRendering()");
+    R_HW_InsertFence(&backEndData->endFence);
+    R_InitCmdBufSourceState(context.source, input, 0);
+    R_InitLocalCmdBufState(context.state);
+    R_SetRenderTargetSize(&gfxCmdBufSourceState, viewInfo->sceneComposition.mainSceneMSAA);
+    R_BeginView(&gfxCmdBufSourceState, &viewInfo->sceneDef, &viewInfo->cullViewInfo.viewParms);
+    R_SetViewportStruct(&gfxCmdBufSourceState, &viewInfo->cullViewInfo.sceneViewport);
+    R_SetRenderTarget(gfxCmdBufContext, viewInfo->sceneComposition.mainSceneMSAA);
+    if ( developer->current.integer )
+    {
     R_Set3D(&gfxCmdBufSourceState);
     if ( gfxCmdBufSourceState.viewMode != VIEW_MODE_3D
-      && !Assert_MyHandler(
+        && !Assert_MyHandler(
             "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\rb_draw3d.cpp",
             4182,
             0,
@@ -295,29 +287,30 @@ void __cdecl RB_EndSceneRendering(GfxCmdBufContext context, const GfxCmdBufInput
             "(gfxCmdBufSourceState.viewMode == VIEW_MODE_3D)",
             gfxCmdBufSourceState.viewMode) )
     {
-      __debugbreak();
+        __debugbreak();
     }
     RB_DrawDebug(&gfxCmdBufSourceState.viewParms);
     RB_ShowCollision(&gfxCmdBufSourceState.viewParms);
-  }
-  memcpy(gfxCmdBufState.refSamplerState, context.state->refSamplerState, sizeof(gfxCmdBufState));
-  ////if ( g_DXDeviceThread == GetCurrentThreadId() )
-  //  //D3DPERF_EndEvent();
+    }
+    memcpy(gfxCmdBufState.refSamplerState, context.state->refSamplerState, sizeof(gfxCmdBufState));
 }
 
 void __cdecl R_SetAndClearSceneTarget(const GfxViewport *viewport, const GfxViewInfo *viewInfo)
 {
-  R_InitLocalCmdBufState(&gfxCmdBufState);
-  ////PIXBeginNamedEvent(-1, "Clear Render Target");
-  R_SetRenderTargetSize(&gfxCmdBufSourceState, viewInfo->sceneComposition.mainSceneMSAA);
-  R_SetRenderTarget(gfxCmdBufContext, viewInfo->sceneComposition.mainSceneMSAA);
-  if ( (viewInfo->sceneComposition.renderingMode & 7) != 0 )
-    R_ClearForFrameBuffer(gfxCmdBufState.prim.device, 0);
-  else
-    R_ClearForFrameBuffer(gfxCmdBufState.prim.device, viewport);
-  ////if ( GetCurrentThreadId() == g_DXDeviceThread )
-  //  //D3DPERF_EndEvent();
-  memcpy(gfxCmdBufState.refSamplerState, gfxCmdBufState.refSamplerState, sizeof(gfxCmdBufState));
+    R_InitLocalCmdBufState(&gfxCmdBufState);
+
+    PROF_SCOPED("Clear Render Target");
+    R_SetRenderTargetSize(&gfxCmdBufSourceState, viewInfo->sceneComposition.mainSceneMSAA);
+    R_SetRenderTarget(gfxCmdBufContext, viewInfo->sceneComposition.mainSceneMSAA);
+    if ((viewInfo->sceneComposition.renderingMode & 7) != 0)
+    {
+        R_ClearForFrameBuffer(gfxCmdBufState.prim.device, 0);
+    }
+    else
+    {
+        R_ClearForFrameBuffer(gfxCmdBufState.prim.device, viewport);
+    }
+    memcpy(gfxCmdBufState.refSamplerState, gfxCmdBufState.refSamplerState, sizeof(gfxCmdBufState));
 }
 
 void __cdecl R_ClearForFrameBuffer(IDirect3DDevice9 *device, const GfxViewport *viewport)
@@ -330,32 +323,30 @@ void __cdecl R_ClearForFrameBuffer(IDirect3DDevice9 *device, const GfxViewport *
 
 void __cdecl R_DrawFullbright(const GfxViewInfo *viewInfo, GfxCmdBufInput *input, GfxCmdBuf *cmdBuf)
 {
-    int savedregs; // [esp+1Ch] [ebp+0h] BYREF
-
-    ////PIXBeginNamedEvent(-1, "R_DrawFullbrightOrDebugShader - Lit");
-    R_DrawFullbrightOrDebugShader(
-        R_DrawFullbrightLitCallback,
-        viewInfo,
-        viewInfo->drawList,
-        cmdBuf);
-    ////if ( g_DXDeviceThread == GetCurrentThreadId() )
-        ////D3DPERF_EndEvent();
-    ////PIXBeginNamedEvent(-1, "R_DrawFullbrightOrDebugShader - Decal");
-    R_DrawFullbrightOrDebugShader(
-        R_DrawFullbrightDecalCallback,
-        viewInfo,
-        &viewInfo->drawList[3],
-        cmdBuf);
-    ////if ( g_DXDeviceThread == GetCurrentThreadId() )
-        ////D3DPERF_EndEvent();
-    ////PIXBeginNamedEvent(-1, "R_DrawFullbrightOrDebugShader - Emissive");
-    R_DrawFullbrightOrDebugShader(
-        R_DrawFullbrightEmissiveCallback,
-        viewInfo,
-        &viewInfo->drawList[4],
-        cmdBuf);
-    ////if ( g_DXDeviceThread == GetCurrentThreadId() )
-        ////D3DPERF_EndEvent();
+    {
+        PROF_SCOPED("R_DrawFullbrightOrDebugShader - Lit");
+        R_DrawFullbrightOrDebugShader(
+            R_DrawFullbrightLitCallback,
+            viewInfo,
+            viewInfo->drawList,
+            cmdBuf);
+    }
+    {
+        PROF_SCOPED("R_DrawFullbrightOrDebugShader - Decal");
+        R_DrawFullbrightOrDebugShader(
+            R_DrawFullbrightDecalCallback,
+            viewInfo,
+            &viewInfo->drawList[3],
+            cmdBuf);
+    }
+    {
+        PROF_SCOPED("R_DrawFullbrightOrDebugShader - Emissive");
+        R_DrawFullbrightOrDebugShader(
+            R_DrawFullbrightEmissiveCallback,
+            viewInfo,
+            &viewInfo->drawList[4],
+            cmdBuf);
+    }
 }
 
 void __cdecl R_DrawFullbrightLitCallback(const void *userData, GfxCmdBufContext context, GfxCmdBufContext prepassContext)
@@ -616,7 +607,8 @@ void __cdecl RB_StandardDrawCommands(GfxViewInfo *viewInfo)
   bool drawReflected; // [esp+CEh] [ebp-2h]
   bool need_float_z; // [esp+CFh] [ebp-1h]
 
-  ////PIXBeginNamedEvent(-1, "RB_StandardDrawCommands");
+  PROF_SCOPED("RB_StandardDrawCommands");
+
   data = backEndData;
   isMissileCam = viewInfo->isMissileCamera;
   floatzRenderTarget = isMissileCam ? 23 : 7;
@@ -665,19 +657,16 @@ void __cdecl RB_StandardDrawCommands(GfxViewInfo *viewInfo)
     viewInfo->renderingFloatZ = 1;
     R_DepthPrepass(setupRenderTargetId, viewInfo, &cmdBuf);
     viewInfo->renderingFloatZ = 0;
-    //D3DPERF_EndEvent();
   }
   if ( viewInfo->isMissileCamera )
   {
     R_InitLocalCmdBufState(&gfxCmdBufState);
-    ////PIXBeginNamedEvent(-1, "Clear ExtraCam Render Target");
+    PROF_SCOPED("Clear ExtraCam Render Target");
     R_SetRenderTargetSize(&gfxCmdBufSourceState, 0x16u);
     R_SetRenderTarget(gfxCmdBufContext, 0x16u);
     memset(v2, 0, 12);
     v2[3] = 1.0f;
     R_ClearScreen(gfxCmdBufState.prim.device, 7u, v2, 1.0, 0, 0);
-    ////if ( GetCurrentThreadId() == g_DXDeviceThread )
-    //  //D3DPERF_EndEvent();
   }
   else
   {
@@ -690,13 +679,12 @@ void __cdecl RB_StandardDrawCommands(GfxViewInfo *viewInfo)
   memcpy(gfxCmdBufState.refSamplerState, gfxCmdBufState.refSamplerState, sizeof(gfxCmdBufState));
   if ( needsDepthPrepass )
   {
-    D3DPERF_BeginEvent(-1, L"R_DepthPrepass");
+    PROF_SCOPED("R_DepthPrepass");
     R_InitContext(data, &cmdBuf);
     depthPrepassRT = dx.supportsSceneNullRenderTarget + 3;
     R_SetRenderTargetSize(&gfxCmdBufSourceState, depthPrepassRT);
     R_SetRenderTarget(gfxCmdBufContext, depthPrepassRT);
     R_DepthPrepass(viewInfo->sceneComposition.mainSceneMSAA, viewInfo, &cmdBuf);
-    //D3DPERF_EndEvent();
   }
   if ( viewInfo->isMissileCamera )
   {
@@ -712,43 +700,42 @@ void __cdecl RB_StandardDrawCommands(GfxViewInfo *viewInfo)
   if ( viewInfo->drawList[6].drawSurfCount )
   {
     R_InitContext(data, &cmdBuf);
-    ////PIXBeginNamedEvent(-1, "CloakPrePass");
+    
+    PROF_SCOPED("CloakPrePass");
     R_DrawCloakHDR(viewInfo, &cmdBuf, CLOAK_PHASE_PREPASS);
-    ////if ( GetCurrentThreadId() == g_DXDeviceThread )
-    //  //D3DPERF_EndEvent();
   }
   R_InitContext(data, &cmdBuf);
-  ////PIXBeginNamedEvent(-1, "Lit");
-  R_DrawLit(viewInfo, &cmdBuf, 0, LIT_PHASE_MAIN);
-  ////if ( GetCurrentThreadId() == g_DXDeviceThread )
-  //  //D3DPERF_EndEvent();
+
+  {
+      PROF_SCOPED("Lit");
+      R_DrawLit(viewInfo, &cmdBuf, 0, LIT_PHASE_MAIN);
+  }
+  
   if ( dx.supportsIntZ && !viewInfo->isMissileCamera )
   {
-    ////PIXBeginNamedEvent(-1, "Resolve IntZ");
+    PROF_SCOPED("Resolve IntZ");
     R_InitCmdBufSourceState(&gfxCmdBufSourceState, &viewInfo->input, 0);
     R_InitLocalCmdBufState(&gfxCmdBufState);
     R_SetRenderTargetSize(gfxCmdBufContext.source, viewInfo->sceneComposition.mainSceneMSAA);
     R_SetRenderTarget(gfxCmdBufContext, viewInfo->sceneComposition.mainSceneMSAA);
     R_ResolveIntZ_PC();
     memcpy(gfxCmdBufState.refSamplerState, gfxCmdBufState.refSamplerState, sizeof(gfxCmdBufState));
-    ////if ( GetCurrentThreadId() == g_DXDeviceThread )
-    //  //D3DPERF_EndEvent();
   }
   if ( (viewInfo->sceneComposition.renderingMode & 7) == 0 )
     R_ResolveDistortion(viewInfo);
   if ( drawReflected )
   {
     R_InitContext(data, &cmdBuf);
-    //PIXBeginNamedEvent(-1, "Reflected");
+    PROF_SCOPED("Reflected");
     R_DrawReflected(viewInfo, &cmdBuf);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-      //D3DPERF_EndEvent();
   }
-  //PIXBeginNamedEvent(-1, "LitPostResolve");
-  R_InitContext(data, &cmdBuf);
-  R_DrawLit(viewInfo, &cmdBuf, 0, LIT_PHASE_POST_RESOLVE);
-  //if ( g_DXDeviceThread == GetCurrentThreadId() )
-    //D3DPERF_EndEvent();
+
+  {
+      PROF_SCOPED("LitPostResolve");
+      R_InitContext(data, &cmdBuf);
+      R_DrawLit(viewInfo, &cmdBuf, 0, LIT_PHASE_POST_RESOLVE);
+  }
+  
   if ( r_setFrameBufferAlpha->current.enabled )
     RB_SetFrameBufferAlpha();
   R_InitContext(data, &cmdBuf);
@@ -776,31 +763,29 @@ void __cdecl RB_StandardDrawCommands(GfxViewInfo *viewInfo)
     RB_DrawSuperFlareOccluders(viewInfo);
   if ( dx.supportsIntZ && !viewInfo->isMissileCamera )
   {
-    //PIXBeginNamedEvent(-1, "Resolve IntZ");
+      PROF_SCOPED("Resolve IntZ");
     R_InitCmdBufSourceState(&gfxCmdBufSourceState, &viewInfo->input, 0);
     R_InitLocalCmdBufState(&gfxCmdBufState);
     R_SetRenderTargetSize(gfxCmdBufContext.source, viewInfo->sceneComposition.mainSceneMSAA);
     R_SetRenderTarget(gfxCmdBufContext, viewInfo->sceneComposition.mainSceneMSAA);
     R_ResolveIntZ_PC();
     memcpy(gfxCmdBufState.refSamplerState, gfxCmdBufState.refSamplerState, sizeof(gfxCmdBufState));
-    ////if ( GetCurrentThreadId() == g_DXDeviceThread )
-      //D3DPERF_EndEvent();
   }
   memcpy(gfxCmdBufState.refSamplerState, gfxCmdBufState.refSamplerState, sizeof(gfxCmdBufState));
   if ( r_enableDlights->current.enabled )
   {
     R_InitContext(data, &cmdBuf);
-    //PIXBeginNamedEvent(-1, "Dynamic Lights");
+    PROF_SCOPED("Dynamic Lights");
     R_DrawLights(viewInfo, &cmdBuf);
-    ////if ( GetCurrentThreadId() == g_DXDeviceThread )
-      //D3DPERF_EndEvent();
   }
   R_ResolveDistortion(viewInfo);
   R_InitContext(data, &cmdBuf);
-  //PIXBeginNamedEvent(-1, "Emissive");
-  R_DrawEmissive(viewInfo, &cmdBuf);
-  //if ( g_DXDeviceThread == GetCurrentThreadId() )
-    //D3DPERF_EndEvent();
+
+  {
+      PROF_SCOPED("Emissive");
+      R_DrawEmissive(viewInfo, &cmdBuf);
+  }
+  
   if ( drawWaypoints )
   {
     R_InitCmdBufSourceState(&gfxCmdBufSourceState, &viewInfo->input, 0);
@@ -814,7 +799,7 @@ void __cdecl RB_StandardDrawCommands(GfxViewInfo *viewInfo)
   }
   if ( viewInfo->postEmissiveBrightening > 0.0 )
   {
-    //PIXBeginNamedEvent(-1, "postEmissiveBrightening");
+      PROF_SCOPED("postEmissiveBrightening");
     R_InitLocalCmdBufState(&gfxCmdBufState);
     R_SetRenderTargetSize(&gfxCmdBufSourceState, viewInfo->sceneComposition.mainSceneMSAA);
     R_SetRenderTarget(gfxCmdBufContext, viewInfo->sceneComposition.mainSceneMSAA);
@@ -827,18 +812,15 @@ void __cdecl RB_StandardDrawCommands(GfxViewInfo *viewInfo)
       1.0,
       (unsigned __int8)(int)(float)((float)(viewInfo->postEmissiveBrightening * 255.0) + 0.5));
     memcpy(gfxCmdBufState.refSamplerState, gfxCmdBufState.refSamplerState, sizeof(gfxCmdBufState));
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-      //D3DPERF_EndEvent();
   }
   if ( viewInfo->drawList[6].drawSurfCount )
   {
     if ( (viewInfo->sceneComposition.renderingMode & 7) == 0 )
         R_Resolve(gfxCmdBufContext, gfxRenderTargets[6].image);
     R_InitContext(data, &cmdBuf);
-    //PIXBeginNamedEvent(-1, "CloakPostEmissive");
+
+    PROF_SCOPED("CloakPostEmissive");
     R_DrawCloakHDR(viewInfo, &cmdBuf, CLOAK_PHASE_CLOAKED);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-      //D3DPERF_EndEvent();
   }
   if ( !isMissileCam )
     RB_EndSceneRendering(gfxCmdBufContext, &viewInfo->input, viewInfo);
@@ -846,8 +828,6 @@ void __cdecl RB_StandardDrawCommands(GfxViewInfo *viewInfo)
     RB_StandardPostEffects(viewInfo);
   if ( !isRenderingFullScreen && !isMissileCam )
     viewInfo->cullViewInfo.sceneViewport = oldSceneViewport;
-  //if ( g_DXDeviceThread == GetCurrentThreadId() )
-    //D3DPERF_EndEvent();
 }
 
 void RB_SetFrameBufferAlpha()
@@ -1095,7 +1075,8 @@ void __cdecl R_ResolveDistortion(const GfxViewInfo *viewInfo)
   unsigned __int8 mainSceneMSAA; // [esp+0h] [ebp-18h]
   unsigned __int8 resolveSrc; // [esp+17h] [ebp-1h]
 
-  //PIXBeginNamedEvent(-1, "Resolve Distortion");
+  PROF_SCOPED("Resolve Distortion");
+
   resolveSrc = viewInfo->sceneComposition.mainSceneMSAA;
   if ( resolveSrc == 3 )
     mainSceneMSAA = 5;
@@ -1103,7 +1084,6 @@ void __cdecl R_ResolveDistortion(const GfxViewInfo *viewInfo)
     mainSceneMSAA = viewInfo->sceneComposition.mainSceneMSAA;
   if ( resolveSrc == mainSceneMSAA )
   {
-    //if ( g_DXDeviceThread != GetCurrentThreadId() )
       return;
   }
   else
@@ -1111,10 +1091,7 @@ void __cdecl R_ResolveDistortion(const GfxViewInfo *viewInfo)
     R_SetRenderTargetSize(&gfxCmdBufSourceState, resolveSrc);
     R_SetRenderTarget(gfxCmdBufContext, resolveSrc);
     R_Resolve(gfxCmdBufContext, gfxRenderTargets[mainSceneMSAA].image);
-    //if ( g_DXDeviceThread != GetCurrentThreadId() )
-      return;
   }
-  //D3DPERF_EndEvent();
 }
 
 void __cdecl RB_StandardPostEffects(GfxViewInfo *viewInfo)
@@ -1122,7 +1099,9 @@ void __cdecl RB_StandardPostEffects(GfxViewInfo *viewInfo)
   const GfxBackEndData *data; // [esp+Ch] [ebp-4h]
 
   data = backEndData;
-  //PIXBeginNamedEvent(-1, "RB_StandardPostEffects");
+
+  PROF_SCOPED("RB_StandardPostEffects");
+
   viewInfo->input.data = data;
   R_InitCmdBufSourceState(&gfxCmdBufSourceState, &viewInfo->input, 0);
   R_InitLocalCmdBufState(&gfxCmdBufState);
@@ -1134,8 +1113,6 @@ void __cdecl RB_StandardPostEffects(GfxViewInfo *viewInfo)
   R_SetRenderTarget(gfxCmdBufContext, 3u);
   RB_DrawSunPostEffects(viewInfo->localClientNum, viewInfo->sunVisibility);
   memcpy(gfxCmdBufState.refSamplerState, gfxCmdBufState.refSamplerState, sizeof(gfxCmdBufState));
-  //if ( g_DXDeviceThread == GetCurrentThreadId() )
-    //D3DPERF_EndEvent();
 }
 
 void __cdecl R_SetResolvedScene(GfxCmdBufContext context)
@@ -1146,13 +1123,11 @@ void __cdecl R_SetResolvedScene(GfxCmdBufContext context)
 
 void __cdecl RB_ApplyLatePostEffects(const GfxViewInfo *viewInfo)
 {
-  //PIXBeginNamedEvent(-1, "RB_ApplyLatePostEffects");
-  RB_ProcessPostEffects(viewInfo);
-  R_SetRenderTargetSize(&gfxCmdBufSourceState, 3u);
-  R_SetRenderTarget(gfxCmdBufContext, 3u);
-  RB_DrawDebugPostEffects();
-  //if ( g_DXDeviceThread == GetCurrentThreadId() )
-    //D3DPERF_EndEvent();
+    PROF_SCOPED("RB_ApplyLatePostEffects");
+    RB_ProcessPostEffects(viewInfo);
+    R_SetRenderTargetSize(&gfxCmdBufSourceState, 3u);
+    R_SetRenderTarget(gfxCmdBufContext, 3u);
+    RB_DrawDebugPostEffects();
 }
 
 void RB_DrawDebugPostEffects()
@@ -1431,19 +1406,19 @@ void RB_FullbrightDrawCommandsCommon()
     const GfxBackEndData *data; // [esp+14h] [ebp-Ch]
     unsigned int viewInfoIndex; // [esp+1Ch] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "RB_FullbrightDrawCommandsCommon");
+    PROF_SCOPED("RB_FullbrightDrawCommandsCommon");
+
     data = backEndData;
     for (viewInfoIndex = 0; viewInfoIndex < data->viewInfoCount; ++viewInfoIndex)
         RB_FullbrightRenderCommands(&data->viewInfo[viewInfoIndex]);
-    //if (GetCurrentThreadId() == g_DXDeviceThread)
-    //    D3DPERF_EndEvent();
 }
 
 void __cdecl RB_FullbrightRenderCommands(GfxViewInfo *viewInfo)
 {
     const GfxBackEndData *data; // [esp+14h] [ebp-8h]
 
-    ////PIXBeginNamedEvent(-1, "RB_FullbrightRenderCommands");
+    PROF_SCOPED("RB_FullbrightRenderCommands");
+
     data = backEndData;
     viewInfo->input.data = backEndData;
     R_InitCmdBufSourceState(gfxCmdBufContext.source, &gfxCmdBufInput, 0);
@@ -1459,8 +1434,6 @@ void __cdecl RB_FullbrightRenderCommands(GfxViewInfo *viewInfo)
         RB_ExecuteRenderCommandsLoop(viewInfo->cmds, 0);
     }
     memcpy(gfxCmdBufState.refSamplerState, gfxCmdBufContext.state->refSamplerState, sizeof(gfxCmdBufState));
-    ////if ( g_DXDeviceThread == GetCurrentThreadId() )
-        ////D3DPERF_EndEvent();
 }
 
 GfxCmdBufSourceState *RB_DebugShaderDrawCommandsCommon()
@@ -1483,7 +1456,8 @@ void __cdecl RB_DebugShaderRenderCommands(GfxViewInfo *viewInfo)
 {
     const GfxBackEndData *data; // [esp+14h] [ebp-8h]
 
-    ////PIXBeginNamedEvent(-1, "RB_DebugShaderRenderCommands");
+    PROF_SCOPED("RB_DebugShaderRenderCommands");
+
     data = backEndData;
     viewInfo->input.data = backEndData;
     R_InitCmdBufSourceState(gfxCmdBufContext.source, &gfxCmdBufInput, 0);
@@ -1498,8 +1472,6 @@ void __cdecl RB_DebugShaderRenderCommands(GfxViewInfo *viewInfo)
         RB_ExecuteRenderCommandsLoop(viewInfo->cmds, 0);
     }
     memcpy(gfxCmdBufState.refSamplerState, gfxCmdBufContext.state->refSamplerState, sizeof(gfxCmdBufState));
-    ////if ( GetCurrentThreadId() == g_DXDeviceThread )
-        ////D3DPERF_EndEvent();
 }
 
 void RB_StandardDrawCommandsCommon()
@@ -1510,14 +1482,11 @@ void RB_StandardDrawCommandsCommon()
     GfxViewInfo *viewInfo; // [esp+70h] [ebp-4h]
     GfxViewInfo *viewInfoa; // [esp+70h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "RB_StandardDrawCommandsCommon");
+    PROF_SCOPED("RB_StandardDrawCommandsCommon");
+
     data = backEndData;
     if (!backEndData->viewInfoCount)
     {
-        //if (GetCurrentThreadId() != g_DXDeviceThread)
-        //    return;
-    LABEL_25:
-        D3DPERF_EndEvent();
         return;
     }
     for (viewInfoIndex = 0; viewInfoIndex < data->viewInfoCount; ++viewInfoIndex)
@@ -1604,8 +1573,6 @@ void RB_StandardDrawCommandsCommon()
             RB_DrawSpotShadowOverlay();
     }
     memcpy(gfxCmdBufState.refSamplerState, gfxCmdBufState.refSamplerState, sizeof(gfxCmdBufState));
-    //if (GetCurrentThreadId() == g_DXDeviceThread)
-    //    goto LABEL_25;
 }
 
 void __cdecl R_SetCodeImageTexture(GfxCmdBufSourceState *source, unsigned int codeTexture, const GfxImage *image)
@@ -1622,7 +1589,9 @@ void __cdecl RB_StandardRenderCommands(GfxViewInfo *viewInfo)
   const GfxBackEndData *data; // [esp+18h] [ebp-8h]
 
   data = backEndData;
-  //PIXBeginNamedEvent(-1, "RB_StandardRenderCommands");
+
+  PROF_SCOPED("RB_StandardRenderCommands");
+
   R_StartADSZScaleFrame();
   viewInfo->input.data = data;
   R_InitCmdBufSourceState(&gfxCmdBufSourceState, &gfxCmdBufInput, 0);
@@ -1657,7 +1626,5 @@ void __cdecl RB_StandardRenderCommands(GfxViewInfo *viewInfo)
     RB_ExecuteRenderCommandsLoop(viewInfo->cmds, 0);
   }
   memcpy(gfxCmdBufState.refSamplerState, gfxCmdBufState.refSamplerState, sizeof(gfxCmdBufState));
-  //if ( g_DXDeviceThread == GetCurrentThreadId() )
-    //D3DPERF_EndEvent();
 }
 

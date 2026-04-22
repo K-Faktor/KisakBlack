@@ -1027,7 +1027,8 @@ void __cdecl SND_EntStateFrame()
     snd_ent_state *state; // [esp+28h] [ebp-8h]
     unsigned int i; // [esp+2Ch] [ebp-4h]
 
-    //PIXBeginNamedEvent((int)&cls.rankedServers[711].game[34], "SND_EntStateFrame");
+    PROF_SCOPED("SND_EntStateFrame");
+
     for (i = 0; i < 0x600; ++i)
     {
         state = g_snd.entStateIndex[i];
@@ -1135,8 +1136,6 @@ void __cdecl SND_EntStateFrame()
             v4->next = 0;
         }
     }
-    //if (GetCurrentThreadId() == g_DXDeviceThread)
-    //    D3DPERF_EndEvent();
 }
 
 void __cdecl SND_ResetEntState()
@@ -1337,12 +1336,10 @@ void __cdecl SND_UpdateWait()
 
 int __cdecl updatesound_workerCallback(jqBatch *batch)
 {
-    //PIXBeginNamedEvent(-1, "updatesound_worker");
+    PROF_SCOPED("updatesound_worker");
     jqLockData(batch);
     jqUnlockData(batch);
     SND_Frame();
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
     return 0;
 }
 
@@ -1353,12 +1350,11 @@ void SND_Frame()
     iassert(entryCount == 1);
     
     {
-        //PIXBeginNamedEvent(-1, "SND_Frame");
+        PROF_SCOPED("SND_Frame");
+
         SND_EntStateFrame();
         SND_CommandPump();
         SNDL_Update();
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
     }
     
     iassert(entryCount == 1);
@@ -1386,6 +1382,8 @@ void __cdecl SND_GameReset()
 
 void __cdecl SND_BeginFrame(bool isMature, bool isPaused, float timescale, unsigned int cgTime, unsigned int seed)
 {
+    PROF_SCOPED("SND_BeginFrame"); // LWSS ADD
+
     snd_command *cmd; // [esp+0h] [ebp-4h]
 
     if ( SND_Active() )

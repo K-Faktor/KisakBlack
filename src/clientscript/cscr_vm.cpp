@@ -3955,7 +3955,8 @@ void __cdecl VM_Resume(scriptInstance_t inst, unsigned int timeId)
     unsigned int stackId; // [esp+20h] [ebp-Ch]
     unsigned int startLocalId; // [esp+28h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "VM_Resume");
+    PROF_SCOPED("VM_Resume");
+
     if (gScrVmPub[inst].top != gScrVmPub[inst].stack
         && !Assert_MyHandler(
             "C:\\projects_pc\\cod\\codsrc\\src\\clientscript\\cscr_vm.cpp",
@@ -4093,8 +4094,6 @@ void __cdecl VM_Resume(scriptInstance_t inst, unsigned int timeId)
     RemoveRefToObject(inst, timeId);
     ClearVariableValue(inst, gScrVarPub[inst].tempVariable);
     gScrVmPub[inst].top = gScrVmPub[inst].stack;
-    //if (g_DXDeviceThread == GetCurrentThreadId())
-    //    //D3DPERF_EndEvent();
 }
 
 void __cdecl VM_UnarchiveStack(scriptInstance_t inst, unsigned int startLocalId, VariableStackBuffer *stackValue)

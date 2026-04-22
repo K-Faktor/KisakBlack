@@ -1198,7 +1198,8 @@ void R_SkinXModelCmd(SkinXModelCmd *data)
     //v2 = alloca(10480);
     if (Sys_QueryD3DDeviceOKEvent())
     {
-        //PIXBeginNamedEvent(-1, "R_SkinXModelCmd");
+        PROF_SCOPED("R_SkinXModelCmd");
+
         useSSE = sys_SSE->current.enabled && r_sse_skinning->current.enabled;
         useSSE_ = useSSE;
         v23 = 0;
@@ -1299,8 +1300,6 @@ void R_SkinXModelCmd(SkinXModelCmd *data)
         }
         if (v23)
             _m_empty();
-        //if (g_DXDeviceThread == GetCurrentThreadId())
-        //    D3DPERF_EndEvent();
     }
 }
 

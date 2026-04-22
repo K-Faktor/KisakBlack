@@ -591,13 +591,12 @@ void __cdecl IK_UpdateEntity(unsigned int entityNum, unsigned __int8 *model, boo
 
     if ( isLocalBones )
     {
-        //PIXBeginNamedEvent(-1, "IK - update bones");
+        PROF_SCOPED("IK - update bones");
+
         ikState = IK_GetIKStateForEntity(entityNum, model, 0);
         if ( !ikState )
         {
-            //if ( g_DXDeviceThread != GetCurrentThreadId() )
-            //    return;
-            goto LABEL_19;
+            return;
         }
         if ( (!ikState->localIkSystem || !ikState->localIkSystem->bInitialized)
             && !Assert_MyHandler(
@@ -634,10 +633,6 @@ void __cdecl IK_UpdateEntity(unsigned int entityNum, unsigned __int8 *model, boo
                 }
             }
         }
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-    LABEL_19:
-        ;
-            //D3DPERF_EndEvent();
     }
 }
 

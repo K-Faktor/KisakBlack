@@ -311,6 +311,8 @@ void __cdecl R_SortWorldSurfaces()
     unsigned int worldSurfCount; // [esp+28h] [ebp-Ch]
     GfxSurface *worldSurfArray; // [esp+30h] [ebp-4h]
 
+    PROF_SCOPED("R_SortWorldSurfaces"); // LWSS ADD
+
     if ( !rgp.world
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_drawsurf.cpp", 550, 0, "%s", "rgp.world") )
     {

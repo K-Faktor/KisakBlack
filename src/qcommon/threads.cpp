@@ -508,16 +508,16 @@ void __cdecl Sys_FrontEndSleep()
     int semaphore; // [esp+8h] [ebp-4h]
 
     semaphore = R_ReleaseDXDeviceOwnership();
-    //PIXBeginNamedEvent(-1, "frontend sleep");
+    PROF_SCOPED("frontend sleep");
     Sys_WaitForSingleObject(&rendererRunningEvent);
     if ( semaphore )
         R_AcquireDXDeviceOwnership(0);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 int __cdecl Sys_WaitRenderer()
 {
+    PROF_SCOPED("Sys_WaitRenderer");
+
     if (IsDedicatedServer())
         return 0;
 
@@ -568,10 +568,8 @@ void __cdecl Sys_SleepServer()
 {
     bool result; // [esp+8h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "sleep server");
+    PROF_SCOPED("sleep server");
     result = Sys_WaitForSingleObjectTimeout(&wakeServerEvent, 0);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
     if ( result )
         Sys_ResetEvent(&wakeServerEvent);
 }
@@ -760,10 +758,8 @@ void __cdecl Sys_ResetUpdateSpotLightEffectEvent()
 
 void __cdecl Sys_WaitUpdateNonDependentEffectsCompleted()
 {
-    //PIXBeginNamedEvent(-1, "wait non-dependent fx");
+    PROF_SCOPED("wait non-dependent fx");
     Sys_WaitForSingleObject(&updateEffectsEvent);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl Sys_SetUpdateNonDependentEffectsEvent()
@@ -816,6 +812,7 @@ void __cdecl Sys_SetD3DDeviceOKEvent()
 
 bool __cdecl Sys_QueryD3DDeviceOKEvent()
 {
+    PROF_SCOPED("Sys_QueryD3DDeviceOKEvent"); // LWSS ADD
     return Sys_WaitForSingleObjectTimeout(&d3dDeviceOKEvent, 0);
 }
 

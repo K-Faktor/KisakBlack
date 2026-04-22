@@ -345,14 +345,13 @@ snd_alias_list_t *__cdecl SND_BankAliasLookup(unsigned int key)
     unsigned int i; // [esp+Ch] [ebp-8h]
     snd_alias_list_t *list; // [esp+10h] [ebp-4h] BYREF
 
-    //PIXBeginNamedEvent(-1, "SND_BankAliasLookup");
+    PROF_SCOPED("SND_BankAliasLookup");
+
     list = 0;
     Sys_EnterCriticalSection(CRITSECT_SOUND_BANK);
     for ( i = 0; i < g_snd_bankCount && !SND_FindInIndex(key, g_snd_banks[g_snd_bankCount - i - 1], &list); ++i )
         ;
     Sys_LeaveCriticalSection(CRITSECT_SOUND_BANK);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
     return list;
 }
 

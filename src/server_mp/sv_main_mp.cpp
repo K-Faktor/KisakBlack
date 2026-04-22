@@ -1027,7 +1027,8 @@ void __cdecl SV_CheckTimeouts()
     int droppoint; // [esp+1Ch] [ebp-8h]
     int clientNum; // [esp+20h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "SV_CheckTimeouts");
+    PROF_SCOPED("SV_CheckTimeouts");
+
     droppoint = svs.time - 1000 * sv_timeout->current.integer;
     connectdroppoint = svs.time - 1000 * sv_connectTimeout->current.integer;
     zombiepoint = svs.time - 1000 * sv_zombietime->current.integer;
@@ -1078,8 +1079,6 @@ void __cdecl SV_CheckTimeouts()
         ++clientNum;
         ++drop;
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 
 int __cdecl SV_CheckPaused()
@@ -1236,28 +1235,29 @@ void     SV_ServerThread(unsigned int threadContext)
     {
         //BLOPS_NULLSUB();
         timeout = 1000 / sv_network_fps->current.integer;
-        //PIXBeginNamedEvent(-1, "wait start server");
-        g_checkServerTime = timeout + Sys_Milliseconds();
-        if ( sv_assistWorkers->current.enabled )
         {
-            start = Sys_WaitStartServer(0);
-            g_startServer = start;
-            while ( !start && (int)Sys_Milliseconds() < g_checkServerTime )
+            PROF_SCOPED("wait start server");
+            g_checkServerTime = timeout + Sys_Milliseconds();
+            if (sv_assistWorkers->current.enabled)
             {
-                Sys_AssistSingle();
                 start = Sys_WaitStartServer(0);
                 g_startServer = start;
+                while (!start && (int)Sys_Milliseconds() < g_checkServerTime)
+                {
+                    Sys_AssistSingle();
+                    start = Sys_WaitStartServer(0);
+                    g_startServer = start;
+                }
             }
+            else
+            {
+                start = Sys_WaitStartServer(timeout);
+                g_startServer = start;
+            }
+            CurrentThreadId = GetCurrentThreadId();
+            v9 = 0;
         }
-        else
-        {
-            start = Sys_WaitStartServer(timeout);
-            g_startServer = start;
-        }
-        CurrentThreadId = GetCurrentThreadId();
-        v9 = 0;
-        //if ( CurrentThreadId == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
+
         G_ClearVehicleInputs();
         SV_RunEventLoop();
         if ( Sys_IsServerThread() )
@@ -1266,25 +1266,25 @@ void     SV_ServerThread(unsigned int threadContext)
         {
             SV_IncServerThreadOwnsGame();
             SV_CalcPings();
-            //PIXBeginNamedEvent((int)&cls.rankedServers[710].city[38], "SERVER: Frame");
-            QueryPerformanceCounter(&PerformanceCount);
-            runStart = PerformanceCount.QuadPart;
-            SV_PreFrame();
-            //PIXBeginNamedEvent(65280, "SERVER: run frame");
-            SV_RunFrame();
-            v6 = GetCurrentThreadId();
-            //if ( v6 == g_DXDeviceThread )
-                //D3DPERF_EndEvent();
-            //PIXBeginNamedEvent((int)&cls.rankedServers[537].minPing, "SERVER: post frame");
-            SV_PostFrame();
-            //v4 = GetCurrentThreadId();
-            //v5 = 0;
-            //if ( v4 == g_DXDeviceThread )
-                //D3DPERF_EndEvent();
-            QueryPerformanceCounter(&v3);
-            gRunFrameTicks = v3.QuadPart - runStart;
-            //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                //D3DPERF_EndEvent();
+
+            {
+                PROF_SCOPED("SERVER: Frame");
+                QueryPerformanceCounter(&PerformanceCount);
+                runStart = PerformanceCount.QuadPart;
+                SV_PreFrame();
+                {
+                    PROF_SCOPED("SERVER: run frame");
+                    SV_RunFrame();
+                }
+                {
+                    PROF_SCOPED("SERVER: post frame");
+                    SV_PostFrame();
+                }
+
+                QueryPerformanceCounter(&v3);
+                gRunFrameTicks = v3.QuadPart - runStart;
+            }
+
             SV_RunEventLoop();
             Sys_SleepServer();
             SV_DecServerThreadOwnsGame();
@@ -1317,12 +1317,10 @@ void SV_RunEventLoop()
     Sys_ResetServerNetworkCompletedEvent();
     if ( sv.allowNetPackets )
     {
-        //PIXBeginNamedEvent(3158271, "SERVER: msg recv");
+        PROF_SCOPED("SERVER: msg recv");
         SV_IncServerThreadOwnsGame();
         Com_ServerPacketEvent();
         SV_DecServerThreadOwnsGame();
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
     }
     Sys_SetServerNetworkCompletedEvent();
 }
@@ -1333,50 +1331,27 @@ void __cdecl SV_WaitServer()
     unsigned int timeout; // [esp+8h] [ebp-4h]
     unsigned int timeouta; // [esp+8h] [ebp-4h]
 
-    if ( !Sys_IsMainThread()
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_main_mp.cpp",
-                    2725,
-                    0,
-                    "%s",
-                    "Sys_IsMainThread()") )
-    {
-        __debugbreak();
-    }
+    iassert(Sys_IsMainThread());
+
     if ( com_inServerFrame )
     {
         com_inServerFrame = 0;
-        if ( !com_sv_running
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_main_mp.cpp",
-                        2732,
-                        0,
-                        "%s",
-                        "com_sv_running") )
-        {
-            __debugbreak();
-        }
-        if ( !com_sv_running->current.enabled
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_main_mp.cpp",
-                        2733,
-                        0,
-                        "%s",
-                        "com_sv_running->current.enabled") )
-        {
-            __debugbreak();
-        }
+
+        iassert(com_sv_running);
+        iassert(com_sv_running->current.enabled);
+
         SV_AllowPackets(0);
-        //PIXBeginNamedEvent(-1, "wait server");
-        timeout = !Sys_AssistNeeded();
-        for ( i = Sys_WaitServer(timeout); !i; i = Sys_WaitServer(timeouta) )
+
         {
-            Com_CheckSyncFrame();
-            Sys_AssistSingle();
-            timeouta = !Sys_AssistNeeded();
+            PROF_SCOPED("wait server");
+            timeout = !Sys_AssistNeeded();
+            for (i = Sys_WaitServer(timeout); !i; i = Sys_WaitServer(timeouta))
+            {
+                Com_CheckSyncFrame();
+                Sys_AssistSingle();
+                timeouta = !Sys_AssistNeeded();
+            }
         }
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
     }
 }
 
@@ -1418,10 +1393,11 @@ void __cdecl SV_PreFrame()
 {
     char *v0; // eax
 
-    //PIXBeginNamedEvent((int)&cls.rankedServers[537].city[61], "SERVER: bots");
-    SV_UpdateBots();
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
+    {
+        PROF_SCOPED("SERVER: bots");
+        SV_UpdateBots();
+    }
+    
     if ( (dvar_modifiedFlags & 8) != 0
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_main_mp.cpp",
@@ -1659,22 +1635,13 @@ char __cdecl SV_CheckOverflow()
 
 void __cdecl SV_AllowPackets(bool allow)
 {
-    if ( !Sys_IsMainThread()
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_main_mp.cpp",
-                    3101,
-                    0,
-                    "%s",
-                    "Sys_IsMainThread()") )
-    {
-        __debugbreak();
-    }
-    //PIXBeginNamedEvent(-1, "SV_AllowPackets");
+    iassert(Sys_IsMainThread());
+
+    PROF_SCOPED("SV_AllowPackets");
+
     Sys_WaitServerNetworkCompleted();
     Sys_ResetServerAllowNetworkEvent();
     sv.allowNetPackets = allow;
     Sys_SetServerAllowNetworkEvent();
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 

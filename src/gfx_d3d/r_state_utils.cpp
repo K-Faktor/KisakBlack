@@ -374,7 +374,7 @@ void __cdecl R_Set2D(GfxCmdBufSourceState *source)
 
     if ( source->scissorViewport.width != 2 )
     {
-        //PIXBeginNamedEvent(-1, "R_Set2D");
+        PROF_SCOPED("R_Set2D");
         source->viewMode = VIEW_MODE_2D;
         source->viewportIsDirty = 1;
         source->eyeOffset[0] = 0.0f;
@@ -385,8 +385,6 @@ void __cdecl R_Set2D(GfxCmdBufSourceState *source)
         R_CmdBufSet2D(source, &viewport);
         R_GetViewport(source, &viewport);
         R_CmdBufSet2D(source, &viewport);
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
     }
 }
 
@@ -460,7 +458,7 @@ void __cdecl R_Set3D(GfxCmdBufSourceState *source)
 
     if (source->viewMode != VIEW_MODE_3D)
     {
-        //PIXBeginNamedEvent(-1, "R_Set3D");
+        PROF_SCOPED("R_Set3D");
         source->viewMode = VIEW_MODE_3D;
         memcpy(&source->viewParms, source->viewParms3D, sizeof(source->viewParms));
         if (source->viewParms.origin[3] == 0.0)
@@ -478,8 +476,6 @@ void __cdecl R_Set3D(GfxCmdBufSourceState *source)
         source->eyeOffset[3] = 1.0f;
         R_CmdBufSet3D(source);
         UpdateVPosToWorld(source);
-        //if (g_DXDeviceThread == GetCurrentThreadId())
-        //    D3DPERF_EndEvent();
     }
 }
 

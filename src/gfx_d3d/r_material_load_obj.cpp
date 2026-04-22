@@ -7502,6 +7502,8 @@ bool __cdecl Material_IsSeeThruParallaxDecal(const Material *mat)
 
 void __cdecl Material_Sort()
 {
+    PROF_SCOPED("Material_Sort"); // LWSS ADD
+
     if ( useFastFile->current.enabled )
         rgp.materialCount = DB_GetAllXAssetOfType(ASSET_TYPE_MATERIAL, (XAssetHeader *)&rgp, 4096);
     Material_SortInternal(rgp.sortedMaterials, rgp.materialCount);

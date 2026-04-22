@@ -133,7 +133,8 @@ void __cdecl AimTarget_ProcessEntityInternal(int localClientNum, const centity_s
     AimTarget target; // [esp+40h] [ebp-34h] BYREF
     unsigned int visBone; // [esp+70h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "AimTarget_ProcessEntity");
+    PROF_SCOPED("AimTarget_ProcessEntity");
+
     cgameGlob = CG_GetLocalClientGlobals(localClientNum);
     if ( !ent && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\aim_assist\\aim_target.cpp", 902, 0, "%s", "ent") )
         __debugbreak();
@@ -809,10 +810,11 @@ LABEL_23:
                 goto LABEL_23;
         }
     }
-    //PIXBeginNamedEvent(-1, "aim assist epilog");
-    //BLOPS_NULLSUB();
-    ////if ( g_DXDeviceThread == GetCurrentThreadId() )
-    //    //D3DPERF_EndEvent();
+
+    {
+        PROF_SCOPED("aim assist epilog");
+        //BLOPS_NULLSUB();
+    }
 }
 
 void __cdecl AimTarget_ClearTargetList(int localClientNum)

@@ -22,7 +22,8 @@ void __cdecl RB_DrawCoronas(unsigned int localClientNum)
     CoronaState *state; // [esp+44h] [ebp-10h]
     int frameTime; // [esp+4Ch] [ebp-8h]
 
-    //PIXBeginNamedEvent(-1, "RB_DrawCoronas");
+    PROF_SCOPED("RB_DrawCoronas");
+
     if (localClientNum >= gfxCfg.maxClientViews
         && !Assert_MyHandler(
             "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\rb_corona.cpp",
@@ -37,9 +38,7 @@ void __cdecl RB_DrawCoronas(unsigned int localClientNum)
     state = &coronaState[localClientNum];
     if (pixelCostMode == GFX_PIXEL_COST_MODE_MEASURE_COST || pixelCostMode == GFX_PIXEL_COST_MODE_MEASURE_MSEC)
     {
-        //if (g_DXDeviceThread != GetCurrentThreadId())
-        //    return;
-        goto LABEL_52;
+        return;
     }
     if (coronaTimeLastUpdated && coronaTimeLastUpdated <= gfxCmdBufSourceState.sceneDef.time)
         frameTime = gfxCmdBufSourceState.sceneDef.time - coronaTimeLastUpdated;
@@ -101,10 +100,6 @@ void __cdecl RB_DrawCoronas(unsigned int localClientNum)
             }
         }
     }
-    //if (g_DXDeviceThread == GetCurrentThreadId())
-LABEL_52:
-    ;
-    //D3DPERF_EndEvent();
 }
 
 unsigned int id;

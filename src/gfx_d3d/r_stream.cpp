@@ -960,7 +960,8 @@ char __cdecl R_StreamUpdate(const float *viewPos)
 {
     char updateCalled; // [esp+13h] [ebp-1h]
 
-    //PIXBeginNamedEvent(-1, "stream update");
+    PROF_SCOPED("stream update");
+
     updateCalled = 0;
     if (r_streamClear->current.enabled || r_stream->modified)
     {
@@ -989,16 +990,12 @@ char __cdecl R_StreamUpdate(const float *viewPos)
     }
     if (r_reflectionProbeGenerate->current.enabled)
     {
-        //if (GetCurrentThreadId() == g_DXDeviceThread)
-        //    D3DPERF_EndEvent();
         return 0;
     }
     else
     {
         if (r_stream->current.integer > 0)
             updateCalled = R_StreamUpdate_FindImageAndOptimize(viewPos);
-        //if (g_DXDeviceThread == GetCurrentThreadId())
-        //    D3DPERF_EndEvent();
         return updateCalled;
     }
 }
@@ -1094,20 +1091,13 @@ void __cdecl importance_merge_sort(void **list, int list_count)
 
 void __cdecl R_StreamUpdate_EndQuery()
 {
-    if (streamFrontendGlob.queryInProgress != 1
-        && !Assert_MyHandler(
-            "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_stream.cpp",
-            4517,
-            0,
-            "%s",
-            "streamFrontendGlob.queryInProgress == 1"))
+    iassert(streamFrontendGlob.queryInProgress == 1);
+
     {
-        __debugbreak();
+        PROF_SCOPED("wait r_stream_sort");
+        Sys_WaitWorkerCmdInternal(&r_stream_sortWorkerCmd);
     }
-    //PIXBeginNamedEvent(-1, "wait r_stream_sort");
-    Sys_WaitWorkerCmdInternal(&r_stream_sortWorkerCmd);
-    //if (GetCurrentThreadId() == g_DXDeviceThread)
-    //    D3DPERF_EndEvent();
+    
     streamFrontendGlob.queryInProgress = 0;
     R_StreamAlloc_Lock();
     R_StreamUpdate_EndQuery_Internal();
@@ -1126,7 +1116,9 @@ void  R_StreamUpdate_EndQuery_Internal()
     int imagePart; // [esp+48h] [ebp-4h]
 
     sortedIndex = 0;
-    //PIXBeginNamedEvent(-1, "R_Stream EndQuery");
+
+    PROF_SCOPED("R_Stream EndQuery");
+
     if (Sys_IsRenderThread())
         R_StreamUpdate_ProcessFileCallbacks();
 LABEL_3:
@@ -1148,9 +1140,7 @@ LABEL_3:
         }
         if (!request)
         {
-            //if (GetCurrentThreadId() != g_DXDeviceThread)
-            //    return;
-            goto LABEL_39;
+            return;
         }
         while (sortedIndex < streamFrontendGlob.totalBytesWanted)
         {
@@ -1178,14 +1168,10 @@ LABEL_3:
                                 streamFrontendGlob.initialLoadAllocFailures = 0;
                                 if (CG_IsShowingZombieMap() || R_StreamRequestImageRead(request))
                                     goto LABEL_3;
-                                //if (GetCurrentThreadId() == g_DXDeviceThread)
-                                //    goto LABEL_39;
                             }
                             else
                             {
                                 ++streamFrontendGlob.initialLoadAllocFailures;
-                                //if (GetCurrentThreadId() == g_DXDeviceThread)
-                                //    goto LABEL_39;
                             }
                             return;
                         }
@@ -1195,11 +1181,6 @@ LABEL_3:
             ++sortedIndex;
         }
     }
-    //if (GetCurrentThreadId() != g_DXDeviceThread)
-    //    return;
-LABEL_39:
-    ;
-    //D3DPERF_EndEvent();
 }
 
 char __cdecl R_StreamRequestImageAllocation(
@@ -1392,7 +1373,9 @@ char __cdecl R_StreamUpdate_FindImageAndOptimize(const float *viewPos)
             __debugbreak();
         }
         maxDistSq = r_streamMaxDist->current.value * r_streamMaxDist->current.value;
-        //PIXBeginNamedEvent(-1, "R_Stream update");
+
+        PROF_SCOPED("R_Stream update");
+
         streamFrontendGlob.queryInProgress = 1;
         streamFrontendGlob.queryClient = 0;
         if (rgp.world && viewPos)
@@ -1428,8 +1411,6 @@ char __cdecl R_StreamUpdate_FindImageAndOptimize(const float *viewPos)
                 }
             }
             Sys_LeaveCriticalSection(CRITSECT_STREAM_SYNC_COMMAND);
-            //if (GetCurrentThreadId() == g_DXDeviceThread)
-            //    D3DPERF_EndEvent();
             return 1;
         }
         else
@@ -1445,8 +1426,6 @@ char __cdecl R_StreamUpdate_FindImageAndOptimize(const float *viewPos)
             Sys_AddWorkerCmdInternal(&r_stream_sortWorkerCmd, (unsigned __int8 *)&sortCmd, 0);
             streamFrontendGlob.queryClient = -1;
             Sys_LeaveCriticalSection(CRITSECT_STREAM_SYNC_COMMAND);
-            //if (GetCurrentThreadId() == g_DXDeviceThread)
-            //    D3DPERF_EndEvent();
             return 1;
         }
     }
@@ -1807,7 +1786,7 @@ void __cdecl R_StreamUpdatePerClient(const float *viewPos)
         Sys_EnterCriticalSection(CRITSECT_STREAM_SYNC_COMMAND);
         if (streamFrontendGlob.queryInProgress && streamFrontendGlob.queryClient != -1)
         {
-            //PIXBeginNamedEvent(-1, "R_Stream update per client");
+            PROF_SCOPED("R_Stream update per client");
             maxDistSq = r_streamMaxDist->current.value * r_streamMaxDist->current.value;
             if (streamFrontendGlob.queryClient > 0)
             {
@@ -1825,8 +1804,6 @@ void __cdecl R_StreamUpdatePerClient(const float *viewPos)
             R_StreamUpdateDynamicModels(viewPos, maxDistSq, streamFrontendGlob.frame, distanceScale);
             ++streamFrontendGlob.queryClient;
             Sys_LeaveCriticalSection(CRITSECT_STREAM_SYNC_COMMAND);
-            //if (g_DXDeviceThread == GetCurrentThreadId())
-            //    D3DPERF_EndEvent();
         }
         else
         {
@@ -2110,14 +2087,28 @@ void __cdecl R_StreamUpdate_End()
 float4 s_viewPos;
 void __cdecl R_Stream_UpdateStaticModelsCmd(char *data)
 {
-    unsigned int instId; // [esp+34h] [ebp-8h]
+    PROF_SCOPED("R_Stream_UpdateStaticModelsCmd");
 
-    //PIXBeginNamedEvent(-1, "R_Stream_UpdateStaticModelsCmd");
-    s_viewPos = *(float4 *)(data + 4);
-    for (instId = 0; instId < g_worldDpvs->smodelCount; ++instId)
-        R_StreamUpdateStaticModel(instId, (const float *)data + 1, *((float *)data + 4), (float *)data + 5);
-    //if (GetCurrentThreadId() == g_DXDeviceThread)
-    //    D3DPERF_EndEvent();
+    StreamUpdateCmd *cmd = (StreamUpdateCmd *)data;
+
+    s_viewPos = *(float4 *)cmd->viewPos;
+    for (unsigned int instId = 0; instId < g_worldDpvs->smodelCount; ++instId)
+    {
+        R_StreamUpdateStaticModel(instId, cmd->viewPos, cmd->maxDistSq, cmd->distanceScale);
+    }
+}
+
+void __cdecl R_Stream_UpdateStaticSurfacesCmd(char *data)
+{
+    PROF_SCOPED("R_Stream_UpdateStaticSurfacesCmd");
+
+    StreamUpdateCmd *cmd = (StreamUpdateCmd *)data;
+    s_viewPos = *(float4 *)cmd->viewPos;
+
+    for (unsigned int surfId = 0; surfId < g_worldDpvs->staticSurfaceCount; ++surfId)
+    {
+        R_StreamUpdateWorldSurface(surfId, cmd->viewPos, cmd->maxDistSq, cmd->distanceScale);
+    }
 }
 
 void __cdecl R_StreamUpdateStaticModel(
@@ -2162,18 +2153,6 @@ void __cdecl R_StreamUpdate_AddXModelDistance(
         streamFrontendGlob.modelDistance[modelIndex] = distSq;
         streamFrontendGlob.modelDistanceBits[modelIndex >> 5] |= 1 << (modelIndex & 0x1F);
     }
-}
-
-void __cdecl R_Stream_UpdateStaticSurfacesCmd(char *data)
-{
-    unsigned int surfId; // [esp+10h] [ebp-8h]
-
-    //PIXBeginNamedEvent(-1, "R_Stream_UpdateStaticSurfacesCmd");
-    s_viewPos = *(float4 *)(data + 4);
-    for ( surfId = 0; surfId < g_worldDpvs->staticSurfaceCount; ++surfId )
-        R_StreamUpdateWorldSurface(surfId, (const float *)data + 1, *((float *)data + 4), (float *)data + 5);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl R_StreamUpdateWorldSurface(int surfId, const float *viewPos, float maxDistSq, float *distanceScale)
@@ -2302,10 +2281,9 @@ double __cdecl FastPointDistSqFromBounds(float4 mins, float4 maxs)
 
 void __cdecl R_Stream_SortCmd(_BYTE *data)
 {
-    //PIXBeginNamedEvent(-1, "R_Stream_SortCmd");
-    R_StreamUpdate_EndQuerySort(data[4]);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
+    PROF_SCOPED("R_Stream_SortCmd");
+    StreamSortCmd *cmd = (StreamSortCmd *)data;
+    R_StreamUpdate_EndQuerySort(cmd->diskOrder);
 }
 
 // aislop
@@ -2323,7 +2301,8 @@ void __cdecl R_StreamUpdate_EndQuerySort(bool diskOrder)
     int index; // [esp+A0h] [ebp-8h]
     int imagePartIndex; // [esp+A4h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "R_Stream EndQuerySort");
+    PROF_SCOPED("R_Stream EndQuerySort");
+
     index = 0;
     while (index < streamFrontendGlob.totalBytesWanted)
     {
@@ -2369,21 +2348,16 @@ void __cdecl R_StreamUpdate_EndQuerySort(bool diskOrder)
     {
         importance_merge_sort((void **)((char *)streamFrontendGlob.sortedImages + 2), streamFrontendGlob.totalBytesWanted);
     }
-    //if (g_DXDeviceThread == GetCurrentThreadId())
-    //    D3DPERF_EndEvent();
 }
 
 void __cdecl R_Stream_CombineCmd()
 {
-    //PIXBeginNamedEvent(-1, "R_Stream_CombineCmd");
+    PROF_SCOPED("R_Stream_CombineCmd");
     R_StreamUpdate_CombineImportance();
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
-DWORD R_StreamUpdate_CombineImportance()
+void R_StreamUpdate_CombineImportance()
 {
-    DWORD result; // eax
     float distSq; // [esp+4h] [ebp-104h]
     XAssetPoolEntry<Material> *material; // [esp+E8h] [ebp-20h]
     XAssetPoolEntry<XModel> *model; // [esp+ECh] [ebp-1Ch]
@@ -2395,68 +2369,69 @@ DWORD R_StreamUpdate_CombineImportance()
     unsigned int mask; // [esp+100h] [ebp-8h]
     unsigned int modelIndex; // [esp+104h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "R_Stream combine xmodels");
-    for (modelIndex = 0; modelIndex < 1000; ++modelIndex)
     {
-        mask = 1 << (modelIndex & 0x1F);
-        staticBit = mask & streamFrontendGlob.modelDistanceBits[modelIndex >> 5];
-        dynamicBit = mask & streamFrontendGlob.dynamicModelDistanceBits[modelIndex >> 5];
-        if ((dynamicBit & staticBit) != 0)
+        PROF_SCOPED("R_Stream combine xmodels");
+
+        for (modelIndex = 0; modelIndex < 1000; ++modelIndex)
         {
-            model = DB_GetXModelAtIndex(modelIndex);
-            if (!model
-                && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_stream.cpp", 3911, 0, "%s", "model"))
+            mask = 1 << (modelIndex & 0x1F);
+            staticBit = mask & streamFrontendGlob.modelDistanceBits[modelIndex >> 5];
+            dynamicBit = mask & streamFrontendGlob.dynamicModelDistanceBits[modelIndex >> 5];
+            if ((dynamicBit & staticBit) != 0)
             {
-                __debugbreak();
+                model = DB_GetXModelAtIndex(modelIndex);
+                if (!model
+                    && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_stream.cpp", 3911, 0, "%s", "model"))
+                {
+                    __debugbreak();
+                }
+                if ((float)(streamFrontendGlob.dynamicModelDistance[modelIndex] - streamFrontendGlob.modelDistance[modelIndex]) < 0.0)
+                    distSq = streamFrontendGlob.dynamicModelDistance[modelIndex];
+                else
+                    distSq = streamFrontendGlob.modelDistance[modelIndex];
+                R_StreamUpdateForXModel(&model->entry, distSq);
             }
-            if ((float)(streamFrontendGlob.dynamicModelDistance[modelIndex] - streamFrontendGlob.modelDistance[modelIndex]) < 0.0)
-                distSq = streamFrontendGlob.dynamicModelDistance[modelIndex];
-            else
-                distSq = streamFrontendGlob.modelDistance[modelIndex];
-            R_StreamUpdateForXModel(&model->entry, distSq);
-        }
-        else if (staticBit)
-        {
-            modela = DB_GetXModelAtIndex(modelIndex);
-            if (!modela
-                && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_stream.cpp", 3917, 0, "%s", "model"))
+            else if (staticBit)
             {
-                __debugbreak();
+                modela = DB_GetXModelAtIndex(modelIndex);
+                if (!modela
+                    && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_stream.cpp", 3917, 0, "%s", "model"))
+                {
+                    __debugbreak();
+                }
+                R_StreamUpdateForXModel(&modela->entry, streamFrontendGlob.modelDistance[modelIndex]);
             }
-            R_StreamUpdateForXModel(&modela->entry, streamFrontendGlob.modelDistance[modelIndex]);
-        }
-        else if (dynamicBit)
-        {
-            modelb = DB_GetXModelAtIndex(modelIndex);
-            if (!modelb
-                && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_stream.cpp", 3923, 0, "%s", "model"))
+            else if (dynamicBit)
             {
-                __debugbreak();
+                modelb = DB_GetXModelAtIndex(modelIndex);
+                if (!modelb
+                    && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_stream.cpp", 3923, 0, "%s", "model"))
+                {
+                    __debugbreak();
+                }
+                R_StreamUpdateForXModel(&modelb->entry, streamFrontendGlob.dynamicModelDistance[modelIndex]);
             }
-            R_StreamUpdateForXModel(&modelb->entry, streamFrontendGlob.dynamicModelDistance[modelIndex]);
         }
     }
-    //if (g_DXDeviceThread == GetCurrentThreadId())
-    //    D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "R_Stream combine materials");
-    for (materialIndex = 0; materialIndex < 0x1000; ++materialIndex)
+
     {
-        if (streamFrontendGlob.materialImportance[materialIndex] != 0.0
-            && (streamFrontendGlob.materialPreventBits[materialIndex >> 5] & (1 << (materialIndex & 0x1F))) == 0)
+        PROF_SCOPED("R_Stream combine materials");
+
+        for (materialIndex = 0; materialIndex < 0x1000; ++materialIndex)
         {
-            material = DB_GetMaterialAtIndex(materialIndex);
-            if (!material
-                && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_stream.cpp", 3937, 0, "%s", "material"))
+            if (streamFrontendGlob.materialImportance[materialIndex] != 0.0
+                && (streamFrontendGlob.materialPreventBits[materialIndex >> 5] & (1 << (materialIndex & 0x1F))) == 0)
             {
-                __debugbreak();
+                material = DB_GetMaterialAtIndex(materialIndex);
+                if (!material
+                    && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_stream.cpp", 3937, 0, "%s", "material"))
+                {
+                    __debugbreak();
+                }
+                R_StreamTouchImagesFromMaterial(&material->entry, streamFrontendGlob.materialImportance[materialIndex]);
             }
-            R_StreamTouchImagesFromMaterial(&material->entry, streamFrontendGlob.materialImportance[materialIndex]);
         }
     }
-    result = GetCurrentThreadId();
-    //if (result == g_DXDeviceThread)
-    //    return D3DPERF_EndEvent();
-    return result;
 }
 
 void __cdecl R_StreamUpdateForXModel(const XModel *remoteModel, float distSq)
@@ -2627,17 +2602,15 @@ void __cdecl R_StreamUpdateAabbNode_r_0_(int aabbTreeNode, const float *viewPos,
 
 void __cdecl R_StreamUpdateStatic(const float *viewPos, float maxDistSq, float *distanceScale)
 {
-    if ( !viewPos
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_stream.cpp", 4021, 0, "%s", "viewPos") )
+    iassert(viewPos);
+
+    PROF_SCOPED("R_Stream update static");
+
+    s_viewPos = *(float4 *)viewPos;
+
+    if (rgp.world->streamInfo.aabbTreeCount > 0)
     {
-        __debugbreak();
-    }
-    //PIXBeginNamedEvent(-1, "R_Stream update static");
-    *(_QWORD *)s_viewPos.v = *(_QWORD *)viewPos;
-    *(_QWORD *)&s_viewPos.unitVec[2].packed = *((_QWORD *)viewPos + 1);
-    if ( rgp.world->streamInfo.aabbTreeCount > 0 )
         R_StreamUpdateAabbNode_r_0_(0, viewPos, maxDistSq, distanceScale);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+    }
 }
 

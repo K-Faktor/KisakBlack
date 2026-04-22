@@ -191,20 +191,15 @@ void __fastcall Actor_UpdateThreat(actor_s *self)
     sentient_info_t *pInfo; // [esp+8Ch] [ebp-Ch]
     int threat; // [esp+94h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "Actor_UpdateThreat");
-    if ( !self && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_threat.cpp", 1001, 0, "%s", "self") )
-        __debugbreak();
-    if ( !self->sentient
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_threat.cpp", 1002, 0, "%s", "self->sentient") )
-    {
-        __debugbreak();
-    }
+    PROF_SCOPED("Actor_UpdateThreat");
+
+    iassert(self);
+    iassert(self->sentient);
+
     if ( ai_threatUpdateInterval->current.integer )
     {
         if ( level.time < self->threatUpdateTime )
         {
-            //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                goto LABEL_98;
             return;
         }
         Actor_IncrementThreatTime(self);
@@ -226,8 +221,6 @@ void __fastcall Actor_UpdateThreat(actor_s *self)
                 Sentient_SetEnemy(self->sentient, 0, 1);
             }
         }
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            goto LABEL_98;
         return;
     }
     if ( scriptTargetEnt && self->sentient->entityTargetThreat == 1.0 )
@@ -235,8 +228,6 @@ void __fastcall Actor_UpdateThreat(actor_s *self)
         v2 = va("scripted enemy (%0.3f)", 1.0);
         DebugThreatStringSimple(self, scriptTargetEnt, v2, colorGreen);
         Sentient_SetEnemy(self->sentient, scriptTargetEnt, 1);
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            goto LABEL_98;
         return;
     }
     iTeamFlags = 1 << Sentient_EnemyTeam(self->sentient->eTeam);
@@ -361,10 +352,6 @@ LABEL_77:
         DebugThreatStringSimple(self, pScariestEnemy, (char *)"enemy", colorGreen);
     }
     Sentient_SetEnemy(self->sentient, pScariestEnemy, 1);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-LABEL_98:
-    ;
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl DebugThreatStringSimple(const actor_s *self, gentity_s *enemy, char *string, const float *color)

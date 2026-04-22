@@ -1,6 +1,7 @@
 #include "cg_clouds.h"
 #include <bgame/bg_wind.h>
 #include <universal/com_math.h>
+#include <universal/profile.h>
 
 float cg_cloudWorldMin[3];
 float cg_cloudWorldMax[3];
@@ -10,6 +11,8 @@ cgCloud_t cg_clouds[128];
 
 void __cdecl CG_UpdateClouds(int msec)
 {
+    PROF_SCOPED("CG_UpdateClouds"); // LWSS ADD
+
     float v1; // [esp+0h] [ebp-44h]
     float radius; // [esp+10h] [ebp-34h]
     int n; // [esp+14h] [ebp-30h]

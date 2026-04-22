@@ -299,19 +299,26 @@ void __cdecl R_LockSkinnedCache()
     int v1; // [esp+0h] [ebp-8h]
     int semaphore; // [esp+4h] [ebp-4h]
 
+    PROF_SCOPED("R_LockSkinnedCache"); // LWSS ADD
+
     iassert(!gfxBuf.skinnedCacheLockAddr);
 
     if (Sys_QueryD3DDeviceOKEvent())
     {
         semaphore = R_AcquireDXDeviceOwnership(0);
-        while (*frontEndDataOut->dynamicBufferCurrentFrame
-            && *frontEndDataOut->dynamicBufferCurrentFrame < frontEndDataOut->frameCount)
+
         {
-            v1 = R_ReleaseDXDeviceOwnership();
-            NET_Sleep(0);
-            if (v1)
-                R_AcquireDXDeviceOwnership(0);
+            PROF_SCOPED("SkinCache Frame Loop"); // LWSS ADD
+            while (*frontEndDataOut->dynamicBufferCurrentFrame
+                && *frontEndDataOut->dynamicBufferCurrentFrame < frontEndDataOut->frameCount)
+            {
+                v1 = R_ReleaseDXDeviceOwnership();
+                NET_Sleep(0);
+                if (v1)
+                    R_AcquireDXDeviceOwnership(0);
+            }
         }
+        
         *frontEndDataOut->dynamicBufferCurrentFrame = frontEndDataOut->frameCount;
         gfxBuf.skinnedCacheLockAddr = frontEndDataOut->skinnedCacheVb->verts;
         gfxBuf.oldSkinnedCacheNormalsAddr = gfxBuf.skinnedCacheNormals[gfxBuf.skinnedCacheNormalsFrameCount & 1];

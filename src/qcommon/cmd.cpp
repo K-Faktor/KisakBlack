@@ -389,7 +389,8 @@ void __cdecl Cbuf_ExecuteBufferUI(int localClientNum, int controllerIndex, itemD
 
 void __cdecl Cbuf_Execute(int localClientNum, int controllerIndex)
 {
-    //PIXBeginNamedEvent(-1, "Cbuf_Execute");
+    PROF_SCOPED("Cbuf_Execute");
+
     if ( cmd_insideCBufExecute[localClientNum]
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\cmd.cpp",
@@ -405,9 +406,6 @@ void __cdecl Cbuf_Execute(int localClientNum, int controllerIndex)
     Cbuf_ExecuteInternal(localClientNum, controllerIndex);
     cmd_insideCBufExecute[localClientNum] = 0;
     Cbuf_SV_Execute();
-
-    ////if ( GetCurrentThreadId() == g_DXDeviceThread )
-    //    //D3DPERF_EndEvent();
 }
 
 void __cdecl Cbuf_ExecuteInternal(int localClientNum, int controllerIndex)

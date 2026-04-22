@@ -1020,11 +1020,10 @@ unsigned int __cdecl FX_SpawnEffect(
     char isSpotLightEffect; // [esp+8Bh] [ebp-5h]
     unsigned int elemClass; // [esp+8Ch] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "FX_SpawnEffect");
+    PROF_SCOPED("FX_SpawnEffect");
+
     if ( zombietron->current.enabled && system->localClientNum )
     {
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
         return 0;
     }
 
@@ -1038,8 +1037,6 @@ unsigned int __cdecl FX_SpawnEffect(
         && (!system->extraCameraPre.isValid || FX_CullEffectForSpawn(&system->extraCameraPre, remoteDef, origin))
         && FX_CullEffectForSpawn(&system->cameraPrev, remoteDef, origin) )
     {
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
         return 0;
     }
 
@@ -1052,8 +1049,6 @@ unsigned int __cdecl FX_SpawnEffect(
             if ( _InterlockedCompareExchange(&system->shared->firstFreeEffect, allocIndex, allocIndex + 1) == allocIndex + 1 )
             {
                 FX_SetWarningPriority(system, remoteDef->efPriority);
-                //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                    //D3DPERF_EndEvent();
                 return 0;
             }
         }
@@ -1342,15 +1337,11 @@ unsigned int __cdecl FX_SpawnEffect(
         FX_StartNewEffect(system, &remoteEffect->effect, remoteEffect);
         _InterlockedExchangeAdd(&remoteEffect->atomics.status, 0xE0000000);
         uniqueHandle = remoteEffect->effect.uniqueHandle;
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
         return uniqueHandle;
     }
     else
     {
         R_WarnOncePerFrame(R_WARN_SPOT_LIGHT_LIMIT);
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
         return 0;
     }
     

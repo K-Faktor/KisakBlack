@@ -70,7 +70,8 @@ void R_DrawCloakHDR(const GfxViewInfo *viewInfo, GfxCmdBuf *cmdBuf, CloakPhaseID
     const float *CloudArea; // [esp-1AA4h] [ebp-1AB0h]
     GfxCmdBufSourceState state; // [esp-1AA0h] [ebp-1AACh] BYREF
 
-    //PIXBeginNamedEvent(-1, "R_DrawCloak");
+    PROF_SCOPED("R_DrawCloak");
+
     R_InitCmdBufSourceState(&state, &viewInfo->input, 1);
     R_SetRenderTargetSize(&state, viewInfo->sceneComposition.mainSceneMSAA);
     R_SetViewportStruct(&state, &viewInfo->cullViewInfo.sceneViewport);
@@ -121,8 +122,6 @@ void R_DrawCloakHDR(const GfxViewInfo *viewInfo, GfxCmdBuf *cmdBuf, CloakPhaseID
             cmdBuf,
             0);
     }
-    //if (g_DXDeviceThread == GetCurrentThreadId())
-    //    D3DPERF_EndEvent();
 }
 
 void __cdecl R_DrawCloakPrePassCallbackHDR(
@@ -268,7 +267,8 @@ void R_DrawDecal(const GfxViewInfo *viewInfo, GfxCmdBuf *cmdBuf, GfxCmdBuf *prep
     const float *CloudArea; // [esp-1AA4h] [ebp-1AB0h]
     GfxCmdBufSourceState v10; // [esp-1AA0h] [ebp-1AACh] BYREF
 
-    //PIXBeginNamedEvent(-1, "R_DrawDecal");
+    PROF_SCOPED("R_DrawDecal");
+
     R_InitCmdBufSourceState(&v10, &viewInfo->input, 1);
     R_SetRenderTargetSize(&v10, viewInfo->sceneComposition.mainSceneMSAA);
     R_SetViewportStruct(&v10, &viewInfo->cullViewInfo.sceneViewport);
@@ -297,8 +297,6 @@ void R_DrawDecal(const GfxViewInfo *viewInfo, GfxCmdBuf *cmdBuf, GfxCmdBuf *prep
         &viewInfo->cullViewInfo.viewParms,
         cmdBuf,
         prepassCmdBuf);
-    //if (g_DXDeviceThread == GetCurrentThreadId())
-    //    D3DPERF_EndEvent();
 }
 
 void __cdecl R_DrawDecalCallback(const void *userData, GfxCmdBufContext context, GfxCmdBufContext prepassContext)

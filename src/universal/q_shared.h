@@ -13,6 +13,7 @@
 #include <universal/dvar.h>
 #include <universal/com_math.h>
 #include <universal/assertive.h>
+#include <universal/profile.h>
 
 #include <cstdint>
 #include <cmath>

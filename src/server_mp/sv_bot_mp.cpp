@@ -268,7 +268,8 @@ void __cdecl SV_BotThink(client_t *bot, usercmd_s *cmd)
     unsigned int clientNum; // [esp+5Ch] [ebp-8h]
 
     Name = va("SV_BotThink '%s'", bot->name);
-    //PIXBeginNamedEvent(-1, Name);
+    PROF_SCOPED_RUNTIME_NAME(Name);
+
     if ( !bot->bIsTestClient
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_bot_mp.cpp",
@@ -297,17 +298,11 @@ void __cdecl SV_BotThink(client_t *bot, usercmd_s *cmd)
         cmd->button_bits.array[i] = 0;
     if ( !bot->gentity )
     {
-        //if ( GetCurrentThreadId() != g_DXDeviceThread )
-        //    return;
-LABEL_41:
-        //D3DPERF_EndEvent();
         return;
     }
     if ( G_GetClientArchiveTime(clientNum) )
     {
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_41;
+        return;
     }
     if ( bot->lastUsercmd.serverTime <= 0 )
     {
@@ -318,9 +313,7 @@ LABEL_41:
     if ( bot->gentity->health <= 0 )
     {
         Bot_Clear(botInfo);
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_41;
+        return;
     }
     if ( fabs(botFov - sv_botFov->current.value) > 0.000001 )
     {
@@ -342,8 +335,7 @@ LABEL_41:
             cmd->button_bits.setBit(5);
         }
         bot->header.deltaMessage = bot->header.netchan.outgoingSequence - 1;
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            goto LABEL_41;
+        return;
     }
     else
     {
@@ -384,8 +376,6 @@ LABEL_41:
             cmd->button_bits.resetBit(0xC);
         }
         bot->header.deltaMessage = bot->header.netchan.outgoingSequence - 1;
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            goto LABEL_41;
     }
 }
 
@@ -421,7 +411,8 @@ void __cdecl Bot_UpdateSight(bot_info_t *botInfo, const client_t *bot)
     float enemyOrigin[3]; // [esp+88h] [ebp-18h] BYREF
     float botOrigin[3]; // [esp+94h] [ebp-Ch] BYREF
 
-    //PIXBeginNamedEvent(-1, "Bot_UpdateSight");
+    PROF_SCOPED("Bot_UpdateSight");
+
     //col_context_t::col_context_t(&context);
     if ( botInfo->threat.enemy )
     {
@@ -430,16 +421,12 @@ void __cdecl Bot_UpdateSight(bot_info_t *botInfo, const client_t *bot)
             if ( g_botFovCos > botInfo->threat.dot )
             {
                 botInfo->sightHitNum = -1;
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
-                goto LABEL_41;
+                return;
             }
         }
         else if ( botInfo->threat.dot < 0.69999999 )
         {
             botInfo->sightHitNum = -1;
-            //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                goto LABEL_41;
             return;
         }
         currentOrigin = bot->gentity->r.currentOrigin;
@@ -506,15 +493,9 @@ void __cdecl Bot_UpdateSight(bot_info_t *botInfo, const client_t *bot)
         {
             botInfo->threat.lastSightTime = svs.time;
         }
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            goto LABEL_41;
         return;
     }
     botInfo->sightHitNum = -1;
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-LABEL_41:
-    ;
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl Bot_UpdateThreat(bot_info_t *botInfo, const client_t *bot)

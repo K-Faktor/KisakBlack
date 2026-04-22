@@ -219,7 +219,8 @@ int __cdecl XModelTraceLine(
     float s; // [esp+A8h] [ebp-8h]
     unsigned int i; // [esp+ACh] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "xmodeltraceline");
+    PROF_SCOPED("xmodeltraceline");
+
     //TraceExtents::TraceExtents(&boneExtents);
     if ( model->collLod >= 0 )
     {
@@ -301,14 +302,10 @@ int __cdecl XModelTraceLine(
             }
         }
         v7 = partIndex;
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
         return v7;
     }
     else
     {
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
         return -1;
     }
 }
@@ -357,7 +354,8 @@ int __cdecl XModelTraceLineAnimated(
     float axis[4][3]; // [esp+1F4h] [ebp-34h] BYREF
     const DObjAnimMat *boneMtx; // [esp+224h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "xmodeltracelineanimated");
+    PROF_SCOPED("xmodeltracelineanimated");
+
     //TraceExtents::TraceExtents(&boneExtents);
     model = obj->localModels[modelIndex];
     if ( model->collLod >= 0 )
@@ -473,14 +471,10 @@ int __cdecl XModelTraceLineAnimated(
             }
         }
         v15 = partIndex;
-        //if ( GetCurrentThreadId() == (unsigned int)g_DXDeviceThread && !MEMORY[0xA8402BC] )
-            //D3DPERF_EndEvent();
         return v15;
     }
     else
     {
-        //if ( GetCurrentThreadId() == (unsigned int)g_DXDeviceThread && !MEMORY[0xA8402BC] )
-            //D3DPERF_EndEvent();
         return -1;
     }
 }

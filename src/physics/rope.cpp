@@ -498,14 +498,13 @@ void __cdecl Rope_UpdateInternal(const RopeUpdateCmdData *cmd)
 {
     int ri; // [esp+10h] [ebp-Ch]
 
-    //PIXBeginNamedEvent(-1, "Rope_UpdateInternal");
+    PROF_SCOPED("Rope_UpdateInternal");
+
     for ( ri = 0; ri < cmd->ropeCount; ++ri )
     {
         if ( cmd->ropes[ri].m_in_use )
             Rope_Tick(cmd, ri, 17.0 * 0.001, 0);
     }
-    ////if ( GetCurrentThreadId() == g_DXDeviceThread )
-    //    //D3DPERF_EndEvent();
 }
 
 void __cdecl Rope_Tick(const RopeUpdateCmdData *cmd, int rope_index, float dt, bool force_update)
@@ -1138,7 +1137,7 @@ void Rope_Update(int localClientNum, int curtime)
     if (Com_IsMenuLevel(0))
         return;
 
-    //PIXBeginNamedEvent(-1, va("Rope_Update %i/%i", g_update_count, g_ropeCount));
+    PROF_SCOPED_RUNTIME_NAME(va("Rope_Update %i/%i", g_update_count, g_ropeCount));
 
     g_update_count = 0;
 
@@ -1175,10 +1174,6 @@ void Rope_Update(int localClientNum, int curtime)
     Rope_UpdateInternal(&cmd);
 
     g_rope_sys_time = curtime;
-
-//end_event:
-//    if (GetCurrentThreadId() == g_DXDeviceThread)
-//        D3DPERF_EndEvent();
 }
 
 
@@ -1187,7 +1182,8 @@ void __cdecl Rope_Render(unsigned int localClientNum)
 {
     int ri; // [esp+8h] [ebp-8h]
 
-    //PIXBeginNamedEvent(-1, "Rope_Render");
+    PROF_SCOPED("Rope_Render");
+
     if ( localClientNum
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\physics\\rope.cpp",
@@ -1208,8 +1204,6 @@ void __cdecl Rope_Render(unsigned int localClientNum)
                 Rope_DebugDraw(ri);
         }
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl Rope_DebugDraw(int rope_index)
@@ -1550,7 +1544,8 @@ void __cdecl Rope_Trace(const float *p0, const float *p1)
     float mins[3]; // [esp+9Ch] [ebp-18h] BYREF
     float maxs[3]; // [esp+A8h] [ebp-Ch] BYREF
 
-    //PIXBeginNamedEvent(-1, "Rope_Trace");
+    PROF_SCOPED("Rope_Trace");
+
     ud[0] = *p1 - *p0;
     ud[1] = p1[1] - p0[1];
     ud[2] = p1[2] - p0[2];
@@ -1618,12 +1613,6 @@ void __cdecl Rope_Trace(const float *p0, const float *p1)
                 }
             }
         }
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
-    }
-    else //if ( g_DXDeviceThread == GetCurrentThreadId() )
-    {
-        //D3DPERF_EndEvent();
     }
 }
 

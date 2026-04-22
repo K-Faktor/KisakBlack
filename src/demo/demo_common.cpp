@@ -999,14 +999,16 @@ void __cdecl Demo_Forward_f()
                                  demo.playback->keyFrame[newKeyframeIndex].firstCmdSequence);
                     Demo_Printf(128, v8);
                     preparse = Sys_Milliseconds();
-                    //PIXBeginNamedEvent(-16711681, "Forward Logic - File Seek");
-                    demo.totalSize = demo.playback->keyFrame[newKeyframeIndex].demoFileMemoryBlockStart;
-                    Demo_SeekFile(demo.demoFileHandle, demo.playback->keyFrame[newKeyframeIndex].demoFileMemoryBlockStart, 2);
-                    Demo_Load();
-                    MSG_GotoBookmark(&demo.msg, &demo.playback->keyFrame[newKeyframeIndex].msgBookmark);
-                    demo.playback->lastJumpedKeyframe = newKeyframeIndex;
-                    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                        //D3DPERF_EndEvent();
+
+                    {
+                        PROF_SCOPED("Forward Logic - File Seek");
+                        demo.totalSize = demo.playback->keyFrame[newKeyframeIndex].demoFileMemoryBlockStart;
+                        Demo_SeekFile(demo.demoFileHandle, demo.playback->keyFrame[newKeyframeIndex].demoFileMemoryBlockStart, 2);
+                        Demo_Load();
+                        MSG_GotoBookmark(&demo.msg, &demo.playback->keyFrame[newKeyframeIndex].msgBookmark);
+                        demo.playback->lastJumpedKeyframe = newKeyframeIndex;
+                    }
+                    
                     MSG_Init(&keyframeMsg, demo.msgBuf1, 49152);
                     memcpy(
                         demo.msgBuf1,
@@ -1047,33 +1049,33 @@ void __cdecl Demo_Forward_f()
                         demo.playback->clipTime = demo.playback->keyFrame[keyframeIndex].keyframeSnapshotTime;
                         demo.playback->clipServerTime = demo.playback->keyFrame[keyframeIndex].keyframeClipServerTime - 100;
                     }
-                    //PIXBeginNamedEvent(-16711681, "Forward Logic - Process Keyframe");
-                    MSG_UnEmbed(&keyframeMsg);
-                    msgType = MSG_ReadBits(&keyframeMsg, 2u);
-                    Demo_ResetSnapshotData();
-                    while ( msgType == 2 )
                     {
-                        Demo_ParseClipCommand(localClientNum, &keyframeMsg, 1);
+                        PROF_SCOPED("Forward Logic - Process Keyframe");
+                        MSG_UnEmbed(&keyframeMsg);
                         msgType = MSG_ReadBits(&keyframeMsg, 2u);
+                        Demo_ResetSnapshotData();
+                        while ( msgType == 2 )
+                        {
+                            Demo_ParseClipCommand(localClientNum, &keyframeMsg, 1);
+                            msgType = MSG_ReadBits(&keyframeMsg, 2u);
+                        }
+                        msgSequence = MSG_ReadLong(&keyframeMsg);
+                        Demo_ParseServerMessage(localClientNum, &keyframeMsg, msgType, msgSequence);
                     }
-                    msgSequence = MSG_ReadLong(&keyframeMsg);
-                    Demo_ParseServerMessage(localClientNum, &keyframeMsg, msgType, msgSequence);
-                    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                        //D3DPERF_EndEvent();
-                    //PIXBeginNamedEvent(-16711681, "Forward Logic - Resetting World");
-                    Demo_ResetTimeValues(localClientNum, LocalClientGlobals->snap.serverTime);
-                    Demo_ResetSequenceNumbers(localClientNum, LocalClientGlobals->snap.messageNum - 1);
-                    Demo_ResetWorldInformation(localClientNum, LocalClientGlobals->snap.serverTime);
-                    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                        //D3DPERF_EndEvent();
-                    //PIXBeginNamedEvent(-16711681, "Forward Logic - Reading Messages");
-                    cgameGlob->latestSnapshotNum = LocalClientGlobals->snap.messageNum;
-                    v15 = LocalClientGlobals->snap.serverTime - cls.realtime - 5;
-                    LocalClientGlobals->serverTimeDelta = v15 - (Sys_Milliseconds() - preparse);
-                    Demo_SetJumpTimeFlag(1);
-                    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                        //D3DPERF_EndEvent();
-                    Con_Close(localClientNum);
+                    {
+                        PROF_SCOPED("Forward Logic - Resetting World");
+                        Demo_ResetTimeValues(localClientNum, LocalClientGlobals->snap.serverTime);
+                        Demo_ResetSequenceNumbers(localClientNum, LocalClientGlobals->snap.messageNum - 1);
+                        Demo_ResetWorldInformation(localClientNum, LocalClientGlobals->snap.serverTime);
+                    }
+                    {
+                        PROF_SCOPED("Forward Logic - Reading Messages");
+                        cgameGlob->latestSnapshotNum = LocalClientGlobals->snap.messageNum;
+                        v15 = LocalClientGlobals->snap.serverTime - cls.realtime - 5;
+                        LocalClientGlobals->serverTimeDelta = v15 - (Sys_Milliseconds() - preparse);
+                        Demo_SetJumpTimeFlag(1);
+                    }
+                    
                     SND_StopSounds(SND_STOP_ALL);
                     demo.playback->overridePause = 1;
                     CL_SetCGameTime(localClientNum);
@@ -1149,7 +1151,8 @@ void __cdecl Demo_Back_f()
                 clc = CL_GetLocalClientConnection(localClientNum);
                 cgs = CG_GetLocalClientStaticGlobals(localClientNum);
                 cgameGlob = CG_GetLocalClientGlobals(localClientNum);
-                //PIXBeginNamedEvent(-16711681, "Rewind Logic - Search for Keyframe");
+
+                PROF_SCOPED("Rewind Logic - Search for Keyframe");
                 if ( Cmd_Argc() == 3 )
                 {
                     v2 = Cmd_Argv(2);
@@ -1192,17 +1195,18 @@ void __cdecl Demo_Back_f()
                                  demo.playback->keyFrame[newKeyframeIndex].keyframeSnapshotTime,
                                  demo.playback->keyFrame[newKeyframeIndex].firstCmdSequence);
                     Demo_Printf(128, v8);
-                    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                        //D3DPERF_EndEvent();
+
                     preparse = Sys_Milliseconds();
-                    //PIXBeginNamedEvent(-16711681, "Rewind Logic - File Seek");
-                    demo.totalSize = demo.playback->keyFrame[keyframeIndex].demoFileMemoryBlockStart;
-                    Demo_SeekFile(demo.demoFileHandle, demo.playback->keyFrame[keyframeIndex].demoFileMemoryBlockStart, 2);
-                    Demo_Load();
-                    MSG_GotoBookmark(&demo.msg, &demo.playback->keyFrame[keyframeIndex].msgBookmark);
-                    demo.playback->lastJumpedKeyframe = keyframeIndex;
-                    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                        //D3DPERF_EndEvent();
+
+                    {
+                        PROF_SCOPED("Rewind Logic - File Seek");
+                        demo.totalSize = demo.playback->keyFrame[keyframeIndex].demoFileMemoryBlockStart;
+                        Demo_SeekFile(demo.demoFileHandle, demo.playback->keyFrame[keyframeIndex].demoFileMemoryBlockStart, 2);
+                        Demo_Load();
+                        MSG_GotoBookmark(&demo.msg, &demo.playback->keyFrame[keyframeIndex].msgBookmark);
+                        demo.playback->lastJumpedKeyframe = keyframeIndex;
+                    }
+
                     MSG_Init(&keyframeMsg, demo.msgBuf1, 49152);
                     memcpy(
                         demo.msgBuf1,
@@ -1243,35 +1247,39 @@ void __cdecl Demo_Back_f()
                         demo.playback->clipTime = demo.playback->keyFrame[keyframeIndex].keyframeSnapshotTime;
                         demo.playback->clipServerTime = demo.playback->keyFrame[keyframeIndex].keyframeClipServerTime - 100;
                     }
-                    //PIXBeginNamedEvent(-16711681, "Rewind Logic - Process Keyframe");
-                    MSG_UnEmbed(&keyframeMsg);
-                    msgType = MSG_ReadBits(&keyframeMsg, 2u);
-                    Demo_ResetSnapshotData();
-                    while ( msgType == 2 )
+
                     {
-                        Demo_ParseClipCommand(localClientNum, &keyframeMsg, 1);
+                        PROF_SCOPED("Rewind Logic - Process Keyframe");
+                        MSG_UnEmbed(&keyframeMsg);
                         msgType = MSG_ReadBits(&keyframeMsg, 2u);
+                        Demo_ResetSnapshotData();
+                        while (msgType == 2)
+                        {
+                            Demo_ParseClipCommand(localClientNum, &keyframeMsg, 1);
+                            msgType = MSG_ReadBits(&keyframeMsg, 2u);
+                        }
+                        msgSequence = MSG_ReadLong(&keyframeMsg);
+                        Demo_ParseServerMessage(localClientNum, &keyframeMsg, msgType, msgSequence);
                     }
-                    msgSequence = MSG_ReadLong(&keyframeMsg);
-                    Demo_ParseServerMessage(localClientNum, &keyframeMsg, msgType, msgSequence);
-                    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                        //D3DPERF_EndEvent();
-                    //PIXBeginNamedEvent(-16711681, "Rewind Logic - Rewinding World");
-                    Demo_ResetTimeValues(localClientNum, LocalClientGlobals->snap.serverTime);
-                    Demo_ResetSequenceNumbers(localClientNum, LocalClientGlobals->snap.messageNum - 1);
-                    Demo_ResetWorldInformation(localClientNum, LocalClientGlobals->snap.serverTime);
-                    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                        //D3DPERF_EndEvent();
+                    {
+                        PROF_SCOPED("Rewind Logic - Rewinding World");
+                        Demo_ResetTimeValues(localClientNum, LocalClientGlobals->snap.serverTime);
+                        Demo_ResetSequenceNumbers(localClientNum, LocalClientGlobals->snap.messageNum - 1);
+                        Demo_ResetWorldInformation(localClientNum, LocalClientGlobals->snap.serverTime);
+                    }
+
                     v15 = LocalClientGlobals->snap.serverTime - cls.realtime - 5;
                     LocalClientGlobals->serverTimeDelta = v15 - (Sys_Milliseconds() - preparse);
                     Demo_SetJumpTimeFlag(1);
                     SND_StopSounds(SND_STOP_ALL);
-                    //PIXBeginNamedEvent(-16711681, "Rewind Logic - CL_SetCGameTime()");
-                    demo.playback->overridePause = 1;
-                    CL_SetCGameTime(localClientNum);
-                    demo.playback->overridePause = 0;
-                    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                        //D3DPERF_EndEvent();
+
+                    {
+                        PROF_SCOPED("Rewind Logic - CL_SetCGameTime()");
+                        demo.playback->overridePause = 1;
+                        CL_SetCGameTime(localClientNum);
+                        demo.playback->overridePause = 0;
+                    }
+
                     ++demo.playback->keyframeJumpCount;
                     Demo_SetCmdCompleted();
                 }

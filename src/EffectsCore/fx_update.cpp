@@ -2529,7 +2529,8 @@ void __cdecl FX_UpdateBatch(
 {
     FxEffectContainer *remoteEffect; // [esp+28h] [ebp-14h]
 
-    //PIXBeginNamedEvent(-1, "FX_UpdateBatch");
+    PROF_SCOPED("FX_UpdateBatch");
+
     if ( !system
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\EffectsCore\\fx_update.cpp", 2131, 0, "%s", "system") )
     {
@@ -2552,8 +2553,6 @@ void __cdecl FX_UpdateBatch(
     }
     if ( !_InterlockedDecrement(&system->shared->iteratorCount) )
         FX_RunGarbageCollectionAndPrioritySort(system);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 char __cdecl FX_AcquireEffectLock_IsLiveEffect(FxEffect *effect)
@@ -2802,7 +2801,7 @@ bool FX_ShouldProcessEffect(
 
 void __cdecl FX_Update(FxSystem *system, FxSystem *remoteSystem, int localClientNum, bool nonBoltedEffectsOnly)
 {
-    //PIXBeginNamedEvent(-1, "FX_Update()");
+    PROF_SCOPED("FX_Update()");
     FX_UpdateBatch(
         system,
         remoteSystem,
@@ -2810,8 +2809,6 @@ void __cdecl FX_Update(FxSystem *system, FxSystem *remoteSystem, int localClient
         nonBoltedEffectsOnly,
         system->shared->firstActiveEffect,
         system->shared->firstNewEffect);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl FX_UpdateSpotLight(FxCmd *cmd)

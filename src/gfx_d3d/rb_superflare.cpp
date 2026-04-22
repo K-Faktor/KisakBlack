@@ -91,7 +91,8 @@ void __cdecl RB_DrawSuperFlareOccluders(const GfxViewInfo *viewInfo)
 
     if ( r_superFlare_enable->current.enabled )
     {
-        //PIXBeginNamedEvent(-1, "RB_SuperFlareVisibility");
+        PROF_SCOPED("RB_SuperFlareVisibility");
+
         FilterInfo = (GfxGenericFilter *)&viewInfo->genericFilter;
         for ( iFilter = 0; iFilter < 3; ++iFilter )
         {
@@ -182,8 +183,6 @@ void __cdecl RB_DrawSuperFlareOccluders(const GfxViewInfo *viewInfo)
                 }
             }
         }
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
     }
 }
 

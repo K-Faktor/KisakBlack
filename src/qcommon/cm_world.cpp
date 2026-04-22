@@ -574,7 +574,8 @@ int __cdecl CM_AreaEntities(const float *mins, const float *maxs, int *entityLis
     int count; // [esp+8h] [ebp-20h]
     areaParms_t ap; // [esp+Ch] [ebp-1Ch] BYREF
 
-    //PIXBeginNamedEvent(-1, "CM_AreaEntities");
+    PROF_SCOPED("CM_AreaEntities");
+
     ap.mins = mins;
     ap.maxs = maxs;
     ap.list = entityList;
@@ -583,8 +584,7 @@ int __cdecl CM_AreaEntities(const float *mins, const float *maxs, int *entityLis
     ap.contentmask = contentmask;
     CM_AreaEntities_r(1u, &ap);
     count = ap.count;
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+
     return count;
 }
 
@@ -649,7 +649,7 @@ void __cdecl CM_PointTraceStaticModels(trace_t *results, const float *start, con
     _QWORD start_[2]; // [esp+4Ch] [ebp-20h] BYREF
     _QWORD end_[2]; // [esp+5Ch] [ebp-10h] BYREF
 
-    //PIXBeginNamedEvent(-1, "pointtracestaticmodels");
+    PROF_SCOPED("pointtracestaticmodels");
     ////TraceExtents::TraceExtents(&tw.extents);
     tw.contents = contentmask;
     *(_QWORD *)tw.extents.start.vec.v = *(_QWORD *)start;
@@ -663,8 +663,6 @@ void __cdecl CM_PointTraceStaticModels(trace_t *results, const float *start, con
     LODWORD(end_[1]) = tw.extents.end.vec.u[2];
     HIDWORD(end_[1]) = LODWORD(results->fraction);
     CM_PointTraceStaticModels_r(&tw, 1u, (const float *)start_, (const float *)end_, results);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl CM_PointTraceStaticModels_r(
@@ -842,7 +840,8 @@ void __cdecl CM_ClipMoveToEntities(moveclip_t *clip, trace_t *trace)
     _QWORD start[2]; // [esp+1Ch] [ebp-20h] BYREF
     _QWORD end[2]; // [esp+2Ch] [ebp-10h] BYREF
 
-    //PIXBeginNamedEvent(-1, "clipmoveentities");
+    PROF_SCOPED("clipmoveentities");
+
     if ( trace->fraction > 1.0
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\cm_world.cpp",
@@ -861,8 +860,6 @@ void __cdecl CM_ClipMoveToEntities(moveclip_t *clip, trace_t *trace)
     HIDWORD(start[1]) = 0;
     HIDWORD(end[1]) = LODWORD(trace->fraction);
     CM_ClipMoveToEntities_r(clip, 1u, (const float *)start, (const float *)end, trace);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl CM_ClipMoveToEntities_r(
@@ -1110,7 +1107,8 @@ void __cdecl CM_PointTraceToEntities(pointtrace_t *clip, trace_t *trace, col_con
     _QWORD start[2]; // [esp+18h] [ebp-20h] BYREF
     _QWORD end[2]; // [esp+28h] [ebp-10h] BYREF
 
-    //PIXBeginNamedEvent(-1, "pointtraceentities");
+    PROF_SCOPED("pointtraceentities");
+
     if ( trace->fraction > 1.0
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\cm_world.cpp",
@@ -1129,8 +1127,6 @@ void __cdecl CM_PointTraceToEntities(pointtrace_t *clip, trace_t *trace, col_con
     HIDWORD(start[1]) = 0;
     HIDWORD(end[1]) = LODWORD(trace->fraction);
     CM_PointTraceToEntities_r(clip, 1u, (const float *)start, (const float *)end, trace, context);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl CM_PointTraceToEntities_r(

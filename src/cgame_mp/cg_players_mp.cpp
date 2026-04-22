@@ -676,53 +676,61 @@ void __cdecl CG_Player(int localClientNum, centity_s *cent)
                     __debugbreak();
                 }
                 ci = &cgameGlob->bgs.clientinfo[iClientNum];
-                if ( cent->tree != cgameGlob->bgs.clientinfo[iClientNum].pXAnimTree )
+                if (cent->tree != cgameGlob->bgs.clientinfo[iClientNum].pXAnimTree)
+                {
                     cent->tree = ci->pXAnimTree;
-                //PIXBeginNamedEvent(-1, "script");
-                if ( cent->tree )
-                {
-                    v8 = cg_loadScripts && cg_loadScripts->current.enabled;
-                    if ( v8 && ((*((unsigned int *)cent + 201) >> 8) & 1) == 0 )
-                    {
-                        *((unsigned int *)cent + 201) |= 0x100u;
-                        Scr_AddInt(localClientNum, SCRIPTINSTANCE_CLIENT);
-                        t = CScr_ExecEntThread(cent, cg_scr_data.playerspawned, 1u);
-                        Scr_FreeThread(t, SCRIPTINSTANCE_CLIENT);
-                    }
                 }
-                //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                    //D3DPERF_EndEvent();
-                CG_UpdateMinigunSpin(localClientNum, cgameGlob, cent);
-                CG_UpdatePerkSounds(localClientNum, cgameGlob);
-                //PIXBeginNamedEvent(-1, "sliding");
-                if ( BG_IsSliding(ci) )
+
                 {
-                    time = CG_GetLocalClientGlobals(localClientNum)->time;
-                    if ( cent->nextSlideFX < time )
+                    PROF_SCOPED("script");
+                    if (cent->tree)
                     {
-                        cent->nextSlideFX = delta + time;
-                        if ( obj )
+                        v8 = cg_loadScripts && cg_loadScripts->current.enabled;
+                        if (v8 && ((*((unsigned int *)cent + 201) >> 8) & 1) == 0)
                         {
-                            CG_DObjGetWorldTagMatrix(&cent->pose, obj, scr_const.j_ankle_le, footMatrix, footPos_le);
-                            CG_DObjGetWorldTagMatrix(&cent->pose, obj, scr_const.j_ankle_ri, footMatrix, footPos_ri);
-                            pos[0] = 0.5 * (float)(footPos_le[0] + footPos_ri[0]);
-                            pos[1] = 0.5 * (float)(footPos_le[1] + footPos_ri[1]);
-                            pos[2] = 0.5 * (float)(footPos_le[2] + footPos_ri[2]);
-                            FX_PlayOrientedEffect(localClientNum, cgMedia.helicopterLightSmoke, cgameGlob->time, pos, footMatrix);
+                            *((unsigned int *)cent + 201) |= 0x100u;
+                            Scr_AddInt(localClientNum, SCRIPTINSTANCE_CLIENT);
+                            t = CScr_ExecEntThread(cent, cg_scr_data.playerspawned, 1u);
+                            Scr_FreeThread(t, SCRIPTINSTANCE_CLIENT);
                         }
                     }
                 }
-                else
+                
+                CG_UpdateMinigunSpin(localClientNum, cgameGlob, cent);
+                CG_UpdatePerkSounds(localClientNum, cgameGlob);
+
                 {
-                    cent->nextSlideFX = 0;
+                    PROF_SCOPED("sliding");
+
+                    if (BG_IsSliding(ci))
+                    {
+                        time = CG_GetLocalClientGlobals(localClientNum)->time;
+                        if (cent->nextSlideFX < time)
+                        {
+                            cent->nextSlideFX = delta + time;
+                            if (obj)
+                            {
+                                CG_DObjGetWorldTagMatrix(&cent->pose, obj, scr_const.j_ankle_le, footMatrix, footPos_le);
+                                CG_DObjGetWorldTagMatrix(&cent->pose, obj, scr_const.j_ankle_ri, footMatrix, footPos_ri);
+                                pos[0] = 0.5 * (float)(footPos_le[0] + footPos_ri[0]);
+                                pos[1] = 0.5 * (float)(footPos_le[1] + footPos_ri[1]);
+                                pos[2] = 0.5 * (float)(footPos_le[2] + footPos_ri[2]);
+                                FX_PlayOrientedEffect(localClientNum, cgMedia.helicopterLightSmoke, cgameGlob->time, pos, footMatrix);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        cent->nextSlideFX = 0;
+                    }
                 }
-                //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                    //D3DPERF_EndEvent();
-                //PIXBeginNamedEvent(-1, "triggers");
-                if ( CL_LocalClient_IsFirstActive(localClientNum) )
-                    CG_DoTouchTriggers(cent, localClientNum);
-                //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                    //D3DPERF_EndEvent();
+
+                {
+                    PROF_SCOPED("triggers");
+                    if (CL_LocalClient_IsFirstActive(localClientNum))
+                        CG_DoTouchTriggers(cent, localClientNum);
+                }
+ 
                 nextSnap = cgameGlob->nextSnap;
                 v7 = (nextSnap->ps.otherFlags & 6) != 0 && p_nextState->number == nextSnap->ps.clientNum;
                 if ( !v7 || cgameGlob->renderingThirdPerson )
@@ -741,23 +749,24 @@ void __cdecl CG_Player(int localClientNum, centity_s *cent)
                         LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
                         CG_DObjGetWorldTagPos(&LocalClientGlobals->predictedPlayerEntity.pose, obj, scr_const.tag_flash, v17);
                     }
-                    //PIXBeginNamedEvent(-1, "animation");
+
+                    PROF_SCOPED("animation");
                     BG_PlayerAnimation(localClientNum, p_nextState, ci);
                     if ( CG_Player_ApplyVehicleAnimOffsets(localClientNum, p_nextState, cent, ci) )
                     {
                         if ( (p_nextState->lerp.eFlags & 0x4300) != 0 && (p_nextState->lerp.eFlags2 & 0x10000000) == 0 )
                             CG_PlayerTurretPositionAndBlend(localClientNum, cent);
-                        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                            //D3DPERF_EndEvent();
-                        //PIXBeginNamedEvent(-1, "pre controllers");
-                        CG_Player_PreControllers(obj, cent);
-                        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                            //D3DPERF_EndEvent();
-                        //PIXBeginNamedEvent(-1, "weapon visibility");
-                        CG_UpdateWeaponVisibilityImmediate(localClientNum, cent);
-                        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                            //D3DPERF_EndEvent();
-                        //PIXBeginNamedEvent(-1, "R_AddDObjToScene");
+                        {
+                            PROF_SCOPED("pre controllers");
+                            CG_Player_PreControllers(obj, cent);
+                        }
+                        {
+                            PROF_SCOPED("weapon visibility");
+                            CG_UpdateWeaponVisibilityImmediate(localClientNum, cent);
+                        }
+
+                        PROF_SCOPED("R_AddDObjToScene");
+
                         lightingOrigin[0] = cent->pose.origin[0];
                         lightingOrigin[1] = cent->pose.origin[1];
                         lightingOrigin[2] = cent->pose.origin[2];
@@ -877,19 +886,15 @@ void __cdecl CG_Player(int localClientNum, centity_s *cent)
                             extraCamConstSetPtr,
                             0.0,
                             1.0);
-                        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                            //D3DPERF_EndEvent();
                         if ( (p_nextState->lerp.eFlags & 0x40000) == 0 )
                         {
-                            //PIXBeginNamedEvent(-1, "CG_AddPlayerWeapon");
+                            PROF_SCOPED("CG_AddPlayerWeapon");
                             placement.base.origin[0] = cent->pose.origin[0];
                             placement.base.origin[1] = cent->pose.origin[1];
                             placement.base.origin[2] = cent->pose.origin[2];
                             AnglesToQuat(cent->pose.angles, placement.base.quat);
                             placement.scale = 1.0f;
                             CG_AddPlayerWeapon(localClientNum, &placement, 0, cent, 1);
-                            //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                                //D3DPERF_EndEvent();
                         }
                         CG_DrawWaterTrail(localClientNum, cent);
                     }

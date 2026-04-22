@@ -2993,7 +2993,8 @@ void __cdecl ScrCmd_IsTouching(scr_entref_t entref)
     float vMaxs[3]; // [esp+54h] [ebp-18h] BYREF
     float extraBoundary[3]; // [esp+60h] [ebp-Ch] BYREF
 
-    //PIXBeginNamedEvent(-1, "ScrCmd_IsTouching");
+    PROF_SCOPED("ScrCmd_IsTouching");
+
     bTouching = 0;
     pEnt = GetEntity(entref);
     if ( pEnt->r.bmodel || (pEnt->r.svFlags & 0x60) != 0 )
@@ -3088,8 +3089,6 @@ void __cdecl ScrCmd_IsTouching(scr_entref_t entref)
     ExpandBoundsToWidth(vMins, vMaxs);
     bTouching = SV_EntityContact(vMins, vMaxs, pOther);
     Scr_AddInt(bTouching, SCRIPTINSTANCE_SERVER);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 
 // LWSS ADD
@@ -3118,7 +3117,8 @@ void __cdecl ScrCmd_IsTouchingSwept(scr_entref_t entref)
     gentity_s *pTemp; // [esp+60h] [ebp-10h]
     float vMaxs[3]; // [esp+64h] [ebp-Ch] BYREF
 
-    //PIXBeginNamedEvent(-1, "ScrCmd_IsTouchingSwept");
+    PROF_SCOPED("ScrCmd_IsTouchingSwept");
+
     bTouching = 0;
     pEnt = GetEntity(entref);
     if ( pEnt->r.bmodel || (pEnt->r.svFlags & 0x60) != 0 )
@@ -3222,8 +3222,6 @@ void __cdecl ScrCmd_IsTouchingSwept(scr_entref_t entref)
     ExpandBoundsToWidth(vMins, vMaxs);
     bTouching = SV_EntityContact(vMins, vMaxs, pOther);
     Scr_AddInt(bTouching, SCRIPTINSTANCE_SERVER);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void ScrCmd_SoundExists()
@@ -3316,7 +3314,8 @@ void __cdecl ScrCmd_PlaySoundToTeam(scr_entref_t entref)
     int entIndex; // [esp+20h] [ebp-Ch]
     gentity_s *clientEnt; // [esp+28h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "ScrCmd_PlaySoundToTeam");
+    PROF_SCOPED("ScrCmd_PlaySoundToTeam");
+
     team = (unsigned __int16)Scr_GetConstString(1u, SCRIPTINSTANCE_SERVER);
     if ( team != scr_const.allies && team != scr_const.axis )
     {
@@ -3343,9 +3342,7 @@ void __cdecl ScrCmd_PlaySoundToTeam(scr_entref_t entref)
     tempEnt = G_PlaySoundAlias(Entity, AliasId, 0, 0);
     if ( !tempEnt )
     {
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_21;
+        return;
     }
     tempEnt->r.clientMask[0] = -1;
     clientEnt = g_entities;
@@ -3367,10 +3364,6 @@ void __cdecl ScrCmd_PlaySoundToTeam(scr_entref_t entref)
         }
         ++clientEnt;
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-LABEL_21:
-    ;
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl ScrCmd_PlayBattleChatterToTeam(scr_entref_t entref)
@@ -3683,7 +3676,8 @@ void __cdecl ScrCmd_DoDamage(scr_entref_t entref)
     gentity_s *inflictor; // [esp+B0h] [ebp-8h]
     hitLocation_t hitLoc; // [esp+B4h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "ScrCmd_DoDamage");
+    PROF_SCOPED("ScrCmd_DoDamage");
+
     dflags = 0;
     attacker = 0;
     inflictor = 0;
@@ -3792,13 +3786,9 @@ $LN9_44:
                 dflags |= 0x10u;
             }
             G_Damage(ent, inflictor, attacker, dir, source, (int)damage, dflags, mod, weapon, hitLoc, 0, 0, 0);
-            //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                //D3DPERF_EndEvent();
             break;
         default:
             Scr_Error("Usage: doDamage( <health>, <source position>, <attacker>, <inflictor>, <mod> )\n", 0);
-            //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                //D3DPERF_EndEvent();
             break;
     }
 }
@@ -4062,21 +4052,15 @@ void __cdecl GScr_StopFiring(scr_entref_t entref)
 
 void __cdecl GScr_ShootTurret(scr_entref_t entref)
 {
-    char *v1; // eax
-    const char *v2; // eax
     gentity_s *ent; // [esp+Ch] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "shootturret");
+    PROF_SCOPED("shootturret");
     ent = GetEntity(entref);
     if ( !ent->pTurretInfo )
     {
-        v1 = SL_ConvertToString(ent->classname, SCRIPTINSTANCE_SERVER);
-        v2 = va("entity type '%s' is not a turret", v1);
-        Scr_Error(v2, 0);
+        Scr_Error(va("entity type '%s' is not a turret", SL_ConvertToString(ent->classname, SCRIPTINSTANCE_SERVER)), 0);
     }
     turret_shoot(ent);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl GScr_StopShootTurret(scr_entref_t entref)
@@ -6423,7 +6407,8 @@ void Scr_BulletTrace()
     float vStart[3]; // [esp+9Ch] [ebp-10h] BYREF
     unsigned __int16 hitEntId; // [esp+A8h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "Scr_BulletTrace");
+    PROF_SCOPED("Scr_BulletTrace");
+
     pIgnoreEnt = 0;
     iIgnoreEntNum = 1023;
     iClipMask = 0x280E033;
@@ -6480,14 +6465,6 @@ void Scr_BulletTrace()
         Scr_AddString(value, SCRIPTINSTANCE_SERVER);
         Scr_AddArrayStringIndexed(scr_const.surfacetype, SCRIPTINSTANCE_SERVER);
     }
-    //result = GetCurrentThreadId();
-    //if ( result == (unsigned int)g_DXDeviceThread )
-    //{
-    //    result = 0;
-    //    if ( !HIDWORD(g_DXDeviceThread) )
-    //        return //D3DPERF_EndEvent();
-    //}
-    //return result;
 }
 
 void Scr_BulletTracePassed()
@@ -10047,7 +10024,8 @@ void __cdecl GScr_ShellShock(scr_entref_t entref)
     char s[1024]; // [esp+50h] [ebp-408h] BYREF
     int id; // [esp+454h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "GScr_ShellShock");
+    PROF_SCOPED("GScr_ShellShock");
+
     SV_CheckThread();
     ent = GetPlayerEntity(entref);
     if ( Scr_GetNumParam(SCRIPTINSTANCE_SERVER) != 2 )
@@ -10059,9 +10037,7 @@ void __cdecl GScr_ShellShock(scr_entref_t entref)
         {
             v2 = va("shellshock '%s' was not precached\n", shock);
             Scr_Error(v2, 0);
-            //if ( GetCurrentThreadId() != g_DXDeviceThread )
-            //    return;
-            goto LABEL_18;
+            return;
         }
         SV_GetConfigstring(id + 2532, s, 1024);
         if ( !I_stricmp(s, shock) )
@@ -10083,23 +10059,9 @@ void __cdecl GScr_ShellShock(scr_entref_t entref)
     if ( ent->health > 0 )
     {
         ent->client->ps.pm_flags |= 0x10000u;
-        //*(unsigned int *)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8) = &level_bgs;
         bgs = &level_bgs;
-        //if ( *(bgs_t **)(*((unsigned int *)NtCurrentTeb()->ThreadLocalStoragePointer + _tls_index) + 8) != &level_bgs
-        //    && !Assert_MyHandler(
-        //                "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_scr_main_mp.cpp",
-        //                10679,
-        //                0,
-        //                "%s",
-        //                "bgs == &level_bgs") )
-        //{
-        //    __debugbreak();
-        //}
+        iassert(bgs == &level_bgs);
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-LABEL_18:
-    ;
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl GScr_StopShellShock(scr_entref_t entref)
@@ -11350,7 +11312,8 @@ void Scr_SetPlayerStatsForMatchRecording()
     unsigned int statValue; // [esp+Ch] [ebp-Ch]
     gentity_s *ent; // [esp+14h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "GScr_SetPlayerStatsForMatchRecording");
+    PROF_SCOPED("GScr_SetPlayerStatsForMatchRecording");
+
     if ( Scr_GetNumParam(SCRIPTINSTANCE_SERVER) != 3 )
         Scr_ParamError(0, "recordPlayerStats [player] [statName] [value]", SCRIPTINSTANCE_SERVER);
     ent = Scr_GetEntity(0);
@@ -11365,10 +11328,6 @@ void Scr_SetPlayerStatsForMatchRecording()
 #ifdef KISAK_LIVE
     MatchRecordSetPlayerStat(ent->client, statName, statValue);
 #endif
-    //result = GetCurrentThreadId();
-    //if ( result == g_DXDeviceThread )
-    //    return //D3DPERF_EndEvent();
-    //return result;
 }
 
 void GScr_SetPlayerFinalForMatchRecording()
@@ -14188,7 +14147,8 @@ void __cdecl GScr_AddSphereInfluencer()
     gentity_s *ent; // [esp+68h] [ebp-8h]
     float score; // [esp+6Ch] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "GScr_AddSphereInfluencer");
+    PROF_SCOPED("GScr_AddSphereInfluencer");
+
     if ( (unsigned int)Scr_GetNumParam(SCRIPTINSTANCE_SERVER) < 6
         || (unsigned int)Scr_GetNumParam(SCRIPTINSTANCE_SERVER) > 9 )
     {
@@ -14251,21 +14211,12 @@ void __cdecl GScr_AddSphereInfluencer()
         if ( influencer_index == -1 )
         {
             Scr_Error("USAGE: addsphereinfluencer could not create influencer \n", 0);
-            //if ( g_DXDeviceThread != GetCurrentThreadId() )
-            //    return;
         }
         else
         {
             Scr_AddInt(influencer_index, SCRIPTINSTANCE_SERVER);
-            //if ( GetCurrentThreadId() != g_DXDeviceThread )
-            //    return;
         }
-        goto LABEL_29;
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-LABEL_29:
-    ;
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl InfluencerTypeValidation(int type, gentity_s *ent, const char *function_name)
@@ -15639,7 +15590,7 @@ void GScr_PixBeginEvent()
 
     String = Scr_GetString(0, SCRIPTINSTANCE_SERVER);
     v1 = va("SCRIPT: %s", String);
-    //PIXBeginNamedEvent(0, v1);
+    //PIXBeginNamedEvent(0, v1); // KISAKTODO: Tracy Markers
 }
 
 void GScr_PixEndEvent()
@@ -15649,8 +15600,7 @@ void GScr_PixEndEvent()
     //
     //String = Scr_GetString(0, SCRIPTINSTANCE_SERVER);
     //v1 = va("SCRIPT: %s", String);
-    //PIXBeginNamedEvent(0, v1);
-
+    //PIXBeginNamedEvent(0, v1); // KISAKTODO: Tracy Markers
 }
 
 void GScr_PixMarker()
@@ -15908,7 +15858,8 @@ void GScr_SetPlayerStatsForMatchRecording()
     unsigned int statValue; // [esp+Ch] [ebp-Ch]
     gentity_s *ent; // [esp+14h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "GScr_SetPlayerStatsForMatchRecording");
+    PROF_SCOPED("GScr_SetPlayerStatsForMatchRecording");
+
     if (Scr_GetNumParam(SCRIPTINSTANCE_SERVER) != 3)
         Scr_ParamError(0, "recordPlayerStats [player] [statName] [value]", SCRIPTINSTANCE_SERVER);
     ent = Scr_GetEntity(0);
@@ -15924,11 +15875,6 @@ void GScr_SetPlayerStatsForMatchRecording()
 #ifdef KISAK_LIVE
     MatchRecordSetPlayerStat(ent->client, statName, statValue);
 #endif
-
-    //result = GetCurrentThreadId();
-    //if (result == g_DXDeviceThread)
-    //    return D3DPERF_EndEvent();
-    //return result;
 }
 
 BuiltinFunctionDef functions[] =
@@ -16542,10 +16488,8 @@ void __cdecl G_FlagAnimForUpdate(gentity_s *ent)
 
 void __cdecl GScr_SetAnim(scr_entref_t entref)
 {
-    //PIXBeginNamedEvent(-1, "SetAnim");
+    PROF_SCOPED("SetAnim");
     GScr_SetAnimInternal(entref, 1);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl GScr_SetAnimInternal(scr_entref_t entref, char flags)

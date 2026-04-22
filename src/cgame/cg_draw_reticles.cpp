@@ -192,7 +192,8 @@ void __cdecl CG_DrawCrosshair(int localClientNum)
     float transScale; // [esp+154h] [ebp-8h] BYREF
     float centerX; // [esp+158h] [ebp-4h] BYREF
 
-    //PIXBeginNamedEvent(-1, "CG_DrawCrosshair");
+    PROF_SCOPED("CG_DrawCrosshair");
+
     cgameGlob = CG_GetLocalClientGlobals(localClientNum);
     ps = &cgameGlob->predictedPlayerState;
     if ( !cg_drawGun
@@ -212,9 +213,7 @@ void __cdecl CG_DrawCrosshair(int localClientNum)
     }
     if ( !ShouldDrawCrosshair(cgameGlob, ps) )
     {
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_46;
+        return;
     }
     drawHud = CG_ShouldDrawHud(localClientNum);
     posLerp = ps->fWeaponPosFrac;
@@ -225,32 +224,25 @@ void __cdecl CG_DrawCrosshair(int localClientNum)
         if ( (ps->eFlags & 0x4000) != 0 )
         {
             CG_DrawVehicleCrossHair(localClientNum);
-            //if ( GetCurrentThreadId() != g_DXDeviceThread )
-            //    return;
         }
         else if ( show_reticle_during_swimming->current.enabled || ps->waterlevel < 3 )
         {
             weapIndex = BG_GetViewmodelWeaponIndex(&cgameGlob->predictedPlayerState);
             if ( !weapIndex )
             {
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
-                goto LABEL_46;
+                return;
             }
             weapDef = BG_GetWeaponDef(weapIndex);
             reticleAlpha = CG_DrawWeapReticle(localClientNum);
             if ( CG_Flashbanged(localClientNum) )
             {
-                //if ( GetCurrentThreadId() != g_DXDeviceThread )
-                //    return;
+                return;
             }
             else
             {
                 if ( CG_Flared(localClientNum) )
                 {
-                    //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                    //    return;
-                    goto LABEL_46;
+                    return;
                 }
                 if ( drawHud )
                 {
@@ -261,8 +253,7 @@ void __cdecl CG_DrawCrosshair(int localClientNum)
                         forceCrosshairsOn = weapDef->bKeepCrosshairWhenADS;
                         if ( posLerp == 1.0 && cg_drawGun->current.enabled && !forceCrosshairsOn )
                         {
-                            //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                            //    return;
+                            return;
                         }
                         else
                         {
@@ -337,34 +328,24 @@ void __cdecl CG_DrawCrosshair(int localClientNum)
         //{
         //    return;
         //}
-LABEL_46:
-        //D3DPERF_EndEvent();
         return;
     }
     weapIndex = CG_PlayerTurretWeaponIdx(localClientNum);
     if ( weapIndex && BG_GetWeaponVariantDef(weapIndex)->overlayMaterial )
     {
         CG_DrawAdsOverlay(localClientNum, weapIndex, colorWhite, vec2_origin);
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_46;
+        return;
     }
     if ( CG_Flashbanged(localClientNum) )
     {
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_46;
+        return;
     }
     if ( CG_Flared(localClientNum) )
     {
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_46;
+        return;
     }
     if ( drawHud && ps->viewlocked_entNum != 1023 )
         CG_DrawTurretCrossHair(localClientNum);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        goto LABEL_46;
 }
 
 void __cdecl CG_DrawAdsOverlay(int localClientNum, int weaponIndex, const float *color, const float *crosshairPos)

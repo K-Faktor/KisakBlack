@@ -808,7 +808,8 @@ void __cdecl CG_Draw2dHudElems(int localClientNum, int foreground)
     hudelem_s *elems[1025]; // [esp+30h] [ebp-1008h] BYREF
     int elemCount; // [esp+1034h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "CG_Draw2dHudElems");
+    PROF_SCOPED("CG_Draw2dHudElems");
+
     cgameGlob = CG_GetLocalClientGlobals(localClientNum);
     elemCount = GetSortedHudElems(localClientNum, elems);
     v4 = cgameGlob->nextSnap->ps.pm_type < 9;
@@ -817,8 +818,7 @@ void __cdecl CG_Draw2dHudElems(int localClientNum, int foreground)
         v4 = 1;
     if ( cgameGlob->cameraMode == 1 )
     {
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            goto LABEL_18;
+        return;
     }
     else
     {
@@ -829,19 +829,8 @@ void __cdecl CG_Draw2dHudElems(int localClientNum, int foreground)
             if ( elemCount )
             {
                 CG_Draw2dHudElemList(elems, elemCount, 0, foreground, v4, v2);
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
             }
-            //else if ( g_DXDeviceThread != GetCurrentThreadId() )
-            //{
-            //    return;
-            //}
-            goto LABEL_18;
         }
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-LABEL_18:
-            //D3DPERF_EndEvent();
-        ;
     }
 }
 
@@ -2478,26 +2467,19 @@ void __cdecl RB_DrawWaypoints(int localClientNum)
     hudelem_s *elems[62]; // [esp+28h] [ebp-100h] BYREF
     int elemCount; // [esp+124h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "RB_DrawWaypoints");
+    PROF_SCOPED("RB_DrawWaypoints");
+
     if ( !r_highRezWaypoints )
     {
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-LABEL_11:
-        //D3DPERF_EndEvent();
         return;
     }
     if ( !CG_ShouldDrawHud(localClientNum) )
     {
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_11;
+        return;
     }
     if ( Demo_IsPlaying() && (Demo_IsMovieCamera() || Demo_IsGameHudHidden()) )
     {
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_11;
+        return;
     }
     elemCount = GetSortedHudElems(localClientNum, elems);
     if ( (unsigned int)elemCount > 0x3E
@@ -2515,8 +2497,6 @@ LABEL_11:
         if ( elems[i]->type == 15 )
             RB_AddWaypoint(localClientNum, elems[i]);
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl RB_AddWaypoint(int localClientNum, const hudelem_s *elem)

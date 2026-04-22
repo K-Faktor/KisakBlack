@@ -77,14 +77,11 @@ void __fastcall Actor_SetAnimScript(
                 ai_animmode_t animMode,
                 scriptAnimAIFunctionTypes_t animScript)
 {
-    //PIXBeginNamedEvent(-1, "setanimscript");
-    if ( !self && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_animapi.cpp", 111, 0, "%s", "self") )
-        __debugbreak();
-    if ( !pAnimScriptFunc
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_animapi.cpp", 112, 0, "%s", "pAnimScriptFunc") )
-    {
-        __debugbreak();
-    }
+    PROF_SCOPED("setanimscript");
+
+    iassert(self);
+    iassert(pAnimScriptFunc);
+
     if ( self->pAnimScriptFunc == pAnimScriptFunc )
     {
         if ( self->eScriptSetAnimMode )
@@ -93,17 +90,14 @@ void __fastcall Actor_SetAnimScript(
             self->eAnimMode = animMode;
         if ( self->moveMode == moveMode )
         {
-            //if ( g_DXDeviceThread != GetCurrentThreadId() )
-            //    return;
+            return;
         }
         else
         {
             self->moveMode = moveMode;
             Scr_Notify(self->ent, scr_const.movemode, 0);
-            //if ( g_DXDeviceThread != GetCurrentThreadId() )
-            //    return;
         }
-        goto LABEL_20;
+        return;
     }
     Scr_DecTime(SCRIPTINSTANCE_SERVER);
     Actor_KillAnimScript(self);
@@ -133,10 +127,6 @@ void __fastcall Actor_SetAnimScript(
     }
     G_XAnimUpdateEnt(self->ent);
     Scr_IncTime(SCRIPTINSTANCE_SERVER);
-    ////if ( GetCurrentThreadId() == g_DXDeviceThread )
-LABEL_20:
-    ;
-        ////D3DPERF_EndEvent();
 }
 
 void __fastcall Actor_AnimStop(actor_s *self, scr_animscript_t *pAnimScriptFunc)

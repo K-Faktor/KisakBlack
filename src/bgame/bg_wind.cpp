@@ -457,7 +457,10 @@ void CG_UpdateWind(int cur_time)
     //
     //v48 = a1;
     //cur_timea = vars0;
-    //PIXBeginNamedEvent(-1, "CG_UpdateWind");
+    // 
+
+    PROF_SCOPED("CG_UpdateWind");
+
     if ((_S1_0 & 1) == 0)
     {
         _S1_0 |= 1u;
@@ -468,8 +471,6 @@ void CG_UpdateWind(int cur_time)
         if (cg_paused->current.integer)
         {
             last_time = cur_time;
-            //if (GetCurrentThreadId() == g_DXDeviceThread)
-            //    goto LABEL_5;
         }
         else
         {
@@ -628,16 +629,11 @@ void CG_UpdateWind(int cur_time)
             LODWORD(fxWind.lowWindStrengthPercent) = g_GlobalLowWindStrengthPercentage->current.integer;
             FX_SetGlobalWind(&fxWind);
             last_time = cur_time;
-            //if (g_DXDeviceThread == GetCurrentThreadId())
-            //    D3DPERF_EndEvent();
         }
     }
     else
     {
         v47 = 0;
-        //if (GetCurrentThreadId() == g_DXDeviceThread)
-        //    LABEL_5:
-        //D3DPERF_EndEvent();
     }
 }
 

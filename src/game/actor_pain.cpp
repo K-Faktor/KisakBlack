@@ -45,7 +45,8 @@ void __fastcall Actor_Pain_Finish(actor_s *self, ai_state_t eNextState)
 
 actor_think_result_t __fastcall Actor_Pain_Think(actor_s *self)
 {
-    //PIXBeginNamedEvent(-1, "painthink");
+    PROF_SCOPED("painthink");
+
     if ( !self && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_pain.cpp", 83, 0, "%s", "self") )
         __debugbreak();
     if ( !self->ent
@@ -67,15 +68,11 @@ actor_think_result_t __fastcall Actor_Pain_Think(actor_s *self)
         Actor_SetOrientMode(self, AI_ORIENT_DONT_CHANGE);
         Actor_AnimPain(self);
         Actor_PostThink(self);
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
         return ACTOR_THINK_DONE;
     }
     else
     {
         Actor_PopState(self);
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
         return ACTOR_THINK_REPEAT;
     }
 }

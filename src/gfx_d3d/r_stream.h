@@ -255,7 +255,7 @@ double __cdecl FastPointDistSqFromBounds(float4 mins, float4 maxs);
 void __cdecl R_Stream_SortCmd(_BYTE *data);
 void __cdecl R_StreamUpdate_EndQuerySort(bool diskOrder);
 void __cdecl R_Stream_CombineCmd();
-DWORD R_StreamUpdate_CombineImportance();
+void R_StreamUpdate_CombineImportance();
 void __cdecl R_StreamUpdateForXModel(const XModel *remoteModel, float distSq);
 int __cdecl r_stream_update_staticmodelsCallback(jqBatch *batch);
 int __cdecl r_stream_update_staticsurfacesCallback(jqBatch *batch);

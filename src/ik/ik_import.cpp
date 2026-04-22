@@ -946,10 +946,9 @@ bool __cdecl IKImport_IsIKEntity(unsigned __int8 *model)
 {
     bool IsIKEntity_Internal; // [esp+9h] [ebp-3h]
 
-    //PIXBeginNamedEvent(-1, "IKImport_IsIKEntity");
+    PROF_SCOPED("IKImport_IsIKEntity");
+
     IsIKEntity_Internal = IKImport_IsIKEntity_Internal(model);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
     return IsIKEntity_Internal;
 }
 
@@ -1455,7 +1454,9 @@ bool __cdecl IKImport_TraceBox(
 
     memset(&tr, 0, 16);
     ////col_context_t::col_context_t(&context);
-    //PIXBeginNamedEvent(-1, "IK Trace");
+    // 
+    PROF_SCOPED("IK Trace");
+
     collCache = &ikState->collisionCache;
     context.prims = ikState->collisionCache.proximity_data.prims;
     context.nprims = ikState->collisionCache.proximity_data.nprims;
@@ -1499,8 +1500,6 @@ bool __cdecl IKImport_TraceBox(
     outNormal[2] = tr.normal.vec.v[2];
     if ( outTraceFraction )
         *outTraceFraction = tr.fraction;
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
     return tr.fraction < 1.0 && (!bIgnoreStartSolid || tr.fraction > 0.001);
 }
 

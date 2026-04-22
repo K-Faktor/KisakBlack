@@ -262,7 +262,8 @@ unsigned int __cdecl SND_CommandPump()
     unsigned int count; // [esp+8h] [ebp-8h]
     const snd_command *cmd; // [esp+Ch] [ebp-4h]
 
-    //PIXBeginNamedEvent((int)&cls.rankedServers[711].game[34], "SND_CommandPump");
+    PROF_SCOPED("SND_CommandPump");
+
     if (!g_snd.command_init
         && !Assert_MyHandler(
             "C:\\projects_pc\\cod\\codsrc\\src\\sound\\snd_public_async_q.cpp",
@@ -284,8 +285,7 @@ unsigned int __cdecl SND_CommandPump()
         }
         SND_CommandPop();
     }
-    //if (GetCurrentThreadId() == g_DXDeviceThread)
-    //    D3DPERF_EndEvent();
+
     return count;
 }
 

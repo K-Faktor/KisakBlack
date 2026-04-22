@@ -258,7 +258,8 @@ char __fastcall Actor_Exposed_StartReacquireMove(actor_s *self)
 
 void __fastcall Actor_Exposed_FlashBanged(actor_s *self)
 {
-    //PIXBeginNamedEvent(-1, "flashbanged");
+    PROF_SCOPED("flashbanged");
+
     if ( !self->flashBanged
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_exposed.cpp",
@@ -276,8 +277,6 @@ void __fastcall Actor_Exposed_FlashBanged(actor_s *self)
         AI_ANIM_USE_BOTH_DELTAS,
         AI_ANIM_FUNCTION_STOP);
     Actor_SetOrientMode(self, AI_ORIENT_DONT_CHANGE);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 int __cdecl Path_IsValidClaimNode(const pathnode_t *node)

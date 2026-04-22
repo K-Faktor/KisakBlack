@@ -145,9 +145,11 @@ void __cdecl SV_ArchiveSnapshot(msg_t *msg)
         v40 = 0;
         clientNum = 0;
         v22 = 0;
-        //PIXBeginNamedEvent(3158271, "clients");
+
         while ( clientNum < maxclients || v22 < num_clients )
         {
+            PROF_SCOPED("clients");
+
             if ( clientNum >= maxclients || svsHeader.clients[clientNum].header.state >= CS_CONNECTED )
             {
                 if ( v22 < num_clients )
@@ -216,14 +218,13 @@ void __cdecl SV_ArchiveSnapshot(msg_t *msg)
                 ++clientNum;
             }
         }
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
         MSG_WriteBit0(msg);
         MSG_ClearLastReferencedEntity(msg);
         v30 = NAN;
-        //PIXBeginNamedEvent(3158271, "entities");
+
         for ( num = 0; num < svsHeader.num_entities; ++num )
         {
+            PROF_SCOPED("entities");
             v28 = SV_GentityNumLocal(num);
             if ( v28->r.linked )
             {
@@ -296,14 +297,10 @@ void __cdecl SV_ArchiveSnapshot(msg_t *msg)
                 }
             }
         }
-        //if ( GetCurrentThreadId() != g_DXDeviceThread )
-        //    goto skipDelta;
-LABEL_120:
-        //D3DPERF_EndEvent();
         goto skipDelta;
     }
 LABEL_84:
-    //PIXBeginNamedEvent(3158271, "write delta");
+    //PROF_SCOPED("write delta");
     MSG_WriteBit1(msg);
     MSG_WriteLong(msg, svsHeader.time);
     MSG_WriteLong(msg, svsHeader.physicsTime);
@@ -429,8 +426,6 @@ LABEL_84:
     }
     if ( ++svsHeader.nextCachedSnapshotFrames >= 2147483646 )
         Com_Error(ERR_FATAL, "svsHeader.nextCachedSnapshotFrames wrapped");
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        goto LABEL_120;
 skipDelta:
     MSG_WriteEntityIndex(&snapInfo, msg, 1023, 10);
 }

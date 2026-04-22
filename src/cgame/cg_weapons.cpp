@@ -1689,7 +1689,8 @@ void __cdecl FireBulletPenetrate(
     char traceHita; // [esp+2A4h] [ebp+28h]
     char traceHitb; // [esp+2A4h] [ebp+28h]
 
-    //PIXBeginNamedEvent(-1, "FireBulletPenetrate");
+    PROF_SCOPED("FireBulletPenetrate");
+
     memset(&revBr, 0, 16);
     if ( !bp && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp", 2837, 0, "%s", "bp") )
         __debugbreak();
@@ -1775,8 +1776,6 @@ void __cdecl FireBulletPenetrate(
             wayOutThere[2] = wayOutThere[2] + bp->start[2];
             CG_SoundWhizby(localClientNum, weapDef, bp->start, bp->dir, wayOutThere);
         }
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
         return;
     }
     traceHitEntityId = Trace_GetEntityHitId(&br->trace);
@@ -1788,8 +1787,6 @@ void __cdecl FireBulletPenetrate(
     //if ( sv_hitFXFrustumCutoff && R_CullPoint(br->hitPos, COERCE_FLOAT(sv_hitFXFrustumCutoff->current.integer ^ _mask__NegFloat_)) )
     if ( sv_hitFXFrustumCutoff && R_CullPoint(br->hitPos, -sv_hitFXFrustumCutoff->current.value) )
     {
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
         return;
     }
     effectFlags = 0;
@@ -1856,15 +1853,11 @@ void __cdecl FireBulletPenetrate(
     }
     if ( weapDef->penetrateType == PENETRATE_TYPE_NONE || br->trace.startsolid )
     {
-        //if ( GetCurrentThreadId() != g_DXDeviceThread )
-        //    return;
-        goto LABEL_147;
+        return;
     }
     if ( weapDef->bBulletImpactExplode )
     {
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_147;
+        return;
     }
     max_penetrations = sv_penetrationCount->current.integer;
     markCount = 0;
@@ -2071,10 +2064,6 @@ void __cdecl FireBulletPenetrate(
         if ( !traceHitb )
             break;
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-LABEL_147:
-    ;
-        //D3DPERF_EndEvent();
 }
 
 bool __cdecl ShouldIgnoreHitEntity(int attackerNum, int hitEntNum)
@@ -4948,15 +4937,14 @@ void __cdecl CG_FireWeapon(
     const WeaponVariantDef *weaponVariantDef; // [esp+ACh] [ebp-8h]
     bool playerUsingTurret; // [esp+B3h] [ebp-1h]
 
-    //PIXBeginNamedEvent(-1, "CG_FireWeapon");
+    PROF_SCOPED("CG_FireWeapon");
+
     ent = &cent->nextState;
     if ( !weapon )
         weapon = ent->weapon;
     if ( !weapon )
     {
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_5;
+        return;
     }
     if ( weapon < BG_GetNumWeapons() )
     {
@@ -5047,16 +5035,10 @@ void __cdecl CG_FireWeapon(
                 entMatrix[0],
                 weaponDef->weapClass == WEAPCLASS_GAS);
         }
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
     }
     else
     {
         Com_Error(ERR_DROP, "CG_FireWeapon: weapon >= BG_GetNumWeapons()");
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-    LABEL_5:
-        ;
-            //D3DPERF_EndEvent();
     }
 }
 
@@ -5108,7 +5090,8 @@ void __cdecl DrawBulletImpacts(
     float aimSpreadAmount; // [esp+1E8h] [ebp-34h]
     orientation_t gunOrient; // [esp+1ECh] [ebp-30h] BYREF
 
-    //PIXBeginNamedEvent(-1, "DrawBulletImpacts");
+    PROF_SCOPED("DrawBulletImpacts");
+
     weaponDef = BG_GetWeaponDef(weapon);
     cgameGlob = CG_GetLocalClientGlobals(localClientNum);
     secondBarrel = 0;
@@ -5124,8 +5107,6 @@ void __cdecl DrawBulletImpacts(
         BG_GetSpreadForWeapon(ps, weaponDef, &minSpread, &maxSpread);
         if ( !CG_GetPlayerViewOrigin(localClientNum, ps, origin) )
         {
-            //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                //D3DPERF_EndEvent();
             return;
         }
         viewang[0] = cgameGlob->gunPitch;
@@ -5137,17 +5118,11 @@ void __cdecl DrawBulletImpacts(
             boneIndex = 0;
             if ( !CG_GetBoneIndex(localClientNum, dobjNumber, boneName, &boneIndex) )
             {
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
-LABEL_66:
-                //D3DPERF_EndEvent();
                 return;
             }
             if ( !FX_GetBoneOrientation(localClientNum, dobjNumber, boneIndex, &gunOrient) )
             {
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
-                goto LABEL_66;
+                return;
             }
             tracerStart[0] = gunOrient.origin[0];
             tracerStart[1] = gunOrient.origin[1];
@@ -5170,15 +5145,11 @@ LABEL_66:
             boneIndex = 0;
             if ( !CG_GetBoneIndex(localClientNum, dobjNumber, boneName, &boneIndex) )
             {
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
-                goto LABEL_66;
+                return;
             }
             if ( !FX_GetBoneOrientation(localClientNum, dobjNumber, boneIndex, &gunOrient) )
             {
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
-                goto LABEL_66;
+                return;
             }
             tracerStart[0] = gunOrient.origin[0];
             tracerStart[1] = gunOrient.origin[1];
@@ -5214,17 +5185,11 @@ LABEL_66:
             boneIndex = 0;
             if ( !CG_GetBoneIndex(localClientNum, dobjNumber, boneName, &boneIndex) )
             {
-                //if ( GetCurrentThreadId() != g_DXDeviceThread )
-                //    return;
-LABEL_36:
-                //D3DPERF_EndEvent();
                 return;
             }
             if ( !FX_GetBoneOrientation(localClientNum, dobjNumber, boneIndex, &orient) )
             {
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
-                goto LABEL_36;
+                return;
             }
             CG_CalcEyePoint(localClientNum, ent->nextState.number, origin);
             tracerStart[0] = orient.origin[0];
@@ -5296,15 +5261,11 @@ LABEL_94:
             boneIndex = 0;
             if ( !CG_GetBoneIndex(localClientNum, dobjNumber, boneName, &boneIndex) )
             {
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
-                goto LABEL_66;
+                return;
             }
             if ( !FX_GetBoneOrientation(localClientNum, dobjNumber, boneIndex, &orient) )
             {
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
-                goto LABEL_66;
+                return;
             }
 LABEL_52:
             origin[0] = orient.origin[0];
@@ -5334,15 +5295,11 @@ LABEL_52:
             boneIndex = 0;
             if ( !CG_GetBoneIndex(localClientNum, dobjNumber, boneName, &boneIndex) )
             {
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
-                goto LABEL_66;
+                return;
             }
             if ( !FX_GetBoneOrientation(localClientNum, dobjNumber, boneIndex, &orient) )
             {
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
-                goto LABEL_66;
+                return;
             }
             origin[0] = orient.origin[0];
             origin[1] = orient.origin[1];
@@ -5392,15 +5349,11 @@ LABEL_52:
             boneIndex = 0;
             if ( !CG_GetBoneIndex(localClientNum, dobjNumber, boneName, &boneIndex) )
             {
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
-                goto LABEL_36;
+                return;
             }
             if ( !FX_GetBoneOrientation(localClientNum, dobjNumber, boneIndex, &orient) )
             {
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
-                goto LABEL_36;
+                return;
             }
             goto LABEL_52;
         case 0x32:
@@ -5781,7 +5734,8 @@ void __cdecl CG_SndWeaponFire(snd_weapon_shot *shot)
     int firesound; // [esp+2Ch] [ebp-Ch]
     const WeaponDef *weaponDef; // [esp+34h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "CG_SndWeaponFire");
+    PROF_SCOPED("CG_SndWeaponFire");
+
     weaponDef = BG_GetWeaponDef(shot->weapon);
     if ( !weaponDef
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_weapons.cpp", 6363, 0, "%s", "weaponDef") )
@@ -5814,21 +5768,12 @@ void __cdecl CG_SndWeaponFire(snd_weapon_shot *shot)
         CG_SndWeaponFakeFire(shot, weaponDef);
     if ( !firesound )
     {
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_28;
+        return;
     }
     if ( CG_ShouldPlaySoundOnLocalClient(shot->localClientNum, shot->shooter.handle & 0xFFF, shot->origin, firesound) )
     {
         SND_Play(firesound, 0, 1.0, shot->shooter, shot->origin, shot->direction, 0);
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_28;
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-LABEL_28:
-    ;
-        //D3DPERF_EndEvent();
 }
 
 float range_0 = 30.0f;
@@ -5917,7 +5862,7 @@ void __cdecl CG_WeaponFireSingle(
     bool simulate; // [esp+61h] [ebp-3h]
     bool isAuto; // [esp+63h] [ebp-1h]
 
-    //PIXBeginNamedEvent(-1, "CG_WeaponFireSingle");
+    PROF_SCOPED("CG_WeaponFireSingle");
 
     nanassertvec3(origin);
     nanassertvec3(direction);
@@ -5925,8 +5870,7 @@ void __cdecl CG_WeaponFireSingle(
     weaponDef = BG_GetWeaponDef(weapon);
     if ( weaponDef->fireType == WEAPON_FIRETYPE_MINIGUN )
     {
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
+        return;
     }
     else
     {
@@ -5959,8 +5903,6 @@ void __cdecl CG_WeaponFireSingle(
             CG_SndPingAutoSim(&shot);
         else
             CG_SndWeaponFire(&shot);
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
     }
 }
 
@@ -5973,7 +5915,8 @@ void __cdecl CG_SndPingAutoSim(snd_weapon_shot *shot)
     snd_autosim *found_sim; // [esp+3Ch] [ebp-Ch]
     snd_autosim *free_sim; // [esp+44h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "CG_SndPingAutoSim");
+    PROF_SCOPED("CG_SndPingAutoSim");
+
     free_sim = 0;
     found_sim = 0;
     for ( i = 0; i < 0x40; ++i )
@@ -6038,8 +5981,6 @@ void __cdecl CG_SndPingAutoSim(snd_weapon_shot *shot)
         Com_Printf(9, "WARNING: ran out of automatic sims???\n");
         CG_SndWeaponFire(shot);
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl CG_WeaponFireFake(

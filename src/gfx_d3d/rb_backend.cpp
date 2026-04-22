@@ -46,6 +46,39 @@ bool assets_released;
 bool g_showCursor;
 const float MY_OFFSETS[4][2] = { { -1.0, -1.0 }, { -1.0, 1.0 }, { 1.0, -1.0 }, { 1.0, 1.0 } };
 
+const char *gfxRenderCommandNames[] =
+{
+    "RC_END_OF_LIST",
+    "RC_SET_CUSTOM_CONSTANT",
+    "RC_SET_MATERIAL_COLOR",
+    "RC_SAVE_SCREEN",
+    "RC_SAVE_SCREEN_SECTION",
+    "RC_CLEAR_SCREEN",
+    "RC_SET_VIEWPORT",
+    "RC_SET_SCISSOR",
+    "RC_RESOLVE_COMPOSITE",
+    "RC_PC_COPY_IMAGE_GEN_MIP",
+    "RC_STRETCH_PIC",
+    "RC_STRETCH_PIC_FLIP_ST",
+    "RC_STRETCH_PIC_ROTATE_XY",
+    "RC_STRETCH_PIC_ROTATE_ST",
+    "RC_STRETCH_RAW",
+    "RC_DRAW_QUAD_PIC",
+    "RC_DRAW_FULL_SCREEN_COLORED_QUAD",
+    "RC_DRAW_TEXT_2D",
+    "RC_DRAW_TEXT_3D",
+    "RC_BLEND_SAVED_SCREEN_BLURRED",
+    "RC_BLEND_SAVED_SCREEN_FLASHED",
+    "RC_DRAW_POINTS",
+    "RC_DRAW_LINES",
+    "RC_DRAW_TRIANGLES",
+    "RC_DRAW_QUADLIST_2D",
+    "RC_DRAW_EMBLEM_LAYER",
+    "RC_STRETCH_COMPOSITE",
+    "RC_PROJECTION_SET",
+    "RC_DRAW_FRAMED"
+};
+
 void(__cdecl *const RB_RenderCommandTable[29])(GfxRenderCommandExecState *) =
 {
   NULL,
@@ -977,11 +1010,15 @@ void __cdecl RB_StretchPicCmd(GfxRenderCommandExecState *execState)
     const GfxCmdStretchPic *cmd; // [esp+3Ch] [ebp-4h]
 
     cmd = (const GfxCmdStretchPic *)execState->cmd;
+
     if ( **((unsigned int **)execState->cmd + 1) )
         v1 = va("\"%s\"", cmd->material->info.name);
     else
         v1 = va("\"%s\"", "noname");
-    //PIXBeginNamedEvent(-1, v1);
+
+    PROF_SCOPED("RB_StretchPicCmd");
+    ZoneTextF("(%s)", v1);
+
     RB_DrawStretchPicW(
         cmd->material,
         cmd->x,
@@ -995,8 +1032,6 @@ void __cdecl RB_StretchPicCmd(GfxRenderCommandExecState *execState)
         cmd->t1,
         cmd->color.packed,
         GFX_PRIM_STATS_HUD);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
     execState->cmd = (char *)execState->cmd + *(unsigned __int16 *)execState->cmd;
 }
 
@@ -4619,7 +4654,8 @@ void __cdecl RB_DrawText2DCmd(GfxRenderCommandExecState *execState)
     v1 = *((float *)execState->cmd + 4) * 0.017453292;
     cosAngle = cos(v1);
     sinAngle = sin(v1);
-    //PIXBeginNamedEvent(-1, (const char *)execState->cmd + 92);
+    PROF_SCOPED("RB_DrawText2DCmd");
+    ZoneTextF("(%s)", cmd->text);
     DrawText2D(
         cmd->text,
         cmd->x,
@@ -4645,8 +4681,6 @@ void __cdecl RB_DrawText2DCmd(GfxRenderCommandExecState *execState)
         cmd->fxRedactDecayDuration,
         cmd->fxMaterial,
         cmd->fxMaterialGlow);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
     execState->cmd = (char *)execState->cmd + *(unsigned __int16 *)execState->cmd;
 }
 
@@ -4834,12 +4868,19 @@ void RB_SwapBuffers()
     tagMSG msg; // [esp+3Ch] [ebp-20h] BYREF
     int desiredShow; // [esp+58h] [ebp-4h]
 
+    PROF_SCOPED("RB_SwapBuffers"); // LWSS ADD
+
     iassert(dx.targetWindowIndex >= 0 && dx.targetWindowIndex < dx.windowCount);
 
-    if (rg.renderHiResShot || dx.resizeWindow)
-        hr = 0;
-    else
-        hr = dx.windows[dx.targetWindowIndex].swapChain->Present(0, 0, 0, 0, 0);
+    {
+        PROF_SCOPED("Present()");
+
+        if (rg.renderHiResShot || dx.resizeWindow)
+            hr = 0;
+        else
+            hr = dx.windows[dx.targetWindowIndex].swapChain->Present(0, 0, 0, 0, 0);
+    }
+    
 
     mjpeg_draw();
 
@@ -4854,6 +4895,7 @@ void RB_SwapBuffers()
         Sys_ClearD3DDeviceOKEvent();
         if ( !r_glob.isRenderingRemoteUpdate )
         {
+            PROF_SCOPED("Sys_QueryRenderEvent() Loop"); // LWSS ADD
             while ( Sys_QueryRenderEvent() )
             {
                 semaphore = R_ReleaseDXDeviceOwnership();
@@ -4864,17 +4906,22 @@ void RB_SwapBuffers()
         }
     }
 
-    desiredShow = g_showCursor - 1;
-    for ( actualShow = ShowCursor(g_showCursor); actualShow != desiredShow; actualShow = ShowCursor(actualShow < desiredShow) )
-        ;
-    while ( PeekMessageA(&msg, 0, 0, 0, 0) )
     {
-        if ( !GetMessageA(&msg, 0, 0, 0) )
-            Sys_SetWin32QuitEvent();
-        g_msgTime = msg.time;
-        TranslateMessage(&msg);
-        DispatchMessageA(&msg);
+        PROF_SCOPED("Win32 Msg Pump"); // LWSS ADD
+
+        desiredShow = g_showCursor - 1;
+        for (actualShow = ShowCursor(g_showCursor); actualShow != desiredShow; actualShow = ShowCursor(actualShow < desiredShow))
+            ;
+        while (PeekMessageA(&msg, 0, 0, 0, 0))
+        {
+            if (!GetMessageA(&msg, 0, 0, 0))
+                Sys_SetWin32QuitEvent();
+            g_msgTime = msg.time;
+            TranslateMessage(&msg);
+            DispatchMessageA(&msg);
+        }
     }
+
     dx.nvStereoActivated = 0;
     if ( dx.nvStereoHandle )
     {
@@ -4926,6 +4973,9 @@ void RB_SwapBuffers()
                 v0 = R_ErrorDescription(hr);
                 Com_Error(ERR_FATAL, "Direct3DDevice9::Present failed: %s (%d)\n", v0, v2);
             }
+
+            PROF_SCOPED("(#2) Win32 Msg Pump"); // LWSS ADD
+
             while ( PeekMessageA(&msg, 0, 0, 0, 0) )
             {
                 if ( !GetMessageA(&msg, 0, 0, 0) )
@@ -4946,6 +4996,7 @@ void RB_SwapBuffers()
         v1 = R_ErrorDescription(hr);
         Com_Error(ERR_FATAL, "Direct3DDevice9::Present failed: %s (%d)\n", v1, v3);
     }
+
     R_HW_InsertFence(&dx.swapFence[r_glob.backEndFrameCount % dx.gpuCount + 2]);
     gfxBuf.dynamicIndexBuffer->used = 0;
 }
@@ -4981,7 +5032,8 @@ void __cdecl RB_ExecuteRenderCommandsLoop(const void *cmds, int *ui3dTextureWind
     GfxRenderCommandExecState execState; // [esp+2Ch] [ebp-8h] BYREF
     const void *prevCmd; // [esp+30h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "RB_ExecuteRenderCommandsLoop");
+    PROF_SCOPED("RB_ExecuteRenderCommandsLoop");
+
     if (gfxRenderTargets[22].image)
         R_SetCodeImageTexture(&gfxCmdBufSourceState, 0x28u, gfxRenderTargets[22].image);
     if (rgp.heatMapImage)
@@ -5056,10 +5108,12 @@ void __cdecl RB_ExecuteRenderCommandsLoop(const void *cmds, int *ui3dTextureWind
             {
                 __debugbreak();
             }
-            //PIXBeginNamedEvent(0xFFFFFF, gfxRenderCommandNames[header->id]);
-            RB_RenderCommandTable[header->id](&execState);
-            //if (GetCurrentThreadId() == g_DXDeviceThread)
-            //    D3DPERF_EndEvent();
+
+            {
+                PROF_SCOPED_RUNTIME_NAME(gfxRenderCommandNames[header->id]);
+                RB_RenderCommandTable[header->id](&execState);
+            }
+            
         }
         else
         {
@@ -5127,21 +5181,22 @@ void __cdecl RB_Draw3D()
                 }
                 viewInfoa = &data->viewInfo[v];
                 Name = va("RB_Draw3D c=%d v=%d/%d", viewInfoa->localClientNum, v, data->viewInfoCount);
-                //PIXBeginNamedEvent(-1, Name);
-                RB_ResetStatTracking(v);
-                RB_Draw3DInternal((GfxViewInfo *)viewInfoa);
-                //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                    //D3DPERF_EndEvent();
+
+                {
+                    PROF_SCOPED_RUNTIME_NAME(Name);
+                    RB_ResetStatTracking(v);
+                    RB_Draw3DInternal((GfxViewInfo *)viewInfoa);
+                }
             }
         }
         else
         {
             v0 = va("RB_Draw3D c=%d v=%d/%d", viewInfo->localClientNum, data->viewInfoIndex, data->viewInfoCount);
-            //PIXBeginNamedEvent(-1, v0);
-            RB_ResetStatTracking(data->viewInfoIndex);
-            RB_Draw3DInternal((GfxViewInfo*)viewInfo);
-            //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                //D3DPERF_EndEvent();
+            {
+                PROF_SCOPED_RUNTIME_NAME(v0);
+                RB_ResetStatTracking(data->viewInfoIndex);
+                RB_Draw3DInternal((GfxViewInfo *)viewInfo);
+            }
         }
     }
 }
@@ -5152,7 +5207,8 @@ void __cdecl RB_CallExecuteRenderCommands()
   int semaphore; // [esp+18h] [ebp-Ch]
   int hr; // [esp+1Ch] [ebp-8h]
 
-  //PIXBeginNamedEvent(-1, "RB_CallExecuteRenderCommands");
+  PROF_SCOPED("RB_CallExecuteRenderCommands");
+
   if ( !backEndData
     && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\rb_backend.cpp", 6163, 0, "%s", "backEndData") )
   {
@@ -5208,10 +5264,8 @@ void __cdecl RB_CallExecuteRenderCommands()
     RB_SetUI3DSamplerAndConstants(&gfxCmdBufSourceState, &backEndData->rbUI3D);
     if ( backEndData->cmds )
     {
-      //PIXBeginNamedEvent(-1, "backEndData->cmds");
-      RB_ExecuteRenderCommandsLoop(backEndData->cmds, 0);
-      //if ( GetCurrentThreadId() == g_DXDeviceThread )
-      //  D3DPERF_EndEvent();
+        PROF_SCOPED("backEndData->cmds");
+        RB_ExecuteRenderCommandsLoop(backEndData->cmds, 0);
     }
     if ( r_drawPrimHistogram->current.enabled )
       RB_DrawPrimHistogramOverlay();
@@ -5269,8 +5323,6 @@ void __cdecl RB_CallExecuteRenderCommands()
     }
   }
   backEndData = 0;
-  //if ( GetCurrentThreadId() == g_DXDeviceThread )
-  //  D3DPERF_EndEvent();
 }
 
 void __cdecl RB_UpdateDynamicBuffers(GfxBackEndData *backendData)
@@ -5285,7 +5337,7 @@ void __cdecl RB_UpdateDynamicBuffers(GfxBackEndData *backendData)
     unsigned __int8 *bufferb; // [esp+18h] [ebp-8h]
     unsigned __int8 *bufferc; // [esp+18h] [ebp-8h]
 
-    //PIXBeginNamedEvent(0, "RB_UpdateDynamicBuffers");
+    PROF_SCOPED("RB_UpdateDynamicBuffers");
     buffer = (unsigned __int8 *)R_LockVertexBuffer(
                                                                 backendData->skinnedCacheVb->buffer,
                                                                 0,
@@ -5334,8 +5386,6 @@ void __cdecl RB_UpdateDynamicBuffers(GfxBackEndData *backendData)
         R_UnlockIndexBuffer(backendData->preTessIb->buffer);
     }
     *backendData->dynamicBufferCurrentFrame = 0;
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 
 const void *data;
@@ -5512,20 +5562,23 @@ void __cdecl RB_RenderCommandFrame(const GfxBackEndData *data)
         clientNum = data->viewInfo[viewInfoIdx].localClientNum;
     }
     Name = va("exec cmds c=%d v=%d", clientNum, viewInfoIdx);
-    //PIXBeginNamedEvent(-1, Name);
-    RB_BeginFrame((GfxBackEndData*)data);
-    RB_DrawComposites();
-    RB_Draw3D();
-    drawType = backEndData->drawType;
-    RB_CallExecuteRenderCommands();
-    rb_execCmdsMS = Sys_Milliseconds() - renderStartMS;
-    backEndData = 0;
-    //if (g_DXDeviceThread == GetCurrentThreadId())
-    //    D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "Sys_RenderCompleted()");
-    Sys_RenderCompleted();
-    //if (GetCurrentThreadId() == g_DXDeviceThread)
-    //    D3DPERF_EndEvent();
+
+    {
+        PROF_SCOPED_RUNTIME_NAME(Name);
+        RB_BeginFrame((GfxBackEndData *)data);
+        RB_DrawComposites();
+        RB_Draw3D();
+        drawType = backEndData->drawType;
+        RB_CallExecuteRenderCommands();
+        rb_execCmdsMS = Sys_Milliseconds() - renderStartMS;
+        backEndData = 0;
+    }
+
+    {
+        PROF_SCOPED("Sys_RenderCompleted()");
+        Sys_RenderCompleted();
+    }
+
     while (!RB_BackendTimeout((r_glob.backEndFrameCount + dx.gpuCount - 1) % dx.gpuCount))
     {
         semaphore = R_ReleaseDXDeviceOwnership();
@@ -5533,10 +5586,12 @@ void __cdecl RB_RenderCommandFrame(const GfxBackEndData *data)
         if (semaphore)
             R_AcquireDXDeviceOwnership(0);
     }
-    //PIXBeginNamedEvent(-1, "end frame");
-    RB_EndFrame(drawType);
-    //if (GetCurrentThreadId() == g_DXDeviceThread)
-    //    D3DPERF_EndEvent();
+
+    {
+        PROF_SCOPED("end frame");
+        RB_EndFrame(drawType);
+    }
+    
     rb_swapMS = Sys_Milliseconds() - renderStartMS - rb_execCmdsMS;
 }
 
@@ -5948,7 +6003,7 @@ void __cdecl RB_SaveScreen_BlendFlashed(const GfxBlendSaveScreenFlashedParam *p,
 
     if (p->enabled)
     {
-        //PIXBeginNamedEvent(-1, "RB_SaveScreen_BlendFlashed");
+        PROF_SCOPED("RB_SaveScreen_BlendFlashed");
         if (tess.indexCount)
             RB_EndTessSurface();
         R_Set2D(&gfxCmdBufSourceState);
@@ -6001,8 +6056,6 @@ void __cdecl RB_SaveScreen_BlendFlashed(const GfxBlendSaveScreenFlashedParam *p,
             GFX_PRIM_STATS_CODE);
         if (tess.indexCount)
             RB_EndTessSurface();
-        //if (g_DXDeviceThread == GetCurrentThreadId())
-        //    D3DPERF_EndEvent();
     }
 }
 
@@ -6023,7 +6076,7 @@ void __cdecl RB_SaveScreen(const GfxSaveScreenParam *p, const GfxViewInfo *viewI
 
     if (p->mode)
     {
-        //PIXBeginNamedEvent(-1, "RB_SaveScreen");
+        PROF_SCOPED("RB_SaveScreen");
         if (p->screenTimerId >= 4u
             && !Assert_MyHandler(
                 "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\rb_backend.cpp",
@@ -6096,8 +6149,6 @@ void __cdecl RB_SaveScreen(const GfxSaveScreenParam *p, const GfxViewInfo *viewI
             R_SetRenderTargetSize(&gfxCmdBufSourceState, 3u);
             R_SetRenderTarget(gfxCmdBufContext, 3u);
         }
-        //if (g_DXDeviceThread == GetCurrentThreadId())
-        //    D3DPERF_EndEvent();
     }
 }
 

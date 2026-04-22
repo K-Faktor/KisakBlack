@@ -178,7 +178,8 @@ bool __cdecl Actor_Physics_1(actor_physics_t *pPhys)
 {
     bool bSuccess; // [esp+2Ch] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "Actor_Physics");
+    PROF_SCOPED("Actor_Physics");
+
     g_pPhys = pPhys;
     pPhys->iHitEntnum = 1023;
     pPhys->iNumTouch = 0;
@@ -211,15 +212,11 @@ bool __cdecl Actor_Physics_1(actor_physics_t *pPhys)
     if ( pPhys->ePhysicsType == AIPHYS_NOCLIP )
     {
         AIPhys_NoClipMove(pPhys);
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
         return 1;
     }
     else if ( pPhys->ePhysicsType == AIPHYS_NOGRAVITY )
     {
         AIPhys_NoGravityMove(pPhys);
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
         return 1;
     }
     else
@@ -248,8 +245,6 @@ bool __cdecl Actor_Physics_1(actor_physics_t *pPhys)
         {
             pPhys->iSurfaceType = 0;
         }
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
         return bSuccess;
     }
 }

@@ -63,7 +63,8 @@ void __cdecl R_MergeAndEmitDrawSurfLists(unsigned int firstStage, unsigned int s
     unsigned int drawSurfCount[40]; // [esp+E0h] [ebp-A0h]
     unsigned int stageCounta; // [esp+18Ch] [ebp+Ch]
 
-    //PIXBeginNamedEvent(-1, "R_MergeAndEmitDrawSurfLists");
+    PROF_SCOPED("R_MergeAndEmitDrawSurfLists");
+
     if ( (!stageCount || stageCount > 0x27)
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_pretess.cpp",
@@ -101,9 +102,7 @@ void __cdecl R_MergeAndEmitDrawSurfLists(unsigned int firstStage, unsigned int s
             if ( dstStageIndex == 1 )
             {
                 R_EmitDrawSurfList(drawSurfs[0], drawSurfCount[0], data);
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
-                goto LABEL_31;
+                return;
             }
             primarySortKey = (drawSurfs[0]->packed >> 58) & 0x3F;
             for ( stageIndexa = 1; stageIndexa < dstStageIndex; ++stageIndexa )
@@ -124,15 +123,6 @@ void __cdecl R_MergeAndEmitDrawSurfLists(unsigned int firstStage, unsigned int s
                 dstStageIndex += drawSurfCount[dstStageIndex] != 0;
             }
         }
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-    LABEL_31:
-        ;
-        //D3DPERF_EndEvent();
-    }
-    else //if ( GetCurrentThreadId() == g_DXDeviceThread )
-    {
-        //D3DPERF_EndEvent();
     }
 }
 

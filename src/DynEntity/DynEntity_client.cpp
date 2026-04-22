@@ -754,7 +754,8 @@ void __cdecl DynEntCl_ProcessEntities(int localClientNum, int time)
 
     if ( !r_reflectionProbeGenerate->current.enabled )
     {
-        //PIXBeginNamedEvent(-1, "process dyn ents");
+        PROF_SCOPED("process dyn ents");
+
         dynEntCount = DynEnt_GetEntityCount(DYNENT_COLL_CLIENT_FIRST);
         for ( dynEntId = 0; dynEntId < (int)dynEntCount; ++dynEntId )
         {
@@ -811,8 +812,6 @@ void __cdecl DynEntCl_ProcessEntities(int localClientNum, int time)
         }
         DynEnt_UpdateBurning();
         DynEnt_UpdateFading(time);
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
     }
 }
 
@@ -1508,7 +1507,8 @@ void __cdecl DynEntCl_PointTrace(const pointtrace_t *clip, trace_t *results)
     _QWORD start[2]; // [esp+28h] [ebp-20h] BYREF
     _QWORD end[2]; // [esp+38h] [ebp-10h] BYREF
 
-    //PIXBeginNamedEvent(-1, "dyn_pointtrace");
+    PROF_SCOPED("dyn_pointtrace");
+
     if ( !clip
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\DynEntity\\DynEntity_client.cpp", 1380, 0, "%s", "clip") )
     {
@@ -1541,20 +1541,13 @@ void __cdecl DynEntCl_PointTrace(const pointtrace_t *clip, trace_t *results)
         DynEntCl_PointTrace_r(DYNENT_COLL_CLIENT_BRUSH, clip, 1u, (float *)start, (float *)end, results);
         if ( results->fraction == 0.0 )
         {
-            //if ( GetCurrentThreadId() != g_DXDeviceThread )
-            //    return;
+            return;
         }
         else
         {
             DynEntCl_PointTrace_r(DYNENT_COLL_CLIENT_FIRST, clip, 1u, (float *)start, (float *)end, results);
-            //if ( g_DXDeviceThread != GetCurrentThreadId() )
-            //    return;
         }
-        //D3DPERF_EndEvent();
-        return;
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl DynEntCl_PointTrace_r(
@@ -2456,12 +2449,11 @@ void __cdecl DynEntCl_EntityImpactEvent(
     centity_s *cent; // [esp+7Ch] [ebp-4h]
     int savedregs; // [esp+80h] [ebp+0h] BYREF
 
-    //PIXBeginNamedEvent(-1, "DynEntCl_EntityImpactEvent");
+    PROF_SCOPED("DynEntCl_EntityImpactEvent");
+
     if ( trace->hitType != TRACE_HITTYPE_ENTITY )
     {
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_3;
+        return;
     }
     if ( DynEntCl_EventNeedsProcessed(localClientNum, sourceEntityNum) )
     {
@@ -2517,20 +2509,8 @@ void __cdecl DynEntCl_EntityImpactEvent(
                     dynEnt_bulletForce->current.value,
                     presetBulletForceScale);
             }
-            //if ( GetCurrentThreadId() != g_DXDeviceThread )
-            //    return;
         }
-        //else if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //{
-        //    return;
-        //}
-        //D3DPERF_EndEvent();
-        return;
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-LABEL_3:
-    ;
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl DynEntCl_PlayImpactEffects(
@@ -2630,7 +2610,8 @@ char __cdecl DynEntCl_DynEntImpactEvent(
     float hitPos[3]; // [esp+F8h] [ebp-10h] BYREF
     unsigned __int16 dynEntId; // [esp+104h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "DynEntCl_DynEntImpactEvent");
+    PROF_SCOPED("DynEntCl_DynEntImpactEvent");
+
     ////TraceExtents::TraceExtents(&clip.extents);
     memset(&trace, 0, 16);
     if ( !start
@@ -2659,8 +2640,6 @@ char __cdecl DynEntCl_DynEntImpactEvent(
         nextSnap = CG_GetLocalClientGlobals(localClientNum)->nextSnap;
         if ( (nextSnap->ps.otherFlags & 6) == 0 || sourceEntityNum != nextSnap->ps.clientNum )
         {
-            //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                //D3DPERF_EndEvent();
             return 0;
         }
         goto LABEL_24;
@@ -2683,8 +2662,6 @@ LABEL_24:
         dynEntId = Trace_GetDynEntHitId(&trace, &drawType);
         if ( dynEntId == 0xFFFF )
         {
-            //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                //D3DPERF_EndEvent();
             return 0;
         }
         else
@@ -2713,8 +2690,6 @@ LABEL_24:
                     trace.normal.vec.v);
             if ( (dynEntDef->flags & 4) != 0 )
             {
-                //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                    //D3DPERF_EndEvent();
                 return 0;
             }
             else
@@ -2741,14 +2716,10 @@ LABEL_24:
                 }
                 if ( damage )
                     DynEntCl_Damage(localClientNum, dynEntId, (DynEntityCollType)drawType, hitPos, hitDir, damage);
-                //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                    //D3DPERF_EndEvent();
                 return 1;
             }
         }
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
     return 0;
 }
 

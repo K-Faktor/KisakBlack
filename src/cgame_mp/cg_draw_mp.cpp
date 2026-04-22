@@ -1389,7 +1389,8 @@ void __cdecl CG_UpdatePlayerNames(int localClientNum)
 
 void __cdecl CG_UpdatePlayerNamesInternal(int localClientNum)
 {
-    //PIXBeginNamedEvent(-1, "CG_UpdatePlayerNames");
+    PROF_SCOPED("CG_UpdatePlayerNames");
+
     if ( CG_AreAllPlayerNamesVisible() )
     {
         CG_DrawVisibleNames(localClientNum);
@@ -1400,8 +1401,6 @@ void __cdecl CG_UpdatePlayerNamesInternal(int localClientNum)
         CG_DrawFriendlyNames(localClientNum);
         CG_DrawNames(localClientNum);
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl DrawViewmodelInfo(int localClientNum)
@@ -1603,10 +1602,8 @@ void __cdecl CG_DrawMissileCam(int localClientNum)
 
 void __cdecl CG_AddSceneTracerBeams(int localClientNum)
 {
-    //PIXBeginNamedEvent(-1, "CG_AddSceneTracerBeams");
+    PROF_SCOPED("CG_AddSceneTracerBeams");
     CG_AddLocalEntityTracerBeams(localClientNum);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl CG_GenerateSceneCodeMeshes(int localClientNum)
@@ -1614,35 +1611,35 @@ void __cdecl CG_GenerateSceneCodeMeshes(int localClientNum)
     RopeGenerateVertsCmd ropeVertsCmd; // [esp+14h] [ebp-48h] BYREF
     cg_s *clientGlobals; // [esp+54h] [ebp-8h]
 
-    //PIXBeginNamedEvent(-1, "CG_GenerateSceneCodeMeshes");
-    //PIXBeginNamedEvent(-1, "Rope generate verts");
-    ropeVertsCmd.localClientNum = localClientNum;
-    ropeVertsCmd.ropeInfo = R_Rope_GetInfo();
-    clientGlobals = CG_GetLocalClientGlobals(localClientNum);
-    ropeVertsCmd.vieworg[0] = clientGlobals->refdef.vieworg[0];
-    ropeVertsCmd.vieworg[1] = clientGlobals->refdef.vieworg[1];
-    ropeVertsCmd.vieworg[2] = clientGlobals->refdef.vieworg[2];
-    AxisCopy(clientGlobals->refdef.viewaxis, ropeVertsCmd.viewaxis);
-    ropeVertsCmd.refdef_tanHalfFovX = clientGlobals->refdef.tanHalfFovX;
-    ropeVertsCmd.refdef_tanHalfFovY = clientGlobals->refdef.tanHalfFovY;
-    R_Rope_GenerateVerts_Camera(&ropeVertsCmd);
-    //BLOPS_NULLSUB();
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+    PROF_SCOPED("CG_GenerateSceneCodeMeshes");
+
+    {
+        PROF_SCOPED("Rope generate verts");
+
+        ropeVertsCmd.localClientNum = localClientNum;
+        ropeVertsCmd.ropeInfo = R_Rope_GetInfo();
+        clientGlobals = CG_GetLocalClientGlobals(localClientNum);
+        ropeVertsCmd.vieworg[0] = clientGlobals->refdef.vieworg[0];
+        ropeVertsCmd.vieworg[1] = clientGlobals->refdef.vieworg[1];
+        ropeVertsCmd.vieworg[2] = clientGlobals->refdef.vieworg[2];
+        AxisCopy(clientGlobals->refdef.viewaxis, ropeVertsCmd.viewaxis);
+        ropeVertsCmd.refdef_tanHalfFovX = clientGlobals->refdef.tanHalfFovX;
+        ropeVertsCmd.refdef_tanHalfFovY = clientGlobals->refdef.tanHalfFovY;
+        R_Rope_GenerateVerts_Camera(&ropeVertsCmd);
+        //BLOPS_NULLSUB();
+    }
+
     Flame_Generate_Verts(localClientNum);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl CG_GenerateSceneVerts(int localClientNum)
 {
-    //PIXBeginNamedEvent(-1, "CG_GenerateSceneVerts");
+    PROF_SCOPED("CG_GenerateSceneVerts");
+
     CG_AddAllPlayerSpriteDrawSurfs(localClientNum);
     CG_AddDrawSurfsFor3dHudElems(localClientNum);
     CG_RenderFire();
     CG_Flame_Render();
     CG_GenerateSceneCodeMeshes(localClientNum);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 

@@ -354,7 +354,8 @@ void __cdecl R_AddAllSceneEntSurfacesCamera(const GfxViewInfo *viewInfo)
     int visibleLightCount; // [esp+140h] [ebp-8h]
     GfxLightingInfo *dynentLightingInfo; // [esp+144h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "R_AddAllSceneEntSurfacesCamera");
+    PROF_SCOPED("R_AddAllSceneEntSurfacesCamera");
+
     drawSurfs[0] = scene.drawSurfs[2];
     lastDrawSurfs[0] = &scene.drawSurfs[2][scene.maxDrawSurfCount[2]];
     drawSurfs[1] = scene.drawSurfs[5];
@@ -364,72 +365,70 @@ void __cdecl R_AddAllSceneEntSurfacesCamera(const GfxViewInfo *viewInfo)
     dobjLightingFinished = 0;
     modelLightingFinished = 0;
     dobjLightingInfo = lightingInfo;
-    //PIXBeginNamedEvent(-1, "sceneDObj lighting");
-    visibleLightCount = viewInfo->visibleLightCount;
-    visibleLights = viewInfo->visibleLights;
-    LaunchDobjLightingJobs(viewInfo, scene.sceneDObjCount, scene.sceneDObjVisData[0], lightingInfo);
-    lightingInfoUsed = scene.sceneDObjCount;
-    if ( (unsigned int)(scene.sceneModelCount + scene.sceneDObjCount) > 0x400 )
+
     {
-        Sys_AssistAndWaitWorkerCmdInternal(&r_model_lightingWorkerCmd);
-        FinishDobjLighting(
-            scene.sceneDObjCount,
-            scene.sceneDObjVisData[0],
-            dobjLightingInfo,
-            drawSurfs,
-            lastDrawSurfs,
-            visibleLights,
-            visibleLightCount,
-            viewInfo->isMissileCamera);
-        dobjLightingFinished = 1;
-        lightingInfoUsed = 0;
+        PROF_SCOPED("sceneDObj lighting");
+        visibleLightCount = viewInfo->visibleLightCount;
+        visibleLights = viewInfo->visibleLights;
+        LaunchDobjLightingJobs(viewInfo, scene.sceneDObjCount, scene.sceneDObjVisData[0], lightingInfo);
+        lightingInfoUsed = scene.sceneDObjCount;
+        if ((unsigned int)(scene.sceneModelCount + scene.sceneDObjCount) > 0x400)
+        {
+            Sys_AssistAndWaitWorkerCmdInternal(&r_model_lightingWorkerCmd);
+            FinishDobjLighting(
+                scene.sceneDObjCount,
+                scene.sceneDObjVisData[0],
+                dobjLightingInfo,
+                drawSurfs,
+                lastDrawSurfs,
+                visibleLights,
+                visibleLightCount,
+                viewInfo->isMissileCamera);
+            dobjLightingFinished = 1;
+            lightingInfoUsed = 0;
+        }
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
+
     modelLightingInfo = &lightingInfo[lightingInfoUsed];
-    //PIXBeginNamedEvent(-1, "sceneModel lighting");
-    LaunchModelLightingJobs(viewInfo, scene.sceneModelCount, scene.sceneModelVisData[0], modelLightingInfo);
-    lightingInfoUsed = scene.sceneModelCount + lightingInfoUsed;
-    if ( scene.sceneDynModelCount + lightingInfoUsed > 0x400 )
+
     {
-        Sys_AssistAndWaitWorkerCmdInternal(&r_model_lightingWorkerCmd);
-        FinishModelLighting(
-            scene.sceneModelCount,
-            scene.sceneModelVisData[0],
-            modelLightingInfo,
-            drawSurfs,
-            lastDrawSurfs,
-            visibleLights,
-            visibleLightCount);
-        modelLightingFinished = 1;
-        lightingInfoUsed = 0;
+        PROF_SCOPED("sceneModel lighting");
+        LaunchModelLightingJobs(viewInfo, scene.sceneModelCount, scene.sceneModelVisData[0], modelLightingInfo);
+        lightingInfoUsed = scene.sceneModelCount + lightingInfoUsed;
+        if (scene.sceneDynModelCount + lightingInfoUsed > 0x400)
+        {
+            Sys_AssistAndWaitWorkerCmdInternal(&r_model_lightingWorkerCmd);
+            FinishModelLighting(
+                scene.sceneModelCount,
+                scene.sceneModelVisData[0],
+                modelLightingInfo,
+                drawSurfs,
+                lastDrawSurfs,
+                visibleLights,
+                visibleLightCount);
+            modelLightingFinished = 1;
+            lightingInfoUsed = 0;
+        }
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
+
     dynentLightingInfo = &lightingInfo[lightingInfoUsed];
-    //PIXBeginNamedEvent(-1, "sceneDynModel lighting");
-    if ( scene.sceneDynModelCount >= 0x400
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_dpvs.cpp",
-                    1635,
-                    0,
-                    "%s\n\t(scene.sceneDynModelCount) = %i",
-                    "(scene.sceneDynModelCount < 1024)",
-                    scene.sceneDynModelCount) )
+
     {
-        __debugbreak();
+        PROF_SCOPED("sceneDynModel lighting");
+
+        iassert(scene.sceneDynModelCount < 1024);
+        LaunchDynEntLightingJobs(
+            viewInfo,
+            scene.sceneDynModelCount,
+            rgp.world->dpvsDyn.dynEntVisData[0][0],
+            dynentLightingInfo);
     }
-    LaunchDynEntLightingJobs(
-        viewInfo,
-        scene.sceneDynModelCount,
-        rgp.world->dpvsDyn.dynEntVisData[0][0],
-        dynentLightingInfo);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(0, "wait r_model_lighting");
-    Sys_AssistAndWaitWorkerCmdInternal(&r_model_lightingWorkerCmd);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
+
+    {
+        PROF_SCOPED("wait r_model_lighting");
+        Sys_AssistAndWaitWorkerCmdInternal(&r_model_lightingWorkerCmd);
+    }
+    
     if ( !dobjLightingFinished )
         FinishDobjLighting(
             scene.sceneDObjCount,
@@ -460,166 +459,176 @@ void __cdecl R_AddAllSceneEntSurfacesCamera(const GfxViewInfo *viewInfo)
         lastDrawSurfs,
         visibleLights,
         visibleLightCount);
-    //PIXBeginNamedEvent(-1, "sceneBrush addsurfaces");
-    sceneEntCount = scene.sceneBrushCount;
-    sceneEntVisData = scene.sceneBrushVisData[0];
-    for ( sceneEntIndex = 0; sceneEntIndex < sceneEntCount; ++sceneEntIndex )
+
     {
-        if ( sceneEntVisData[sceneEntIndex] == 1 )
+        PROF_SCOPED("sceneBrush addsurfaces");
+
+        sceneEntCount = scene.sceneBrushCount;
+        sceneEntVisData = scene.sceneBrushVisData[0];
+        for (sceneEntIndex = 0; sceneEntIndex < sceneEntCount; ++sceneEntIndex)
         {
-            sceneBrush = &scene.sceneBrush[sceneEntIndex];
-            bmodel = sceneBrush->bmodel;
-            visLightsMask = 0;
-            for ( visLightIndex = 0; visLightIndex < visibleLightCount; ++visLightIndex )
+            if (sceneEntVisData[sceneEntIndex] == 1)
             {
-                light = &visibleLights[visLightIndex];
-                if ( light->radius * light->radius >= PointToBoxDistSq(
-                                                                                                light->origin,
-                                                                                                bmodel->writable.mins,
-                                                                                                bmodel->writable.maxs) )
+                sceneBrush = &scene.sceneBrush[sceneEntIndex];
+                bmodel = sceneBrush->bmodel;
+                visLightsMask = 0;
+                for (visLightIndex = 0; visLightIndex < visibleLightCount; ++visLightIndex)
                 {
-                    if ( light->type == 3 )
+                    light = &visibleLights[visLightIndex];
+                    if (light->radius * light->radius >= PointToBoxDistSq(
+                        light->origin,
+                        bmodel->writable.mins,
+                        bmodel->writable.maxs))
                     {
-                        visLightsMask |= 1u;
-                    }
-                    else if ( BoxInPlanes(scene.dynamicSpotLightPlanes, 6u, bmodel->writable.mins, bmodel->writable.maxs) )
-                    {
-                        visLightsMask |= 2u;
+                        if (light->type == 3)
+                        {
+                            visLightsMask |= 1u;
+                        }
+                        else if (BoxInPlanes(scene.dynamicSpotLightPlanes, 6u, bmodel->writable.mins, bmodel->writable.maxs))
+                        {
+                            visLightsMask |= 2u;
+                        }
                     }
                 }
-            }
-            reflectionProbeIndex = R_CalcReflectionProbeIndex(sceneBrush->placement.origin);
-            sceneBrush->reflectionProbeIndex = reflectionProbeIndex;
-            if ( sceneBrush->reflectionProbeIndex != reflectionProbeIndex
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_dpvs.cpp",
-                            1703,
-                            0,
-                            "%s\n\t(reflectionProbeIndex) = %i",
-                            "(sceneBrush->reflectionProbeIndex == reflectionProbeIndex)",
-                            reflectionProbeIndex) )
-            {
-                __debugbreak();
-            }
-            R_AddBModelSurfacesCamera(
-                &sceneBrush->info,
-                bmodel,
-                drawSurfs,
-                lastDrawSurfs,
-                reflectionProbeIndex,
-                0.0,
-                0.0,
-                visLightsMask);
-            if ( sceneBrush->brushConstantSet && r_shader_constant_set_debug_range->current.value > 0.0 )
-            {
-                brushRadius = Vec3Distance(bmodel->bounds[0], bmodel->bounds[1]) * 0.5;
-                R_ShaderConstantShowDebug(
-                    viewInfo->cullViewInfo.viewParms.origin,
-                    sceneBrush->placement.origin,
-                    brushRadius,
-                    sceneBrush->brushConstantSet);
-            }
-        }
-    }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "glassBrush addsurfaces");
-    glassBrushCount = scene.glassBrushCount;
-    for ( glassIndex = 0; glassIndex < glassBrushCount; ++glassIndex )
-    {
-        if ( scene.glassBrushVisData[glassIndex] == 1 )
-        {
-            glassBrush = &scene.glassBrush[glassIndex];
-            reflectionProbeIndex = R_CalcReflectionProbeIndex(glassBrush->placement.origin);
-            glassBrush->reflectionProbeIndex = reflectionProbeIndex;
-            if ( glassBrush->reflectionProbeIndex != reflectionProbeIndex
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_dpvs.cpp",
-                            1733,
-                            0,
-                            "%s\n\t(reflectionProbeIndex) = %i",
-                            "(glassBrush->reflectionProbeIndex == reflectionProbeIndex)",
-                            reflectionProbeIndex) )
-            {
-                __debugbreak();
-            }
-            R_AddBModelSurfacesCamera(
-                &glassBrush->info,
-                glassBrush->bmodel,
-                drawSurfs,
-                lastDrawSurfs,
-                reflectionProbeIndex,
-                0.0,
-                0.0,
-                0);
-        }
-    }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "sceneDynBrush addsurfaces");
-    sceneEntCount = scene.sceneDynBrushCount;
-    sceneEntVisData = rgp.world->dpvsDyn.dynEntVisData[1][0];
-    for ( sceneEntIndex = 0; sceneEntIndex < sceneEntCount; ++sceneEntIndex )
-    {
-        sceneDynBrush = &rgp.world->sceneDynBrush[sceneEntIndex];
-        dynEntId = sceneDynBrush->dynEntId;
-        if ( sceneEntVisData[dynEntId] == 1 )
-        {
-            dynEntPose = DynEnt_GetClientPose(dynEntId, DYNENT_DRAW_BRUSH);
-            dynEntDef = DynEnt_GetEntityDef(dynEntId, DYNENT_DRAW_BRUSH);
-            bmodel = R_GetBrushModel(dynEntDef->brushModel);
-            visLightsMaska = 0;
-            for ( i = 0; i < visibleLightCount; ++i )
-            {
-                v1 = &visibleLights[i];
-                if ( v1->radius * v1->radius >= PointToBoxDistSq(v1->origin, bmodel->writable.mins, bmodel->writable.maxs) )
+                reflectionProbeIndex = R_CalcReflectionProbeIndex(sceneBrush->placement.origin);
+                sceneBrush->reflectionProbeIndex = reflectionProbeIndex;
+                if (sceneBrush->reflectionProbeIndex != reflectionProbeIndex
+                    && !Assert_MyHandler(
+                        "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_dpvs.cpp",
+                        1703,
+                        0,
+                        "%s\n\t(reflectionProbeIndex) = %i",
+                        "(sceneBrush->reflectionProbeIndex == reflectionProbeIndex)",
+                        reflectionProbeIndex))
                 {
-                    if ( v1->type == 3 )
-                    {
-                        visLightsMaska |= 1u;
-                    }
-                    else if ( BoxInPlanes(scene.dynamicSpotLightPlanes, 6u, bmodel->writable.mins, bmodel->writable.maxs) )
-                    {
-                        visLightsMaska |= 2u;
-                    }
+                    __debugbreak();
+                }
+                R_AddBModelSurfacesCamera(
+                    &sceneBrush->info,
+                    bmodel,
+                    drawSurfs,
+                    lastDrawSurfs,
+                    reflectionProbeIndex,
+                    0.0,
+                    0.0,
+                    visLightsMask);
+                if (sceneBrush->brushConstantSet && r_shader_constant_set_debug_range->current.value > 0.0)
+                {
+                    brushRadius = Vec3Distance(bmodel->bounds[0], bmodel->bounds[1]) * 0.5;
+                    R_ShaderConstantShowDebug(
+                        viewInfo->cullViewInfo.viewParms.origin,
+                        sceneBrush->placement.origin,
+                        brushRadius,
+                        sceneBrush->brushConstantSet);
                 }
             }
-            reflectionProbeIndex = R_CalcReflectionProbeIndex(dynEntPose->pose.origin);
-            burnVar = DynEntCl_GetBurnTime(dynEntId, DYNENT_DRAW_BRUSH);
-            fadeVar = DynEntCl_GetFadeTime(dynEntId, DYNENT_DRAW_BRUSH);
-            R_AddBModelSurfacesCamera(
-                (BModelDrawInfo *)sceneDynBrush,
-                bmodel,
-                drawSurfs,
-                lastDrawSurfs,
-                reflectionProbeIndex,
-                burnVar,
-                fadeVar,
-                visLightsMaska);
         }
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
+    
+    {
+        PROF_SCOPED("glassBrush addsurfaces");
+
+        glassBrushCount = scene.glassBrushCount;
+        for (glassIndex = 0; glassIndex < glassBrushCount; ++glassIndex)
+        {
+            if (scene.glassBrushVisData[glassIndex] == 1)
+            {
+                glassBrush = &scene.glassBrush[glassIndex];
+                reflectionProbeIndex = R_CalcReflectionProbeIndex(glassBrush->placement.origin);
+                glassBrush->reflectionProbeIndex = reflectionProbeIndex;
+                if (glassBrush->reflectionProbeIndex != reflectionProbeIndex
+                    && !Assert_MyHandler(
+                        "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_dpvs.cpp",
+                        1733,
+                        0,
+                        "%s\n\t(reflectionProbeIndex) = %i",
+                        "(glassBrush->reflectionProbeIndex == reflectionProbeIndex)",
+                        reflectionProbeIndex))
+                {
+                    __debugbreak();
+                }
+                R_AddBModelSurfacesCamera(
+                    &glassBrush->info,
+                    glassBrush->bmodel,
+                    drawSurfs,
+                    lastDrawSurfs,
+                    reflectionProbeIndex,
+                    0.0,
+                    0.0,
+                    0);
+            }
+        }
+    }
+    
+    {
+        PROF_SCOPED("sceneDynBrush addsurfaces");
+
+        sceneEntCount = scene.sceneDynBrushCount;
+        sceneEntVisData = rgp.world->dpvsDyn.dynEntVisData[1][0];
+        for (sceneEntIndex = 0; sceneEntIndex < sceneEntCount; ++sceneEntIndex)
+        {
+            sceneDynBrush = &rgp.world->sceneDynBrush[sceneEntIndex];
+            dynEntId = sceneDynBrush->dynEntId;
+            if (sceneEntVisData[dynEntId] == 1)
+            {
+                dynEntPose = DynEnt_GetClientPose(dynEntId, DYNENT_DRAW_BRUSH);
+                dynEntDef = DynEnt_GetEntityDef(dynEntId, DYNENT_DRAW_BRUSH);
+                bmodel = R_GetBrushModel(dynEntDef->brushModel);
+                visLightsMaska = 0;
+                for (i = 0; i < visibleLightCount; ++i)
+                {
+                    v1 = &visibleLights[i];
+                    if (v1->radius * v1->radius >= PointToBoxDistSq(v1->origin, bmodel->writable.mins, bmodel->writable.maxs))
+                    {
+                        if (v1->type == 3)
+                        {
+                            visLightsMaska |= 1u;
+                        }
+                        else if (BoxInPlanes(scene.dynamicSpotLightPlanes, 6u, bmodel->writable.mins, bmodel->writable.maxs))
+                        {
+                            visLightsMaska |= 2u;
+                        }
+                    }
+                }
+                reflectionProbeIndex = R_CalcReflectionProbeIndex(dynEntPose->pose.origin);
+                burnVar = DynEntCl_GetBurnTime(dynEntId, DYNENT_DRAW_BRUSH);
+                fadeVar = DynEntCl_GetFadeTime(dynEntId, DYNENT_DRAW_BRUSH);
+                R_AddBModelSurfacesCamera(
+                    (BModelDrawInfo *)sceneDynBrush,
+                    bmodel,
+                    drawSurfs,
+                    lastDrawSurfs,
+                    reflectionProbeIndex,
+                    burnVar,
+                    fadeVar,
+                    visLightsMaska);
+            }
+        }
+    }
+    
     drawSurfCount = drawSurfs[0] - scene.drawSurfs[2];
     scene.drawSurfCount[2] = drawSurfCount;
-    //PIXBeginNamedEvent(-1, "sort surfs ENT_CAMERA_LIT");
-    R_SortDrawSurfs(scene.drawSurfs[2], drawSurfCount);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
+
+    {
+        PROF_SCOPED("sort surfs ENT_CAMERA_LIT");
+        R_SortDrawSurfs(scene.drawSurfs[2], drawSurfCount);
+    }
+
     drawSurfCount = drawSurfs[1] - scene.drawSurfs[5];
     scene.drawSurfCount[5] = drawSurfCount;
-    //PIXBeginNamedEvent(-1, "sort surfs ENT_CAMERA_DECAL");
-    R_SortDrawSurfs(scene.drawSurfs[5], drawSurfCount);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
+
+    {
+        PROF_SCOPED("sort surfs ENT_CAMERA_DECAL");
+        R_SortDrawSurfs(scene.drawSurfs[5], drawSurfCount);
+    }
+    
     drawSurfCount = drawSurfs[2] - scene.drawSurfs[12];
     scene.drawSurfCount[12] = drawSurfCount;
-    //PIXBeginNamedEvent(-1, "sort surfs ENT_CAMERA_EMISSIVE");
-    R_SortDrawSurfs(scene.drawSurfs[12], drawSurfCount);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+
+    {
+        PROF_SCOPED("sort surfs ENT_CAMERA_EMISSIVE");
+        R_SortDrawSurfs(scene.drawSurfs[12], drawSurfCount);
+    }
 }
 
 void __cdecl LaunchDobjLightingJobs(
@@ -684,7 +693,7 @@ void __cdecl FinishDobjLighting(
     GfxSceneEntity *sceneEnt; // [esp+34h] [ebp-Ch]
     unsigned int sceneEntIndex; // [esp+38h] [ebp-8h]
 
-    //PIXBeginNamedEvent(-1, "FinishDobjLighting");
+    PROF_SCOPED("FinishDobjLighting");
     for ( sceneEntIndex = 0; sceneEntIndex < sceneEntCount; ++sceneEntIndex )
     {
         if ( sceneEntVisData[sceneEntIndex] == 1 )
@@ -725,8 +734,6 @@ void __cdecl FinishDobjLighting(
                 isMissileCamera);
         }
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl LaunchModelLightingJobs(
@@ -781,7 +788,8 @@ void __cdecl FinishModelLighting(
     unsigned int sceneEntIndex; // [esp+50h] [ebp-Ch]
     XModel *skyModel; // [esp+58h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "FinishModelLighting");
+    PROF_SCOPED("FinishModelLighting");
+
     skyModel = R_MapGetSkyboxModel();
     for ( sceneEntIndex = 0; sceneEntIndex < sceneEntCount; ++sceneEntIndex )
     {
@@ -860,8 +868,6 @@ void __cdecl FinishModelLighting(
             ShodLodInfo(sceneModel->placement.base.origin, sceneModel->info.lod, sceneModel->model->numLods, val, objRad, v11);
         }
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl LaunchDynEntLightingJobs(
@@ -922,9 +928,8 @@ void __cdecl FinishDynEntLighting(
     GfxSceneDynModel *sceneDynModel; // [esp+64h] [ebp-Ch]
     unsigned int sceneEntIndex; // [esp+6Ch] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "FinishDynEntLighting");
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
+    PROF_SCOPED("FinishDynEntLighting");
+
     for ( sceneEntIndex = 0; sceneEntIndex < sceneEntCount; ++sceneEntIndex )
     {
         sceneDynModel = &rgp.world->sceneDynModel[sceneEntIndex];
@@ -1133,10 +1138,11 @@ void __cdecl R_AddAllSceneEntSurfacesRangeSunShadow(unsigned int partitionIndex)
     }
     drawSurfCount = drawSurf - scene.drawSurfs[stage];
     scene.drawSurfCount[stage] = drawSurfCount;
-    //PIXBeginNamedEvent(-1, "sort surfs");
-    R_SortDrawSurfs(scene.drawSurfs[stage], drawSurfCount);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
+    {
+        PROF_SCOPED("sort surfs");
+        R_SortDrawSurfs(scene.drawSurfs[stage], drawSurfCount);
+    }
+    
 }
 
 void __cdecl R_AddAllSceneEntSurfacesSpotShadow(
@@ -1243,10 +1249,11 @@ void __cdecl R_AddAllSceneEntSurfacesSpotShadow(
     }
     drawSurfCount = drawSurf - scene.drawSurfs[stage];
     scene.drawSurfCount[stage] = drawSurfCount;
-    //PIXBeginNamedEvent(-1, "sort surfs");
-    R_SortDrawSurfs(scene.drawSurfs[stage], drawSurfCount);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+
+    {
+        PROF_SCOPED("sort surfs");
+        R_SortDrawSurfs(scene.drawSurfs[stage], drawSurfCount);
+    }
 }
 
 void __cdecl R_AddSceneDObj(unsigned int entnum, unsigned int viewIndex)
@@ -4667,10 +4674,12 @@ void __cdecl R_AddWorldSurfacesDpvs(const GfxViewParms *viewParms, int cameraCel
         __debugbreak();
     }
     rg.debugViewParms = viewParms;
-    //PIXBeginNamedEvent(-1, "R_AddWorldSurfacesPortalWalk");
-    R_AddWorldSurfacesPortalWalk(cameraCellIndex);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+
+    {
+        PROF_SCOPED("R_AddWorldSurfacesPortalWalk");
+        R_AddWorldSurfacesPortalWalk(cameraCellIndex);
+    }
+    
     dpvsView = dpvsGlob.views[scene.dpvs.localClientNum];
     if ( dpvsGlob.farPlaneEnabled )
     {

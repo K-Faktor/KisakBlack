@@ -83,7 +83,8 @@ void __cdecl Demo_SaveInternal(unsigned __int8 *data, int size, bool writeInfoFi
     unsigned int bytesWritten; // [esp+Ch] [ebp-34h]
     msg_t compressedMsg; // [esp+10h] [ebp-30h] BYREF
 
-    //PIXBeginNamedEvent(-16711681, "Demo Recording - Demo_SaveInternal()");
+    PROF_SCOPED("Demo Recording - Demo_SaveInternal()");
+
     memset(demo.memBlock.compressedMsgBuf, 0, sizeof(demo.memBlock.compressedMsgBuf));
     MSG_Init(&compressedMsg, demo.memBlock.compressedMsgBuf, 49152);
     compressedSize = MSG_CompressWithZLib(data, size, demo.memBlock.compressedMsgBuf, 0xC000u);
@@ -101,8 +102,6 @@ void __cdecl Demo_SaveInternal(unsigned __int8 *data, int size, bool writeInfoFi
     Demo_PopulateHeliPatches(&demo.info);
     if ( writeInfoFile )
         Demo_WriteInfoData(demo.demoFileHandle, &demo.info);
-    ////if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl Demo_StartStreaming(int controllerIndex)
@@ -173,12 +172,11 @@ void __cdecl Demo_SaveToStreamBuffer(unsigned __int8 *data, unsigned int dataSiz
     int fillAmount; // [esp+14h] [ebp-10h]
     int diffBefore; // [esp+18h] [ebp-Ch]
 
-    //PIXBeginNamedEvent(-1, "Demo_SaveToStreamBuffer");
+    PROF_SCOPED("Demo_SaveToStreamBuffer");
+
     if ( !s_uploadStreamData.active )
     {
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_18;
+        return;
     }
     if ( (int)(dataSize + s_uploadStreamData.writer) > 393216 )
     {
@@ -221,10 +219,6 @@ void __cdecl Demo_SaveToStreamBuffer(unsigned __int8 *data, unsigned int dataSiz
         s_uploadStreamData.overflow = 1;
         Cbuf_InsertText(0, "demo_stoprecord;");
     }
-    ////if ( g_DXDeviceThread == GetCurrentThreadId() )
-LABEL_18:
-    ;
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl Demo_RecordSentPacket(unsigned int size)
@@ -416,12 +410,10 @@ int __cdecl Demo_SaveCallback(jqBatch *batch)
 {
     demoSaveCmd *cmd; // [esp+14h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "Demo_SaveCmd");
+    PROF_SCOPED("Demo_SaveCmd");
     cmd = (demoSaveCmd *)jqLockData(batch);
     Demo_SaveInternal(cmd->data, cmd->size, cmd->writeInfoFile);
     jqUnlockData(batch);
-    //if (GetCurrentThreadId() == g_DXDeviceThread)
-    //    D3DPERF_EndEvent();
     return 0;
 }
 
@@ -767,7 +759,9 @@ void __cdecl Demo_WriteServerCommands(msg_t *msg)
 
     v9 = 0;
     v6 = 0;
-    //PIXBeginNamedEvent(-16711681, "Demo Recording - Writing Server Commands");
+
+    PROF_SCOPED("Demo Recording - Writing Server Commands");
+
     memset((unsigned __int8 *)dst, 0, sizeof(dst));
     for ( clientNum = 0; clientNum < demo.header.maxClients; ++clientNum )
     {
@@ -843,8 +837,6 @@ void __cdecl Demo_WriteServerCommands(msg_t *msg)
             v2->reliableCommandInfo[v8 & 0x7F].cmd);
         Demo_Printf(4, string);
     }
-    ////if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl Demo_WriteMatchState(msg_t *msg)
@@ -854,7 +846,8 @@ void __cdecl Demo_WriteMatchState(msg_t *msg)
     int bitsStart; // [esp+14h] [ebp-4h]
     int savedregs; // [esp+18h] [ebp+0h] BYREF
 
-    //PIXBeginNamedEvent(-16711681, "Demo Recording - Writing MatchState");
+    PROF_SCOPED("Demo Recording - Writing MatchState");
+
     g_snapInfo.clientNum = g_democlientindex;
     g_snapInfo.client = &svs.clients[g_democlientindex].header;
     MSG_ClearLastReferencedEntity(msg);
@@ -865,8 +858,6 @@ void __cdecl Demo_WriteMatchState(msg_t *msg)
     v1 = va("DEMO: w Type: MatchState Size: %d bytes\n", bitsUsed / 8);
     Demo_Printf(9, v1);
     Demo_RecordProfileData(2, bitsUsed / 8);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl Demo_WritePlayerStates(msg_t *msg)
@@ -881,7 +872,8 @@ void __cdecl Demo_WritePlayerStates(msg_t *msg)
     playerState_s dst; // [esp+18h] [ebp-26B0h] BYREF
     int UsedBitCount; // [esp+26C4h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-16711681, "Demo Recording - Writing PlayerStates");
+    PROF_SCOPED("Demo Recording - Writing PlayerStates");
+
     v7 = Demo_IsInFinalKillcam();
     for ( clientNum = 0; clientNum < demo.header.maxClients; ++clientNum )
     {
@@ -944,8 +936,6 @@ void __cdecl Demo_WritePlayerStates(msg_t *msg)
     }
     g_snapInfo.clientNum = g_democlientindex;
     g_snapInfo.client = &svs.clients[g_democlientindex].header;
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl Demo_WritePacketEntities(msg_t *msg)
@@ -978,7 +968,9 @@ void __cdecl Demo_WritePacketEntities(msg_t *msg)
     value = 0;
     v24 = 0;
     v15 = 0;
-    //PIXBeginNamedEvent(-16711681, "Demo Recording - Writing EntityStates");
+
+    PROF_SCOPED("Demo Recording - Writing EntityStates");
+
     for (i = 0; i < sv.num_entities; ++i)
     {
         v25 = (entityState_s *)((char *)&sv.gentities->s + i * sv.gentitySize);
@@ -1102,8 +1094,6 @@ void __cdecl Demo_WritePacketEntities(msg_t *msg)
     v9 = MSG_GetUsedBitCount(msg);
     Demo_RecordProfileData(4, (v9 - UsedBitCount) / 8);
     demo.prevNumEntities = value;
-    //if (g_DXDeviceThread == GetCurrentThreadId())
-    //    D3DPERF_EndEvent();
 }
 
 void __cdecl Demo_WritePacketClients(msg_t *msg)
@@ -1129,7 +1119,9 @@ void __cdecl Demo_WritePacketClients(msg_t *msg)
     numClients = 0;
     oldIndex = 0;
     newIndex = 0;
-    //PIXBeginNamedEvent(-16711681, "Demo Recording - Writing ClientStates");
+    
+    PROF_SCOPED("Demo Recording - Writing ClientStates");
+
     for ( i = 0; i < demo.header.maxClients; ++i )
     {
         if ( svs.clients[i].header.state >= CS_ACTIVE )
@@ -1203,8 +1195,6 @@ void __cdecl Demo_WritePacketClients(msg_t *msg)
     v5 = MSG_GetUsedBitCount(msg);
     Demo_RecordProfileData(5, (v5 - initBitsUsed) / 8);
     demo.prevNumClients = numClients;
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl Demo_PopulateStaticInfoData(demoMetaInfo *info)

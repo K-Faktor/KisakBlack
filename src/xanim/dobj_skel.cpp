@@ -43,7 +43,8 @@ void __cdecl DObjCalcSkel(DObj *obj, int *partBits)
     const int *savedDuplicatePartBits; // [esp+BCh] [ebp-4h]
     int savedregs; // [esp+C0h] [ebp+0h] BYREF
 
-    //PIXBeginNamedEvent(-1, "DObjCalcSkel");
+    PROF_SCOPED("DObjCalcSkel");
+
     if ( !obj && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\xanim\\dobj_skel.cpp", 530, 0, "%s", "obj") )
         __debugbreak();
     skel = &obj->skel;
@@ -61,8 +62,7 @@ void __cdecl DObjCalcSkel(DObj *obj, int *partBits)
     }
     if ( bFinished )
     {
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
+        return;
     }
     else
     {
@@ -145,8 +145,6 @@ void __cdecl DObjCalcSkel(DObj *obj, int *partBits)
                 }
             }
         }
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
     }
 }
 

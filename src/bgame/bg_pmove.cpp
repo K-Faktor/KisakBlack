@@ -1594,17 +1594,17 @@ void __cdecl Pmove_1(pmove_t *pm)
     int finalTime; // [esp+20h] [ebp-Ch]
     playerState_s *ps; // [esp+28h] [ebp-4h]
 
-    Name = va("Pmove %d", pm->ps->clientNum);
-    //PIXBeginNamedEvent(-1, Name);
+    //Name = va("Pmove %d", pm->ps->clientNum);
+    PROF_SCOPED("Pmove"); 
+    ZoneTextF("clientnum: %d", pm->ps->clientNum);
+
     ps = pm->ps;
     if ( !pm->ps && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\bgame\\bg_pmove.cpp", 6753, 0, "%s", "ps") )
         __debugbreak();
     finalTime = pm->cmd.serverTime;
     if ( finalTime < ps->commandTime )
     {
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_15;
+        return;
     }
     if ( finalTime > ps->commandTime + 1000 )
         ps->commandTime = finalTime - 1000;
@@ -1619,10 +1619,6 @@ void __cdecl Pmove_1(pmove_t *pm)
         PmoveSingle(pm);
         memcpy(&pm->oldcmd, &pm->cmd, sizeof(pm->oldcmd));
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-LABEL_15:
-    ;
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl PmoveSingle(pmove_t *pm)
@@ -2064,29 +2060,31 @@ LABEL_151:
                     PM_CheckLadderMove(pm, &pml);
                     PM_CheckMeleeCharge(pm, &pml);
                     Dtp_CheckForEnd(pm);
-                    //PIXBeginNamedEvent(0, "PM_Move");
-                    if ( (ps->pm_flags & 8) != 0 )
+
                     {
-                        PM_LadderMove(pm, &pml);
-                    }
-                    else if ( (ps->pm_flags & 0x20000) != 0 )
-                    {
-                        PM_MeleeChargeMove(pm, &pml);
-                    }
-                    else if ( ps->waterlevel < 3 )
-                    {
-                        if ( pml.walking )
-                            PM_WalkMove(pm, &pml);
+                        PROF_SCOPED("PM_Move");
+                        if ((ps->pm_flags & 8) != 0)
+                        {
+                            PM_LadderMove(pm, &pml);
+                        }
+                        else if ((ps->pm_flags & 0x20000) != 0)
+                        {
+                            PM_MeleeChargeMove(pm, &pml);
+                        }
+                        else if (ps->waterlevel < 3)
+                        {
+                            if (pml.walking)
+                                PM_WalkMove(pm, &pml);
+                            else
+                                PM_AirMove(pm, &pml);
+                        }
                         else
-                            PM_AirMove(pm, &pml);
+                        {
+                            PM_SwimMove(pm, &pml);
+                        }
+                        PM_UpdatePush(pm, &pml);
                     }
-                    else
-                    {
-                        PM_SwimMove(pm, &pml);
-                    }
-                    PM_UpdatePush(pm, &pml);
-                    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                        //D3DPERF_EndEvent();
+
                     PM_GroundTrace(pm, &pml);
                     PM_Footsteps(pm, &pml);
                     PM_Weapon(pm, &pml);

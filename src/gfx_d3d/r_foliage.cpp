@@ -746,7 +746,9 @@ int __cdecl dyn_smodel_drawstateCallback(jqBatch *batch)
     DynSModelDrawStateCmd *cmd; // [esp+14h] [ebp-4h]
 
     cmd = (DynSModelDrawStateCmd *)jqLockData(batch);
-    //PIXBeginNamedEvent(-1, "dyn_smodel_drawstate");
+
+    PROF_SCOPED("dyn_smodel_drawstate");
+
     R_CalcVisDynSModelDrawState(
         cmd->smodelList,
         cmd->listBegin,
@@ -758,8 +760,6 @@ int __cdecl dyn_smodel_drawstateCallback(jqBatch *batch)
         cmd->instantForceIndexOffset,
         cmd->boundsInfo);
     jqUnlockData(batch);
-    //if (GetCurrentThreadId() == g_DXDeviceThread)
-    //    D3DPERF_EndEvent();
     return 0;
 }
 
@@ -892,11 +892,9 @@ void __cdecl R_CalcVisDynSModelDrawState(
 
 void __cdecl R_DynSModelWaitWorker()
 {
-    //PIXBeginNamedEvent(-1, "R_DynSModelWaitWorker");
+    PROF_SCOPED("R_DynSModelWaitWorker");
     Sys_AssistAndWaitWorkerCmdInternal(&dyn_smodel_drawstateWorkerCmd);
     g_drawStateWorkerSharedBuffer.inUse = 0;
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl R_DynSModelBuildClientView(
@@ -945,7 +943,8 @@ void __cdecl R_DynSModelBuildClientView(
     float forceFrequency[2]; // [esp+214h] [ebp-Ch]
     PerFrameFoliageInfo *frameInfo; // [esp+21Ch] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "R_DynSModelBuildClientView");
+    PROF_SCOPED("R_DynSModelBuildClientView");
+
     localClientNum = clientVis->localClientNum;
     R_DynSModelWaitWorker();
     if ( g_drawStateWorkerSharedBuffer.inUse
@@ -1184,8 +1183,6 @@ void __cdecl R_DynSModelBuildClientView(
         cmd.boundsInfo = bounds;
         Sys_AddWorkerCmdInternal(&dyn_smodel_drawstateWorkerCmd, (unsigned __int8 *)&cmd, 0);
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl R_FoliageSetStaticModelShaderConstants(

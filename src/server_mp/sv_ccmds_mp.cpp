@@ -65,7 +65,8 @@ void __cdecl SV_MapRestart(int fast_restart)
     int savepersist; // [esp+28h] [ebp-50h]
     char mapname[68]; // [esp+30h] [ebp-48h] BYREF
 
-    //PIXBeginNamedEvent(-1, "SV_MapRestart");
+    PROF_SCOPED("SV_MapRestart");
+
     Com_SyncThreads();
     track_hunk_ClearToStart();
     if ( com_sv_running->current.enabled )
@@ -105,16 +106,10 @@ void __cdecl SV_MapRestart(int fast_restart)
             sv.restarting = 1;
             SV_RestartGameProgs(savepersist);
         }
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            goto LABEL_3;
     }
     else
     {
         Com_Printf(0, "Server is not running.\n");
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-    LABEL_3:
-        ;
-            //D3DPERF_EndEvent();
     }
 }
 

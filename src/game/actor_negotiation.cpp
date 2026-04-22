@@ -26,7 +26,8 @@ actor_think_result_t __fastcall Actor_Negotiation_Think(actor_s *pSelf)
     const char *v3; // eax
     ai_animmode_t eAnimMode; // [esp+34h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "negotiationthink");
+    PROF_SCOPED("negotiationthink");
+
     eAnimMode = AI_ANIM_USE_BOTH_DELTAS_NOGRAVITY;
     if ( pSelf->eTraverseMode == AI_TRAVERSE_GRAVITY )
     {
@@ -63,8 +64,6 @@ actor_think_result_t __fastcall Actor_Negotiation_Think(actor_s *pSelf)
         Actor_PreThink(pSelf);
         Actor_UpdateOriginAndAngles(pSelf);
         BG_Dog_UpdateAnimationState(-1, &pSelf->ent->s, &level_bgs.actorinfo[pSelf - level.actors]);
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
         return ACTOR_THINK_DONE;
     }
     else
@@ -105,8 +104,6 @@ actor_think_result_t __fastcall Actor_Negotiation_Think(actor_s *pSelf)
         YawVectors2D(pSelf->fDesiredBodyYaw, pSelf->prevMoveDir, 0);
         Actor_RecalcPath(pSelf);
         Actor_PopState(pSelf);
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
         return ACTOR_THINK_REPEAT;
     }
 }

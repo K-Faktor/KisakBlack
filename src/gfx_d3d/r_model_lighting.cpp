@@ -530,7 +530,8 @@ void __cdecl R_CalcModelLighting(
     unsigned __int16 dest; // [esp+Ch] [ebp-8h]
     unsigned __int8 lightingAtPoint; // [esp+13h] [ebp-1h]
 
-    //PIXBeginNamedEvent(-1, "model lighting");
+    PROF_SCOPED("model lighting");
+
     dest = truncate_cast<unsigned short>(entryIndex);
     if ( nonSunPrimaryLightIndex >= rgp.world->primaryLightCount
         && !Assert_MyHandler(
@@ -553,8 +554,6 @@ void __cdecl R_CalcModelLighting(
     *primaryLightIndex1 = lightingAtPoint;
     if ( primaryLightIndex2 )
         *primaryLightIndex2 = lightingAtPoint;
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl R_BeginAllStaticModelLighting()
@@ -593,12 +592,10 @@ void __cdecl R_SetAllStaticModelLighting()
     unsigned int indexLow; // [esp+20h] [ebp-10h]
     unsigned int wordIndex; // [esp+28h] [ebp-8h]
 
-    //PIXBeginNamedEvent(-1, "R_SetAllStaticModelLighting");
+    PROF_SCOPED("R_SetAllStaticModelLighting");
     if ( !smodelLightGlob.local.anyNewLighting )
     {
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_20;
+        return;
     }
     smodelLightGlob.local.anyNewLighting = 0;
     wordCount = (rgp.world->dpvs.smodelCount + 31) >> 5;
@@ -642,10 +639,6 @@ void __cdecl R_SetAllStaticModelLighting()
             }
         }
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-LABEL_20:
-    ;
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl R_SetStaticModelLighting(unsigned int smodelIndex)

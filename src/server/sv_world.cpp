@@ -492,23 +492,15 @@ void __cdecl SV_TracePointToEntity(const pointtrace_t *clip, svEntity_s *check, 
     obj = SV_LocationalTraceDObj(clip, touch);
     if ( !obj )
     {
-        //PIXBeginNamedEvent(-1, "SV_TracePointToEntity 2");
+        PROF_SCOPED("SV_TracePointToEntity 2");
         if ( touch->r.bmodel || touch->s.eType != 6 )
         {
             if ( (check->linkcontents & clip->contentmask) == 0 )
             {
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
-                goto LABEL_79;
+                return;
             }
             if ( !intersect_extents_aabb(&clip->extents, touch->r.absmin, touch->r.absmax, trace->fraction) )
             {
-                //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                {
-LABEL_79:
-                    //D3DPERF_EndEvent();
-                    return;
-                }
                 return;
             }
             clipHandle = SV_ClipHandleForEntity(touch);
@@ -528,9 +520,7 @@ LABEL_79:
                 angles);
             if ( trace->fraction >= oldFraction )
             {
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
-                goto LABEL_79;
+                return;
             }
             trace->modelIndex = 0;
             trace->partName = 0;
@@ -561,18 +551,14 @@ LABEL_79:
             trace->hitId = number;
             trace->cflags = touch->r.contents;
         }
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_79;
+        return;
     }
-    //PIXBeginNamedEvent(-1, "SV_TracePointToEntity 1");
+    PROF_SCOPED("SV_TracePointToEntity 1");
     if ( (touch->r.svFlags & 4) != 0 )
     {
         if ( !DObjHasContents(obj, clip->contentmask) )
         {
-            //if ( g_DXDeviceThread != GetCurrentThreadId() )
-            //    return;
-            goto LABEL_79;
+            return;
         }
         absmin[0] = touch->r.absmin[0];
         absmin[1] = touch->r.absmin[1];
@@ -611,8 +597,6 @@ LABEL_79:
     }
     if ( !intersect_extents_aabb(&clip->extents, absmin, absmax, trace->fraction) )
     {
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
         return;
     }
     AnglesToAxis(touch->r.currentAngles, entAxis);
@@ -635,10 +619,6 @@ LABEL_79:
         SV_XModelDebugBoxes(touch, colorWhite, partBits, 50);
     if ( objTrace.fraction >= trace->fraction )
     {
-        //if ( GetCurrentThreadId() != g_DXDeviceThread )
-        //    return;
-LABEL_40:
-        //D3DPERF_EndEvent();
         return;
     }
     if ( (objTrace.fraction >= 1.0 || objTrace.fraction < 0.0)
@@ -692,8 +672,6 @@ LABEL_40:
     trace->hitType = TRACE_HITTYPE_ENTITY;
     trace->hitId = v5;
     trace->cflags = touch->r.contents;
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        goto LABEL_40;
 }
 
 DObj *__cdecl SV_LocationalTraceDObj(const pointtrace_t *clip, const gentity_s *touch)
@@ -1002,7 +980,7 @@ void __cdecl SV_TracePoint(trace_t *results, const float *start, const float *en
     int v6; // [esp+4h] [ebp-9Ch]
     pointtrace_t clip; // [esp+58h] [ebp-48h] BYREF
 
-    //PIXBeginNamedEvent(-1, "SV_TracePoint");
+    PROF_SCOPED("SV_TracePoint");
 
     nanassertvec3(start);
     nanassertvec3(end);
@@ -1050,8 +1028,6 @@ void __cdecl SV_TracePoint(trace_t *results, const float *start, const float *en
     }
     if ( results->fraction == 0.0 )
     {
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
         return;
     }
     //TraceExtents::TraceExtents(&clip.extents);
@@ -1070,9 +1046,7 @@ void __cdecl SV_TracePoint(trace_t *results, const float *start, const float *en
         }
         if ( results->fraction == 0.0 )
         {
-            //if ( g_DXDeviceThread != GetCurrentThreadId() )
-            //    return;
-            goto LABEL_43;
+            return;
         }
     }
     clip.contentmask = context->mask;
@@ -1126,10 +1100,6 @@ void __cdecl SV_TracePoint(trace_t *results, const float *start, const float *en
     CM_PointTraceToEntities(&clip, results, context);
     DynEntSv_PointTrace(&clip, results);
     GlassSv_PointTrace(&clip, results);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-LABEL_43:
-    ;
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl SV_TraceCapsule(
@@ -1146,7 +1116,8 @@ void __cdecl SV_TraceCapsule(
     moveclip_t clip; // [esp+64h] [ebp-78h] BYREF
     float delta[3]; // [esp+D0h] [ebp-Ch]
 
-    //PIXBeginNamedEvent(-1, "SV_TraceCapsule");
+    PROF_SCOPED("SV_TraceCapsule");
+
     if ( !mins && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\server\\sv_world.cpp", 885, 0, "%s", "mins") )
         __debugbreak();
     if ( !maxs && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\server\\sv_world.cpp", 885, 0, "%s", "maxs") )
@@ -1216,8 +1187,7 @@ void __cdecl SV_TraceCapsule(
     }
     if ( results->fraction == 0.0 )
     {
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
+        return;
     }
     else
     {
@@ -1290,8 +1260,6 @@ void __cdecl SV_TraceCapsule(
         CM_ClipMoveToEntities(&clip, results);
         DynEntSv_ClipMoveTrace(&clip, results);
         GlassSv_ClipMoveTrace(&clip, results);
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
     }
 }
 
@@ -1307,7 +1275,8 @@ bool __cdecl SV_SightTraceCapsule(
     sightclip_t clip; // [esp+48h] [ebp-58h] BYREF
     float delta[3]; // [esp+94h] [ebp-Ch]
 
-    //PIXBeginNamedEvent(-1, "SV_SightTrace");
+    PROF_SCOPED("SV_SightTrace");
+
     if ( !mins && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\server\\sv_world.cpp", 941, 0, "%s", "mins") )
         __debugbreak();
     if ( !maxs && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\server\\sv_world.cpp", 941, 0, "%s", "maxs") )
@@ -1335,8 +1304,6 @@ bool __cdecl SV_SightTraceCapsule(
     *hitNum = CM_BoxSightTrace(*hitNum, start, end, mins, maxs, 0, context->mask);
     if ( *hitNum )
     {
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
         return 0;
     }
     else
@@ -1383,8 +1350,6 @@ bool __cdecl SV_SightTraceCapsule(
         clip.end[2] = end[2] + delta[2];
         *hitNum = CM_ClipSightTraceToEntities(&clip);
         v7 = *hitNum == 0;
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
         return v7;
     }
 }
@@ -1394,7 +1359,7 @@ bool __cdecl SV_SightTracePoint(int *hitNum, const float *start, const float *en
     bool v5; // [esp+30h] [ebp-3Ch]
     sightpointtrace_t clip; // [esp+3Ch] [ebp-30h] BYREF
 
-    //PIXBeginNamedEvent(-1, "SV_SightTracePoint");
+    PROF_SCOPED("SV_SightTracePoint");
 
     nanassertvec3(start);
     nanassertvec3(end);
@@ -1402,8 +1367,6 @@ bool __cdecl SV_SightTracePoint(int *hitNum, const float *start, const float *en
     *hitNum = CM_SightTracePoint(*hitNum, start, end, context);
     if ( *hitNum )
     {
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
         return 0;
     }
     else if ( !context->staticmodels || CM_PointTraceStaticModelsComplete(start, end, context->mask) )
@@ -1421,14 +1384,10 @@ bool __cdecl SV_SightTracePoint(int *hitNum, const float *start, const float *en
         clip.priorityMap = context->priorityMap;
         *hitNum = CM_PointSightTraceToEntities(&clip);
         v5 = *hitNum == 0;
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
         return v5;
     }
     else
     {
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
         return 0;
     }
 }
@@ -1470,13 +1429,12 @@ void __cdecl G_TraceCapsule(
 {
     IgnoreEntParams ignoreEntParams; // [esp+8h] [ebp-10h] BYREF
 
-    //PIXBeginNamedEvent(-1, "G_TraceCapsule");
+    PROF_SCOPED("G_TraceCapsule");
+
     SV_SetupIgnoreEntParams(&ignoreEntParams, passEntityNum);
     context->ignoreEntParams = &ignoreEntParams;
     context->mask = contentmask;
     SV_TraceCapsule(results, start, mins, maxs, end, context);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl G_LocationalTrace(

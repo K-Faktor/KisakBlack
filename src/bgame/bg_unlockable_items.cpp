@@ -2403,7 +2403,8 @@ int __cdecl BG_UnlockablesGetItemIndexFromName(const char *itemName)
     int itemIndex; // [esp+24h] [ebp-Ch]
     int searchHash; // [esp+28h] [ebp-8h]
 
-    //PIXBeginNamedEvent(-1, "BG_UnlockablesGetItemIndexFromName");
+    PROF_SCOPED("BG_UnlockablesGetItemIndexFromName");
+
     if ( !s_unlockableItems.maxItem
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\bgame\\bg_unlockable_items.cpp",
@@ -2428,8 +2429,6 @@ int __cdecl BG_UnlockablesGetItemIndexFromName(const char *itemName)
             && !I_stricmp(s_unlockableItems.itemTable[lastItem].name, itemName) )
         {
             v2 = lastItem;
-            //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                //D3DPERF_EndEvent();
             return v2;
         }
         for ( itemIndex = 0; itemIndex <= s_unlockableItems.maxItem; ++itemIndex )
@@ -2451,15 +2450,11 @@ int __cdecl BG_UnlockablesGetItemIndexFromName(const char *itemName)
                     && !I_stricmp(s_unlockableItems.itemTable[itemIndex].name, itemName) )
                 {
                     lastItem = itemIndex;
-                    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                        //D3DPERF_EndEvent();
                     return itemIndex;
                 }
             }
         }
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
     return -1;
 }
 

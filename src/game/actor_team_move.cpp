@@ -58,7 +58,8 @@ void __cdecl Actor_MoveAlongPathWithTeam(actor_s *self, bool bRun, bool bUseInte
     ai_teammove_t eTeamMove; // [esp+2Ch] [ebp-8h]
     bool wasMoving; // [esp+33h] [ebp-1h]
 
-    //PIXBeginNamedEvent(-1, "movealongpath");
+    PROF_SCOPED("movealongpath");
+
     if ( !Actor_HasPath(self)
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_team_move.cpp",
@@ -106,26 +107,19 @@ LABEL_18:
                 self->ent->flags &= 0xE7FFFFFF;
                 self->Path.iPathEndTime = 0;
             }
-            //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                goto LABEL_33;
             return;
         case AI_TEAMMOVE_WAIT:
             Actor_AnimStop(self, &g_animScriptTable[self->species]->stop);
             self->arrivalInfo.animscriptOverrideRunTo = 0;
-            //if ( g_DXDeviceThread != GetCurrentThreadId() )
-            //    return;
-            goto LABEL_33;
+            return;
         case AI_TEAMMOVE_SLOW_DOWN:
             bRun = 0;
             goto LABEL_18;
     }
+
     v4 = va("unhandled case %i for Actor_MoveAlongPathWithTeam", eTeamMove);
     if ( !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_team_move.cpp", 1015, 0, v4) )
         __debugbreak();
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-LABEL_33:
-        //D3DPERF_EndEvent();
-    ;
 }
 
 ai_teammove_t __fastcall Actor_GetTeamMoveStatus(actor_s *self, bool bUseInterval, bool bAllowGoalPileUp)

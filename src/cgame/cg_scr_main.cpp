@@ -1432,13 +1432,12 @@ void CScr_Distance()
     float v0[3]; // [esp+24h] [ebp-1Ch] BYREF
     float v1[3]; // [esp+34h] [ebp-Ch] BYREF
 
-    //PIXBeginNamedEvent(-1, "CScr_Distance");
+    PROF_SCOPED("CScr_Distance");
+
     Scr_GetVector(0, v0, SCRIPTINSTANCE_CLIENT);
     Scr_GetVector(1u, v1, SCRIPTINSTANCE_CLIENT);
     value = Vec3Distance(v0, v1);
     Scr_AddFloat(value, SCRIPTINSTANCE_CLIENT);
-    //if (GetCurrentThreadId() == (_DWORD)g_DXDeviceThread && !dword_A8402BC)
-    //    D3DPERF_EndEvent();
 }
 
 void CScr_Distance2D()
@@ -2002,7 +2001,8 @@ void CScr_SetDvar()
     const char *text; // [esp+444h] [ebp-8h]
     char *pCh; // [esp+448h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "SetDvar");
+    PROF_SCOPED("SetDvar");
+
     dvarName = Scr_GetString(0, SCRIPTINSTANCE_CLIENT);
     text = Scr_GetString(1u, SCRIPTINSTANCE_CLIENT);
     strlen(text);
@@ -2021,10 +2021,6 @@ void CScr_SetDvar()
     {
         error = va("Dvar %s has an invalid dvar name", dvarName);
         Scr_Error(SCRIPTINSTANCE_CLIENT, error, 0);
-        //if (GetCurrentThreadId() != (_DWORD)g_DXDeviceThread || dword_A8402BC)
-        //    return;
-    LABEL_21:
-        //D3DPERF_EndEvent();
         return;
     }
     dvar = Dvar_FindVar(dvarName);
@@ -2037,8 +2033,6 @@ void CScr_SetDvar()
     }
     if (!dvar || (dvar->flags & 0x4000) != 0)
         Dvar_SetFromStringByNameFromSource(dvarName, outString, DVAR_SOURCE_SCRIPT, 0);
-    //if (GetCurrentThreadId() == (_DWORD)g_DXDeviceThread && !dword_A8402BC)
-    //    goto LABEL_21;
 }
 
 void CScr_SetSavedDvar()
@@ -2430,7 +2424,8 @@ void CScr_PlayLoopSound()
     float fadeTimea; // [esp+38h] [ebp-Ch]
     unsigned int entId; // [esp+40h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "CScr_PlayLoopSound");
+    PROF_SCOPED("CScr_PlayLoopSound");
+
     localClientNum = CScr_GetLocalClientNum(0);
     entId = Scr_GetInt(1u, SCRIPTINSTANCE_CLIENT);
     if (localClientNum >= 2
@@ -2494,8 +2489,6 @@ void CScr_PlayLoopSound()
         1.0,
         cent->nextState.loopSoundId);
     Scr_AddInt(value, SCRIPTINSTANCE_CLIENT);
-    //if (GetCurrentThreadId() == (_DWORD)g_DXDeviceThread && !dword_A8402BC)
-    //    D3DPERF_EndEvent();
 }
 
 void CScr_StopLoopSound()
@@ -2506,7 +2499,8 @@ void CScr_StopLoopSound()
     float fadeTime; // [esp+30h] [ebp-Ch]
     unsigned int entId; // [esp+38h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "CScr_StopLoopSound");
+    PROF_SCOPED("CScr_StopLoopSound");
+
     localClientNum = CScr_GetLocalClientNum(0);
     entId = Scr_GetInt(1u, SCRIPTINSTANCE_CLIENT);
     if (localClientNum >= 2
@@ -2565,8 +2559,6 @@ void CScr_StopLoopSound()
         //cent->nextState.loopSoundFade = (int)COERCE_FLOAT(LODWORD(fadeTime) ^ _mask__NegFloat_);
         cent->nextState.loopSoundFade = -fadeTime;
     }
-    //if (GetCurrentThreadId() == (_DWORD)g_DXDeviceThread && !dword_A8402BC)
-    //    D3DPERF_EndEvent();
 }
 
 void __cdecl CScr_PlayLoopSoundOnEntity(scr_entref_t entref)
@@ -2919,29 +2911,22 @@ void CScr_SetSoundVolume()
     int Int; // eax
     float x; // [esp+24h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "setsoundvol");
+    PROF_SCOPED("setsoundvol");
+
     if (Scr_GetNumParam(SCRIPTINSTANCE_CLIENT) != 2)
     {
         Scr_ParamError(0, "setsoundvolume takes two parameters.", SCRIPTINSTANCE_CLIENT);
-        //if (GetCurrentThreadId() != (_DWORD)g_DXDeviceThread || dword_A8402BC)
-        //    return;
-    LABEL_14:
-        //D3DPERF_EndEvent();
         return;
     }
     x = Scr_GetFloat(1u, SCRIPTINSTANCE_CLIENT);
     if ((LODWORD(x) & 0x7F800000) == 0x7F800000)
     {
         Scr_ParamError(0, "setsoundvolume cannot be NAN.", SCRIPTINSTANCE_CLIENT);
-        //if (GetCurrentThreadId() == (_DWORD)g_DXDeviceThread && !dword_A8402BC)
-        //    goto LABEL_14;
     }
     else
     {
         Int = Scr_GetInt(0, SCRIPTINSTANCE_CLIENT);
         SND_SetPlaybackAttenuation(Int, x);
-        //if (GetCurrentThreadId() == (_DWORD)g_DXDeviceThread && !dword_A8402BC)
-        //    goto LABEL_14;
     }
 }
 
@@ -2950,29 +2935,22 @@ void CScr_SetSoundPitch()
     int Int; // eax
     float x; // [esp+24h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "setsoundpitch");
+    PROF_SCOPED("setsoundpitch");
+
     if (Scr_GetNumParam(SCRIPTINSTANCE_CLIENT) != 2)
     {
         Scr_ParamError(0, "setsoundpitch takes two parameters.", SCRIPTINSTANCE_CLIENT);
-        //if (GetCurrentThreadId() != (_DWORD)g_DXDeviceThread || dword_A8402BC)
-        //    return;
-    LABEL_14:
-        //D3DPERF_EndEvent();
         return;
     }
     x = Scr_GetFloat(1u, SCRIPTINSTANCE_CLIENT);
     if ((LODWORD(x) & 0x7F800000) == 0x7F800000)
     {
         Scr_ParamError(0, "setsoundpitch cannot be NAN.", SCRIPTINSTANCE_CLIENT);
-        //if (GetCurrentThreadId() == (_DWORD)g_DXDeviceThread && !dword_A8402BC)
-        //    goto LABEL_14;
     }
     else
     {
         Int = Scr_GetInt(0, SCRIPTINSTANCE_CLIENT);
         SND_SetPlaybackPitch(Int, x);
-        //if (GetCurrentThreadId() == (_DWORD)g_DXDeviceThread && !dword_A8402BC)
-        //    goto LABEL_14;
     }
 }
 
@@ -3703,16 +3681,13 @@ void CScr_Spawn()
     int localClientNum; // [esp+30h] [ebp-8h]
     centity_s *ent; // [esp+34h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "spawn");
+    PROF_SCOPED("spawn");
+
     localClientNum = CScr_GetLocalClientNum(0);
     Scr_GetVector(1u, origin, SCRIPTINSTANCE_CLIENT);
     ent = CG_Spawn(localClientNum);
     if (!ent)
     {
-        //if (GetCurrentThreadId() != (_DWORD)g_DXDeviceThread || dword_A8402BC)
-        //    return;
-    LABEL_13:
-        //D3DPERF_EndEvent();
         return;
     }
     v0 = ent->pose.origin;
@@ -3726,8 +3701,6 @@ void CScr_Spawn()
             CG_InitScriptMover(ent);
     }
     CScr_AddEntity(ent, localClientNum);
-    //if (GetCurrentThreadId() == (_DWORD)g_DXDeviceThread && !dword_A8402BC)
-    //    goto LABEL_13;
 }
 
 void CScr_SpawnPlane()
@@ -4306,7 +4279,8 @@ void __cdecl CScrCmd_IsDriving(scr_entref_t entref)
     const cg_s *cgameGlob; // [esp+2Ch] [ebp-10h]
     VariableUnion localClientNum; // [esp+30h] [ebp-Ch]
 
-    //PIXBeginNamedEvent(-1, "CScrCmd_IsDriving");
+    PROF_SCOPED("CScrCmd_IsDriving");
+
     if ( entref.classnum )
     {
         Scr_Error(SCRIPTINSTANCE_CLIENT, "not an entity", 0);
@@ -4335,16 +4309,11 @@ void __cdecl CScrCmd_IsDriving(scr_entref_t entref)
         localClientNum.intValue = CScr_GetLocalClientNum(0);
         cgameGlob = CG_GetLocalClientGlobals(localClientNum.intValue);
         Scr_AddInt(cgameGlob->bgs.clientinfo[entref.entnum].attachedVehEntNum != 1023, SCRIPTINSTANCE_CLIENT);
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_16;
+
+        return;
     }
     Scr_Error(SCRIPTINSTANCE_CLIENT, "IsDriving not called on a player.", 0);
     Scr_AddInt(0, SCRIPTINSTANCE_CLIENT);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-LABEL_16:
-    ;
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl CScrCmd_IsLocalClientDriver(scr_entref_t entref)
@@ -4353,7 +4322,8 @@ void __cdecl CScrCmd_IsLocalClientDriver(scr_entref_t entref)
     const cg_s *cgameGlob; // [esp+2Ch] [ebp-10h]
     VariableUnion localClientNum; // [esp+30h] [ebp-Ch]
 
-    //PIXBeginNamedEvent(-1, "CScrCmd_IsLocalClientDriver");
+    PROF_SCOPED("CScrCmd_IsLocalClientDriver");
+
     if ( entref.classnum )
     {
         Scr_Error(SCRIPTINSTANCE_CLIENT, "not an entity", 0);
@@ -4387,16 +4357,11 @@ void __cdecl CScrCmd_IsLocalClientDriver(scr_entref_t entref)
         Scr_AddInt(
             cgameGlob->bgs.clientinfo[cgameGlob->clientNum].attachedVehEntNum == pSelf->nextState.number,
             SCRIPTINSTANCE_CLIENT);
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
     }
     else
     {
         Scr_AddInt(0, SCRIPTINSTANCE_CLIENT);
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
     }
-    //D3DPERF_EndEvent();
 }
 
 void __cdecl CScrCmd_GetLocalClientDriver(scr_entref_t entref)
@@ -4405,7 +4370,8 @@ void __cdecl CScrCmd_GetLocalClientDriver(scr_entref_t entref)
     int i; // [esp+20h] [ebp-10h]
     centity_s *pSelf; // [esp+24h] [ebp-Ch]
 
-    //PIXBeginNamedEvent(-1, "CScrCmd_GetLocalClientDriver");
+    PROF_SCOPED("CScrCmd_GetLocalClientDriver");
+
     if ( entref.classnum )
     {
         Scr_Error(SCRIPTINSTANCE_CLIENT, "not an entity", 0);
@@ -4445,17 +4411,10 @@ void __cdecl CScrCmd_GetLocalClientDriver(scr_entref_t entref)
             if ( cgameGlob->bgs.clientinfo[cgameGlob->clientNum].attachedVehEntNum == pSelf->nextState.number )
             {
                 Scr_AddInt(i, SCRIPTINSTANCE_CLIENT);
-                //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                //    return;
-                goto LABEL_27;
+                return;
             }
         }
     }
-    //if ( g_DXDeviceThread != GetCurrentThreadId() )
-    //    return;
-LABEL_27:
-    ;
-    //D3DPERF_EndEvent();
 }
 
 void __cdecl CScrCmd_GetWheelSurface(scr_entref_t entref)
@@ -4465,7 +4424,8 @@ void __cdecl CScrCmd_GetWheelSurface(scr_entref_t entref)
     unsigned int wheelName; // [esp+24h] [ebp-8h]
     int wheel; // [esp+28h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "CScrCmd_GetWheelSurface");
+    PROF_SCOPED("CScrCmd_GetWheelSurface");
+
     if ( entref.classnum )
     {
         Scr_Error(SCRIPTINSTANCE_CLIENT, "not an entity", 0);
@@ -4534,8 +4494,6 @@ void __cdecl CScrCmd_GetWheelSurface(scr_entref_t entref)
     {
         Scr_AddString("none", SCRIPTINSTANCE_CLIENT);
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl CScrCmd_IsWheelSliding(scr_entref_t entref)
@@ -5191,11 +5149,12 @@ unsigned int __cdecl CScr_PlayFXInternal(int localClientNum, int fxId, float *an
     fxDef = CG_GetLocalClientStaticGlobals(localClientNum)->fxs[fxId];
     if ( !fxDef && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\cgame\\cg_scr_main.cpp", 5067, 0, "%s", "fxDef") )
         __debugbreak();
-    //PIXBeginNamedEvent(-1, "CScr_PlayFXInternal");
-    AnglesToAxis(angles, axis);
-    v6 = FX_PlayOrientedEffect(localClientNum, fxDef, time, pos, axis);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+    {
+        PROF_SCOPED("CScr_PlayFXInternal");
+        AnglesToAxis(angles, axis);
+        v6 = FX_PlayOrientedEffect(localClientNum, fxDef, time, pos, axis);
+    }
+    
     return v6;
 }
 
@@ -5603,8 +5562,9 @@ void CScr_BulletTrace()
     pIgnoreEnt = 0;
     iIgnoreEntNum = 1023;
     iClipMask = 0x280E833;
-    memset(&trace, 0, 16);
-    //PIXBeginNamedEvent(-1, "CScr_BulletTrace");
+
+    PROF_SCOPED("CScr_BulletTrace");
+
     Scr_GetVector(0, vStart, SCRIPTINSTANCE_CLIENT);
     Scr_GetVector(1u, vEnd, SCRIPTINSTANCE_CLIENT);
     if ( !Scr_GetInt(2u, SCRIPTINSTANCE_CLIENT) )
@@ -5660,10 +5620,6 @@ void CScr_BulletTrace()
         Scr_AddString(value, SCRIPTINSTANCE_CLIENT);
     }
     Scr_AddArrayStringIndexed(cscr_const.surfacetype, SCRIPTINSTANCE_CLIENT);
-    //result = GetCurrentThreadId();
-    //if ( result == g_DXDeviceThread )
-    //    return //D3DPERF_EndEvent();
-    //return result;
 }
 
 void CScr_TracePoint()
@@ -5677,7 +5633,8 @@ void CScr_TracePoint()
     float p0[3]; // [esp+74h] [ebp-10h] BYREF
     int mask; // [esp+80h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "CScr_TracePoint");
+    PROF_SCOPED("CScr_TracePoint");
+
     Scr_GetVector(0, p0, SCRIPTINSTANCE_CLIENT);
     Scr_GetVector(1u, p1, SCRIPTINSTANCE_CLIENT);
     mask = 0x280E833;
@@ -5707,10 +5664,6 @@ void CScr_TracePoint()
         Scr_AddString(value, SCRIPTINSTANCE_CLIENT);
     }
     Scr_AddArrayStringIndexed(cscr_const.surfacetype, SCRIPTINSTANCE_CLIENT);
-    //result = GetCurrentThreadId();
-    //if ( result == g_DXDeviceThread )
-    //    return //D3DPERF_EndEvent();
-    //return result;
 }
 
 void __cdecl CScr_OpenFile()

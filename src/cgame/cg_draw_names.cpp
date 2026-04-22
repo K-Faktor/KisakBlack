@@ -486,15 +486,14 @@ void __cdecl CG_ScanForCrosshairEntityInternal(int localClientNum)
     bool owner; // [esp+EBh] [ebp-65h]
     float start[3]; // [esp+ECh] [ebp-64h] BYREF
     float end[3]; // [esp+F8h] [ebp-58h] BYREF
-    team_t hitEntTeam; // [esp+104h] [ebp-4Ch]
+    team_t hitEntTeam = TEAM_FREE; // [esp+104h] [ebp-4Ch]
     centity_s *hitEnt; // [esp+108h] [ebp-48h]
     trace_t trace; // [esp+10Ch] [ebp-44h] BYREF
     const WeaponDef *weapDef; // [esp+148h] [ebp-8h]
     unsigned __int16 hitEntId; // [esp+14Ch] [ebp-4h]
 
-    memset(&trace, 0, 16);
-    hitEntTeam = TEAM_FREE;
-    //PIXBeginNamedEvent(-1, "CG_ScanForCrosshairEntity");
+    PROF_SCOPED("CG_ScanForCrosshairEntity");
+
     fadeOutTime = cg_friendlyNameFadeOut->current.integer;
     owner = 0;
     fCheckDist = 8192.0f;
@@ -514,8 +513,6 @@ void __cdecl CG_ScanForCrosshairEntityInternal(int localClientNum)
     {
         if ( CG_Flared(localClientNum) )
         {
-            //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                goto LABEL_6;
             return;
         }
         start[0] = cgameGlob->refdef.vieworg[0];
@@ -561,9 +558,7 @@ void __cdecl CG_ScanForCrosshairEntityInternal(int localClientNum)
             && hitEnt->nextState.eType != 17
             && !CG_CheckIfDrivingRemoteControlVehicle(localClientNum, hitEntId) )
         {
-            //if ( GetCurrentThreadId() != g_DXDeviceThread )
-            //    return;
-            goto LABEL_69;
+            return;
         }
         if ( cgameGlob->nextSnap->ps.clientNum >= 0x20u
             && !Assert_MyHandler(
@@ -601,15 +596,11 @@ void __cdecl CG_ScanForCrosshairEntityInternal(int localClientNum)
             {
                 if ( (hitEnt->nextState.lerp.eFlags & 0x40000) != 0 )
                 {
-                    //if ( GetCurrentThreadId() != g_DXDeviceThread )
-                    //    return;
-                    goto LABEL_69;
+                    return;
                 }
                 if ( (cgameGlob->bgs.clientinfo[hitEntId].perks[1] & 4) != 0 )
                 {
-                    //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                    //    return;
-                    goto LABEL_69;
+                    return;
                 }
                 diff[0] = hitEnt->pose.origin[0] - start[0];
                 diff[1] = hitEnt->pose.origin[1] - start[1];
@@ -622,15 +613,11 @@ void __cdecl CG_ScanForCrosshairEntityInternal(int localClientNum)
                     enemyCrosshairRange = weapDef->enemyCrosshairRange;
                 if ( (float)((float)((float)(diff[0] * diff[0]) + (float)(diff[1] * diff[1])) + (float)(diff[2] * diff[2])) > (float)(enemyCrosshairRange * enemyCrosshairRange) )
                 {
-                    //if ( GetCurrentThreadId() != g_DXDeviceThread )
-                    //    return;
-                    goto LABEL_69;
+                    return;
                 }
                 if ( !FX_ClientVisibilityTest(localClientNum, start, contactEnd) )
                 {
-                    //if ( g_DXDeviceThread != GetCurrentThreadId() )
-                    //    return;
-                    goto LABEL_69;
+                    return;
                 }
                 cgameGlob->predictedPlayerState.weapFlags |= 0x10u;
                 fadeOutTime = cg_enemyNameFadeOut->current.integer;
@@ -645,21 +632,9 @@ void __cdecl CG_ScanForCrosshairEntityInternal(int localClientNum)
                 cgameGlob->crosshairClientStartTime = cgameGlob->time;
             }
             cgameGlob->crosshairClientLastTime = cgameGlob->time;
-            //if ( GetCurrentThreadId() != g_DXDeviceThread )
-            //    return;
         }
-        //else if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //{
-        //    return;
-        //}
-LABEL_69:
-        //D3DPERF_EndEvent();
         return;
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-LABEL_6:
-    ;
-        //D3DPERF_EndEvent();
 }
 
 bool __cdecl CG_CheckIfDrivingRemoteControlVehicle(int localClientNum, unsigned __int16 EntId)

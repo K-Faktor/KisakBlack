@@ -1686,73 +1686,78 @@ void __cdecl FX_DrawSpriteElems(FxSystem *system, int drawTime, const FxReflectP
     system->sprite.material = 0;
     numTrailEffects = 0;
     FX_BeginIteratingOverEffects_Cooperative(system);
-    //PIXBeginNamedEvent((int)&cls.rankedServers[537].city[61], "firstActiveEffect");
-    for ( activeIndex = system->shared->firstActiveEffect; activeIndex != system->shared->firstNewEffect; ++activeIndex )
+
     {
-        effectHandle = system->shared->allEffectHandles[activeIndex & 0x3FF];
-        effect = FX_EffectFromHandle(system, effectHandle);
-        FX_DrawSpriteEffect(system, &effect->effect, drawTime, reflect);
-        FX_DrawNonSpriteEffect(system, &effect->effect, 2u, drawTime, reflect, cameraType);
-        if ( effect->effect.firstTrailHandle != 0xFFFF )
-            trailEffects[numTrailEffects++] = effectHandle;
-    }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent((int)&cls.rankedServers[537].city[61], "numTrailEffects");
-    if ( numTrailEffects > 0 )
-    {
-        for ( i = 0; i < numTrailEffects; ++i )
+        PROF_SCOPED("firstActiveEffect");
+
+        for (activeIndex = system->shared->firstActiveEffect; activeIndex != system->shared->firstNewEffect; ++activeIndex)
         {
-            effecta = FX_EffectFromHandle(system, trailEffects[i]);
-            FX_DrawTrailsForEffect(system, &effecta->effect, drawTime, reflect);
+            effectHandle = system->shared->allEffectHandles[activeIndex & 0x3FF];
+            effect = FX_EffectFromHandle(system, effectHandle);
+            FX_DrawSpriteEffect(system, &effect->effect, drawTime, reflect);
+            FX_DrawNonSpriteEffect(system, &effect->effect, 2u, drawTime, reflect, cameraType);
+            if (effect->effect.firstTrailHandle != 0xFFFF)
+                trailEffects[numTrailEffects++] = effectHandle;
         }
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+    
+    {
+        PROF_SCOPED("numTrailEffects");
+        if (numTrailEffects > 0)
+        {
+            for (i = 0; i < numTrailEffects; ++i)
+            {
+                effecta = FX_EffectFromHandle(system, trailEffects[i]);
+                FX_DrawTrailsForEffect(system, &effecta->effect, drawTime, reflect);
+            }
+        }
+    }
+
     if ( !_InterlockedDecrement(&system->shared->iteratorCount) )
         FX_RunGarbageCollectionAndPrioritySort(system);
-    //PIXBeginNamedEvent((int)&cls.rankedServers[537].city[61], "R_AddCodeMeshDrawSurf");
-    if ( system->sprite.indexCount )
+
     {
-        if ( !system->sprite.name
-            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\EffectsCore\\fx_draw.cpp", 2216, 0, "%s", "sprite->name") )
+        PROF_SCOPED("R_AddCodeMeshDrawSurf");
+        if (system->sprite.indexCount)
         {
-            __debugbreak();
+            if (!system->sprite.name
+                && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\EffectsCore\\fx_draw.cpp", 2216, 0, "%s", "sprite->name"))
+            {
+                __debugbreak();
+            }
+            if (!system->sprite.material
+                && !Assert_MyHandler(
+                    "C:\\projects_pc\\cod\\codsrc\\src\\EffectsCore\\fx_draw.cpp",
+                    2217,
+                    0,
+                    "%s",
+                    "sprite->material"))
+            {
+                __debugbreak();
+            }
+            if (!sprite->indices
+                && !Assert_MyHandler(
+                    "C:\\projects_pc\\cod\\codsrc\\src\\EffectsCore\\fx_draw.cpp",
+                    2218,
+                    0,
+                    "%s",
+                    "sprite->indices"))
+            {
+                __debugbreak();
+            }
+            region = FX_RegionForReflect(reflect);
+            R_AddCodeMeshDrawSurf(
+                system->sprite.material,
+                system->sprite.indices,
+                system->sprite.indexCount,
+                0,
+                0,
+                system->sprite.name,
+                region);
+            system->sprite.indexCount = 0;
+            sprite->indices = 0;
         }
-        if ( !system->sprite.material
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\EffectsCore\\fx_draw.cpp",
-                        2217,
-                        0,
-                        "%s",
-                        "sprite->material") )
-        {
-            __debugbreak();
-        }
-        if ( !sprite->indices
-            && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\EffectsCore\\fx_draw.cpp",
-                        2218,
-                        0,
-                        "%s",
-                        "sprite->indices") )
-        {
-            __debugbreak();
-        }
-        region = FX_RegionForReflect(reflect);
-        R_AddCodeMeshDrawSurf(
-            system->sprite.material,
-            system->sprite.indices,
-            system->sprite.indexCount,
-            0,
-            0,
-            system->sprite.name,
-            region);
-        system->sprite.indexCount = 0;
-        sprite->indices = 0;
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl FX_DrawTrailsForEffect(FxSystem *system, FxEffect *effect, int drawTime, const FxReflectParams *reflect)
@@ -2259,48 +2264,54 @@ void __cdecl FX_GenerateVerts(FxGenerateVertsCmd *cmd)
     FxReflectParams reflect; // [esp+54h] [ebp-10h] BYREF
     FxSystem *localSystem; // [esp+60h] [ebp-4h]
 
-    v1 = va("FX_GenerateVerts(cl=%d)", cmd->localClientNum);
-    //PIXBeginNamedEvent(-1, v1);
+    //v1 = va("FX_GenerateVerts(cl=%d)", cmd->localClientNum);
+    PROF_SCOPED("FX_GenerateVerts");
+    ZoneTextF("(cl=%d)", cmd->localClientNum);
+
     localSystem = cmd->system;
     R_BeginCodeMeshVerts();
     drawTime = localSystem->msecDraw;
     if ( drawTime >= 0 )
     {
-        //PIXBeginNamedEvent((int)&cls.rankedServers[537].city[61], "FX_SpriteGenerateVerts");
-        FX_SpriteGenerateVerts(cmd);
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
-        //PIXBeginNamedEvent((int)&cls.rankedServers[537].city[61], "FX_Beam_GenerateVerts");
-        FX_Beam_GenerateVerts(cmd);
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
-        //PIXBeginNamedEvent((int)&cls.rankedServers[537].city[61], "FX_PostLight_GenerateVerts");
-        FX_PostLight_GenerateVerts(cmd->postLightInfo, localSystem);
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
-        //PIXBeginNamedEvent((int)&cls.rankedServers[537].city[61], "Glass_GenerateVerts");
-        GlassCl_GenerateVerts(cmd->localClientNum, 0);
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
+        {
+            PROF_SCOPED("FX_SpriteGenerateVerts");
+            FX_SpriteGenerateVerts(cmd);
+        }
+        
+        {
+            PROF_SCOPED("FX_Beam_GenerateVerts");
+            FX_Beam_GenerateVerts(cmd);
+        }
+        {
+            PROF_SCOPED("FX_PostLight_GenerateVerts");
+            FX_PostLight_GenerateVerts(cmd->postLightInfo, localSystem);
+        }
+        {
+            PROF_SCOPED("Glass_GenerateVerts");
+            GlassCl_GenerateVerts(cmd->localClientNum, 0);
+        }
+        
         FX_GetNullReflection(&reflect);
-        //PIXBeginNamedEvent((int)&cls.rankedServers[537].city[61], "FX_DrawSpriteElems");
-        if ( fx_enable->current.enabled && fx_draw->current.enabled )
-            FX_DrawSpriteElems(localSystem, drawTime, &reflect, cmd->genVertsCameraType);
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
-        //PIXBeginNamedEvent((int)&cls.rankedServers[537].city[61], "FX_GetReflection");
-        FX_GetReflection(cmd->useReflection, cmd->reflectionHeight, &reflect);
-        if ( reflect.enabled && fx_enable->current.enabled && fx_draw->current.enabled )
-            FX_DrawSpriteElems(localSystem, drawTime, &reflect, cmd->genVertsCameraType);
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
+
+        {
+            PROF_SCOPED("FX_DrawSpriteElems");
+            if (fx_enable->current.enabled && fx_draw->current.enabled)
+                FX_DrawSpriteElems(localSystem, drawTime, &reflect, cmd->genVertsCameraType);
+        }
+        
+        {
+            PROF_SCOPED("FX_GetReflection");
+            FX_GetReflection(cmd->useReflection, cmd->reflectionHeight, &reflect);
+            if (reflect.enabled && fx_enable->current.enabled && fx_draw->current.enabled)
+                FX_DrawSpriteElems(localSystem, drawTime, &reflect, cmd->genVertsCameraType);
+        }
+        
         R_EndCodeMeshVerts();
-        //PIXBeginNamedEvent((int)&cls.rankedServers[537].city[61], "FX_ToggleVisBlockerFrame");
-        FX_ToggleVisBlockerFrame(localSystem);
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
+
+        {
+            PROF_SCOPED("FX_ToggleVisBlockerFrame");
+            FX_ToggleVisBlockerFrame(localSystem);
+        }
     }
     else
     {

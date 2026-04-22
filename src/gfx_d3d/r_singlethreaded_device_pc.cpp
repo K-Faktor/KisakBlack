@@ -5,12 +5,15 @@
 #include <win32/win_common.h>
 #include <win32/win_net.h>
 #include <universal/assertive.h>
+#include <universal/profile.h>
 
 int g_AcquisitionCount;
 unsigned __int64 g_DXDeviceThread;
 
 int __cdecl R_AcquireDXDeviceOwnership(void (__cdecl *pumpfunc)())
 {
+    PROF_SCOPED("R_AcquireDXDeviceOwnership");
+
     unsigned __int64 current_thread; // [esp+0h] [ebp-8h]
 
     current_thread = GetCurrentThreadId();

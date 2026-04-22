@@ -34,11 +34,9 @@ int __cdecl nuge_physicsCallback(jqBatch *batch)
 
     realbatch = (jqBatch *)jqLockData(batch);
     Name = va("nuge_physics: %s", realbatch->Module->Name);
-    //PIXBeginNamedEvent(-1, Name);
+    PROF_SCOPED_RUNTIME_NAME(Name);
     realbatch->Module->Code(realbatch);
     jqUnlockData(batch);
-    //if (GetCurrentThreadId() == g_DXDeviceThread)
-    //    D3DPERF_EndEvent();
     return 0;
 }
 

@@ -2054,7 +2054,8 @@ int __thiscall GlassShard::Shatter(const GlassShard **newShards, int maxNewShard
     unsigned __int64 *timer_8; // [esp+BCh] [ebp-10h]
     int maxSplitTries; // [esp+C8h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "GlassShard.Shatter");
+    PROF_SCOPED("GlassShard.Shatter");
+
     timer_8 = &clGlasses->renderer->shatterTimer;
     timer = tlPcGetTick();
     ++clGlasses->renderer->numShatters;
@@ -2091,29 +2092,31 @@ int __thiscall GlassShard::Shatter(const GlassShard **newShards, int maxNewShard
     GlassShard::splitFailCount[5] = 0;
     GlassShard::splitFailCount[6] = 0;
     GlassShard::splitFailCount[7] = 0;
-    //PIXBeginNamedEvent(0, "Split");
-    //while ( numNewShards < v5 && GlassShard::CanSplit(*newShards, maxShardSize, minShardSize) && maxSplitTries > 0 )
-    while ( numNewShards < v5 && (*newShards)->CanSplit(maxShardSize, minShardSize) && maxSplitTries > 0 )
+
     {
-        ns = 0;
-        //for ( i = 0; i < numNewShards && !ns && GlassShard::CanSplit(newShards[i], maxShardSize, minShardSize); ++i )
-        for ( int i = 0; i < numNewShards && !ns && newShards[i]->CanSplit(maxShardSize, minShardSize); ++i )
+        PROF_SCOPED("Split");
+        //while ( numNewShards < v5 && GlassShard::CanSplit(*newShards, maxShardSize, minShardSize) && maxSplitTries > 0 )
+        while (numNewShards < v5 && (*newShards)->CanSplit(maxShardSize, minShardSize) && maxSplitTries > 0)
         {
-            ++numTries;
-            //ns = GlassShard::Split(newShards[i], &newShards[numNewShards], minShardSize, 0, -1.0);
-            ns = newShards[i]->Split(&newShards[numNewShards], minShardSize, 0, -1.0);
-            --maxSplitTries;
-        }
-        if ( ns )
-        {
-            numNewShards += ns;
-            qsort(newShards, numNewShards, 4u, compareShards);
-            if ( maxShardSize > (&(*newShards)->outline)->Area() )
-                break;
+            ns = 0;
+            //for ( i = 0; i < numNewShards && !ns && GlassShard::CanSplit(newShards[i], maxShardSize, minShardSize); ++i )
+            for (int i = 0; i < numNewShards && !ns && newShards[i]->CanSplit(maxShardSize, minShardSize); ++i)
+            {
+                ++numTries;
+                //ns = GlassShard::Split(newShards[i], &newShards[numNewShards], minShardSize, 0, -1.0);
+                ns = newShards[i]->Split(&newShards[numNewShards], minShardSize, 0, -1.0);
+                --maxSplitTries;
+            }
+            if (ns)
+            {
+                numNewShards += ns;
+                qsort(newShards, numNewShards, 4u, compareShards);
+                if (maxShardSize > (&(*newShards)->outline)->Area())
+                    break;
+            }
         }
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+
     if ( clGlasses->renderer->debugSplit->current.enabled )
     {
         numNewVerts = 0;
@@ -2146,8 +2149,7 @@ int __thiscall GlassShard::Shatter(const GlassShard **newShards, int maxNewShard
             GlassShard::splitFailCount[5]);
     }
     *timer_8 += tlPcGetTick().QuadPart - timer.QuadPart;
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+
     return numNewShards;
 }
 
@@ -2188,9 +2190,10 @@ void __thiscall GlassShard::InitPhysics(
         v7 = 0.5f;
     else
         v7 = 1.0f;
-    numKeepShards = (int)(float)((float)((float)((float)numNewShards * this->group->glassDef->shardLifeProbablility) * v7)
-                                                         + 0.5);
-    //PIXBeginNamedEvent(0, "InitPhysics");
+    numKeepShards = (int)(float)((float)((float)((float)numNewShards * this->group->glassDef->shardLifeProbablility) * v7) + 0.5);
+    
+    PROF_SCOPED("InitPhysics");
+
     for ( j = 0; j < numNewShards; ++j )
     {
         //GlassShard::InitMesh(newShards[j]);
@@ -2224,8 +2227,6 @@ void __thiscall GlassShard::InitPhysics(
             clGlasses->renderer->AddGroupChange(((GlassShard *)newShards[j]));
         }
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 
 void __thiscall GlassShard::InitMesh()
@@ -2675,7 +2676,8 @@ LABEL_23:
     v7 = this->outline.Length();
     if ( dists[0].dist <= v7 * EDGE_DIST_RATIO )
     {
-        //PIXBeginNamedEvent(-1, "Split 1");
+        PROF_SCOPED("Split 1");
+
         hitPoint2d[0] = dists[0].closestPoint[0];
         hitPoint2d[1] = dists[0].closestPoint[1];
         GlassShard::ToWorldPos(hitPoint2d, hitPoint3d, 0);
@@ -2692,18 +2694,13 @@ LABEL_23:
         }
             
         numNewShards += ns;
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    goto LABEL_38;
     }
     else
     {
-        //PIXBeginNamedEvent(-1, "Chip");
+        PROF_SCOPED("Chip");
         if ( GlassShard::Chip(dists, hitPoint2d, (const GlassShard **)&newShards[numNewShards], minShardSize) )
             ++numNewShards;
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    goto LABEL_38;
     }
-    //D3DPERF_EndEvent();
 LABEL_38:
     for ( j = 0; j < numNewShards; ++j )
     {
@@ -2780,7 +2777,8 @@ LABEL_38:
         {
             fixedShard = newShards[1];
         }
-        //PIXBeginNamedEvent(-1, "Split 2");
+
+        PROF_SCOPED("Split 2");
         maxSplits = 10;
         maxSplitTries = 30;
         while ( numNewShards < maxSplits
@@ -2814,8 +2812,6 @@ LABEL_38:
                 qsort(newShards, numNewShards, 4u, (int (__cdecl *)(const void *, const void *))compareShards);
             }
         }
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
     }
     if ( clGlasses->renderer->debugSplit->current.enabled )
     {
@@ -2834,7 +2830,8 @@ LABEL_38:
             GlassShard::splitFailCount[7],
             GlassShard::splitFailCount[5]);
     }
-    //PIXBeginNamedEvent(0, "InitPhysics");
+
+    PROF_SCOPED("InitPhysics");
     for ( k = 0; k < numNewShards; ++k )
     {
         //GlassShard::InitMesh(newShards[k]);
@@ -2856,8 +2853,6 @@ LABEL_38:
         if ( group->packedPos != clGlasses->renderer->CalcPackedPos(newShards[k]->origin) )
             clGlasses->renderer->AddGroupChange(newShards[k]);
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
     return 1;
 }
 

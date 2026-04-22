@@ -847,7 +847,8 @@ void __cdecl R_MarkFragments_Go(
 {
     bool error; // [esp+33h] [ebp-1h]
 
-    //PIXBeginNamedEvent(-1, "R_MarkFragments_Go");
+    PROF_SCOPED("R_MarkFragments_Go");
+
     if ( !markInfo->material
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_marks.cpp", 2435, 0, "%s", "markInfo->material") )
     {
@@ -901,14 +902,7 @@ void __cdecl R_MarkFragments_Go(
             markInfo->origin[0],
             markInfo->origin[1],
             markInfo->origin[2]);
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
     }
-    //else if ( g_DXDeviceThread != GetCurrentThreadId() )
-    //{
-    //    return;
-    //}
-    //D3DPERF_EndEvent();
 }
 
 bool __cdecl R_MarkFragments_Brushes(MarkInfo *markInfo)
@@ -932,7 +926,8 @@ char __cdecl R_MarkFragments_WorldBrushes(MarkInfo *markInfo)
     bool anyMarks; // [esp+42Fh] [ebp-1h] BYREF
     int savedregs; // [esp+430h] [ebp+0h] BYREF
 
-    //PIXBeginNamedEvent(-1, "markfragments worldbrushes");
+    PROF_SCOPED("markfragments worldbrushes");
+
     if ( (markInfo->usedTriCount || markInfo->usedPointCount)
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\r_marks.cpp",
@@ -966,8 +961,6 @@ char __cdecl R_MarkFragments_WorldBrushes(MarkInfo *markInfo)
                         surfaces[surfIndex],
                         &anyMarks) )
         {
-            //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                //D3DPERF_EndEvent();
             return 0;
         }
     }
@@ -996,8 +989,6 @@ char __cdecl R_MarkFragments_WorldBrushes(MarkInfo *markInfo)
     {
         __debugbreak();
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
     return 1;
 }
 
@@ -1669,7 +1660,8 @@ char __cdecl R_MarkFragments_EntBrushes(MarkInfo *markInfo)
     bool anyMarks; // [esp+1A7h] [ebp-Dh] BYREF
     float markDir[3]; // [esp+1A8h] [ebp-Ch] BYREF
 
-    //PIXBeginNamedEvent(-1, "markfragments entbrushes");
+    PROF_SCOPED("markfragments entbrushes");
+
     brushModelCollidedCount = markInfo->sceneBModelCollidedCount;
     for ( brushModelCollidedIndex = 0; brushModelCollidedIndex != brushModelCollidedCount; ++brushModelCollidedIndex )
     {
@@ -1690,8 +1682,6 @@ char __cdecl R_MarkFragments_EntBrushes(MarkInfo *markInfo)
             if ( R_Mark_MaterialAllowsMarks(surface->material, markInfo->material)
                 && !R_MarkFragments_BrushSurface(markInfo, &markContext, &clipPlanes, markDir, surface, &anyMarks) )
             {
-                //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                    //D3DPERF_EndEvent();
                 return 0;
             }
         }
@@ -1719,8 +1709,6 @@ char __cdecl R_MarkFragments_EntBrushes(MarkInfo *markInfo)
             markInfo->usedPointCount = 0;
         }
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
     return 1;
 }
 
@@ -1772,7 +1760,8 @@ char __cdecl R_MarkFragments_Glass(MarkInfo *markInfo)
     bool anyMarks; // [esp+18Bh] [ebp-Dh] BYREF
     float markDir[3]; // [esp+18Ch] [ebp-Ch] BYREF
 
-    //PIXBeginNamedEvent(-1, "markfragments glass");
+    PROF_SCOPED("markfragments glass");
+
     num = GlassCl_AreaGlasses(markInfo->mins, markInfo->maxs, glasses, 8u);
     for ( i = 0; i < num; ++i )
     {
@@ -1793,8 +1782,6 @@ char __cdecl R_MarkFragments_Glass(MarkInfo *markInfo)
             if ( R_Mark_MaterialAllowsMarks(surface->material, markInfo->material)
                 && !R_MarkFragments_BrushSurface(markInfo, &markContext, &clipPlanes, markDir, surface, &anyMarks) )
             {
-                //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                    //D3DPERF_EndEvent();
                 return 0;
             }
         }
@@ -1828,8 +1815,6 @@ char __cdecl R_MarkFragments_Glass(MarkInfo *markInfo)
             markInfo->usedPointCount = 0;
         }
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
     return 1;
 }
 
@@ -1896,13 +1881,11 @@ char __cdecl R_MarkFragments_SceneDObjs(MarkInfo *markInfo)
     unsigned __int16 entnum; // [esp+8Ch] [ebp-8h]
     int sceneDObjCollidedIndex; // [esp+90h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "markfragments scenedobj");
+    PROF_SCOPED("markfragments scenedobj");
     sceneDObjCollidedIndex = 0;
 LABEL_2:
     if ( sceneDObjCollidedIndex == markInfo->sceneDObjCollidedCount )
     {
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
         return 1;
     }
     else
@@ -1945,8 +1928,6 @@ LABEL_2:
             boneIndex += model->numBones;
             boneMtxList += model->numBones;
         }
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
         return 0;
     }
 }
@@ -2468,7 +2449,8 @@ char __cdecl R_MarkFragments_StaticModels(MarkInfo *markInfo)
     float modelAxis[3][3]; // [esp+A4h] [ebp-28h] BYREF
     int smodelIndex; // [esp+C8h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "markfragments smodel");
+    PROF_SCOPED("markfragments smodel");
+
     for ( smodelCollidedIndex = 0; smodelCollidedIndex != markInfo->smodelCollidedCount; ++smodelCollidedIndex )
     {
         if ( (markInfo->usedTriCount || markInfo->usedPointCount)
@@ -2533,8 +2515,6 @@ char __cdecl R_MarkFragments_StaticModels(MarkInfo *markInfo)
                         smodelDraw->placement.scale,
                         &markContext) )
         {
-            //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                //D3DPERF_EndEvent();
             return 0;
         }
         if ( markInfo->usedTriCount || markInfo->usedPointCount )
@@ -2564,8 +2544,6 @@ char __cdecl R_MarkFragments_StaticModels(MarkInfo *markInfo)
     {
         __debugbreak();
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
     return 1;
 }
 

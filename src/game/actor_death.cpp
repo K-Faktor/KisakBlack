@@ -51,7 +51,8 @@ actor_think_result_t __fastcall Actor_Death_Think(actor_s *self)
 {
     int savedregs; // [esp+20h] [ebp+0h] BYREF
 
-    //PIXBeginNamedEvent(-1, "deaththink");
+    PROF_SCOPED("deaththink");
+
     if ( !self && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_death.cpp", 95, 0, "%s", "self") )
         __debugbreak();
     self->pszDebugInfo = "death";
@@ -70,16 +71,12 @@ actor_think_result_t __fastcall Actor_Death_Think(actor_s *self)
             self->ent->r.contents = self->deathContents;
             SV_LinkEntity(self->ent);
         }
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
         return ACTOR_THINK_DONE;
     }
     else
     {
         if ( self->eSubState[self->stateLevel] == STATE_DEATH_PRECLEANUP )
             Actor_Death_Cleanup(self);
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
         return ACTOR_THINK_MOVE_TO_BODY_QUEUE;
     }
 }

@@ -8,7 +8,7 @@ void __cdecl RB_DrawComposites()
 {
   const void *cmds; // [esp+14h] [ebp-4h]
 
-  //PIXBeginNamedEvent(-1, "RB_DrawComposites");
+  PROF_SCOPED("RB_DrawComposites");
   cmds = backEndData->compositingCmds;
   if ( cmds )
   {
@@ -18,13 +18,6 @@ void __cdecl RB_DrawComposites()
     R_Set2D(&gfxCmdBufSourceState);
     RB_ExecuteRenderCommandsLoop(cmds, 0);
     memcpy(gfxCmdBufState.refSamplerState, gfxCmdBufState.refSamplerState, sizeof(gfxCmdBufState));
-    //if ( GetCurrentThreadId() != g_DXDeviceThread )
-    //  return;
-    goto LABEL_5;
   }
-  //if ( GetCurrentThreadId() == g_DXDeviceThread )
-LABEL_5:
-  ;
-    //D3DPERF_EndEvent();
 }
 

@@ -5121,7 +5121,8 @@ void __cdecl VEH_UpdateNitrousPosition(gentity_s *pSelf)
     int notifyFlags; // [esp+E8h] [ebp-4h]
     int savedregs; // [esp+ECh] [ebp+0h] BYREF
 
-    //PIXBeginNamedEvent(-1, "VEH_UpdateNitrousPosition");
+    PROF_SCOPED("VEH_UpdateNitrousPosition");
+
     if ( !pSelf && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\g_scr_vehicle.cpp", 8896, 0, "%s", "pSelf") )
         __debugbreak();
     if ( !pSelf->scr_vehicle
@@ -5241,8 +5242,6 @@ void __cdecl VEH_UpdateNitrousPosition(gentity_s *pSelf)
         if ( (notifyFlags & 0x10) != 0 )
             Scr_Notify(pSelf, scr_const.veh_engine_stutter, 0);
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl Scr_Vehicle_Think(gentity_s *pSelf)
@@ -5254,7 +5253,8 @@ void __cdecl Scr_Vehicle_Think(gentity_s *pSelf)
     float defaultPitch; // [esp+20h] [ebp-4h]
     int savedregs; // [esp+24h] [ebp+0h] BYREF
 
-    //PIXBeginNamedEvent(-1, "Scr_Vehicle_think");
+    PROF_SCOPED("Scr_Vehicle_think");
+
     if ( !pSelf && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\g_scr_vehicle.cpp", 9059, 0, "%s", "pSelf") )
         __debugbreak();
     if ( !pSelf->scr_vehicle
@@ -5353,8 +5353,6 @@ void __cdecl Scr_Vehicle_Think(gentity_s *pSelf)
         G_MoverTeam_New(pSelf);
     if ( info->type == 6 )
         veh->phys.angles[0] = veh->phys.angles[0] - defaultPitch;
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl VEH_MoveTrace(gentity_s *ent)

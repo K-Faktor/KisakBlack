@@ -123,14 +123,12 @@ void __thiscall GlassesClient::Update(int localClientNum)
 {
     unsigned int i; // [esp+Ch] [ebp-8h]
 
-    //PIXBeginNamedEvent(-1, "GlassesClient.Update");
+    PROF_SCOPED("GlassesClient.Update");
     for (i = 0; i < this->numGlasses; ++i)
     {
         //GlassClient::Update(&this->glasses[i], localClientNum);
         this->glasses[i].Update(localClientNum);
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __thiscall GlassesClient::ParseSnapshot(int localClientNum, msg_t *msg, bool gameState)
@@ -230,7 +228,7 @@ void __thiscall GlassesClient::WriteDemoSnapshot(msg_t *msg)
     GlassClient *glass; // [esp+10h] [ebp-Ch]
     unsigned int i; // [esp+14h] [ebp-8h]
 
-    //PIXBeginNamedEvent(-1, "GlassesClient.WriteDemoSnapshot");
+    PROF_SCOPED("GlassesClient.WriteDemoSnapshot");
     MSG_WriteBit1(msg);
     MSG_WriteBit1(msg);
     MSG_WriteShort(msg, this->numGlasses);
@@ -259,8 +257,6 @@ void __thiscall GlassesClient::WriteDemoSnapshot(msg_t *msg)
         }
     }
     MSG_WriteShort(msg, 30154);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 
 void __thiscall GlassesClient::PreShatterNext()
@@ -268,7 +264,8 @@ void __thiscall GlassesClient::PreShatterNext()
     GlassClient *gls; // [esp+14h] [ebp-Ch]
     unsigned int i; // [esp+18h] [ebp-8h]
 
-    //PIXBeginNamedEvent(-1, "GlassesClient.PreShatterNext");
+    PROF_SCOPED("GlassesClient.PreShatterNext");
+
     for ( i = 0; i < this->numGlasses; ++i )
     {
         gls = &this->glasses[this->lastPreShatter++];
@@ -277,16 +274,9 @@ void __thiscall GlassesClient::PreShatterNext()
         //if ( GlassClient::PreShatter(gls) )
         if ( gls->PreShatter() )
         {
-            //if ( GetCurrentThreadId() != g_DXDeviceThread )
-            //    return;
-            goto LABEL_10;
+            return;
         }
     }
-    //if ( GetCurrentThreadId() != g_DXDeviceThread )
-    //    return;
-LABEL_10:
-    ;
-    //D3DPERF_EndEvent();
 }
 
 void __thiscall GlassClient::Init(const Glass *gls)
@@ -606,7 +596,8 @@ void __thiscall GlassClient::Shatter(const float *pos, const float *dir)
 
     const GlassShard *newShards[400]; // [esp+40h] [ebp-650h] BYREF
 
-    //PIXBeginNamedEvent(-1, "GlassClient.Shatter");
+    PROF_SCOPED("GlassClient.Shatter");
+
     //shard = GlassRenderer::AllocShard(clGlasses->renderer);
 
     shard = clGlasses->renderer->AllocShard();
@@ -619,7 +610,7 @@ void __thiscall GlassClient::Shatter(const float *pos, const float *dir)
             glassExtent = shard->outline.Extent();
             if ( this->outlines )
             {
-                //PIXBeginNamedEvent(-1, "GlassClient.Shatter.outlines");
+                PROF_SCOPED("GlassClient.Shatter.outlines");
                 //numNewShards = GlassClient::Outlines::InitShards(this->outlines, shard, newShards, 400);
                 numNewShards = this->outlines->InitShards(shard, newShards, 400);
                 //GlassShard::Remove(shard, (GlassShard::RemoveReason)8, 0);
@@ -632,8 +623,6 @@ void __thiscall GlassClient::Shatter(const float *pos, const float *dir)
                     //GlassShard::InitPhysics(newShards[0], newShards, numNewShards, glassExtent, pos, dir);
                     ((GlassShard *)newShards[0])->InitPhysics(newShards, numNewShards, glassExtent, pos, dir);
                 }
-                //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                    //D3DPERF_EndEvent();
             }
             else
             {
@@ -669,12 +658,6 @@ void __thiscall GlassClient::Shatter(const float *pos, const float *dir)
             //GlassRenderer::FreeShard(clGlasses->renderer, shard);
             clGlasses->renderer->FreeShard(shard);
         }
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
-    }
-    else //if ( GetCurrentThreadId() == g_DXDeviceThread )
-    {
-        //D3DPERF_EndEvent();
     }
 }
 
@@ -692,7 +675,9 @@ char __thiscall GlassClient::PreShatter()
 
     if ( (this->state.val.i & 0xF) == 2 || this->outlines )
         return 0;
-    //PIXBeginNamedEvent(-1, "GlassClient.PreShatter");
+
+    PROF_SCOPED("GlassClient.PreShatter");
+
     //shard = GlassRenderer::AllocShard(clGlasses->renderer);
     shard = clGlasses->renderer->AllocShard();
     if ( shard )
@@ -735,14 +720,10 @@ char __thiscall GlassClient::PreShatter()
             //GlassRenderer::FreeShard(clGlasses->renderer, shard);
             clGlasses->renderer->FreeShard(shard);
         }
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
         return 1;
     }
     else
     {
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
         return 1;
     }
 }
@@ -805,7 +786,8 @@ int __thiscall GlassClient::Outlines::InitShards(
     unsigned int i; // [esp+648h] [ebp-Ch]
     int numNewShards; // [esp+64Ch] [ebp-8h]
 
-    //PIXBeginNamedEvent(-1, "InitShards");
+    PROF_SCOPED("InitShards");
+
     numNewShards = 0;
     for ( i = 0; i < this->numOutlines; ++i )
     {
@@ -840,8 +822,6 @@ int __thiscall GlassClient::Outlines::InitShards(
         grp->Add((GlassShard *)shards[numNewShards++]);
     }
     v8 = numNewShards;
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
     return v8;
 }
 
@@ -932,6 +912,7 @@ void __cdecl GlassCl_WriteDemoSnapshot(msg_t *msg)
 
 void __cdecl GlassCl_WaitUpdate()
 {
+    PROF_SCOPED("GlassCl_WaitUpdate"); // LWSS ADD
     if ( clGlasses )
     {
         if ( clGlasses->renderer->smpGlass->current.enabled )
@@ -954,11 +935,9 @@ void __cdecl GlassCl_WaitGenerateVerts()
 {
     if ( clGlasses && clGlasses->renderer->smpGlass->current.enabled )
     {
-        //PIXBeginNamedEvent(-1, "GlassCl_WaitGenerateVerts");
+        PROF_SCOPED("GlassCl_WaitGenerateVerts");
         //GlassRenderer::BeginUpdate((colgeom_visitor_t *)clGlasses->renderer);
         clGlasses->renderer->BeginUpdate();
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
     }
 }
 
@@ -1016,7 +995,8 @@ void __thiscall GlassesClient::TracePoint(const pointtrace_t *clip, trace_t *res
     float maxs[3]; // [esp+22Ch] [ebp-14h] BYREF
     unsigned int num; // [esp+23Ch] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "GlassesClient.TracePoint");
+    PROF_SCOPED("GlassesClient.TracePoint");
+
     Vec3Min(clip->extents.start.vec.v, clip->extents.end.vec.v, mins);
     Vec3Max(clip->extents.start.vec.v, clip->extents.end.vec.v, maxs);
     num = GlassesClient::AreaGlasses(mins, maxs, glss, 0x80u);
@@ -1051,8 +1031,6 @@ void __thiscall GlassesClient::TracePoint(const pointtrace_t *clip, trace_t *res
             results->hitId = index;
         }
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl GlassCl_MeleeEvent(int localClientNum, int attackerEntNum)
@@ -1158,7 +1136,8 @@ void __thiscall GlassesClient::ClipMoveTrace(const moveclip_t *clip, trace_t *re
     float maxs[3]; // [esp+288h] [ebp-14h] BYREF
     unsigned int num; // [esp+298h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "GlassesClient.ClipMoveTrace");
+    PROF_SCOPED("GlassesClient.ClipMoveTrace");
+
     for ( i = 0; i < 3; ++i )
     {
         if ( (float)(clip->extents.end.vec.v[i] - clip->extents.start.vec.v[i]) < 0.0 )
@@ -1224,7 +1203,5 @@ void __thiscall GlassesClient::ClipMoveTrace(const moveclip_t *clip, trace_t *re
             results->hitId = index;
         }
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 

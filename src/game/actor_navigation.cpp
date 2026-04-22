@@ -3484,7 +3484,8 @@ bool __fastcall Path_PredictionTrace(
     actor_s *actor; // [esp+108h] [ebp-8h]
     unsigned __int16 hitEntId; // [esp+10Ch] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "pathpredictiontrace");
+    PROF_SCOPED("pathpredictiontrace");
+
     memset(&trace, 0, 16);
     traceMin[0] = PREDICTION_TRACE_MIN[0];
     traceMin[1] = PREDICTION_TRACE_MIN[1];
@@ -3512,14 +3513,10 @@ bool __fastcall Path_PredictionTrace(
         Vec3Lerp(vSource, vDest, trace.fraction, vTraceEndPos);
         if ( trace.fraction < 0.000099999997 )
         {
-            //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                //D3DPERF_EndEvent();
             return 0;
         }
         if ( trace.startsolid && !allowStartSolid )
         {
-            //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                //D3DPERF_EndEvent();
             return 0;
         }
         if ( !trace.allsolid && trace.fraction == 1.0 )
@@ -3535,14 +3532,10 @@ bool __fastcall Path_PredictionTrace(
             {
                 vTraceEndPos[2] = vTraceEndPos[2] + stepheight;
                 v10 = fabs(vTraceEndPos[2] - vEndPos[2]) < 48.0;
-                //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                    //D3DPERF_EndEvent();
                 return v10;
             }
             else
             {
-                //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                    //D3DPERF_EndEvent();
                 return 0;
             }
         }
@@ -3552,15 +3545,11 @@ bool __fastcall Path_PredictionTrace(
         actor = level.gentities[hitEntId].actor;
         if ( !actor )
         {
-            //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                //D3DPERF_EndEvent();
             return 0;
         }
         if ( (actor->eAnimMode != AI_ANIM_MOVE_CODE || !actor->moveMode)
             && (!actor->pPileUpActor || actor->pPileUpActor->ent->s.number != entityIgnore) )
         {
-            //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                //D3DPERF_EndEvent();
             return 0;
         }
         mask &= ~0x8000u;
@@ -3574,18 +3563,16 @@ LABEL_45:
         Vec3Lerp(vSource, vDown, trace.fraction, vTraceEndPos);
         if ( vTraceEndPos[2] >= vSource[2] && trace.fraction != 1.0 && trace.normal.vec.v[2] < 0.69999999 )
         {
-            //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                //D3DPERF_EndEvent();
             return 0;
         }
         vSource[2] = vTraceEndPos[2] + stepheight;
         vDest[2] = vSource[2];
     }
-    if ( (float)((float)((float)(vSource[0] - *vTraceEndPos) * (float)(vSource[0] - *vTraceEndPos))
-                         + (float)((float)(vSource[1] - vTraceEndPos[1]) * (float)(vSource[1] - vTraceEndPos[1]))) >= 225.0 )
+    if ((float)((float)((float)(vSource[0] - *vTraceEndPos) * (float)(vSource[0] - *vTraceEndPos))
+        + (float)((float)(vSource[1] - vTraceEndPos[1]) * (float)(vSource[1] - vTraceEndPos[1]))) >= 225.0)
+    {
         goto LABEL_45;
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
+    }
     return 0;
 }
 

@@ -16,7 +16,8 @@ void __cdecl RB_GaussianFilterImage(float radius, unsigned __int8 srcRenderTarge
     int dstHeight; // [esp+48h] [ebp-1394h]
     GfxImageFilter filter; // [esp+4Ch] [ebp-1390h] BYREF
 
-    //PIXBeginNamedEvent(-1, "RB_GaussianFilterImage");
+    PROF_SCOPED("RB_GaussianFilterImage");
+
     RB_VirtualToSceneRadius(radius, &radiusX, &radiusY);
     srcWidth = gfxRenderTargets[srcRenderTargetId].width;
     srcHeight = gfxRenderTargets[srcRenderTargetId].height;
@@ -35,15 +36,9 @@ void __cdecl RB_GaussianFilterImage(float radius, unsigned __int8 srcRenderTarge
         filter.passes);
     if (!filter.passCount)
     {
-        //if (GetCurrentThreadId() != (_DWORD)g_DXDeviceThread || dword_A8402BC)
-        //    return;
-    LABEL_9:
-        //D3DPERF_EndEvent();
         return;
     }
     RB_FilterImage(&filter);
-    //if (GetCurrentThreadId() == (_DWORD)g_DXDeviceThread && !dword_A8402BC)
-    //    goto LABEL_9;
 }
 
 void __cdecl RB_VirtualToSceneRadius(float radius, float *radiusX, float *radiusY)

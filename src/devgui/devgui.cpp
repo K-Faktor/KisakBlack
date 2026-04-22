@@ -1755,6 +1755,8 @@ void __cdecl DevGui_Update(int localClientNum, float deltaTime)
     bool IsButtonDown; // [esp+8h] [ebp-8h]
     devguiGlob_t *selMenuItem; // [esp+Ch] [ebp-4h]
 
+    PROF_SCOPED("DevGui_Update"); // LWSS ADD
+
     if ( devguiGlob.isActive && !devguiGlob.bindNextKey && DevGui_InputUpdate(localClientNum, deltaTime) )
     {
         selMenuItem = DevGui_GetMenu(devguiGlob.selectedMenu);

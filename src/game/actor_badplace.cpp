@@ -686,14 +686,13 @@ actor_think_result_t __fastcall Actor_BadPlace_Flee_Think(actor_s *self)
 {
     bool isInBadPlace; // [esp+32h] [ebp-2h]
 
-    //PIXBeginNamedEvent(-1, "fleethink");
+    PROF_SCOPED("fleethink");
+
     if ( !self && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_badplace.cpp", 1025, 0, "%s", "self") )
         __debugbreak();
     if ( self->aiBadPlace == AI_BADPLACE_NONE )
     {
         Actor_SetState(self, AIS_EXPOSED);
-        ////if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //    //D3DPERF_EndEvent();
         return ACTOR_THINK_REPEAT;
     }
     Actor_PreThink(self);
@@ -715,14 +714,10 @@ actor_think_result_t __fastcall Actor_BadPlace_Flee_Think(actor_s *self)
         Actor_AnimStop(self, &g_animScriptTable[self->species]->stop);
 LABEL_22:
         Actor_PostThink(self);
-        ////if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //    //D3DPERF_EndEvent();
         return ACTOR_THINK_DONE;
     }
     self->aiBadPlace = AI_BADPLACE_NONE;
     Actor_SetState(self, AIS_EXPOSED);
-    ////if ( GetCurrentThreadId() == g_DXDeviceThread )
-    //    //D3DPERF_EndEvent();
     return ACTOR_THINK_REPEAT;
 }
 

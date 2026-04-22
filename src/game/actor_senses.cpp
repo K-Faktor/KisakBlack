@@ -59,7 +59,8 @@ char __fastcall Actor_SightTrace(actor_s *self, const float *start, const float 
     col_context_t context; // [esp+44h] [ebp-30h] BYREF
     int hitNum; // [esp+70h] [ebp-4h] BYREF
 
-    //PIXBeginNamedEvent(-1, "Actor_SightTrace");
+    PROF_SCOPED("Actor_SightTrace");
+
     //col_context_t::col_context_t(&context);
     ++self->iTraceCount;
     if ( g_visitor )
@@ -97,14 +98,10 @@ char __fastcall Actor_SightTrace(actor_s *self, const float *start, const float 
     }
     if ( hitNum )
     {
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
         return 0;
     }
     else
     {
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
         return 1;
     }
 }
@@ -425,72 +422,68 @@ void __fastcall Actor_UpdateSight(actor_s *self)
     sentient_sort_t check[48]; // [esp+84h] [ebp-188h] BYREF
     int iCheckCount; // [esp+208h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "Actor_UpdateSight");
-    if ( !self && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_senses.cpp", 675, 0, "%s", "self") )
-        __debugbreak();
-    if ( !self->sentient
-        && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_senses.cpp", 676, 0, "%s", "self->sentient") )
-    {
-        __debugbreak();
-    }
+    PROF_SCOPED("Actor_UpdateSight");
+
+    iassert(self);
+    iassert(self->sentient);
+
     iTeamFlags = 1 << Sentient_EnemyTeam(self->sentient->eTeam);
-    //PIXBeginNamedEvent(-1, "sight 1");
-    iCheckCount = 0;
-    for ( sentient = Sentient_FirstSentient(iTeamFlags); sentient; sentient = Sentient_NextSentient(sentient, iTeamFlags) )
+
     {
-        if ( !sentient->ent
-            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_senses.cpp", 712, 0, "%s", "sentient->ent") )
+        PROF_SCOPED("sight 1");
+        iCheckCount = 0;
+        for ( sentient = Sentient_FirstSentient(iTeamFlags); sentient; sentient = Sentient_NextSentient(sentient, iTeamFlags) )
         {
-            __debugbreak();
-        }
-        if ( sentient->ent->s.number != self->ent->s.number
-            //&& (!EntHandle::isDefined(&self->sentient->scriptOwner)
-            && (!self->sentient->scriptOwner.isDefined()
-             //|| sentient->ent != EntHandle::ent(&self->sentient->scriptOwner)) )
-             || sentient->ent != self->sentient->scriptOwner.ent()) )
-        {
-            Sentient_GetOrigin(sentient, v);
-            currentOrigin = self->ent->r.currentOrigin;
-            v[0] = v[0] - *currentOrigin;
-            v[1] = v[1] - currentOrigin[1];
-            v[2] = v[2] - currentOrigin[2];
-            *(float *)&fDistSqrd = (float)((float)(v[0] * v[0]) + (float)(v[1] * v[1])) + (float)(v[2] * v[2]);
-            if ( (fDistSqrd & 0x7F800000) == 0x7F800000
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_senses.cpp",
-                            728,
-                            0,
-                            "%s",
-                            "!IS_NAN(fDistSqrd)") )
+            if ( !sentient->ent
+                && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_senses.cpp", 712, 0, "%s", "sentient->ent") )
             {
                 __debugbreak();
             }
-            if ( *(float *)&fDistSqrd != 0.0 )
+            if ( sentient->ent->s.number != self->ent->s.number
+                //&& (!EntHandle::isDefined(&self->sentient->scriptOwner)
+                && (!self->sentient->scriptOwner.isDefined()
+                 //|| sentient->ent != EntHandle::ent(&self->sentient->scriptOwner)) )
+                 || sentient->ent != self->sentient->scriptOwner.ent()) )
             {
-                v4 = level.time - self->sentientInfo[sentient - level.sentients].VisCache.iLastUpdateTime - 100;
-                v2 = (float)(v4 & ~(v4 >> 31));
-                v1 = I_rsqrt(fDistSqrd);
-                check[iCheckCount].fMetric = v1 * v2;
-                check[iCheckCount++].sentient = sentient;
+                Sentient_GetOrigin(sentient, v);
+                currentOrigin = self->ent->r.currentOrigin;
+                v[0] = v[0] - *currentOrigin;
+                v[1] = v[1] - currentOrigin[1];
+                v[2] = v[2] - currentOrigin[2];
+                *(float *)&fDistSqrd = (float)((float)(v[0] * v[0]) + (float)(v[1] * v[1])) + (float)(v[2] * v[2]);
+                if ( (fDistSqrd & 0x7F800000) == 0x7F800000
+                    && !Assert_MyHandler(
+                                "C:\\projects_pc\\cod\\codsrc\\src\\game\\actor_senses.cpp",
+                                728,
+                                0,
+                                "%s",
+                                "!IS_NAN(fDistSqrd)") )
+                {
+                    __debugbreak();
+                }
+                if ( *(float *)&fDistSqrd != 0.0 )
+                {
+                    v4 = level.time - self->sentientInfo[sentient - level.sentients].VisCache.iLastUpdateTime - 100;
+                    v2 = (float)(v4 & ~(v4 >> 31));
+                    v1 = I_rsqrt(fDistSqrd);
+                    check[iCheckCount].fMetric = v1 * v2;
+                    check[iCheckCount++].sentient = sentient;
+                }
             }
         }
+        if ( iCheckCount > 1 )
+            qsort(check, iCheckCount, 8u, (int (__cdecl *)(const void *, const void *))compare_sentient_sort);
     }
-    if ( iCheckCount > 1 )
-        qsort(check, iCheckCount, 8u, (int (__cdecl *)(const void *, const void *))compare_sentient_sort);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "sight 2");
-    iOldTraceCount = self->iTraceCount;
-    for ( i = 0; i < iCheckCount; ++i )
     {
-        Actor_CanSeeSentient(self, check[i].sentient, 0);
-        if ( self->iTraceCount != iOldTraceCount )
-            break;
+        PROF_SCOPED("sight 2");
+        iOldTraceCount = self->iTraceCount;
+        for (i = 0; i < iCheckCount; ++i)
+        {
+            Actor_CanSeeSentient(self, check[i].sentient, 0);
+            if (self->iTraceCount != iOldTraceCount)
+                break;
+        }
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 
 int __cdecl compare_sentient_sort(unsigned int *pe1, unsigned int *pe2)
@@ -536,7 +529,8 @@ void __fastcall Actor_UpdateLastEnemySightPos(actor_s *self)
 {
     sentient_s *enemy; // [esp+28h] [ebp-8h]
 
-    //PIXBeginNamedEvent(-1, "Actor_UpdateLastEnemySightPos");
+    PROF_SCOPED("Actor_UpdateLastEnemySightPos");
+
     enemy = Actor_GetTargetSentient(self);
     if ( enemy )
     {
@@ -546,24 +540,9 @@ void __fastcall Actor_UpdateLastEnemySightPos(actor_s *self)
             {
                 self->lastEnemySightPosValid = 1;
                 Sentient_GetEyePosition(enemy, self->lastEnemySightPos);
-                //if ( GetCurrentThreadId() != g_DXDeviceThread )
-                //    return;
             }
-            //else if ( g_DXDeviceThread != GetCurrentThreadId() )
-            //{
-            //    return;
-            //}
         }
-        //else if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //{
-        //    return;
-        //}
     }
-    //else if ( g_DXDeviceThread != GetCurrentThreadId() )
-    //{
-    //    return;
-    //}
-    //D3DPERF_EndEvent();
 }
 
 void __fastcall Actor_GetEyePosition(actor_s *self, float *vEyePosOut)

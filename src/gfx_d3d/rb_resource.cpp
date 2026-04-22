@@ -290,7 +290,8 @@ void RB_Resource_Update_Internal()
     r_resource_action *action; // [esp+B8h] [ebp-8h]
     int resourceIndex; // [esp+BCh] [ebp-4h]
 
-    //PIXBeginNamedEvent(0, "RB_Resource_Update");
+    PROF_SCOPED("RB_Resource_Update");
+
     RB_Resource_Lock();
     resourceIndex = 0;
     while ( resourceIndex < numResourceActions )
@@ -428,15 +429,6 @@ LABEL_2:
     Sys_SetResourcesFlushedEvent();
     numResourceActions = 0;
     RB_Resource_Unlock();
-
-    //result = (unsigned __int8 *)GetCurrentThreadId();
-    //if ( result == (unsigned __int8 *)g_DXDeviceThread )
-    //{
-    //    result = 0;
-    //    if ( !HIDWORD(g_DXDeviceThread) )
-    //        return (unsigned __int8 *)//D3DPERF_EndEvent();
-    //}
-    //return result;
 }
 
 void __cdecl RB_Resource_Flush()

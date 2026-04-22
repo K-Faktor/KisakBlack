@@ -4115,12 +4115,12 @@ bool __cdecl CG_IsTvguided(int localClientNum, bool onlyADS)
 }
 
 int CG_DrawActiveFrame(
-                int localClientNum,
-                int serverTime,
-                DemoType demoType,
-                CubemapShot cubemapShot,
-                int cubemapSize,
-                int renderScreen)
+    int localClientNum,
+    int serverTime,
+    DemoType demoType,
+    CubemapShot cubemapShot,
+    int cubemapSize,
+    int renderScreen)
 {
     shellshock_parms_t *ShellshockParms; // eax
     int shellShockDuration;
@@ -4148,13 +4148,13 @@ int CG_DrawActiveFrame(
     const cgs_t *cgs; // [esp+924h] [ebp-4h]
     int savedregs; // [esp+928h] [ebp+0h] BYREF
 
-    if ( !Sys_IsMainThread()
+    if (!Sys_IsMainThread()
         && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\cgame_mp\\cg_view_mp.cpp",
-                    4825,
-                    0,
-                    "%s",
-                    "Sys_IsMainThread()") )
+            "C:\\projects_pc\\cod\\codsrc\\src\\cgame_mp\\cg_view_mp.cpp",
+            4825,
+            0,
+            "%s",
+            "Sys_IsMainThread()"))
     {
         __debugbreak();
     }
@@ -4162,19 +4162,19 @@ int CG_DrawActiveFrame(
     R_ClearScene(localClientNum);
     FX_BeginUpdate(localClientNum);
     R_Rope_ClearAll();
-    if ( cgameGlob->clearMarks )
+    if (cgameGlob->clearMarks)
     {
         FX_ClearMarks(localClientNum);
         cgameGlob->clearMarks = 0;
     }
     hadSavedScreen = cgameGlob->shellshock.hasSavedScreen;
-    if ( !Sys_IsMainThread()
+    if (!Sys_IsMainThread()
         && !Assert_MyHandler(
-                    "c:\\projects_pc\\cod\\codsrc\\src\\cgame_mp\\../cgame/cg_colltree.h",
-                    86,
-                    0,
-                    "%s",
-                    "Sys_IsMainThread()") )
+            "c:\\projects_pc\\cod\\codsrc\\src\\cgame_mp\\../cgame/cg_colltree.h",
+            86,
+            0,
+            "%s",
+            "Sys_IsMainThread()"))
     {
         __debugbreak();
     }
@@ -4189,9 +4189,9 @@ int CG_DrawActiveFrame(
     cgameGlob->renderScreen = renderScreen;
     CG_ClearSaveScreenFx(localClientNum);
     cgameGlob->frametime = cgameGlob->time - cgameGlob->oldTime;
-    if ( cgameGlob->frametime < 0 )
+    if (cgameGlob->frametime < 0)
     {
-        if ( !Demo_IsPlaying() )
+        if (!Demo_IsPlaying())
             FX_RewindTo(localClientNum, cgameGlob->time);
         cgameGlob->frametime = 0;
         cgameGlob->oldTime = cgameGlob->time;
@@ -4202,7 +4202,7 @@ int CG_DrawActiveFrame(
 
     iassert(bgs == 0);
 
-    if ( cgameGlob->isLoading )
+    if (cgameGlob->isLoading)
         return 0;
 
     bgs = &cgameGlob->bgs;
@@ -4210,25 +4210,25 @@ int CG_DrawActiveFrame(
     CG_SavePlayerState(localClientNum);
     CG_ProcessSnapshots(localClientNum);
 
-    if ( !cgameGlob->renderScreen )
+    if (!cgameGlob->renderScreen)
     {
         iassert(bgs == &cgameGlob->bgs);
 
         bgs = NULL;
         return 0;
     }
-    if ( !cgameGlob->nextSnap || (cgameGlob->nextSnap->snapFlags & 2) != 0 )
+    if (!cgameGlob->nextSnap || (cgameGlob->nextSnap->snapFlags & 2) != 0)
     {
         iassert(bgs == &cgameGlob->bgs);
-        
+
         bgs = NULL;
         return 0;
     }
 
-    if ( CL_IsServerLoadingMap() )
+    if (CL_IsServerLoadingMap())
     {
         iassert(bgs == &cgameGlob->bgs);
-        
+
         bgs = NULL;
         return 0;
     }
@@ -4238,12 +4238,12 @@ int CG_DrawActiveFrame(
     iassert(bgs == &cgameGlob->bgs);
     iassert(cgameGlob->snap);
     iassert(cgameGlob->nextSnap);
-    
+
     CG_UpdateTimeScale(localClientNum);
     CG_UpdateIKTiming(localClientNum);
     CG_VisionSetsUpdate(localClientNum);
     CG_UpdateViewOffset(localClientNum);
-    if ( CG_ExtraCamIsActive(localClientNum) )
+    if (CG_ExtraCamIsActive(localClientNum))
     {
         CG_ExtraCam_GetViewOrigin(localClientNum, cgameGlob->refdef.extraCamPos);
         cgameGlob->refdef.extraCamPosValid = 1;
@@ -4253,12 +4253,12 @@ int CG_DrawActiveFrame(
         cgameGlob->refdef.extraCamPosValid = 0;
     }
     cgameGlob->refdef.time = cgameGlob->time;
-    if ( (unsigned __int8)CG_ScrCamActive(localClientNum) )
+    if ((unsigned __int8)CG_ScrCamActive(localClientNum))
         CG_ScrCamCalcView(localClientNum);
-    if ( cgameGlob->cameraMode == 1 || cgameGlob->cameraMode == 2 )
+    if (cgameGlob->cameraMode == 1 || cgameGlob->cameraMode == 2)
         CG_MovieCamCalcView(localClientNum);
-    if ( (cgameGlob->predictedPlayerState.eFlags2 & 0x10000000) != 0
-        && (cgameGlob->predictedPlayerState.eFlags & 0x4000) == 0 )
+    if ((cgameGlob->predictedPlayerState.eFlags2 & 0x10000000) != 0
+        && (cgameGlob->predictedPlayerState.eFlags & 0x4000) == 0)
     {
         CG_CalcMissileViewValues(localClientNum);
     }
@@ -4268,7 +4268,7 @@ int CG_DrawActiveFrame(
     R_UpdateNonDependentEffects(&fxUpdateCmd);
     CG_UpdateWind(cgameGlob->time);
     cgs = CG_GetLocalClientStaticGlobals(localClientNum);
-    if ( cgameGlob->snap->ps.shellshockIndex )
+    if (cgameGlob->snap->ps.shellshockIndex)
     {
         shellShockTime = cgameGlob->snap->ps.shellshockTime;
         shellShockDuration = cgameGlob->snap->ps.shellshockDuration;
@@ -4296,24 +4296,24 @@ int CG_DrawActiveFrame(
     //BLOPS_NULLSUB();
     delayedEnt = CG_AddPacketEntities(localClientNum);
     AimTarget_UpdateClientTargets(localClientNum);
-    if ( !cgameGlob->predictedPlayerState.locationSelectionInfo
+    if (!cgameGlob->predictedPlayerState.locationSelectionInfo
         || (cgameGlob->predictedPlayerState.otherFlags & 0x1A) != 0
-        || Demo_IsPlaying() )
+        || Demo_IsPlaying())
     {
-        if ( Key_IsCatcherActive(localClientNum, 8) )
+        if (Key_IsCatcherActive(localClientNum, 8))
             Key_RemoveCatcher(localClientNum, -9);
         cgameGlob->selectedLocation[0] = 0.5f;
         cgameGlob->selectedLocation[1] = 0.5f;
-        for ( j = 0; j < 3; ++j )
+        for (j = 0; j < 3; ++j)
         {
             cgameGlob->selectedLocations[j][0] = -1.0f;
             cgameGlob->selectedLocations[j][1] = -1.0f;
         }
         cgameGlob->lastTimeSelected = 0;
     }
-    else if ( Key_IsCatcherActive(localClientNum, 8) || Key_IsCatcherActive(localClientNum, -1) )
+    else if (Key_IsCatcherActive(localClientNum, 8) || Key_IsCatcherActive(localClientNum, -1))
     {
-        if ( !Key_IsCatcherActive(localClientNum, 8) && UI_GetActiveMenu(localClientNum) == UIMENU_SCOREBOARD )
+        if (!Key_IsCatcherActive(localClientNum, 8) && UI_GetActiveMenu(localClientNum) == UIMENU_SCOREBOARD)
             UI_CloseAllMenus(localClientNum);
     }
     else
@@ -4323,17 +4323,17 @@ int CG_DrawActiveFrame(
         Key_AddCatcher(localClientNum, 8);
         cgameGlob->selectedLocation[0] = 0.5f;
         cgameGlob->selectedLocation[1] = xy[1];
-        for ( i = 0; i < 3; ++i )
+        for (i = 0; i < 3; ++i)
         {
             cgameGlob->selectedLocations[i][0] = -1.0f;
             cgameGlob->selectedLocations[i][1] = -1.0f;
         }
         cgameGlob->lastTimeSelected = 0;
     }
-    if ( (cgameGlob->nextSnap->ps.otherFlags & 4) == 0
+    if ((cgameGlob->nextSnap->ps.otherFlags & 4) == 0
         || cgameGlob->cameraMode == 1
         || Demo_IsThirdPersonCamera()
-        || Demo_IsMovieCamera() )
+        || Demo_IsMovieCamera())
     {
         kickAVel = cgameGlob->kickAVel;
         cgameGlob->kickAVel[0] = 0.0f;
@@ -4352,172 +4352,168 @@ int CG_DrawActiveFrame(
     Rope_Update(localClientNum, cgameGlob->time);
     CG_ApplyWeaponTurnRateCap(localClientNum);
     CL_Input(localClientNum);
-    //PIXBeginNamedEvent(-1, "player state");
-    CG_PredictPlayerState(localClientNum);
-    CG_TransitionPlayerState(localClientNum, &cgameGlob->predictedPlayerState, &cgameGlob->oldTransPlayerState);
-    if ( cg_pmove[localClientNum].ps && cg_pmove[localClientNum].ps->waterlevel >= 3 )
     {
-        if ( !cgameGlob->swimming )
+        PROF_SCOPED("player state");
+        CG_PredictPlayerState(localClientNum);
+        CG_TransitionPlayerState(localClientNum, &cgameGlob->predictedPlayerState, &cgameGlob->oldTransPlayerState);
+        if (cg_pmove[localClientNum].ps && cg_pmove[localClientNum].ps->waterlevel >= 3)
         {
-            cgameGlob->swimming = 1;
-            CG_SendSwimNotify(localClientNum, cgameGlob->clientNum, 1);
-        }
-    }
-    else if ( cgameGlob->swimming )
-    {
-        cgameGlob->swimming = 0;
-        CG_SendSwimNotify(localClientNum, cgameGlob->clientNum, 0);
-    }
-    if ( (cgameGlob->nextSnap->ps.otherFlags & 6) != 0 )
-    {
-        obj = Com_GetClientDObj(cgameGlob->nextSnap->ps.clientNum, localClientNum);
-        if ( obj )
-        {
-            if ( !Sys_IsMainThread()
-                && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\cgame_mp\\cg_view_mp.cpp",
-                            5162,
-                            0,
-                            "%s",
-                            "Sys_IsMainThread()") )
+            if (!cgameGlob->swimming)
             {
-                __debugbreak();
-            }
-            XAnimClientNotifyList veryLargeNameOfNotifyListToMinimizeContact; // [esp+280h] [ebp-6A8h] BYREF
-
-            //XAnimClientNotifyList::XAnimClientNotifyList(&veryLargeNameOfNotifyListToMinimizeContact);
-            DObjSetClientNotifies(&veryLargeNameOfNotifyListToMinimizeContact);
-            CG_DObjUpdateInfo(cgameGlob, obj, 2);
-            if ( (cgameGlob->nextSnap->ps.otherFlags & 2) != 0 )
-                CG_ProcessFakeEntClientNoteTracks(localClientNum, cgameGlob->nextSnap->ps.clientNum);
-            DObjClearClientNotifies();
-            //XAnimClientNotifyList::~XAnimClientNotifyList(&veryLargeNameOfNotifyListToMinimizeContact);
-        }
-        CG_CalcEntityLerpPositions(localClientNum, &cgameGlob->predictedPlayerEntity);
-        for ( k = 0; k < 6; ++k )
-            cgameGlob->predictedPlayerEntity.pose.player.tag[k] = -2;
-        if ( Demo_IsPlaying() )
-        {
-            playerCEnt = &cgameGlob->predictedPlayerEntity;
-            playerEntNum = cgameGlob->predictedPlayerEntity.nextState.number;
-            ClientDObj = Com_GetClientDObj(playerEntNum, localClientNum);
-            if ( ClientDObj )
-            {
-                radius = DObjGetRadius(ClientDObj) + 16.0;
-                R_LinkDObjEntity(localClientNum, playerEntNum, playerCEnt->pose.origin, radius);
+                cgameGlob->swimming = 1;
+                CG_SendSwimNotify(localClientNum, cgameGlob->clientNum, 1);
             }
         }
-        CG_ProcessEntity(localClientNum, &cgameGlob->predictedPlayerEntity);
-    }
-    if ( delayedEnt != 1023 )
-    {
-        cent = CG_GetEntity(localClientNum, delayedEnt);
-        CG_ProcessEntity(localClientNum, cent);
-        CG_CheckEntEvents(localClientNum, cent);
-    }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "view anim");
-    CG_UpdateViewWeaponAnim(localClientNum, 0);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
-    gScrExecuteTime[1] = 0;
-    if ( CL_LocalClient_IsFirstActive(localClientNum) && cgameGlob->snap )
-    {
-        //PIXBeginNamedEvent(-1, "pending triggers");
-        if ( cg_level.currentTriggerListSize
-            && !Assert_MyHandler(
+        else if (cgameGlob->swimming)
+        {
+            cgameGlob->swimming = 0;
+            CG_SendSwimNotify(localClientNum, cgameGlob->clientNum, 0);
+        }
+        if ((cgameGlob->nextSnap->ps.otherFlags & 6) != 0)
+        {
+            obj = Com_GetClientDObj(cgameGlob->nextSnap->ps.clientNum, localClientNum);
+            if (obj)
+            {
+                if (!Sys_IsMainThread()
+                    && !Assert_MyHandler(
                         "C:\\projects_pc\\cod\\codsrc\\src\\cgame_mp\\cg_view_mp.cpp",
-                        5220,
+                        5162,
                         0,
                         "%s",
-                        "cg_level.currentTriggerListSize == 0") )
-        {
-            __debugbreak();
+                        "Sys_IsMainThread()"))
+                {
+                    __debugbreak();
+                }
+                XAnimClientNotifyList veryLargeNameOfNotifyListToMinimizeContact; // [esp+280h] [ebp-6A8h] BYREF
+
+                //XAnimClientNotifyList::XAnimClientNotifyList(&veryLargeNameOfNotifyListToMinimizeContact);
+                DObjSetClientNotifies(&veryLargeNameOfNotifyListToMinimizeContact);
+                CG_DObjUpdateInfo(cgameGlob, obj, 2);
+                if ((cgameGlob->nextSnap->ps.otherFlags & 2) != 0)
+                    CG_ProcessFakeEntClientNoteTracks(localClientNum, cgameGlob->nextSnap->ps.clientNum);
+                DObjClearClientNotifies();
+                //XAnimClientNotifyList::~XAnimClientNotifyList(&veryLargeNameOfNotifyListToMinimizeContact);
+            }
+            CG_CalcEntityLerpPositions(localClientNum, &cgameGlob->predictedPlayerEntity);
+            for (k = 0; k < 6; ++k)
+                cgameGlob->predictedPlayerEntity.pose.player.tag[k] = -2;
+            if (Demo_IsPlaying())
+            {
+                playerCEnt = &cgameGlob->predictedPlayerEntity;
+                playerEntNum = cgameGlob->predictedPlayerEntity.nextState.number;
+                ClientDObj = Com_GetClientDObj(playerEntNum, localClientNum);
+                if (ClientDObj)
+                {
+                    radius = DObjGetRadius(ClientDObj) + 16.0;
+                    R_LinkDObjEntity(localClientNum, playerEntNum, playerCEnt->pose.origin, radius);
+                }
+            }
+            CG_ProcessEntity(localClientNum, &cgameGlob->predictedPlayerEntity);
         }
+        if (delayedEnt != 1023)
+        {
+            cent = CG_GetEntity(localClientNum, delayedEnt);
+            CG_ProcessEntity(localClientNum, cent);
+            CG_CheckEntEvents(localClientNum, cent);
+        }
+    }
+
+    {
+        PROF_SCOPED("view anim");
+        CG_UpdateViewWeaponAnim(localClientNum, 0);
+    }
+
+    gScrExecuteTime[1] = 0;
+
+    if (CL_LocalClient_IsFirstActive(localClientNum) && cgameGlob->snap)
+    {
+        PROF_SCOPED("pending triggers");
+        iassert(cg_level.currentTriggerListSize == 0);
+
         Com_Memcpy(cg_level.currentTriggerList, cg_level.pendingTriggerList, 12 * cg_level.pendingTriggerListSize);
         cg_level.currentTriggerListSize = cg_level.pendingTriggerListSize;
         cg_level.pendingTriggerListSize = 0;
-        if ( cg_level.currentTriggerListSize )
+        if (cg_level.currentTriggerListSize)
         {
             do
             {
                 bMoreTriggered = CG_NotifyTriggers();
                 Scr_RunCurrentThreads(SCRIPTINSTANCE_CLIENT);
-            }
-            while ( bMoreTriggered );
-            if ( cg_level.currentTriggerListSize
+            } while (bMoreTriggered);
+            if (cg_level.currentTriggerListSize
                 && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\cgame_mp\\cg_view_mp.cpp",
-                            5234,
-                            0,
-                            "%s",
-                            "cg_level.currentTriggerListSize == 0") )
+                    "C:\\projects_pc\\cod\\codsrc\\src\\cgame_mp\\cg_view_mp.cpp",
+                    5234,
+                    0,
+                    "%s",
+                    "cg_level.currentTriggerListSize == 0"))
             {
                 __debugbreak();
             }
         }
         Scr_IncTime(SCRIPTINSTANCE_CLIENT);
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
     }
-    //PIXBeginNamedEvent(-1, "view values");
-    UpdateKillCamEntityCache(localClientNum);
-    CG_CalcViewValues(localClientNum);
-    LerpKillCamView(localClientNum);
-    if ( (unsigned __int8)CG_ScrCamActive(localClientNum) )
-        CG_ScrCamCalcView(localClientNum);
-    if ( cgameGlob->cameraMode == 1 || cgameGlob->cameraMode == 2 )
-        CG_MovieCamCalcView(localClientNum);
-    CG_DrawWaterTrail(localClientNum);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "player entity");
-    if ( r_lockPvs->current.enabled )
+
     {
-        R_PvsLock_GetViewOrigin(fxcam.vieworg);
-        R_PvsLock_GetViewAxis(fxcam.viewaxis);
-        fxcam.tanHalfFovX = cgameGlob->refdef.tanHalfFovX;
-        fxcam.tanHalfFovY = cgameGlob->refdef.tanHalfFovY;
-        fxcam.zfar = R_GetFarPlaneDist();
+        PROF_SCOPED("view values");
+        UpdateKillCamEntityCache(localClientNum);
+        CG_CalcViewValues(localClientNum);
+        LerpKillCamView(localClientNum);
+        if ((unsigned __int8)CG_ScrCamActive(localClientNum))
+            CG_ScrCamCalcView(localClientNum);
+        if (cgameGlob->cameraMode == 1 || cgameGlob->cameraMode == 2)
+            CG_MovieCamCalcView(localClientNum);
+        CG_DrawWaterTrail(localClientNum);
     }
-    else
+
     {
-        zfar = R_GetFarPlaneDist();
-        FX_GetCameraUpdateFromRefdefAndZFar(&fxcam, &cgameGlob->refdef, zfar);
+        PROF_SCOPED("player entity");
+        if (r_lockPvs->current.enabled)
+        {
+            R_PvsLock_GetViewOrigin(fxcam.vieworg);
+            R_PvsLock_GetViewAxis(fxcam.viewaxis);
+            fxcam.tanHalfFovX = cgameGlob->refdef.tanHalfFovX;
+            fxcam.tanHalfFovY = cgameGlob->refdef.tanHalfFovY;
+            fxcam.zfar = R_GetFarPlaneDist();
+        }
+        else
+        {
+            zfar = R_GetFarPlaneDist();
+            FX_GetCameraUpdateFromRefdefAndZFar(&fxcam, &cgameGlob->refdef, zfar);
+        }
+        FX_SetNextUpdateCamera(localClientNum, &fxcam);
+        R_UpdateSpotLightEffect(&fxUpdateCmd);
+        SND_SetListener(
+            localClientNum,
+            cgameGlob->nextSnap->ps.clientNum,
+            cgameGlob->bgs.clientinfo[cgameGlob->clientNum].team,
+            cgameGlob->refdef.vieworg,
+            cgameGlob->refdef.viewaxis);
+        CG_AddViewWeapon(localClientNum);
+        CG_UpdateTestFX(localClientNum);
+        CG_UpdateFire(localClientNum);
+        CG_Flame_Update_Source(localClientNum);
+        GetCeilingHeight(cgameGlob);
+        if (CL_LocalClient_IsFirstActive(localClientNum))
+            DumpAnims(localClientNum);
+        FX_MarkUpdateClientTime(localClientNum, cgameGlob->frametime);
     }
-    FX_SetNextUpdateCamera(localClientNum, &fxcam);
-    R_UpdateSpotLightEffect(&fxUpdateCmd);
-    SND_SetListener(
-        localClientNum,
-        cgameGlob->nextSnap->ps.clientNum,
-        cgameGlob->bgs.clientinfo[cgameGlob->clientNum].team,
-        cgameGlob->refdef.vieworg,
-        cgameGlob->refdef.viewaxis);
-    CG_AddViewWeapon(localClientNum);
-    CG_UpdateTestFX(localClientNum);
-    CG_UpdateFire(localClientNum);
-    CG_Flame_Update_Source(localClientNum);
-    GetCeilingHeight(cgameGlob);
-    if ( CL_LocalClient_IsFirstActive(localClientNum) )
-        DumpAnims(localClientNum);
-    FX_MarkUpdateClientTime(localClientNum, cgameGlob->frametime);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "remaining fx");
-    R_UpdateRemainingEffects(&fxUpdateCmd);
-    Rope_Render(localClientNum);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "aim assist");
-    AimAssist_UpdateScreenTargets(
-        localClientNum,
-        cgameGlob->refdef.vieworg,
-        cgameGlob->refdefViewAngles,
-        cgameGlob->refdef.tanHalfFovX,
-        cgameGlob->refdef.tanHalfFovY);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+
+    {
+        PROF_SCOPED("remaining fx");
+        R_UpdateRemainingEffects(&fxUpdateCmd);
+        Rope_Render(localClientNum);
+    }
+    {
+        PROF_SCOPED("aim assist");
+        AimAssist_UpdateScreenTargets(
+            localClientNum,
+            cgameGlob->refdef.vieworg,
+            cgameGlob->refdefViewAngles,
+            cgameGlob->refdef.tanHalfFovX,
+            cgameGlob->refdef.tanHalfFovY);
+    }
+
     //BLOPS_NULLSUB();
     CG_UpdateSceneDepthOfField(localClientNum);
     CG_UpdateWaterSheetingFX(cgameGlob);
@@ -4525,21 +4521,23 @@ int CG_DrawActiveFrame(
     CG_UpdatePoisonFX(cgameGlob);
     CG_UpdateElectrifiedFX(cgameGlob);
     CG_UpdateGenericFilter(cgameGlob);
-    //PIXBeginNamedEvent(-1, "draw 2D");
-    R_AddCmdProjectionSet2D();
-    DrawShellshockBlend(localClientNum);
-    if ( CG_IsInfrared(localClientNum) )
+
     {
-        if ( hadSavedScreen )
-            cgameGlob->shellshock.hasSavedScreen = 1;
-        parms.screenBlend.blurredEffectTime = (int)cg_infraredBlurTime->current.value;
-        parms.screenBlend.blurredFadeTime = 0;
-        CG_DrawShellShockSavedScreenBlendBlurred(localClientNum, &parms, cgameGlob->time, 100000);
+        PROF_SCOPED("draw 2D");
+        R_AddCmdProjectionSet2D();
+        DrawShellshockBlend(localClientNum);
+        if (CG_IsInfrared(localClientNum))
+        {
+            if (hadSavedScreen)
+                cgameGlob->shellshock.hasSavedScreen = 1;
+            parms.screenBlend.blurredEffectTime = (int)cg_infraredBlurTime->current.value;
+            parms.screenBlend.blurredFadeTime = 0;
+            CG_DrawShellShockSavedScreenBlendBlurred(localClientNum, &parms, cgameGlob->time, 100000);
+        }
+        CG_CompassIncreaseRadarTime(localClientNum);
+        CG_Draw2D(localClientNum);
     }
-    CG_CompassIncreaseRadarTime(localClientNum);
-    CG_Draw2D(localClientNum);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+    
     CG_ValidateWeaponSelect(cgameGlob);
     CG_DrawActive(localClientNum);
     CG_CheckBattleChatter();
@@ -4793,7 +4791,8 @@ void __cdecl CG_UpdateEntInfo(int localClientNum)
     int num; // [esp+C48h] [ebp-8h]
     int entnum; // [esp+C4Ch] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "update ent info");
+    PROF_SCOPED("update ent info");
+
     cgameGlob = CG_GetLocalClientGlobals(localClientNum);
     for ( num = 0; num < cgameGlob->nextSnap->numEntities; ++num )
     {
@@ -4855,19 +4854,15 @@ void __cdecl CG_UpdateEntInfo(int localClientNum)
             }
         }
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl CG_UpdateIKTiming(int localClientNum)
 {
     cg_s *cgameGlob; // [esp+8h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "update ik timing");
+    PROF_SCOPED("update ik timing");
     cgameGlob = CG_GetLocalClientGlobals(localClientNum);
     IK_UpdateTimeAll(cgameGlob->time, localClientNum, 0);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl DumpAnims(int localClientNum)
@@ -5418,7 +5413,10 @@ int __cdecl CG_DrawExtraCamFrame(
     ExtraCamClientStateRestore clientRestore(localClientNum); // [esp+C8h] [ebp-3A8h] BYREF
 
     Name = va("CG_DrawExtraCamFrame c=%d", localClientNum);
-    //PIXBeginNamedEvent(-1, Name);
+
+    PROF_SCOPED("CG_DrawExtraCamFrame");
+    ZoneTextF("c=%d", localClientNum);
+
     //ExtraCamClientStateRestore::ExtraCamClientStateRestore(&clientRestore, localClientNum);
     if ( !Sys_IsMainThread()
         && !Assert_MyHandler(
@@ -5454,8 +5452,6 @@ int __cdecl CG_DrawExtraCamFrame(
     if ( cgameGlob->isLoading )
     {
         //ExtraCamClientStateRestore::~ExtraCamClientStateRestore(&clientRestore);
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
         return 0;
     }
     else
@@ -5470,8 +5466,6 @@ int __cdecl CG_DrawExtraCamFrame(
                     iassert(bgs == &cgameGlob->bgs);
                     bgs = NULL;
                     //ExtraCamClientStateRestore::~ExtraCamClientStateRestore(&clientRestore);
-                    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                        //D3DPERF_EndEvent();
                     return 0;
                 }
                 else
@@ -5503,8 +5497,6 @@ int __cdecl CG_DrawExtraCamFrame(
                     iassert(bgs == &cgameGlob->bgs);
                     bgs = NULL;
                     //ExtraCamClientStateRestore::~ExtraCamClientStateRestore(&clientRestore);
-                    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                        //D3DPERF_EndEvent();
                     return 1;
                 }
             }
@@ -5513,8 +5505,6 @@ int __cdecl CG_DrawExtraCamFrame(
                 iassert(bgs == &cgameGlob->bgs);
                 bgs = NULL;
                 //ExtraCamClientStateRestore::~ExtraCamClientStateRestore(&clientRestore);
-                //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                    //D3DPERF_EndEvent();
                 return 0;
             }
         }
@@ -5523,8 +5513,6 @@ int __cdecl CG_DrawExtraCamFrame(
             iassert(bgs == &cgameGlob->bgs);
             bgs = NULL;
             //ExtraCamClientStateRestore::~ExtraCamClientStateRestore(&clientRestore);
-            //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                //D3DPERF_EndEvent();
             return 0;
         }
     }

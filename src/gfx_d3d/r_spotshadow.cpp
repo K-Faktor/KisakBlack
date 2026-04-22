@@ -427,18 +427,19 @@ void __cdecl R_GenerateSortedPrimarySpotShadowDrawSurfs(
                         PrimaryLightCount) )
             __debugbreak();
     }
-    //PIXBeginNamedEvent(-1, "bsp surfaces");
-    R_AddAllBspDrawSurfacesSpotShadow(spotShadowIndex, shadowableLightIndex);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "static model surfaces");
-    R_AddAllStaticModelSurfacesSpotShadow(viewIndex, spotShadowIndex, shadowableLightIndex);
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
-    //PIXBeginNamedEvent(-1, "scene ent surfaces");
-    R_AddAllSceneEntSurfacesSpotShadow(viewInfo, spotShadowIndex, shadowableLightIndex);
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
+
+    {
+        PROF_SCOPED("bsp surfaces");
+        R_AddAllBspDrawSurfacesSpotShadow(spotShadowIndex, shadowableLightIndex);
+    }
+    {
+        PROF_SCOPED("static model surfaces");
+        R_AddAllStaticModelSurfacesSpotShadow(viewIndex, spotShadowIndex, shadowableLightIndex);
+    }
+    {
+        PROF_SCOPED("scene ent surfaces");
+        R_AddAllSceneEntSurfacesSpotShadow(viewInfo, spotShadowIndex, shadowableLightIndex);
+    }
 }
 
 void __cdecl R_EmitSpotShadowMapSurfs(GfxViewInfo *viewInfo)
@@ -449,7 +450,8 @@ void __cdecl R_EmitSpotShadowMapSurfs(GfxViewInfo *viewInfo)
     GfxSpotShadow *spotShadow; // [esp+18h] [ebp-8h]
     unsigned int spotShadowIndex; // [esp+1Ch] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "emit spot shadow map surfs");
+    PROF_SCOPED("emit spot shadow map surfs");
+
     for ( spotShadowIndex = 0; spotShadowIndex < frontEndDataOut->spotShadowCount; ++spotShadowIndex )
     {
         spotShadow = &frontEndDataOut->spotShadows[spotShadowIndex];
@@ -500,7 +502,5 @@ void __cdecl R_EmitSpotShadowMapSurfs(GfxViewInfo *viewInfo)
                     info);
         }
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 

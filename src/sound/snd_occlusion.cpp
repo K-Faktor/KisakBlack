@@ -44,7 +44,9 @@ double __cdecl SND_LosOcclusionTrace(bool fancy, int *cache, const float *listen
     up_playback_ray_step = 40.0 / (float)playback_rays;
     side_listen_ray_step = 30.0 / (float)listen_rays;
     side_playback_ray_step = 50.0 / (float)playback_rays;
-    //PIXBeginNamedEvent(-1, "Occlusion Trace");
+
+    PROF_SCOPED("Occlusion Trace");
+
     if ( CG_SightTracePoint(cache, listener, playback, 49, &result) )
     {
         up[0] = 0.0f;
@@ -117,8 +119,6 @@ double __cdecl SND_LosOcclusionTrace(bool fancy, int *cache, const float *listen
                     v5 = occlusion_factor;
                 occlusion_factor = v5;
             }
-            //if ( GetCurrentThreadId() == g_DXDeviceThread )
-                //D3DPERF_EndEvent();
             return occlusion_factor;
         }
         else
@@ -128,8 +128,6 @@ double __cdecl SND_LosOcclusionTrace(bool fancy, int *cache, const float *listen
     }
     else
     {
-        //if ( g_DXDeviceThread == GetCurrentThreadId() )
-            //D3DPERF_EndEvent();
         return 0.0;
     }
 }

@@ -2578,8 +2578,9 @@ void __cdecl SV_ClientThink(client_t *cl, usercmd_s *cmd)
     char *v2; // eax
     char *Name; // [esp+20h] [ebp-8h]
 
-    Name = va("SV_ClientThink '%s'", cl->name);
-    //PIXBeginNamedEvent(-1, Name);
+    //Name = va("SV_ClientThink '%s'", cl->name);
+    PROF_SCOPED("SV_ClientThink");
+    ZoneTextF("'%s'", cl->name);
     if ( (unsigned int)(cl - svs.clients) >= com_maxclients->current.integer
         && !Assert_MyHandler(
                     "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
@@ -2595,23 +2596,15 @@ void __cdecl SV_ClientThink(client_t *cl, usercmd_s *cmd)
     {
         v2 = va("Invalid command time %i from client %s, current server time is %i", cmd->serverTime, cl->name, svs.time);
         Com_PrintError(15, v2);
-        //if ( g_DXDeviceThread != GetCurrentThreadId() )
-        //    return;
-        goto LABEL_11;
+        return;
     }
     memcpy(&cl->lastUsercmd, cmd, sizeof(cl->lastUsercmd));
     if ( cl->header.state == CS_ACTIVE )
     {
         G_SetLastServerTime(cl - svs.clients, cmd->serverTime);
         ClientThink(cl - svs.clients);
-        //if ( GetCurrentThreadId() != g_DXDeviceThread )
-        //    return;
-        goto LABEL_11;
+        return;
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-LABEL_11:
-    ;
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl SV_UserMove(client_t *cl, msg_t *msg, int delta)

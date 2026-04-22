@@ -896,7 +896,8 @@ void GlassRenderer::Update(int threadId)
 {
     iassert(threadId == 0);
 
-    //PIXBeginNamedEvent(-1, "Glasses Update");
+    PROF_SCOPED("Glasses Update");
+
 
     CrashGlass();
     Broom();
@@ -923,8 +924,6 @@ void GlassRenderer::Update(int threadId)
                 cg_s *cgameGlob = CG_GetLocalClientGlobals(i);
                 if (!cgameGlob)
                 {
-                    //if (GetCurrentThreadId() == g_DXDeviceThread)
-                    //    D3DPERF_EndEvent();
                     return;
                 }
 
@@ -955,21 +954,17 @@ void GlassRenderer::Update(int threadId)
         stat.numOOMGroups = 0;
     }
 
-    //PIXBeginNamedEvent(0, "ShardGroup.Update");
+    {
+        PROF_SCOPED("ShardGroup.Update");
 
-    for (ShardGroup *grp : groupsAllocator->used)
-        grp->Update(deltaTime);
-
-    //if (GetCurrentThreadId() == g_DXDeviceThread)
-    //    D3DPERF_EndEvent();
+        for (ShardGroup *grp : groupsAllocator->used)
+            grp->Update(deltaTime);
+    }
 
     if (!threadId)
         DoGroupChanges();
 
     rendererLock.lock = 0;
-
-    //if (GetCurrentThreadId() == g_DXDeviceThread)
-    //    D3DPERF_EndEvent();
 }
 
 #if 0
@@ -1049,9 +1044,8 @@ void GlassRenderer::GenerateVerts(int localClientNum, unsigned int viewIndex, un
         __debugbreak();
 
 
-    // Optional debug event
     char *Name = va("Glass.GenVerts(c=%d v=%d t=%d)", localClientNum, viewIndex, threadId);
-    //PIXBeginNamedEvent(-1, Name);
+    PROF_SCOPED_RUNTIME_NAME(Name);
 
 
     // Acquire renderer lock
@@ -1074,16 +1068,11 @@ void GlassRenderer::GenerateVerts(int localClientNum, unsigned int viewIndex, un
         grp->GenerateVerts(firstView, localClientNum);
     }
 
-
     // Release renderer lock
     rendererLock.lock = 0;
 
-
     // Start maintenance tasks
     StartMaintenance();
-
-
-    //PIXEndNamedEvent(); // if using PIX
 }
 
 #if 0
@@ -1137,9 +1126,7 @@ void GlassRenderer::ExplosionEvent(
     float radius,
     int mod)
 {
-    // Optional PIX event
-    // PIXBeginNamedEvent(-1, "GlassRenderer.ExplosionEvent");
-
+    PROF_SCOPED("GlassRenderer.ExplosionEvent");
 
     // Iterate over all shard groups
     for (std::list<ShardGroup *, SmallAllocatorTemplate<ShardGroup *> >::iterator it = groupsAllocator->used.begin();
@@ -1149,10 +1136,6 @@ void GlassRenderer::ExplosionEvent(
         ShardGroup *grp = *it;
         grp->ExplosionEvent(origin, damageInner, damageOuter, radius, mod);
     }
-
-
-    // Optional PIX end event
-    // PIXEndNamedEvent();
 }
 
 #if 0
@@ -1783,7 +1766,8 @@ void __thiscall GlassRenderer::ExecuteActions()
 {
     GlassRenderer::Action *action; // [esp+20h] [ebp-8h]
 
-    //PIXBeginNamedEvent(-1, "GlassRenderer.ExecuteActions");
+    PROF_SCOPED("GlassRenderer.ExecuteActions");
+
     while ( this->actionOutputIndex != this->actionInputIndex )
     {
         action = &this->actions[this->actionOutputIndex % 0xC8u];
@@ -1819,8 +1803,6 @@ void __thiscall GlassRenderer::ExecuteActions()
         _InterlockedExchangeAdd(&this->actionOutputIndex, 1u);
         GlassRenderer::DoGroupChanges();
     }
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __thiscall GlassRenderer::StartMaintenance()
@@ -3000,7 +2982,8 @@ void __thiscall ShardGroup::GenerateVerts(bool firstView, unsigned int localClie
             ShardGroup::FreeRenderMemory();
         if ( !this->renderIndices )
         {
-            //PIXBeginNamedEvent(-1, "ShardGroup.GenerateVerts");
+            PROF_SCOPED("ShardGroup.GenerateVerts");
+
             this->highLod = needHighLod;
             ShardGroup::FreeRenderMemory();
             this->numIndices = 0;
@@ -3026,8 +3009,6 @@ void __thiscall ShardGroup::GenerateVerts(bool firstView, unsigned int localClie
                 ShardGroup::FreeRenderMemory();
                 baseVerts = 0;
                 this->renderIndices = 0;
-                //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                    //D3DPERF_EndEvent();
                 return;
             }
             indices = this->renderIndices;
@@ -3057,8 +3038,6 @@ void __thiscall ShardGroup::GenerateVerts(bool firstView, unsigned int localClie
             }
             //*timer.counter += tlPcGetTick().QuadPart - timer.start;
             *timer.counter += tlPcGetTick().QuadPart - timer.start;
-            //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                //D3DPERF_EndEvent();
         }
         if ( !this->renderIndices
             && !Assert_MyHandler(
@@ -3168,7 +3147,8 @@ int __thiscall ShardGroup::TracePoint(float *p0, const float *p1)
         && maxs[1] >= this->worldBBoxMin[1]
         && maxs[2] >= this->worldBBoxMin[2] )
     {
-        //PIXBeginNamedEvent(-1, "ShardGroup.TracePoint");
+        PROF_SCOPED("ShardGroup.TracePoint");
+
         dir[0] = *p1 - *p0;
         dir[1] = p1[1] - p0[1];
         dir[2] = p1[2] - p0[2];
@@ -3181,8 +3161,6 @@ int __thiscall ShardGroup::TracePoint(float *p0, const float *p1)
                     ++numHits;
             }
         }
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-            //D3DPERF_EndEvent();
     }
     return numHits;
 }

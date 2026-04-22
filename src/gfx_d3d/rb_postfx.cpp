@@ -1327,7 +1327,8 @@ void __cdecl RB_BloomLDR(const GfxViewInfo *viewInfo)
     unsigned __int8 dstRt; // [esp+62h] [ebp-2h] BYREF
     unsigned __int8 tmp; // [esp+63h] [ebp-1h]
 
-    ////PIXBeginNamedEvent(-1, "LDR Bloom");
+    PROF_SCOPED("LDR Bloom");
+
     R_SetRenderTargetSize(&gfxCmdBufSourceState, 0x19u);
     R_SetRenderTarget(gfxCmdBufContext, 0x19u);
     R_ClearRenderTargetForMultiGpu(gfxCmdBufContext, 0x19u);
@@ -1416,8 +1417,6 @@ void __cdecl RB_BloomLDR(const GfxViewInfo *viewInfo)
     R_Resolve(gfxCmdBufContext, gfxRenderTargets[6].image);
     R_SetCodeImageTexture(&gfxCmdBufSourceState, 0xAu, gfxRenderTargets[6].image);
     RB_Filter(rgp.postFxColorMaterial, viewInfo);
-    //if (g_DXDeviceThread == GetCurrentThreadId())
-    //    D3DPERF_EndEvent();
 }
 
 bool __cdecl R_UsingDoubleVision(const GfxViewInfo *viewInfo)
@@ -2474,7 +2473,8 @@ void __cdecl RB_ReviveFX(const GfxViewInfo *viewInfo)
   float finalMatrix[4][4]; // [esp+A4h] [ebp-80h] BYREF
   float whiteTempMatrix[4][4]; // [esp+E4h] [ebp-40h] BYREF
 
-  ////PIXBeginNamedEvent(-1, "RB_ReviveFX");
+  PROF_SCOPED("RB_ReviveFX");
+
   RB_GaussianFilterImage(6.4000001, 6u, 0xCu);
   R_SetRenderTargetSize(&gfxCmdBufSourceState, 3u);
   R_SetRenderTarget(gfxCmdBufContext, 3u);
@@ -2531,8 +2531,6 @@ void __cdecl RB_ReviveFX(const GfxViewInfo *viewInfo)
   gfxCmdBufSourceState.input.consts[124][3] = 0.0f;
   R_DirtyCodeConstant(&gfxCmdBufSourceState, CONST_SRC_CODE_POSTFX_CONTROL3);
   RB_Filter(rgp.reviveFXMaterial, viewInfo);
-  //if ( GetCurrentThreadId() == g_DXDeviceThread )
-  //  D3DPERF_EndEvent();
 }
 
 void __cdecl RB_ProcessPostEffects(const GfxViewInfo *viewInfo)
@@ -2552,69 +2550,53 @@ void __cdecl RB_ProcessPostEffects(const GfxViewInfo *viewInfo)
     RB_GetResolvedScene();
     if ( RB_UsingFlameFX(viewInfo) )
     {
-      //PIXBeginNamedEvent(-1, "RB_ApplyFlameFX");
-      RB_FlameFX(viewInfo);
-      //if ( GetCurrentThreadId() == g_DXDeviceThread )
-      //  goto LABEL_28;
+        PROF_SCOPED("RB_ApplyFlameFX");
+        RB_FlameFX(viewInfo);
     }
     else
     {
       if ( RB_UsingReviveFX(viewInfo) )
       {
-        //PIXBeginNamedEvent(-1, "RB_ApplyReviveFX");
+        PROF_SCOPED("RB_ApplyReviveFX");
         RB_ReviveFX(viewInfo);
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //  D3DPERF_EndEvent();
         goto LABEL_29;
       }
       if ( RB_UsingElectrifiedFX(viewInfo) )
       {
-        //PIXBeginNamedEvent(-1, "RB_ApplyElectrifiedFX");
+        PROF_SCOPED("RB_ApplyElectrifiedFX");
         RB_ElectrifiedFX(viewInfo);
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //  goto LABEL_28;
       }
       else if ( RB_UsingTransportedFX(viewInfo) )
       {
-        //PIXBeginNamedEvent(-1, "RB_ApplyTransportedFX");
+        PROF_SCOPED("RB_ApplyTransportedFX");
         RB_TransportedFX(viewInfo);
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //  goto LABEL_28;
       }
       else if ( RB_UsingWaterSheetingFX(viewInfo) )
       {
-        //PIXBeginNamedEvent(-1, "RB_WaterSheetingFX");
+        PROF_SCOPED("RB_WaterSheetingFX");
         RB_WaterSheetingFX(viewInfo);
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //  goto LABEL_28;
       }
       else
       {
         if ( !RB_UsingPoison(viewInfo) )
         {
-          if ( !RB_UsingDepthOfFieldFX(viewInfo) )
+          if (!RB_UsingDepthOfFieldFX(viewInfo))
+          {
             goto LABEL_29;
-          //PIXBeginNamedEvent(-1, "RB_ApplyDepthOfField");
+          }
+          PROF_SCOPED("RB_ApplyDepthOfField");
           RB_ApplyDepthOfField(viewInfo);
-          //if ( GetCurrentThreadId() != g_DXDeviceThread )
-          //  goto LABEL_29;
-          goto LABEL_28;
+          goto LABEL_29;
         }
-        //PIXBeginNamedEvent(-1, "RB_PoisonFX");
+        PROF_SCOPED("RB_PoisonFX");
         RB_PoisonFX(viewInfo);
-        //if ( GetCurrentThreadId() == g_DXDeviceThread )
-    LABEL_28:
-        ;
-          //D3DPERF_EndEvent();
       }
     }
 LABEL_29:
     if ( RB_UsingGenericFilter(viewInfo) && !rg.renderHiResShot )
     {
-      //PIXBeginNamedEvent(-1, "genericFilter effect");
+      PROF_SCOPED("genericFilter effect");
       RB_GenericFilterFX(viewInfo);
-      //if ( GetCurrentThreadId() == g_DXDeviceThread )
-      //  D3DPERF_EndEvent();
     }
     if ( RB_UsingBlur(viewInfo) )
     {
@@ -2630,21 +2612,18 @@ LABEL_29:
       {
         __debugbreak();
       }
-      //PIXBeginNamedEvent(-1, "RB_BlurScreen()");
+      
+      PROF_SCOPED("RB_BlurScreen()");
       RB_BlurScreen(viewInfo, blurRadius);
-      //if ( g_DXDeviceThread == GetCurrentThreadId() )
-      //  D3DPERF_EndEvent();
     }
     if ( viewInfo->saveScreenFx.blendBlurredParam.enabled
       || viewInfo->saveScreenFx.blendFlashedParam.enabled
       || viewInfo->saveScreenFx.saveScreenParam.mode )
     {
-      //PIXBeginNamedEvent(-1, "saveScreenFx");
+      PROF_SCOPED("saveScreenFx");
       RB_SaveScreen_BlendBlurred(&viewInfo->saveScreenFx.blendBlurredParam, viewInfo);
       RB_SaveScreen_BlendFlashed(&viewInfo->saveScreenFx.blendFlashedParam, viewInfo);
       RB_SaveScreen(&viewInfo->saveScreenFx.saveScreenParam, viewInfo);
-      //if ( GetCurrentThreadId() == g_DXDeviceThread )
-      //  D3DPERF_EndEvent();
     }
     R_Resolve(gfxCmdBufContext, gfxRenderTargets[6].image);
     R_SetCodeImageTexture(&gfxCmdBufSourceState, 0xAu, gfxRenderTargets[6].image);

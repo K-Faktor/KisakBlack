@@ -303,7 +303,8 @@ void __cdecl CM_Trace(
     int i; // [esp+168h] [ebp-18h]
     _QWORD end_[2]; // [esp+170h] [ebp-10h] BYREF
 
-    //PIXBeginNamedEvent(-1, "CM_Trace");
+    PROF_SCOPED("CM_Trace");
+
     ////traceWork_t::traceWork_t(&tw);
     if ( !cm.numNodes
         && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\qcommon\\cm_trace.cpp", 1499, 0, "%s", "cm.numNodes") )
@@ -519,8 +520,6 @@ void __cdecl CM_Trace(
         }
         results->sflags = oldSurfaceFlags;
     }
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl CM_TestInLeaf(traceWork_t *tw, cLeaf_s *leaf, trace_t *trace)

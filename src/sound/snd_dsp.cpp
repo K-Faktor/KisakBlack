@@ -1050,18 +1050,16 @@ void __cdecl SND_DspFxSourceMono(
     v7 = (const snd_dsp_source_params *)params;
     if ( params->bpfF < -0.0000152879 )
     {
-        //PIXBeginNamedEvent(0xFFFFFF, "lpf");
+        PROF_SCOPED("lpf");
         SND_OcclusionLpfCoef(v7->lpfAttenuation, v7->lpfRatio, v7->frameRate, &b0, (float *)&params);
         SND_DspOnePoleFilterMono(frameCount, frames, b0, *(float *)&params, &v6->lpfy);
-        //PIXEndNamedEvent();
     }
     blend = v7->futz.blend;
     params = &v7->futz;
     if ( blend > 0.0000152879 )
     {
-        //PIXBeginNamedEvent(0xFFFFFF, "futz");
+        PROF_SCOPED("futz");
         SND_DspFutzMono(params, &v6->futz, v7->frameRate, frameCount, frames, tempa, tempb);
-        //PIXEndNamedEvent();
     }
 }
 
@@ -1111,7 +1109,8 @@ void __cdecl SND_DspFxMasterNoVoiceSingleChannel(
                 snd_dsp_master_no_voice_state *state,
                 snd_dsp_meters *meters)
 {
-    //PIXBeginNamedEvent(0xFFFFFF, "comp");
+    PROF_SCOPED("comp");
+
     if ( params->compE > 0.0000152879 )
     {
         if ( fabs(params->compPG - 1.0) > 0.0000152879 )
@@ -1129,7 +1128,6 @@ void __cdecl SND_DspFxMasterNoVoiceSingleChannel(
         if ( fabs(params->compMG - 1.0) > 0.0000152879 )
             SND_DspScale(frameCount, params->compMG, frames);
     }
-    //PIXEndNamedEvent();
 }
 
 void __cdecl SND_DspFxMasterSingleChannel(
@@ -1147,71 +1145,76 @@ void __cdecl SND_DspFxMasterSingleChannel(
     iassert(meters);
 
     SND_DspScaleCache(frameCount, params->eqG, frames);
-    //PIXBeginNamedEvent(-1, "eq");
-    if ( params->lowE <= 0.0000152879 )
+    
     {
-        memset(state, 0, 0x20u);
-    }
-    else
-    {
-        SND_DspBiquadLShelve(frameRate, params->lowG, params->lowF, params->lowQ, &hi);
-        SND_DspBiquadInPlace(&hi, &state->low, frameCount, frames);
-        SND_DspBiquadDenormal(&state->low);
-        SND_DspBiquadNanCheck(&state->low);
-    }
+        PROF_SCOPED("eq");
 
-    if ( params->peak1E <= 0.0000152879 )
-    {
-        memset(&state->peak1, 0, sizeof(state->peak1));
+        if (params->lowE <= 0.0000152879)
+        {
+            memset(state, 0, 0x20u);
+        }
+        else
+        {
+            SND_DspBiquadLShelve(frameRate, params->lowG, params->lowF, params->lowQ, &hi);
+            SND_DspBiquadInPlace(&hi, &state->low, frameCount, frames);
+            SND_DspBiquadDenormal(&state->low);
+            SND_DspBiquadNanCheck(&state->low);
+        }
+
+        if (params->peak1E <= 0.0000152879)
+        {
+            memset(&state->peak1, 0, sizeof(state->peak1));
+        }
+        else
+        {
+            SND_DspBiquadPeak(frameRate, params->peak1G, params->peak1F, params->peak1Q, &hi);
+            SND_DspBiquadInPlace(&hi, &state->peak1, frameCount, frames);
+            SND_DspBiquadDenormal(&state->peak1);
+            SND_DspBiquadNanCheck(&state->peak1);
+        }
+        if (params->peak2E <= 0.0000152879)
+        {
+            memset(&state->peak2, 0, sizeof(state->peak2));
+        }
+        else
+        {
+            SND_DspBiquadPeak(frameRate, params->peak2G, params->peak2F, params->peak2Q, &hi);
+            SND_DspBiquadInPlace(&hi, &state->peak2, frameCount, frames);
+            SND_DspBiquadDenormal(&state->peak2);
+            SND_DspBiquadNanCheck(&state->peak2);
+        }
+        if (params->hiE <= 0.0000152879)
+        {
+            memset(&state->hi, 0, sizeof(state->hi));
+        }
+        else
+        {
+            SND_DspBiquadHShelve(frameRate, params->hiG, params->hiF, params->hiQ, &hi);
+            SND_DspBiquadInPlace(&hi, &state->hi, frameCount, frames);
+            SND_DspBiquadDenormal(&state->hi);
+            SND_DspBiquadNanCheck(&state->hi);
+        }
     }
-    else
+    
     {
-        SND_DspBiquadPeak(frameRate, params->peak1G, params->peak1F, params->peak1Q, &hi);
-        SND_DspBiquadInPlace(&hi, &state->peak1, frameCount, frames);
-        SND_DspBiquadDenormal(&state->peak1);
-        SND_DspBiquadNanCheck(&state->peak1);
+        PROF_SCOPED("limit");
+        if (params->limitE > 0.0000152879)
+        {
+            if (fabs(params->limitPG - 1.0) > 0.0000152879)
+                SND_DspScale(frameCount, params->limitPG, frames);
+            SND_DspDynamo(
+                frameCount,
+                frameRate,
+                params->limitT,
+                params->limitR,
+                params->limitTA,
+                params->limitTR,
+                &state->limit,
+                frames,
+                meters != 0 ? &meters->dyn2Gain : 0);
+            if (fabs(params->limitMG - 1.0) > 0.0000152879)
+                SND_DspScale(frameCount, params->limitMG, frames);
+        }
     }
-    if ( params->peak2E <= 0.0000152879 )
-    {
-        memset(&state->peak2, 0, sizeof(state->peak2));
-    }
-    else
-    {
-        SND_DspBiquadPeak(frameRate, params->peak2G, params->peak2F, params->peak2Q, &hi);
-        SND_DspBiquadInPlace(&hi, &state->peak2, frameCount, frames);
-        SND_DspBiquadDenormal(&state->peak2);
-        SND_DspBiquadNanCheck(&state->peak2);
-    }
-    if ( params->hiE <= 0.0000152879 )
-    {
-        memset(&state->hi, 0, sizeof(state->hi));
-    }
-    else
-    {
-        SND_DspBiquadHShelve(frameRate, params->hiG, params->hiF, params->hiQ, &hi);
-        SND_DspBiquadInPlace(&hi, &state->hi, frameCount, frames);
-        SND_DspBiquadDenormal(&state->hi);
-        SND_DspBiquadNanCheck(&state->hi);
-    }
-    //PIXEndNamedEvent();
-    //PIXBeginNamedEvent(-1, "limit");
-    if ( params->limitE > 0.0000152879 )
-    {
-        if ( fabs(params->limitPG - 1.0) > 0.0000152879 )
-            SND_DspScale(frameCount, params->limitPG, frames);
-        SND_DspDynamo(
-            frameCount,
-            frameRate,
-            params->limitT,
-            params->limitR,
-            params->limitTA,
-            params->limitTR,
-            &state->limit,
-            frames,
-            meters != 0 ? &meters->dyn2Gain : 0);
-        if ( fabs(params->limitMG - 1.0) > 0.0000152879 )
-            SND_DspScale(frameCount, params->limitMG, frames);
-    }
-    //PIXEndNamedEvent();
 }
 

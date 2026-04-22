@@ -2912,7 +2912,8 @@ void __cdecl CG_ProcessDestructibleEvents()
     destructible_event_t *de; // [esp+20h] [ebp-Ch]
     int i; // [esp+24h] [ebp-8h]
 
-    //PIXBeginNamedEvent(-1, "CG_ProcessDestructibleEvents");
+    PROF_SCOPED("CG_ProcessDestructibleEvents");
+
     for ( i = 0; i < g_destructible_events_count; ++i )
     {
         de = &g_destructible_events[i];
@@ -2950,8 +2951,6 @@ void __cdecl CG_ProcessDestructibleEvents()
         }
     }
     g_destructible_events_count = 0;
-    //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        //D3DPERF_EndEvent();
 }
 
 void __cdecl CG_DestructibleDamage(
@@ -3000,7 +2999,8 @@ void __cdecl CG_DestructibleDamage(
     }
     else
     {
-        //PIXBeginNamedEvent(-1, "CG_DestructibleDamage2");
+        PROF_SCOPED("CG_DestructibleDamage2");
+
         destructible = self->destructible;
         if ( destructible )
         {
@@ -3062,12 +3062,6 @@ void __cdecl CG_DestructibleDamage(
             }
             if ( needDObjUpdate )
                 CG_DestructibleUpdateDObj(self);
-            //if ( g_DXDeviceThread == GetCurrentThreadId() )
-                //D3DPERF_EndEvent();
-        }
-        else //if ( g_DXDeviceThread == GetCurrentThreadId() )
-        {
-            //D3DPERF_EndEvent();
         }
     }
 }
@@ -3105,7 +3099,8 @@ bool __cdecl CG_DestructibleDamage(
     bool needDObjUpdate; // [esp+93h] [ebp-5h]
     int entity_index; // [esp+94h] [ebp-4h]
 
-    //PIXBeginNamedEvent(-1, "CG_DestructibleDamage1");
+    PROF_SCOPED("CG_DestructibleDamage1");
+
     if ( !self->destructible )
         self->destructible = Destructible_GetDestructible(self->nextState.number);
     destructible = self->destructible;
@@ -3203,8 +3198,6 @@ bool __cdecl CG_DestructibleDamage(
         }
     }
     v12 = needDObjUpdate;
-    //if ( GetCurrentThreadId() == g_DXDeviceThread )
-        //D3DPERF_EndEvent();
     return v12;
 }
 
