@@ -257,7 +257,12 @@ const struct __declspec(align(16)) gjk_query_input // sizeof=0x80
     // padding byte
     // padding byte
 
-    gjk_query_input();
+    gjk_query_input()
+    {
+        this->m_geom_skip_list.m_first = 0;
+        this->m_geom_skip_list.m_last_next_ptr = &this->m_geom_skip_list.m_first;
+        this->m_geom_skip_list.m_alloc_count = 0;
+    }
 
     void visit_skip_list(int query_visitor_count) const;
     char is_in_skip_list(gjk_geom_info_t *gi_);
@@ -486,8 +491,45 @@ struct gjk_query_output : gjk_collision_visitor // sizeof=0x150
     // padding byte
     // padding byte
 
-    gjk_query_output();
-    ~gjk_query_output();
+    gjk_query_output()
+    {
+        //this->__vftable = (gjk_query_output_vtbl *)&gjk_collision_visitor::`vftable';
+        //this->__vftable = (gjk_query_output_vtbl *)&gjk_query_output::`vftable';
+        this->m_bpei_database.m_bpei_map.m_tree_root = 0;
+        this->m_bpei_database.m_bpei_allocator.m_count = 0;
+        this->m_bpei_database.m_mutex.m_count = 1;
+        this->m_bpei_database.m_bpei_list = 0;
+        this->m_allocator.m_first_block = 0;
+        this->m_allocator.m_cur = 0;
+        this->m_allocator.m_end = 0;
+        this->m_allocator.m_total_memory_allocated = 0;
+        this->m_allocator.m_mutex.m_count = 1;
+        this->m_allocator.m_slot_pool = 0;
+        this->m_list_geom_info.m_first = 0;
+        this->m_list_geom_info.m_last_next_ptr = &this->m_list_geom_info.m_first;
+        this->m_list_geom_info.m_alloc_count = 0;
+        this->m_total_query_count = 0;
+        this->m_total_cached_query_count = 0;
+        gjk_query_output::reset_cache();
+        gjk_query_output::accum_query_reset(&PHYS_ZERO_VEC);
+        //return this;
+    }
+
+    ~gjk_query_output()
+    {
+        if (this->m_allocator.m_first_block
+            && _tlAssert(
+                "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\phys_transient_allocator.h",
+                69,
+                "m_first_block == NULL",
+                ""))
+        {
+            __debugbreak();
+        }
+
+        this->m_bpei_database.purge_database();
+        //bpei_database_t::purge_database(&this->m_bpei_database);
+    }
 
     //// VIRTUALS ////
     virtual void *allocate(int size, int alignment, bool no_error);
@@ -633,6 +675,11 @@ struct __declspec(align(16)) gjk_trace_input_t // sizeof=0xB0
     // padding byte
     // padding byte
 
+    const phys_mat44 &get_cg_mat() const
+    {
+        return m_gcci->m_cg_to_world_xform;
+    }
+
     void set_cg_position(const phys_vec3 *position);
 };
 
@@ -750,6 +797,7 @@ struct __declspec(align(16)) gjk_trace_output_t // sizeof=0x50
     // padding byte
     // padding byte
 };
+static_assert(sizeof(gjk_trace_output_t) == 80);
 
 struct __declspec(align(4)) gjk_slide_move_input_t // sizeof=0x2C
 {                                       // XREF: ai_gjk_slide_move_input_t/r
@@ -770,18 +818,14 @@ struct __declspec(align(4)) gjk_slide_move_input_t // sizeof=0x2C
     // padding byte
     // padding byte
 
-    //virtual void custom_process(gjk_trace_output_t *gto) = 0;
-    virtual void custom_process(gjk_trace_output_t *gto)
-    {
-        iassert(0);
-    }
+    virtual void custom_process(gjk_trace_output_t *gto) = 0;
 };
 
 struct ai_gjk_slide_move_input_t : gjk_slide_move_input_t // sizeof=0x30
 {                                       // XREF: AIPhys_SlideMove/r
     struct actor_physics_t *m_pPhys;
 
-    void custom_process(gjk_trace_output_t *gto) override;
+    virtual void custom_process(gjk_trace_output_t *gto) override;
 };
 
 struct __declspec(align(4)) gjk_slide_move_output_t // sizeof=0x1C
@@ -801,7 +845,7 @@ struct player_gjk_slide_move_input_t : gjk_slide_move_input_t // sizeof=0x30
 {                                       // XREF: PM_SlideMove/r
     pmove_t *pm;
 
-    void custom_process(gjk_trace_output_t *gto) override;
+    virtual void custom_process(gjk_trace_output_t *gto) override;
 };
 
 struct player_push_slide_move_input_t : gjk_slide_move_input_t // sizeof=0x38
@@ -816,9 +860,24 @@ struct player_push_slide_move_input_t : gjk_slide_move_input_t // sizeof=0x38
 
 struct list_gjk_trace_output // sizeof=0x10
 {                                       // XREF: ?gjk_player_trace@@YAXABUgjkcc_input_t@@PAUtrace_t@@QBM222HH@Z/r
-                                        // ?PM_gjk_ground_trace@@YAXABUgjkcc_input_t@@PAUtrace_t@@QBM222HHPAM@Z/r
     phys_link_list<gjk_trace_output_t> m_list;
     gjk_trace_output_t *m_first_hit;
+
+    list_gjk_trace_output() // inlined
+    {
+        this->m_list.m_first = 0;
+        this->m_list.m_last_next_ptr = (gjk_trace_output_t **)this;
+        this->m_list.m_alloc_count = 0;
+        this->m_first_hit = 0;
+    }
+
+    ~list_gjk_trace_output() // inlined
+    {
+        this->m_list.m_first = 0;
+        this->m_list.m_last_next_ptr = (gjk_trace_output_t **)this;
+        this->m_list.m_alloc_count = 0;
+        this->m_first_hit = 0;
+    }
 };
 
 
@@ -876,6 +935,11 @@ struct __declspec(align(8)) gjk_entity_info_t // sizeof=0x50
     }
 
     const DynEntityDef *get_dent();
+
+    bool is_dent() const
+    {
+        return this->m_ent_type == ET_DENT;
+    }
 };
 
 struct phys_gjk_geom;
@@ -927,7 +991,7 @@ struct phys_gjk_info // sizeof=0x3A0
         int m_candidate;
     };
 
-    phys_gjk_info();
+    phys_gjk_info() = default;
 
     gjk_retval_e gjk(const phys_gjk_input *d, const phys_vec3 *initial_support_dir, bool in_separation_loop);
 
@@ -1032,8 +1096,8 @@ void __cdecl setup_gjk_input_from_pcp(phys_gjk_input *pgi, struct phys_collision
 
 phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal *get_gjk_cache_info(
     phys_heap_gjk_cache_system_avl_tree *gjk_cache,
-    gjk_base_t *cg1,
-    gjk_base_t *cg2);
+    const gjk_base_t *cg1,
+    const gjk_base_t *cg2);
 
 extern create_gjk_geom_collision_visitor g_empty_collision_visitor;
 extern gjk_unique_id_database_t g_gjk_unique_id_database;

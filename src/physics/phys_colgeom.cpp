@@ -76,7 +76,7 @@ int gjk_base_t::get_contents()
     return this->m_contents;
 }
 
-unsigned int gjk_base_t::get_geom_id()
+unsigned int gjk_base_t::get_geom_id() const
 {
     //if ((this->m_flags & 4) == 0
     //    && _tlAssert(
@@ -232,32 +232,24 @@ void gjk_aabb_t::support(
                 phys_vec3 *support_vert,
                 phys_vec3 *support_ind) const
 {
-    float v4; // [esp-5Ch] [ebp-68h]
-    float v5; // [esp-58h] [ebp-64h]
-    float v6; // [esp-10h] [ebp-1Ch]
-    float v7; // [esp-Ch] [ebp-18h]
-    float v8; // [esp-8h] [ebp-14h]
-
     if ( v->z >= 0.0 )
-        v8 = 1.0f;
+        support_ind->z = 1.0f;
     else
-        v8 = -1.0f;
+        support_ind->z = -1.0f;
+
     if ( v->y >= 0.0 )
-        v7 = 1.0f;
+        support_ind->y = 1.0f;
     else
-        v7 = -1.0f;
+        support_ind->y = -1.0f;
+
     if ( v->x >= 0.0 )
-        v6 = 1.0f;
+        support_ind->x = 1.0f;
     else
-        v6 = -1.0f;
-    support_ind->x = v6;
-    support_ind->y = v7;
-    support_ind->z = v8;
-    v4 = (float)(support_ind->y * this->m_dims.y) + this->m_center_local.y;
-    v5 = (float)(support_ind->z * this->m_dims.z) + this->m_center_local.z;
-    support_vert->x = (float)(support_ind->x * this->m_dims.x) + this->m_center_local.x;
-    support_vert->y = v4;
-    support_vert->z = v5;
+        support_ind->x = -1.0f;
+
+    support_vert->x = (support_ind->x * this->m_dims.x) + this->m_center_local.x;
+    support_vert->y = (support_ind->y * this->m_dims.y) + this->m_center_local.y;
+    support_vert->z = (support_ind->z * this->m_dims.z) + this->m_center_local.z;
 }
 
 void gjk_aabb_t::get_simplex(
@@ -405,7 +397,7 @@ void gjk_aabb_t::calc_aabb(
     phys_calc_world_aabb(&this->m_center_local, &this->m_dims, xform, aabb_min, aabb_max);
 }
 
-const cbrush_t *gjk_aabb_t::get_brush()
+const cbrush_t *gjk_aabb_t::get_brush() const
 {
     return this->m_brush;
 }
@@ -481,51 +473,26 @@ void gjk_obb_t::support(
     const phys_vec3 *v5; // [esp-60h] [ebp-80h]
     phys_vec3 v6; // [esp-5Ch] [ebp-7Ch] BYREF
     phys_vec3 v7; // [esp-4Ch] [ebp-6Ch] BYREF
-    float v8; // [esp-3Ch] [ebp-5Ch]
-    float v9; // [esp-38h] [ebp-58h]
-    float v10; // [esp-34h] [ebp-54h]
-    const phys_vec3 *p_m_dims; // [esp-30h] [ebp-50h]
-    float v12; // [esp-2Ch] [ebp-4Ch]
-    float v13; // [esp-28h] [ebp-48h]
-    float v14; // [esp-24h] [ebp-44h]
-    float v15; // [esp-18h] [ebp-38h]
-    float v16; // [esp-14h] [ebp-34h]
-    float v17; // [esp-10h] [ebp-30h]
-    float v18[3]; // [esp-Ch] [ebp-2Ch] BYREF
-    const gjk_obb_t *v19; // [esp+10h] [ebp-10h]
-    unsigned int v20[2]; // [esp+14h] [ebp-Ch] BYREF
-    //_UNKNOWN *retaddr; // [esp+20h] [ebp+0h]
+    phys_vec3 local_v; // [esp-Ch] [ebp-2Ch] BYREF
+    
+    phys_inv_multiply(&local_v, &m_xform, v);
+    if (local_v.z >= 0.0)
+        support_ind->z = 1.0f;
+    else
+        support_ind->z = -1.0f;
+    if (local_v.y >= 0.0)
+        support_ind->y = 1.0f;
+    else
+        support_ind->y = -1.0f;
+    if (local_v.x >= 0.0)
+        support_ind->x = 1.0f;
+    else
+        support_ind->x = -1.0f;
 
-    //v20[0] = a2;
-    //v20[1] = retaddr;
-    v19 = this;
-    phys_inv_multiply((phys_vec3 *)v18, &this->m_xform, v);
-    if ( v18[2] >= 0.0 )
-        v17 = 1.0f;
-    else
-        v17 = -1.0f;
-    if ( v18[1] >= 0.0 )
-        v16 = 1.0f;
-    else
-        v16 = -1.0f;
-    if ( v18[0] >= 0.0 )
-        v15 = 1.0f;
-    else
-        v15 = -1.0f;
-    v12 = v15;
-    v13 = v16;
-    v14 = v17;
-    support_ind->x = v15;
-    support_ind->y = v13;
-    support_ind->z = v14;
-    p_m_dims = &v19->m_dims;
-    v10 = support_ind->x * v19->m_dims.x;
-    v9 = support_ind->y * v19->m_dims.y;
-    v8 = support_ind->z * v19->m_dims.z;
-    v7.x = v10;
-    v7.y = v9;
-    v7.z = v8;
-    v5 = phys_full_multiply(&v6, &v19->m_xform, &v7);
+    v7.x = support_ind->x * m_dims.x;
+    v7.y = support_ind->y * m_dims.y;
+    v7.z = support_ind->z * m_dims.z;
+    v5 = phys_full_multiply(&v6, &m_xform, &v7);
     support_vert->x = v5->x;
     support_vert->y = v5->y;
     support_vert->z = v5->z;
@@ -938,14 +905,9 @@ void gjk_brush_t::calc_aabb(
     }
 }
 
-const cbrush_t *gjk_brush_t::get_brush()
+const cbrush_t *gjk_brush_t::get_brush() const
 {
     return this->brush;
-}
-
-bool gjk_obb_t::is_polyhedron()
-{
-    return 1;
 }
 
 void __cdecl gjk_brush_t::destroy(gjk_brush_t *geom)
@@ -1127,11 +1089,6 @@ void gjk_partition_t::calc_aabb(
         Phys_Vec3ToNitrousVec((float *)thisa->verts[*inds_i], &v5);
         phys_aabb_add_point(xform, &v5, aabb_min, aabb_max);
     }
-}
-
-unsigned int gjk_partition_t::get_type()
-{
-    return 3;
 }
 
 void __cdecl gjk_partition_t::destroy(gjk_partition_t *geom)
@@ -2252,6 +2209,20 @@ gjk_polygon_cylinder_t *__cdecl gjk_polygon_cylinder_t::create(
     return obj;
 }
 
+bool gjk_polygon_cylinder_t::is_foot(const phys_vec3 *hit_point) const
+{
+    if (this->m_mode)
+    {
+        float foot_z = (this->m_center.z - this->m_half_height + this->m_capsule_radius) - 1.0f;
+        return foot_z >= hit_point->z;
+    }
+
+    static float offset = this->m_geom_radius * sinf((30.0f * M_PI) / 180.0f); // KISAKTODO: consider making this non-static? looks odd, does the radius never change?
+
+    float foot_z = (this->m_center.z - this->m_half_height + this->m_foot_offset) - offset;
+    return foot_z >= hit_point->z;
+}
+
 void __cdecl gjk_polygon_cylinder_t::destroy(gjk_polygon_cylinder_t *geom)
 {
     if ( geom )
@@ -3054,327 +3025,121 @@ void __cdecl create_gjk_geom(const DynEntityDef *dynEntDef, gjk_collision_visito
     }
 }
 
-//gjk_aabb_t *phys_simple_allocator<gjk_aabb_t>::allocate()
-//{
-//    char *slot; // [esp+18h] [ebp-4h]
-//
-//    slot = PMM_ALLOC(0x80u, 0x10u);
-//    if ( !slot )
-//        return 0;
-//    ++this->m_count;
-//    *(unsigned int *)slot = &phys_gjk_geom::`vftable';
-//    *(unsigned int *)slot = &gjk_base_t::`vftable';
-//    *((unsigned int *)slot + 15) = 0;
-//    *(unsigned int *)slot = &gjk_aabb_t::`vftable';
-//    *((unsigned int *)slot + 28) = 0;
-//    return (gjk_aabb_t *)slot;
-//}
-//
-//gjk_obb_t *phys_simple_allocator<gjk_obb_t>::allocate()
-//{
-//    char *slot; // [esp+18h] [ebp-4h]
-//
-//    slot = PMM_ALLOC(0xA0u, 0x10u);
-//    if ( !slot )
-//        return 0;
-//    ++this->m_count;
-//    *(unsigned int *)slot = &phys_gjk_geom::`vftable';
-//    *(unsigned int *)slot = &gjk_base_t::`vftable';
-//    *((unsigned int *)slot + 15) = 0;
-//    *(unsigned int *)slot = &gjk_obb_t::`vftable';
-//    return (gjk_obb_t *)slot;
-//}
-//
-//gjk_brush_t *phys_simple_allocator<gjk_brush_t>::allocate(phys_simple_allocator<gjk_brush_t> *this)
-//{
-//    char *slot; // [esp+18h] [ebp-4h]
-//
-//    slot = PMM_ALLOC(0x60u, 0x10u);
-//    if ( !slot )
-//        return 0;
-//    ++this->m_count;
-//    *(unsigned int *)slot = &phys_gjk_geom::`vftable';
-//    *(unsigned int *)slot = &gjk_base_t::`vftable';
-//    *((unsigned int *)slot + 15) = 0;
-//    *(unsigned int *)slot = &gjk_brush_t::`vftable';
-//    return (gjk_brush_t *)slot;
-//}
-
-//void phys_simple_allocator<gjk_brush_t>::free(phys_simple_allocator<gjk_brush_t> *this, gjk_brush_t *slot)
-//{
-//    if ( slot )
-//    {
-//        PMM_VALIDATE((char *)slot, 0x60u, 0x10u);
-//        --this->m_count;
-//        gjk_base_t::~gjk_base_t(slot);
-//        PMM_FREE((unsigned __int8 *)slot, 0x60u, 0x10u);
-//    }
-//}
-//
-//gjk_partition_t *phys_simple_allocator<gjk_partition_t>::allocate(
-//                phys_simple_allocator<gjk_partition_t> *this)
-//{
-//    char *slot; // [esp+18h] [ebp-4h]
-//
-//    slot = PMM_ALLOC(0x70u, 0x10u);
-//    if ( !slot )
-//        return 0;
-//    ++this->m_count;
-//    *(unsigned int *)slot = &phys_gjk_geom::`vftable';
-//    *(unsigned int *)slot = &gjk_base_t::`vftable';
-//    *((unsigned int *)slot + 15) = 0;
-//    *(unsigned int *)slot = &gjk_partition_t::`vftable';
-//    return (gjk_partition_t *)slot;
-//}
-//
-//void phys_simple_allocator<gjk_partition_t>::free(
-//                phys_simple_allocator<gjk_partition_t> *this,
-//                gjk_partition_t *slot)
-//{
-//    if ( slot )
-//    {
-//        PMM_VALIDATE((char *)slot, 0x70u, 0x10u);
-//        --this->m_count;
-//        gjk_base_t::~gjk_base_t(slot);
-//        PMM_FREE((unsigned __int8 *)slot, 0x70u, 0x10u);
-//    }
-//}
-//
-//gjk_double_sphere_t *phys_simple_allocator<gjk_double_sphere_t>::allocate(
-//                phys_simple_allocator<gjk_double_sphere_t> *this)
-//{
-//    char *slot; // [esp+20h] [ebp-4h]
-//
-//    slot = PMM_ALLOC(0x90u, 0x10u);
-//    if ( !slot )
-//        return 0;
-//    ++this->m_count;
-//    return gjk_double_sphere_t::gjk_double_sphere_t((gjk_double_sphere_t *)slot);
-//}
-//
-//void phys_simple_allocator<gjk_double_sphere_t>::free(
-//                phys_simple_allocator<gjk_double_sphere_t> *this,
-//                gjk_double_sphere_t *slot)
-//{
-//    if ( slot )
-//    {
-//        PMM_VALIDATE((char *)slot, 0x90u, 0x10u);
-//        --this->m_count;
-//        gjk_base_t::~gjk_base_t(slot);
-//        PMM_FREE((unsigned __int8 *)slot, 0x90u, 0x10u);
-//    }
-//}
-//
-//gjk_cylinder_t *phys_simple_allocator<gjk_cylinder_t>::allocate(phys_simple_allocator<gjk_cylinder_t> *this)
-//{
-//    char *slot; // [esp+18h] [ebp-4h]
-//
-//    slot = PMM_ALLOC(0xA0u, 0x10u);
-//    if ( !slot )
-//        return 0;
-//    ++this->m_count;
-//    *(unsigned int *)slot = &phys_gjk_geom::`vftable';
-//    *(unsigned int *)slot = &gjk_base_t::`vftable';
-//    *((unsigned int *)slot + 15) = 0;
-//    *(unsigned int *)slot = &gjk_cylinder_t::`vftable';
-//    return (gjk_cylinder_t *)slot;
-//}
-//
-//void phys_simple_allocator<gjk_cylinder_t>::free(
-//                phys_simple_allocator<gjk_cylinder_t> *this,
-//                gjk_cylinder_t *slot)
-//{
-//    if ( slot )
-//    {
-//        PMM_VALIDATE((char *)slot, 0xA0u, 0x10u);
-//        --this->m_count;
-//        gjk_base_t::~gjk_base_t(slot);
-//        PMM_FREE((unsigned __int8 *)slot, 0xA0u, 0x10u);
-//    }
-//}
-//
-//gjk_polygon_cylinder_t *phys_simple_allocator<gjk_polygon_cylinder_t>::allocate(
-//                phys_simple_allocator<gjk_polygon_cylinder_t> *this)
-//{
-//    char *slot; // [esp+18h] [ebp-4h]
-//
-//    slot = PMM_ALLOC(0x80u, 0x10u);
-//    if ( !slot )
-//        return 0;
-//    ++this->m_count;
-//    *(unsigned int *)slot = &phys_gjk_geom::`vftable';
-//    *(unsigned int *)slot = &gjk_base_t::`vftable';
-//    *((unsigned int *)slot + 15) = 0;
-//    *(unsigned int *)slot = &gjk_polygon_cylinder_t::`vftable';
-//    return (gjk_polygon_cylinder_t *)slot;
-//}
-//
-//void phys_simple_allocator<gjk_polygon_cylinder_t>::free(
-//                phys_simple_allocator<gjk_polygon_cylinder_t> *this,
-//                gjk_polygon_cylinder_t *slot)
-//{
-//    if ( slot )
-//    {
-//        PMM_VALIDATE((char *)slot, 0x80u, 0x10u);
-//        --this->m_count;
-//        gjk_base_t::~gjk_base_t(slot);
-//        PMM_FREE((unsigned __int8 *)slot, 0x80u, 0x10u);
-//    }
-//}
-
 gjk_polygon_cylinder_t::poly_verts::poly_verts()
 {
-#if 0
-    double v1; // xmm0_8
-    double v2; // xmm0_8
-    long double thisa; // [esp+0h] [ebp-Ch]
-    long double thisb; // [esp+0h] [ebp-Ch]
-    int i; // [esp+8h] [ebp-4h]
-
-    LODWORD(thisa) = this;
-    for ( i = 0; i < 4; ++i )
-    {
-        *((float *)&thisa + 1) = (float)((float)((float)i * 3.1415925) / 2.0) / 3.0;
-        v1 = *((float *)&thisa + 1);
-        __libm_sse2_cos(thisa);
-        *(float *)&v1 = v1;
-        *(unsigned int *)(LODWORD(thisb) + 4 * i) = LODWORD(v1);
-        mp = *((float *)&thisb + 1);
-        __libm_sse2_sin(thisb);
-        *(float *)&mp = mp;
-        *(unsigned int *)(LODWORD(thisa) + 4 * i + 16) = LODWORD(v2);
-    }
-#else // aislop
     for (int i = 0; i < 4; ++i)
     {
-        const float angle = static_cast<float>(i) * (3.14159265358979323846f / 6.0f);
-
-        this->m_co[i] = cosf(angle);
-        this->m_si[i] = sinf(angle);
+        float theta = (float)((float)((float)i * 3.1415925) / 2.0) / 3.0;
+        this->m_co[i] = cos(theta);
+        this->m_si[i] = sin(theta);
     }
-#endif
 }
 
+// aislop hybrid
 void gjk_polygon_cylinder_t::support(
     const phys_vec3 *v,
     phys_vec3 *support_vert,
     phys_vec3 *support_ind) const
 {
-    float v5; // [esp-Ch] [ebp-11Ch]
-    float v6; // [esp-8h] [ebp-118h]
-    float v7; // [esp-4h] [ebp-114h]
-    float v8; // [esp+14h] [ebp-FCh]
-    float v9; // [esp+18h] [ebp-F8h]
-    float v10; // [esp+1Ch] [ebp-F4h]
-    float v11; // [esp+3Ch] [ebp-D4h]
-    float v12; // [esp+74h] [ebp-9Ch]
-    float v13; // [esp+78h] [ebp-98h]
-    float v14; // [esp+7Ch] [ebp-94h]
-    float v15; // [esp+A4h] [ebp-6Ch]
-    float v16; // [esp+A8h] [ebp-68h]
-    float v17; // [esp+ACh] [ebp-64h]
-    float v18; // [esp+E4h] [ebp-2Ch] BYREF
-    float v19; // [esp+E8h] [ebp-28h] BYREF
-    int v20; // [esp+ECh] [ebp-24h]
-    float co_; // [esp+F0h] [ebp-20h]
-    float si_; // [esp+F4h] [ebp-1Ch]
-    int foot_or_head_ind; // [esp+F8h] [ebp-18h]
-    float foot_or_head_z; // [esp+FCh] [ebp-14h]
-    const gjk_polygon_cylinder_t *thisptr; // [esp+100h] [ebp-10h]
-    int v26; // [esp+104h] [ebp-Ch]
-    //int best_i; // [esp+108h] [ebp-8h]
-    //const gjk_polygon_cylinder_t *thisa; // [esp+10Ch] [ebp-4h] BYREF
-    //int retaddr; // [esp+110h] [ebp+0h]
-    //
-    //v26 = a2;
-    //best_i = retaddr;
-    thisptr = this;
+    // Capsule mode: two spheres at top and bottom of inner cylinder
     if (this->m_mode)
     {
-        if (thisptr->m_half_height < thisptr->m_capsule_radius
-            && !Assert_MyHandler(
-                "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
-                859,
-                0,
-                "%s",
-                "m_half_height >= m_capsule_radius"))
+        iassert(this->m_half_height >= this->m_capsule_radius);
+
+        float inner_half_height = m_half_height - m_capsule_radius;
+
+        phys_vec3 top = { this->m_center.x, this->m_center.y, this->m_center.z + inner_half_height };
+        phys_vec3 bottom = { this->m_center.x, this->m_center.y, this->m_center.z - inner_half_height };
+
+        if ((top.x - bottom.x) * v->x +
+            (top.y - bottom.y) * v->y +
+            (top.z - bottom.z) * v->z < 0.0f)
         {
-            __debugbreak();
-        }
-        v11 = thisptr->m_half_height - thisptr->m_capsule_radius;
-        v8 = thisptr->m_center.x + 0.0;
-        v9 = thisptr->m_center.y + 0.0;
-        v10 = thisptr->m_center.z + v11;
-        v5 = thisptr->m_center.x - 0.0;
-        v6 = thisptr->m_center.y - 0.0;
-        v7 = thisptr->m_center.z - v11;
-        if ((float)((float)((float)((float)(v8 - v5) * v->x) + (float)((float)(v9 - v6) * v->y))
-            + (float)((float)(v10 - v7) * v->z)) < 0.0)
-        {
+            // Bottom sphere
             LODWORD(support_ind->x) = 1;
-            support_vert->x = v5;
-            support_vert->y = v6;
-            support_vert->z = v7;
+            *support_vert = bottom;
         }
         else
         {
-            support_ind->x = 0.0;
-            support_vert->x = v8;
-            support_vert->y = v9;
-            support_vert->z = v10;
+            // Top sphere
+            support_ind->x = 0.0f;
+            *support_vert = top;
         }
     }
     else
     {
-        //foot_or_head_z = COERCE_FLOAT(gjk_polygon_cylinder_t::poly_verts::support(&gjk_polygon_cylinder_t::s_poly_verts,(VDCArgs *)&thisa, v));
-        foot_or_head_z = (float)gjk_polygon_cylinder_t::s_poly_verts.support(v);
-        foot_or_head_ind = SLODWORD(v->z);
-        if (*(float *)&foot_or_head_ind < 0.0)
+        // Polygon cylinder mode
+        // Find the best polygon vertex index in the XY plane
+        int best_poly_i = gjk_polygon_cylinder_t::s_poly_verts.support(v);
+
+        float z = v->z;
+
+        // Choose foot or head based on v->z direction
+        float rim_z;       // z of the rim vertex (with offset)
+        float center_z;    // z of the flat cap center (half_height only)
+        int   cap_ind;     // encoded index for the cap center
+
+        if (z < 0.0f)
         {
-            LODWORD(support_ind->x) = LODWORD(foot_or_head_z) + 12;
-            si_ = (-(thisptr->m_half_height)) + thisptr->m_foot_offset;
-            co_ = -thisptr->m_half_height;
-            v20 = 25;
+            // Foot (bottom) cap
+            LODWORD(support_ind->x) = best_poly_i + 12;
+            rim_z = -this->m_half_height + this->m_foot_offset;
+            center_z = -this->m_half_height;
+            cap_ind = 25; // 12*2 + 1
         }
         else
         {
-            support_ind->x = foot_or_head_z;
-            si_ = thisptr->m_half_height - thisptr->m_head_offset;
-            co_ = thisptr->m_half_height;
-            v20 = 24;
+            // Head (top) cap
+            LODWORD(support_ind->x) = best_poly_i;
+            rim_z = this->m_half_height - this->m_head_offset;
+            center_z = this->m_half_height;
+            cap_ind = 24; // 12*2
         }
 
-        //gjk_polygon_cylinder_t::poly_verts::get_co_si(
-        //    &gjk_polygon_cylinder_t::s_poly_verts,
-        //    SLODWORD(foot_or_head_z),
-        //    &v18,
-        //    &v19);
+        // Get the cos/sin for the best polygon vertex
+        float co, si;
+        gjk_polygon_cylinder_t::s_poly_verts.get_co_si(best_poly_i, &co, &si);
 
-        gjk_polygon_cylinder_t::s_poly_verts.get_co_si(SLODWORD(foot_or_head_z), &v18, &v19);
+        // Rim vertex position (on the polygon edge at the chosen cap)
+        phys_vec3 rim_vert;
+        rim_vert.x = this->m_polygon_cylinder_radius * co + this->m_center.x;
+        rim_vert.y = this->m_polygon_cylinder_radius * si + this->m_center.y;
+        rim_vert.z = rim_z + this->m_center.z;
 
-        v15 = (float)(thisptr->m_polygon_cylinder_radius * v18) + thisptr->m_center.x;
-        v16 = (float)(thisptr->m_polygon_cylinder_radius * v19) + thisptr->m_center.y;
-        v17 = si_ + thisptr->m_center.z;
-        v12 = thisptr->m_center.x + 0.0;
-        v13 = thisptr->m_center.y + 0.0;
-        v14 = co_ + thisptr->m_center.z;
-        if ((float)((float)((float)((float)(v15 - v12) * v->x) + (float)((float)(v16 - v13) * v->y))
-            + (float)((float)(v17 - v14) * v->z)) < 0.0)
+        // Cap center position (flat center of the chosen cap, no XY offset)
+        phys_vec3 cap_center;
+        cap_center.x = this->m_center.x;
+        cap_center.y = this->m_center.y;
+        cap_center.z = center_z + this->m_center.z;
+
+        // Pick whichever is further in direction v
+        // dot(rim_vert - cap_center, v) < 0 means cap_center is better
+        phys_vec3 diff;
+        diff.x = rim_vert.x - cap_center.x;
+        diff.y = rim_vert.y - cap_center.y;
+        diff.z = rim_vert.z - cap_center.z;
+
+        if (diff.x * v->x + diff.y * v->y + diff.z * v->z < 0.0f)
         {
-            LODWORD(support_ind->x) = v20;
-            support_vert->x = v12;
-            support_vert->y = v13;
-            support_vert->z = v14;
+            // Cap center wins
+            LODWORD(support_ind->x) = cap_ind;
+            *support_vert = cap_center;
         }
         else
         {
-            support_vert->x = v15;
-            support_vert->y = v16;
-            support_vert->z = v17;
+            // Rim vertex wins — support_ind->x already set above
+            *support_vert = rim_vert;
         }
     }
 }
 
+float gjk_polygon_cylinder_t::get_geom_radius() const
+{
+    if (this->m_mode)
+        return this->m_geom_radius + this->m_capsule_radius;
+    else
+        return this->m_geom_radius;
+}
 
 void gjk_polygon_cylinder_t::get_simplex(
     const cached_simplex_info *cache_info,
@@ -3563,6 +3328,31 @@ void gjk_polygon_cylinder_t::get_simplex(
 }
 
 
+static inline void calc_disc_aabb(
+    const phys_vec3 *axis,
+    float radius,
+    phys_vec3 *aabb_min,
+    phys_vec3 *aabb_max)
+{
+    float v4; // [esp-88h] [ebp-A8h]
+    float v5; // [esp-84h] [ebp-A4h]
+    float v6; // [esp-20h] [ebp-40h]
+    float v7; // [esp-14h] [ebp-34h]
+    float v8; // [esp-10h] [ebp-30h]
+
+    v8 = axis->x * axis->x;
+    v7 = axis->y * axis->y;
+    v6 = axis->z * axis->z;
+    aabb_max->x = radius * sqrtf(v7 + v6);
+    aabb_max->y = radius * sqrtf(v8 + v6);
+    aabb_max->z = radius * sqrtf(v8 + v7);
+    v4 = -aabb_max->y;
+    v5 = -aabb_max->z;
+    aabb_min->x = -aabb_max->x;
+    aabb_min->y = v4;
+    aabb_min->z = v5;
+}
+
 void gjk_polygon_cylinder_t::calc_aabb(
     const phys_mat44 *xform,
     phys_vec3 *aabb_min,
@@ -3612,7 +3402,7 @@ void gjk_polygon_cylinder_t::calc_aabb(
     //v42 = a2;
     //xforma = aabb_maxa;
     thisa = this;
-    gjk_polygon_cylinder_t::calc_disc_aabb(&xform->z, this->m_polygon_cylinder_radius, aabb_min, aabb_max);
+    calc_disc_aabb(&xform->z, this->m_polygon_cylinder_radius, aabb_min, aabb_max);
     p_z = &xform->z;
     m_half_height = thisa->m_half_height;
     v38 = m_half_height * xform->z.x;

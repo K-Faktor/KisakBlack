@@ -23,13 +23,13 @@ bool gjk_collide(
                 phys_gjk_info *gjk_info,
                 phys_gjk_input *pgi,
                 gjk_trace_output_t *gto,
-                const gjk_trace_input_t *gti,
+                const gjk_trace_input_t &gti,
                 gjk_geom_info_t *gi);
 void __cdecl sort_gi_list(gjk_geom_info_t **list, int list_count);
-void    gjk_trace(const gjk_trace_input_t *gti, list_gjk_trace_output *list);
+void    gjk_trace(const gjk_trace_input_t &gti, list_gjk_trace_output *list);
 
-void __cdecl init_pgi(phys_gjk_input *pgi, const gjk_trace_input_t *gti);
-void __cdecl set_pgi_cg2(phys_gjk_input *pgi, const gjk_trace_input_t *gti, gjk_geom_info_t *gi);
+void __cdecl init_pgi(phys_gjk_input *pgi, const gjk_trace_input_t &gti);
+void __cdecl set_pgi_cg2(phys_gjk_input *pgi, const gjk_trace_input_t &gti, gjk_geom_info_t *gi);
 void __cdecl setup_query_input(
                 const gjkcc_input_t *gjkcc_in,
                 const phys_vec3 *aabb_min,
@@ -64,15 +64,14 @@ void __cdecl add_hit_info(
                 const gjk_trace_output_t *gto,
                 phys_static_array<geom_plane,128> *list_geom_plane,
                 phys_link_list<gjk_geom_info_t> *geom_skip_list);
-char __cdecl project_succeeded(
+bool __cdecl project_succeeded(
                 phys_static_array<geom_plane,128> *list_geom_plane,
                 const phys_vec3 *new_position,
                 float PROJECT_FAIL_THRESH);
-char    gjk_push_out(
+bool gjk_push_out(
                 const gjkcc_input_t *gjkcc_in,
                 gjk_slide_move_input_t *input,
                 gjk_slide_move_output_t *output);
-void __cdecl Phys_NitrousVecToVec3(const phys_vec3 *inVector, float *outVector);
 bool    gjk_slide_move1(
                 const gjkcc_input_t *gjkcc_in,
                 gjk_slide_move_input_t *input,

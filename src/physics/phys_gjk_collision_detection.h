@@ -108,7 +108,7 @@ void    project(
                 phys_static_array<geom_plane,128> *list_geom_plane,
                 phys_vec3 *result);
 void __cdecl get_material_from_brush(const cbrush_t *brush, int *sflags);
-void __cdecl fill_results(const gjk_trace_output_t *gto, bool is_walkable, trace_t *results);
+void __cdecl fill_results(const gjk_trace_output_t &gto, bool is_walkable, trace_t *results);
 void __cdecl fill_results_type_and_id(const gjk_trace_output_t *gto, trace_t *results);
 void __cdecl fill_results_no_hit(trace_t *results);
 bool    is_walkable(const gjk_trace_output_t *gto);

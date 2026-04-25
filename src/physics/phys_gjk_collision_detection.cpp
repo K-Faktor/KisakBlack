@@ -48,20 +48,13 @@ void __cdecl gjk_collision_epilog(bool is_server_thread)
 static int g_use_gjk_cache = 1;
 phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal *__cdecl get_gjk_cache_info(
                 phys_heap_gjk_cache_system_avl_tree *gjk_cache,
-                gjk_base_t *cg1,
-                gjk_base_t *cg2)
+                const gjk_base_t *cg1,
+                const gjk_base_t *cg2)
 {
-    unsigned int v3; // eax
-    unsigned int geom_id; // [esp-8h] [ebp-84h]
-
     if ( !gjk_cache || !g_use_gjk_cache )
         return 0;
-    //geom_id = gjk_base_t::get_geom_id(cg2);
-    geom_id = cg2->get_geom_id();
-    //v3 = gjk_base_t::get_geom_id(cg1);
-    v3 = cg1->get_geom_id();
-    //return phys_heap_gjk_cache_system_avl_tree::get_gjk_cache_info(gjk_cache, v3, geom_id, 1);
-    return gjk_cache->get_gjk_cache_info(v3, geom_id, 1);
+
+    return gjk_cache->get_gjk_cache_info(cg1->get_geom_id(), cg2->get_geom_id(), 1);
 }
 
 phys_heap_gjk_cache_system_avl_tree::phys_gjk_cache_info_internal *__thiscall phys_heap_gjk_cache_system_avl_tree::get_gjk_cache_info(
@@ -312,8 +305,6 @@ void __thiscall bpei_database_t::update_database()
 
 void __thiscall gjk_query_output::query_prolog(const gjk_query_input *input)
 {
-    int savedregs; // [esp+160h] [ebp+0h] BYREF
-
     this->m_list_geom_info.m_first = 0;
     this->m_list_geom_info.m_last_next_ptr = &this->m_list_geom_info.m_first;
     this->m_list_geom_info.m_alloc_count = 0;
@@ -2907,220 +2898,317 @@ void    project(
     result->z = cur_dist_sq;
 }
 #else // aislop
+// Project 'point' through the constraint planes in list_geom_plane,
+// writing the closest feasible point (as an offset from origin) into 'result'.
+//
+// Uses the Johnson distance algorithm — iteratively finds the support plane
+// (most violated constraint) and builds a simplex of up to 4 planes,
+// computing barycentric weights via the determinant recurrence.
+//
+// mat[i][j]  = dot(normal_i, normal_j)  — Gram matrix entries
+// lambda[i]  = barycentric weight for plane i in the active simplex
+// cur_set    = bitmask of planes in the current simplex
+// result     = weighted sum of plane normals * lambda, starting from 'point'
 void project(
     const phys_vec3 *point,
-    phys_static_array<geom_plane, 128> *planes,
+    phys_static_array<geom_plane, 128> *list_geom_plane,
     phys_vec3 *result)
 {
-    constexpr float INF = 9.9999998e12f;
-    constexpr float EPS = 0.0000099999997f;
+    // --- Reset all plane lambdas ---
+    for (int pi = 0; pi < list_geom_plane->m_alloc_count; ++pi)
+        list_geom_plane->m_slot_array[pi].m_lambda = 0.0f;
 
-    // Reset lambdas
-    for (int i = 0; i < planes->m_alloc_count; ++i)
-        planes->m_slot_array[i].m_lambda = 0.0f;
+    // Johnson distance algorithm state
+    // mat[i][j]  = dot(normal_i, normal_j) for simplex planes i,j (1-indexed, slot 0 unused)
+    // delta[i][j]= determinant sub-expressions for barycentric weight computation
+    // w[i]       = pointer to the normal of simplex plane i (1-indexed)
+    float mat[4][4];     // Gram matrix: mat[i][j] = dot(w[i], w[j])
+    float delta[4][4];   // Determinant recurrence table
+    float rs[4];         // Scratch for max_index computation
+    const float *w[4];   // Pointers to plane normals (1-indexed: w[1..4])
 
-    float curX = point->x;
-    float curY = point->y;
-    float curZ = point->z;
+    // Active simplex bitmask and best distance tracking
+    int   cur_set = 0;       // bitmask of planes currently in simplex
+    float cur_dist_sq = 0.0f;  // best squared distance found so far (unused in output but drives iter check)
 
-    int activeMask = 0;
-    float bestDistSq = 0.0f;
+    // Accumulator for result (starts at point, planes contribute via lambda)
+    phys_vec3 cur_result;
+    cur_result.x = point->x;
+    cur_result.y = point->y;
+    cur_result.z = point->z;
 
-    geom_plane *support_gp = nullptr;
+    float best_dist_sq = 0.0f;    // best candidate squared distance across simplex subsets
+    int   best_set = 0;       // bitmask of best candidate simplex
+    float best_lambdas[4];          // lambda weights for best candidate (1-indexed)
 
-    float mat[4][4] = {};
-    geom_plane *activePlanes[4] = {};
-    float lambdas[4] = {};
+    // support_gp is used as a sentinel on exit:
+    //   (geom_plane*)-1 = no support plane found yet (initial)
+    //   (geom_plane*) 0 = no violated plane found, converged
+    //   (geom_plane*) 1 = all constraints satisfied
+    //   (geom_plane*) 2 = distance stopped improving
+    geom_plane *exit_code = (geom_plane *)-1;
 
-    for (;;)
+    // =========================================================
+    // Main support-plane loop
+    // Finds the most violated active plane (most negative signed
+    // distance from cur_result) and adds it to the simplex.
+    // =========================================================
+    for (int support_iter = 0; ; ++support_iter)
     {
-        // -------------------------------------------------
-        // Find most violated active plane
-        // -------------------------------------------------
-        geom_plane *support = nullptr;
-        float minDist = INF;
+        if (support_iter >= list_geom_plane->m_alloc_count)
+            break;
 
-        for (int i = 0; i < planes->m_alloc_count; ++i)
+        // --- Find most violated active plane not yet in simplex ---
+        const float *best_normal = nullptr;
+        float best_violation = 9.9999998e12f; // large positive, looking for minimum
+
+        for (int pi = 0; pi < list_geom_plane->m_alloc_count; ++pi)
         {
-            geom_plane &gp = planes->m_slot_array[i];
+            geom_plane *gp = &list_geom_plane->m_slot_array[pi];
+            const float *n = &gp->m_normal.x;
 
-            if (!gp.m_active || gp.m_lambda != 0.0f)
-                continue;
-
-            float d =
-                curX * gp.m_normal.x +
-                curY * gp.m_normal.y +
-                curZ * gp.m_normal.z -
-                gp.m_d;
-
-            if (d < minDist)
+            // m_active here (offset +9 floats = offset +36 bytes) is m_lambda
+            // n[9] = gp->m_lambda (lambda == -1.0 means already in simplex)
+            // n[10] = gp->m_right_side
+            if (gp->m_active && gp->m_lambda == 0.0f)
             {
-                minDist = d;
-                support = &gp;
+                // Signed distance from cur_result to this plane
+                float signed_dist = (cur_result.x * gp->m_normal.x
+                    + cur_result.y * gp->m_normal.y
+                    + cur_result.z * gp->m_normal.z)
+                    - gp->m_right_side;
+                if (best_violation > signed_dist)
+                {
+                    best_violation = signed_dist;
+                    best_normal = n;
+                }
             }
         }
 
-        if (!support)
+        if (!best_normal)
         {
-            support_gp = nullptr;
+            exit_code = nullptr; // no active planes found
+            break;
+        }
+        if (best_violation >= 0.0f)
+        {
+            exit_code = (geom_plane *)1; // all active planes satisfied
             break;
         }
 
-        if (minDist >= 0.0f)
+        // Mark this plane as in the simplex (lambda = -1 sentinel)
+        // best_normal points into geom_plane, cast back to set lambda
+        geom_plane *new_gp = (geom_plane *)((char *)best_normal - offsetof(geom_plane, m_normal));
+        new_gp->m_lambda = -1.0f;
+
+        // --- Determine new plane index (v29) in the simplex (0-based, maps to 1-based slots) ---
+        // Count bits set in cur_set to find the next slot index
+        if (cur_set > 14)
         {
-            support_gp = reinterpret_cast<geom_plane *>(1);
-            break;
+            if (!Assert_MyHandler(
+                "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_gjk_collision_detection.cpp",
+                1494, 0, "%s", "cur_set >= 0 && cur_set < 15"))
+                __debugbreak();
         }
 
-        // Mark plane as entering active set
-        support->m_lambda = -1.0f;
-
-        // -------------------------------------------------
-        // Determine insertion index (exact bit logic)
-        // -------------------------------------------------
-        int newIndex = 0;
-
-        if (activeMask & 1)
+        // Compute new_index = popcount of cur_set (0-based slot for new plane)
+        int new_index;
+        if (cur_set & 1)
         {
-            if (activeMask & 2)
-                newIndex = (activeMask & 4) ? 3 : 2;
+            if (cur_set & 2)
+                new_index = ((cur_set & 4) ? 1 : 0) + 2;
             else
-                newIndex = 1;
+                new_index = 1;
         }
         else
         {
-            newIndex = 0;
+            new_index = 0;
         }
 
-        // Determine how many planes currently active
-        int maxIndex;
-        if (activeMask & 8)       maxIndex = 4;
-        else if (activeMask & 4)  maxIndex = 3;
-        else if (activeMask & 2)  maxIndex = 2;
-        else                      maxIndex = (activeMask & 1) ? 1 : 0;
-
-        // Store pointer
-        activePlanes[newIndex] = support;
-
-        // -------------------------------------------------
-        // Fill RHS term (mat[3][...])
-        // -------------------------------------------------
-        mat[3][newIndex + 1] =
-            support->m_d -
-            (point->x * support->m_normal.x +
-                point->y * support->m_normal.y +
-                point->z * support->m_normal.z);
-
-        // -------------------------------------------------
-        // Fill dot matrix between normals
-        // -------------------------------------------------
-        for (int i = 0; i < maxIndex; ++i)
+        // Compute max_index = number of planes currently in simplex
+        int max_index;
+        if (cur_set & 8)
         {
-            if (activeMask & (1 << i))
+            max_index = 4;
+        }
+        else if (cur_set & 4)
+        {
+            max_index = 3;
+        }
+        else if (cur_set & 2)
+        {
+            max_index = 2;
+        }
+        else
+        {
+            max_index = (cur_set & 1) ? 1 : 0;
+        }
+
+        // --- Set up Gram matrix entry for new plane ---
+        // mat[new_index][new_index] = right_side - dot(point, normal)
+        mat[new_index][new_index] = new_gp->m_right_side
+            - (point->x * new_gp->m_normal.x
+                + point->y * new_gp->m_normal.y
+                + point->z * new_gp->m_normal.z);
+
+        // Initial delta for singleton: delta[new_index][new_index] = 1.0
+        delta[new_index][new_index] = 1.0f;
+        w[new_index] = &new_gp->m_normal.x;
+
+        // Cross-terms: dot(normal_new, normal_i) for existing simplex planes
+        for (int i = 0; i < max_index; ++i)
+        {
+            if (cur_set & (1 << i))
             {
-                const geom_plane *a = activePlanes[i];
-                const geom_plane *b = support;
-
-                float dot =
-                    a->m_normal.x * b->m_normal.x +
-                    a->m_normal.y * b->m_normal.y +
-                    a->m_normal.z * b->m_normal.z;
-
-                mat[i + 1][newIndex + 1] = dot;
-                mat[newIndex + 1][i + 1] = dot;
+                // mat[new_index][i] = dot(normal_new, normal_i)
+                mat[new_index][i] = (new_gp->m_normal.x * w[i][0]
+                    + new_gp->m_normal.y * w[i][1]
+                    + new_gp->m_normal.z * w[i][2]);
+                mat[i][new_index] = mat[new_index][i];
             }
         }
 
-        // -------------------------------------------------
-        // Single-plane candidate
-        // -------------------------------------------------
-        float rhs = mat[3][newIndex + 1];
-        float bestMask = (float)(1 << newIndex);
+        // --- Johnson distance algorithm: find best simplex subset ---
+        // Track best squared distance and corresponding lambdas
+        best_dist_sq = cur_dist_sq;
+        best_set = 1 << new_index;
+        best_lambdas[new_index] = mat[new_index][new_index];
 
-        lambdas[newIndex] = rhs;
-        float candidateDistSq = rhs * rhs;
+        float diag_new = mat[new_index][new_index];
+        float diag_new_sq = diag_new * diag_new;
 
-        // -------------------------------------------------
-        // Pair & triple solve (structure preserved)
-        // -------------------------------------------------
-
-        for (int j = 0; j < maxIndex; ++j)
+        // --- Check all 1-plane subsets involving new plane ---
+        for (int j = 0; j < max_index; ++j)
         {
-            if (!(activeMask & (1 << j)))
+            if (!(cur_set & (1 << j)))
                 continue;
 
-            float dot = mat[newIndex + 1][j + 1];
+            // 2-plane subset {new_index, j}
+            float det_new = mat[new_index][new_index]
+                - mat[j][new_index] * delta[new_index][j];
+            float det_j = mat[j][j]
+                - mat[new_index][j] * delta[new_index][j]; // wait — uses mat[new_index][j]
 
-            float det = mat[3][newIndex + 1] -
-                mat[3][j + 1] * dot;
+            // Actually: det_new = delta_new_in_{new,j} = mat[new][new] - mat[j][new]*delta[new][j]
+            //           det_j   = delta_j_in_{new,j}   = mat[j][j]   - mat[new][j]*delta[new][j]
+            // (This matches the Johnson recurrence)
 
-            if (det < 0.0f)
-                continue;
-
-            float nd = mat[3][j + 1] -
-                mat[3][newIndex + 1] * dot;
-
-            if (nd < 0.0f)
-                continue;
-
-            float denom = 1.0f - dot * dot;
-            if (denom <= EPS)
-                continue;
-
-            float inv = 1.0f / denom;
-
-            float distSq =
-                (det * det + nd * nd +
-                    2.0f * nd * dot * det)
-                * (inv * inv);
-
-            if (distSq > candidateDistSq)
+            if (det_new >= 0.0f && det_j >= 0.0f)
             {
-                lambdas[newIndex] = det * inv;
-                lambdas[j] = nd * inv;
-                candidateDistSq = distSq;
-                bestMask = (float)((1 << j) | (1 << newIndex));
+                // Cosine between the two normals
+                float cos_ij = delta[new_index][j]; // mat[new_index][j] cross-term already stored
+                float sin_sq = 1.0f - cos_ij * cos_ij;
+
+                if (sin_sq > 0.0000099999997f)
+                {
+                    // Squared distance for this 2-subset
+                    float dist_sq_2 = ((2.0f * det_j * delta[new_index][j] + det_new) * det_new
+                        + det_j * det_j)
+                        / (sin_sq * sin_sq);
+
+                    if (dist_sq_2 > best_dist_sq)
+                    {
+                        best_lambdas[new_index] = det_new / sin_sq;
+                        best_lambdas[j] = det_j / sin_sq;
+                        best_dist_sq = dist_sq_2;
+                        best_set = (1 << j) | (1 << new_index);
+                    }
+                }
             }
 
-            // Triple solve loop intentionally preserved structurally
-            // (exact math pattern from original retained)
+            // --- Check 3-plane subsets {new_index, j, k} ---
+            for (int k = j + 1; k < max_index; ++k)
+            {
+                if (!(cur_set & (1 << k)))
+                    continue;
+
+                // Cofactors for 3-subset
+                float ck_new = mat[k][j] * mat[k][k] - mat[j][j] * mat[k][new_index];
+                float ck_j = -mat[k][new_index] * mat[k][k] + mat[new_index][new_index] * mat[k][k];
+                float ck_k = mat[k][new_index] * mat[j][j] - mat[new_index][new_index] * mat[k][j];
+
+                // Check feasibility for subset {j, k} (rows j and k without new)
+                float check_jk_new = ck_new * delta[j][new_index]
+                    + ck_j * delta[j][j]
+                    + ck_k * delta[j][k];
+                if (check_jk_new < 0.0f)
+                    continue;
+
+                // Check feasibility for subset {new, k}
+                float check_new_neg = -(ck_new * delta[new_index][new_index]
+                    + ck_j * delta[new_index][j]
+                    + ck_k * delta[new_index][k]);
+                if (check_new_neg < 0.0f)
+                    continue;
+
+                // Recompute cofactors using delta table
+                float ck2_new = delta[new_index][j] * delta[j][k] - delta[j][j] * delta[new_index][k];
+                float ck2_j = -delta[new_index][new_index] * delta[j][k] + delta[j][new_index] * delta[new_index][k];
+                float ck2_k = delta[new_index][new_index] * delta[j][j] - delta[j][new_index] * delta[new_index][j];
+
+                float denom = ck2_new * mat[new_index][new_index]
+                    + ck2_j * mat[j][j]
+                    + ck2_k * mat[k][k];
+                if (denom < 0.0f)
+                    continue;
+
+                float numerator_check = ck2_new * delta[k][new_index]
+                    + ck2_j * delta[k][j]
+                    + ck2_k * delta[k][k];
+                if (numerator_check <= 0.0000099999997f)
+                    continue;
+
+                // Squared distance for this 3-subset
+                float dist_sq_3 = (check_jk_new * check_jk_new
+                    + check_new_neg * check_new_neg
+                    + denom * denom
+                    + 2.0f * ((check_new_neg * delta[new_index][j]
+                        + denom * delta[new_index][k]) * check_jk_new
+                        + check_new_neg * denom * delta[j][k]))
+                    / (numerator_check * numerator_check);
+
+                if (dist_sq_3 > best_dist_sq)
+                {
+                    best_lambdas[new_index] = check_jk_new / numerator_check;
+                    best_lambdas[j] = check_new_neg / numerator_check;
+                    best_lambdas[k] = denom / numerator_check;
+                    best_dist_sq = dist_sq_3;
+                    best_set = (1 << k) | (1 << j) | (1 << new_index);
+                }
+            }
         }
 
-        if (bestDistSq > candidateDistSq)
+        // --- Check if distance improved ---
+        if (cur_dist_sq > best_dist_sq)
         {
-            support_gp = reinterpret_cast<geom_plane *>(2);
+            exit_code = (geom_plane *)2; // distance stopped improving
             break;
         }
 
-        bestDistSq = candidateDistSq;
-        activeMask = (int)bestMask;
+        // Accept this simplex update
+        cur_dist_sq = best_dist_sq;
+        cur_set = best_set;
 
-        // -------------------------------------------------
-        // Recompute projected position
-        // -------------------------------------------------
-        curX = point->x;
-        curY = point->y;
-        curZ = point->z;
-
+        // --- Accumulate result: point + sum(lambda_i * normal_i) ---
+        cur_result.x = point->x;
+        cur_result.y = point->y;
+        cur_result.z = point->z;
         for (int m = 0; m < 4; ++m)
         {
-            if (activeMask & (1 << m))
+            if (cur_set & (1 << m))
             {
-                float w = lambdas[m];
-                const geom_plane *gp = activePlanes[m];
-
-                curX += w * gp->m_normal.x;
-                curY += w * gp->m_normal.y;
-                curZ += w * gp->m_normal.z;
+                float lam = best_lambdas[m];
+                cur_result.x += lam * w[m][0];
+                cur_result.y += lam * w[m][1];
+                cur_result.z += lam * w[m][2];
             }
         }
     }
 
-    result->x = curX;
-    result->y = curY;
-    result->z = curZ;
+    result->x = cur_result.x;
+    result->y = cur_result.y;
+    result->z = cur_result.z;
 }
-
 #endif
 void __cdecl get_material_from_brush(const cbrush_t *brush, int *sflags)
 {
@@ -3180,130 +3268,82 @@ void __cdecl get_material_from_brush(const cbrush_t *brush, int *sflags)
     }
 }
 
-void __cdecl fill_results(const gjk_trace_output_t *gto, bool is_walkable, trace_t *results)
+void __cdecl fill_results(const gjk_trace_output_t &gto, bool is_walkable, trace_t *trace)
 {
     const cbrush_t *v3; // eax
     unsigned __int16 number; // [esp+4h] [ebp-10h]
     unsigned __int16 v5; // [esp+6h] [ebp-Eh]
     dmaterial_t *materialInfo; // [esp+8h] [ebp-Ch]
 
-    results->fraction = gto->m_hit_time;
-    results->allsolid = 0;
-    results->startsolid = gto->m_hit_dist < 0.0;
-    Phys_NitrousVecToVec3(&gto->m_hit_normal, results->normal.vec.v);
-    results->walkable = is_walkable;
-    if ( gto->m_gi->m_ent_info )
+    trace->fraction = gto.m_hit_time;
+    trace->allsolid = 0;
+    trace->startsolid = gto.m_hit_dist < 0.0;
+    Phys_NitrousVecToVec3(&gto.m_hit_normal, trace->normal.vec.v);
+    trace->walkable = is_walkable;
+    if ( gto.m_gi->m_ent_info )
     {
-        if ( gto->m_gi->m_ent_info->m_ent_type )
+        if ( gto.m_gi->m_ent_info->m_ent_type )
         {
-            if ( gto->m_gi->m_ent_info->m_ent_type == gjk_entity_info_t::ENTITY_TYPE::ET_CENT )
+            if ( gto.m_gi->m_ent_info->m_ent_type == gjk_entity_info_t::ENTITY_TYPE::ET_CENT )
             {
                 //number = gjk_entity_info_t::get_cent(gto->m_gi->m_ent_info)->nextState.number;
-                number = gto->m_gi->m_ent_info->get_cent()->nextState.number;
-                if ( !results
-                    && !Assert_MyHandler(
-                                "c:\\projects_pc\\cod\\codsrc\\src\\physics\\../qcommon/cm_public.h",
-                                175,
-                                0,
-                                "%s",
-                                "trace") )
-                {
-                    __debugbreak();
-                }
-                results->hitType = TRACE_HITTYPE_ENTITY;
-                results->hitId = number;
+                number = gto.m_gi->m_ent_info->get_cent()->nextState.number;
+                iassert(trace);
+                trace->hitType = TRACE_HITTYPE_ENTITY;
+                trace->hitId = number;
             }
-            else if ( gto->m_gi->m_ent_info->m_ent_type == gjk_entity_info_t::ENTITY_TYPE::ET_GLASS )
+            else if ( gto.m_gi->m_ent_info->m_ent_type == gjk_entity_info_t::ENTITY_TYPE::ET_GLASS )
             {
-                if ( !results
-                    && !Assert_MyHandler(
-                                "c:\\projects_pc\\cod\\codsrc\\src\\physics\\../qcommon/cm_public.h",
-                                175,
-                                0,
-                                "%s",
-                                "trace") )
-                {
-                    __debugbreak();
-                }
-                results->hitType = TRACE_HITTYPE_ENTITY;
-                results->hitId = 1022;
+                iassert(trace);
+                trace->hitType = TRACE_HITTYPE_ENTITY;
+                trace->hitId = 1022;
             }
             else
             {
-                if ( gto->m_gi->m_ent_info->m_ent_type != gjk_entity_info_t::ENTITY_TYPE::ET_DENT
-                    && !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_gjk_collision_detection.cpp",
-                                1717,
-                                0,
-                                "%s",
-                                "gto.m_gi->m_ent_info->is_dent()") )
-                {
-                    __debugbreak();
-                }
-                if ( !results
-                    && !Assert_MyHandler(
-                                "c:\\projects_pc\\cod\\codsrc\\src\\physics\\../qcommon/cm_public.h",
-                                175,
-                                0,
-                                "%s",
-                                "trace") )
-                {
-                    __debugbreak();
-                }
-                results->hitType = TRACE_HITTYPE_ENTITY;
-                results->hitId = 1022;
+                iassert(gto.m_gi->m_ent_info->is_dent());
+                iassert(trace);
+                trace->hitType = TRACE_HITTYPE_ENTITY;
+                trace->hitId = 1022;
             }
         }
         else
         {
             //v5 = gjk_entity_info_t::get_gent(gto->m_gi->m_ent_info)->s.number;
-            v5 = gto->m_gi->m_ent_info->get_gent()->s.number;
-            if ( !results
-                && !Assert_MyHandler(
-                            "c:\\projects_pc\\cod\\codsrc\\src\\physics\\../qcommon/cm_public.h",
-                            175,
-                            0,
-                            "%s",
-                            "trace") )
-            {
-                __debugbreak();
-            }
-            results->hitType = TRACE_HITTYPE_ENTITY;
-            results->hitId = v5;
+            v5 = gto.m_gi->m_ent_info->get_gent()->s.number;
+            iassert(trace);
+            trace->hitType = TRACE_HITTYPE_ENTITY;
+            trace->hitId = v5;
         }
     }
     else
     {
-        if ( !results
-            && !Assert_MyHandler("c:\\projects_pc\\cod\\codsrc\\src\\physics\\../qcommon/cm_public.h", 175, 0, "%s", "trace") )
-        {
-            __debugbreak();
-        }
-        results->hitType = TRACE_HITTYPE_ENTITY;
-        results->hitId = 1022;
+        iassert(trace);
+        trace->hitType = TRACE_HITTYPE_ENTITY;
+        trace->hitId = 1022;
     }
-    if ( gto->m_gi->m_cg->get_brush() )
+    if ( gto.m_gi->m_cg->get_brush() )
     {
-        v3 = gto->m_gi->m_cg->get_brush();
-        results->cflags = v3->contents;
-        get_material_from_brush(v3, &results->sflags);
+        v3 = gto.m_gi->m_cg->get_brush();
+        trace->cflags = v3->contents;
+        get_material_from_brush(v3, &trace->sflags);
     }
-    else if ( gto->m_gi->m_cg->get_type() == 3 )
+    else if ( gto.m_gi->m_cg->get_type() == GJK_PARTITION )
     {
-        materialInfo = &cm.materials[*(unsigned __int16 *)(LODWORD(gto->m_gi->m_cg[1].m_aabb_mn_loc.x) + 12)];
-        results->sflags = materialInfo->surfaceFlags;
-        results->cflags = materialInfo->contentFlags;
+        gjk_partition_t *partition = (gjk_partition_t *)gto.m_gi->m_cg;
+        materialInfo = &cm.materials[partition->tree->materialIndex];
+        trace->sflags = materialInfo->surfaceFlags;
+        trace->cflags = materialInfo->contentFlags;
     }
     else
     {
-        results->cflags = 0;
-        results->sflags = 0;
+        trace->cflags = 0;
+        trace->sflags = 0;
     }
-    results->modelIndex = 0;
-    results->partName = 0;
-    results->partGroup = 0;
-    results->boneIndex = 254;
-    results->staticModel = 0;
+    trace->modelIndex = 0;
+    trace->partName = 0;
+    trace->partGroup = 0;
+    trace->boneIndex = 254;
+    trace->staticModel = 0;
 }
 
 void __cdecl fill_results_type_and_id(const gjk_trace_output_t *gto, trace_t *results)

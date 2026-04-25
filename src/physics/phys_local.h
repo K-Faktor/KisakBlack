@@ -760,6 +760,16 @@ public:
         memset(m_buffer, 0, sizeof(m_buffer)); // lwss add
     }
 
+    ~phys_static_array()
+    {
+        // this is supposed to call destructor on each element I believe
+    }
+
+    int get_count()
+    {
+        return m_alloc_count;
+    }
+
     T *operator[](int i)
     {
         iassert(i >= 0 && i < m_alloc_count);
@@ -1747,7 +1757,13 @@ void make_rotate(phys_mat44 *mat, const phys_vec3 *v1, const phys_vec3 *v2);
 
 
 // dumb
-inline void __cdecl Phys_Vec3ToNitrousVec(const float * const inVector, phys_vec3 *outVector)
+inline void Phys_NitrousVecToVec3(const phys_vec3 *inVector, float *outVector)
+{
+    outVector[0] = inVector->x;
+    outVector[1] = inVector->y;
+    outVector[2] = inVector->z;
+}
+inline void Phys_Vec3ToNitrousVec(const float * const inVector, phys_vec3 *outVector)
 {
     outVector->x = inVector[0];
     outVector->y = inVector[1];
@@ -1764,6 +1780,11 @@ inline void __cdecl Phys_AxisToNitrousMat(float (*axis)[3], phys_mat44 *outMat)
 inline float Abs(const phys_vec3 &vec)
 {
     return sqrt( (vec.x * vec.x) + (vec.y * vec.y) + (vec.z * vec.z) );
+}
+
+inline const phys_vec3 &get_mat_wrow(const phys_mat44 &mat)
+{
+    return mat.w;
 }
 
 
