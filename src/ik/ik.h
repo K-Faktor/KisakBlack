@@ -2,6 +2,7 @@
 
 #include <universal/dvar.h>
 #include <physics/phys_colgeom.h>
+#include <physics/phys_traverse.h>
 
 enum IKBoneNames : __int32
 {                                       // XREF: IKJointBones/r

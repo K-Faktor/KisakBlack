@@ -7,16 +7,9 @@ jqBatch g_phys_task_manager_batch;
 
 void __cdecl phys_task_manager_init()
 {
-    if ( g_phys_task_manager_inited
-        && _tlAssert("source/phys_task_manager.cpp", 30, "g_phys_task_manager_inited == 0", "") )
-    {
-        __debugbreak();
-    }
-    if ( g_phys_task_manager_current_worker_count
-        && _tlAssert("source/phys_task_manager.cpp", 31, "g_phys_task_manager_current_worker_count == 0", "") )
-    {
-        __debugbreak();
-    }
+    iassert(g_phys_task_manager_inited == 0);
+    iassert(g_phys_task_manager_current_worker_count == 0);
+
     g_phys_task_manager_inited = 1;
     g_phys_task_manager_batch.Module = 0;
     g_phys_task_manager_batch.Input = 0;
@@ -25,36 +18,23 @@ void __cdecl phys_task_manager_init()
 
 void __cdecl phys_task_manager_shutdown()
 {
-    if ( g_phys_task_manager_inited != 1
-        && _tlAssert("source/phys_task_manager.cpp", 49, "g_phys_task_manager_inited == 1", "") )
-    {
-        __debugbreak();
-    }
-    if ( g_phys_task_manager_current_worker_count
-        && _tlAssert("source/phys_task_manager.cpp", 50, "g_phys_task_manager_current_worker_count == 0", "") )
-    {
-        __debugbreak();
-    }
+    iassert(g_phys_task_manager_inited == 1);
+    iassert(g_phys_task_manager_current_worker_count == 0);
+
     g_phys_task_manager_inited = 0;
 }
 
 bool __cdecl phys_task_manager_needs_flush()
 {
-    if ( g_phys_task_manager_inited != 1
-        && _tlAssert("source/phys_task_manager.cpp", 83, "g_phys_task_manager_inited == 1", "") )
-    {
-        __debugbreak();
-    }
+    iassert(g_phys_task_manager_inited == 1);
+
     return g_phys_task_manager_current_worker_count > 0;
 }
 
 void __cdecl phys_task_manager_flush()
 {
-    if ( g_phys_task_manager_inited != 1
-        && _tlAssert("source/phys_task_manager.cpp", 89, "g_phys_task_manager_inited == 1", "") )
-    {
-        __debugbreak();
-    }
+    iassert(g_phys_task_manager_inited == 1);
+
     if ( g_phys_task_manager_current_worker_count > 0 )
     {
         g_phys_task_manager_current_worker_count = 0;
@@ -67,16 +47,9 @@ void __cdecl phys_task_manager_process(jqModule *module, void *input, int input_
     int v3; // eax
     int v4; // esi
 
-    if ( g_phys_task_manager_inited != 1
-        && _tlAssert("source/phys_task_manager.cpp", 60, "g_phys_task_manager_inited == 1", "") )
-    {
-        __debugbreak();
-    }
-    if ( g_phys_task_manager_current_worker_count
-        && _tlAssert("source/phys_task_manager.cpp", 61, "g_phys_task_manager_current_worker_count == 0", "") )
-    {
-        __debugbreak();
-    }
+    iassert(g_phys_task_manager_inited == 1);
+    iassert(g_phys_task_manager_current_worker_count == 0);
+
     v3 = input_count;
     if ( input_count )
     {

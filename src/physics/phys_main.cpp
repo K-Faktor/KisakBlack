@@ -795,28 +795,6 @@ void __thiscall broad_phase_memory::list_bpb_remove(broad_phase_base *bpb_to_rem
     --this->g_list_bpb_count;
 }
 
-void gjk_geom_list_t::add_geom(gjk_base_t *geom)
-{
-    iassert(geom);
-    geom->m_next_geom = this->m_first_geom;
-    this->m_first_geom = geom;
-    ++this->m_geom_count;
-}
-
-int __thiscall gjk_geom_list_t::get_geom_count()
-{
-    if ( this->m_geom_count < 0
-        && _tlAssert(
-                 "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
-                 1036,
-                 "m_geom_count >= 0",
-                 "") )
-    {
-        __debugbreak();
-    }
-    return this->m_geom_count;
-}
-
 void __cdecl destroy_broad_phase_info(rigid_body *body)
 {
     broad_phase_info *bpi; // eax

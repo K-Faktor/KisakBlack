@@ -488,7 +488,7 @@ void __cdecl CG_PointTraceToEntity(const pointtrace_t *clip, unsigned int entInd
                     absMaxs[0] = cent->pose.absmax[0];
                     absMaxs[1] = cent->pose.absmax[1];
                     absMaxs[2] = cent->pose.absmax[2];
-                    CG_GetEntityBModelBounds(cent, mins, maxs, 0, 0);
+                    CG_GetEntityBModelBounds(cent, mins, maxs, absMins, absMaxs);
                     cmodel = CM_TempBoxModel(mins, maxs, contents);
                     memset(angles, 0, sizeof(angles));
                 }

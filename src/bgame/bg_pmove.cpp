@@ -873,7 +873,7 @@ void __cdecl PM_UpdateLean(
                 end,
                 ps->clientNum,
                 0x3818813, 
-                NULL);
+                &context);
             fLean = UnGetLeanFraction(trace.fraction);
             if ( fabs(ps->leanf) > fLean )
             {

@@ -85,40 +85,41 @@ void __cdecl EntHandleDissociate(gentity_s *ent)
 
 void __cdecl EntHandleDissociateInternal(EntHandleList *entHandleList)
 {
-    const char *v1; // eax
+    char *v2; // eax
+    EntHandleInfo *info; // [esp+0h] [ebp-Ch]
     unsigned int infoIndexHead; // [esp+4h] [ebp-8h]
     unsigned int infoIndex; // [esp+8h] [ebp-4h]
 
     infoIndexHead = entHandleList->infoIndex;
-    if ( entHandleList->infoIndex )
+    if (entHandleList->infoIndex)
     {
         entHandleList->infoIndex = 0;
         infoIndex = infoIndexHead;
         do
         {
-            if ( !g_entHandleInfoArray[infoIndex].handle )
+            info = &g_entHandleInfoArray[infoIndex];
+            if (!info->handle)
             {
-                v1 = va("%d %p", infoIndex, (const void *)(8 * infoIndex + 63688520));
-                if ( !Assert_MyHandler(
-                                "C:\\projects_pc\\cod\\codsrc\\src\\game\\enthandle.cpp",
-                                139,
-                                0,
-                                "%s\n\t%s",
-                                "info->handle",
-                                v1) )
+                v2 = va("%d %p", infoIndex, info);
+                if (!Assert_MyHandler(
+                    "C:\\projects_pc\\cod\\codsrc\\src\\game\\enthandle.cpp",
+                    139,
+                    0,
+                    "%s\n\t%s",
+                    "info->handle",
+                    v2))
                     __debugbreak();
             }
-            *(unsigned int *)g_entHandleInfoArray[infoIndex].handle = 0;
-            g_entHandleInfoArray[infoIndex].handle = 0;
-            if ( !g_usedEntHandle
-                && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\enthandle.cpp", 144, 0, "%s", "g_usedEntHandle") )
+            *(_DWORD *)info->handle = 0;
+            info->handle = 0;
+            if (!g_usedEntHandle
+                && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\enthandle.cpp", 144, 0, "%s", "g_usedEntHandle"))
             {
                 __debugbreak();
             }
             --g_usedEntHandle;
-            infoIndex = g_entHandleInfoArray[infoIndex].next;
-        }
-        while ( infoIndex != infoIndexHead );
+            infoIndex = info->next;
+        } while (infoIndex != infoIndexHead);
         g_entHandleInfoArray[g_entHandleInfoArray[infoIndexHead].prev].next = g_entHandleInfoHead;
         g_entHandleInfoHead = infoIndexHead;
     }
@@ -138,7 +139,7 @@ void __thiscall EntHandle::setEnt(gentity_s *ent)
         oldEnt = EntHandle::ent();
         if ( ent == oldEnt )
             return;
-        RemoveEntHandleInfo((EntHandleList *)(2 * (oldEnt - g_entities) + 63686360), this->infoIndex);
+        RemoveEntHandleInfo(&g_entitiesHandleList[oldEnt - g_entities], this->infoIndex);
         if ( !ent )
         {
             this->number = 0;
@@ -150,7 +151,7 @@ void __thiscall EntHandle::setEnt(gentity_s *ent)
     {
         return;
     }
-    this->infoIndex = AddEntHandleInfo((EntHandleList *)(2 * (ent - g_entities) + 63686360), this);
+    this->infoIndex = AddEntHandleInfo(&g_entitiesHandleList[ent - g_entities], this);
     this->number = ent - g_entities + 1;
 }
 
@@ -227,64 +228,66 @@ const gentity_s *__thiscall EntHandle::ent() const
 
 void __cdecl RemoveEntHandleInfo(EntHandleList *entHandleList, unsigned int oldInfoIndex)
 {
-    const char *v2; // eax
+    char *v3; // eax
+    EntHandleInfo *info; // [esp+0h] [ebp-10h]
     EntHandleInfo *prev; // [esp+Ch] [ebp-4h]
 
-    if ( oldInfoIndex )
+    if (oldInfoIndex)
     {
-        if ( entHandleList->infoIndex == oldInfoIndex )
+        if (entHandleList->infoIndex == oldInfoIndex)
             entHandleList->infoIndex = oldInfoIndex != g_entHandleInfoArray[oldInfoIndex].next
-                                                             ? g_entHandleInfoArray[oldInfoIndex].next
-                                                             : 0;
-        if ( !g_entHandleInfoArray[oldInfoIndex].handle )
+            ? g_entHandleInfoArray[oldInfoIndex].next
+            : 0;
+        info = &g_entHandleInfoArray[oldInfoIndex];
+        if (!info->handle)
         {
-            v2 = va("%d %p", oldInfoIndex, (const void *)(8 * oldInfoIndex + 63688520));
-            if ( !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\game\\enthandle.cpp",
-                            196,
-                            0,
-                            "%s\n\t%s",
-                            "info->handle",
-                            v2) )
+            v3 = va("%d %p", oldInfoIndex, info);
+            if (!Assert_MyHandler(
+                "C:\\projects_pc\\cod\\codsrc\\src\\game\\enthandle.cpp",
+                196,
+                0,
+                "%s\n\t%s",
+                "info->handle",
+                v3))
                 __debugbreak();
         }
-        g_entHandleInfoArray[oldInfoIndex].handle = 0;
-        if ( !g_usedEntHandle
-            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\enthandle.cpp", 198, 0, "%s", "g_usedEntHandle") )
+        info->handle = 0;
+        if (!g_usedEntHandle
+            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\game\\enthandle.cpp", 198, 0, "%s", "g_usedEntHandle"))
         {
             __debugbreak();
         }
         --g_usedEntHandle;
-        prev = (EntHandleInfo *)(8 * g_entHandleInfoArray[oldInfoIndex].prev + 63688520);
-        g_entHandleInfoArray[g_entHandleInfoArray[oldInfoIndex].next].prev = g_entHandleInfoArray[oldInfoIndex].prev;
-        prev->next = g_entHandleInfoArray[oldInfoIndex].next;
-        g_entHandleInfoArray[oldInfoIndex].next = g_entHandleInfoHead;
+        prev = &g_entHandleInfoArray[info->prev];
+        g_entHandleInfoArray[info->next].prev = info->prev;
+        prev->next = info->next;
+        info->next = g_entHandleInfoHead;
         g_entHandleInfoHead = oldInfoIndex;
     }
 }
 
 unsigned int __cdecl AddEntHandleInfo(EntHandleList *entHandleList, void *handle)
 {
-    unsigned int v3; // [esp+0h] [ebp-14h]
+    unsigned int v4; // [esp+0h] [ebp-14h]
     unsigned int infoIndexHead; // [esp+8h] [ebp-Ch]
     unsigned int infoIndex; // [esp+Ch] [ebp-8h]
     EntHandleInfo *infoHead; // [esp+10h] [ebp-4h]
 
     infoIndex = g_entHandleInfoHead;
-    if ( !g_entHandleInfoHead )
+    if (!g_entHandleInfoHead)
         Com_Error(ERR_DROP, "ENT_HANDLE_COUNT exceeded - increase size");
     g_entHandleInfoHead = g_entHandleInfoArray[infoIndex].next;
-    if ( (int)g_maxUsedEntHandle < (int)++g_usedEntHandle )
-        v3 = g_usedEntHandle;
+    if ((int)g_maxUsedEntHandle < (int)++g_usedEntHandle)
+        v4 = g_usedEntHandle;
     else
-        v3 = g_maxUsedEntHandle;
-    g_maxUsedEntHandle = v3;
+        v4 = g_maxUsedEntHandle;
+    g_maxUsedEntHandle = v4;
     g_entHandleInfoArray[infoIndex].handle = handle;
     infoIndexHead = entHandleList->infoIndex;
-    if ( entHandleList->infoIndex )
+    if (entHandleList->infoIndex)
     {
-        infoHead = (EntHandleInfo *)(8 * infoIndexHead + 63688520);
-        g_entHandleInfoArray[infoIndex].next = g_entHandleInfoArray[infoIndexHead].next;
+        infoHead = &g_entHandleInfoArray[infoIndexHead];
+        g_entHandleInfoArray[infoIndex].next = infoHead->next;
         g_entHandleInfoArray[infoIndex].prev = infoIndexHead;
         g_entHandleInfoArray[infoHead->next].prev = infoIndex;
         infoHead->next = infoIndex;
@@ -302,24 +305,24 @@ void __thiscall SentientHandle::setSentient(sentient_s *sentient)
 {
     sentient_s *oldSentient; // [esp+4h] [ebp-8h]
 
-    if ( SentientHandle::isDefined() )
+    if (SentientHandle::isDefined())
     {
-        oldSentient = SentientHandle::sentient();
-        if ( sentient == oldSentient )
+        oldSentient = this->sentient();
+        if (sentient == oldSentient)
             return;
-        RemoveEntHandleInfo((EntHandleList *)(2 * (oldSentient - g_sentients) + 63688424), this->infoIndex);
-        if ( !sentient )
+        RemoveEntHandleInfo(&g_sentientsHandleList[oldSentient - g_sentients], this->infoIndex);
+        if (!sentient)
         {
             this->number = 0;
             this->infoIndex = 0;
             return;
         }
     }
-    else if ( !sentient )
+    else if (!sentient)
     {
         return;
     }
-    this->infoIndex = AddEntHandleInfo((EntHandleList *)(2 * (sentient - g_sentients) + 63688424), this);
+    this->infoIndex = AddEntHandleInfo(&g_sentientsHandleList[sentient - g_sentients], this);
     this->number = sentient - g_sentients + 1;
 }
 

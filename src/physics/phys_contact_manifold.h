@@ -172,7 +172,7 @@ struct __declspec(align(16)) phys_contact_manifold_process // sizeof=0x4180
     void intersect_poly_poly();
     bool find_bottom(
         phys_contact_manifold_process::bridge *b,
-        contact_manifold_mesh_point **left_cman,
+        phys_contact_manifold_process::isect_info *left_cman,
         phys_contact_manifold_process::isect_info *right_cman);
     void comp_contact_mat(const phys_vec3 *contact_normal);
 };

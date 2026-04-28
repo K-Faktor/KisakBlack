@@ -450,21 +450,6 @@ struct gjk_physics_collision_visitor : gjk_collision_visitor // sizeof=0x80
     virtual void query_create_epilog_1(gjk_base_t *gjk_geom) override;
 };
 
-struct gjk_geom_list_t // sizeof=0x8
-{                                                                             // XREF: PhysObjUserData/r
-    gjk_base_t *m_first_geom;                     // XREF: DynEntCl_CreatePhysObj(DynEntityDef const *,DynEntityClient *,GfxPlacement const *):loc_5B18F9/w
-    // DynEntPieces_SpawnPhysObj:loc_5BCF29/w ...
-    int m_geom_count;                                     // XREF: DynEntCl_CreatePhysObj(DynEntityDef const *,DynEntityClient *,GfxPlacement const *)+D0/w
-    // DynEntPieces_SpawnPhysObj+50/w ...
-public:
-    int get_geom_count();
-    void add_geom(gjk_base_t *geom);
-    void comp_aabb_loc(
-        phys_vec3 *aabb_mn_loc,
-        phys_vec3 *aabb_mx_loc);
-};
-
-
 struct create_gjk_geom_collision_visitor : gjk_collision_visitor // sizeof=0x8
 {                                       // XREF: .data:create_gjk_geom_collision_visitor g_empty_collision_visitor/r
                                         // XDoll_CreatePhysObj/r ...
@@ -1024,8 +1009,10 @@ struct __declspec(align(8)) phys_gjk_input // sizeof=0x50
     phys_vec3 m_cg2_translation;
     float m_start_time;
     float m_end_time;
-    const phys_gjk_geom *gjk_cg1;
-    const phys_gjk_geom *gjk_cg2;
+    //const phys_gjk_geom *gjk_cg1;
+    //const phys_gjk_geom *gjk_cg2;
+    const gjk_base_t *gjk_cg1; // lwss: I am changing this to the sub-class so I can call more methods.
+    const gjk_base_t *gjk_cg2;
     const phys_mat44 *cg1_to_world_xform;
     const phys_mat44 *cg2_to_world_xform;
     phys_gjk_cache_info *gjk_ci;

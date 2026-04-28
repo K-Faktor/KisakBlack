@@ -24,6 +24,7 @@ struct __declspec(align(8)) broad_phase_base // sizeof=0x50
     {
         FLAG_IS_BPI = 1,
         FLAG_IS_BPG = 2,
+        FLAG_IS_BPI_ENV = 4,
         FLAG_IS_IN_CLUSTER = 16
     };
 
@@ -50,6 +51,11 @@ struct __declspec(align(8)) broad_phase_base // sizeof=0x50
     bool is_bpi()
     {
         return (this->m_flags & FLAG_IS_BPI) != 0;
+    }
+
+    bool is_bpi_env()
+    {
+        return (this->m_flags & FLAG_IS_BPI_ENV) != 0;
     }
 
     bool is_bpg()

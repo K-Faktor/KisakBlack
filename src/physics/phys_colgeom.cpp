@@ -570,11 +570,8 @@ gjk_brush_t * gjk_brush_t::create(
         }
         else
         {
-            //v7 = phys_simple_allocator<gjk_brush_t>::allocate(&brush_pool);
             obj = brush_pool.allocate();
-            //unique_id = gjk_unique_id_database_t::get_unique_id(&g_gjk_unique_id_database);
             unique_id = g_gjk_unique_id_database.get_unique_id();
-            //gjk_base_t::set_geom_id_new(v7, unique_id);
             obj->set_geom_id_new(unique_id);
         }
 
@@ -2589,9 +2586,11 @@ void gjk_polygon_cylinder_t::support(const phys_vec3 *v, phys_vec3 *support_vert
         float foot_or_head[3];
         foot_or_head[0] = this->m_center.x + 0.0;
         foot_or_head[1] = this->m_center.y + 0.0;
-        foot_or_head[2] = m_half_height + this->m_center.z;
+        foot_or_head[2] = foot_or_head_z + this->m_center.z;
 
-        if (((((point[0] - foot_or_head[0]) * v->x) + ((point[1] - foot_or_head[1]) * v->y)) + ((point[2] - foot_or_head[1]) * v->z)) < 0.0)
+        if (((((point[0] - foot_or_head[0]) * v->x) 
+            + ((point[1] - foot_or_head[1]) * v->y)) 
+            + ((point[2] - foot_or_head[2]) * v->z)) < 0.0)
         {
             LODWORD(support_ind->x) = foot_or_head_ind;
             support_vert->x = foot_or_head[0];
@@ -2604,6 +2603,14 @@ void gjk_polygon_cylinder_t::support(const phys_vec3 *v, phys_vec3 *support_vert
             support_vert->y = point[1];
             support_vert->z = point[2];
         }
+
+        // lwss add
+        iassert(best_i >= 0 && best_i < 12);
+        iassert(fabsf(support_vert->x - this->m_center.x) <= this->m_polygon_cylinder_radius + 0.01f);
+        iassert(fabsf(support_vert->y - this->m_center.y) <= this->m_polygon_cylinder_radius + 0.01f);
+        float z_range = this->m_half_height + 0.01f;
+        iassert(support_vert->z >= this->m_center.z - z_range && support_vert->z <= this->m_center.z + z_range);
+        // lwss end
     }
 }
 
@@ -2615,187 +2622,102 @@ float gjk_polygon_cylinder_t::get_geom_radius() const
         return this->m_geom_radius;
 }
 
+// aislop supervised
 void gjk_polygon_cylinder_t::get_simplex(
     const cached_simplex_info *cache_info,
     int index_count,
     phys_vec3 *simplex_verts,
     phys_vec3 *simplex_inds) const
 {
-    phys_vec3 *v6; // eax
-    phys_vec3 *v7; // eax
-    phys_vec3 *v8; // edx
-    float v9; // [esp-60h] [ebp-1A8h]
-    float v10; // [esp-5Ch] [ebp-1A4h]
-    float v11; // [esp-30h] [ebp-178h]
-    float v12; // [esp-2Ch] [ebp-174h]
-    float x; // [esp-Ch] [ebp-154h]
-    int j; // [esp-8h] [ebp-150h]
-    float v15; // [esp+4h] [ebp-144h]
-    float v16; // [esp+20h] [ebp-128h]
-    float v17; // [esp+24h] [ebp-124h]
-    phys_vec3 *v18; // [esp+58h] [ebp-F0h]
-    float v19; // [esp+60h] [ebp-E8h]
-    float v20; // [esp+64h] [ebp-E4h]
-    float v21; // [esp+A0h] [ebp-A8h]
-    float v22; // [esp+A4h] [ebp-A4h]
-    float v23; // [esp+DCh] [ebp-6Ch] BYREF
-    float v24[2]; // [esp+E0h] [ebp-68h] BYREF
-    phys_vec3 *v25; // [esp+E8h] [ebp-60h]
-    float v26; // [esp+ECh] [ebp-5Ch]
-    int ind1; // [esp+F0h] [ebp-58h]
-    float v28; // [esp+F4h] [ebp-54h]
-    float v29; // [esp+FCh] [ebp-4Ch]
-    int v30; // [esp+100h] [ebp-48h]
-    float v31; // [esp+104h] [ebp-44h]
-    int p_m_center; // [esp+108h] [ebp-40h]
-    float v33; // [esp+10Ch] [ebp-3Ch]
-    float v34; // [esp+110h] [ebp-38h]
-    float v35; // [esp+114h] [ebp-34h]
-    float v36; // [esp+11Ch] [ebp-2Ch]
-    float v37; // [esp+120h] [ebp-28h]
-    float v38; // [esp+124h] [ebp-24h]
-    float v39; // [esp+128h] [ebp-20h] BYREF
-    float v40; // [esp+12Ch] [ebp-1Ch] BYREF
-    float v41; // [esp+130h] [ebp-18h]
-    int co_; // [esp+134h] [ebp-14h]
-    const gjk_polygon_cylinder_t *si_; // [esp+138h] [ebp-10h]
-    int ind; // [esp+13Ch] [ebp-Ch]
-    //int i; // [esp+140h] [ebp-8h]
-    //int retaddr; // [esp+148h] [ebp+0h]
-    //
-    //ind = a2;
-    //i = retaddr;
-    si_ = this;
     if (this->m_mode)
     {
-        if (si_->m_half_height < si_->m_capsule_radius
-            && !Assert_MyHandler(
-                "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
-                911,
-                0,
-                "%s",
-                "m_half_height >= m_capsule_radius"))
+        // Capsule mode: two sphere centers at ±(half_height - capsule_radius) along z
+        iassert(m_half_height >= m_capsule_radius);
+        float cap_offset = m_half_height - m_capsule_radius;
+
+        // Offset vector: (0, 0, cap_offset)
+        const phys_vec3 offset = { 0.0f, 0.0f, cap_offset };
+
+        for (int i = 0; i < index_count; ++i)
         {
-            __debugbreak();
-        }
-        v15 = si_->m_half_height - si_->m_capsule_radius;
-        for (j = 0; j < index_count; ++j)
-        {
-            x = cache_info->m_indices[j].x;
-            if (LODWORD(x) >= 2
-                && _tlAssert(
-                    "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
-                    916,
-                    "ind == 0 || ind == 1",
-                    ""))
+            // Index stored as raw int in the float field
+            int ind = (int)cache_info->m_indices[i].x;
+            iassert(ind == 0 || ind == 1);
+
+            simplex_inds[i].x = (float)ind;  // store back as raw int bits via float field
+
+            if (ind == 0)
             {
-                __debugbreak();
-            }
-            simplex_inds[j].x = x;
-            if (x == 0.0)
-            {
-                v11 = si_->m_center.y + 0.0;
-                v12 = si_->m_center.z + v15;
-                v8 = &simplex_verts[j];
-                v8->x = si_->m_center.x + 0.0;
-                v8->y = v11;
-                v8->z = v12;
+                // Top sphere center: m_center + offset
+                simplex_verts[i].x = m_center.x + offset.x;
+                simplex_verts[i].y = m_center.y + offset.y;
+                simplex_verts[i].z = m_center.z + offset.z;
             }
             else
             {
-                v9 = si_->m_center.y - 0.0;
-                v10 = si_->m_center.z - v15;
-                simplex_verts[j].x = si_->m_center.x - 0.0;
-                simplex_verts[j].y = v9;
-                simplex_verts[j].z = v10;
+                // Bottom sphere center: m_center - offset
+                simplex_verts[i].x = m_center.x - offset.x;
+                simplex_verts[i].y = m_center.y - offset.y;
+                simplex_verts[i].z = m_center.z - offset.z;
             }
         }
     }
     else
     {
-        for (co_ = 0; co_ < index_count; ++co_)
+        // Polygon cylinder mode
+        for (int i = 0; i < index_count; ++i)
         {
-            v41 = cache_info->m_indices[co_].x;
-            if (v41 < 0.0
-                && _tlAssert("c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h", 883, "ind >= 0", ""))
+            int ind = (int)cache_info->m_indices[i].x;
+            iassert(ind >= 0);
+
+            simplex_inds[i].x = (float)ind;
+
+            if (ind < 12)
             {
-                __debugbreak();
+                // Head ring vertex: top face ring at (half_height - head_offset)
+                float co, si;
+                s_poly_verts.get_co_si(ind, &co, &si);
+
+                phys_vec3 local = {
+                    m_polygon_cylinder_radius * co,
+                    m_polygon_cylinder_radius * si,
+                    m_half_height - m_head_offset
+                };
+
+                simplex_verts[i].x = local.x + m_center.x;
+                simplex_verts[i].y = local.y + m_center.y;
+                simplex_verts[i].z = local.z + m_center.z;
             }
-            simplex_inds[co_].x = v41;
-            if (SLODWORD(v41) >= 12)
+            else if (ind < 24)
             {
-                if (SLODWORD(v41) >= 24)
-                {
-                    if (LODWORD(v41) == 24)
-                    {
-                        v19 = si_->m_center.y + 0.0;
-                        v20 = si_->m_half_height + si_->m_center.z;
-                        v18 = &simplex_verts[co_];
-                        v18->x = si_->m_center.x + 0.0;
-                        v18->y = v19;
-                        v18->z = v20;
-                    }
-                    else
-                    {
-                        if (LODWORD(v41) != 25)
-                        {
-                            if (_tlAssert(
-                                "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
-                                904,
-                                "ind == 2 * s_poly_verts.get_num_verts() + 1",
-                                ""))
-                            {
-                                __debugbreak();
-                            }
-                        }
-                        v16 = si_->m_center.y + 0.0;
-                        v17 = (-(si_->m_half_height)) + si_->m_center.z;
-                        v7 = &simplex_verts[co_];
-                        v7->x = si_->m_center.x + 0.0;
-                        v7->y = v16;
-                        v7->z = v17;
-                    }
-                }
-                else
-                {
-                    LODWORD(v24[1]) = LODWORD(v41) - 12;
+                // Foot ring vertex: bottom face ring at -(half_height - foot_offset)
+                float co, si;
+                s_poly_verts.get_co_si(ind - 12, &co, &si);
 
-                    //gjk_polygon_cylinder_t::poly_verts::get_co_si(
-                    //    &gjk_polygon_cylinder_t::s_poly_verts,
-                    //    LODWORD(v41) - 12,
-                    //    &v23,
-                    //    v24);
-                    gjk_polygon_cylinder_t::s_poly_verts.get_co_si(LODWORD(v41) - 12, &v23, v24);
+                phys_vec3 local = {
+                    m_polygon_cylinder_radius * co,
+                    m_polygon_cylinder_radius * si,
+                    -m_half_height + m_foot_offset
+                };
 
-                    v21 = (float)(si_->m_polygon_cylinder_radius * v24[0]) + si_->m_center.y;
-                    v22 = (float)((-(si_->m_half_height)) + si_->m_foot_offset) + si_->m_center.z;
-                    v6 = &simplex_verts[co_];
-                    v6->x = (float)(si_->m_polygon_cylinder_radius * v23) + si_->m_center.x;
-                    v6->y = v21;
-                    v6->z = v22;
-                }
+                simplex_verts[i].x = local.x + m_center.x;
+                simplex_verts[i].y = local.y + m_center.y;
+                simplex_verts[i].z = local.z + m_center.z;
+            }
+            else if (ind == 24)
+            {
+                // Head apex: top center cap point at +half_height
+                simplex_verts[i].x = m_center.x;
+                simplex_verts[i].y = m_center.y;
+                simplex_verts[i].z = m_center.z + m_half_height;
             }
             else
             {
-                //gjk_polygon_cylinder_t::poly_verts::get_co_si(&gjk_polygon_cylinder_t::s_poly_verts, SLODWORD(v41), &v39, &v40);
-                gjk_polygon_cylinder_t::s_poly_verts.get_co_si(SLODWORD(v41), &v39, &v40);
-                v38 = si_->m_polygon_cylinder_radius * v39;
-                v37 = si_->m_polygon_cylinder_radius * v40;
-                v36 = si_->m_half_height - si_->m_head_offset;
-                v33 = v38;
-                v34 = v37;
-                v35 = v36;
-                p_m_center = (int)&si_->m_center;
-                v31 = v38 + si_->m_center.x;
-                *(float *)&v30 = v37 + si_->m_center.y;
-                v29 = v36 + si_->m_center.z;
-                v26 = v31;
-                ind1 = v30;
-                v28 = v29;
-                v25 = &simplex_verts[co_];
-                v25->x = v31;
-                LODWORD(v25->y) = ind1;
-                v25->z = v28;
+                // Foot apex: bottom center cap point at -half_height (ind == 25)
+                iassert(ind == 25);
+                simplex_verts[i].x = m_center.x;
+                simplex_verts[i].y = m_center.y;
+                simplex_verts[i].z = m_center.z - m_half_height;
             }
         }
     }

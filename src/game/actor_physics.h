@@ -1,6 +1,7 @@
 #pragma once
 
 #include <physics/phys_colgeom.h>
+#include <physics/phys_gjk.h>
 
 enum aiphys_t : __int32
 {                                       // XREF: actor_physics_t/r

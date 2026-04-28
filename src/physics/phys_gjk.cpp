@@ -992,7 +992,9 @@ phys_gjk_info::gjk_retval_e phys_gjk_info::gjk_ray_cast(
             ++this->m_gjk_iter;
             if (this->m_gjk_iter >= 30)
             {
-                tlWarning("gjk reached the maximum number of iterations.");
+                //tlWarning("gjk reached the maximum number of iterations.");
+                tlWarning("gjk reached the maximum number of iterations. cg1(type:%s) - cg2(type:%s)", 
+                    GjkTypeToString(d->gjk_cg1->get_type()), GjkTypeToString(d->gjk_cg2->get_type()));
                 return (this->m_lower_dist_sq > 0.0f) ? GJK_VALID : GJK_PENETRATING;
             }
 

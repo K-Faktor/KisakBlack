@@ -599,7 +599,7 @@ bool __cdecl phys_are_aabb_overlapping(
 broad_phase_environment_info *gjk_query_output::get_ent_info(unsigned int ent_id)
 {
     //return bpei_database_t::get_bpei(&this->m_bpei_database, (bpei_database_id)ent_id);
-    return this->m_bpei_database.get_bpei((bpei_database_id)ent_id); // KISAKTODO: idk how to convert this yet
+    return this->m_bpei_database.get_bpei(bpei_database_id(ent_id));
 }
 
 void gjk_query_output::set_local_query_info(const gjk_query_input &input, gjk_entity_info_t *ent_info)
@@ -733,7 +733,7 @@ void gjk_query_output::add(const gjk_query_input &input, const cbrush_t *brush, 
     int savedregs; // [esp+40h] [ebp+0h] BYREF
 
     //bpei = bpei_database_t::get_bpei(&this->m_bpei_database, (bpei_database_id)(unsigned int)brush);
-    bpei = this->m_bpei_database.get_bpei((bpei_database_id)(unsigned int)brush);
+    bpei = this->m_bpei_database.get_bpei(bpei_database_id((unsigned int)brush));
     if ( !bpei->m_data )
     {
         cg = gjk_brush_t::create(
@@ -1060,34 +1060,20 @@ void __cdecl gjk_query_prims(const gjk_query_input &input, gjk_query_output *out
 
 void __cdecl gjk_query_terrain(const gjk_query_input &input, gjk_query_output *output)
 {
-    int j; // [esp+20h] [ebp-10A4h]
-    int i; // [esp+28h] [ebp-109Ch]
-    static_colgeom_visitor_t v4; // [esp+2Ch] [ebp-1098h] BYREF
-    int v5; // [esp+9Ch] [ebp-1028h]
-    unsigned int v6[512]; // [esp+A0h] [ebp-1024h]
-    int v7; // [esp+8A0h] [ebp-824h]
-    unsigned int v8[513]; // [esp+8A4h] [ebp-820h]
+    static_colgeom_visitor_t visitor; // [esp+2Ch] [ebp-1098h] BYREF
     float mx[3]; // [esp+10ACh] [ebp-18h] BYREF
-    float outVector[3]; // [esp+10B8h] [ebp-Ch] BYREF
+    float mn[3]; // [esp+10B8h] [ebp-Ch] BYREF
 
-    Phys_NitrousVecToVec3(&output->m_query_aabb_min, outVector);
+    Phys_NitrousVecToVec3(&output->m_query_aabb_min, mn);
     Phys_NitrousVecToVec3(&output->m_query_aabb_max, mx);
-    //colgeom_visitor_t::colgeom_visitor_t(&v4);
-    //v4.__vftable = (colgeom_visitor_t_vtbl *)&static_colgeom_visitor_t::`vftable';
-    v5 = 0;
-    v7 = 0;
-    //colgeom_visitor_t::intersect_box(&v4, outVector, mx, input->m_contents);
-    v4.intersect_box(outVector, mx, input.m_contents);
-    for (i = 0; i < v7; ++i)
-    {
-        //gjk_query_output::add(output, input, (const cbrush_t *)v8[i], outVector, mx);
-        output->add(input, (const cbrush_t *)v8[i], outVector, mx);
-    }
-    for (j = 0; j < v5; ++j)
-    {
-        //gjk_query_output::add(output, input, &cm.partitions[*(unsigned int *)(v6[j] + 28)], (const CollisionAabbTree *)v6[j]);
-        output->add(input, &cm.partitions[*(unsigned int *)(v6[j] + 28)], (const CollisionAabbTree *)v6[j]);
-    }
+
+    visitor.intersect_box(mn, mx, input.m_contents);
+
+    for (int i = 0; i < visitor.nbrushes; ++i)
+        output->add(input, visitor.brushes[i], mn, mx);
+
+    for (int j = 0; j < visitor.ntrees; ++j)
+        output->add(input, &cm.partitions[visitor.trees[j]->u.firstChildIndex], visitor.trees[j]);
 }
 
 void __cdecl gjk_query_gents(const gjk_query_input &input, gjk_query_output *output)

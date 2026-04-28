@@ -184,56 +184,33 @@ void broad_phase_base::get_aabb(phys_vec3 *aabb)
 
 void __cdecl setup_gjk_input_from_pcp(phys_gjk_input *pgi, phys_collision_pair *pcp)
 {
-    broad_phase_info *m_bpi1; // eax
-    broad_phase_info *m_bpi2; // ecx
-    const phys_gjk_geom *m_gjk_geom; // ebx
-    double v7; // st7
-    phys_gjk_cache_info *m_gjk_ci; // edi
-    float v9; // [esp+Ch] [ebp-Ch]
-    float v10; // [esp+10h] [ebp-8h]
-    const phys_mat44 *m_cg_to_world_xform; // [esp+14h] [ebp-4h]
-    phys_gjk_input *pgia; // [esp+20h] [ebp+8h]
-    float pcpa; // [esp+24h] [ebp+Ch]
-    phys_collision_pair *pcpb; // [esp+24h] [ebp+Ch]
+    iassert(pcp->m_hit_time >= 0.0f && pcp->m_hit_time <= 1.0f);
 
-    if ( pcp->m_hit_time < 0.0 || pcp->m_hit_time > 1.0 )
-    {
-        if ( _tlAssert(
-                     "C:\\projects_pc\\cod\\codsrc\\tl\\physics\\include\\collision\\phys_collision.h",
-                     11,
-                     "pcp->m_hit_time >= 0.0f && pcp->m_hit_time <= 1.0f",
-                     "") )
-        {
-            __debugbreak();
-        }
-    }
-    m_bpi1 = pcp->m_bpi1;
-    m_bpi2 = pcp->m_bpi2;
-    pcpa = pcp->m_hit_time;
-    pgi->m_cg1_translation.x = m_bpi1->m_trace_translation.x;
-    pgi->m_cg1_translation.y = m_bpi1->m_trace_translation.y;
-    pgi->m_cg1_translation.z = m_bpi1->m_trace_translation.z;
-    pgi->m_cg2_translation.x = m_bpi2->m_trace_translation.x;
-    pgi->m_cg2_translation.y = m_bpi2->m_trace_translation.y;
-    pgi->m_cg2_translation.z = m_bpi2->m_trace_translation.z;
-    pgi->m_start_time = pcpa;
-    pgi->m_end_time = 1.0;
-    m_gjk_geom = m_bpi2->m_gjk_geom;
-    pgia = (phys_gjk_input *)m_bpi1->m_cg_to_world_xform;
-    m_cg_to_world_xform = m_bpi2->m_cg_to_world_xform;
-    pcpb = (phys_collision_pair *)m_bpi1->m_gjk_geom;
-    v10 = ((double (__thiscall *)(phys_collision_pair *))pcpb->m_next_link[1].m_next_link)(pcpb) + 0.3400000035762787;
-    //v7 = ((double (__thiscall *)(const phys_gjk_geom *))m_gjk_geom->get_geom_radius)(m_gjk_geom);
-    v7 = m_gjk_geom->get_geom_radius();
-    m_gjk_ci = pcp->m_gjk_ci;
-    v9 = v7 + 0.3400000035762787;
-    pgi->cg1_radius = v10;
-    pgi->gjk_ci = m_gjk_ci;
-    pgi->gjk_cg2 = m_gjk_geom;
-    pgi->cg2_radius = v9;
-    pgi->gjk_cg1 = (const phys_gjk_geom *)pcpb;
-    pgi->cg1_to_world_xform = (const phys_mat44 *)pgia;
-    pgi->cg2_to_world_xform = m_cg_to_world_xform;
+    broad_phase_info *bpi1 = pcp->m_bpi1;
+    broad_phase_info *bpi2 = pcp->m_bpi2;
+    float hit_time = pcp->m_hit_time;
+
+    pgi->m_cg1_translation = bpi1->m_trace_translation;
+    pgi->m_cg2_translation = bpi2->m_trace_translation;
+
+    pgi->m_start_time = hit_time;
+    pgi->m_end_time = 1.0f;
+
+    const phys_gjk_geom *geom1 = bpi1->m_gjk_geom;
+    const phys_gjk_geom *geom2 = bpi2->m_gjk_geom;
+
+    float radius1 = geom1->get_geom_radius() + 0.34f;
+    float radius2 = geom2->get_geom_radius() + 0.34f;
+
+    pgi->gjk_cg1 = (const gjk_base_t*)geom1; // LWSS: bit hacky downcast here (wouldnt be necessary without my change)
+    pgi->cg1_to_world_xform = bpi1->m_cg_to_world_xform;
+    pgi->cg1_radius = radius1;
+
+    pgi->gjk_cg2 = (const gjk_base_t*)geom2; // ^^^^^^^^^^^^
+    pgi->cg2_to_world_xform = bpi2->m_cg_to_world_xform;
+    pgi->cg2_radius = radius2;
+
+    pgi->gjk_ci = pcp->m_gjk_ci;
 }
 
 //void __userpurge phys_wheel_collide_info::collision_process(

@@ -81,7 +81,6 @@ void static_colgeom_visitor_t::update(
                 int mask,
                 const float *expand_vec)
 {
-    bool v5; // [esp+0h] [ebp-50h]
     float result[3]; // [esp+10h] [ebp-40h] BYREF
     float b[3]; // [esp+1Ch] [ebp-34h] BYREF
     float a[3]; // [esp+28h] [ebp-28h] BYREF
@@ -89,25 +88,29 @@ void static_colgeom_visitor_t::update(
     float mx[3]; // [esp+38h] [ebp-18h] BYREF
     float mn[3]; // [esp+44h] [ebp-Ch] BYREF
 
-    a[0] = this->m_mn.vec.v[0] - *_mn;
+    a[0] = this->m_mn.vec.v[0] - _mn[0];
     a[1] = this->m_mn.vec.v[1] - _mn[1];
     a[2] = this->m_mn.vec.v[2] - _mn[2];
-    b[0] = *_mx - this->m_mx.vec.v[0];
+
+    b[0] = _mx[0] - this->m_mx.vec.v[0];
     b[1] = _mx[1] - this->m_mx.vec.v[1];
     b[2] = _mx[2] - this->m_mx.vec.v[2];
+
     Vec3Max(a, b, result);
-    v5 = result[0] < 0.0 && result[1] < 0.0 && result[2] < 0.0;
-    inside = v5;
+    inside = result[0] < 0.0 && result[1] < 0.0 && result[2] < 0.0;
+
     if ( this->m_mask != mask || !inside )
     {
-        mn[0] = *_mn - *expand_vec;
+        mn[0] = _mn[0] - expand_vec[0];
         mn[1] = _mn[1] - expand_vec[1];
         mn[2] = _mn[2] - expand_vec[2];
-        mx[0] = *_mx + *expand_vec;
+
+        mx[0] = _mx[0] + expand_vec[0];
         mx[1] = _mx[1] + expand_vec[1];
         mx[2] = _mx[2] + expand_vec[2];
+
         this->prolog();
-        //colgeom_visitor_t::intersect_box(this, mn, mx, mask);
+
         colgeom_visitor_t::intersect_box(mn, mx, mask);
     }
 }
@@ -115,54 +118,60 @@ void static_colgeom_visitor_t::update(
 
 void colgeom_visitor_t::intersect_box(float *mn, float *mx, int mask)
 {
-    cLeaf_s *leaf; // [esp+18h] [ebp-1050h]
-    int i; // [esp+1Ch] [ebp-104Ch]
-    leafList_s ll; // [esp+20h] [ebp-1048h] BYREF
-    //char v8; // [esp+4Ch] [ebp-101Ch] BYREF
-    TraceThreadInfo v8; // [esp+4Ch] [ebp-101Ch] BYREF
-    _WORD v9[2048]; // [esp+60h] [ebp-1008h] BYREF
-    int v10; // [esp+1064h] [ebp-4h]
 
-    v10 = 2048;
-    this->m_mn.vec.v[0] = *mn;
+    this->m_mn.vec.v[0] = mn[0];
     this->m_mn.vec.v[1] = mn[1];
     this->m_mn.vec.v[2] = mn[2];
-    this->m_mx.vec.v[0] = *mx;
+
+    this->m_mx.vec.v[0] = mx[0];
+
     this->m_mx.vec.v[1] = mx[1];
     this->m_mx.vec.v[2] = mx[2];
     this->m_mask = mask;
 
+    leafList_s ll; // [esp+20h] [ebp-1048h] BYREF
+    _WORD leaflist[2048]; // [esp+60h] [ebp-1008h] BYREF
+
     ll.bounds[0][0] = this->m_mn.vec.v[0];
     ll.bounds[0][1] = this->m_mn.vec.v[1];
     ll.bounds[0][2] = this->m_mn.vec.v[2];
-    //*(_QWORD *)&ll.bounds[0][0] = *(_QWORD *)this->m_mn.vec.v;
-    //LODWORD(ll.bounds[0][2]) = this->m_mn.vec.u[2];
     ll.bounds[1][0] = this->m_mx.vec.v[0];
     ll.bounds[1][1] = this->m_mx.vec.v[1];
     ll.bounds[1][2] = this->m_mx.vec.v[2];
+
     ll.count = 0;
     ll.maxcount = 2048;
-    ll.list = v9;
+    ll.list = leaflist;
     ll.lastLeaf = 0;
     ll.overflowed = 0;
     CM_BoxLeafnums_r(&ll, 0);
-    if (ll.count)
+
+    if (!ll.count)
     {
-        if (ll.overflowed)
-            Com_Printf(0, "colgeom_visitor_t::intersect_box: leafList overflow (max %d)\n", 2048);
-        this->m_threadInfo = &v8;
-        CM_GetTraceThreadInfo(this->m_threadInfo);
-        if (this->m_threadInfo->checkcount.partitions || !cm.partitionCount)
-        {
-            for (i = 0; i < ll.count; ++i)
-            {
-                leaf = &cm.leafs[(unsigned __int16)v9[i]];
-                if ((this->m_mask & leaf->brushContents) != 0)
-                    colgeom_visitor_t::intersect_box_brushes(leaf);
-                if ((this->m_mask & leaf->terrainContents) != 0)
-                    colgeom_visitor_t::intersect_box_partitions(leaf);
-            }
-        }
+        return;
+    }
+
+    if (ll.overflowed)
+        Com_Printf(0, "colgeom_visitor_t::intersect_box: leafList overflow (max %d)\n", 2048);
+
+    TraceThreadInfo threadInfo;
+    this->m_threadInfo = &threadInfo;
+    CM_GetTraceThreadInfo(this->m_threadInfo);
+
+    if (!this->m_threadInfo->checkcount.partitions && cm.partitionCount)
+    {
+        return;
+    }
+
+    for (int i = 0; i < ll.count; ++i)
+    {
+        cLeaf_s *leaf = &cm.leafs[(unsigned __int16)leaflist[i]];
+
+        if ((this->m_mask & leaf->brushContents) != 0)
+            colgeom_visitor_t::intersect_box_brushes(leaf);
+
+        if ((this->m_mask & leaf->terrainContents) != 0)
+            colgeom_visitor_t::intersect_box_partitions(leaf);
     }
 }
 
@@ -205,7 +214,7 @@ void colgeom_visitor_t::intersect_box_brushnode(cLeafBrushNode_s *node)
     {
         if (node->leafBrushCount)
         {
-            if (node->leafBrushCount > 0)
+            if (node->leafBrushCount > 0) // KISAKTODO: redundant if()?
             {
                 for (i = 0; i < node->leafBrushCount; ++i)
                 {

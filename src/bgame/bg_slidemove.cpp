@@ -37,7 +37,6 @@ gjk_polygon_cylinder_t *__cdecl create_gjkcc_gjk_geom(
                 gjk_collision_visitor *allocator)
 {
     gjk_polygon_cylinder_t *gjk_geom; // [esp+Ch] [ebp-4h]
-    int savedregs; // [esp+10h] [ebp+0h] BYREF
 
     gjk_geom = gjk_polygon_cylinder_t::create(mins, maxs, 0.5, stype, allocator);
     setup_gjk_polygon_cylinder((float *)mins, (float *)maxs, 0.5, gjk_geom);

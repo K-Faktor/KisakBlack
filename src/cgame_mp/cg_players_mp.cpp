@@ -1436,7 +1436,7 @@ void __cdecl CG_Corpse(int localClientNum, centity_s *cent)
             __debugbreak();
         }
         cgs = CG_GetLocalClientStaticGlobals(localClientNum);
-        ci = (clientInfo_t *)&cgs->corpseinfo[1480 * corpseIndex];
+        ci = &cgs->corpseinfo[corpseIndex];
         obja = Com_GetClientDObj(p_nextState->number, localClientNum);
         FX_MarkEntUpdateBegin(&markUpdateContext, obja, 0, 0);
         BG_UpdatePlayerDObj(localClientNum, obja, p_nextState, ci, 0);

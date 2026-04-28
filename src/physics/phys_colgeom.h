@@ -1,11 +1,9 @@
 #pragma once
 
 #include "phys_local.h"
-#include "phys_traverse.h"
 #include <universal/q_shared.h>
 #include <qcommon/cm_trace.h>
 #include <qcommon/statmonitor.h>
-#include "phys_gjk_collision_detection.h"
 #include <tl/tl_system.h>
 
 #define SURF_TYPECOUNT 31
@@ -74,6 +72,36 @@ enum gjk_type_t : __int32 // LWSS: not a real enum name!
     GJK_OBB              = 0x6,
     GJK_POLYGON_CYLINDER = 0x7,
 };
+
+// LWSS ADD
+inline const char *GjkTypeToString(gjk_type_t type)
+{
+    switch (type)
+    {
+        case GJK_BASE:
+            return "GJK_BASE";
+        case GJK_AABB:
+            return "GJK_AABB";
+        case GJK_BRUSH:
+            return "GJK_BRUSH";
+        case GJK_PARTITION:
+            return "GJK_PARTITION";
+        case GJK_DOUBLE_SPHERE:
+            return "GJK_DOUBLE_SPHERE";
+        case GJK_CYLINDER:
+            return "GJK_CYLINDER";
+        case GJK_OBB:
+            return "GJK_OBB";
+        case GJK_POLYGON_CYLINDER:
+            return "GJK_POLYGON_CYLINDER";
+        default:
+        {
+            iassert(0);
+            return "??";
+        }
+    }
+}
+// LWSS END
 
 struct gjk_base_t : public phys_gjk_geom // sizeof=0x50
 {                                                                             // XREF: gjk_brush_t/r
@@ -693,6 +721,75 @@ struct __declspec(align(8)) gjk_polygon_cylinder_t : gjk_base_t // sizeof=0x80
         //gjk_polygon_cylinder_t::poly_verts gjk_polygon_cylinder_t::s_poly_verts
 };
 static_assert(sizeof(gjk_polygon_cylinder_t) == 128);
+
+struct gjk_geom_list_t // sizeof=0x8
+{
+    gjk_base_t *m_first_geom;
+    int m_geom_count;
+public:
+    inline int get_geom_count()
+    {
+        if (this->m_geom_count < 0
+            && _tlAssert(
+                "c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h",
+                1036,
+                "m_geom_count >= 0",
+                ""))
+        {
+            __debugbreak();
+        }
+        return this->m_geom_count;
+    }
+
+    inline void add_geom(gjk_base_t *geom)
+    {
+        if (!geom && !Assert_MyHandler("c:\\projects_pc\\cod\\codsrc\\src\\physics\\phys_colgeom.h", 1029, 0, "%s", "geom"))
+            __debugbreak();
+        geom->m_next_geom = this->m_first_geom;
+        this->m_first_geom = geom;
+        ++this->m_geom_count;
+    }
+
+    inline void comp_aabb_loc(
+        phys_vec3 *aabb_mn_loc,
+        phys_vec3 *aabb_mx_loc)
+    {
+        {
+            iassert(m_first_geom);
+            this->m_first_geom->comp_aabb_loc();
+
+            m_first_geom->check_aabb_valid();
+
+            *aabb_mn_loc = m_first_geom->m_aabb_mn_loc;
+
+            this->m_first_geom->check_aabb_valid();
+
+            *aabb_mx_loc = this->m_first_geom->m_aabb_mx_loc;
+
+            for (gjk_base_t *i = this->m_first_geom->m_next_geom; i; i = i->m_next_geom)
+            {
+                i->comp_aabb_loc();
+
+                i->check_aabb_valid();
+
+                phys_vec3 min; // [esp-38h] [ebp-7Ch] BYREF
+                phys_min(&min, aabb_mn_loc, &i->m_aabb_mn_loc);
+                aabb_mn_loc->x = min.x;
+                aabb_mn_loc->y = min.y;
+                aabb_mn_loc->z = min.z;
+
+                i->check_aabb_valid();
+
+                phys_vec3 max; // [esp-68h] [ebp-ACh] BYREF
+                phys_max(&max, aabb_mx_loc, &i->m_aabb_mx_loc);
+                aabb_mx_loc->x = max.x;
+                aabb_mx_loc->y = max.y;
+                aabb_mx_loc->z = max.z;
+            }
+        }
+    }
+};
+
 
 PhysGeomList *__cdecl xmodel_get_geomlist(const XModel *model, int bone_index);
 
