@@ -620,6 +620,7 @@ struct gjk_query_output : gjk_collision_visitor // sizeof=0x150
     virtual bool query_create_prolog(const void *geom) override;
     virtual bool query_create_prolog_1(const float *local_aabb_min, const float *local_aabb_max, const void *geom) override;
     virtual void query_create_epilog(gjk_base_t *gjk_geom) override;
+    virtual void query_create_epilog_1(gjk_base_t *gjk_geom) override;
     //////////////////
 
     inline void verify_empty()

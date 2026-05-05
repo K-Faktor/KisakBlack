@@ -526,6 +526,11 @@ void gjk_query_output::query_create_epilog(gjk_base_t *gjk_geom)
     this->m_local_bpei->m_data = gjk_query_output::create_geom_info(gjk_geom, this->m_local_ent_info, 0, 0);
 }
 
+void gjk_query_output::query_create_epilog_1(gjk_base_t *gjk_geom)
+{
+    query_create_epilog(gjk_geom);
+}
+
 bool gjk_query_output::query_create_prolog_1(
                 const float *local_aabb_min,
                 const float *local_aabb_max,
