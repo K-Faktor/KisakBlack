@@ -505,7 +505,6 @@ void __cdecl UpdateShellShockCamera(int localClientNum, const shellshock_parms_t
     float ta; // [esp+24h] [ebp-1Ch]
     cg_s *cgameGlob; // [esp+28h] [ebp-18h]
     float radius; // [esp+2Ch] [ebp-14h]
-    const float *perturb; // [esp+30h] [ebp-10h]
     int base; // [esp+38h] [ebp-8h]
     float scale; // [esp+3Ch] [ebp-4h]
 
@@ -525,21 +524,21 @@ void __cdecl UpdateShellShockCamera(int localClientNum, const shellshock_parms_t
         t = (float)time * parms->view.kickRate;
         base = (int)(t - 0.4999999990686774);
         ta = t - (float)base;
-        perturb = (const float *)(8 * (((_BYTE)base + 61 * (_BYTE)duration) & 0x7F) + 13171344);
-        cgameGlob->shellshock.viewDelta[0] = CubicInterpolate(
-                                                                                     ta,
-                                                                                     cg_perturbations[((_BYTE)base + 61 * (_BYTE)duration) & 0x7F][0],
-                                                                                     cg_perturbations[(((unsigned __int8)base + 61 * (unsigned __int8)duration)
-                                                                                                                     & 0x7F)
-                                                                                                                    + 1][0],
-                                                                                     cg_perturbations[(((unsigned __int8)base + 61 * (unsigned __int8)duration)
-                                                                                                                     & 0x7F)
-                                                                                                                    + 2][0],
-                                                                                     cg_perturbations[(((unsigned __int8)base + 61 * (unsigned __int8)duration)
-                                                                                                                     & 0x7F)
-                                                                                                                    + 3][0])
-                                                                             * radius;
-        cgameGlob->shellshock.viewDelta[1] = CubicInterpolate(ta, perturb[1], perturb[3], perturb[5], perturb[7]) * radius;
+        {
+            unsigned int idx = ((unsigned __int8)base + 61 * (unsigned __int8)duration) & 0x7F;
+            cgameGlob->shellshock.viewDelta[0] = CubicInterpolate(
+                ta,
+                cg_perturbations[idx + 0][0],
+                cg_perturbations[idx + 1][0],
+                cg_perturbations[idx + 2][0],
+                cg_perturbations[idx + 3][0]) * radius;
+            cgameGlob->shellshock.viewDelta[1] = CubicInterpolate(
+                ta,
+                cg_perturbations[idx + 0][1],
+                cg_perturbations[idx + 1][1],
+                cg_perturbations[idx + 2][1],
+                cg_perturbations[idx + 3][1]) * radius;
+        }
     }
     else
     {

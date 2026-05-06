@@ -64,7 +64,7 @@ void __cdecl R_DrawSunShadowMapCallback(const void *userData, GfxCmdBufContext c
     R_HW_EnableScissor(
         context.state->prim.device,
         partition->viewport.x,
-        partition->viewport.y + partition->partitionIndex * (int)dx.singleSampleDepthStencilSurface,
+        partition->viewport.y + partition->partitionIndex * dx.sunShadowmapSize,
         partition->viewport.width,
         partition->viewport.height);
     R_DrawSurfs(context, 0, drawList);

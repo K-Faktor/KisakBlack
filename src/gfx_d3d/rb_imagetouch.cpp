@@ -16,15 +16,13 @@ void __cdecl RB_TouchAllImages()
   int v3; // [esp+4h] [ebp-4224h]
   int v4; // [esp+8h] [ebp-4220h]
   int hr; // [esp+Ch] [ebp-421Ch]
-  char targetWindowIndex; // [esp+13h] [ebp-4215h]
   unsigned int i; // [esp+14h] [ebp-4214h]
   int v8; // [esp+18h] [ebp-4210h]
   int v9; // [esp+1Ch] [ebp-420Ch]
   ImageList imageList; // [esp+20h] [ebp-4208h] BYREF
 
   v8 = R_AcquireDXDeviceOwnership(0);
-  targetWindowIndex = dx.targetWindowIndex;
-  if ( !LOBYTE(dx.targetWindowIndex) )
+  if ( !dx.inScene )
   {
     R_AssertDXDeviceOwnership();
     if ( r_logFile && r_logFile->current.integer )
@@ -55,7 +53,7 @@ void __cdecl RB_TouchAllImages()
     v9 += imageList.image[i]->cardMemory.platform[0];
   }
   R_SetCodeImageTexture(&gfxCmdBufSourceState, 8u, 0);
-  if ( !targetWindowIndex )
+  if ( !dx.inScene )
   {
     R_AssertDXDeviceOwnership();
     if ( r_logFile && r_logFile->current.integer )

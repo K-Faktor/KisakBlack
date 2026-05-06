@@ -11,7 +11,8 @@ void __cdecl R_FinishGpuFence()
     ///                    1) == 1 )
     ///    ;
 
-    while (dx.gpuSyncDelay->GetData(NULL, 0, D3DGETDATA_FLUSH) == S_FALSE)
+    //while (dx.gpuSyncDelay->GetData(NULL, 0, D3DGETDATA_FLUSH) == S_FALSE)
+    while (dx.flushGpuQuery->GetData(NULL, 0, D3DGETDATA_FLUSH) == S_FALSE)
     {
         /* spin until GPU reaches the fence */
     }

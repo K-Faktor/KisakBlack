@@ -183,14 +183,14 @@ unsigned int R_InitSpotShadowMeshes()
             &gfxMeshGlob.sunShadowClearMeshData[sunShadowIndex],
             0.0,
             ya,
-            (float)(int)dx.singleSampleDepthStencilSurface,
-            (float)(int)dx.singleSampleDepthStencilSurface,
+            (float)dx.sunShadowmapSize,
+            (float)dx.sunShadowmapSize,
             0.0,
             0.0,
             1.0,
             1.0,
             0xFFFFFFFF);
-        ya = (float)(int)dx.singleSampleDepthStencilSurface + ya;
+        ya = (float)dx.sunShadowmapSize + ya;
         result = sunShadowIndex + 1;
     }
     return result;

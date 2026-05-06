@@ -579,9 +579,9 @@ int Player_GetUseList(gentity_s *ent, useList_t *useList, int prevHintEntIndex)
     int v42; // [esp+1360h] [ebp-44h]
     int v43; // [esp+1364h] [ebp-40h]
     float maxs[3]; // [esp+1368h] [ebp-3Ch] BYREF
-    float pos; // [esp+1374h] [ebp-30h] BYREF
-    float v46; // [esp+1378h] [ebp-2Ch]
-    float v47; // [esp+137Ch] [ebp-28h]
+    float pos[3]; // [esp+1374h] [ebp-30h] BYREF
+    //float v46; // [esp+1378h] [ebp-2Ch]
+    //float v47; // [esp+137Ch] [ebp-28h]
     int v48; // [esp+1380h] [ebp-24h]
     int v49; // [esp+1384h] [ebp-20h]
     int i; // [esp+1388h] [ebp-1Ch]
@@ -701,15 +701,15 @@ int Player_GetUseList(gentity_s *ent, useList_t *useList, int prevHintEntIndex)
                                         v38 = player_useRadius->current.value;
                                         break;
                                     }
-                                    pos = gEnt->r.absmin[0] + gEnt->r.absmax[0];
-                                    v46 = gEnt->r.absmin[1] + gEnt->r.absmax[1];
-                                    v47 = gEnt->r.absmin[2] + gEnt->r.absmax[2];
-                                    pos = 0.5 * pos;
-                                    v46 = 0.5 * v46;
-                                    v47 = 0.5 * v47;
-                                    v[0] = pos - origin[0];
-                                    v[1] = v46 - origin[1];
-                                    v[2] = v47 - origin[2];
+                                    pos[0] = gEnt->r.absmin[0] + gEnt->r.absmax[0];
+                                    pos[1] = gEnt->r.absmin[1] + gEnt->r.absmax[1];
+                                    pos[2] = gEnt->r.absmin[2] + gEnt->r.absmax[2];
+                                    pos[0] *= 0.5;
+                                    pos[1] *= 0.5;
+                                    pos[2] *= 0.5;
+                                    v[0] = pos[0] - origin[0];
+                                    v[1] = pos[1] - origin[1];
+                                    v[2] = pos[2] - origin[2];
                                     v33 = Vec3Normalize(v);
                                     if (v33 <= v38)
                                     {
@@ -812,21 +812,21 @@ int Player_GetUseList(gentity_s *ent, useList_t *useList, int prevHintEntIndex)
         ent2 = useList[i].ent;
         if (ent2->classname != scr_const.trigger_use_touch && ent2->classname != scr_const.trigger_radius)
         {
-            pos = ent2->r.absmin[0] + ent2->r.absmax[0];
-            v46 = ent2->r.absmin[1] + ent2->r.absmax[1];
-            v47 = ent2->r.absmin[2] + ent2->r.absmax[2];
-            pos = 0.5 * pos;
-            v46 = 0.5 * v46;
-            v47 = 0.5 * v47;
+            pos[0] = ent2->r.absmin[0] + ent2->r.absmax[0];
+            pos[1] = ent2->r.absmin[1] + ent2->r.absmax[1];
+            pos[2] = ent2->r.absmin[2] + ent2->r.absmax[2];
+            pos[0] *= 0.5;
+            pos[1] *= 0.5;
+            pos[2] *= 0.5;
             if (ent2->s.eType == 14)
-                v47 = (float)(ent2->r.maxs[2] * 0.5) + v47;
+                pos[2] += (float)(ent2->r.maxs[2] * 0.5);
             if (ent2->s.eType == 11)
-                G_DObjGetWorldTagPos(ent2, scr_const.tag_aim, &pos);
+                G_DObjGetWorldTagPos(ent2, scr_const.tag_aim, pos);
             if (ent2->classname != scr_const.trigger_radius_use || ent2->s.otherEntityNum == 1023)
                 context.passEntityNum1 = ent2->s.number;
             else
                 context.passEntityNum1 = ent2->s.otherEntityNum;
-            if (!SV_SightTracePoint(&hitNum, origin, &pos, &context))
+            if (!SV_SightTracePoint(&hitNum, origin, pos, &context))
             {
                 useList[i].score = useList[i].score + 10000.0;
                 ++v43;

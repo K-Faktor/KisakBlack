@@ -4691,17 +4691,11 @@ void __cdecl RB_BeginFrame(GfxBackEndData *data)
         RB_UpdateBackEndDvarOptions();
         RB_PatchStaticModelCache();
         RB_PatchModelLighting(backEndData->modelLightingPatchList, backEndData->modelLightingPatchCount);
-        if (!dx.device
-            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\rb_backend.cpp", 5065, 0, "%s", "dx.device"))
-        {
-            __debugbreak();
-        }
-        if (LOBYTE(dx.targetWindowIndex)
-            && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\rb_backend.cpp", 5066, 0, "%s", "!dx.inScene"))
-        {
-            __debugbreak();
-        }
-        LOBYTE(dx.targetWindowIndex) = 1;
+        
+        iassert(dx.device);
+        iassert(!dx.inScene);
+
+        dx.inScene = 1;
         R_AssertDXDeviceOwnership();
         if (r_logFile && r_logFile->current.integer)
             RB_LogPrint("dx.device->BeginScene()\n");
@@ -4932,7 +4926,8 @@ void RB_SwapBuffers()
         Com_Error(ERR_FATAL, "Direct3DDevice9::Present failed: %s (%d)\n", v1, v3);
     }
 
-    R_HW_InsertFence(&dx.swapFence[r_glob.backEndFrameCount % dx.gpuCount + 2]);
+    //R_HW_InsertFence(&dx.swapFence[r_glob.backEndFrameCount % dx.gpuCount + 2]);
+    R_HW_InsertFence(&dx.swapFence[r_glob.backEndFrameCount % dx.gpuCount]);
     gfxBuf.dynamicIndexBuffer->used = 0;
 }
 
@@ -5226,11 +5221,8 @@ void __cdecl RB_CallExecuteRenderCommands()
     {
       __debugbreak();
     }
-    if ( !LOBYTE(dx.targetWindowIndex)
-      && !Assert_MyHandler("C:\\projects_pc\\cod\\codsrc\\src\\gfx_d3d\\rb_backend.cpp", 6335, 0, "%s", "dx.inScene") )
-    {
-      __debugbreak();
-    }
+    iassert(dx.inScene);
+
     R_AssertDXDeviceOwnership();
     if ( r_logFile && r_logFile->current.integer )
       RB_LogPrint("dx.device->EndScene()\n");
@@ -5248,13 +5240,13 @@ void __cdecl RB_CallExecuteRenderCommands()
         6336,
         v0);
     }
-    LOBYTE(dx.targetWindowIndex) = 0;
+    dx.inScene = 0;
     if ( !r_glob.isRenderingRemoteUpdate )
     {
       if ( dx.gpuSync )
         R_FinishGpuFence();
       else
-        dx.gpuSyncStart = 0;
+        dx.gpuSyncDelay = 0;
     }
   }
   backEndData = 0;

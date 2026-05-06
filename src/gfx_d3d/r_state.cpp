@@ -267,7 +267,7 @@ void __cdecl R_SetTexFilter()
         }
         s_decodeSamplerFilterState[entryIndex] = decodeda;
     }
-    dx.swapFence[1] = (IDirect3DQuery9 *)r_texFilterMipBias->current.integer;
+    dx.mipBias = r_texFilterMipBias->current.integer;
 }
 
 void __cdecl R_SetInitialContextState(IDirect3DDevice9 *device)

@@ -12,6 +12,7 @@
 #include <client/cl_debugdata.h>
 #include <gfx_d3d/r_model_lod.h>
 #include <gfx_d3d/r_primarylights.h>
+#include <universal/com_workercmds.h>
 
 // KISAKTODO: uses too much aislop to get rid of the horrible STL iterators and such (should be done manually with another pass)
 
@@ -3052,12 +3053,24 @@ void __thiscall ShardGroup::GenerateVerts(bool firstView, unsigned int localClie
         primaryLightIndex = R_GetNonSunPrimaryLightForBox(0, this->origin, this->extent);
         if ( !primaryLightIndex )
             primaryLightIndex = rgp.world->sunPrimaryLightIndex;
-        lightHandle = R_AllocModelLighting_PrimaryLight(
-                                        this->origin,
-                                        primaryLightIndex,
-                                        0,
-                                        &this->lightingHandle,
-                                        &this->lightingInfo);
+        //lightHandle = R_AllocModelLighting_PrimaryLight(
+        //                                this->origin,
+        //                                primaryLightIndex,
+        //                                0,
+        //                                &this->lightingHandle,
+        //                                &this->lightingInfo);
+
+        lightHandle = R_AllocModelLighting( // LWSS HACK: increase lighting tolerance here
+            this->origin,
+            256.0f,           // 16-unit movement before re-alloc; light grid is ~32 units
+            0,
+            &this->lightingHandle,
+            R_PassbackPrimaryLightCallback,
+            &primaryLightIndex,
+            &this->lightingInfo);
+
+        //Sys_AssistAndWaitWorkerCmdInternal(&r_model_lightingWorkerCmd);
+
         if ( lightHandle )
         {
             R_AddGlassDrawSurf(

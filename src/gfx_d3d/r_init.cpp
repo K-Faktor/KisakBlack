@@ -1465,7 +1465,8 @@ char __cdecl R_CreateForInitOrReset()
 
     semaphore = R_AcquireDXDeviceOwnership(0);
 
-    hr = dx.device->CreateQuery(D3DQUERYTYPE_EVENT, &dx.gpuSyncDelay);
+    //hr = dx.device->CreateQuery(D3DQUERYTYPE_EVENT, &dx.gpuSyncDelay);
+    hr = dx.device->CreateQuery(D3DQUERYTYPE_EVENT, &dx.flushGpuQuery);
 
     if ( hr >= 0 )
     {

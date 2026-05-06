@@ -471,5 +471,5 @@ void __cdecl R_PerMap_DpvsGlobInit();
 
 
 extern DpvsGlob dpvsGlob;
-extern unsigned __int8 *g_smodelVisData;
-extern unsigned __int8 *g_surfaceVisData;
+extern thread_local unsigned __int8 *g_smodelVisData;
+extern thread_local unsigned __int8 *g_surfaceVisData;

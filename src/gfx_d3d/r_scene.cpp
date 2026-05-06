@@ -3512,7 +3512,7 @@ void __cdecl R_GenerateSortedDrawSurfs(
     }
     rg.sunShadowmapScale = (double)bestNum / (double)bestDen;
     rg.sunShadowmapScaleNum = (float)bestNum;
-    v14 = ceil((float)((float)(int)dx.singleSampleDepthStencilSurface * rg.sunShadowmapScale));
+    v14 = ceil((float)((float)dx.sunShadowmapSize * rg.sunShadowmapScale));
     rg.sunShadowSize = (__int64)v14;
     rg.sunShadowPartitionRatio = 4.0 / rg.sunShadowmapScale;
     rg.drawSunShadow = 0;

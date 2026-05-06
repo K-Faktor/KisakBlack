@@ -47,8 +47,8 @@ DpvsGlob dpvsGlob;
 thread_local unsigned __int8 *g_dynEntVisData[2];
 thread_local DpvsView *g_dpvsView;
 thread_local int g_viewIndex;
-unsigned __int8 *g_smodelVisData;
-unsigned __int8 *g_surfaceVisData;
+thread_local unsigned __int8 *g_smodelVisData;
+thread_local unsigned __int8 *g_surfaceVisData;
 
 void __cdecl R_FrustumClipPlanes(
                 const GfxMatrix *viewProjMtx,

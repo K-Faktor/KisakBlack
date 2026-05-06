@@ -121,18 +121,15 @@ char __cdecl R_AddSpotShadowsForLight(
     if (v7 && spotShadowIndex < 2)
     {
         spotShadow->viewport.x = 0;
-        spotShadow->viewport.y = spotShadowIndex * (unsigned int)dx.singleSampleDepthStencilSurface;
-        spotShadow->viewport.width = (int)dx.singleSampleDepthStencilSurface;
-        spotShadow->viewport.height = (int)dx.singleSampleDepthStencilSurface;
+        spotShadow->viewport.y = spotShadowIndex * dx.sunShadowmapSize;
+        spotShadow->viewport.width = dx.sunShadowmapSize;
+        spotShadow->viewport.height = dx.sunShadowmapSize;
         spotShadow->image = gfxRenderTargets[R_RENDERTARGET_SHADOWMAP_SUN].image;
         spotShadow->renderTargetId = R_RENDERTARGET_SHADOWMAP_SUN;
-        v8 = 0.5 / (float)(2 * (int)dx.singleSampleDepthStencilSurface);
-        v9 = 0.5 / (float)(int)dx.singleSampleDepthStencilSurface;
-        v10 = -0.25 / (float)(2 * (int)dx.singleSampleDepthStencilSurface);
-        spotShadow->pixelAdjust[0] = 0.25 / (float)(int)dx.singleSampleDepthStencilSurface;
-        spotShadow->pixelAdjust[1] = v8;
-        spotShadow->pixelAdjust[2] = v9;
-        spotShadow->pixelAdjust[3] = v10;
+        spotShadow->pixelAdjust[0] = 0.25 / (float)dx.sunShadowmapSize;
+        spotShadow->pixelAdjust[1] = 0.5 / (float)(2 * dx.sunShadowmapSize);
+        spotShadow->pixelAdjust[2] = 0.5 / (float)dx.sunShadowmapSize;
+        spotShadow->pixelAdjust[3] = -0.25 / (float)(2 * dx.sunShadowmapSize);
         spotShadow->clearScreen = spotShadowIndex == 0;
         spotShadow->clearMesh = &gfxMeshGlob.sunShadowClearMeshData[spotShadowIndex];
         tileCount = 2;

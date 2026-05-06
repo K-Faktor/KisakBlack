@@ -122,7 +122,7 @@ void __cdecl RB_DrawSunShadowOverlay()
             shadowSampleSize,
             (float(*)[9][2])clipSpacePoints,
             pointIsNear,
-            (unsigned int)dx.singleSampleDepthStencilSurface);
+            dx.sunShadowmapSize);
         for (pointIndexSrc = 0; pointIndexSrc < partition->boundingPoly.pointCount; ++pointIndexSrc)
         {
             if (!partitionIndex

@@ -325,74 +325,60 @@ void  GlassPhysics::AddForce(float *worldPos, float *impulse)
     float v18; // [esp-14h] [ebp-54h]
     float v19; // [esp-10h] [ebp-50h]
     float v20; // [esp-Ch] [ebp-4Ch]
-    float v21; // [esp-8h] [ebp-48h]
-    float v22; // [esp-4h] [ebp-44h]
+    float w; // [esp-8h] [ebp-48h]
+    float z; // [esp-4h] [ebp-44h]
     phys_vec3 pos; // [esp+0h] [ebp-40h]
     float v24; // [esp+10h] [ebp-30h]
-    float w; // [esp+14h] [ebp-2Ch] BYREF
-    float z; // [esp+18h] [ebp-28h]
-    float y; // [esp+1Ch] [ebp-24h]
-    phys_vec3 force; // [esp+20h] [ebp-20h]
-    //GlassPhysics *thisptr; // [esp+30h] [ebp-10h]
-    //int v30; // [esp+34h] [ebp-Ch]
-    //void *v31; // [esp+38h] [ebp-8h]
-    //void *retaddr; // [esp+40h] [ebp+0h]
-    //
-    //v30 = a2;
-    //v31 = retaddr;
-    //thisptr = this;
-    force.w = *impulse;
-    force.z = impulse[1];
-    force.y = impulse[2];
-    w = force.w;
-    z = force.z;
-    y = force.y;
-    v24 = *worldPos;
+    phys_vec3 force; // [esp+14h] [ebp-2Ch] BYREF
+    float v26; // [esp+24h] [ebp-1Ch]
+    float v27; // [esp+28h] [ebp-18h]
+    float v28; // [esp+2Ch] [ebp-14h]
+
+    v28 = impulse[0];
+    v27 = impulse[1];
+    v26 = impulse[2];
+    force.x = v28;
+    force.y = v27;
+    force.z = v26;
+    v24 = worldPos[0];
     pos.w = worldPos[1];
     pos.z = worldPos[2];
     v20 = v24;
-    v21 = pos.w;
-    v22 = pos.z;
-    w = force.w * 0.001;
-    z = force.z * 0.001;
-    y = force.y * 0.001;
-    if ( Abs(&w) >= 1000000.0
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\glass\\glass_shard.cpp",
-                    102,
-                    0,
-                    "%s",
-                    "Abs(force) < 1000000.0f") )
+    w = pos.w;
+    z = pos.z;
+    force.x = v28 * 0.001;
+    force.y = v27 * 0.001;
+    force.z = v26 * 0.001;
+
+    iassert(Abs(force) < 1000000.0f);
+
+    if ((float)((float)((float)(v20 * v20) + (float)(w * w)) + (float)(z * z)) == 0.0)
     {
-        __debugbreak();
-    }
-    if ( (float)((float)((float)(v20 * v20) + (float)(v21 * v21)) + (float)(v22 * v22)) == 0.0 )
-    {
-        v19 = 0.001 * w;
-        v18 = 0.001 * z;
-        v17 = 0.001 * y;
-        v14 = 0.001 * w;
-        v15 = 0.001 * z;
-        v16 = 0.001 * y;
+        v19 = 0.001 * force.x;
+        v18 = 0.001 * force.y;
+        v17 = 0.001 * force.z;
+        v14 = 0.001 * force.x;
+        v15 = 0.001 * force.y;
+        v16 = 0.001 * force.z;
         p_m_force_sum = &this->m_force_sum;
-        this->m_force_sum.x = this->m_force_sum.x + (float)(0.001 * w);
+        this->m_force_sum.x = this->m_force_sum.x + (float)(0.001 * force.x);
         p_m_force_sum->y = p_m_force_sum->y + v15;
         p_m_force_sum->z = p_m_force_sum->z + v16;
     }
     else
     {
         v12 = &this->m_force_sum;
-        this->m_force_sum.x = this->m_force_sum.x + w;
-        v12->y = v12->y + z;
-        v12->z = v12->z + y;
+        this->m_force_sum.x = this->m_force_sum.x + force.x;
+        v12->y = v12->y + force.y;
+        v12->z = v12->z + force.z;
         p_w = &this->m_mat.w;
         v10 = v20 - this->m_mat.w.x;
-        v9 = v21 - this->m_mat.w.y;
-        v8 = v22 - this->m_mat.w.z;
+        v9 = w - this->m_mat.w.y;
+        v8 = z - this->m_mat.w.z;
         v7.x = v10;
         v7.y = v9;
         v7.z = v8;
-        v4 = phys_cross(&v6, &v7, (const phys_vec3 *)&w);
+        v4 = phys_cross(&v6, &v7, &force);
         p_m_torque_sum = &this->m_torque_sum;
         this->m_torque_sum.x = this->m_torque_sum.x + v4->x;
         p_m_torque_sum->y = p_m_torque_sum->y + v4->y;
