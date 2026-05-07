@@ -730,8 +730,7 @@ void __cdecl    SV_SpawnServer(int controllerIndex, char *server, int mapIsPrelo
 
         if (cl->header.state >= CS_CONNECTED)
         {
-            // If client had a script-controlled slot, drop them
-            if (cl->scriptId != 0)
+            if (cl->bIsDemoClient || cl->bIsTestClient)
             {
                 SV_DropClient(cl, "EXE_PLAYERKICKED", false, true);
                 continue;

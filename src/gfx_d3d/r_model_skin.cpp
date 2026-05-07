@@ -1164,22 +1164,15 @@ void __cdecl R_SkinXSurfaceRigidSseInOut(
 
 void R_SkinXModelCmd(SkinXModelCmd *data)
 {
-    void *v2; // esp
-    int v3; // [esp-28DCh] [ebp-28E8h]
-    GfxPackedVertexNormal *v4; // [esp-28D0h] [ebp-28DCh]
-    GfxPackedVertexNormal *v5; // [esp-28CCh] [ebp-28D8h]
+    GfxPackedVertexNormal *normalOut; // [esp-28D0h] [ebp-28DCh]
+    GfxPackedVertexNormal *normalIn; // [esp-28CCh] [ebp-28D8h]
     GfxPackedVertex *skinVerticesOut; // [esp-28C8h] [ebp-28D4h]
-    const XSurface *v7; // [esp-28C4h] [ebp-28D0h]
-    DObjSkelMat boneSkelMats[128]; // [esp-28C0h] [ebp-28CCh] BYREF
-    float *viewoffset; // [esp-B4h] [ebp-C0h]
-    DObjSkelMat v10; // [esp-B0h] [ebp-BCh] BYREF
-    DObjSkelMat v11; // [esp-70h] [ebp-7Ch] BYREF
+    const XSurface *xsurf; // [esp-28C4h] [ebp-28D0h]
+    DObjSkelMat alignas(16) boneSkelMats[128]; // [esp-28C0h] [ebp-28CCh] BYREF
     int j; // [esp-30h] [ebp-3Ch]
-    int v13; // [esp-2Ch] [ebp-38h]
-    int v14; // [esp-28h] [ebp-34h]
     GfxModelSkinnedSurface *skinnedSurf; // [esp-24h] [ebp-30h]
     unsigned int i; // [esp-20h] [ebp-2Ch]
-    int v17; // [esp-1Ch] [ebp-28h]
+    int boneIndex; // [esp-1Ch] [ebp-28h]
     GfxModelSkinnedSurface *surfPos; // [esp-18h] [ebp-24h]
     const DObjAnimMat *mat; // [esp-14h] [ebp-20h]
     GfxModelSkinnedSurface *modelSurfs; // [esp-10h] [ebp-1Ch]
@@ -1188,119 +1181,119 @@ void R_SkinXModelCmd(SkinXModelCmd *data)
     char v23; // [esp-6h] [ebp-12h]
     bool useSSE_; // [esp-5h] [ebp-11h]
     BOOL useSSE; // [esp-4h] [ebp-10h]
-    //int v26; // [esp+0h] [ebp-Ch]
-    //void *v27; // [esp+4h] [ebp-8h]
-    //int v28; // [esp+8h] [ebp-4h] BYREF
-    //void *retaddr; // [esp+Ch] [ebp+0h]
 
-    //v26 = a1;
-    //v27 = retaddr;
-    //v2 = alloca(10480);
-    if (Sys_QueryD3DDeviceOKEvent())
+    if (!Sys_QueryD3DDeviceOKEvent())
     {
-        PROF_SCOPED("R_SkinXModelCmd");
+        return;
+    }
 
-        useSSE = sys_SSE->current.enabled && r_sse_skinning->current.enabled;
-        useSSE_ = useSSE;
-        v23 = 0;
-        fastSkin = gfxBuf.fastSkin;
-        skinCmd = data;
-        modelSurfs = (GfxModelSkinnedSurface *)data->modelSurfs;
-        mat = data->mat;
+    PROF_SCOPED("R_SkinXModelCmd");
 
-        iassert(skinCmd);
-        iassert(skinCmd->surfCount);
+    useSSE = sys_SSE->current.enabled && r_sse_skinning->current.enabled;
+    useSSE_ = useSSE;
+    v23 = 0;
+    fastSkin = gfxBuf.fastSkin;
+    skinCmd = data;
+    modelSurfs = (GfxModelSkinnedSurface *)data->modelSurfs;
+    mat = data->mat;
+
+    iassert(skinCmd);
+    iassert(skinCmd->surfCount);
         
-        surfPos = modelSurfs;
-        v17 = -1;
-        for (i = 0; i < skinCmd->surfCount; ++i)
+    surfPos = modelSurfs;
+    boneIndex = -1;
+    for (i = 0; i < skinCmd->surfCount; ++i)
+    {
+        skinnedSurf = surfPos;
+        if (surfPos->skinnedCachedOffset == -3)
         {
-            skinnedSurf = surfPos;
-            if (surfPos->skinnedCachedOffset == -3)
-            {
-                surfPos = (GfxModelSkinnedSurface *)((char *)surfPos + 4);
-            }
-            else
-            {
-                if (v17 != skinnedSurf->info.boneIndex)
-                {
-                    v17 = skinnedSurf->info.boneIndex;
-                    v14 = v17 + skinnedSurf->info.boneCount;
-                    v13 = (int)&skinnedSurf->info.baseMat[-v17];
-                    for (j = v17; j < v14; ++j)
-                    {
-                        if ((skinCmd->surfacePartBits[j >> 5] & (0x80000000 >> (j & 0x1F))) != 0)
-                        {
-                            if (v23)
-                            {
-                                v23 = 0;
-                                _m_empty();
-                            }
-                            ConvertQuatToInverseSkelMat((const DObjAnimMat *)(v13 + 32 * j), &v11);
-                            ConvertQuatToSkelMat(&mat[j], &v10);
-                            viewoffset = skinCmd->viewoffset;
-                            v10.origin[0] = v10.origin[0] - skinCmd->viewoffset[0];
-                            v10.origin[1] = v10.origin[1] - skinCmd->viewoffset[1];
-                            v10.origin[2] = v10.origin[2] - skinCmd->viewoffset[2];
-                            R_MultiplySkelMat(&v11, &v10, &boneSkelMats[j]);
-                            boneSkelMats[j].axis[0][3] = 0.0f;
-                            boneSkelMats[j].axis[1][3] = 0.0f;
-                            boneSkelMats[j].axis[2][3] = 0.0f;
-                            boneSkelMats[j].origin[3] = 1.0f;
-                        }
-                    }
-                }
-                if (skinnedSurf->skinnedCachedOffset == -2)
-                {
-                    surfPos = (GfxModelSkinnedSurface *)((char *)surfPos + 56);
-                }
-                else
-                {
-                    surfPos = skinnedSurf + 1;
-                    iassert(skinnedSurf->xsurf);
-                    v7 = skinnedSurf->xsurf;
-                    if (skinnedSurf->skinnedCachedOffset < 0)
-                    {
-                        iassert(((reinterpret_cast<uint>(skinnedSurf->skinnedVert) & 15) == 0));
-                        skinVerticesOut = skinnedSurf->skinnedVert;
-                    }
-                    else
-                    {
-                        iassert(gfxBuf.skinnedCacheLockAddr);
-                        iassert((reinterpret_cast<uint>(gfxBuf.skinnedCacheLockAddr) & 15) == 0);
-                        iassert((skinnedSurf->skinnedCachedOffset & 15) == 0);
+            surfPos = (GfxModelSkinnedSurface *)((char *)surfPos + 4);
+            continue;
+        }
 
-                        skinVerticesOut = (GfxPackedVertex *)&gfxBuf.skinnedCacheLockAddr[skinnedSurf->skinnedCachedOffset];
-                    }
-                    if (useSSE_)
-                    {
-                        if (!v23)
-                        {
-                            v23 = 1;
-                            _m_empty();
-                        }
-                        v5 = 0;
-                        v4 = 0;
-                        if (fastSkin)
-                        {
-                            if (skinnedSurf->skinnedCachedOffset >= 0)
-                                v4 = &gfxBuf.skinnedCacheNormalsAddr[skinnedSurf->skinnedCachedOffset >> 5];
-                            v3 = skinnedSurf->oldSkinnedCachedOffset;
-                            if (v3 >= 0)
-                                v5 = &gfxBuf.oldSkinnedCacheNormalsAddr[v3 >> 5];
-                        }
-                        R_SkinXSurfaceSkinnedSse(v7, &boneSkelMats[v17], v5, v4, skinVerticesOut);
-                    }
-                    else
-                    {
-                        R_SkinXSurfaceSkinned(v7, &boneSkelMats[v17], skinVerticesOut);
-                    }
-                }
+        if (boneIndex != skinnedSurf->info.boneIndex)
+        {
+            boneIndex = skinnedSurf->info.boneIndex;
+            const int totalBones = boneIndex + skinnedSurf->info.boneCount;
+            const DObjAnimMat *baseMats = &skinnedSurf->info.baseMat[-boneIndex];
+            for (j = boneIndex; j < totalBones; ++j)
+            {
+                if ((skinCmd->surfacePartBits[j >> 5] & (0x80000000 >> (j & 0x1F))) == 0)
+                    continue;
+
+                //if (v23)
+                //{
+                //    v23 = 0;
+                //    _m_empty();
+                //}
+
+                DObjSkelMat mat0, mat1;
+
+                ConvertQuatToInverseSkelMat(&baseMats[j], &mat0);
+                ConvertQuatToSkelMat(&mat[j], &mat1);
+
+                mat1.origin[0] = mat1.origin[0] - skinCmd->viewoffset[0];
+                mat1.origin[1] = mat1.origin[1] - skinCmd->viewoffset[1];
+                mat1.origin[2] = mat1.origin[2] - skinCmd->viewoffset[2];
+                R_MultiplySkelMat(&mat0, &mat1, &boneSkelMats[j]);
+
+                boneSkelMats[j].axis[0][3] = 0.0f;
+                boneSkelMats[j].axis[1][3] = 0.0f;
+                boneSkelMats[j].axis[2][3] = 0.0f;
+                boneSkelMats[j].origin[3] = 1.0f;
             }
         }
-        if (v23)
-            _m_empty();
+
+        if (skinnedSurf->skinnedCachedOffset == -2)
+        {
+            surfPos = (GfxModelSkinnedSurface *)((char *)surfPos + 56);
+            continue;
+        }
+
+        surfPos = skinnedSurf + 1;
+        xsurf = skinnedSurf->xsurf;
+        iassert(xsurf);
+
+        if (skinnedSurf->skinnedCachedOffset < 0)
+        {
+            iassert(((reinterpret_cast<uint>(skinnedSurf->skinnedVert) & 15) == 0));
+            skinVerticesOut = skinnedSurf->skinnedVert;
+        }
+        else
+        {
+            iassert(gfxBuf.skinnedCacheLockAddr);
+            iassert((reinterpret_cast<uint>(gfxBuf.skinnedCacheLockAddr) & 15) == 0);
+            iassert((skinnedSurf->skinnedCachedOffset & 15) == 0);
+
+            skinVerticesOut = (GfxPackedVertex *)&gfxBuf.skinnedCacheLockAddr[skinnedSurf->skinnedCachedOffset];
+        }
+
+        if (useSSE_)
+        {
+            if (!v23)
+            {
+                v23 = 1;
+                _m_empty();
+            }
+            normalIn = 0;
+            normalOut = 0;
+            if (fastSkin)
+            {
+                if (skinnedSurf->skinnedCachedOffset >= 0)
+                    normalOut = &gfxBuf.skinnedCacheNormalsAddr[skinnedSurf->skinnedCachedOffset >> 5];
+                if (skinnedSurf->oldSkinnedCachedOffset >= 0)
+                    normalIn = &gfxBuf.oldSkinnedCacheNormalsAddr[skinnedSurf->oldSkinnedCachedOffset >> 5];
+            }
+            R_SkinXSurfaceSkinnedSse(xsurf, &boneSkelMats[boneIndex], normalIn, normalOut, skinVerticesOut);
+        }
+        else
+        {
+            R_SkinXSurfaceSkinned(xsurf, &boneSkelMats[boneIndex], skinVerticesOut);
+        }
     }
+
+    //if (v23)
+    //    _m_empty();
 }
 
 void __cdecl R_MultiplySkelMat(const DObjSkelMat *mat0, const DObjSkelMat *mat1, DObjSkelMat *out)

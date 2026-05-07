@@ -681,7 +681,7 @@ void Com_Error(errorParm_t code, const char *fmt, ...)
     if ( (code == ERR_DROP || code == ERR_SCRIPT_DROP) && G_ExitAfterToolComplete() )
     {
         _vsnprintf(com_errorMessage, 0x1000u, fmt, va);
-        com_errorEntered = 0;
+        com_errorMessage[4095] = 0;
         printf(com_errorMessage);
         Com_Printf(16, com_errorMessage);
         Com_PrintStackTrace();
@@ -700,7 +700,7 @@ void Com_Error(errorParm_t code, const char *fmt, ...)
             Sys_Error((char*)"%s", com_errorMessage);
         com_errorEntered = 1;
         _vsnprintf(com_errorMessage, 0x1000u, fmt, va);
-        com_errorEntered = 0;
+        com_errorMessage[4095] = 0;
         if ( code != ERR_DISCONNECT && Monkey_IsRunning() )
         {
             Com_Printf(16, com_errorMessage);

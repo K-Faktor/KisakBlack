@@ -2691,7 +2691,7 @@ void __cdecl SV_EndClientSnapshot(client_t *client, msg_t *msg)
     }
     if ( client->header.state != CS_ZOMBIE )
         SV_WriteDownloadToClient(client, msg);
-    MSG_WriteByte(msg, 0xEu);
+    MSG_WriteByte(msg, svc_EOF);
     if ( msg->overflowed )
     {
         Com_PrintWarning(15, "WARNING: msg overflowed for %s, trying to recover\n", client->name);

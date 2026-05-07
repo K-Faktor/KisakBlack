@@ -2059,6 +2059,7 @@ void __cdecl Live_InitFavourites()
 
 void __cdecl Live_AddRecentPlayers(unsigned __int64 *uids, const char **names, int numIDs)
 {
+#ifdef KISAK_LIVE
     unsigned __int64 v3; // rax
     int i; // [esp+10h] [ebp-30h]
     char namebuf[32]; // [esp+14h] [ebp-2Ch] BYREF
@@ -2083,6 +2084,7 @@ void __cdecl Live_AddRecentPlayers(unsigned __int64 *uids, const char **names, i
             }
         }
     }
+#endif
 }
 
 unsigned __int64 __cdecl Live_GetServerForFriend(unsigned __int64 friendId)
