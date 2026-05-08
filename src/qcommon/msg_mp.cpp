@@ -2445,7 +2445,16 @@ netFieldOrderInfo_t orderInfo;
 
 float (*__cdecl MSG_GetMapCenter())[3]
 {
-    return SV_GetMapCenter();
+    // LWSS: This is a very important if() lol. 
+    // Otherwise remote clients will not have the right starting base for any positions
+    if (IsDedicatedServer())
+    {
+        return SV_GetMapCenter();
+    }
+    else
+    {
+        return CL_GetMapCenter();
+    }
 }
 
 int __cdecl GetMinBitCountForNum(unsigned int num)

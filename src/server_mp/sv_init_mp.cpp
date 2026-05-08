@@ -213,7 +213,7 @@ void __cdecl SV_GetConfigstring(unsigned int index, char *buffer, int bufferSize
 
     if ( bufferSize < 1 )
         Com_Error(ERR_DROP, "SV_GetConfigstring: bufferSize == %i", bufferSize);
-    if ( index >= 0xCBC )
+    if ( index >= MAX_CONFIGSTRINGS )
         Com_Error(ERR_DROP, "SV_GetConfigstring: bad index %i", index);
     if ( !sv.configstrings[index]
         && !Assert_MyHandler(

@@ -11212,15 +11212,18 @@ char __cdecl Menu_DoesMenuOrParentsHaveControlFlag(UiContext *dc, menuDef_t *men
 
 void __cdecl UI_SetLoadingScreenMaterial(const char * name)
 {
-    Material *mat; // [esp+0h] [ebp-4h]
+    if (!IsDedicatedServer())
+    {
+        Material *mat; // [esp+0h] [ebp-4h]
 
-    iassert(name);
-    iassert(name[0]);
+        iassert(name);
+        iassert(name[0]);
 
-    mat = Material_RegisterHandle(va("loadscreen_%s", name), 36);
-    if (Material_IsDefault(mat))
-        sharedUiInfo.loadingScreen = 0;
-    else
-        sharedUiInfo.loadingScreen = mat;
+        mat = Material_RegisterHandle(va("loadscreen_%s", name), 36);
+        if (Material_IsDefault(mat))
+            sharedUiInfo.loadingScreen = 0;
+        else
+            sharedUiInfo.loadingScreen = mat;
+    }
 }
 

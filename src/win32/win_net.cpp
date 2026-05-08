@@ -26,7 +26,7 @@ unsigned __int8 localIP[16][4];
 unsigned __int8 g_debugPacket[1][8192];
 
 int g_debugServer;
-SOCKET ip_socket;
+SOCKET ip_socket = INVALID_SOCKET;
 SOCKET socks_socket;
 int cl_nat_overflow_detected;
 socketpool_t poolsockets[50];
@@ -43,6 +43,76 @@ int g_debugReadBytesSent;
 int g_debugWriteBytes;
 int g_debugReadBytesRemote;
 int winsockInitialized;
+
+/*
+====================
+NET_IPSocket
+====================
+*/
+// LWSS ADD: from kcod4. This is to replace the shitty demonware net
+unsigned int __cdecl NET_IPSocket(const char *net_interface, int port)
+{
+    const char *v2; // eax
+    const char *v4; // eax
+    const char *v5; // eax
+    const char *v6; // eax
+    sockaddr address; // [esp+0h] [ebp-24h] BYREF
+    int _true; // [esp+18h] [ebp-Ch] BYREF
+    int i; // [esp+1Ch] [ebp-8h] BYREF
+    unsigned int newsocket; // [esp+20h] [ebp-4h]
+
+    _true = 1;
+    i = 1;
+    if (net_interface)
+        Com_Printf(16, "Opening IP socket: %s:%i\n", net_interface, port);
+    else
+        Com_Printf(16, "Opening IP socket: localhost:%i\n", port);
+    newsocket = socket(2, 2, 17);
+    if (newsocket == -1)
+    {
+        if (WSAGetLastError() != 10047)
+        {
+            v2 = NET_ErrorString();
+            Com_PrintWarning(16, "WARNING: UDP_OpenSocket: socket: %s\n", v2);
+        }
+        return 0;
+    }
+    else if (ioctlsocket(newsocket, 0x8004667E, (unsigned long *)&_true) == -1)
+    {
+        v4 = NET_ErrorString();
+        Com_PrintWarning(16, "WARNING: UDP_OpenSocket: ioctl FIONBIO: %s\n", v4);
+        return 0;
+    }
+    else if (setsockopt(newsocket, 0xFFFF, 32, (const char *)&i, 4) == -1)
+    {
+        v5 = NET_ErrorString();
+        Com_PrintWarning(16, "WARNING: UDP_OpenSocket: setsockopt SO_BROADCAST: %s\n", v5);
+        return 0;
+    }
+    else
+    {
+        if (net_interface && *net_interface && I_stricmp(net_interface, "localhost"))
+            Sys_StringToSockaddr(net_interface, &address);
+        else
+            *(_DWORD *)&address.sa_data[2] = 0;
+        if (port == -1)
+            *(_WORD *)address.sa_data = 0;
+        else
+            *(_WORD *)address.sa_data = htons(port);
+        address.sa_family = 2;
+        if (bind(newsocket, &address, 16) == -1)
+        {
+            v6 = NET_ErrorString();
+            Com_PrintWarning(16, "WARNING: UDP_OpenSocket: bind: %s\n", v6);
+            closesocket(newsocket);
+            return 0;
+        }
+        else
+        {
+            return newsocket;
+        }
+    }
+}
 
 
 void __cdecl NET_Sleep(unsigned int msec)
@@ -508,10 +578,76 @@ void __cdecl Sys_ShowIP()
         Com_Printf(16, "IP: %i.%i.%i.%i\n", localIP[i][0], localIP[i][1], localIP[i][2], localIP[i][3]);
 }
 
+/*
+=====================
+NET_GetLocalAddress
+// LWSS ADD: from cod4
+=====================
+*/
+
+#ifndef _XBOX
+int NET_GetLocalAddress()
+{
+    int result; // eax
+    u_long v1; // [esp+0h] [ebp-114h]
+    char hostname[256]; // [esp+4h] [ebp-110h] BYREF
+    hostent *hostInfo; // [esp+108h] [ebp-Ch]
+    int n; // [esp+10Ch] [ebp-8h]
+    char *p; // [esp+110h] [ebp-4h]
+
+    if (gethostname(hostname, 256) == -1)
+        return WSAGetLastError();
+    hostInfo = gethostbyname(hostname);
+    if (!hostInfo)
+        return WSAGetLastError();
+    Com_Printf(16, "Hostname: %s\n", hostInfo->h_name);
+    n = 0;
+    while (1)
+    {
+        p = hostInfo->h_aliases[n++];
+        if (!p)
+            break;
+        Com_Printf(16, "Alias: %s\n", p);
+    }
+    result = hostInfo->h_addrtype;
+    if (result == 2)
+    {
+        for (numIP = 0; ; ++numIP)
+        {
+            result = numIP;
+            p = hostInfo->h_addr_list[numIP];
+            if (!p || numIP >= 16)
+                break;
+            v1 = ntohl(*(_DWORD *)p);
+            localIP[numIP][0] = *p;
+            localIP[numIP][1] = p[1];
+            localIP[numIP][2] = p[2];
+            localIP[numIP][3] = p[3];
+            Com_Printf(16, "IP: %i.%i.%i.%i\n", HIBYTE(v1), BYTE2(v1), BYTE1(v1), (unsigned __int8)v1);
+        }
+    }
+    return result;
+}
+#endif
+
 void __cdecl NET_OpenIP()
 {
     ip = _Dvar_RegisterString("net_ip", "localhost", 0x20u, "Network IP Address");
     port = _Dvar_RegisterInt("net_port", 3074, 0, 0xFFFF, 0x20u, "Network port");
+
+    // LWSS ADD - network augmentation to replace demonware net (cod4)
+    for (int i = 0; i < 10; ++i)
+    {
+        ip_socket = NET_IPSocket(ip->current.string, i + port->current.integer);
+        if (ip_socket)
+        {
+            Dvar_SetInt((dvar_s *)port, i + port->current.integer);
+            NET_GetLocalAddress();
+            return;
+        }
+    }
+    Com_PrintWarning(16, "WARNING: Couldn't allocate IP port\n");
+    // LWSS END
 }
 
 int __cdecl dwPlatformInit(bdNetStartParams *params)

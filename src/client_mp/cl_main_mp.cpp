@@ -1958,9 +1958,6 @@ void __cdecl CL_InitDownloads(int localClientNum)
 void __cdecl CL_CheckForResend(int localClientNum)
 {
     netsrc_t NetworkID; // eax
-    char *v2; // eax
-    const char *v3; // eax
-    const char *v4; // eax
     __int64 Uid; // rax
     const char *v6; // eax
     unsigned int RandomUInt; // eax
@@ -1972,7 +1969,6 @@ void __cdecl CL_CheckForResend(int localClientNum)
     netsrc_t v11; // eax
     netadr_t v12; // [esp-18h] [ebp-D68h]
     netadr_t serverAddress; // [esp-14h] [ebp-D64h]
-    const char *v14; // [esp-4h] [ebp-D54h]
     int v15; // [esp-4h] [ebp-D54h]
     unsigned __int64 ourUserID; // [esp+D8h] [ebp-C78h] BYREF
     char clientSteamIDStr[32]; // [esp+E4h] [ebp-C6Ch] BYREF
@@ -2016,23 +2012,23 @@ void __cdecl CL_CheckForResend(int localClientNum)
                     strcpy(pkt, "getchallenge");
                     pktlen = &pkt[strlen(pkt) + 1] - &pkt[1];
                     //PbClientConnecting(1, pkt, &pktlen);
-                    CL_BuildMd5StrFromCDKey(md5Str);
-                    v14 = va("getchallenge 0 \"%s\"", md5Str);
+                    //CL_BuildMd5StrFromCDKey(md5Str);
                     serverAddress = clc->serverAddress;
                     NetworkID = Com_LocalClient_GetNetworkID(localClientNum);
-                    NET_OutOfBandPrint(NetworkID, serverAddress, v14);
+                    // NOTE: In Black Ops, the server does not give 2 shits about the CD Key.
+                    // Go look at SV_GetChallenge(), it's not even read. This is a leftover.
+                    const char *dummy = "abc";
+                    //NET_OutOfBandPrint(NetworkID, serverAddress, va("getchallenge 0 \"%s\"", md5Str));
+                    NET_OutOfBandPrint(NetworkID, serverAddress, va("getchallenge 0 \"%s\"", dummy));
                     *(&clc->nonce + 1) = 0;
                     clc->nonce = 0;
                 }
             }
             else if ( connstate == CA_CHALLENGING )
             {
-                v2 = Dvar_InfoString(localClientNum, 2);
-                I_strncpyz(info, v2, 1024);
-                v3 = va("%i", 1044);
-                Info_SetValueForKey(info, "protocol", v3);
-                v4 = va("%i", clc->challenge);
-                Info_SetValueForKey(info, "challenge", v4);
+                I_strncpyz(info, Dvar_InfoString(localClientNum, 2), 1024);
+                Info_SetValueForKey(info, "protocol", va("%i", 1044));
+                Info_SetValueForKey(info, "challenge", va("%i", clc->challenge));
                 Uid = LiveSteam_GetUid();
                 Int64ToString(Uid, clientSteamIDStr);
                 Info_SetValueForKey(info, "steamid", clientSteamIDStr);

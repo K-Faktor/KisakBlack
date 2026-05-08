@@ -10918,6 +10918,7 @@ void GScr_SetVoteNoCount()
 
 void GScr_KickPlayer()
 {
+#if 0 // KISAKTODO: find out why the scripts are trying to kick
     const char *v0; // eax
     const char *v1; // eax
     int playernum; // [esp+0h] [ebp-20h]
@@ -10942,6 +10943,12 @@ void GScr_KickPlayer()
             Cbuf_AddText(0, v1);
         }
     }
+#else
+    if (Scr_GetNumParam(SCRIPTINSTANCE_SERVER))
+    {
+        Com_DPrintf(15, "[Kisak] Scripts attempted to kick player %i", Scr_GetInt(0, SCRIPTINSTANCE_SERVER));
+    }
+#endif
 }
 
 void GScr_BanPlayer()

@@ -42,6 +42,7 @@
 #include <turret/turret_placement.h>
 #include <cgame/cg_scr_main.h>
 #include <sound/snd_bank.h>
+#include <live/live_sessions_win.h>
 
 static void __cdecl METHOD_NULLSUB(scr_entref_t entref)
 {
@@ -6711,33 +6712,38 @@ void __cdecl PlayerCmd_GetXuid(scr_entref_t entref)
 
 void __cdecl PlayerCmd_IsHost(scr_entref_t entref)
 {
-    const char *v1; // eax
+    char *v2; // eax
+    gentity_s *pSelf; // [esp+0h] [ebp-4h]
 
-    if ( entref.classnum )
+    if (entref.classnum)
     {
         Scr_ObjectError("not an entity", SCRIPTINSTANCE_SERVER);
+        pSelf = 0;
     }
     else
     {
-        if ( entref.entnum >= 0x400u
+        if (entref.entnum >= 0x400u
             && !Assert_MyHandler(
-                        "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_client_script_cmd_mp.cpp",
-                        3865,
-                        0,
-                        "%s",
-                        "entref.entnum < MAX_GENTITIES") )
+                "C:\\projects_pc\\cod\\codsrc\\src\\game_mp\\g_client_script_cmd_mp.cpp",
+                3865,
+                0,
+                "%s",
+                "entref.entnum < MAX_GENTITIES"))
         {
             __debugbreak();
         }
-        if ( !g_entities[entref.entnum].client )
+        pSelf = &g_entities[entref.entnum];
+        if (!pSelf->client)
         {
-            v1 = va("entity %i is not a player", entref.entnum);
-            Scr_ObjectError(v1, SCRIPTINSTANCE_SERVER);
+            v2 = va("entity %i is not a player", entref.entnum);
+            Scr_ObjectError(v2, SCRIPTINSTANCE_SERVER);
         }
     }
-    if ( Scr_GetNumParam(SCRIPTINSTANCE_SERVER) )
+
+    if (Scr_GetNumParam(SCRIPTINSTANCE_SERVER))
         Scr_Error("USAGE: self IsHost()\n", 0);
-    if ( Session_IsHost() )
+
+    if (Session_IsHost(&g_serverSession, pSelf->client->sess.cs.clientIndex))
         Scr_AddInt(1, SCRIPTINSTANCE_SERVER);
     else
         Scr_AddInt(0, SCRIPTINSTANCE_SERVER);

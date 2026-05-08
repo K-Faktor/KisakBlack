@@ -475,7 +475,7 @@ void __cdecl CL_ConfigstringModified(int localClientNum)
     else
     {
         memcpy(oldGs, &cls.gameState, sizeof(gameState_t));
-        memset(&cls.gameState, 0, 0x32F0u);
+        memset(cls.gameState.stringOffsets, 0, sizeof(cls.gameState.stringOffsets));
         memset(cls.gameState.stringData, 0, sizeof(cls.gameState.stringData));
 
         cls.gameState.dataCount = 1;

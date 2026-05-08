@@ -705,8 +705,6 @@ void __cdecl R_DelayLoadImage(XAssetHeader header, void *data)
 
     if (image->delayLoadPixels)
     {
-        iassert(image->category == 3);
-
         image->delayLoadPixels = 0;
         externalDataSize = (const char *)image->cardMemory.platform[0];
         image->cardMemory.platform[0] = 0;

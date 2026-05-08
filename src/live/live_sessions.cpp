@@ -72,9 +72,13 @@ unsigned __int8 *__cdecl Session_GetQosPayloadBuffer()
     return s_qosPayload;
 }
 
-bool __cdecl Session_IsHost()
+bool __cdecl Session_IsHost(SessionData_s *session, int clientNum)
 {
-    return 0;
+    if (IsDedicatedServer())
+        return false;
+    if (Demo_IsEnabled())
+        return clientNum == 1;
+    return clientNum == 0;
 }
 
 int __cdecl Session_HostNum(SessionData_s *session)

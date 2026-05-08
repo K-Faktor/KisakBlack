@@ -394,7 +394,7 @@ void __cdecl CL_ParseGamestate(int localClientNum, msg_t *msg)
     clientConfigStringChecksum = CCS_GetChecksum();
     CCS_ValidateChecksums(serverConfigStringChecksum, clientConfigStringChecksum);
     LocalClientGlobals = CL_GetLocalClientGlobals(localClientNum);
-    memset((unsigned __int8 *)&cls.gameState, 0, 0x32F0u);
+    memset(cls.gameState.stringOffsets, 0, sizeof(cls.gameState.stringOffsets));
     cls.gameState.dataCount = 1;
     while ( 1 )
     {
@@ -419,7 +419,7 @@ void __cdecl CL_ParseGamestate(int localClientNum, msg_t *msg)
                         configStringIndex = lastStringIndex + 1;
                     else
                         configStringIndex = MSG_ReadBits(msg, 0xCu);
-                    if ( configStringIndex >= 0xCBC )
+                    if ( configStringIndex >= MAX_CONFIGSTRINGS )
                         Com_Error(ERR_DROP, "configstring > MAX_CONFIGSTRINGS");
                     while ( nextConstConfigStringNumber && nextConstConfigStringNumber < (int)configStringIndex )
                     {
@@ -440,6 +440,10 @@ void __cdecl CL_ParseGamestate(int localClientNum, msg_t *msg)
                     memcpy((unsigned __int8 *)&cls.gameState.stringData[cls.gameState.dataCount], (unsigned __int8 *)s, v5 + 1);
                     cls.gameState.dataCount += v5 + 1;
                     lastStringIndex = configStringIndex;
+                    Com_Printf(0, "cs[%u]=%u offset=%u (remaining=%i)\n",
+                        configStringIndex, lastStringIndex,
+                        cls.gameState.stringOffsets[configStringIndex],
+                        numConfigStrings);
                     --numConfigStrings;
                 }
                 while ( nextConstConfigStringNumber )

@@ -7100,8 +7100,19 @@ void __cdecl CG_SetupWeaponConfigString(int configStringIndex)
     const char *token; // [esp+814h] [ebp-8h]
     const char *weaponConfigString; // [esp+818h] [ebp-4h] BYREF
 
-    SV_GetConfigstring(configStringIndex + 2836, weaponbuf, 2048);
-    weaponConfigString = weaponbuf;
+    // LWSS ADD - sv.configstrings is not set at this point (FOR CLIENTS CONNECTING TO A DEDICATED)
+    // So I'm calling CL_GetConfigString() instead for clients - this IS set in CL_ParseGameState()
+    if (IsDedicatedServer())
+    {
+        SV_GetConfigstring(configStringIndex + 2836, weaponbuf, 2048);
+        weaponConfigString = weaponbuf;
+    }
+    else
+    {
+        weaponConfigString = CL_GetConfigString(configStringIndex + 2836);
+    }
+    // LWSS END
+
     if ( weaponbuf && *weaponConfigString )
     {
         token = (const char *)Com_Parse(&weaponConfigString);
