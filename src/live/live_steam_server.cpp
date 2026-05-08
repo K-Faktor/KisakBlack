@@ -31,9 +31,6 @@ LiveSteamServer::~LiveSteamServer()
 
 void LiveSteamServer::RunFrame()
 {
-    char *v1; // eax
-    const char *v2; // eax
-    const char *v3; // eax
     int v4; // [esp+0h] [ebp-30h]
     unsigned __int64 serverSteamID; // [esp+8h] [ebp-28h]
     _BYTE v7[8]; // [esp+14h] [ebp-1Ch] BYREF
@@ -58,12 +55,9 @@ void LiveSteamServer::RunFrame()
                 {
                     if ( ++client->steamAuthFailCount == 4 )
                     {
-                        v1 = va("Kicking '%s' <%llx> in runframe, unable to Steam authorize\n", client->name, client->steamID);
-                        Com_PrintError(15, v1);
-                        v2 = va("Kicking '%s' <%llx> in runframe, unable to Steam authorize\n", client->name, client->steamID);
-                        SV_SysLog_LogMessage(0, v2);
-                        v3 = va("clientkick %d PLATFORM_STEAM_CONNECT_FAIL\n", i);
-                        Cbuf_AddText(0, v3);
+                        Com_PrintError(15, va("Kicking '%s' <%llx> in runframe, unable to Steam authorize\n", client->name, client->steamID));
+                        SV_SysLog_LogMessage(0, va("Kicking '%s' <%llx> in runframe, unable to Steam authorize\n", client->name, client->steamID));
+                        Cbuf_AddText(0, va("clientkick %d PLATFORM_STEAM_CONNECT_FAIL\n", i));
                         client->steamAuthFailCount = 0;
                     }
                     else

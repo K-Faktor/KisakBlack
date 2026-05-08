@@ -747,7 +747,6 @@ void __cdecl SVC_Info(netadr_t from, bdSecurityID *secID, bool quick)
 
 void __cdecl SV_ConnectionlessPacket(netadr_t from, msg_t *msg)
 {
-    char *v2; // eax
     char *fromAddr; // [esp+0h] [ebp-41Ch]
     client_t *v4; // [esp+4h] [ebp-418h]
     client_t *clients; // [esp+4h] [ebp-418h]
@@ -761,106 +760,101 @@ void __cdecl SV_ConnectionlessPacket(netadr_t from, msg_t *msg)
     MSG_BeginReading(msg);
     MSG_ReadLong(msg);
     SV_Netchan_AddOOBProfilePacket(msg->cursize);
-    if ( I_strnicmp((const char *)msg->data + 4, "pb_", 3) )
+
+    //if (!I_strnicmp((const char *)msg->data + 4, "pb_", 3))
+    //{
+    //    i = 0;
+    //    v4 = svs.clients;
+    //    while (i < com_maxclients->current.integer)
+    //    {
+    //        if (v4->header.state
+    //            && NET_CompareBaseAdr(from, v4->header.netchan.remoteAddress)
+    //            && v4->header.netchan.remoteAddress.port == from.port)
+    //        {
+    //            clientIndex = i;
+    //            break;
+    //        }
+    //        ++i;
+    //        ++v4;
+    //    }
+    //    if (msg->data[7] != 67 && msg->data[7] != 49 && msg->data[7] != 74)
+    //        PbSvAddEvent(13, clientIndex, msg->cursize - 4, (char *)msg->data + 4);
+    //
+    //    return;
+    //}
+
+
+    s = MSG_ReadStringLine(msg, strBuf, 0x400u);
+    SV_Cmd_TokenizeString(s);
+    c = SV_Cmd_Argv(0);
+
+    if ( sv_packet_info->current.enabled )
     {
-        s = MSG_ReadStringLine(msg, strBuf, 0x400u);
-        SV_Cmd_TokenizeString(s);
-        c = SV_Cmd_Argv(0);
-        if ( sv_packet_info->current.enabled )
+        Com_Printf(15, "SV packet %s : %s\n", NET_AdrToString(from), c);
+    }
+
+    if (!I_stricmp(c, "v"))
+    {
+        SV_VoicePacket(from, msg);
+    }
+    //else if (!I_stricmp(c, "getinfo"))
+    //{
+    //    // removed in blops
+    //}
+    else if (!I_stricmp(c, "getchallenge"))
+    {
+        SV_GetChallenge(from);
+    }
+    else if ( !I_stricmp(c, "connect") )
+    {
+        // LWSS: Remove punkbuster junk
+        //if ( NET_IsLocalAddress(from) )
+        //{
+        //    PbPassConnectString("localhost", (char *)msg->data);
+        //}
+        //else
+        //{
+        //    fromAddr = NET_AdrToString(from);
+        //    PbPassConnectString(fromAddr, (char *)msg->data);
+        //}
+        SV_DirectConnect(from);
+    }
+#ifdef KISAK_DW
+    else if (!I_stricmp(c, "dwcr"))
+    {
+        SV_HandleDWChallengeResponse(from, msg);
+    }
+#endif
+    else if (!I_stricmp(c, "steamauth"))
+    {
+        SV_SteamAuthClient(from, msg);
+    }
+    else if (!I_stricmp(c, "rcon"))
+    {
+        NET_DeferPacketToClient(&from, msg);
+    }
+    //else if (!I_stricmp(c, "disconnect"))
+    //{
+    //    // removed in blops
+    //}
+    else if ( !I_stricmp(c, "XX") )
+    {
+        i = 0;
+        clients = svs.clients;
+        while ( i < com_maxclients->current.integer )
         {
-            v2 = NET_AdrToString(from);
-            Com_Printf(15, "SV packet %s : %s\n", v2, c);
-        }
-        else if ( I_stricmp(c, "v") )
-        {
-            if ( I_stricmp(c, "getinfo") )
+            if ( clients->header.state
+                && NET_CompareBaseAdr(from, clients->header.netchan.remoteAddress)
+                && svs.time > clients->lastPacketTime )
             {
-                if ( I_stricmp(c, "getchallenge") )
-                {
-                    if ( !I_stricmp(c, "connect") )
-                    {
-#ifdef KISAK_PUNKBUSTER
-                        if ( NET_IsLocalAddress(from) )
-                        {
-                            PbPassConnectString("localhost", (char *)msg->data);
-                        }
-                        else
-                        {
-                            fromAddr = NET_AdrToString(from);
-                            PbPassConnectString(fromAddr, (char *)msg->data);
-                        }
-#endif
-                        SV_DirectConnect(from);
-                        goto LABEL_43;
-                    }
-                    if ( I_stricmp(c, "dwcr") )
-                    {
-                        if ( I_stricmp(c, "steamauth") )
-                        {
-                            if ( I_stricmp(c, "rcon") )
-                            {
-                                if ( !I_stricmp(c, "disconnect") )
-                                    goto LABEL_43;
-                                if ( !I_stricmp(c, "XX") )
-                                {
-                                    i = 0;
-                                    clients = svs.clients;
-                                    while ( i < com_maxclients->current.integer )
-                                    {
-                                        if ( clients->header.state
-                                            && NET_CompareBaseAdr(from, clients->header.netchan.remoteAddress)
-                                            && svs.time > clients->lastPacketTime )
-                                        {
-                                            clients->lastPacketTime = svs.time;
-                                        }
-                                        ++i;
-                                        ++clients;
-                                    }
-                                    goto LABEL_43;
-                                }
-                            }
-                            NET_DeferPacketToClient(&from, msg);
-                            goto LABEL_43;
-                        }
-                        SV_SteamAuthClient(from, msg);
-                    }
-                    else
-                    {
-                        SV_HandleDWChallengeResponse(from, msg);
-                    }
-                }
-                else
-                {
-                    SV_GetChallenge(from);
-                }
+                clients->lastPacketTime = svs.time;
             }
+            ++i;
+            ++clients;
         }
-        else
-        {
-            SV_VoicePacket(from, msg);
-        }
-LABEL_43:
-        SV_Cmd_EndTokenizedString();
-        return;
     }
-    i = 0;
-    v4 = svs.clients;
-    while ( i < com_maxclients->current.integer )
-    {
-        if ( v4->header.state
-            && NET_CompareBaseAdr(from, v4->header.netchan.remoteAddress)
-            && v4->header.netchan.remoteAddress.port == from.port )
-        {
-            clientIndex = i;
-            break;
-        }
-        ++i;
-        ++v4;
-    }
-#ifdef KISAK_PUNKBUSTER
-    if ( msg->data[7] != 67 && msg->data[7] != 49 && msg->data[7] != 74 )
-        PbSvAddEvent(13, clientIndex, msg->cursize - 4, (char *)msg->data + 4);
-#endif
+
+    SV_Cmd_EndTokenizedString();
 }
 
 void __cdecl SV_PacketEvent(netadr_t from, msg_t *msg)

@@ -6,7 +6,7 @@
 
 LiveSteamClient::LiveSteamClient()
 {
-    this->resultOnRequestEncryptedAppTicket = (EResult)0;
+    this->resultOnRequestEncryptedAppTicket = k_EResultNone;
     //CCallResult<LiveSteamClient,EncryptedAppTicketResponse_t>::CCallResult<LiveSteamClient,EncryptedAppTicketResponse_t>(&this->m_SteamCallResultEncryptedAppTicket);
     //return this;
 }
@@ -17,7 +17,7 @@ void LiveSteamClient::RequestEncryptedAppTicket(const void *data, unsigned int s
     //ISteamUser *v3; // [esp+4h] [ebp-14h]
     //__int64 hSteamAPICall; // [esp+10h] [ebp-8h]
 
-    this->resultOnRequestEncryptedAppTicket = (EResult)0;
+    this->resultOnRequestEncryptedAppTicket = k_EResultNone;
     // Make the Steam call and KEEP the handle
     SteamAPICall_t hSteamAPICall = SteamUser()->RequestEncryptedAppTicket((void*)data, size);
 

@@ -108,7 +108,6 @@ void __cdecl SV_HandleDWChallengeResponse(netadr_t from, msg_t *msg)
 void __cdecl SV_GetChallenge(netadr_t from)
 {
     int v1; // esi
-    const char *v2; // eax
     int time; // [esp+4h] [ebp-18h]
     challenge_t *challenge; // [esp+8h] [ebp-14h]
     int oldest; // [esp+Ch] [ebp-10h]
@@ -118,44 +117,43 @@ void __cdecl SV_GetChallenge(netadr_t from)
     if ( sv_authenticating->current.enabled )
     {
         Com_Printf(0, "Dedicated server: Rejecting incoming connection, we're re-authing\n");
+        return;
     }
     else if ( sv_dwlsgerror->current.enabled )
     {
         Com_PrintWarning(0, "Dedicated server: Session update failure, rejecting incoming connection\n");
+        return;
     }
-    else
+
+    oldest = 0;
+    oldestTime = 0x7FFFFFFF;
+    challenge = svs.challenges;
+    for ( i = 0; i < 1024 && (challenge->connected || !NET_CompareAdr(from, challenge->adr)); ++i )
     {
-        oldest = 0;
-        oldestTime = 0x7FFFFFFF;
-        challenge = svs.challenges;
-        for ( i = 0; i < 1024 && (challenge->connected || !NET_CompareAdr(from, challenge->adr)); ++i )
+        if ( challenge->time < oldestTime )
         {
-            if ( challenge->time < oldestTime )
-            {
-                oldestTime = challenge->time;
-                oldest = i;
-            }
-            ++challenge;
+            oldestTime = challenge->time;
+            oldest = i;
         }
-        if ( i == 1024 )
-        {
-            challenge = &svs.challenges[oldest];
-            v1 = rand() << 16;
-            challenge->challenge = svs.time ^ rand() ^ v1;
-            challenge->adr = from;
-            challenge->firstTime = svs.time;
-            challenge->firstPing = 0;
-            if ( svs.time <= 0 )
-                time = 1;
-            else
-                time = svs.time;
-            challenge->time = time;
-            challenge->connected = 0;
-        }
-        challenge->pingTime = svs.time;
-        v2 = va("challengeResponse %i", challenge->challenge);
-        NET_OutOfBandPrint(NS_SERVER, from, v2);
+        ++challenge;
     }
+    if ( i == 1024 )
+    {
+        challenge = &svs.challenges[oldest];
+        v1 = rand() << 16;
+        challenge->challenge = svs.time ^ rand() ^ v1;
+        challenge->adr = from;
+        challenge->firstTime = svs.time;
+        challenge->firstPing = 0;
+        if ( svs.time <= 0 )
+            time = 1;
+        else
+            time = svs.time;
+        challenge->time = time;
+        challenge->connected = 0;
+    }
+    challenge->pingTime = svs.time;
+    NET_OutOfBandPrint(NS_SERVER, from, va("challengeResponse %i", challenge->challenge));
 }
 
 void __cdecl SV_CacheClientStatChange(unsigned int clientNum, ddlState_t *searchState)
@@ -489,20 +487,13 @@ void __cdecl SV_SteamAuthClient(netadr_t from, msg_t *msg)
 {
     unsigned __int64 clientID; // [esp+0h] [ebp-818h]
     unsigned int authBlobLen; // [esp+Ch] [ebp-80Ch]
-    unsigned __int8 authBlob[2052]; // [esp+10h] [ebp-808h] BYREF
+    unsigned __int8 authBlob[0x800]; // [esp+10h] [ebp-808h] BYREF
 
     clientID = MSG_ReadInt64(msg);
     authBlobLen = MSG_ReadShort(msg);
-    if ( authBlobLen >= 0x800
-        && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                    869,
-                    0,
-                    "%s",
-                    "authBlobLen < sizeof( authBlob )") )
-    {
-        __debugbreak();
-    }
+
+    iassert(authBlobLen < sizeof(authBlob));
+
     MSG_ReadData(msg, authBlob, authBlobLen);
     LiveSteam_Server_ClientSteamAuthentication(clientID, from, authBlob, authBlobLen);
 }
@@ -706,8 +697,6 @@ void __cdecl SV_FreeClients()
 
 void __cdecl SV_DirectConnect(netadr_t from)
 {
-    const char *v2; // eax
-    char *v3; // eax
     const char *BuildName; // eax
 
     unsigned int v19; // eax
@@ -751,10 +740,8 @@ void __cdecl SV_DirectConnect(netadr_t from)
     memset(authSvPBguid, 0, 33);
     memset(clientPBguid, 0, 33);
     Com_DPrintf(15, "SV_DirectConnect()\n");
-    v2 = SV_Cmd_Argv(1);
-    I_strncpyz(userinfo, v2, 1024);
-    v3 = Info_ValueForKey(userinfo, "protocol");
-    version = atoi(v3);
+    I_strncpyz(userinfo, SV_Cmd_Argv(1), 1024);
+    version = atoi(Info_ValueForKey(userinfo, "protocol"));
     if (version != 1044)
     {
         BuildName = Com_GetBuildName();
@@ -781,291 +768,296 @@ void __cdecl SV_DirectConnect(netadr_t from)
         ++i;
         ++clients;
     }
+
     guid = 0;
-    if (NET_IsLocalAddress(from))
-        goto LABEL_35;
-    for (i = 0; i < 1024; ++i)
+
+
+    if (!NET_IsLocalAddress(from))
     {
-        if (NET_CompareAdr(from, svs.challenges[i].adr) && challenge == svs.challenges[i].challenge)
+        for (i = 0; i < 1024; ++i)
         {
-            guid = svs.challenges[i].guid;
-            I_strncpyz(authSvPBguid, svs.challenges[i].PBguid, 33);
-            I_strncpyz(clientPBguid, svs.challenges[i].clientPBguid, 33);
-            break;
-        }
-    }
-    if (i == 1024)
-    {
-        NET_OutOfBandPrint(NS_SERVER, from, "error\nEXE_BAD_CHALLENGE");
-        return;
-    }
-    if (svs.challenges[i].firstPing)
-    {
-        ping = svs.challenges[i].firstPing;
-    }
-    else
-    {
-        ping = svs.time - svs.challenges[i].pingTime;
-        svs.challenges[i].firstPing = ping;
-    }
-    Com_Printf(15, "Client %i connecting with %i challenge ping from %s\n", i, ping, NET_AdrToString(from));
-    svs.challenges[i].connected = 1;
-    if (g_password)
-    {
-        if (*(_BYTE *)g_password->current.integer)
-        {
-            string = g_password->current.string;
-            if (I_strcmp(Info_ValueForKey(userinfo, "password"), string))
+            if (NET_CompareAdr(from, svs.challenges[i].adr) && challenge == svs.challenges[i].challenge)
             {
-                NET_OutOfBandPrint(NS_SERVER, from, "error\nGAME_INVALIDPASSWORD");
-                Com_DPrintf(15, "Rejected connection, invalid password %s\n", Info_ValueForKey(userinfo, "password"));
+                guid = svs.challenges[i].guid;
+                I_strncpyz(authSvPBguid, svs.challenges[i].PBguid, 33);
+                I_strncpyz(clientPBguid, svs.challenges[i].clientPBguid, 33);
+                break;
+            }
+        }
+        if (i == 1024)
+        {
+            NET_OutOfBandPrint(NS_SERVER, from, "error\nEXE_BAD_CHALLENGE");
+            return;
+        }
+        if (svs.challenges[i].firstPing)
+        {
+            ping = svs.challenges[i].firstPing;
+        }
+        else
+        {
+            ping = svs.time - svs.challenges[i].pingTime;
+            svs.challenges[i].firstPing = ping;
+        }
+        Com_Printf(15, "Client %i connecting with %i challenge ping from %s\n", i, ping, NET_AdrToString(from));
+        svs.challenges[i].connected = 1;
+        if (g_password)
+        {
+            if (*(_BYTE *)g_password->current.integer)
+            {
+                string = g_password->current.string;
+                if (I_strcmp(Info_ValueForKey(userinfo, "password"), string))
+                {
+                    NET_OutOfBandPrint(NS_SERVER, from, "error\nGAME_INVALIDPASSWORD");
+                    Com_DPrintf(15, "Rejected connection, invalid password %s\n", Info_ValueForKey(userinfo, "password"));
+                    return;
+                }
+            }
+        }
+
+        if (!Sys_IsLANAddress(from))
+        {
+            if (sv_minPing->current.integer && ping < sv_minPing->current.integer)
+            {
+                NET_OutOfBandPrint(NS_SERVER, from, "error\nEXE_ERR_HIGH_PING_ONLY");
+                Com_DPrintf(15, "Client %i rejected on a too low ping\n", i);
+                return;
+            }
+
+            if (sv_maxPing->current.integer && ping > sv_maxPing->current.integer)
+            {
+                NET_OutOfBandPrint(NS_SERVER, from, "error\nEXE_ERR_LOW_PING_ONLY");
+                Com_DPrintf(15, "Client %i rejected on a too high ping: %i\n", i, ping);
                 return;
             }
         }
     }
-    if (Sys_IsLANAddress(from))
-        goto LABEL_35;
-    if (sv_minPing->current.integer && ping < sv_minPing->current.integer)
+    
+    cl_pb = atoi(Info_ValueForKey(userinfo, "cl_punkbuster"));
+    if (NET_IsLocalAddress(from))
     {
-        NET_OutOfBandPrint(NS_SERVER, from, "error\nEXE_ERR_HIGH_PING_ONLY");
-        Com_DPrintf(15, "Client %i rejected on a too low ping\n", i);
-        return;
+        //v13 = PbAuthClient("localhost", cl_pb, authSvPBguid);
     }
-    if (!sv_maxPing->current.integer || ping <= sv_maxPing->current.integer)
+    else
     {
-    LABEL_35:
-        cl_pb = atoi(Info_ValueForKey(userinfo, "cl_punkbuster"));
-        if (NET_IsLocalAddress(from))
+        fromAddr = NET_AdrToString(from);
+        //v13 = PbAuthClient(fromAddr, cl_pb, authSvPBguid);
+    }
+    //pb_authmsg = v13;
+    //if (v13)
+    //{
+    //    if (!I_strnicmp(pb_authmsg, "error\n", 6))
+    //        NET_OutOfBandPrint(NS_SERVER, from, pb_authmsg);
+    //}
+    //else
+    {
+        i = 0;
+        clients = svs.clients;
+        while (i < com_maxclients->current.integer)
         {
-            //v13 = PbAuthClient("localhost", cl_pb, authSvPBguid);
+            if (clients->header.state
+                && NET_CompareBaseAdr(from, clients->header.netchan.remoteAddress)
+                && (clients->header.netchan.qport == qport || from.port == clients->header.netchan.remoteAddress.port))
+            {
+                v26 = from.port == clients->header.netchan.remoteAddress.port;
+                v24 = clients->header.netchan.qport == qport;
+                Com_Printf(15, "%s:reconnect. same qport: %i, same port: %i\n", NET_AdrToString(from), v24, v26);
+                if (clients->header.state >= CS_CONNECTED)
+                {
+                    NET_OutOfBandPrint(NS_SERVER, from, "error\nEXE_ERR_QPORT");
+                    return;
+                }
+                newcl = clients;
+                goto gotnewcl;
+            }
+            ++i;
+            ++clients;
+        }
+        startIndex = Com_GetPrivateClients();
+        isDemoClient = 0;
+        if (Demo_IsEnabled())
+        {
+            loller = atoi(Info_ValueForKey(userinfo, "loller"));
+            if (from.port == 1773 && loller == qport)
+            {
+                isDemoClient = 1;
+                if (from.type
+                    && !Assert_MyHandler(
+                        "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
+                        1871,
+                        0,
+                        "%s",
+                        "from.type == NA_BOT"))
+                {
+                    __debugbreak();
+                }
+                newcl = svs.clients;
+                goto gotnewcl;
+            }
+            ++startIndex;
+        }
+        newcl = 0;
+        if (Demo_IsEnabled())
+        {
+            if (com_maxclients->current.integer < sv_maxclients->current.integer + 1)
+                integer = com_maxclients->current.integer;
+            else
+                integer = sv_maxclients->current.integer + 1;
+            endIndex = integer;
         }
         else
         {
-            fromAddr = NET_AdrToString(from);
-            //v13 = PbAuthClient(fromAddr, cl_pb, authSvPBguid);
+            endIndex = sv_maxclients->current.integer;
         }
-        //pb_authmsg = v13;
-        //if (v13)
-        //{
-        //    if (!I_strnicmp(pb_authmsg, "error\n", 6))
-        //        NET_OutOfBandPrint(NS_SERVER, from, pb_authmsg);
-        //}
-        //else
+        for (i = startIndex; i < endIndex; ++i)
         {
+            clients = &svs.clients[i];
+            if (!clients->header.state)
+            {
+                newcl = clients;
+                password = Info_ValueForKey(userinfo, "password");
+                clients->reservedSlot = SV_GetSlotForPasswordIfFree(password);
+                break;
+            }
+        }
+        if (!newcl)
+        {
+            password = Info_ValueForKey(userinfo, "password");
+            slot = SV_DropClientForReservedSlot(password);
+            if (slot < 0)
+            {
+                NET_OutOfBandPrint(NS_SERVER, from, "error\nEXE_SERVERISFULL");
+                Com_DPrintf(15, "Rejected a connection. com_maxclients = %d\n", com_maxclients->current.integer);
+                return;
+            }
+            Com_DPrintf(15, "Accepted client for reserved slot %d, welcome!.\n", slot);
+            newcl = &svs.clients[slot];
+            newcl->reservedSlot = slot;
+        }
+        uid = 0;
+        StringToXUID(Info_ValueForKey(userinfo, "bdOnlineUserID"), &uid);
+        if (SV_IsBannedGuid(uid) || SV_IsTempBannedGuid(uid))
+        {
+            NET_OutOfBandPrint(NS_SERVER, from, "error\nPATCH_BANNED_FROM_SERVER");
+            return;
+        }
+        clients->reliableAcknowledge = 0;
+        clients->reliableSequence = 0;
+        Demo_ClientConnected(clients - svs.clients);
+    gotnewcl:
+        tempslot = newcl->reservedSlot;
+        memset((unsigned __int8 *)newcl, 0, sizeof(client_t));
+        newcl->reservedSlot = tempslot;
+        clientNum = newcl - svs.clients;
+        Pregame_ResetDataForClient(clientNum);
+        ent = (gentity_s *)((char *)sv.gentities + clientNum * sv.gentitySize);
+        newcl->gentity = ent;
+        p_s = &ent->s;
+        if (ent->s.clientNum != ent->s.number
+            && !Assert_MyHandler(
+                "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
+                2048,
+                0,
+                "%s",
+                "es->clientNum == es->number"))
+        {
+            __debugbreak();
+        }
+        iassert(!newcl->scriptId);
+#ifdef KISAK_LIVE_SERVICE
+        if (live_service && live_service->current.enabled)
+        {
+            clientChallange = 0;
+            nonce = 0;
+            v17 = Info_ValueForKey(userinfo, "challengeNum");
+            sscanf(v17, "%u", &clientChallange);
+            v18 = Info_ValueForKey(userinfo, "nonce");
+            sscanf(v18, "%u", &nonce);
+            Com_DPrintf(
+                15,
+                "CHALLENGE RESPONSE: Read userID %llu, clientChallenge %u, nonce %u\n",
+                uid,
+                clientChallange,
+                nonce);
+            if (uid && clientChallange && nonce)
+            {
+                v19 = SV_SendClientChallenge(nonce, clientChallange, uid);
+                newcl->dwchallenge = v19;
+                newcl->dw_userID = uid;
+            }
+            else
+            {
+                Com_PrintWarning(15, "Failed to parse userId!\n");
+            }
+        }
+#endif
+        if (!newcl->bIsTestClient && !newcl->bIsDemoClient)
+            newcl->notifyJoin = 1;
+        scriptId = Scr_AllocArray(SCRIPTINSTANCE_SERVER);
+        newcl->scriptId = scriptId;
+        Com_Printf(15, "SV_DirectConnect: %d, 0 -> %d\n", newcl - svs.clients, newcl->scriptId);
+        newcl->challenge = challenge;
+        if (!clients->guid)
+            Com_Printf(15, "Connecting player #%i has a zero GUID\n", clientNum);
+        steamIDStr = Info_ValueForKey(userinfo, "steamid");
+        newcl->steamAuthorized = 0;
+        newcl->steamAuthFailCount = 0;
+        v20 = StringToInt64(steamIDStr);
+        newcl->steamID = v20;
+        Netchan_Setup(
+            NS_SERVER,
+            &newcl->header.netchan,
+            from,
+            qport,
+            newcl->netchanOutgoingBuffer,
+            0x10000,
+            newcl->netchanIncomingBuffer,
+            2048);
+        newcl->voicePacketCount = 0;
+        newcl->sendVoice = 1;
+        I_strncpyz(newcl->userinfo, userinfo, 1024);
+        if (Demo_IsEnabled())
+            newcl->bIsDemoClient = isDemoClient;
+        denied = ClientConnect(clientNum, newcl->scriptId);
+        if (denied)
+        {
+            NET_OutOfBandPrint(NS_SERVER, from, va("error\n%s", denied));
+            Com_DPrintf(15, "Game rejected a connection: %s.\n", denied);
+            SV_FreeClientScriptId(newcl);
+        }
+        else
+        {
+            Com_Printf(
+                15,
+                "Going from CS_FREE to CS_CONNECTED for %s (num %i guid %i)\n",
+                newcl->name,
+                clientNum,
+                newcl->guid);
+            newcl->header.state = CS_CONNECTED;
+            newcl->nextSnapshotTime = svs.time;
+            newcl->lastSnapshotTime = -1;
+            newcl->lastPacketTime = svs.time;
+            newcl->lastConnectTime = svs.time;
+            I_strncpyz(newcl->PBguid, authSvPBguid, 33);
+            I_strncpyz(newcl->clientPBguid, clientPBguid, 33);
+            SV_UserinfoChanged(newcl);
+            svs.challenges[i].firstPing = 0;
+            NET_OutOfBandPrint(NS_SERVER, from, va("connectResponse %s", fs_gameDirVar->current.string));
+            newcl->gamestateMessageNum = -1;
+            SV_BotNameUpdate(Info_ValueForKey(userinfo, "name"));
+            SV_UpdateSplitscreenStateForAddr();
+            count = 0;
             i = 0;
             clients = svs.clients;
             while (i < com_maxclients->current.integer)
             {
-                if (clients->header.state
-                    && NET_CompareBaseAdr(from, clients->header.netchan.remoteAddress)
-                    && (clients->header.netchan.qport == qport || from.port == clients->header.netchan.remoteAddress.port))
-                {
-                    v26 = from.port == clients->header.netchan.remoteAddress.port;
-                    v24 = clients->header.netchan.qport == qport;
-                    Com_Printf(15, "%s:reconnect. same qport: %i, same port: %i\n", NET_AdrToString(from), v24, v26);
-                    if (clients->header.state >= CS_CONNECTED)
-                    {
-                        NET_OutOfBandPrint(NS_SERVER, from, "error\nEXE_ERR_QPORT");
-                        return;
-                    }
-                    newcl = clients;
-                    goto gotnewcl;
-                }
+                if (svs.clients[i].header.state >= CS_CONNECTED)
+                    ++count;
                 ++i;
                 ++clients;
             }
-            startIndex = Com_GetPrivateClients();
-            isDemoClient = 0;
-            if (Demo_IsEnabled())
-            {
-                loller = atoi(Info_ValueForKey(userinfo, "loller"));
-                if (from.port == 1773 && loller == qport)
-                {
-                    isDemoClient = 1;
-                    if (from.type
-                        && !Assert_MyHandler(
-                            "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                            1871,
-                            0,
-                            "%s",
-                            "from.type == NA_BOT"))
-                    {
-                        __debugbreak();
-                    }
-                    newcl = svs.clients;
-                    goto gotnewcl;
-                }
-                ++startIndex;
-            }
-            newcl = 0;
-            if (Demo_IsEnabled())
-            {
-                if (com_maxclients->current.integer < sv_maxclients->current.integer + 1)
-                    integer = com_maxclients->current.integer;
-                else
-                    integer = sv_maxclients->current.integer + 1;
-                endIndex = integer;
-            }
-            else
-            {
-                endIndex = sv_maxclients->current.integer;
-            }
-            for (i = startIndex; i < endIndex; ++i)
-            {
-                clients = &svs.clients[i];
-                if (!clients->header.state)
-                {
-                    newcl = clients;
-                    password = Info_ValueForKey(userinfo, "password");
-                    clients->reservedSlot = SV_GetSlotForPasswordIfFree(password);
-                    break;
-                }
-            }
-            if (!newcl)
-            {
-                password = Info_ValueForKey(userinfo, "password");
-                slot = SV_DropClientForReservedSlot(password);
-                if (slot < 0)
-                {
-                    NET_OutOfBandPrint(NS_SERVER, from, "error\nEXE_SERVERISFULL");
-                    Com_DPrintf(15, "Rejected a connection. com_maxclients = %d\n", com_maxclients->current.integer);
-                    return;
-                }
-                Com_DPrintf(15, "Accepted client for reserved slot %d, welcome!.\n", slot);
-                newcl = &svs.clients[slot];
-                newcl->reservedSlot = slot;
-            }
-            uid = 0;
-            StringToXUID(Info_ValueForKey(userinfo, "bdOnlineUserID"), &uid);
-            if (SV_IsBannedGuid(uid) || SV_IsTempBannedGuid(uid))
-            {
-                NET_OutOfBandPrint(NS_SERVER, from, "error\nPATCH_BANNED_FROM_SERVER");
-                return;
-            }
-            clients->reliableAcknowledge = 0;
-            clients->reliableSequence = 0;
-            Demo_ClientConnected(clients - svs.clients);
-        gotnewcl:
-            tempslot = newcl->reservedSlot;
-            memset((unsigned __int8 *)newcl, 0, sizeof(client_t));
-            newcl->reservedSlot = tempslot;
-            clientNum = newcl - svs.clients;
-            Pregame_ResetDataForClient(clientNum);
-            ent = (gentity_s *)((char *)sv.gentities + clientNum * sv.gentitySize);
-            newcl->gentity = ent;
-            p_s = &ent->s;
-            if (ent->s.clientNum != ent->s.number
-                && !Assert_MyHandler(
-                    "C:\\projects_pc\\cod\\codsrc\\src\\server_mp\\sv_client_mp.cpp",
-                    2048,
-                    0,
-                    "%s",
-                    "es->clientNum == es->number"))
-            {
-                __debugbreak();
-            }
-            iassert(!newcl->scriptId);
-#ifdef KISAK_LIVE_SERVICE
-            if (live_service && live_service->current.enabled)
-            {
-                clientChallange = 0;
-                nonce = 0;
-                v17 = Info_ValueForKey(userinfo, "challengeNum");
-                sscanf(v17, "%u", &clientChallange);
-                v18 = Info_ValueForKey(userinfo, "nonce");
-                sscanf(v18, "%u", &nonce);
-                Com_DPrintf(
-                    15,
-                    "CHALLENGE RESPONSE: Read userID %llu, clientChallenge %u, nonce %u\n",
-                    uid,
-                    clientChallange,
-                    nonce);
-                if (uid && clientChallange && nonce)
-                {
-                    v19 = SV_SendClientChallenge(nonce, clientChallange, uid);
-                    newcl->dwchallenge = v19;
-                    newcl->dw_userID = uid;
-                }
-                else
-                {
-                    Com_PrintWarning(15, "Failed to parse userId!\n");
-                }
-            }
-#endif
-            if (!newcl->bIsTestClient && !newcl->bIsDemoClient)
-                newcl->notifyJoin = 1;
-            scriptId = Scr_AllocArray(SCRIPTINSTANCE_SERVER);
-            newcl->scriptId = scriptId;
-            Com_Printf(15, "SV_DirectConnect: %d, 0 -> %d\n", newcl - svs.clients, newcl->scriptId);
-            newcl->challenge = challenge;
-            if (!clients->guid)
-                Com_Printf(15, "Connecting player #%i has a zero GUID\n", clientNum);
-            steamIDStr = Info_ValueForKey(userinfo, "steamid");
-            newcl->steamAuthorized = 0;
-            newcl->steamAuthFailCount = 0;
-            v20 = StringToInt64(steamIDStr);
-            newcl->steamID = v20;
-            Netchan_Setup(
-                NS_SERVER,
-                &newcl->header.netchan,
-                from,
-                qport,
-                newcl->netchanOutgoingBuffer,
-                0x10000,
-                newcl->netchanIncomingBuffer,
-                2048);
-            newcl->voicePacketCount = 0;
-            newcl->sendVoice = 1;
-            I_strncpyz(newcl->userinfo, userinfo, 1024);
-            if (Demo_IsEnabled())
-                newcl->bIsDemoClient = isDemoClient;
-            denied = ClientConnect(clientNum, newcl->scriptId);
-            if (denied)
-            {
-                NET_OutOfBandPrint(NS_SERVER, from, va("error\n%s", denied));
-                Com_DPrintf(15, "Game rejected a connection: %s.\n", denied);
-                SV_FreeClientScriptId(newcl);
-            }
-            else
-            {
-                Com_Printf(
-                    15,
-                    "Going from CS_FREE to CS_CONNECTED for %s (num %i guid %i)\n",
-                    newcl->name,
-                    clientNum,
-                    newcl->guid);
-                newcl->header.state = CS_CONNECTED;
-                newcl->nextSnapshotTime = svs.time;
-                newcl->lastSnapshotTime = -1;
-                newcl->lastPacketTime = svs.time;
-                newcl->lastConnectTime = svs.time;
-                I_strncpyz(newcl->PBguid, authSvPBguid, 33);
-                I_strncpyz(newcl->clientPBguid, clientPBguid, 33);
-                SV_UserinfoChanged(newcl);
-                svs.challenges[i].firstPing = 0;
-                NET_OutOfBandPrint(NS_SERVER, from, va("connectResponse %s", fs_gameDirVar->current.string));
-                newcl->gamestateMessageNum = -1;
-                SV_BotNameUpdate(Info_ValueForKey(userinfo, "name"));
-                SV_UpdateSplitscreenStateForAddr();
-                count = 0;
-                i = 0;
-                clients = svs.clients;
-                while (i < com_maxclients->current.integer)
-                {
-                    if (svs.clients[i].header.state >= CS_CONNECTED)
-                        ++count;
-                    ++i;
-                    ++clients;
-                }
-                if (count == 1 || count == com_maxclients->current.integer)
-                    SV_Heartbeat_f();
-            }
+            if (count == 1 || count == com_maxclients->current.integer)
+                SV_Heartbeat_f();
         }
-    }
-    else
-    {
-        NET_OutOfBandPrint(NS_SERVER, from, "error\nEXE_ERR_LOW_PING_ONLY");
-        Com_DPrintf(15, "Client %i rejected on a too high ping: %i\n", i, ping);
     }
 }
 
