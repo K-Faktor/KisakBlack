@@ -1,0 +1,54 @@
+# KisakBlack
+
+## About the project
+An open source fully-buildable reimplementation of Call of Duty Black ops's Multi-Player .exe
+
+Aimed towards mod developers and BLOPS enthusiasts.
+
+### Development Blog
+Learn about the Development of KisakBlack here: [https://lwss.github.io/Kisak-Black/](https://lwss.github.io/Kisak-Black/)
+
+## Current Requirements
+- Windows OS
+- Visual Studio 2022
+- CMake >= 3.16
+- [DirectX SDK 2010](https://www.microsoft.com/en-us/download/details.aspx?id=6812)
+- Steam with a copy of [Call of Duty: Black Ops](https://store.steampowered.com/app/42700/Call_of_Duty_Black_Ops/)
+
+
+## How to build
+1) Install the above requirements and Clone repo
+2) create a `/build` folder
+3) `CMAKE .. -G"Visual Studio 17 2022" -DCMAKE_GENERATOR_PLATFORM=WIN32`
+4) Open the generated .sln file
+5) Build Debug or Release (Visual Studio dropdown)
+6) Copy BLOPS Game files to `build/(BUILD_TYPE)/*` (Don't try to cherry-pick them, small files like localization.txt are needed)
+8) Copy `binkw32.dll`, `steam.dll`, `steam_api.dll`, `steamclient.dll`, `tier0_s.dll`, `vpx.dll`, `vstdlib_s.dll` into the folder as well (You can find these in-tree in the respective folders)
+11) Run the game via Visual Studio play button or just the .exe
+
+
+```
+Keep in Mind: This is a ~20 year old game with some known exploits. We will try to fix these as we become aware of them.
+However, there is a non-zero chance of some type of binary exploitation when playing online. Use a sandbox (Sandboxie?) for peace of mind. 
+```
+
+## Known Issues
+(Use the **[issues](https://github.com/SwagSoftware/KisakBlack/issues)** section)
+
+## Troubleshooting
+- ***Can't Connect to Dedicated Server*** :
+  -  Check `net_ip` and `net_port`, the server will increment the port if the preferred one isn't available but the client won't sweep upwards.
+ - ***DLL Error upon launch*** :
+   - You didn't copy over the necessary runtime DLL's
+
+## Credits and Special Thanks
+- ***All Original BLOPS Developers (for creating one of the best games of all time)***
+- https://github.com/SwagSoftware/KisakCOD (Some code re-used)
+- https://github.com/PJayB/jk3src (Jedi Academy fork with .sln)
+- https://github.com/voron00/CoD2rev_Server - Useful yacc code for the gsc scripting here
+- https://github.com/shiversoftdev/BO3Enhanced - Viewed as reference code for some of the Steam API Auth
+- [RAD Game Tools](https://www.radgametools.com/) for their Bink library.
+
+
+## Discord
+[Join the KisakCOD Discord](https://discord.gg/9uqntRWMA3)
