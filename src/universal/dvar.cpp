@@ -2484,55 +2484,23 @@ const dvar_s *__cdecl _Dvar_RegisterColor(
                 unsigned __int16 flags,
                 const char *description)
 {
-    DvarLimits v9; // [esp-14h] [ebp-ACh] BYREF
-    float v10; // [esp+0h] [ebp-98h]
-    float v11; // [esp+4h] [ebp-94h]
-    float v12; // [esp+8h] [ebp-90h]
-    float v13; // [esp+Ch] [ebp-8Ch]
-    float v14; // [esp+24h] [ebp-74h]
-    float v15; // [esp+3Ch] [ebp-5Ch]
-    float v16; // [esp+54h] [ebp-44h]
-    float v17; // [esp+6Ch] [ebp-2Ch]
-    DvarValue dvarValue; // [esp+80h] [ebp-18h]
+    DvarLimits domain;
+    DvarValue dvarValue;
 
-    if ((float)(r - 1.0) < 0.0)
-        v17 = r;
-    else
-        v17 = 1.0f;
-    if ((float)(0.0 - v17) < 0.0)
-        v13 = v17;
-    else
-        v13 = 0.0f;
-    if ((float)(g - 1.0) < 0.0)
-        v16 = g;
-    else
-        v16 = 1.0f;
-    if ((float)(0.0 - v16) < 0.0)
-        v12 = v16;
-    else
-        v12 = 0.0f;
-    if ((float)(b - 1.0) < 0.0)
-        v15 = b;
-    else
-        v15 = 1.0f;
-    if ((float)(0.0 - v15) < 0.0)
-        v11 = v15;
-    else
-        v11 = 0.0f;
-    if ((float)(a - 1.0) < 0.0)
-        v14 = a;
-    else
-        v14 = 1.0f;
-    if ((float)(0.0 - v14) < 0.0)
-        v10 = v14;
-    else
-        v10 = 0.0f;
-    dvarValue.color[3] = (int)((float)((float)(255.0 * v10) + 0.001) + 9.313225746154785e-10);
-    memset(&v9, 0, sizeof(v9));
-    dvarValue.enabled = (int)((float)((float)(255.0 * v13) + 0.001) + 9.313225746154785e-10);
-    dvarValue.color[1] = (int)((float)((float)(255.0 * v12) + 0.001) + 9.313225746154785e-10);
-    dvarValue.color[2] = (int)((float)((float)(255.0 * v11) + 0.001) + 9.313225746154785e-10);
-    return Dvar_RegisterVariant((char*)dvarName, DVAR_TYPE_COLOR, flags, dvarValue, v9, description);
+    // Clamp rgba values to [0.0, 1.0]
+    r = min(1.0f, max(0.0f, r));
+    g = min(1.0f, max(0.0f, g));
+    b = min(1.0f, max(0.0f, b));
+    a = min(1.0f, max(0.0f, a));
+
+    // Convert to 0-255 range, +.5 for rounding
+    dvarValue.color[0] = (int)(r * 255.0f + 0.5f);
+    dvarValue.color[1] = (int)(g * 255.0f + 0.5f);
+    dvarValue.color[2] = (int)(b * 255.0f + 0.5f);
+    dvarValue.color[3] = (int)(a * 255.0f + 0.5f);
+
+    memset(&domain, 0, sizeof(domain));
+    return Dvar_RegisterVariant((char*)dvarName, DVAR_TYPE_COLOR, flags, dvarValue, domain, description);
 }
 
 const dvar_s *__cdecl _Dvar_RegisterLinearRGB(
